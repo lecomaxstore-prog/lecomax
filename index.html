@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lecomax — Official Store</title>
+  <meta name="theme-color" content="#0b1220" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="card-enhancements.css" />
+  <link rel="stylesheet" href="modal.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <div class="topbar__left">
+        <button class="chip" id="langBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span class="chip__text">English</span>
+          <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+             <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="dropdown" id="langMenu" role="listbox" aria-label="Language">
+          <button class="dropdown__item" data-lang="English">English</button>
+          <button class="dropdown__item" data-lang="Français">Français</button>
+          <button class="dropdown__item" data-lang="العربية">العربية</button>
+        </div>
+      </div>
+
+      <div class="topbar__right">
+        <a class="toplink" href="help-center.html">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+          </svg>
+          Support
+        </a>
+        <a class="toplink" href="warranty.html">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Warranty
+        </a>
+        <a class="toplink" href="#stores">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          Stores
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a class="brand" href="#">
+        <img class="brand__logo" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/logo%20of%20lecomax.png" alt="Lecomax Logo" />
+        <span class="brand__text">
+          <span class="brand__name">Lecomax</span>
+          <span class="brand__sub">Official Store</span>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="Main">
+        <div class="nav__group">
+          <button class="nav__btn" data-mega="products" type="button" aria-expanded="false">
+            Products <span class="chev">▾</span>
+          </button>
+          <div class="mega" id="mega-products" role="menu">
+            <div class="mega__grid">
+              <div class="mega__col">
+                <div class="mega__title">Electronics</div>
+                <a class="mega__link" href="#products" data-filter="electronics">Headphones</a>
+                <a class="mega__link" href="#products" data-filter="electronics">Wearables</a>
+                <a class="mega__link" href="#products" data-filter="electronics">Power</a>
+                <a class="mega__link" href="#products" data-filter="electronics">Gaming</a>
+              </div>
+              <div class="mega__col">
+                <div class="mega__title">Fashion</div>
+                <a class="mega__link" href="#products" data-filter="clothing">Clothing</a>
+                <a class="mega__link" href="#products" data-filter="shoes">Shoes</a>
+                <a class="mega__link" href="#products" data-filter="accessories">Backpacks</a>
+              </div>
+              <div class="mega__col">
+                <div class="mega__title">Quick Picks</div>
+                <a class="mega__link" href="#products">New Arrivals</a>
+                <a class="mega__link" href="#products">Best Sellers</a>
+                <a class="mega__link" href="#products">Hot Deals</a>
+              </div>
+              <div class="mega__promo">
+                <div class="promoCard">
+                  <div class="promoCard__badge">NEW</div>
+                  <div class="promoCard__headline">Premium picks, clean design.</div>
+                  <div class="promoCard__text">Electronics • Clothing • Shoes • Backpacks</div>
+                  <a class="btn btn--primary" href="#products">Shop Now</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <a class="nav__link" href="#collections">Collections</a>
+        <a class="nav__link" href="#news">Newsroom</a>
+
+        <div class="nav__group">
+          <button class="nav__btn" data-mega="shopping" type="button" aria-expanded="false">
+            Shopping <span class="chev">▾</span>
+          </button>
+          <div class="mega" id="mega-shopping" role="menu">
+            <div class="mega__grid mega__grid--small">
+              <div class="mega__col">
+                <div class="mega__title">Shopping</div>
+                <a class="mega__link" href="#stores">Exclusive Stores</a>
+                <a class="mega__link" href="#products">Shop Online</a>
+                <a class="mega__link" href="#warranty">Warranty Policy</a>
+              </div>
+              <div class="mega__promo">
+                <div class="promoMini">
+                  <div class="promoMini__kicker">Limited</div>
+                  <div class="promoMini__title">Free Shipping</div>
+                  <div class="promoMini__text">On selected categories this week.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav__group">
+          <button class="nav__btn" data-mega="support" type="button" aria-expanded="false">
+            Support <span class="chev">▾</span>
+          </button>
+          <div class="mega" id="mega-support" role="menu">
+            <div class="mega__grid mega__grid--small">
+              <div class="mega__col">
+                <div class="mega__title">Support</div>
+                <a class="mega__link" href="#support">Help Center</a>
+                <a class="mega__link" href="#support">Authentication</a>
+                <a class="mega__link" href="#warranty">Warranty Policy</a>
+              </div>
+              <div class="mega__promo">
+                <div class="promoMini">
+                  <div class="promoMini__kicker">Fast</div>
+                  <div class="promoMini__title">Order Summary</div>
+                  <div class="promoMini__text">Copy order or connect WhatsApp easily.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="actions">
+        <div class="searchbox" role="search">
+          <input id="q" type="search" placeholder="Search products..." autocomplete="off" />
+          <span class="searchbox__icon">⌕</span>
+        </div>
+        <button class="iconbtn" id="openCart" type="button" aria-label="Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.9">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="badge" id="cartCount">0</span>
+        </button>
+        <button class="burger" id="burger" type="button" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="heroTabs" role="tablist" aria-label="Categories">
+        <button class="heroTab is-active" data-hero-tab="electronics" role="tab">Electronics</button>
+        <button class="heroTab" data-hero-tab="clothing" role="tab">Clothing</button>
+        <button class="heroTab" data-hero-tab="shoes" role="tab">Shoes</button>
+        <button class="heroTab" data-hero-tab="accessories" role="tab">Backpacks</button>
+      </div>
+
+      <div class="heroGrid">
+        <div class="slider" aria-label="Featured">
+          <div class="slider__track" id="sliderTrack"></div>
+          <button class="slider__nav prev" id="prevSlide" aria-label="Previous">‹</button>
+          <button class="slider__nav next" id="nextSlide" aria-label="Next">›</button>
+          <div class="slider__dots" id="sliderDots" aria-label="Dots"></div>
+        </div>
+
+        <aside class="sideCards">
+          <div class="sideCard">
+            <div class="sideCard__kicker">Premium Service</div>
+            <div class="benefit-list">
+              <div class="benefit-item">
+                <span class="benefit-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 14"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                </span>
+                <div>
+                  <div class="benefit-title">Fast Delivery</div>
+                  <div class="benefit-desc">Morocco shipping in 3 days.</div>
+                </div>
+              </div>
+              <div class="benefit-item">
+                <span class="benefit-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                </span>
+                <div>
+                  <div class="benefit-title">Verified Quality</div>
+                  <div class="benefit-desc">1-year official warranty.</div>
+                </div>
+              </div>
+              <div class="benefit-item">
+                <span class="benefit-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                </span>
+                <div>
+                  <div class="benefit-title">Expert Support</div>
+                  <div class="benefit-desc">24/7 Premium assistance.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flash-card">
+            <div class="flash-card__header">
+              <div class="flash-card__badge">FLASH SALE</div>
+              <div class="flash-card__timer">
+                <span>02</span>:<span>14</span>:<span>58</span>
+              </div>
+            </div>
+            
+            <div class="flash-card__content">
+              <div class="flash-card__img">
+                <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/electornic.png" alt="Flash Deal">
+              </div>
+              <div class="flash-card__info">
+                <h3>Wireless ANC Headphones</h3>
+                <div class="flash-card__price">
+                  <span class="new">$49.00</span>
+                  <span class="old">$89.00</span>
+                </div>
+                <div class="flash-card__progress">
+                   <div class="bar" style="width: 75%"></div>
+                </div>
+                <div class="flash-card__stock">Only 4 items left!</div>
+              </div>
+            </div>
+
+            <a class="btn btn--primary w100" href="#products">Grab Deal Now</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight" id="collections">
+    <div class="container">
+      <div class="section__head">
+        <div>
+          <h2>Shop by category</h2>
+          <p class="muted">Headphones • Clothing • Shoes • Backpacks — everything has its place.</p>
+        </div>
+        <a class="btn btn--ghost" href="#products">View all</a>
+      </div>
+
+      <div class="catGrid">
+        <a class="catCard catCard--tech" href="#products" data-jump-filter="electronics">
+          <div class="catCard__top">
+            <span class="catCard__badge">Top</span>
+            <div class="catCard__visual">
+               <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/headphones%20%26%20audio.png" alt="Electronics">
+               <div class="catCard__fab">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+               </div>
+            </div>
+          </div>
+          <div class="catCard__title">Headphones & Audio</div>
+          <div class="catCard__text">ANC • Bass • Clear calls</div>
+          <div class="btn btn--soft" style="width:100%; margin-top:auto;">Shop Electronics</div>
+        </a>
+
+        <a class="catCard catCard--wear" href="#products" data-jump-filter="clothing">
+          <div class="catCard__top">
+            <span class="catCard__badge">New</span>
+            <div class="catCard__visual">
+               <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/clothes%20section%20.jpeg" alt="Clothing">
+               <div class="catCard__fab">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+               </div>
+            </div>
+          </div>
+          <div class="catCard__title">Clothing</div>
+          <div class="catCard__text">Premium basics • Streetwear</div>
+          <div class="btn btn--soft" style="width:100%; margin-top:auto;">Shop Clothing</div>
+        </a>
+
+        <a class="catCard catCard--shoe" href="#products" data-jump-filter="shoes">
+          <div class="catCard__top">
+            <span class="catCard__badge">Best</span>
+            <div class="catCard__visual">
+               <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/shoes%20section.png" alt="Shoes">
+               <div class="catCard__fab">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+               </div>
+            </div>
+          </div>
+          <div class="catCard__title">Shoes</div>
+          <div class="catCard__text">Sneakers • Running • Classic</div>
+          <div class="btn btn--soft" style="width:100%; margin-top:auto;">Shop Shoes</div>
+        </a>
+
+        <a class="catCard catCard--bag" href="#products" data-jump-filter="accessories">
+          <div class="catCard__top">
+            <span class="catCard__badge">Hot</span>
+            <div class="catCard__visual">
+               <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/backpack%20section.png" alt="Backpacks">
+               <div class="catCard__fab">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+               </div>
+            </div>
+          </div>
+          <div class="catCard__title">Backpacks</div>
+          <div class="catCard__text">Daily carry • Travel ready</div>
+          <div class="btn btn--soft" style="width:100%; margin-top:auto;">Shop Backpacks</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="products">
+    <div class="container">
+      <div class="section__head">
+        <div>
+          <h2>Products</h2>
+          <p class="muted">Search, filter, sort — then add to cart.</p>
+        </div>
+
+        <div class="filters">
+          <button class="pillBtn is-active" data-filter-btn="all" type="button">All</button>
+          <button class="pillBtn" data-filter-btn="electronics" type="button">Electronics</button>
+          <button class="pillBtn" data-filter-btn="clothing" type="button">Clothing</button>
+          <button class="pillBtn" data-filter-btn="shoes" type="button">Shoes</button>
+          <button class="pillBtn" data-filter-btn="accessories" type="button">Backpacks</button>
+
+          <select class="select" id="sort" aria-label="Sort">
+            <option value="featured">Featured</option>
+            <option value="price_asc">Price: Low</option>
+            <option value="price_desc">Price: High</option>
+            <option value="rating_desc">Rating</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-wrapper">
+        <button class="nav-arrow nav-arrow--floating prev" id="slideLeft" aria-label="Previous">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        
+        <div class="grid" id="grid"></div>
+        
+        <button class="nav-arrow nav-arrow--floating next" id="slideRight" aria-label="Next">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="news">
+    <div class="container">
+      <div class="section__head">
+        <div>
+          <h2>What people say</h2>
+          <p class="muted">Clean, premium shopping experience.</p>
+        </div>
+      </div>
+
+      <div class="quotes">
+        <!-- Review 1 -->
+        <div class="quote">
+          <div class="quote__stars">
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <div class="quote__title">“Fast delivery & great packaging.”</div>
+          <div class="quote__foot">
+            <div class="quote__avatar" style="background:#e0f2fe; color:#0284c7">S</div>
+            <div>
+              <div class="quote__name">Sarah M.</div>
+              <div class="quote__ver">Verified Buyer</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review 2 -->
+        <div class="quote">
+          <div class="quote__stars">
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <div class="quote__title">“The categories make it super easy to shop.”</div>
+          <div class="quote__foot">
+            <div class="quote__avatar" style="background:#f0fdf4; color:#16a34a">K</div>
+            <div>
+              <div class="quote__name">Karim T.</div>
+              <div class="quote__ver">Verified Buyer</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review 3 -->
+        <div class="quote">
+          <div class="quote__stars">
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <div class="quote__title">“Looks premium and feels professional.”</div>
+          <div class="quote__foot">
+            <div class="quote__avatar" style="background:#fefce8; color:#ca8a04">O</div>
+            <div>
+              <div class="quote__name">Omar L.</div>
+              <div class="quote__ver">Verified Buyer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-card">
+         <div class="contact-card__item">
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+           <span>Visit Our Store</span>
+         </div>
+         <div class="map-embed-container" style="width:100%; max-width:500px; border-radius:18px; overflow:hidden; margin:10px 0 20px; box-shadow:0 8px 30px rgba(0,0,0,0.1); border:1px solid rgba(0,0,0,0.05);">
+           <iframe 
+             src="https://maps.google.com/maps?q=49%20RUE%20IBN%20KHALDON%20SIDI%20BENNOUR&t=&z=15&ie=UTF8&iwloc=&output=embed" 
+             width="100%" height="220" frameborder="0" style="border:0; display:block;" allowfullscreen="" loading="lazy">
+           </iframe>
+           <a href="https://www.google.com/maps/search/?api=1&query=49+RUE+IBN+KHALDON+SIDI+BENNOUR" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; background:#fff; color:#0f172a; padding:12px; font-weight:700; text-decoration:none; border-top:1px solid rgba(0,0,0,0.05); transition:background 0.2s;">
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+             Get Directions
+           </a>
+         </div>
+         
+         <div class="contact-card__actions">
+           <a href="https://wa.me/212699289568" target="_blank" class="btn btn--primary">
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+             +212 699-289568
+           </a>
+           <a href="mailto:lecomaxstore@gmail.com" class="btn btn--ghost">
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+             Email Us
+           </a>
+         </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer" id="support">
+    <div class="container footer__inner">
+      <div class="footBrand">
+        <div class="brand brand--foot">
+          <img class="brand__logo" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/logo%20of%20lecomax.png" alt="Lecomax Logo" />
+          <span class="brand__text">
+            <span class="brand__name">Lecomax</span>
+            <span class="brand__sub">Official Store</span>
+          </span>
+        </div>
+        <p class="muted">© <span id="year"></span> Lecomax. All rights reserved.</p>
+      </div>
+
+      <div class="footCols">
+        <div class="footCol" id="stores">
+          <div class="footCol__title">Shopping</div>
+          <a href="#products">Shop Online</a>
+          <a href="#collections">Collections</a>
+          <a href="warranty.html">Warranty Policy</a>
+        </div>
+        <div class="footCol" id="warranty">
+          <div class="footCol__title">Support</div>
+          <a href="help-center.html">Help Center</a>
+          <a href="authentication.html">Authentication</a>
+          <a href="warranty.html">Warranty</a>
+        </div>
+        <div class="footCol">
+          <div class="footCol__title">Company</div>
+          <a href="about.html">About</a>
+          <a href="newsroom.html">Newsroom</a>
+          <a href="terms.html">Terms</a>
+          <a href="privacy.html">Privacy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__bg" data-close="1"></div>
+    <div class="modal__panel" role="dialog" aria-modal="true">
+      <button class="modal__close" data-close="1" aria-label="Close">✕</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer__bg" data-close="1"></div>
+    <div class="drawer__panel">
+      <div class="drawer__head">
+        <div class="drawer__title">Cart</div>
+        <button class="iconbtn" data-close="1" aria-label="Close">✕</button>
+      </div>
+      <div class="drawer__body" id="cartItems"></div>
+      <div class="drawer__foot">
+        <div class="totals">
+          <span class="muted">Total</span>
+          <strong id="total">$0</strong>
+        </div>
+        <button class="btn btn--primary w100" id="checkout">Checkout</button>
+        <button class="btn btn--ghost w100" id="clearCart">Clear cart</button>
+        <div class="muted tiny">Checkout copies an order summary. You can connect WhatsApp or backend later.</div>
+      </div>
+    </div>
+  </aside>
+
+  <a href="https://wa.me/212699289568" class="whatsapp-float" target="_blank" aria-label="Chat on WhatsApp">
+    <span class="whatsapp-pulse"></span>
+    <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+      <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.334 4.993L2 21.5l4.634-1.215a9.969 9.969 0 0 0 5.378 1.564h.004c5.505 0 9.988-4.478 9.989-9.985.001-2.666-1.037-5.174-2.922-7.06C17.198 2.919 14.69 1.88 12.012 2zm0 18.17a8.164 8.164 0 0 1-4.168-1.144l-.299-.177-3.098.812.827-3.018-.194-.309a8.176 8.176 0 0 1-1.253-4.354c.001-4.503 3.668-8.167 8.177-8.167 2.185 0 4.239.85 5.783 2.395 1.545 1.545 2.394 3.6 2.393 5.786.001 4.502-3.668 8.167-8.172 8.176zm4.476-6.13c-.246-.123-1.455-.718-1.68-.8s-.39-.123-.554.123-.636.8-.78.964-.287.185-.533.062a6.79 6.79 0 0 1-1.996-1.23c-.569-.496-.954-1.108-1.066-1.296-.112-.188-.012-.29.111-.412.111-.111.246-.287.369-.431.123-.143.164-.246.246-.41.082-.164.041-.308-.02-.431-.062-.123-.554-1.334-.76-1.826-.2-.486-.402-.419-.553-.427-.143-.007-.307-.009-.471-.009a.91.91 0 0 0-.656.308c-.226.246-.861.842-.861 2.052 0 1.21 0.882 2.38 1.005 2.544.123.164 1.734 2.648 4.201 3.713 1.673.722 2.013.578 2.373.538.563-.061 1.455-.595 1.66-1.169.205-.574.205-1.066.143-1.169-.061-.102-.225-.164-.471-.287z"/>
+    </svg>
+  </a>
+
+  <div class="product-modal-ent" id="productModal" aria-hidden="true">
+    <div class="product-modal__backdrop" data-close="1"></div>
+    <div class="product-modal__content">
+      <button class="product-modal__close" data-close="1" aria-label="Close">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      
+      <div class="product-view">
+        <div class="product-view__gallery">
+          <div class="product-view__main-img" id="pmImage"></div>
+          <div class="product-view__thumbs">
+            <!-- Thumbs generated by JS -->
+          </div>
+        </div>
+        
+        <div class="product-view__info">
+          <div class="product-view__header">
+            <span class="product-view__badge" id="pmBadge">Flash Deal</span>
+            <div class="product-view__rating">
+              <span id="pmStars">★★★★★</span>
+              <span class="product-view__reviews" id="pmReviews">(128 reviews)</span>
+            </div>
+          </div>
+          
+          <h1 class="product-view__title" id="pmTitle">Product Name</h1>
+          
+          <div class="product-view__price-box">
+            <div class="product-view__price">
+              <span class="current" id="pmPrice">$00.00</span>
+              <span class="old" id="pmOldPrice">$00.00</span>
+            </div>
+            <div class="product-view__discount" id="pmDiscount">-20%</div>
+          </div>
+
+          <p class="product-view__desc" id="pmDesc">Description goes here.</p>
+
+          <div class="product-view__variants">
+            <div class="variant-group">
+              <label>Color</label>
+              <div class="variant-options color-options">
+                <button class="p-color selected" style="--c:#111"></button>
+                <button class="p-color" style="--c:#555"></button>
+                <button class="p-color" style="--c:#888"></button>
+              </div>
+            </div>
+            <div class="variant-group">
+              <label>Size</label>
+              <div class="variant-options size-options">
+                <button class="p-size selected">S</button>
+                <button class="p-size">M</button>
+                <button class="p-size">L</button>
+                <button class="p-size">XL</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="product-view__actions">
+             <div class="qty-selector">
+                <button class="qty-btn" id="pmQtyMinus">-</button>
+                <span class="qty-val" id="pmQty">1</span>
+                <button class="qty-btn" id="pmQtyPlus">+</button>
+             </div>
+             <button class="btn btn--primary btn--lg w100" id="pmAddBtn">
+               <span class="btn__text">Add to Cart</span>
+               <span class="btn__price" id="pmBtnPrice">$00.00</span>
+             </button>
+          </div>
+
+          <div class="product-view__trust">
+            <div class="trust-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <span>2 Year Warranty</span>
+            </div>
+            <div class="trust-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+              <span>Free Express Shipping</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
