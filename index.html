@@ -198,71 +198,97 @@
       <div class="heroGrid">
         <div class="slider" aria-label="Featured">
           <div class="slider__track" id="sliderTrack"></div>
-          <button class="slider__nav prev" id="prevSlide" aria-label="Previous">‹</button>
-          <button class="slider__nav next" id="nextSlide" aria-label="Next">›</button>
           <div class="slider__dots" id="sliderDots" aria-label="Dots"></div>
         </div>
 
         <aside class="sideCards">
-          <div class="sideCard">
-            <div class="sideCard__kicker">Premium Service</div>
-            <div class="benefit-list">
-              <div class="benefit-item">
-                <span class="benefit-icon">
+          <div class="sideCard" style="background:#f8fafc; border:1px solid #e2e8f0; box-shadow:none;">
+            <div class="sideCard__kicker" style="color:#0f172a; font-weight:700; margin-bottom:16px; letter-spacing:-0.02em;">Premium Service</div>
+            <div class="benefit-list" style="display:flex; flex-direction:column; gap:10px;">
+              
+              <div class="benefit-item" style="display:flex; align-items:center; gap:14px; background:#fff; padding:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.03); box-shadow:0 2px 5px rgba(0,0,0,0.02);">
+                <span class="benefit-icon" style="width:42px; height:42px; background:#eff6ff; color:#3b82f6; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 14"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                 </span>
                 <div>
-                  <div class="benefit-title">Fast Delivery</div>
-                  <div class="benefit-desc">Morocco shipping in 3 days.</div>
+                  <div class="benefit-title" style="font-weight:600; font-size:0.95rem; color:#1e293b;">Fast Delivery</div>
+                  <div class="benefit-desc" style="font-size:0.8rem; color:#64748b;">Morocco shipping in 3 days.</div>
                 </div>
               </div>
-              <div class="benefit-item">
-                <span class="benefit-icon">
+
+              <div class="benefit-item" style="display:flex; align-items:center; gap:14px; background:#fff; padding:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.03); box-shadow:0 2px 5px rgba(0,0,0,0.02);">
+                <span class="benefit-icon" style="width:42px; height:42px; background:#f0fdf4; color:#22c55e; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                 </span>
                 <div>
-                  <div class="benefit-title">Verified Quality</div>
-                  <div class="benefit-desc">1-year official warranty.</div>
+                  <div class="benefit-title" style="font-weight:600; font-size:0.95rem; color:#1e293b;">Verified Quality</div>
+                  <div class="benefit-desc" style="font-size:0.8rem; color:#64748b;">1-year official warranty.</div>
                 </div>
               </div>
-              <div class="benefit-item">
-                <span class="benefit-icon">
+
+              <div class="benefit-item" style="display:flex; align-items:center; gap:14px; background:#fff; padding:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.03); box-shadow:0 2px 5px rgba(0,0,0,0.02);">
+                <span class="benefit-icon" style="width:42px; height:42px; background:#fff7ed; color:#ea580c; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 </span>
                 <div>
-                  <div class="benefit-title">Expert Support</div>
-                  <div class="benefit-desc">24/7 Premium assistance.</div>
+                  <div class="benefit-title" style="font-weight:600; font-size:0.95rem; color:#1e293b;">Expert Support</div>
+                  <div class="benefit-desc" style="font-size:0.8rem; color:#64748b;">24/7 Premium assistance.</div>
                 </div>
               </div>
+
             </div>
           </div>
 
-          <div class="flash-card">
-            <div class="flash-card__header">
-              <div class="flash-card__badge">FLASH SALE</div>
-              <div class="flash-card__timer">
+          <div class="flash-card" style="background:#fff; border-radius:24px; box-shadow:0 20px 40px -10px rgba(0,0,0,0.08); padding:24px; border:1px solid rgba(0,0,0,0.04); position:relative; overflow:hidden;">
+            <!-- Soft gradient background effect -->
+            <div style="position:absolute; top:-40px; right:-40px; width:160px; height:160px; background:radial-gradient(circle, rgba(254,226,226,0.5) 0%, rgba(255,255,255,0) 70%); pointer-events:none;"></div>
+
+            <div class="flash-card__header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; position:relative;">
+              <div class="flash-card__badge" style="background:#ef4444; color:white; padding:6px 14px; border-radius:100px; font-weight:700; font-size:0.75rem; letter-spacing:0.05em; display:flex; align-items:center; gap:6px; box-shadow:0 4px 10px rgba(239, 68, 68, 0.25);">
+                <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                FLASH SALE
+              </div>
+              <div class="flash-card__timer" style="font-family:'Courier New', monospace; font-weight:700; color:#ef4444; background:#fef2f2; padding:6px 12px; border-radius:8px; font-size:0.95rem; display:flex; gap:2px; letter-spacing:1px; border:1px solid #fee2e2;">
                 <span>02</span>:<span>14</span>:<span>58</span>
               </div>
             </div>
             
-            <div class="flash-card__content">
-              <div class="flash-card__img">
-                <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/electornic.png" alt="Flash Deal">
+            <div class="flash-card__content" style="position:relative; margin-bottom:24px;">
+              <div style="display:flex; gap:16px;">
+                 <div class="flash-card__img" style="width:100px; height:100px; background:#f8fafc; border-radius:18px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                   <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/genai/genai/black.jpeg" alt="Genai Flash Deal" style="width:85%; height:auto; mix-blend-mode:multiply;">
+                 </div>
+                 <div class="flash-card__info" style="flex:1;">
+                   <h3 style="margin:0 0 8px 0; font-size:1.05rem; color:#1e293b; line-height:1.35; font-weight:600;">Genai Wireless Earbuds</h3>
+                   <div class="flash-card__price" style="display:flex; align-items:baseline; gap:10px; margin-bottom:8px;">
+                     <span class="new" style="font-size:1.35rem; font-weight:800; color:#ef4444;">150 MAD</span>
+                     <span class="old" style="text-decoration:line-through; color:#94a3b8; font-size:0.9rem;">250 MAD</span>
+                   </div>
+                   <!-- Reviews star small -->
+                   <div style="display:flex; align-items:center; gap:4px; font-size:0.75rem; color:#f59e0b; margin-bottom:8px;">
+                      <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                      <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                      <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                      <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                      <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                      <span style="color:#64748b; margin-left:4px;">(24)</span>
+                   </div>
+                 </div>
               </div>
-              <div class="flash-card__info">
-                <h3>Wireless ANC Headphones</h3>
-                <div class="flash-card__price">
-                  <span class="new">49 MAD</span>
-                  <span class="old">89 MAD</span>
+              
+              <!-- Progress separate row -->
+              <div style="margin-top:16px;">
+                <div class="flash-card__progress" style="height:8px; background:#f1f5f9; border-radius:10px; overflow:hidden; margin-bottom:8px;">
+                   <div class="bar" style="width: 75%; height:100%; background:linear-gradient(90deg, #ef4444, #f87171); border-radius:10px;"></div>
                 </div>
-                <div class="flash-card__progress">
-                   <div class="bar" style="width: 75%"></div>
+                <div class="flash-card__stock" style="font-size:0.8rem; color:#64748b; display:flex; justify-content:space-between; font-weight:500;">
+                   <span>Running out fast!</span>
+                   <span style="color:#ef4444; font-weight:700;">Only 4 left</span>
                 </div>
-                <div class="flash-card__stock">Only 4 items left!</div>
               </div>
             </div>
 
-            <a class="btn btn--primary w100" href="#products">Grab Deal Now</a>
+            <a class="btn btn--primary w100" href="product.html?id=genai1" style="display:block; width:100%; text-align:center; background:#3b82f6; color:white; padding:14px; border-radius:14px; font-weight:600; text-decoration:none; transition:all 0.2s; box-shadow:0 4px 14px rgba(59, 130, 246, 0.4);">Grab Deal Now</a>
           </div>
         </aside>
       </div>
@@ -279,65 +305,89 @@
         <a class="btn btn--ghost" href="#products">View all</a>
       </div>
 
-      <div class="catGrid">
-        <a class="catCard catCard--tech" href="#products" data-jump-filter="electronics">
-          <div class="catCard__top">
-            <span class="catCard__badge">Top</span>
-            <div class="catCard__visual">
-               <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/headphones%20%26%20audio.png" alt="Electronics">
-               <div class="catCard__fab">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-               </div>
+      <div class="catGrid" style="gap:24px;">
+        <!-- Card 1: Electronics -->
+        <a class="catCard" href="#products" data-jump-filter="electronics" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border:1px solid #bfdbfe; position:relative; overflow:hidden; min-height:300px; text-decoration:none; padding:28px; border-radius:32px; box-shadow:0 10px 30px -10px rgba(59, 130, 246, 0.2);">
+          <div class="catCard__content" style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <span class="catCard__badge" style="background:#3b82f6; color:white; padding:6px 14px; border-radius:100px; font-weight:700; font-size:0.75rem; letter-spacing:0.05em; box-shadow:0 4px 10px rgba(59, 130, 246, 0.3);">TOP RATED</span>
+            </div>
+            
+            <div style="margin-bottom: auto;">
+              <h3 style="font-size:1.75rem; margin:0 0 10px 0; color:#1e293b; letter-spacing:-0.03em; line-height:1.1;">Headphones<br>& Audio</h3>
+              <p style="margin:0; font-size:1rem; color:#64748b; font-weight:500;">ANC • Bass • Clear calls</p>
+            </div>
+
+            <div style="align-self: flex-start; margin-top: 20px;">
+               <span style="display:inline-flex; align-items:center; gap:8px; font-weight:700; color:#2563eb; font-size:0.95rem; background:rgba(255,255,255,0.6); padding:8px 16px; border-radius:100px; transition:all 0.2s;">
+                 Browse Collection <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+               </span>
             </div>
           </div>
-          <div class="catCard__title">Headphones & Audio</div>
-          <div class="catCard__text">ANC • Bass • Clear calls</div>
-          <div class="btn btn--soft" style="width:100%; margin-top:auto;">Shop Electronics</div>
+          <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/headphones%20%26%20audio.png" alt="Electronics" style="position:absolute; bottom:-10px; right:-20px; width:180px; height:auto; transform:rotate(-10deg); filter:drop-shadow(0 15px 30px rgba(0,0,0,0.15)); pointer-events:none;">
         </a>
 
-        <a class="catCard catCard--wear" href="#products" data-jump-filter="clothing">
-          <div class="catCard__top">
-            <span class="catCard__badge">New</span>
-            <div class="catCard__visual">
-               <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/clothes%20section%20.jpeg" alt="Clothing">
-               <div class="catCard__fab">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-               </div>
+        <!-- Card 2: Clothing -->
+        <a class="catCard" href="#products" data-jump-filter="clothing" style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border:1px solid #ddd6fe; position:relative; overflow:hidden; min-height:300px; text-decoration:none; padding:28px; border-radius:32px; box-shadow:0 10px 30px -10px rgba(139, 92, 246, 0.2);">
+          <div class="catCard__content" style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <span class="catCard__badge" style="background:#8b5cf6; color:white; padding:6px 14px; border-radius:100px; font-weight:700; font-size:0.75rem; letter-spacing:0.05em; box-shadow:0 4px 10px rgba(139, 92, 246, 0.3);">NEW ARRIVALS</span>
+            </div>
+            
+            <div style="margin-bottom: auto;">
+               <h3 style="font-size:1.75rem; margin:0 0 10px 0; color:#1e293b; letter-spacing:-0.03em; line-height:1.1;">Premium<br>Clothing</h3>
+               <p style="margin:0; font-size:1rem; color:#64748b; font-weight:500;">Basics • Streetwear</p>
+            </div>
+
+             <div style="align-self: flex-start; margin-top: 20px;">
+               <span style="display:inline-flex; align-items:center; gap:8px; font-weight:700; color:#7c3aed; font-size:0.95rem; background:rgba(255,255,255,0.6); padding:8px 16px; border-radius:100px; transition:all 0.2s;">
+                 Browse Collection <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+               </span>
             </div>
           </div>
-          <div class="catCard__title">Clothing</div>
-          <div class="catCard__text">Premium basics • Streetwear</div>
-          <div class="btn btn--soft" style="width:100%; margin-top:auto;">Shop Clothing</div>
+          <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/clothes%20section%20.jpeg" alt="Clothing" style="position:absolute; bottom:0; right:-20px; width:160px; height:auto; border-radius:12px; transform:rotate(6deg); box-shadow: -10px 10px 20px rgba(0,0,0,0.05); pointer-events:none;">
         </a>
 
-        <a class="catCard catCard--shoe" href="#products" data-jump-filter="shoes">
-          <div class="catCard__top">
-            <span class="catCard__badge">Best</span>
-            <div class="catCard__visual">
-               <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/shoes%20section.png" alt="Shoes">
-               <div class="catCard__fab">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-               </div>
+        <!-- Card 3: Shoes -->
+        <a class="catCard" href="#products" data-jump-filter="shoes" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border:1px solid #bbf7d0; position:relative; overflow:hidden; min-height:300px; text-decoration:none; padding:28px; border-radius:32px; box-shadow:0 10px 30px -10px rgba(16, 185, 129, 0.2);">
+          <div class="catCard__content" style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <span class="catCard__badge" style="background:#10b981; color:white; padding:6px 14px; border-radius:100px; font-weight:700; font-size:0.75rem; letter-spacing:0.05em; box-shadow:0 4px 10px rgba(16, 185, 129, 0.3);">TRENDING</span>
+            </div>
+            
+            <div style="margin-bottom: auto;">
+               <h3 style="font-size:1.75rem; margin:0 0 10px 0; color:#1e293b; letter-spacing:-0.03em; line-height:1.1;">Shoes &<br>Sneakers</h3>
+               <p style="margin:0; font-size:1rem; color:#64748b; font-weight:500;">Daily run • Comfort</p>
+            </div>
+
+             <div style="align-self: flex-start; margin-top: 20px;">
+               <span style="display:inline-flex; align-items:center; gap:8px; font-weight:700; color:#059669; font-size:0.95rem; background:rgba(255,255,255,0.6); padding:8px 16px; border-radius:100px; transition:all 0.2s;">
+                 Browse Collection <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+               </span>
             </div>
           </div>
-          <div class="catCard__title">Shoes</div>
-          <div class="catCard__text">Sneakers • Running • Classic</div>
-          <div class="btn btn--soft" style="width:100%; margin-top:auto;">Shop Shoes</div>
+          <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/shoes%20section.png" alt="Shoes" style="position:absolute; bottom:-10px; right:-15px; width:170px; height:auto; transform:rotate(-8deg); filter:drop-shadow(0 15px 30px rgba(0,0,0,0.15)); pointer-events:none;">
         </a>
 
-        <a class="catCard catCard--bag" href="#products" data-jump-filter="accessories">
-          <div class="catCard__top">
-            <span class="catCard__badge">Hot</span>
-            <div class="catCard__visual">
-               <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/backpack%20section.png" alt="Backpacks">
-               <div class="catCard__fab">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-               </div>
+        <!-- Card 4: Backpacks -->
+        <a class="catCard" href="#products" data-jump-filter="accessories" style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border:1px solid #fed7aa; position:relative; overflow:hidden; min-height:300px; text-decoration:none; padding:28px; border-radius:32px; box-shadow:0 10px 30px -10px rgba(249, 115, 22, 0.2);">
+          <div class="catCard__content" style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+             <span class="catCard__badge" style="background:#f97316; color:white; padding:6px 14px; border-radius:100px; font-weight:700; font-size:0.75rem; letter-spacing:0.05em; box-shadow:0 4px 10px rgba(249, 115, 22, 0.3);">ESSENTIALS</span>
+            </div>
+            
+            <div style="margin-bottom: auto;">
+               <h3 style="font-size:1.75rem; margin:0 0 10px 0; color:#1e293b; letter-spacing:-0.03em; line-height:1.1;">Backpacks<br>& Bags</h3>
+               <p style="margin:0; font-size:1rem; color:#64748b; font-weight:500;">Travel • Work • Gym</p>
+            </div>
+
+             <div style="align-self: flex-start; margin-top: 20px;">
+               <span style="display:inline-flex; align-items:center; gap:8px; font-weight:700; color:#ea580c; font-size:0.95rem; background:rgba(255,255,255,0.6); padding:8px 16px; border-radius:100px; transition:all 0.2s;">
+                 Browse Collection <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+               </span>
             </div>
           </div>
-          <div class="catCard__title">Backpacks</div>
-          <div class="catCard__text">Daily carry • Travel ready</div>
-          <div class="btn btn--soft" style="width:100%; margin-top:auto;">Shop Backpacks</div>
+          <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/backpack%20section.png" alt="Backpacks" style="position:absolute; bottom:-15px; right:-25px; width:180px; height:auto; transform:rotate(-5deg); filter:drop-shadow(0 15px 30px rgba(0,0,0,0.15)); pointer-events:none;">
         </a>
       </div>
     </div>
