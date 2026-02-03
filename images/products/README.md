@@ -1,1 +1,0 @@
-images/products/README.md
