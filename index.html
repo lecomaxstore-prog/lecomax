@@ -189,10 +189,22 @@
   <section class="hero">
     <div class="container hero__inner">
       <div class="heroTabs" role="tablist" aria-label="Categories">
-        <button class="heroTab is-active" data-hero-tab="electronics" role="tab">Electronics</button>
-        <button class="heroTab" data-hero-tab="clothing" role="tab">Clothing</button>
-        <button class="heroTab" data-hero-tab="shoes" role="tab">Shoes</button>
-        <button class="heroTab" data-hero-tab="accessories" role="tab">Backpacks</button>
+        <button class="heroTab is-active" data-hero-tab="electronics" role="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
+          Electronics
+        </button>
+        <button class="heroTab" data-hero-tab="clothing" role="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.4a2 2 0 0 0-1.2-1.2l-4-2a2 2 0 0 0-2.36.9L12 3.6 11.18 1.1a2 2 0 0 0-2.36-.9l-4 2a2 2 0 0 0-1.2 1.2L3 11a2 2 0 0 0 1.5 2.5L6 14v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8l1.5-.5A2 2 0 0 0 21 11l-.62-7.6z"></path></svg>
+          Clothing
+        </button>
+        <button class="heroTab" data-hero-tab="shoes" role="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="M12 12v9"></path><path d="m16 16-4-4-4 4"></path></svg>
+          Shoes
+        </button>
+        <button class="heroTab" data-hero-tab="accessories" role="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          Backpacks
+        </button>
       </div>
 
       <div class="heroGrid">
@@ -261,8 +273,8 @@
                  <div class="flash-card__info" style="flex:1;">
                    <h3 style="margin:0 0 8px 0; font-size:1.05rem; color:#1e293b; line-height:1.35; font-weight:600;">Genai Wireless Earbuds</h3>
                    <div class="flash-card__price" style="display:flex; align-items:baseline; gap:10px; margin-bottom:8px;">
-                     <span class="new" style="font-size:1.35rem; font-weight:800; color:#ef4444;">150 MAD</span>
-                     <span class="old" style="text-decoration:line-through; color:#94a3b8; font-size:0.9rem;">250 MAD</span>
+                     <span class="new" style="font-size:1.35rem; font-weight:800; color:#ef4444;">149 DH</span>
+                     <span class="old" style="text-decoration:line-through; color:#94a3b8; font-size:0.9rem;">250 DH</span>
                    </div>
                    <!-- Reviews star small -->
                    <div style="display:flex; align-items:center; gap:4px; font-size:0.75rem; color:#f59e0b; margin-bottom:8px;">
@@ -625,7 +637,7 @@
       <div class="drawer__foot">
         <div class="totals">
           <span class="muted">Total</span>
-          <strong id="total">0 MAD</strong>
+          <strong id="total">0 DH</strong>
         </div>
         <button class="btn btn--primary w100" id="checkout">Checkout</button>
         <button class="btn btn--ghost w100" id="clearCart">Clear cart</button>
@@ -681,8 +693,8 @@
           
           <div class="product-view__price-box">
             <div class="product-view__price">
-              <span class="current" id="pmPrice">0.00 MAD</span>
-              <span class="old" id="pmOldPrice">0.00 MAD</span>
+              <span class="current" id="pmPrice">0.00 DH</span>
+              <span class="old" id="pmOldPrice">0.00 DH</span>
             </div>
             <div class="product-view__discount" id="pmDiscount">-20%</div>
           </div>
@@ -717,7 +729,7 @@
              </div>
              <button class="btn btn--primary btn--lg w100" id="pmAddBtn">
                <span class="btn__text">Add to Cart</span>
-               <span class="btn__price" id="pmBtnPrice">0.00 MAD</span>
+               <span class="btn__price" id="pmBtnPrice">0.00 DH</span>
              </button>
           </div>
 

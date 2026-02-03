@@ -80,33 +80,12 @@ function loadVariant(productId){
 }
 
 const PRODUCTS = [
-  {id:"el1", cat:"electronics", name:"Hybrid ANC Earbuds", price:79, old:99, rating:4.7, emoji:"🎧", desc:"Hybrid ANC. Deep bass. Clear calls."},
-  {id:"el2", cat:"electronics", name:"Over‑Ear Headphones", price:89, old:0, rating:4.6, emoji:"🎧", desc:"Comfort fit. Studio sound. Long battery."},
-  {id:"el3", cat:"electronics", name:"Fast Charger 65W", price:29, old:39, rating:4.5, emoji:"⚡", desc:"GaN fast charging for phone & laptop."},
-  {id:"el4", cat:"electronics", name:"Power Bank 20,000mAh", price:35, old:45, rating:4.4, emoji:"🔋", desc:"High capacity, travel-friendly."},
-  {id:"el5", cat:"electronics", name:"Smart Watch AMOLED", price:69, old:89, rating:4.6, emoji:"⌚", desc:"Bright AMOLED. Health tracking. Calls."},
-
-  {id:"cl1", cat:"clothing", name:"Premium Hoodie", price:39, old:49, rating:4.8, emoji:"🧥", desc:"Soft fabric. Modern oversized fit."},
-  {id:"cl2", cat:"clothing", name:"Minimal T‑Shirt", price:19, old:0, rating:4.5, emoji:"👕", desc:"Heavy cotton. Clean silhouette."},
-  {id:"cl3", cat:"clothing", name:"Denim Jacket", price:55, old:0, rating:4.6, emoji:"🧢", desc:"Classic denim with a modern cut."},
-  {id:"cl4", cat:"clothing", name:"Cargo Pants", price:35, old:45, rating:4.4, emoji:"👖", desc:"Utility pockets. Everyday comfort."},
-
-  {id:"sh1", cat:"shoes", name:"Street Sneakers", price:49, old:59, rating:4.7, emoji:"👟", desc:"Cushion sole. All‑day comfort."},
-  {id:"sh2", cat:"shoes", name:"Running Shoes", price:59, old:0, rating:4.6, emoji:"🏃", desc:"Lightweight. Responsive foam."},
-  {id:"sh3", cat:"shoes", name:"Classic Loafers", price:65, old:0, rating:4.3, emoji:"👞", desc:"Smart casual. Premium look."},
-  {id:"sh4", cat:"shoes", name:"Comfort Slides", price:18, old:0, rating:4.2, emoji:"🩴", desc:"Soft and easy for daily wear."},
-
-  {id:"ac1", cat:"accessories", name:"Urban Backpack 22L", price:44, old:0, rating:4.7, emoji:"🎒", desc:"Laptop sleeve + water resistant fabric."},
-  {id:"ac2", cat:"accessories", name:"Travel Backpack 30L", price:59, old:69, rating:4.6, emoji:"🎒", desc:"Perfect for trips. Strong zippers."},
-  {id:"ac3", cat:"accessories", name:"Sling Bag Mini", price:24, old:0, rating:4.4, emoji:"👜", desc:"Compact daily carry for essentials."},
-  {id:"ac4", cat:"accessories", name:"Gym Bag Duffel", price:32, old:0, rating:4.3, emoji:"🧳", desc:"Light, strong, and easy to clean."},
-  
   {
     id: "genai1", 
     cat: "electronics", 
     name: "Genai Wireless Earbuds", 
-    price: 150, 
-    old: 0, 
+    price: 149, 
+    old: 250, 
     rating: 5.0, 
     emoji: "🎧",
     desc: "Noise Cancellation for Calls, Dual Microphones, Automatic Pairing, Quick And Precise Connectivity, Long Standby Time of 5.4 Hours.",
@@ -176,7 +155,7 @@ const PRODUCTS = [
     id: "backpack_vacuum",
     cat: "accessories",
     name: "Vacuum Travel Backpack",
-    price: 1200,
+    price: 1199,
     old: 1500,
     rating: 4.9,
     emoji: "🎒",
@@ -244,31 +223,31 @@ const SLIDES = [
   { tab:"electronics", kicker:"New Arrival", title:"Headphones that feel premium.",
     text:"ANC audio, wearables and power accessories—presented with a clean brand-store experience.",
     image: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/electornic.png",
-    tiles:[{emoji:"🎧", name:"ANC Earbuds", meta:"Deep bass", price:"79 MAD"},
-           {emoji:"⌚", name:"AMOLED Watch", meta:"Health tracking", price:"69 MAD"},
-           {emoji:"⚡", name:"GaN 65W", meta:"Fast charging", price:"29 MAD"},
-           {emoji:"🔋", name:"Power 20k", meta:"All day", price:"35 MAD"}]},
+    tiles:[{emoji:"🎧", name:"ANC Earbuds", meta:"Deep bass", price:"79 DH"},
+           {emoji:"⌚", name:"AMOLED Watch", meta:"Health tracking", price:"69 DH"},
+           {emoji:"⚡", name:"GaN 65W", meta:"Fast charging", price:"29 DH"},
+           {emoji:"🔋", name:"Power 20k", meta:"All day", price:"35 DH"}]},
   { tab:"clothing", kicker:"Best Seller", title:"Clothing with a clean look.",
     text:"Premium basics—hoodies, tees, and denim with a modern fit and quality feel.",
     image: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/clothes.png",
-    tiles:[{emoji:"🧥", name:"Hoodie", meta:"Oversized", price:"39 MAD"},
-           {emoji:"👕", name:"T‑Shirt", meta:"Heavy cotton", price:"19 MAD"},
-           {emoji:"👖", name:"Cargo", meta:"Utility", price:"35 MAD"},
-           {emoji:"🧢", name:"Denim", meta:"Classic", price:"55 MAD"}]},
+    tiles:[{emoji:"🧥", name:"Hoodie", meta:"Oversized", price:"39 DH"},
+           {emoji:"👕", name:"T‑Shirt", meta:"Heavy cotton", price:"19 DH"},
+           {emoji:"👖", name:"Cargo", meta:"Utility", price:"35 DH"},
+           {emoji:"🧢", name:"Denim", meta:"Classic", price:"55 DH"}]},
   { tab:"shoes", kicker:"Trending", title:"Shoes designed for comfort.",
     text:"Sneakers, runners and loafers—easy browsing, fast add-to-cart.",
     image: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/shoes.png",
-    tiles:[{emoji:"👟", name:"Sneakers", meta:"Cushion", price:"49 MAD"},
-           {emoji:"🏃", name:"Running", meta:"Lightweight", price:"59 MAD"},
-           {emoji:"👞", name:"Loafers", meta:"Smart", price:"65 MAD"},
-           {emoji:"🩴", name:"Slides", meta:"Soft", price:"18 MAD"}]},
+    tiles:[{emoji:"👟", name:"Sneakers", meta:"Cushion", price:"49 DH"},
+           {emoji:"🏃", name:"Running", meta:"Lightweight", price:"59 DH"},
+           {emoji:"👞", name:"Loafers", meta:"Smart", price:"65 DH"},
+           {emoji:"🩴", name:"Slides", meta:"Soft", price:"18 DH"}]},
   { tab:"accessories", kicker:"Backpacks", title:"Carry your day in style.",
     text:"Urban and travel backpacks with premium materials and practical pockets.",
     image: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/backpack.png",
-    tiles:[{emoji:"🎒", name:"Urban 22L", meta:"Laptop sleeve", price:"44 MAD"},
-           {emoji:"🎒", name:"Travel 30L", meta:"Water resistant", price:"59 MAD"},
-           {emoji:"👜", name:"Sling Mini", meta:"Essentials", price:"24 MAD"},
-           {emoji:"🧳", name:"Gym Duffel", meta:"Easy clean", price:"32 MAD"}]},
+    tiles:[{emoji:"🎒", name:"Urban 22L", meta:"Laptop sleeve", price:"44 DH"},
+           {emoji:"🎒", name:"Travel 30L", meta:"Water resistant", price:"59 DH"},
+           {emoji:"👜", name:"Sling Mini", meta:"Essentials", price:"24 DH"},
+           {emoji:"🧳", name:"Gym Duffel", meta:"Easy clean", price:"32 DH"}]},
 ];
 
 const state = { 
@@ -666,8 +645,8 @@ function openModal(id){
         </div>
         <div class="muted" style="margin-top:10px;line-height:1.8">${escapeHtml(p.desc)}</div>
         <div class="price" style="margin-top:12px">
-          <strong style="font-size:1.25rem">${p.price} MAD</strong>
-          ${p.old ? `<s>${p.old} MAD</s>` : ``}
+          <strong style="font-size:1.25rem">${p.price} DH</strong>
+          ${p.old ? `<s>${p.old} DH</s>` : ``}
           <span class="rating" style="margin-left:auto">⭐ ${p.rating.toFixed(1)}</span>
         </div>
         <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
@@ -763,7 +742,7 @@ function renderFavs(){
         <button class="iconbtn" onclick="removeFav('${p.id}')" title="Remove" style="width:28px; height:28px; border:none; background:transparent; opacity:0.5;">✕</button>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:8px; border-top:1px dashed rgba(0,0,0,0.05)">
-         <strong style="font-size:0.95rem">${p.price} MAD</strong>
+         <strong style="font-size:0.95rem">${p.price} DH</strong>
          <button class="btn btn--primary btn--small" style="font-size:0.8rem; padding:6px 14px;" onclick="addToCart('${p.id}'); showToast('Moved to Cart'); removeFav('${p.id}'); closeAll(); openDrawer(true);">Add to Cart</button>
       </div>
     </div>
@@ -830,13 +809,13 @@ function renderCart(){
             <span>${qty}</span>
             <button data-inc="${id}">+</button>
           </div>
-          <strong style="font-size:1.1rem">${p.price * qty} MAD</strong>
+          <strong style="font-size:1.1rem">${p.price * qty} DH</strong>
         </div>
       </div>
     `;
   }).join("");
 
-  $("#total").textContent = `${total} MAD`;
+  $("#total").textContent = `${total} DH`;
   $$("[data-del]").forEach(b => b.addEventListener("click", () => { delete state.cart[b.dataset.del]; save(); renderCart(); }));
   $$("[data-dec]").forEach(b => b.addEventListener("click", () => changeQty(b.dataset.dec, -1)));
   $$("[data-inc]").forEach(b => b.addEventListener("click", () => changeQty(b.dataset.inc, +1)));
@@ -853,10 +832,10 @@ function checkout(){
     if (!p) continue;
     const sum = p.price * qty;
     total += sum;
-    lines.push(`${p.name} × ${qty} = ${sum} MAD`);
+    lines.push(`${p.name} × ${qty} = ${sum} DH`);
   }
   lines.push("--------------------");
-  lines.push(`Total: ${total} MAD`);
+  lines.push(`Total: ${total} DH`);
 
   navigator.clipboard.writeText(lines.join("\n")).then(() => {
     // alert("Order copied ✅ Paste it in WhatsApp or send to your team.");
@@ -1143,8 +1122,8 @@ function getCardHTML(p) {
 
         <div class="card__bottom">
           <div class="card__price">
-            ${p.price} MAD
-            ${p.old ? `<s>${p.old} MAD</s>` : ``}
+            ${p.price} DH
+            ${p.old ? `<s>${p.old} DH</s>` : ``}
           </div>
           <button class="btn btn--primary btn--small" type="button" onclick="event.stopPropagation(); addToCart('${p.id}'); showToast('Added to Cart')">
             Add
@@ -1239,11 +1218,11 @@ function openModal(id){
   }
 
   // Price
-  $("#pmPrice").textContent = `${p.price} MAD`;
-  $("#pmBtnPrice").textContent = `${p.price} MAD`;
+  $("#pmPrice").textContent = `${p.price} DH`;
+  $("#pmBtnPrice").textContent = `${p.price} DH`;
   
   if(p.old > 0){
-    $("#pmOldPrice").textContent = `${p.old} MAD`;
+    $("#pmOldPrice").textContent = `${p.old} DH`;
     $("#pmOldPrice").style.display = "inline";
     $("#pmDiscount").style.display = "inline-flex";
     const off = Math.round(((p.old - p.price) / p.old) * 100);

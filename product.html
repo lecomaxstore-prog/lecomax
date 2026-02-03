@@ -14,7 +14,7 @@
     <div class="container announcement__inner">
       <span style="display:flex; align-items:center; gap:8px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-        Free shipping on all orders over 300 MAD
+        Free shipping on all orders over 300 DH
       </span>
       <div class="toplinks">
         <a class="toplink" href="help-center.html">
@@ -77,7 +77,7 @@
       </div>
       <div class="drawer__body" id="cartItems"></div>
       <div class="drawer__foot">
-         <div class="totals"><span class="muted">Total</span><strong id="total">0 MAD</strong></div>
+         <div class="totals"><span class="muted">Total</span><strong id="total">0 DH</strong></div>
          <button class="btn btn--primary w100" id="checkout">Checkout</button>
       </div>
     </div>
@@ -242,8 +242,8 @@
                 <h1 class="product-title">${p.name}</h1>
                 
                 <div class="price-block">
-                    <div class="current-price">${p.price} MAD</div>
-                    ${p.old ? `<div class="old-price">${p.old} MAD</div>` : ''}
+                    <div class="current-price">${p.price} DH</div>
+                    ${p.old ? `<div class="old-price">${p.old} DH</div>` : ''}
                     ${p.old ? `<div class="save-badge">Save ${Math.round(((p.old - p.price)/p.old)*100)}%</div>` : ''}
                 </div>
 
