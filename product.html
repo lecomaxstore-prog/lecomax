@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Details - Lecomax</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement">
+    <div class="container announcement__inner">
+      <span style="display:flex; align-items:center; gap:8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+        Free shipping on all orders over 300 MAD
+      </span>
+      <div class="toplinks">
+        <a class="toplink" href="help-center.html">
+           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> 
+           Support
+        </a>
+        <a class="toplink" href="warranty.html">
+           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+           Warranty
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__name"><span style="color:var(--accent)">L'</span>ECOMAX</span>
+      </a>
+
+      <div class="search-container">
+        <div class="searchbox">
+          <input type="search" placeholder="Search..." disabled style="opacity:0.7">
+          <button class="searchbox__submit" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a href="index.html" class="iconbtn" aria-label="Home">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        </a>
+        <button class="iconbtn" id="openCart" type="button" aria-label="Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span class="badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container" id="product-content">
+      <!-- Content injected by JS -->
+      <div style="padding:100px; text-align:center; color:var(--muted)">Loading product...</div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p class="muted">© <span id="year"></span> Lecomax. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Cart Drawer (Reused structure) -->
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer__bg" data-close="1"></div>
+    <div class="drawer__panel">
+      <div class="drawer__head">
+         <div class="drawer__title">Cart</div>
+         <button class="iconbtn" data-close="1" onclick="closeAll()">✕</button>
+      </div>
+      <div class="drawer__body" id="cartItems"></div>
+      <div class="drawer__foot">
+         <div class="totals"><span class="muted">Total</span><strong id="total">0 MAD</strong></div>
+         <button class="btn btn--primary w100" id="checkout">Checkout</button>
+      </div>
+    </div>
+  </aside>
+
+<script src="app.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if(id) renderProductDetail(id);
+    else showNotFound();
+    
+    // Wire up year
+    const yearEl = document.getElementById("year");
+    if(yearEl) yearEl.textContent = new Date().getFullYear();
+  });
+
+  function showNotFound() {
+      document.getElementById("product-content").innerHTML = "<div style='text-align:center; padding: 60px;'><h2>Product Not Found</h2><br><a href='index.html' class='btn btn--primary'>Continue Shopping</a></div>";
+  }
+
+  function renderProductDetail(id) {
+     const p = PRODUCTS.find(x => x.id === id);
+     if(!p) { showNotFound(); return; }
+     
+     // Color Setup
+     let colorHtml = "";
+     if(p.colors && p.colors.length) {
+         colorHtml = `
+            <div class="pp-section" style="margin-bottom:24px">
+                <div class="pp-label" style="font-weight:600; margin-bottom:8px">Color: <span id="colorName" style="color:var(--muted); font-weight:400">${p.colors[0].name}</span></div>
+                <div class="pp-color-grid" style="display:flex; gap:10px">
+                    ${p.colors.map((c, i) => `
+                        <button class="pp-color-btn ${i===0?'selected':''}" 
+                                style="--color-hex: ${c.hex}; width:32px; height:32px; border-radius:50%; background:var(--color-hex); border:2px solid #fff; box-shadow:0 0 0 1px #ddd; cursor:pointer;" 
+                                onclick="selectColor(this, '${c.img}', '${c.name.replace(/'/g, "\\'")}')"
+                                aria-label="${c.name}">
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+         `;
+     }
+
+     const mainImg = p.images && p.images.length ? p.images[0] : null;
+     const reviewsCount = Math.floor(Math.random() * 800 + 42);
+
+     const html = `
+          <div class="pp-breadcrumbs" style="display:flex; gap:12px; align-items:center; font-size:0.9rem; color:var(--muted); margin-bottom:24px; flex-wrap:wrap">
+             <a href="index.html" style="font-weight:500; color:var(--text)">Home</a> 
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18l6-6-6-6"/></svg>
+             <a href="index.html?cat=${p.cat}" style="font-weight:500; color:var(--text)">${label(p.cat)}</a> 
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18l6-6-6-6"/></svg>
+             <span style="color:var(--text); font-weight:600; opacity:0.8">${p.name}</span>
+          </div>
+
+        <div class="product-page-grid">
+            <!-- Gallery -->
+            <div class="pp-gallery">
+                <div class="pp-main-img">
+                    ${mainImg ? `<img id="ppMainImg" src="${mainImg}" alt="${p.name}">` : `<div style="font-size:6rem">${p.emoji}</div>`}
+                </div>
+                <!-- Clean thumbnail strip with subtle scroll indicator -->
+                <div class="pp-thumbs" style="justify-content: flex-start; overflow-x: auto; padding-bottom: 4px; mask-image: linear-gradient(to right, black 90%, transparent 100%);">
+                    ${p.images ? p.images.map((src, i) => `
+                        <div class="pp-thumb-btn ${i===0?'active':''}" onclick="setMainImage(this, '${src}')">
+                            <img src="${src}" alt="View ${i+1}">
+                        </div>
+                    `).join("") : ""}
+                </div>
+            </div>
+            
+            <!-- Info -->
+            <div class="pp-info">
+                <h1 class="pp-title">${p.name}</h1>
+                
+                <div class="pp-rating-row" style="display:flex; align-items:center; gap:8px; margin: 8px 0 16px;">
+                    <span class="stars" style="color:#fbbf24">★★★★★</span> 
+                    <span style="font-weight:700">${p.rating.toFixed(1)}</span>
+                    <a href="#reviews" class="muted" style="text-decoration:underline">${reviewsCount} Reviews</a>
+                    <span class="muted">•</span>
+                    <span class="muted">${Math.floor(Math.random() * 2000 + 100)} orders</span>
+                </div>
+                
+                <div class="pp-price-lockup">
+                    <span class="pp-current-price" style="font-size:1.8rem; font-weight:800">${p.price} MAD</span>
+                    ${p.old > 0 ? `<span class="pp-old-price" style="text-decoration:line-through; color:var(--muted); margin-left:8px">${p.old} MAD</span>` : ""}
+                </div>
+                ${p.old > 0 ? `<span class="tag" style="background:#fee2e2; color:#ef4444; margin-top:8px; display:inline-block">Hot Sale</span>` : ""}
+
+                <div style="margin: 24px 0; height:1px; background:var(--line)"></div>
+
+                ${colorHtml}
+                
+                <div class="pp-section" style="margin-bottom:24px">
+                    <div class="pp-label" style="font-weight:600; margin-bottom:8px">Quantity</div>
+                    <div class="pp-qty-selector">
+                        <button onclick="updateQty(-1)">−</button>
+                        <input type="number" id="qtyInput" value="1" min="1" readonly>
+                        <button onclick="updateQty(1)">+</button>
+                    </div>
+                </div>
+                
+                <div class="pp-actions">
+                    <button class="btn btn-add-cart" onclick="addToCart('${p.id}', getQty()); showToast('Added to Cart!')">
+                        Add to Cart
+                    </button>
+                    <button class="btn btn--primary btn-buy-now" onclick="addToCart('${p.id}', getQty()); setTimeout(()=> window.location.href='index.html?cart=open', 100)">
+                        Buy Now
+                    </button>
+                </div>
+                
+                <div class="pp-benefits" style="margin-top:32px; display:flex; flex-direction:column; gap:16px;">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🚚</div>
+                        <div>
+                            <div style="font-weight:700">Free Delivery</div>
+                            <div class="muted tiny">On orders over 300 MAD</div>
+                        </div>
+                    </div>
+                     <div class="benefit-item">
+                        <div class="benefit-icon">🛡️</div>
+                        <div>
+                             <div style="font-weight:700">Buyer Protection</div>
+                             <div class="muted tiny">Get full refund if the item is not as described</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pp-desc-container" style="margin-top:40px; padding-top:20px; border-top:1px solid var(--line)">
+                    <h3>Description</h3>
+                    <p style="line-height:1.6; color:var(--muted); margin-bottom:32px">
+                       Noise Cancellation for Calls, Dual Microphones, Automatic Pairing, Quick And Precise Connectivity, Long Standby Time of 5.4 Hours.
+                    </p>
+
+                    <div class="specs-container">
+                        <!-- General -->
+                        <div class="specs-group">
+                            <h4>General</h4>
+                            <div class="spec-row"><span class="spec-key">Product Type</span><span class="spec-val">Wireless Earbuds</span></div>
+                            <div class="spec-row"><span class="spec-key">Brand</span><span class="spec-val">GENAI</span></div>
+                            <div class="spec-row"><span class="spec-key">Model</span><span class="spec-val">TV Series</span></div>
+                            <div class="spec-row"><span class="spec-key">Origin</span><span class="spec-val">Guangdong, China</span></div>
+                            <div class="spec-row"><span class="spec-key">Material</span><span class="spec-val">Plastic</span></div>
+                            <div class="spec-row"><span class="spec-key">Color Options</span><span class="spec-val">Black, White</span></div>
+                        </div>
+
+                        <!-- Features -->
+                        <div class="specs-group">
+                            <h4>Features</h4>
+                            <div class="spec-row"><span class="spec-key">Noise Control</span><span class="spec-val">Active Cancellation</span></div>
+                            <div class="spec-row"><span class="spec-key">Fit</span><span class="spec-val">Lightweight, Semi-open</span></div>
+                            <div class="spec-row"><span class="spec-key">Control</span><span class="spec-val">Touch Control</span></div>
+                            <div class="spec-row"><span class="spec-key">Mic Type</span><span class="spec-val">Condenser</span></div>
+                            <div class="spec-row"><span class="spec-key">Jack</span><span class="spec-val">No Jack</span></div>
+                        </div>
+
+                        <!-- Connectivity -->
+                        <div class="specs-group">
+                            <h4>Connectivity</h4>
+                            <div class="spec-row"><span class="spec-key">Wireless</span><span class="spec-val">Bluetooth 5.3</span></div>
+                            <div class="spec-row"><span class="spec-key">Type</span><span class="spec-val">Fully Wireless (TWS)</span></div>
+                            <div class="spec-row"><span class="spec-key">Compatibility</span><span class="spec-val">Android, iOS</span></div>
+                            <div class="spec-row"><span class="spec-key">Stability</span><span class="spec-val">Fast Pairing</span></div>
+                        </div>
+
+                         <!-- Power -->
+                        <div class="specs-group">
+                            <h4>Power</h4>
+                            <div class="spec-row"><span class="spec-key">Battery</span><span class="spec-val">Li-Polymer</span></div>
+                            <div class="spec-row"><span class="spec-key">Charging Port</span><span class="spec-val">Type-C</span></div>
+                            <div class="spec-row"><span class="spec-key">Max Power</span><span class="spec-val">15W</span></div>
+                            <div class="spec-row"><span class="spec-key">Operating Voltage</span><span class="spec-val">≤36V</span></div>
+                            <div class="spec-row"><span class="spec-key">Case</span><span class="spec-val">Charging Case Included</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+     `;
+     
+     document.getElementById("product-content").innerHTML = html;
+  }
+
+  window.updateQty = function(d) {
+      const inp = document.getElementById("qtyInput");
+      let v = parseInt(inp.value) + d;
+      if(v < 1) v = 1;
+      inp.value = v;
+  };
+  window.getQty = function() {
+      return parseInt(document.getElementById("qtyInput").value) || 1;
+  };
+
+  // Gallery Logic
+  window.setMainImage = function(btn, src) {
+      const img = document.getElementById("ppMainImg");
+      if(img) {
+          img.style.opacity = "0.5";
+          setTimeout(() => {
+              img.src = src;
+              img.style.opacity = "1";
+          }, 150);
+      }
+      
+      document.querySelectorAll(".pp-thumb-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+  };
+
+  // Color Logic
+  window.selectColor = function(btn, imgUrl, colorName) {
+      if(colorName) {
+        const cn = document.getElementById("colorName");
+        if(cn) cn.textContent = colorName;
+      }
+      
+      // Update Selection UI
+      document.querySelectorAll(".pp-color-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      
+      // Update Image if specific image exists for color
+      if(imgUrl && imgUrl !== 'undefined') {
+          // Find matching thumb
+          const thumbs = document.querySelectorAll(".pp-thumb-btn img");
+          let foundThumb = null;
+          thumbs.forEach(t => {
+              if(t.src === imgUrl) foundThumb = t.parentElement;
+          });
+          
+          if(foundThumb) {
+              setMainImage(foundThumb, imgUrl);
+          } else {
+              // Just update main image directly if no thumb
+               const img = document.getElementById("ppMainImg");
+               if(img) img.src = imgUrl;
+          }
+      }
+  };
+  
+  // Reuse helper from app.js if needed, or simple local one is fine
+  function label(cat){
+      return cat.charAt(0).toUpperCase() + cat.slice(1);
+  }
+</script>
+</body>
+</html>

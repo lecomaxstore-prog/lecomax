@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="card-enhancements.css" />
   <link rel="stylesheet" href="modal.css" />
+  <link rel="stylesheet" href="newsletter.css" />
 </head>
 <body>
   <div class="topbar">
@@ -58,15 +59,22 @@
     </div>
   </div>
 
-  <header class="header" id="header">
+  <div id="home-view">
+    <header class="header" id="header">
     <div class="container header__inner">
       <a class="brand" href="#">
-        <img class="brand__logo" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/logo%20of%20lecomax.png" alt="Lecomax Logo" />
-        <span class="brand__text">
-          <span class="brand__name">Lecomax</span>
-          <span class="brand__sub">Official Store</span>
-        </span>
+        <span class="brand__name"><span style="color:var(--accent)">L'</span>ECOMAX</span>
       </a>
+
+      <!-- Full Width Search Layout -->
+      <div class="search-container">
+        <div class="searchbox">
+          <input type="search" id="q" placeholder="Search for products, brands and more..." autocomplete="off">
+          <button class="searchbox__submit" type="button" aria-label="Search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </button>
+        </div>
+      </div>
 
       <nav class="nav" aria-label="Main">
         <div class="nav__group">
@@ -157,10 +165,14 @@
       </nav>
 
       <div class="actions">
-        <div class="searchbox" role="search">
-          <input id="q" type="search" placeholder="Search products..." autocomplete="off" />
-          <span class="searchbox__icon">⌕</span>
-        </div>
+        <button class="iconbtn" id="toggleSearch" type="button" aria-label="Search">
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+        <button class="iconbtn" id="openFav" type="button" aria-label="Favorites">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        </button>
         <button class="iconbtn" id="openCart" type="button" aria-label="Cart">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.9">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -240,8 +252,8 @@
               <div class="flash-card__info">
                 <h3>Wireless ANC Headphones</h3>
                 <div class="flash-card__price">
-                  <span class="new">$49.00</span>
-                  <span class="old">$89.00</span>
+                  <span class="new">49 MAD</span>
+                  <span class="old">89 MAD</span>
                 </div>
                 <div class="flash-card__progress">
                    <div class="bar" style="width: 75%"></div>
@@ -356,15 +368,9 @@
       </div>
 
       <div class="grid-wrapper">
-        <button class="nav-arrow nav-arrow--floating prev" id="slideLeft" aria-label="Previous">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-        </button>
         
         <div class="grid" id="grid"></div>
         
-        <button class="nav-arrow nav-arrow--floating next" id="slideRight" aria-label="Next">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </button>
       </div>
     </div>
   </section>
@@ -468,6 +474,36 @@
     </div>
   </section>
 
+  <section class="newsletter">
+    <div class="container newsletter__inner">
+      <div class="newsletter__content">
+        <div class="newsletter__icon">✉️</div>
+        <h3>Join the Club</h3>
+        <p>Get exclusive access to new drops and secret sales.</p>
+        <form class="newsletter__form" onsubmit="event.preventDefault(); alert('Thanks for subscribing!');">
+          <div class="input-group">
+            <input type="email" class="newsletter__input" placeholder=" " required />
+            <label class="floating-label">Enter your email</label>
+          </div>
+          <button type="submit" class="btn btn--glow">Subscribe</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  </div><!-- End Home View -->
+  
+  <!-- Product Detail Page View (Hidden by default) -->
+  <div id="product-page-view" class="product-page-view" style="display:none; padding-top:40px; padding-bottom:80px; min-height:80vh;">
+      <div class="container">
+          <button onclick="closeProductPage()" class="btn btn--ghost" style="margin-bottom:20px; display:inline-flex; align-items:center; gap:8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back to Home
+          </button>
+          <div id="product-page-content"></div>
+      </div>
+  </div>
+
   <footer class="footer" id="support">
     <div class="container footer__inner">
       <div class="footBrand">
@@ -518,18 +554,30 @@
     <div class="drawer__panel">
       <div class="drawer__head">
         <div class="drawer__title">Cart</div>
-        <button class="iconbtn" data-close="1" aria-label="Close">✕</button>
+        <button class="iconbtn" data-close="1" aria-label="Close" onclick="closeAll()">✕</button>
       </div>
       <div class="drawer__body" id="cartItems"></div>
       <div class="drawer__foot">
         <div class="totals">
           <span class="muted">Total</span>
-          <strong id="total">$0</strong>
+          <strong id="total">0 MAD</strong>
         </div>
         <button class="btn btn--primary w100" id="checkout">Checkout</button>
         <button class="btn btn--ghost w100" id="clearCart">Clear cart</button>
         <div class="muted tiny">Checkout copies an order summary. You can connect WhatsApp or backend later.</div>
       </div>
+    </div>
+  </aside>
+
+  <!-- Favorites Drawer -->
+  <aside class="drawer" id="favDrawer" aria-hidden="true">
+    <div class="drawer__bg" data-close="1"></div>
+    <div class="drawer__panel">
+      <div class="drawer__head">
+        <div class="drawer__title">Favorites</div>
+        <button class="iconbtn" data-close="1" aria-label="Close" onclick="closeAll()">✕</button>
+      </div>
+      <div class="drawer__body" id="favItems"></div>
     </div>
   </aside>
 
@@ -543,7 +591,7 @@
   <div class="product-modal-ent" id="productModal" aria-hidden="true">
     <div class="product-modal__backdrop" data-close="1"></div>
     <div class="product-modal__content">
-      <button class="product-modal__close" data-close="1" aria-label="Close">
+      <button class="product-modal__close" data-close="1" aria-label="Close" onclick="closeAll()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
       
@@ -568,8 +616,8 @@
           
           <div class="product-view__price-box">
             <div class="product-view__price">
-              <span class="current" id="pmPrice">$00.00</span>
-              <span class="old" id="pmOldPrice">$00.00</span>
+              <span class="current" id="pmPrice">0.00 MAD</span>
+              <span class="old" id="pmOldPrice">0.00 MAD</span>
             </div>
             <div class="product-view__discount" id="pmDiscount">-20%</div>
           </div>
@@ -604,7 +652,7 @@
              </div>
              <button class="btn btn--primary btn--lg w100" id="pmAddBtn">
                <span class="btn__text">Add to Cart</span>
-               <span class="btn__price" id="pmBtnPrice">$00.00</span>
+               <span class="btn__price" id="pmBtnPrice">0.00 MAD</span>
              </button>
           </div>
 
@@ -624,6 +672,11 @@
     </div>
   </div>
 
+  <button id="backToTop" aria-label="Back to top">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path></svg>
+  </button>
+
+  <script src="interactions.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

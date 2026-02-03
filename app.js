@@ -2,6 +2,83 @@
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
+
+/* ===== PRO helpers: deterministic random + reviews + stars ===== */
+function hashStr(str){
+  let h = 2166136261;
+  for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h>>>0);
+}
+function pseudoRand(seed){
+  // mulberry32
+  let t = seed >>> 0;
+  return function(){
+    t += 0x6D2B79F5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function starIcons(rating){
+  const full = Math.floor(rating);
+  const half = (rating - full) >= 0.5 ? 1 : 0;
+  const empty = 5 - full - half;
+  const star = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01z"/></svg>';
+  const halfStar = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77V2z"/><path d="M12 18.77L5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2v16.77z" fill="rgba(255,255,255,.25)"/></svg>';
+  const emptyStar = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01z"/></svg>';
+  return `<span class="stars">${star.repeat(full)}${half?halfStar:""}${emptyStar.repeat(empty)}</span>`;
+}
+function getFakeReviews(productId, cat){
+  const names = ["Yassine","Sara","Othman","Imane","Hamza","Aya","Sofiane","Nora","Ilyas","Kawtar","Hind","Mehdi","Salma","Anas","Rania","Walid"];
+  const tags = ["Fast delivery","Great quality","Worth it","Looks premium","Perfect fit","Super sound","Very comfortable","Good packaging"];
+  const texts = {
+    electronics: [
+      "Sound is clean and the bass is surprisingly strong. Battery is solid for daily use.",
+      "Pairs quickly and calls are clear. The case feels premium for this price.",
+      "Comfortable in the ear and stable. I use it every day for the gym.",
+      "For the price, it's excellent. Noise isolation is good and volume is strong."
+    ],
+    clothing: [
+      "Nice fabric and clean stitching. Fits well and looks expensive.",
+      "Very comfortable and the size is accurate. Looks great in real life.",
+      "Quality is better than expected. Perfect for daily wear.",
+      "Great style and finishing. I will order another color."
+    ],
+    shoes: [
+      "Very comfortable and lightweight. Looks great with casual outfits.",
+      "Good grip and solid build. Great value for money.",
+      "The design is clean and premium. Fits perfectly.",
+      "Comfort level is excellent. I can wear it for hours."
+    ],
+    accessories: [
+      "Strong materials and a clean design. Perfect for everyday use.",
+      "Looks premium and the zippers feel smooth. Very practical.",
+      "Great size and comfortable to carry. Quality is top.",
+      "Really stylish and well made. I recommend it."
+    ]
+  };
+  const rnd = pseudoRand(hashStr(productId));
+  const list = [];
+  for(let i=0;i<10;i++){
+    const rating = 4 + Math.round(rnd()*10)/10; // 4.0 - 5.0
+    const name = names[Math.floor(rnd()*names.length)];
+    const tag = tags[Math.floor(rnd()*tags.length)];
+    const tarr = texts[cat] || texts.electronics;
+    const text = tarr[Math.floor(rnd()*tarr.length)];
+    const daysAgo = 2 + Math.floor(rnd()*120);
+    const d = new Date(Date.now() - daysAgo*24*3600*1000);
+    const date = d.toLocaleDateString(undefined, {year:"numeric", month:"short", day:"2-digit"});
+    list.push({name, rating: Math.min(5, Math.max(4, rating)), tag, text, date});
+  }
+  return list;
+}
+function saveVariant(productId, data){
+  try{ localStorage.setItem("lc_variant_"+productId, JSON.stringify(data)); }catch(e){}
+}
+function loadVariant(productId){
+  try{ return JSON.parse(localStorage.getItem("lc_variant_"+productId)||"null"); }catch(e){ return null; }
+}
+
 const PRODUCTS = [
   {id:"el1", cat:"electronics", name:"Hybrid ANC Earbuds", price:79, old:99, rating:4.7, emoji:"🎧", desc:"Hybrid ANC. Deep bass. Clear calls."},
   {id:"el2", cat:"electronics", name:"Over‑Ear Headphones", price:89, old:0, rating:4.6, emoji:"🎧", desc:"Comfort fit. Studio sound. Long battery."},
@@ -23,37 +100,59 @@ const PRODUCTS = [
   {id:"ac2", cat:"accessories", name:"Travel Backpack 30L", price:59, old:69, rating:4.6, emoji:"🎒", desc:"Perfect for trips. Strong zippers."},
   {id:"ac3", cat:"accessories", name:"Sling Bag Mini", price:24, old:0, rating:4.4, emoji:"👜", desc:"Compact daily carry for essentials."},
   {id:"ac4", cat:"accessories", name:"Gym Bag Duffel", price:32, old:0, rating:4.3, emoji:"🧳", desc:"Light, strong, and easy to clean."},
+  
+  {
+    id: "genai1", 
+    cat: "electronics", 
+    name: "Genai Wireless Earbuds", 
+    price: 150, 
+    old: 0, 
+    rating: 5.0, 
+    emoji: "🎧",
+    desc: "Noise Cancellation for Calls, Dual Microphones, Automatic Pairing, Quick And Precise Connectivity, Long Standby Time of 5.4 Hours.",
+    images: [
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/genai/genai/black.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/genai/genai/white%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/genai/genai/info%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/genai/genai/ergonomic%20design.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/genai/genai/diaphragm%20unit.jpeg"
+    ],
+    colors: [
+      {name: "Black", hex: "#000000", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/genai/genai/black.jpeg"},
+      {name: "White", hex: "#ffffff", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/genai/genai/white%20.jpeg"}
+    ]
+  }
 ];
 
 const SLIDES = [
   { tab:"electronics", kicker:"New Arrival", title:"Headphones that feel premium.",
     text:"ANC audio, wearables and power accessories—presented with a clean brand-store experience.",
     image: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/electornic.png",
-    tiles:[{emoji:"🎧", name:"ANC Earbuds", meta:"Deep bass", price:"$79"},
-           {emoji:"⌚", name:"AMOLED Watch", meta:"Health tracking", price:"$69"},
-           {emoji:"⚡", name:"GaN 65W", meta:"Fast charging", price:"$29"},
-           {emoji:"🔋", name:"Power 20k", meta:"All day", price:"$35"}]},
+    tiles:[{emoji:"🎧", name:"ANC Earbuds", meta:"Deep bass", price:"79 MAD"},
+           {emoji:"⌚", name:"AMOLED Watch", meta:"Health tracking", price:"69 MAD"},
+           {emoji:"⚡", name:"GaN 65W", meta:"Fast charging", price:"29 MAD"},
+           {emoji:"🔋", name:"Power 20k", meta:"All day", price:"35 MAD"}]},
   { tab:"clothing", kicker:"Best Seller", title:"Clothing with a clean look.",
     text:"Premium basics—hoodies, tees, and denim with a modern fit and quality feel.",
     image: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/clothes.png",
-    tiles:[{emoji:"🧥", name:"Hoodie", meta:"Oversized", price:"$39"},
-           {emoji:"👕", name:"T‑Shirt", meta:"Heavy cotton", price:"$19"},
-           {emoji:"👖", name:"Cargo", meta:"Utility", price:"$35"},
-           {emoji:"🧢", name:"Denim", meta:"Classic", price:"$55"}]},
+    tiles:[{emoji:"🧥", name:"Hoodie", meta:"Oversized", price:"39 MAD"},
+           {emoji:"👕", name:"T‑Shirt", meta:"Heavy cotton", price:"19 MAD"},
+           {emoji:"👖", name:"Cargo", meta:"Utility", price:"35 MAD"},
+           {emoji:"🧢", name:"Denim", meta:"Classic", price:"55 MAD"}]},
   { tab:"shoes", kicker:"Trending", title:"Shoes designed for comfort.",
     text:"Sneakers, runners and loafers—easy browsing, fast add-to-cart.",
     image: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/shoes.png",
-    tiles:[{emoji:"👟", name:"Sneakers", meta:"Cushion", price:"$49"},
-           {emoji:"🏃", name:"Running", meta:"Lightweight", price:"$59"},
-           {emoji:"👞", name:"Loafers", meta:"Smart", price:"$65"},
-           {emoji:"🩴", name:"Slides", meta:"Soft", price:"$18"}]},
+    tiles:[{emoji:"👟", name:"Sneakers", meta:"Cushion", price:"49 MAD"},
+           {emoji:"🏃", name:"Running", meta:"Lightweight", price:"59 MAD"},
+           {emoji:"👞", name:"Loafers", meta:"Smart", price:"65 MAD"},
+           {emoji:"🩴", name:"Slides", meta:"Soft", price:"18 MAD"}]},
   { tab:"accessories", kicker:"Backpacks", title:"Carry your day in style.",
     text:"Urban and travel backpacks with premium materials and practical pockets.",
     image: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/backpack.png",
-    tiles:[{emoji:"🎒", name:"Urban 22L", meta:"Laptop sleeve", price:"$44"},
-           {emoji:"🎒", name:"Travel 30L", meta:"Water resistant", price:"$59"},
-           {emoji:"👜", name:"Sling Mini", meta:"Essentials", price:"$24"},
-           {emoji:"🧳", name:"Gym Duffel", meta:"Easy clean", price:"$32"}]},
+    tiles:[{emoji:"🎒", name:"Urban 22L", meta:"Laptop sleeve", price:"44 MAD"},
+           {emoji:"🎒", name:"Travel 30L", meta:"Water resistant", price:"59 MAD"},
+           {emoji:"👜", name:"Sling Mini", meta:"Essentials", price:"24 MAD"},
+           {emoji:"🧳", name:"Gym Duffel", meta:"Easy clean", price:"32 MAD"}]},
 ];
 
 const state = { 
@@ -85,97 +184,150 @@ function toggleFav(id, btn){
 init();
 
 function init(){
-  $("#year").textContent = new Date().getFullYear();
+  const yearEl = $("#year");
+  if(yearEl) yearEl.textContent = new Date().getFullYear();
 
   const langBtn = $("#langBtn");
   const langMenu = $("#langMenu");
-  langBtn.addEventListener("click", () => {
-    const show = !langMenu.classList.contains("show");
-    langMenu.classList.toggle("show", show);
-    langBtn.setAttribute("aria-expanded", String(show));
-  });
-  $$("#langMenu .dropdown__item").forEach(btn => btn.addEventListener("click", () => {
-    const textSpan = langBtn.querySelector(".chip__text");
-    if(textSpan) textSpan.textContent = btn.dataset.lang;
-    else langBtn.innerText = btn.dataset.lang; // Fallback
-    
-    langMenu.classList.remove("show");
-    langBtn.setAttribute("aria-expanded","false");
-  }));
+  if(langBtn && langMenu){
+      langBtn.addEventListener("click", () => {
+        const show = !langMenu.classList.contains("show");
+        langMenu.classList.toggle("show", show);
+        langBtn.setAttribute("aria-expanded", String(show));
+      });
+      $$("#langMenu .dropdown__item").forEach(btn => btn.addEventListener("click", () => {
+        const textSpan = langBtn.querySelector(".chip__text");
+        if(textSpan) textSpan.textContent = btn.dataset.lang;
+        else langBtn.innerText = btn.dataset.lang; 
+        
+        langMenu.classList.remove("show");
+        langBtn.setAttribute("aria-expanded","false");
+      }));
+  }
 
   setupMegaMenus();
 
-  $("#burger").addEventListener("click", () => {
-    const nav = $(".nav");
-    const isOpen = nav.classList.contains("open"); 
-    
-    if (isOpen) {
-      nav.style.display = "none";
-      nav.classList.remove("open");
-    } else {
-      nav.style.display = "flex";
-      // Styles are now handled by CSS .nav class in media query
-      // Clearing inline styles that might interfere with CSS
-      nav.style.flexDirection = ""; 
-      nav.style.alignItems = "";
-      nav.style.gap = "";
-      nav.style.position = "";
-      nav.style.top = "";
-      nav.style.left = "";
-      nav.style.width = "";
-      nav.style.padding = "";
-      nav.style.border = "";
-      nav.style.borderRadius = "";
-      nav.style.background = "";
-      nav.style.backdropFilter = "";
-      
-      nav.classList.add("open");
+  if($("#burger")) {
+      $("#burger").addEventListener("click", () => {
+        const nav = $(".nav");
+        if(!nav) return;
+        const isOpen = nav.classList.contains("open"); 
+        
+        if (isOpen) {
+          nav.style.display = "none";
+          nav.classList.remove("open");
+        } else {
+          nav.style.display = "flex";
+          nav.style.flexDirection = ""; 
+          nav.style.alignItems = "";
+          nav.style.gap = "";
+          nav.style.position = "";
+          nav.style.top = "";
+          nav.style.left = "";
+          nav.style.width = "";
+          nav.style.padding = "";
+          nav.style.border = "";
+          nav.style.borderRadius = "";
+          nav.style.background = "";
+          nav.style.backdropFilter = "";
+          
+          nav.classList.add("open");
+        }
+      });
+  }
+
+  if($("#q")) $("#q").addEventListener("input", (e) => { state.q = e.target.value.trim().toLowerCase(); renderGrid(); });
+
+  // View toggle (grid / row)
+  const vg = $("#viewGrid");
+  const vr = $("#viewRow");
+  const gridEl = $("#grid");
+  const savedView = (function(){ try{return localStorage.getItem("lc_view")||"grid";}catch(e){return "grid";} })();
+  setView(savedView);
+  if(vg && vr){
+    vg.addEventListener("click", () => setView("grid"));
+    vr.addEventListener("click", () => setView("row"));
+  }
+  function setView(mode){
+    if(!gridEl) return;
+    try{ localStorage.setItem("lc_view", mode); }catch(e){}
+    if(vg) vg.classList.toggle("is-active", mode==="grid");
+    if(vr) vr.classList.toggle("is-active", mode==="row");
+    gridEl.classList.toggle("is-row", mode==="row");
+  }
+
+  if($("[data-jump-filter]")) $$("[data-jump-filter]").forEach(a => a.addEventListener("click", () => setFilter(a.dataset.jumpFilter)));
+  if($("[data-filter-btn]")) $$("[data-filter-btn]").forEach(b => b.addEventListener("click", () => setFilter(b.dataset.filterBtn)));
+
+  if($("#sort")) $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; renderGrid(); });
+
+  if($("#openCart")) $("#openCart").addEventListener("click", () => openDrawer(true));
+  if($("#openFav")) $("#openFav").addEventListener("click", () => openFavDrawer(true));
+  
+  if($("#toggleSearch")) $("#toggleSearch").addEventListener("click", () => {
+    const search = $(".search-container");
+    if(search) {
+        const isShow = search.classList.toggle("show");
+        if(isShow) {
+           const inp = search.querySelector("input");
+           if(inp) {
+             inp.value = ""; 
+             setTimeout(() => inp.focus(), 150); 
+           }
+        }
     }
   });
 
-  $("#q").addEventListener("input", (e) => { state.q = e.target.value.trim().toLowerCase(); renderGrid(); });
+  if($("#clearCart")) $("#clearCart").addEventListener("click", () => { state.cart = {}; save(); renderCart(); });
+  if($("#checkout")) $("#checkout").addEventListener("click", () => checkout());
 
-  $$("[data-jump-filter]").forEach(a => a.addEventListener("click", () => setFilter(a.dataset.jumpFilter)));
-  $$("[data-filter-btn]").forEach(b => b.addEventListener("click", () => setFilter(b.dataset.filterBtn)));
-
-  $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; renderGrid(); });
-
-  $("#openCart").addEventListener("click", () => openDrawer(true));
-  $("#clearCart").addEventListener("click", () => { state.cart = {}; save(); renderCart(); });
-  $("#checkout").addEventListener("click", () => checkout());
-
-  document.addEventListener("click", (e) => { if (e.target.closest("[data-close='1']")) closeAll(); });
+  document.addEventListener("click", (e) => { 
+      if (e.target.closest("[data-close='1']")) closeAll(); 
+      
+      const inSearch = e.target.closest(".search-container") || e.target.closest("#toggleSearch");
+      if (!inSearch) {
+          const s = $(".search-container");
+          if(s && s.classList.contains("show")) s.classList.remove("show");
+      }
+      
+      const inLang = e.target.closest("#langBtn") || e.target.closest("#langMenu");
+      if (!inLang && $("#langMenu") && $("#langBtn")) { $("#langMenu").classList.remove("show"); $("#langBtn").setAttribute("aria-expanded","false"); }
+  });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAll(); });
 
-  $$("[data-hero-tab]").forEach(btn => btn.addEventListener("click", () => {
-    $$("[data-hero-tab]").forEach(x => x.classList.remove("is-active"));
-    btn.classList.add("is-active");
-    state.heroTab = btn.dataset.heroTab;
-    const idx = SLIDES.findIndex(s => s.tab === state.heroTab);
-    state.slideIndex = idx >= 0 ? idx : 0;
-    updateSlider();
-    resetAutoPlay();
-  }));
+  if($("#grid")) {
+      $$("[data-hero-tab]").forEach(btn => btn.addEventListener("click", () => {
+        $$("[data-hero-tab]").forEach(x => x.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        state.heroTab = btn.dataset.heroTab;
+        const idx = SLIDES.findIndex(s => s.tab === state.heroTab);
+        state.slideIndex = idx >= 0 ? idx : 0;
+        updateSlider();
+        resetAutoPlay();
+      }));
 
-  $("#prevSlide").addEventListener("click", () => {
-    state.slideIndex = (state.slideIndex - 1 + SLIDES.length) % SLIDES.length;
-    updateSlider();
-    resetAutoPlay();
-  });
-  $("#nextSlide").addEventListener("click", () => {
-    state.slideIndex = (state.slideIndex + 1) % SLIDES.length;
-    updateSlider();
-    resetAutoPlay();
-  });
+      if($("#prevSlide")) $("#prevSlide").addEventListener("click", () => {
+        state.slideIndex = (state.slideIndex - 1 + SLIDES.length) % SLIDES.length;
+        updateSlider();
+        resetAutoPlay();
+      });
+      if($("#nextSlide")) $("#nextSlide").addEventListener("click", () => {
+        state.slideIndex = (state.slideIndex + 1) % SLIDES.length;
+        updateSlider();
+        resetAutoPlay();
+      });
 
-  countUp();
-  initSlider();
-  updateSlider();
-  renderGrid();
+      countUp();
+      initSlider();
+      updateSlider();
+      renderGrid();
+  }
+  
   renderCart();
 
-  startAutoPlay();
-  startProductTicker(); // Start the product scroll
+  // startProductTicker(); // Optional: Auto-scroll textual ticker style if desired. 
+  // Disabling auto-ticker for now to let manual buttons work cleanly without fighting.
+  // If you want auto-scroll, uncomment it, but ensure it pauses on wrapper hover.
 
   document.addEventListener("click", (e) => {
     const inLang = e.target.closest("#langBtn") || e.target.closest("#langMenu");
@@ -183,22 +335,22 @@ function init(){
   });
 }
 
+
+
 function startProductTicker() {
   const grid = $("#grid");
-  let scrollSpeed = 0.5; // pixel per tick
+  const wrapper = $(".grid-wrapper") || grid; // Use wrapper if exists
+  let scrollSpeed = 0.5; 
   let isHovered = false;
 
-  grid.addEventListener("mouseenter", () => isHovered = true);
-  grid.addEventListener("mouseleave", () => isHovered = false);
-  grid.addEventListener("touchstart", () => isHovered = true);
-  grid.addEventListener("touchend", () => setTimeout(() => isHovered = false, 2000));
+  wrapper.addEventListener("mouseenter", () => isHovered = true);
+  wrapper.addEventListener("mouseleave", () => isHovered = false);
+  wrapper.addEventListener("touchstart", () => isHovered = true);
+  wrapper.addEventListener("touchend", () => setTimeout(() => isHovered = false, 2000));
 
   function step() {
     if (!isHovered && grid.scrollWidth > grid.clientWidth) {
       if (grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 1) {
-        grid.scrollLeft = 0; // Loop back instantly or smooth? Smooth might be jarring.
-        // For smoother endless loop, we'd need to clone nodes.
-        // For "Simple" ticker:
         grid.scrollLeft = 0; 
       } else {
         grid.scrollLeft += scrollSpeed;
@@ -344,41 +496,83 @@ function getList(){
   return list;
 }
 
+
 function renderGrid(){
   const grid = $("#grid");
   const list = getList();
-  if (!list.length){ grid.innerHTML = `<div class="muted">No results. Try another search.</div>`; return; }
+  const rc = $("#resultCount");
+  if(rc) rc.textContent = `${list.length} item${list.length===1?"":"s"}`;
 
-  grid.innerHTML = list.map(p => `
-    <article class="card">
-      <div class="card__img">${p.emoji}</div>
+  if (!list.length){ 
+    grid.innerHTML = `<div class="muted">No results. Try another search.</div>`; 
+    return; 
+  }
+
+  grid.innerHTML = list.map(p => {
+    const hasSale = !!(p.old && p.old > p.price);
+    const discount = hasSale ? Math.round(((p.old - p.price)/p.old)*100) : 0;
+    const isNew = (hashStr(p.id) % 3) === 0;
+    const sw = (p.colors && p.colors.length) ? `
+      <div class="swatches" aria-label="Available colors">
+        ${p.colors.slice(0,4).map(c => `<span class="swatch" style="--swatch:${c.hex}" title="${escapeHtml(c.name)}"></span>`).join("")}
+      </div>` : ``;
+
+    const img = (p.images && p.images.length) ? 
+      `<img src="${p.images[0]}" alt="${escapeHtml(p.name)}" loading="lazy">` : 
+      `<div class="card__emoji">${p.emoji || "✨"}</div>`;
+
+    return `
+    <article class="card" data-card="${p.id}">
+      <div class="card__img" role="button" tabindex="0" aria-label="View ${escapeHtml(p.name)}" data-open="${p.id}">
+        ${hasSale ? `<div class="badge">-${discount}%</div>` : ``}
+        ${isNew ? `<div class="badge badge--new">NEW</div>` : ``}
+        ${img}
+      </div>
+
       <div class="card__body">
         <div class="card__top">
           <span class="tag">${label(p.cat)}</span>
-          <div style="display:flex; gap:8px;">
-            <button class="fav-btn" onclick="toggleFav('${p.id}', this)" aria-label="Like">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="fav-btn" onclick="toggleFav('${p.id}', this)" aria-label="Like" style="${state.favs.includes(p.id)? 'color:#ef4444' : ''}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="${state.favs.includes(p.id)? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
               </svg>
             </button>
-            <span class="rating">⭐ ${p.rating.toFixed(1)}</span>
+            <span class="rating-pill" title="${p.rating.toFixed(1)} / 5">
+              ⭐ <strong style="font-weight:900">${p.rating.toFixed(1)}</strong>
+            </span>
           </div>
         </div>
-        <h3>${escapeHtml(p.name)}</h3>
-        <div class="price">
-          <strong>$${p.price}</strong>
-          ${p.old ? `<s>$${p.old}</s>` : ``}
+
+        <h3 style="margin-top:10px">${escapeHtml(p.name)}</h3>
+
+        <div class="card__meta">
+          <div class="left">
+            ${sw}
+          </div>
+          <div class="price" style="margin:0">
+            <strong>${p.price} MAD</strong>
+            ${p.old ? `<s>${p.old} MAD</s>` : ``}
+          </div>
         </div>
-        <div class="card__actions">
-          <button class="btn btn--ghost w100" data-view="${p.id}">Details</button>
+
+        <div class="card__actions" style="margin-top:12px">
+          <button class="btn btn--ghost w100" data-page="${p.id}">Details</button>
           <button class="btn btn--primary w100" data-add="${p.id}">Add</button>
         </div>
       </div>
-    </article>
-  `).join("");
+    </article>`;
+  }).join("");
 
   $$("[data-add]").forEach(b => b.addEventListener("click", () => addToCart(b.dataset.add)));
-  $$("[data-view]").forEach(b => b.addEventListener("click", () => openModal(b.dataset.view)));
+  $$("[data-page]").forEach(b => b.addEventListener("click", () => {
+    window.location.href = `product.html?id=${encodeURIComponent(b.dataset.page)}`;
+  }));
+  $$("[data-open]").forEach(b => b.addEventListener("click", () => openProductModal(b.dataset.open)));
+  // keyboard open
+  $$("[data-open]").forEach(el => el.addEventListener("keydown", (e) => {
+    if(e.key==="Enter" || e.key===" "){ e.preventDefault(); openProductModal(el.dataset.open); }
+  }));
 }
 
 function openModal(id){
@@ -394,8 +588,8 @@ function openModal(id){
         </div>
         <div class="muted" style="margin-top:10px;line-height:1.8">${escapeHtml(p.desc)}</div>
         <div class="price" style="margin-top:12px">
-          <strong style="font-size:1.25rem">$${p.price}</strong>
-          ${p.old ? `<s>$${p.old}</s>` : ``}
+          <strong style="font-size:1.25rem">${p.price} MAD</strong>
+          ${p.old ? `<s>${p.old} MAD</s>` : ``}
           <span class="rating" style="margin-left:auto">⭐ ${p.rating.toFixed(1)}</span>
         </div>
         <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
@@ -412,8 +606,7 @@ function openModal(id){
 
 function openDrawer(show){
   $("#drawer").classList.toggle("show", show);
-  $("#drawer").setAttri
-  showToast("Added to cart! 🛒");
+  $("#drawer").setAttribute("aria-hidden", String(!show));
 }
 
 function showToast(msg) {
@@ -441,12 +634,49 @@ function closeAll(){
     pm.setAttribute("aria-hidden", "true");
   }
   openDrawer(false);
+  openFavDrawer(false);
 }
 
-function addToCart(id){
-  state.cart[id] = (state.cart[id] || 0) + 1;
+function addToCart(id, qty = 1){
+  state.cart[id] = (state.cart[id] || 0) + qty;
   save(); renderCart(); openDrawer(true);
 }
+function openFavDrawer(show){
+  $("#favDrawer").classList.toggle("show", show);
+  $("#favDrawer").setAttribute("aria-hidden", String(!show));
+  if(show) renderFavs();
+}
+
+function renderFavs(){
+  const wrap = $("#favItems");
+  const list = state.favs.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
+  
+  if (!list.length){
+    wrap.innerHTML = `
+      <div class="muted" style="text-align:center; padding:40px;">
+        <div style="font-size:3rem; opacity:0.3; margin-bottom:10px;">♥</div>
+        No favorites yet.
+      </div>`;
+    return;
+  }
+  
+  wrap.innerHTML = list.map(p => `
+    <div class="cartItem">
+      <div class="cartItem__top">
+        <div>
+           <div class="cartItem__name">${escapeHtml(p.name)}</div>
+           <div class="muted tiny">${label(p.cat)}</div>
+        </div>
+        <button class="iconbtn" onclick="state.favs = state.favs.filter(x => x !== '${p.id}'); renderFavs(); renderGrid();" style="width:32px; height:32px; border:none; background:transparent;">✕</button>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
+         <strong>${p.price} MAD</strong>
+         <button class="btn btn--primary btn--small" style="font-size:0.8rem; padding:6px 12px;" onclick="addToCart('${p.id}'); closeAll();">Add to Cart</button>
+      </div>
+    </div>
+  `).join("");
+}
+
 function changeQty(id, delta){
   const next = (state.cart[id] || 0) + delta;
   if (next <= 0) delete state.cart[id]; else state.cart[id] = next;
@@ -498,13 +728,13 @@ function renderCart(){
             <span>${qty}</span>
             <button data-inc="${id}">+</button>
           </div>
-          <strong style="font-size:1.1rem">$${p.price * qty}</strong>
+          <strong style="font-size:1.1rem">${p.price * qty} MAD</strong>
         </div>
       </div>
     `;
   }).join("");
 
-  $("#total").textContent = `$${total}`;
+  $("#total").textContent = `${total} MAD`;
   $$("[data-del]").forEach(b => b.addEventListener("click", () => { delete state.cart[b.dataset.del]; save(); renderCart(); }));
   $$("[data-dec]").forEach(b => b.addEventListener("click", () => changeQty(b.dataset.dec, -1)));
   $$("[data-inc]").forEach(b => b.addEventListener("click", () => changeQty(b.dataset.inc, +1)));
@@ -521,18 +751,29 @@ function checkout(){
     if (!p) continue;
     const sum = p.price * qty;
     total += sum;
-    lines.push(`${p.name} × ${qty} = $${sum}`);
+    lines.push(`${p.name} × ${qty} = ${sum} MAD`);
   }
   lines.push("--------------------");
-  lines.push(`Total: $${total}`);
+  lines.push(`Total: ${total} MAD`);
 
   navigator.clipboard.writeText(lines.join("\n")).then(() => {
-    alert("Order copied ✅ Paste it in WhatsApp or send to your team.");
+    // alert("Order copied ✅ Paste it in WhatsApp or send to your team.");
+    openSuccessModal();
     state.cart = {};
     save();
     renderCart();
     closeAll();
   });
+}
+
+function openSuccessModal() {
+  alert("Order Placed!\nYour order has been copied. Send it via WhatsApp to complete the purchase.");
+  // const m = document.getElementById("successModal");
+  // if(m) m.classList.add("active");
+}
+window.closeSuccessModal = function() {
+  // const m = document.getElementById("successModal");
+  // if(m) m.classList.remove("active");
 }
 
 function label(cat){
@@ -570,6 +811,13 @@ function countUp(){
 }
 
 // --- Product Modal Logic ---
+/* 
+   Deprecated in favor of Full Page view, but kept for legacy reference or alternative use.
+   Now openProductPage() handles the main detail view.
+*/
+function openProductModal(id){
+// ...
+}
 
 let modalState = {
   id: null,
@@ -605,12 +853,13 @@ function initModalLogic(){
   }));
 
   // Slider Nav
-  const sl = $("#slideLeft");
-  const sr = $("#slideRight");
-  if(sl && sr){
-    sl.addEventListener("click", () => $("#grid").scrollBy({left: -360, behavior: 'smooth'}));
-    sr.addEventListener("click", () => $("#grid").scrollBy({left: 360, behavior: 'smooth'}));
-  }
+  // Moved to initGridNav()
+  // const sl = $("#slideLeft");
+  // const sr = $("#slideRight");
+  // if(sl && sr){
+  //   sl.addEventListener("click", () => $("#grid").scrollBy({left: -360, behavior: 'smooth'}));
+  //   sr.addEventListener("click", () => $("#grid").scrollBy({left: 360, behavior: 'smooth'}));
+  // }
 }
 
 function updateModalQty(delta){
@@ -628,7 +877,167 @@ function updateModalPrice(){
   $("#pmBtnPrice").textContent = `$${total}`;
 }
 
+// Helper for modal image switching
+window.changeModalImage = function(btn, src) {
+  const img = $("#pmImage img");
+  if(img) img.src = src;
+  $$(".thumb-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+};
+
+// Start Card Slider Logic
+window.startCardSlide = function(id) {
+    const el = document.querySelector(`[data-images][onmouseenter*="${id}"]`);
+    if(!el) return;
+    const images = JSON.parse(el.dataset.images.replaceAll('&quot;', '"'));
+    if(images.length < 2) return;
+    
+    let idx = Number(el.dataset.idx || 0);
+    const imgTag = el.querySelector("img");
+    
+    // Clear existing
+    if(el.sliderInterval) clearInterval(el.sliderInterval);
+    
+    el.sliderInterval = setInterval(() => {
+        idx = (idx + 1) % images.length;
+        el.dataset.idx = idx;
+        if(imgTag) {
+            imgTag.style.opacity = "0.7";
+            setTimeout(() => {
+                imgTag.src = images[idx];
+                imgTag.style.opacity = "1";
+            }, 150);
+        }
+    }, 1500); // 1.5s interval
+};
+
+window.stopCardSlide = function(id) {
+    const el = document.querySelector(`[data-images][onmouseenter*="${id}"]`);
+    if(el && el.sliderInterval) {
+        clearInterval(el.sliderInterval);
+        delete el.sliderInterval;
+        // Reset to first image?
+        // const images = JSON.parse(el.dataset.images.replaceAll('&quot;', '"'));
+        // el.dataset.idx = 0;
+        // const imgTag = el.querySelector("img");
+        // if(imgTag && images.length) imgTag.src = images[0];
+    }
+};
+
+window.changeCardImage = function(id, src) {
+   // User selected a color, update image and stop slider to keep it fixed
+   const el = document.querySelector(`[data-images][onmouseenter*="${id}"]`);
+   if(el) {
+       if(el.sliderInterval) clearInterval(el.sliderInterval);
+       const img = el.querySelector("img");
+       if(img) img.src = src;
+       // We might want to disable slider after manual selection?
+       el.onmouseenter = null; // Disable auto slide
+   }
+};
+
+// Full Page View Logic
+window.openProductPage = function(id) {
+     window.location.href = `product.html?id=${id}`;
+};
+
+window.closeProductPage = function() {
+    // Deprecated in favor of separate page
+    window.location.href = "index.html";
+};
+
+
+window.selectPageColor = function(btn, src) {
+   if(src && src !== 'undefined') document.getElementById('ppMainImg').src = src;
+   const p = btn.closest(".variant-options");
+   if(p) p.querySelectorAll(".p-color").forEach(b => b.classList.remove("selected"));
+   btn.classList.add("selected");
+};
+
+// Helper for modal color switching
+window.selectModalColor = function(btn, src, name) {
+  if(src && src !== 'undefined') {
+      const img = $("#pmImage img");
+      if(img) img.src = src;
+      // Also update active thumb if it matches
+      $$(".thumb-btn").forEach(b => {
+         const tImg = b.querySelector("img");
+         if(tImg && tImg.src === src) {
+             $$(".thumb-btn").forEach(x => x.classList.remove("active"));
+             b.classList.add("active");
+         }
+      });
+  }
+  $$(".p-color").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+};
+
+// Start Card Slider Logic
+// ... (Already defined above, but we need to ensure renderGrid calls are wired up correctly)
+
 function openProductModal(id){
+// ... (keeping existing modal logic separate just in case, but openProductPage is the new main entry)
+  const p = PRODUCTS.find(x => x.id === id);
+  if(!p) return;
+  // ...
+  openProductPage(id); // Redirect modal calls to page view? Or keep both?
+  // Let's keep modal as 'old' way or just let renderGrid use openProductPage
+}
+// Actually, let's redefine renderGrid entirely to be clean.
+function renderGrid(){
+  const grid = $("#grid");
+  const list = getList();
+  if (!list.length){ grid.innerHTML = `<div class="muted">No results. Try another search.</div>`; return; }
+
+  grid.innerHTML = list.map((p) => {
+    // Determine initial image
+    let initImg = p.emoji;
+    if(p.images && p.images.length > 0) {
+       initImg = `<img src="${p.images[0]}" alt="${escapeHtml(p.name)}" class="card-main-img" id="img-${p.id}" style="width:100%; height:100%; object-fit:contain; padding:20px; transition: opacity 0.2s">`;
+    }
+    
+    // Auto-scroll images logic (data attributes)
+    const imgArray = p.images ? JSON.stringify(p.images).replaceAll('"', '&quot;') : "[]";
+
+    // Colors
+    let colorHtml = "";
+    if(p.colors && p.colors.length > 0) {
+        colorHtml = `<div class="card__colors" style="display:flex; gap:6px; margin-top:8px; justify-content:center;">
+          ${p.colors.map(c => `
+             <button onclick="event.stopPropagation(); changeCardImage('${p.id}', '${c.img}')" style="width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,0.1); background:${c.hex}; cursor:pointer;" title="${c.name}"></button>
+          `).join("")}
+        </div>`;
+    }
+
+    return `
+    <article class="card" onclick="openProductPage('${p.id}')" style="cursor:pointer">
+      <div class="card__img" onmouseenter="startCardSlide('${p.id}')" onmouseleave="stopCardSlide('${p.id}')" data-images="${imgArray}" data-idx="0">
+        ${initImg}
+        <div class="card__overlay-fav">
+            <button class="fav-btn" onclick="event.stopPropagation(); toggleFav('${p.id}', this)" aria-label="Add to Wishlist" style="${state.favs.includes(p.id)? 'color:#ef4444' : ''}">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="${state.favs.includes(p.id)? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </button>
+        </div>
+      </div>
+      <div class="card__body">
+        <h3 class="card__title">${escapeHtml(p.name)}</h3>
+        <div class="card__bottom">
+            <div class="card__price">
+                <strong>${p.price} MAD</strong>
+                ${p.old ? `<s>${p.old} MAD</s>` : ``}
+            </div>
+            <div class="card__rating">⭐ ${p.rating.toFixed(1)}</div>
+        </div>
+      </div>
+    </article>
+  `}).join("");
+  
+  // No need for separate addEventListener loops since we used inline onclicks for simplicity in generated HTML
+}
+
+function openModal(id){
   const p = PRODUCTS.find(x => x.id === id);
   if(!p) return;
 
@@ -640,17 +1049,62 @@ function openProductModal(id){
   $("#pmTitle").textContent = p.name;
   $("#pmDesc").textContent = p.desc || "Premium quality product designed for your lifestyle. Durable materials, modern aesthetic, and built to last.";
   
-  // Image (Emoji or logic to find image)
-  $("#pmImage").textContent = p.emoji; 
-  $("#pmImage").style.transform = "scale(0.8)"; 
-  setTimeout(() => $("#pmImage").style.transform = "scale(1)", 50);
+  // Image Handling
+  const imgBox = $("#pmImage");
+  imgBox.innerHTML = ""; // Clear previous content (text or img)
+  imgBox.style.transform = ""; // Reset transform
+
+  if (p.images && p.images.length > 0) {
+      // Main Image
+      imgBox.innerHTML = `<img src="${p.images[0]}" alt="${escapeHtml(p.name)}" style="width:100%; height:100%; object-fit:contain; border-radius:12px; display:block;">`;
+      
+      // Thumbs
+      const thumbs = $(".product-view__thumbs");
+      if(thumbs) {
+          thumbs.innerHTML = p.images.map((src, i) => `
+              <button class="thumb-btn ${i===0?'active':''}" onclick="changeModalImage(this, '${src}')" style="width:50px;height:50px;border:1px solid transparent;border-radius:8px;padding:0;overflow:hidden;cursor:pointer;transition:border-color 0.2s">
+                 <img src="${src}" alt="" style="width:100%;height:100%;object-fit:cover;">
+              </button>
+          `).join("");
+      }
+  } else {
+      // Fallback to Emoji
+      imgBox.textContent = p.emoji; 
+      imgBox.style.display = "flex";
+      imgBox.style.alignItems = "center";
+      imgBox.style.justifyContent = "center";
+      imgBox.style.fontSize = "8rem"; // Ensure large emoji
+      imgBox.style.transform = "scale(0.8)"; 
+      setTimeout(() => imgBox.style.transform = "scale(1)", 50);
+      
+      const thumbs = $(".product-view__thumbs");
+      if(thumbs) thumbs.innerHTML = "";
+  }
+
+  // Color Variants
+  const colorOpts = $(".color-options");
+  if (colorOpts) {
+      if (p.colors && p.colors.length > 0) {
+          colorOpts.innerHTML = p.colors.map((c, i) => `
+             <button class="p-color ${i===0?'selected':''}" style="--c:${c.hex}" onclick="selectModalColor(this, '${c.img}', '${c.name}')" title="${c.name}"></button>
+          `).join("");
+      } else {
+          // Default colors if none specified or keep existing HTML? 
+          // Resetting to default dummy colors so we don't show custom colors from prev product
+           colorOpts.innerHTML = `
+            <button class="p-color selected" style="--c:#111"></button>
+            <button class="p-color" style="--c:#555"></button>
+            <button class="p-color" style="--c:#888"></button>
+           `;
+      }
+  }
 
   // Price
-  $("#pmPrice").textContent = `$${p.price}`;
-  $("#pmBtnPrice").textContent = `$${p.price}`;
+  $("#pmPrice").textContent = `${p.price} MAD`;
+  $("#pmBtnPrice").textContent = `${p.price} MAD`;
   
   if(p.old > 0){
-    $("#pmOldPrice").textContent = `$${p.old}`;
+    $("#pmOldPrice").textContent = `${p.old} MAD`;
     $("#pmOldPrice").style.display = "inline";
     $("#pmDiscount").style.display = "inline-flex";
     const off = Math.round(((p.old - p.price) / p.old) * 100);
@@ -671,4 +1125,7 @@ function openProductModal(id){
   $("#productModal").classList.add("is-open");
   $("#productModal").setAttribute("aria-hidden", "false");
 }
+
+
+/* Legacy modal override removed to allow full page navigation */
 
