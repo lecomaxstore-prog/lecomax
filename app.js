@@ -59,7 +59,7 @@ function getFakeReviews(productId, cat){
   };
   const rnd = pseudoRand(hashStr(productId));
   const list = [];
-  for(let i=0;i<10;i++){
+  for(let i=0;i<11;i++){
     const rating = 4 + Math.round(rnd()*10)/10; // 4.0 - 5.0
     const name = names[Math.floor(rnd()*names.length)];
     const tag = tags[Math.floor(rnd()*tags.length)];
@@ -110,6 +110,56 @@ const PRODUCTS = [
     rating: 5.0, 
     emoji: "🎧",
     desc: "Noise Cancellation for Calls, Dual Microphones, Automatic Pairing, Quick And Precise Connectivity, Long Standby Time of 5.4 Hours.",
+    specs: {
+      "General": {
+        "Product Type": "Wireless Bluetooth Earbuds",
+        "Brand": "GENAI",
+        "Model": "TV Series",
+        "Origin": "Guangdong, China",
+        "Material": "Plastic",
+        "Color Options": "Black, White"
+      },
+      "Features": {
+        "Noise Control Mode": "Noise Cancellation",
+        "Headphone Features": "Lightweight, Comfortable Fit",
+        "Control Type": "Touch Control",
+        "Ear Cup Style": "Semi-open-back",
+        "Microphone Type": "Condenser Microphone",
+        "Headphone Jack": "No Jack"
+      },
+      "Compatibility": {
+        "Compatible Devices": "Smartphones, Tablets, Bluetooth-enabled devices",
+        "Operating Systems": "Android, iOS"
+      },
+      "Connectivity": {
+        "Wireless Technology": "Bluetooth",
+        "Control Method": "Touch",
+        "Wireless Property": "Fully Wireless",
+        "Connection Stability": "Stable and Fast Pairing"
+      },
+      "Power": {
+        "Battery Properties": "Rechargeable Battery",
+        "Battery Type": "Lithium Battery-Polymer",
+        "Charging Port": "Type-C Port",
+        "Fast Charging Support": "No",
+        "Charger Included": "No",
+        "Maximum Rated Power": "15W",
+        "Minimum Rated Power": "1W",
+        "Power Mode": "USB Charging",
+        "Operating Voltage": "≤36V",
+        "Charging Case": "Yes"
+      },
+      "Others": {
+        "Cable Feature": "Without Cable",
+        "Age Range": "Adult",
+        "Recommended Scenario": "Exercising, Daily Use, Calls, Music",
+        "Voltage": "See Product Details"
+      },
+      "Dimensions": {
+        "Product Size": "Compact Design",
+        "Weight": "Lightweight and Portable"
+      }
+    },
     images: [
       "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/genai/genai/black.jpeg",
       "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/genai/genai/white%20.jpeg",
@@ -120,6 +170,72 @@ const PRODUCTS = [
     colors: [
       {name: "Black", hex: "#000000", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/genai/genai/black.jpeg"},
       {name: "White", hex: "#ffffff", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/genai/genai/white%20.jpeg"}
+    ]
+  },
+  {
+    id: "backpack_vacuum",
+    cat: "accessories",
+    name: "Vacuum Travel Backpack",
+    price: 1200,
+    old: 1500,
+    rating: 4.9,
+    emoji: "🎒",
+    desc: "Travel Backpack Vacuum Compression Laptop Backpack 43.18 cm Extended Large Capacity School Backpack Hiking Business Backpack.",
+    specs: {
+      "General": {
+          "Product Type": "Backpack",
+          "Style": "Sports / Casual",
+          "Gender": "Unisex",
+          "Color": "Black",
+          "Theme": "None"
+      },
+      "Material & Design": {
+          "Material": "Oxford Fabric",
+          "Lining Material": "Polyester",
+          "Pattern": "Solid Color",
+          "Pattern Style": "No Pattern",
+          "Printing Type": "No Printing",
+          "Embellishment": "None",
+          "Edge Paint": "No"
+      },
+      "Features": {
+          "Closure Type": "Zipper",
+          "Strap Type": "Adjustable Shoulder Straps",
+          "Feature": "Adjustable Strap",
+          "Compartments": "Multiple Compartments",
+          "Laptop Compartment": "Yes (Up to 17-inch Laptop)",
+          "Water Resistance": "Splash Resistant",
+          "Comfort": "Lightweight & Comfortable for Daily Use"
+      },
+      "Usage": {
+          "Recommended Use": "Daily commute, Travel, School / University, Work, Sports & Outdoor",
+          "Age Range": "Adult"
+      },
+      "Care Instructions": {
+          "Operation Instruction": "Do Not Wash",
+          "Cleaning Method": "Wipe with Dry or Slightly Damp Cloth"
+      },
+      "Others": {
+          "Cable Feature": "Without Cable"
+      },
+      "Dimensions": {
+          "Height": "49 cm (19.3 inches)",
+          "Laptop Compatibility": "Fits up to 17-inch Laptop",
+          "Capacity": "Large Capacity",
+          "Weight": "Lightweight Design"
+      }
+    },
+    images: [
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/backpack/1.jpeg",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/backpack/2.jpeg",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/backpack/3.jpeg",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/backpack/4.jpeg",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/backpack/5.jpeg",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/backpack/6.jpeg"
+    ],
+    colors: [
+        { name: "Black", hex: "#1a1a1a", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/backpack/1.jpeg" },
+        { name: "Gray", hex: "#808080", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/backpack/2.jpeg" }
     ]
   }
 ];
@@ -160,26 +276,62 @@ const state = {
   sort:"featured", 
   q:"", 
   cart: load("lc_cart_v2", {}), 
-  favs: [], 
+  favs: load("lc_favs_v2", []), 
   slideIndex:0, 
   heroTab:"electronics" 
 };
 
 function toggleFav(id, btn){
   const idx = state.favs.indexOf(id);
+  const wasAdded = idx === -1;
+  
   if(idx > -1) state.favs.splice(idx,1);
   else state.favs.push(id);
   
+  saveFavs(); // Persist changes
+
   // Re-render button icon only
   const svg = btn.querySelector("svg");
-  if(state.favs.includes(id)) {
-    svg.setAttribute("fill", "currentColor");
-    btn.style.color = "#ef4444";
-  } else {
-    svg.setAttribute("fill", "none");
-    btn.style.color = "var(--muted)";
+  if(svg) {
+      if(state.favs.includes(id)) {
+        svg.setAttribute("fill", "currentColor");
+        btn.style.color = "#ef4444";
+        // Pop animation
+        btn.style.transform = "scale(1.2)";
+        setTimeout(() => btn.style.transform = "scale(1)", 200);
+      } else {
+        svg.setAttribute("fill", "none");
+        btn.style.color = "var(--muted)";
+      }
   }
+  
+  // Optional: Update global view if open?
+  // renderFavs(); // Only if drawer is open? renderFavs checks state.favs anyway.
+  
+  if(wasAdded) showToast("Added to Favorites ❤️");
+  
+  // Update Header Dot if exists
+  updateFavBadge();
 }
+
+function updateFavBadge() {
+    const btn = $("#openFav");
+    if(!btn) return;
+    // Add or remove a small dot indicator
+    let dot = btn.querySelector(".badge-dot");
+    if(state.favs.length > 0) {
+        if(!dot) {
+            dot = document.createElement("span");
+            dot.className = "badge-dot";
+            // Style locally or add to css
+            dot.style.cssText = "position:absolute; top:8px; right:8px; width:8px; height:8px; background:#ef4444; border-radius:50%; border:2px solid #fff;";
+            btn.appendChild(dot);
+        }
+    } else {
+        if(dot) dot.remove();
+    }
+}
+
 
 init();
 
@@ -321,9 +473,11 @@ function init(){
       initSlider();
       updateSlider();
       renderGrid();
+      renderTrending(); // New
   }
   
   renderCart();
+  updateFavBadge(); // Ensure badge is correct on load
 
   // startProductTicker(); // Optional: Auto-scroll textual ticker style if desired. 
   // Disabling auto-ticker for now to let manual buttons work cleanly without fighting.
@@ -497,83 +651,7 @@ function getList(){
 }
 
 
-function renderGrid(){
-  const grid = $("#grid");
-  const list = getList();
-  const rc = $("#resultCount");
-  if(rc) rc.textContent = `${list.length} item${list.length===1?"":"s"}`;
-
-  if (!list.length){ 
-    grid.innerHTML = `<div class="muted">No results. Try another search.</div>`; 
-    return; 
-  }
-
-  grid.innerHTML = list.map(p => {
-    const hasSale = !!(p.old && p.old > p.price);
-    const discount = hasSale ? Math.round(((p.old - p.price)/p.old)*100) : 0;
-    const isNew = (hashStr(p.id) % 3) === 0;
-    const sw = (p.colors && p.colors.length) ? `
-      <div class="swatches" aria-label="Available colors">
-        ${p.colors.slice(0,4).map(c => `<span class="swatch" style="--swatch:${c.hex}" title="${escapeHtml(c.name)}"></span>`).join("")}
-      </div>` : ``;
-
-    const img = (p.images && p.images.length) ? 
-      `<img src="${p.images[0]}" alt="${escapeHtml(p.name)}" loading="lazy">` : 
-      `<div class="card__emoji">${p.emoji || "✨"}</div>`;
-
-    return `
-    <article class="card" data-card="${p.id}">
-      <div class="card__img" role="button" tabindex="0" aria-label="View ${escapeHtml(p.name)}" data-open="${p.id}">
-        ${hasSale ? `<div class="badge">-${discount}%</div>` : ``}
-        ${isNew ? `<div class="badge badge--new">NEW</div>` : ``}
-        ${img}
-      </div>
-
-      <div class="card__body">
-        <div class="card__top">
-          <span class="tag">${label(p.cat)}</span>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <button class="fav-btn" onclick="toggleFav('${p.id}', this)" aria-label="Like" style="${state.favs.includes(p.id)? 'color:#ef4444' : ''}">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="${state.favs.includes(p.id)? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-              </svg>
-            </button>
-            <span class="rating-pill" title="${p.rating.toFixed(1)} / 5">
-              ⭐ <strong style="font-weight:900">${p.rating.toFixed(1)}</strong>
-            </span>
-          </div>
-        </div>
-
-        <h3 style="margin-top:10px">${escapeHtml(p.name)}</h3>
-
-        <div class="card__meta">
-          <div class="left">
-            ${sw}
-          </div>
-          <div class="price" style="margin:0">
-            <strong>${p.price} MAD</strong>
-            ${p.old ? `<s>${p.old} MAD</s>` : ``}
-          </div>
-        </div>
-
-        <div class="card__actions" style="margin-top:12px">
-          <button class="btn btn--ghost w100" data-page="${p.id}">Details</button>
-          <button class="btn btn--primary w100" data-add="${p.id}">Add</button>
-        </div>
-      </div>
-    </article>`;
-  }).join("");
-
-  $$("[data-add]").forEach(b => b.addEventListener("click", () => addToCart(b.dataset.add)));
-  $$("[data-page]").forEach(b => b.addEventListener("click", () => {
-    window.location.href = `product.html?id=${encodeURIComponent(b.dataset.page)}`;
-  }));
-  $$("[data-open]").forEach(b => b.addEventListener("click", () => openProductModal(b.dataset.open)));
-  // keyboard open
-  $$("[data-open]").forEach(el => el.addEventListener("keydown", (e) => {
-    if(e.key==="Enter" || e.key===" "){ e.preventDefault(); openProductModal(el.dataset.open); }
-  }));
-}
+// renderGrid handled later by getCardHTML helper integration consistency
 
 function openModal(id){
   const p = PRODUCTS.find(x => x.id === id);
@@ -605,8 +683,11 @@ function openModal(id){
 }
 
 function openDrawer(show){
-  $("#drawer").classList.toggle("show", show);
-  $("#drawer").setAttribute("aria-hidden", String(!show));
+  const d = $("#drawer");
+  if(d) {
+    d.classList.toggle("show", show);
+    d.setAttribute("aria-hidden", String(!show));
+  }
 }
 
 function showToast(msg) {
@@ -626,8 +707,11 @@ function showToast(msg) {
 }
 
 function closeAll(){
-  $("#modal").classList.remove("show");
-  $("#modal").setAttribute("aria-hidden","true");
+  const m = $("#modal");
+  if(m) {
+    m.classList.remove("show");
+    m.setAttribute("aria-hidden","true");
+  }
   const pm = $("#productModal");
   if(pm) {
     pm.classList.remove("is-open");
@@ -642,39 +726,57 @@ function addToCart(id, qty = 1){
   save(); renderCart(); openDrawer(true);
 }
 function openFavDrawer(show){
-  $("#favDrawer").classList.toggle("show", show);
-  $("#favDrawer").setAttribute("aria-hidden", String(!show));
-  if(show) renderFavs();
+  const fd = $("#favDrawer");
+  if(fd) {
+    fd.classList.toggle("show", show);
+    fd.setAttribute("aria-hidden", String(!show));
+    if(show) renderFavs();
+  }
 }
 
 function renderFavs(){
   const wrap = $("#favItems");
+  if(!wrap) return;
+  
   const list = state.favs.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
   
   if (!list.length){
     wrap.innerHTML = `
-      <div class="muted" style="text-align:center; padding:40px;">
-        <div style="font-size:3rem; opacity:0.3; margin-bottom:10px;">♥</div>
-        No favorites yet.
+      <div class="muted" style="text-align:center; padding:40px; display:flex; flex-direction:column; align-items:center;">
+        <div style="font-size:3rem; opacity:0.1; margin-bottom:10px; filter:grayscale(1)">❤️</div>
+        <p>No favorites yet.</p>
+        <button onclick="closeAll()" class="btn btn--ghost btn--small" style="margin-top:10px">Discover Products</button>
       </div>`;
     return;
   }
   
   wrap.innerHTML = list.map(p => `
-    <div class="cartItem">
+    <div class="cartItem" style="margin-bottom:12px">
       <div class="cartItem__top">
-        <div>
-           <div class="cartItem__name">${escapeHtml(p.name)}</div>
-           <div class="muted tiny">${label(p.cat)}</div>
+        <div style="display:flex; gap:12px; align-items:center;">
+           <img src="${p.images && p.images[0] ? p.images[0] : ''}" style="width:48px; height:48px; object-fit:contain; border-radius:8px; background:#fff; padding:4px; border:1px solid #eee;" onerror="this.style.display='none'">
+           <div>
+              <div class="cartItem__name">${escapeHtml(p.name)}</div>
+              <div class="muted tiny">${label(p.cat)}</div>
+           </div>
         </div>
-        <button class="iconbtn" onclick="state.favs = state.favs.filter(x => x !== '${p.id}'); renderFavs(); renderGrid();" style="width:32px; height:32px; border:none; background:transparent;">✕</button>
+        <button class="iconbtn" onclick="removeFav('${p.id}')" title="Remove" style="width:28px; height:28px; border:none; background:transparent; opacity:0.5;">✕</button>
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
-         <strong>${p.price} MAD</strong>
-         <button class="btn btn--primary btn--small" style="font-size:0.8rem; padding:6px 12px;" onclick="addToCart('${p.id}'); closeAll();">Add to Cart</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:8px; border-top:1px dashed rgba(0,0,0,0.05)">
+         <strong style="font-size:0.95rem">${p.price} MAD</strong>
+         <button class="btn btn--primary btn--small" style="font-size:0.8rem; padding:6px 14px;" onclick="addToCart('${p.id}'); showToast('Moved to Cart'); removeFav('${p.id}'); closeAll(); openDrawer(true);">Add to Cart</button>
       </div>
     </div>
   `).join("");
+}
+
+// Global helper access for the inline onclicks
+window.removeFav = function(id) {
+    state.favs = state.favs.filter(x => x !== id);
+    saveFavs();
+    renderFavs();
+    renderGrid(); // update heart icons on grid
+    updateFavBadge();
 }
 
 function changeQty(id, delta){
@@ -793,6 +895,7 @@ function load(key, fallback){
   catch { return fallback; }
 }
 function save(){ localStorage.setItem("lc_cart_v2", JSON.stringify(state.cart)); }
+function saveFavs(){ localStorage.setItem("lc_favs_v2", JSON.stringify(state.favs)); }
 
 function countUp(){
   const els = $$("[data-count]");
@@ -983,58 +1086,94 @@ function openProductModal(id){
   openProductPage(id); // Redirect modal calls to page view? Or keep both?
   // Let's keep modal as 'old' way or just let renderGrid use openProductPage
 }
-// Actually, let's redefine renderGrid entirely to be clean.
-function renderGrid(){
-  const grid = $("#grid");
-  const list = getList();
-  if (!list.length){ grid.innerHTML = `<div class="muted">No results. Try another search.</div>`; return; }
+// Helper to generate a single Premium Card HTML
+function getCardHTML(p) {
+    const hasSale = !!(p.old && p.old > p.price);
+    const discount = hasSale ? Math.round(((p.old - p.price) / p.old) * 100) : 0;
+    const isNew = (hashStr(p.id) % 3) === 0; // consistent random "new"
 
-  grid.innerHTML = list.map((p) => {
+    let badge = "";
+    if (hasSale) badge = `<div class="card-badge card-badge--sale">-${discount}%</div>`;
+    else if (isNew) badge = `<div class="card-badge card-badge--new">New</div>`;
+
     // Determine initial image
     let initImg = p.emoji;
-    if(p.images && p.images.length > 0) {
-       initImg = `<img src="${p.images[0]}" alt="${escapeHtml(p.name)}" class="card-main-img" id="img-${p.id}" style="width:100%; height:100%; object-fit:contain; padding:20px; transition: opacity 0.2s">`;
+    if (p.images && p.images.length > 0) {
+      initImg = `<img src="${p.images[0]}" alt="${escapeHtml(p.name)}" class="card-main-img" id="img-${p.id}">`;
     }
-    
-    // Auto-scroll images logic (data attributes)
-    const imgArray = p.images ? JSON.stringify(p.images).replaceAll('"', '&quot;') : "[]";
 
-    // Colors
-    let colorHtml = "";
-    if(p.colors && p.colors.length > 0) {
-        colorHtml = `<div class="card__colors" style="display:flex; gap:6px; margin-top:8px; justify-content:center;">
-          ${p.colors.map(c => `
-             <button onclick="event.stopPropagation(); changeCardImage('${p.id}', '${c.img}')" style="width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,0.1); background:${c.hex}; cursor:pointer;" title="${c.name}"></button>
-          `).join("")}
-        </div>`;
+    // Auto-scroll images logic (data attributes)
+    const imgArray = p.images ? JSON.stringify(p.images).replaceAll('"', "&quot;") : "[]";
+
+    // Colors - Visual Dots
+    let colorDots = "";
+    if (p.colors && p.colors.length > 0) {
+      colorDots = `<div class="card__color-dots" aria-label="Available colors">
+        ${p.colors
+          .map(
+            (c) =>
+              `<button class="color-dot" type="button" onclick="event.stopPropagation(); changeCardImage('${p.id}', '${c.img}')" style="background:${c.hex}" title="${escapeHtml(c.name)}" aria-label="${escapeHtml(c.name)}"></button>`
+          )
+          .join("")}
+      </div>`;
     }
 
     return `
-    <article class="card" onclick="openProductPage('${p.id}')" style="cursor:pointer">
+    <article class="card" role="button" tabindex="0" onclick="openProductPage('${p.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); openProductPage('${p.id}')}">
       <div class="card__img" onmouseenter="startCardSlide('${p.id}')" onmouseleave="stopCardSlide('${p.id}')" data-images="${imgArray}" data-idx="0">
+        ${badge}
         ${initImg}
         <div class="card__overlay-fav">
-            <button class="fav-btn" onclick="event.stopPropagation(); toggleFav('${p.id}', this)" aria-label="Add to Wishlist" style="${state.favs.includes(p.id)? 'color:#ef4444' : ''}">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="${state.favs.includes(p.id)? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+            <button class="fav-btn" type="button" onclick="event.stopPropagation(); toggleFav('${p.id}', this)" aria-label="Add to Wishlist" style="${state.favs.includes(p.id) ? "color:#ef4444" : ""}">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="${state.favs.includes(p.id) ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
               </svg>
             </button>
         </div>
+        ${colorDots}
       </div>
+
       <div class="card__body">
-        <h3 class="card__title">${escapeHtml(p.name)}</h3>
+        <div class="card__top">
+          <div>
+            <h3 class="card__title">${escapeHtml(p.name)}</h3>
+            <div class="card__meta">${label(p.cat)} • ⭐ ${p.rating.toFixed(1)}</div>
+          </div>
+        </div>
+
         <div class="card__bottom">
-            <div class="card__price">
-                <strong>${p.price} MAD</strong>
-                ${p.old ? `<s>${p.old} MAD</s>` : ``}
-            </div>
-            <div class="card__rating">⭐ ${p.rating.toFixed(1)}</div>
+          <div class="card__price">
+            ${p.price} MAD
+            ${p.old ? `<s>${p.old} MAD</s>` : ``}
+          </div>
+          <button class="btn btn--primary btn--small" type="button" onclick="event.stopPropagation(); addToCart('${p.id}'); showToast('Added to Cart')">
+            Add
+          </button>
         </div>
       </div>
     </article>
-  `}).join("");
-  
-  // No need for separate addEventListener loops since we used inline onclicks for simplicity in generated HTML
+  `;
+}
+
+function renderGrid(){
+  const grid = $("#grid");
+  const list = getList();
+  const rc = $("#resultCount");
+  if(rc) rc.textContent = `${list.length} item${list.length===1?"":"s"}`;
+
+  if (!list.length){ 
+    grid.innerHTML = `<div class="muted" style="grid-column:1/-1; text-align:center; padding:40px;">No results found. Try adjusting your filters.</div>`; 
+    return; 
+  }
+  grid.innerHTML = list.map(getCardHTML).join("");
+}
+
+function renderTrending() {
+    const el = $("#trendingList");
+    if(!el) return;
+    // Pick top 5 rated
+    const list = [...PRODUCTS].sort((a,b) => b.rating - a.rating).slice(0, 5);
+    el.innerHTML = list.map(getCardHTML).join("");
 }
 
 function openModal(id){
@@ -1128,4 +1267,29 @@ function openModal(id){
 
 
 /* Legacy modal override removed to allow full page navigation */
+
+
+/* Back to Top Logic */
+function setupBackToTop() {
+  const btn = document.getElementById('backToTop');
+  if (!btn) return;
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      btn.classList.add('show');
+    } else {
+      btn.classList.remove('show');
+    }
+  });
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupBackToTop);
+} else {
+  setupBackToTop();
+}
 

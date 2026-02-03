@@ -67,7 +67,7 @@
     </div>
   </footer>
 
-  <!-- Cart Drawer (Reused structure) -->
+  <!-- Cart Drawer -->
   <aside class="drawer" id="drawer" aria-hidden="true">
     <div class="drawer__bg" data-close="1"></div>
     <div class="drawer__panel">
@@ -103,164 +103,235 @@
   function renderProductDetail(id) {
      const p = PRODUCTS.find(x => x.id === id);
      if(!p) { showNotFound(); return; }
-     
-     // Color Setup
+
+     // Determine colors
      let colorHtml = "";
-     if(p.colors && p.colors.length) {
-         colorHtml = `
-            <div class="pp-section" style="margin-bottom:24px">
-                <div class="pp-label" style="font-weight:600; margin-bottom:8px">Color: <span id="colorName" style="color:var(--muted); font-weight:400">${p.colors[0].name}</span></div>
-                <div class="pp-color-grid" style="display:flex; gap:10px">
-                    ${p.colors.map((c, i) => `
-                        <button class="pp-color-btn ${i===0?'selected':''}" 
-                                style="--color-hex: ${c.hex}; width:32px; height:32px; border-radius:50%; background:var(--color-hex); border:2px solid #fff; box-shadow:0 0 0 1px #ddd; cursor:pointer;" 
-                                onclick="selectColor(this, '${c.img}', '${c.name.replace(/'/g, "\\'")}')"
-                                aria-label="${c.name}">
-                        </button>
-                    `).join('')}
-                </div>
+     if(p.colors && p.colors.length > 0) {
+         colorHtml = `<div class="options-wrap">
+             <div class="option-label">Color: <span id="colorName">${p.colors[0].name}</span></div>
+             <div class="colors-list">
+                ${p.colors.map((c, i) => `
+                   <button class="color-swatch ${i===0?'selected':''}" onclick="selectColor(this, '${c.img}', '${c.name.replace(/'/g, "\\'")}')" style="background:${c.hex};" title="${c.name}"></button>
+                `).join("")}
+             </div>
+         </div>`;
+     }
+     
+     // Determine thumbs
+     let thumbHtml = "";
+     if(p.images && p.images.length > 0) {
+         thumbHtml = p.images.map((src, i) => `
+            <div class="thumb-btn ${i===0?'active':''}" onclick="setMainImage(this, '${src}')">
+              <img src="${src}" alt="">
             </div>
-         `;
+         `).join("");
      }
 
-     const mainImg = p.images && p.images.length ? p.images[0] : null;
-     const reviewsCount = Math.floor(Math.random() * 800 + 42);
-
-     const html = `
-          <div class="pp-breadcrumbs" style="display:flex; gap:12px; align-items:center; font-size:0.9rem; color:var(--muted); margin-bottom:24px; flex-wrap:wrap">
-             <a href="index.html" style="font-weight:500; color:var(--text)">Home</a> 
-             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18l6-6-6-6"/></svg>
-             <a href="index.html?cat=${p.cat}" style="font-weight:500; color:var(--text)">${label(p.cat)}</a> 
-             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18l6-6-6-6"/></svg>
-             <span style="color:var(--text); font-weight:600; opacity:0.8">${p.name}</span>
-          </div>
-
-        <div class="product-page-grid">
-            <!-- Gallery -->
-            <div class="pp-gallery">
-                <div class="pp-main-img">
-                    ${mainImg ? `<img id="ppMainImg" src="${mainImg}" alt="${p.name}">` : `<div style="font-size:6rem">${p.emoji}</div>`}
-                </div>
-                <!-- Clean thumbnail strip with subtle scroll indicator -->
-                <div class="pp-thumbs" style="justify-content: flex-start; overflow-x: auto; padding-bottom: 4px; mask-image: linear-gradient(to right, black 90%, transparent 100%);">
-                    ${p.images ? p.images.map((src, i) => `
-                        <div class="pp-thumb-btn ${i===0?'active':''}" onclick="setMainImage(this, '${src}')">
-                            <img src="${src}" alt="View ${i+1}">
+     // Generate specs block
+     let specsHtml = "";
+     if (p.specs) {
+        specsHtml = `<div class="specs-block" id="specs">
+            <h3 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 30px;">Product Specifications</h3>
+            <div class="specs-grid-layout">
+                ${Object.entries(p.specs).map(([category, items]) => `
+                    <div class="spec-group">
+                        <h4>${category}</h4>
+                        <div class="spec-list">
+                            ${Object.entries(items).map(([key, value]) => `
+                                <div class="spec-row">
+                                    <span class="spec-key">${key}</span>
+                                    <span class="spec-val">${value}</span>
+                                </div>
+                            `).join('')}
                         </div>
-                    `).join("") : ""}
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+     }
+
+     // Generate fake reviews
+     let reviews = getFakeReviews(p.id, p.cat);
+     
+     // Hack to ensure 4.8 average visually as requested
+     if(reviews.length > 0) {
+        // Force 9 out of 11 to be 5 stars, 2 to be 4 stars => 4.81 avg
+        reviews = reviews.map((r, i) => {
+            r.rating = (i < 9) ? 5.0 : 4.0;
+            return r;
+        });
+     }
+
+     // Calculate review stats
+     const totalReviews = reviews.length;
+     const avgRating = (reviews.reduce((acc, r) => acc + r.rating, 0) / (totalReviews || 1)).toFixed(1);
+     const counts = {5:0, 4:0, 3:0, 2:0, 1:0};
+     reviews.forEach(r => {
+        const rounded = Math.round(r.rating);
+        if(counts[rounded] !== undefined) counts[rounded]++;
+     });
+
+     const summaryHtml = `
+        <div class="review-summary" style="display:flex; align-items:flex-start; gap:40px; margin-bottom:40px; padding:30px; background:#f8fafc; border-radius:16px;">
+            <div style="text-align:center; min-width:120px;">
+                <div style="font-size:3rem; font-weight:800; line-height:1; color:#0f172a;">${avgRating}</div>
+                <div class="stars" style="color:#f59e0b; margin:8px 0;">★★★★★</div>
+                <div class="muted" style="font-size:0.9rem;">${totalReviews} Reviews</div>
+            </div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+                ${Object.keys(counts).sort((a,b)=>b-a).map(star => {
+                    const count = counts[star];
+                    const pct = totalReviews ? (count / totalReviews) * 100 : 0;
+                    return `
+                    <div style="display:flex; align-items:center; gap:12px; font-size:0.9rem;">
+                        <span style="width:12px; font-weight:600;">${star}</span>
+                        <svg width="14" height="14" fill="#f59e0b" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01z"/></svg>
+                        <div style="flex:1; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+                            <div style="width:${pct}%; height:100%; background:#f59e0b; border-radius:4px;"></div>
+                        </div>
+                        <span style="width:30px; text-align:right; color:var(--muted);">${count}</span>
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>
+     `;
+
+     let reviewsHtml = reviews.map(r => `
+         <div class="review-item" style="border-bottom:1px solid #f1f5f9; padding-bottom:20px; margin-bottom:20px;">
+            <div class="review-header" style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                <div class="review-avatar" style="width:40px; height:40px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--muted);">${r.name.charAt(0)}</div>
+                <div>
+                    <div style="font-weight:700; font-size:0.95rem">${r.name}</div>
+                    <div class="stars" style="font-size:0.8rem; color:#f59e0b">${"★".repeat(Math.round(r.rating))}${"☆".repeat(5-Math.round(r.rating))}</div>
+                </div>
+                <div class="muted tiny" style="margin-left:auto">${r.date}</div>
+            </div>
+            <p style="color:var(--text); line-height:1.6; font-size:0.95rem;">${r.text}</p>
+         </div>
+     `).join("");
+
+      const html = `
+        <div class="product-page">
+           <!-- Improved Breadcrumb -->
+           <nav class="breadcrumb" style="margin: 20px 0 32px 0; font-size: 0.85rem; color: var(--muted); display:flex; align-items:center; gap:8px;">
+              <a href="index.html" style="color:var(--muted); text-decoration:none; transition:color 0.2s; display:flex; align-items:center; gap:4px">
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                 Home
+              </a>
+              <span style="opacity:0.3">/</span>
+              <a href="index.html?cat=${p.cat}" style="color:var(--muted); text-decoration:none; transition:color 0.2s">${label(p.cat)}</a>
+              <span style="opacity:0.3">/</span>
+              <span style="color:var(--text); font-weight:500">${p.name}</span>
+           </nav>
+        
+        <div class="product-layout">
+            <!-- Gallery Column -->
+            <div class="product-gallery">
+                <div class="main-image-wrapper">
+                    <img id="ppMainImg" src="${p.images && p.images[0] ? p.images[0] : ''}" alt="${p.name}">
+                    ${!(p.images && p.images.length) ? `<div style="font-size:8rem">${p.emoji}</div>` : ''}
+                </div>
+                <div class="thumbnails">
+                    ${thumbHtml}
                 </div>
             </div>
             
-            <!-- Info -->
-            <div class="pp-info">
-                <h1 class="pp-title">${p.name}</h1>
+            <!-- Info Column -->
+            <div class="product-info-col">
+                <div class="product-cat">${label(p.cat)}</div>
+                <h1 class="product-title">${p.name}</h1>
                 
-                <div class="pp-rating-row" style="display:flex; align-items:center; gap:8px; margin: 8px 0 16px;">
-                    <span class="stars" style="color:#fbbf24">★★★★★</span> 
-                    <span style="font-weight:700">${p.rating.toFixed(1)}</span>
-                    <a href="#reviews" class="muted" style="text-decoration:underline">${reviewsCount} Reviews</a>
-                    <span class="muted">•</span>
-                    <span class="muted">${Math.floor(Math.random() * 2000 + 100)} orders</span>
+                <div class="price-block">
+                    <div class="current-price">${p.price} MAD</div>
+                    ${p.old ? `<div class="old-price">${p.old} MAD</div>` : ''}
+                    ${p.old ? `<div class="save-badge">Save ${Math.round(((p.old - p.price)/p.old)*100)}%</div>` : ''}
                 </div>
-                
-                <div class="pp-price-lockup">
-                    <span class="pp-current-price" style="font-size:1.8rem; font-weight:800">${p.price} MAD</span>
-                    ${p.old > 0 ? `<span class="pp-old-price" style="text-decoration:line-through; color:var(--muted); margin-left:8px">${p.old} MAD</span>` : ""}
-                </div>
-                ${p.old > 0 ? `<span class="tag" style="background:#fee2e2; color:#ef4444; margin-top:8px; display:inline-block">Hot Sale</span>` : ""}
 
-                <div style="margin: 24px 0; height:1px; background:var(--line)"></div>
+                <div class="rating-block">
+                    <span class="stars" style="color:#f59e0b; letter-spacing:1px;">★★★★★</span> 
+                    <span>${p.rating.toFixed(1)}</span>
+                    <a href="#reviews" class="muted" style="text-decoration:underline; font-weight:400; margin-left:6px;">(11 reviews)</a>
+                </div>
+                
+                <p class="description">
+                    ${p.desc || "Experience premium quality with our latest collection."}
+                </p>
+
+                <hr class="divider">
 
                 ${colorHtml}
-                
-                <div class="pp-section" style="margin-bottom:24px">
-                    <div class="pp-label" style="font-weight:600; margin-bottom:8px">Quantity</div>
-                    <div class="pp-qty-selector">
-                        <button onclick="updateQty(-1)">−</button>
-                        <input type="number" id="qtyInput" value="1" min="1" readonly>
-                        <button onclick="updateQty(1)">+</button>
-                    </div>
-                </div>
-                
-                <div class="pp-actions">
-                    <button class="btn btn-add-cart" onclick="addToCart('${p.id}', getQty()); showToast('Added to Cart!')">
+
+                <div class="cart-actions">
+                     <div class="qty-box">
+                        <button class="qty-btn" onclick="updateQty(-1)">−</button>
+                        <input id="qtyInput" class="qty-val" value="1" readonly>
+                        <button class="qty-btn" onclick="updateQty(1)">+</button>
+                     </div>
+                     <button class="btn btn--primary add-btn" onclick="addToCart('${p.id}', getQty()); setTimeout(()=> window.location.href='index.html?cart=open', 100)">
                         Add to Cart
-                    </button>
-                    <button class="btn btn--primary btn-buy-now" onclick="addToCart('${p.id}', getQty()); setTimeout(()=> window.location.href='index.html?cart=open', 100)">
-                        Buy Now
-                    </button>
+                     </button>
+                      <button class="fav-action-btn" onclick="addToCart('${p.id}', getQty()); showToast('Added to Cart')" title="Add to Wishlist">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                     </button>
                 </div>
                 
-                <div class="pp-benefits" style="margin-top:32px; display:flex; flex-direction:column; gap:16px;">
-                    <div class="benefit-item">
-                        <div class="benefit-icon">🚚</div>
-                        <div>
-                            <div style="font-weight:700">Free Delivery</div>
-                            <div class="muted tiny">On orders over 300 MAD</div>
+                <div class="trust-bar" style="margin-top:20px; border-top:1px solid var(--line); padding-top:30px; display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <div style="display:flex; align-items:center; gap:12px">
+                        <div style="width:40px; height:40px; background:#f0f9ff; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#0284c7">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                         </div>
+                        <div style="font-size:0.9rem; font-weight:600">Free Express Delivery</div>
                     </div>
-                     <div class="benefit-item">
-                        <div class="benefit-icon">🛡️</div>
-                        <div>
-                             <div style="font-weight:700">Buyer Protection</div>
-                             <div class="muted tiny">Get full refund if the item is not as described</div>
+                    <div style="display:flex; align-items:center; gap:12px">
+                        <div style="width:40px; height:40px; background:#f0fdf4; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#16a34a">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                         </div>
+                        <div style="font-size:0.9rem; font-weight:600">2 Year Warranty</div>
                     </div>
-                </div>
-                
-                <div class="pp-desc-container" style="margin-top:40px; padding-top:20px; border-top:1px solid var(--line)">
-                    <h3>Description</h3>
-                    <p style="line-height:1.6; color:var(--muted); margin-bottom:32px">
-                       Noise Cancellation for Calls, Dual Microphones, Automatic Pairing, Quick And Precise Connectivity, Long Standby Time of 5.4 Hours.
-                    </p>
-
-                    <div class="specs-container">
-                        <!-- General -->
-                        <div class="specs-group">
-                            <h4>General</h4>
-                            <div class="spec-row"><span class="spec-key">Product Type</span><span class="spec-val">Wireless Earbuds</span></div>
-                            <div class="spec-row"><span class="spec-key">Brand</span><span class="spec-val">GENAI</span></div>
-                            <div class="spec-row"><span class="spec-key">Model</span><span class="spec-val">TV Series</span></div>
-                            <div class="spec-row"><span class="spec-key">Origin</span><span class="spec-val">Guangdong, China</span></div>
-                            <div class="spec-row"><span class="spec-key">Material</span><span class="spec-val">Plastic</span></div>
-                            <div class="spec-row"><span class="spec-key">Color Options</span><span class="spec-val">Black, White</span></div>
+                    <div style="display:flex; align-items:center; gap:12px">
+                        <div style="width:40px; height:40px; background:#fefce8; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#ca8a04">
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                         </div>
-
-                        <!-- Features -->
-                        <div class="specs-group">
-                            <h4>Features</h4>
-                            <div class="spec-row"><span class="spec-key">Noise Control</span><span class="spec-val">Active Cancellation</span></div>
-                            <div class="spec-row"><span class="spec-key">Fit</span><span class="spec-val">Lightweight, Semi-open</span></div>
-                            <div class="spec-row"><span class="spec-key">Control</span><span class="spec-val">Touch Control</span></div>
-                            <div class="spec-row"><span class="spec-key">Mic Type</span><span class="spec-val">Condenser</span></div>
-                            <div class="spec-row"><span class="spec-key">Jack</span><span class="spec-val">No Jack</span></div>
+                        <div style="font-size:0.9rem; font-weight:600">30-Day Returns</div>
+                    </div>
+                     <div style="display:flex; align-items:center; gap:12px">
+                        <div style="width:40px; height:40px; background:#f5f3ff; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#7c3aed">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
                         </div>
-
-                        <!-- Connectivity -->
-                        <div class="specs-group">
-                            <h4>Connectivity</h4>
-                            <div class="spec-row"><span class="spec-key">Wireless</span><span class="spec-val">Bluetooth 5.3</span></div>
-                            <div class="spec-row"><span class="spec-key">Type</span><span class="spec-val">Fully Wireless (TWS)</span></div>
-                            <div class="spec-row"><span class="spec-key">Compatibility</span><span class="spec-val">Android, iOS</span></div>
-                            <div class="spec-row"><span class="spec-key">Stability</span><span class="spec-val">Fast Pairing</span></div>
-                        </div>
-
-                         <!-- Power -->
-                        <div class="specs-group">
-                            <h4>Power</h4>
-                            <div class="spec-row"><span class="spec-key">Battery</span><span class="spec-val">Li-Polymer</span></div>
-                            <div class="spec-row"><span class="spec-key">Charging Port</span><span class="spec-val">Type-C</span></div>
-                            <div class="spec-row"><span class="spec-key">Max Power</span><span class="spec-val">15W</span></div>
-                            <div class="spec-row"><span class="spec-key">Operating Voltage</span><span class="spec-val">≤36V</span></div>
-                            <div class="spec-row"><span class="spec-key">Case</span><span class="spec-val">Charging Case Included</span></div>
-                        </div>
+                        <div style="font-size:0.9rem; font-weight:600">Secure Payment</div>
                     </div>
                 </div>
             </div>
         </div>
+
+        ${specsHtml}
+
+        <!-- REVIEWS SECTION -->
+        <div class="reviews-section" id="reviews" style="margin-top: 80px;">
+            <h3 style="font-size:1.6rem; margin-bottom:30px; font-weight:800;">Customer Reviews</h3>
+            ${summaryHtml}
+            ${reviewsHtml}
+        </div>
+        
+        <!-- RELATED PRODUCTS -->
+        <div class="related-section" style="margin-top:80px; padding-top:40px; border-top:1px solid var(--line)">
+             <h3 style="font-size:1.6rem; margin-bottom:24px; font-weight:800;">You might also like</h3>
+             <div class="horizontal-scroll" id="relatedList" style="display:flex; gap:16px; overflow-x:auto; padding-bottom:20px;"></div>
+        </div>
+      </div>
      `;
      
      document.getElementById("product-content").innerHTML = html;
+     
+     if (typeof getCardHTML === "function") {
+         const related = PRODUCTS.filter(x => x.cat === p.cat && x.id !== p.id).slice(0, 4);
+         const listEl = document.getElementById("relatedList");
+         if(related.length && listEl) {
+             listEl.innerHTML = related.map(getCardHTML).join("");
+         } else if(listEl) {
+            document.querySelector(".related-section").style.display = 'none';
+         }
+     }
   }
 
   window.updateQty = function(d) {
@@ -284,7 +355,7 @@
           }, 150);
       }
       
-      document.querySelectorAll(".pp-thumb-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".thumb-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
   };
 
@@ -295,14 +366,11 @@
         if(cn) cn.textContent = colorName;
       }
       
-      // Update Selection UI
-      document.querySelectorAll(".pp-color-btn").forEach(b => b.classList.remove("selected"));
+      document.querySelectorAll(".color-swatch").forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");
       
-      // Update Image if specific image exists for color
       if(imgUrl && imgUrl !== 'undefined') {
-          // Find matching thumb
-          const thumbs = document.querySelectorAll(".pp-thumb-btn img");
+          const thumbs = document.querySelectorAll(".thumb-btn img");
           let foundThumb = null;
           thumbs.forEach(t => {
               if(t.src === imgUrl) foundThumb = t.parentElement;
@@ -311,17 +379,18 @@
           if(foundThumb) {
               setMainImage(foundThumb, imgUrl);
           } else {
-              // Just update main image directly if no thumb
                const img = document.getElementById("ppMainImg");
                if(img) img.src = imgUrl;
           }
       }
   };
   
-  // Reuse helper from app.js if needed, or simple local one is fine
   function label(cat){
       return cat.charAt(0).toUpperCase() + cat.slice(1);
   }
 </script>
+<button id="backToTop" aria-label="Back to top">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path></svg>
+</button>
 </body>
 </html>
