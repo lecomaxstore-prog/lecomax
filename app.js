@@ -977,28 +977,7 @@ function renderCart(){
 function checkout(){
   const entries = Object.entries(state.cart);
   if (!entries.length) return alert("Cart is empty.");
-
-  const lines = ["Order — Lecomax", "--------------------"];
-  let total = 0;
-  for (const [key, qty] of entries){
-    const { id, size } = parseCartKey(key);
-    const p = PRODUCTS.find(x => x.id === id);
-    if (!p) continue;
-    const sum = p.price * qty;
-    total += sum;
-    lines.push(`${p.name}${size ? ` (Size: ${size})` : ""} × ${qty} = ${sum} MAD`);
-  }
-  lines.push("--------------------");
-  lines.push(`Total: ${total} MAD`);
-
-  navigator.clipboard.writeText(lines.join("\n")).then(() => {
-    // alert("Order copied ✅ Paste it in WhatsApp or send to your team.");
-    openSuccessModal();
-    state.cart = {};
-    save();
-    renderCart();
-    closeAll();
-  });
+  window.location.href = "checkout.html";
 }
 
 function openSuccessModal() {

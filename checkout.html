@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout - Lecomax</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="announcement">
+    <div class="container announcement__inner">
+      <span style="display:flex; align-items:center; gap:8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+        Secure checkout
+      </span>
+      <div class="toplinks">
+        <a class="toplink" href="index.html">Back to shop</a>
+      </div>
+    </div>
+  </div>
+
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__name"><span style="color:var(--accent)">L'</span>ECOMAX</span>
+      </a>
+      <div class="actions">
+        <a href="index.html" class="iconbtn" aria-label="Home">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div class="product-page checkout-page">
+        <nav class="breadcrumb" style="margin: 8px 0 14px 0; font-size: 0.85rem; color: var(--muted); display:flex; align-items:center; gap:8px;">
+          <a href="index.html" style="color:var(--muted); text-decoration:none;">Home</a>
+          <span style="opacity:0.3">/</span>
+          <span style="color:var(--text); font-weight:500">Checkout</span>
+        </nav>
+
+        <div class="product-layout checkout-grid">
+          <div>
+            <h1 class="product-title checkout-title">Shipping Information</h1>
+            <form id="checkoutForm" class="card checkout-card">
+              <div class="checkout-fields">
+                <div class="checkout-field">
+                  <label for="fullName" class="checkout-label">Full Name</label>
+                  <input id="fullName" name="fullName" required class="checkout-input" placeholder="Full name" />
+                </div>
+                <div class="checkout-field">
+                  <label for="phone" class="checkout-label">Phone</label>
+                  <input id="phone" name="phone" required class="checkout-input" placeholder="Phone number" />
+                </div>
+                <div class="checkout-field">
+                  <label for="address" class="checkout-label">Address</label>
+                  <input id="address" name="address" required class="checkout-input" placeholder="Street address" />
+                </div>
+                <div class="checkout-field checkout-field--row">
+                  <div>
+                    <label for="city" class="checkout-label">City</label>
+                    <input id="city" name="city" required class="checkout-input" placeholder="City" />
+                  </div>
+                  <div>
+                    <label for="zip" class="checkout-label">Postal Code</label>
+                    <input id="zip" name="zip" required class="checkout-input" placeholder="Postal code" />
+                  </div>
+                </div>
+                <button class="btn btn--primary checkout-submit" type="submit">Place Order</button>
+                <div class="checkout-hint">We will contact you to confirm delivery details.</div>
+              </div>
+            </form>
+          </div>
+
+          <aside class="card checkout-card checkout-summary">
+            <h2 class="checkout-summary__title">Order Summary</h2>
+            <div id="checkoutItems" class="checkout-items"></div>
+            <div class="totals checkout-totals">
+              <span class="muted">Total</span>
+              <strong id="checkoutTotal">0 MAD</strong>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p class="muted">© <span id="year"></span> Lecomax. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const cart = JSON.parse(localStorage.getItem("lc_cart_v2") || "{}");
+    const entries = Object.entries(cart);
+    const wrap = document.getElementById("checkoutItems");
+    let total = 0;
+
+    if (!entries.length) {
+      wrap.innerHTML = "<div class='muted'>Your cart is empty.</div>";
+    } else {
+      wrap.innerHTML = entries.map(([key, qty]) => {
+        const parts = String(key).split("__");
+        const id = parts.shift();
+        const size = parts.length ? parts.join("__") : "";
+        const p = PRODUCTS.find(x => x.id === id);
+        if (!p) return "";
+        total += p.price * qty;
+        return `
+          <div class="checkout-item">
+            <div class="checkout-item__left">
+              <div class="checkout-item__thumb">
+                ${p.images && p.images[0] ? `<img src="${p.images[0]}" alt="${p.name}">` : ""}
+              </div>
+              <div class="checkout-item__meta">
+                <div class="checkout-item__name">${p.name}</div>
+                <div class="checkout-item__sub">${label(p.cat)}${size ? ` • Size: ${size}` : ""}</div>
+              </div>
+            </div>
+            <div class="checkout-item__price">${p.price * qty} MAD</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    document.getElementById("checkoutTotal").textContent = `${total} MAD`;
+
+    document.getElementById("checkoutForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      alert("Order received! We will contact you to confirm shipping details.");
+    });
+  </script>
+</body>
+</html>
