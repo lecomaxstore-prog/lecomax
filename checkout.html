@@ -47,6 +47,7 @@
             <h1 class="product-title checkout-title">Shipping Information</h1>
             <form id="checkoutForm" class="card checkout-card">
               <div class="checkout-fields">
+                <div id="checkoutMessage" class="checkout-message" style="display:none;"></div>
                 <div class="checkout-field">
                   <label for="fullName" class="checkout-label">Full Name</label>
                   <input id="fullName" name="fullName" required class="checkout-input" placeholder="Full name" />
@@ -65,8 +66,8 @@
                     <input id="city" name="city" required class="checkout-input" placeholder="City" />
                   </div>
                   <div>
-                    <label for="zip" class="checkout-label">Postal Code</label>
-                    <input id="zip" name="zip" required class="checkout-input" placeholder="Postal code" />
+                    <label for="postalCode" class="checkout-label">Postal Code</label>
+                    <input id="postalCode" name="postalCode" required class="checkout-input" placeholder="Postal code" />
                   </div>
                 </div>
                 <button class="btn btn--primary checkout-submit" type="submit">Place Order</button>
@@ -94,48 +95,17 @@
     </div>
   </footer>
 
+  <div class="checkout-modal" id="checkoutSuccess" aria-hidden="true">
+    <div class="checkout-modal__backdrop"></div>
+    <div class="checkout-modal__card">
+      <div class="checkout-modal__icon">✓</div>
+      <h3>Order received</h3>
+      <p class="muted">We will contact you to confirm shipping details.</p>
+      <button class="btn btn--primary" id="checkoutDone">Continue</button>
+    </div>
+  </div>
+
   <script src="app.js"></script>
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-
-    const cart = JSON.parse(localStorage.getItem("lc_cart_v2") || "{}");
-    const entries = Object.entries(cart);
-    const wrap = document.getElementById("checkoutItems");
-    let total = 0;
-
-    if (!entries.length) {
-      wrap.innerHTML = "<div class='muted'>Your cart is empty.</div>";
-    } else {
-      wrap.innerHTML = entries.map(([key, qty]) => {
-        const parts = String(key).split("__");
-        const id = parts.shift();
-        const size = parts.length ? parts.join("__") : "";
-        const p = PRODUCTS.find(x => x.id === id);
-        if (!p) return "";
-        total += p.price * qty;
-        return `
-          <div class="checkout-item">
-            <div class="checkout-item__left">
-              <div class="checkout-item__thumb">
-                ${p.images && p.images[0] ? `<img src="${p.images[0]}" alt="${p.name}">` : ""}
-              </div>
-              <div class="checkout-item__meta">
-                <div class="checkout-item__name">${p.name}</div>
-                <div class="checkout-item__sub">${label(p.cat)}${size ? ` • Size: ${size}` : ""}</div>
-              </div>
-            </div>
-            <div class="checkout-item__price">${p.price * qty} MAD</div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    document.getElementById("checkoutTotal").textContent = `${total} MAD`;
-
-    document.getElementById("checkoutForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      alert("Order received! We will contact you to confirm shipping details.");
-    });
-  </script>
+  <script src="checkout.js"></script>
 </body>
 </html>
