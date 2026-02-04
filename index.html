@@ -188,19 +188,19 @@
 
   <section class="hero">
     <div class="container hero__inner">
-      <div class="heroTabs" role="tablist" aria-label="Categories">
-        <button class="heroTab is-active" data-hero-tab="electronics" role="tab">Electronics</button>
-        <button class="heroTab" data-hero-tab="clothing" role="tab">Clothing</button>
-        <button class="heroTab" data-hero-tab="shoes" role="tab">Shoes</button>
-        <button class="heroTab" data-hero-tab="accessories" role="tab">Backpacks</button>
+      <div class="heroTabs" role="tablist" aria-label="Categories" style="display:none">
+        <!-- Tabs removed/hidden as per request -->
       </div>
 
-      <div class="heroGrid">
+
+      <div class="heroGrid" style="grid-template-columns: 1fr;">
         <div class="slider" aria-label="Featured">
           <div class="slider__track" id="sliderTrack"></div>
           <div class="slider__dots" id="sliderDots" aria-label="Dots"></div>
         </div>
 
+        <!-- Hidden Side Cards to make video full width -->
+        <!--
         <aside class="sideCards">
           <div class="sideCard">
             <div class="sideCard__kicker">Premium Service</div>
@@ -263,6 +263,42 @@
             <a class="btn btn--primary w100" href="#products">Grab Deal Now</a>
           </div>
         </aside>
+        -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Features / Benefits Section -->
+  <section class="section--features">
+    <div class="container">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 14"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+          </div>
+          <div class="feature-content">
+            <h3>Fast Delivery</h3>
+            <p>Shipping within 3 days.</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          </div>
+          <div class="feature-content">
+             <h3>Official Warranty</h3>
+             <p>1-year coverage.</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </div>
+          <div class="feature-content">
+             <h3>Premium Support</h3>
+             <p>24/7 expert assistance.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -271,8 +307,8 @@
     <div class="container">
       <div class="section__head">
         <div>
-          <h2>Shop by category</h2>
-          <p class="muted">Headphones • Clothing • Shoes • Backpacks — everything has its place.</p>
+          <h2 style="font-size: 2rem; letter-spacing: -0.02em; margin-bottom: 6px;">Curated Collections</h2>
+
         </div>
         <a class="btn btn--view-all" href="#products">View all</a>
       </div>
@@ -282,7 +318,7 @@
           <div class="catCard__top">
             <span class="catCard__badge">Top</span>
             <div class="catCard__visual">
-               <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/headphones%20%26%20audio.png" alt="Electronics" loading="lazy">
+               <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/headphones%20%26%20audio.png" alt="Headphones & Audio" style="object-fit:cover;">
                <div class="catCard__fab">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
                </div>

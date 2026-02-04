@@ -526,31 +526,7 @@ const SLIDES = [
   { tab:"electronics", kicker:"New Arrival", title:"Headphones that feel premium.",
     text:"ANC audio, wearables and power accessories—presented with a clean brand-store experience.",
     video: "https://cdn-static.oraimo.com/official/home_pc.mp4",
-    tiles:[{emoji:"🎧", name:"ANC Earbuds", meta:"Deep bass", price:"79 MAD"},
-           {emoji:"⌚", name:"AMOLED Watch", meta:"Health tracking", price:"69 MAD"},
-           {emoji:"⚡", name:"GaN 65W", meta:"Fast charging", price:"29 MAD"},
-           {emoji:"🔋", name:"Power 20k", meta:"All day", price:"35 MAD"}]},
-  { tab:"clothing", kicker:"Best Seller", title:"Clothing with a clean look.",
-    text:"Premium basics—hoodies, tees, and denim with a modern fit and quality feel.",
-    image: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/clothes%20section%20.jpeg",
-    tiles:[{emoji:"🧥", name:"Hoodie", meta:"Oversized", price:"39 MAD"},
-           {emoji:"👕", name:"T‑Shirt", meta:"Heavy cotton", price:"19 MAD"},
-           {emoji:"👖", name:"Cargo", meta:"Utility", price:"35 MAD"},
-           {emoji:"🧢", name:"Denim", meta:"Classic", price:"55 MAD"}]},
-  { tab:"shoes", kicker:"Trending", title:"Shoes designed for comfort.",
-    text:"Sneakers, runners and loafers—easy browsing, fast add-to-cart.",
-    image: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/shoes%20section.png",
-    tiles:[{emoji:"👟", name:"Sneakers", meta:"Cushion", price:"49 MAD"},
-           {emoji:"🏃", name:"Running", meta:"Lightweight", price:"59 MAD"},
-           {emoji:"👞", name:"Loafers", meta:"Smart", price:"65 MAD"},
-           {emoji:"🩴", name:"Slides", meta:"Soft", price:"18 MAD"}]},
-  { tab:"accessories", kicker:"Backpacks", title:"Carry your day in style.",
-    text:"Urban and travel backpacks with premium materials and practical pockets.",
-    image: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/backpack%20section.png",
-    tiles:[{emoji:"🎒", name:"Urban 22L", meta:"Laptop sleeve", price:"44 MAD"},
-           {emoji:"🎒", name:"Travel 30L", meta:"Water resistant", price:"59 MAD"},
-           {emoji:"👜", name:"Sling Mini", meta:"Essentials", price:"24 MAD"},
-           {emoji:"🧳", name:"Gym Duffel", meta:"Easy clean", price:"32 MAD"}]},
+    tiles:[]}
 ];
 
 const state = { 
@@ -857,20 +833,40 @@ function initSlider(){
   track.innerHTML = SLIDES.map(s => {
     const isMedia = s.image || s.video;
     return `
-    <div class="slide" ${isMedia ? `style="background: transparent; padding: 0; display: block; border: none;"` : ''}>
+    <div class="slide" ${isMedia ? `style="background: transparent; padding: 0; display: flex; flex-direction: column; gap: 24px; border: none; align-items: center;"` : ''}>
     ${s.video
-       ? `<div style="position:relative; width:100%; height:100%">
-            <video src="${s.video}" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; border-radius: 26px; box-shadow: 0 18px 55px rgba(0,0,0,0.45);"></video>
-            <button class="slide__overlay-btn" onclick="setFilter('${s.tab}')">
-              ${s.tab === 'accessories' ? 'Backpacks' : s.tab.charAt(0).toUpperCase() + s.tab.slice(1)} <span style="margin-left:6px">→</span>
-            </button>
-          </div>`
+       ? `<video src="${s.video}" autoplay loop muted playsinline style="width: 100%; height: auto; max-height: 80vh; border-radius: 32px; box-shadow: 0 24px 60px -12px rgba(0,0,0,0.55); border: 1px solid rgba(0,0,0,0.05); display: block; object-fit: cover;"></video>
+            <style>
+              .hero-cta {
+                display: inline-flex; align-items: center; gap: 14px;
+                background: #0f172a;
+                color: #fff;
+                padding: 18px 56px; border-radius: 100px;
+                font-weight: 600; font-size: 1.2rem; text-decoration: none;
+                box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.4);
+                transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+                border: 1px solid rgba(255,255,255,0.1);
+                letter-spacing: -0.01em;
+              }
+              .hero-cta:hover {
+                transform: translateY(-4px) scale(1.02);
+                box-shadow: 0 30px 60px -12px rgba(15, 23, 42, 0.5);
+                background: #1e293b;
+                border-color: rgba(255,255,255,0.2);
+              }
+              .hero-cta svg { transition: transform 0.3s ease; }
+              .hero-cta:hover svg { transform: translateX(6px); }
+            </style>
+            <div>
+              <a href="#products" class="hero-cta">
+                Shop Now
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </a>
+            </div>`
        : s.image 
        ? `<div style="position:relative; width:100%; height:100%">
             <img src="${s.image}" alt="${escapeHtml(s.title)}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 26px; box-shadow: 0 18px 55px rgba(0,0,0,0.45);" />
-            <button class="slide__overlay-btn" onclick="setFilter('${s.tab}')">
-              ${s.tab === 'accessories' ? 'Backpacks' : s.tab.charAt(0).toUpperCase() + s.tab.slice(1)} <span style="margin-left:6px">→</span>
-            </button>
+            <!-- Overlay button removed -->
           </div>`
        : `<div class="slide__content-wrapper" style="display:grid; grid-template-columns: 1.1fr .9fr; gap:24px; align-items:center; width: 100%; height: 100%;">
             <div>
@@ -893,14 +889,9 @@ function initSlider(){
     </div>
   `}).join("");
 
+  // Remove dots since there's only one slide now
   const dots = $("#sliderDots");
-  dots.innerHTML = SLIDES.map((_, i) => `<button class="dotBtn ${i===state.slideIndex?'is-active':''}" data-dot="${i}" aria-label="Slide ${i+1}"></button>`).join("");
-  
-  $$("#sliderDots [data-dot]").forEach(b => b.addEventListener("click", () => {
-    state.slideIndex = Number(b.dataset.dot);
-    updateSlider();
-    resetAutoPlay();
-  }));
+  if(dots) dots.style.display = 'none';
 }
 
 function updateSlider(){
