@@ -2166,6 +2166,11 @@ h2{margin:0; font-size:1.65rem}
 }
 .color-dot:hover{ transform: scale(1.15); border-color: rgba(15,23,42,.4); }
 .color-dot:focus-visible{ outline: 3px solid rgba(59,130,246,.35); outline-offset: 2px; }
+.color-dot.active {
+    border-color: #0f172a;
+    transform: scale(1.15);
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #0f172a;
+}
 
 /* Trending horizontal scroll (Primor-like) */
 .horizontal-scroll{

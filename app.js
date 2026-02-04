@@ -1002,6 +1002,41 @@ window.stopCardSlide = function(id) {
     }
 };
 
+window.selectCardColor = function(e, btn, id, src) {
+  if(e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  // Add active class for visual feedback
+  if(btn) {
+    const p = btn.closest(".card__color-dots");
+    if(p) p.querySelectorAll(".color-dot").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+  }
+
+  // Prefer the closest card image to avoid selector mismatches
+  let img = null;
+  let imgWrap = null;
+  if(btn) {
+    const card = btn.closest(".card");
+    if(card) {
+      imgWrap = card.querySelector(".card__img");
+      img = card.querySelector(".card__img .card-main-img");
+    }
+  }
+
+  if(!imgWrap) imgWrap = document.getElementById(`card-img-${id}`);
+  if(!img && imgWrap) img = imgWrap.querySelector(".card-main-img");
+  if(!img) img = document.getElementById(`img-${id}`);
+
+  if(imgWrap && imgWrap.sliderInterval) clearInterval(imgWrap.sliderInterval);
+  if(img) img.src = src;
+  if(imgWrap) imgWrap.onmouseenter = null; // Disable auto slide
+
+  return false;
+};
+
 window.changeCardImage = function(id, src) {
    // User selected a color, update image and stop slider to keep it fixed
    const el = document.querySelector(`[data-images][onmouseenter*="${id}"]`);
@@ -1084,13 +1119,13 @@ function getCardHTML(p) {
     let colorDots = "";
     if(p.colors && p.colors.length > 0) {
         colorDots = `<div class="card__color-dots">
-            ${p.colors.map(c => `<button class="color-dot" onclick="event.stopPropagation(); changeCardImage('${p.id}', '${c.img}')" style="background:${c.hex}" title="${escapeHtml(c.name)}"></button>`).join("")}
+          ${p.colors.map(c => `<button class="color-dot" onclick="return selectCardColor(event, this, '${p.id}', '${c.img}')" style="background:${c.hex}" title="${escapeHtml(c.name)}"></button>`).join("")}
         </div>`;
     }
 
     return `
     <article class="card" onclick="openProductPage('${p.id}')" style="cursor:pointer">
-      <div class="card__img" onmouseenter="startCardSlide('${p.id}')" onmouseleave="stopCardSlide('${p.id}')" data-images="${imgArray}" data-idx="0">
+      <div class="card__img" id="card-img-${p.id}" onmouseenter="startCardSlide('${p.id}')" onmouseleave="stopCardSlide('${p.id}')" data-images="${imgArray}" data-idx="0">
         ${badge}
         ${initImg}
         <div class="card__overlay-fav">
