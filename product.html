@@ -14,7 +14,7 @@
     <div class="container announcement__inner">
       <span style="display:flex; align-items:center; gap:8px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-        Free shipping on all orders over 300 DH
+        Free shipping on all orders over 300 MAD
       </span>
       <div class="toplinks">
         <a class="toplink" href="help-center.html">
@@ -77,7 +77,7 @@
       </div>
       <div class="drawer__body" id="cartItems"></div>
       <div class="drawer__foot">
-         <div class="totals"><span class="muted">Total</span><strong id="total">0 DH</strong></div>
+         <div class="totals"><span class="muted">Total</span><strong id="total">0 MAD</strong></div>
          <button class="btn btn--primary w100" id="checkout">Checkout</button>
       </div>
     </div>
@@ -151,69 +151,100 @@
      }
 
      // Generate fake reviews
-     let reviews = getFakeReviews(p.id, p.cat);
-     
-     // Hack to ensure 4.8 average visually as requested
-     if(reviews.length > 0) {
-        // Force 9 out of 11 to be 5 stars, 2 to be 4 stars => 4.81 avg
-        reviews = reviews.map((r, i) => {
-            r.rating = (i < 9) ? 5.0 : 4.0;
-            return r;
-        });
+     let reviewCount = 0;
+     let rDist = [];
+     if(p.id.includes("backpack")) {
+        reviewCount = 49;
+        rDist = [40, 5, 3, 1, 0];
+     } else if(p.id.includes("genai")) {
+        reviewCount = 128;
+        rDist = [108, 15, 4, 0, 1];
+     } else {
+        reviewCount = Math.floor(hashStr(p.id) % 200 + 40);
+        let r = reviewCount;
+        let d5 = Math.floor(r*0.7); r-=d5;
+        let d4 = Math.floor(r*0.2); r-=d4;
+        let d3 = Math.floor(r*0.08); r-=d3;
+        let d2 = Math.floor(r*0.5); r-=d2; // The remaining is small, careful with math
+        if(r < 0) r=0;
+        let d1 = r;
+        rDist = [d5, d4, d3, d2, d1];
      }
-
-     // Calculate review stats
-     const totalReviews = reviews.length;
-     const avgRating = (reviews.reduce((acc, r) => acc + r.rating, 0) / (totalReviews || 1)).toFixed(1);
-     const counts = {5:0, 4:0, 3:0, 2:0, 1:0};
-     reviews.forEach(r => {
-        const rounded = Math.round(r.rating);
-        if(counts[rounded] !== undefined) counts[rounded]++;
-     });
-
-     const summaryHtml = `
-        <div class="review-summary" style="display:flex; align-items:flex-start; gap:40px; margin-bottom:40px; padding:30px; background:#f8fafc; border-radius:16px;">
-            <div style="text-align:center; min-width:120px;">
-                <div style="font-size:3rem; font-weight:800; line-height:1; color:#0f172a;">${avgRating}</div>
-                <div class="stars" style="color:#f59e0b; margin:8px 0;">★★★★★</div>
-                <div class="muted" style="font-size:0.9rem;">${totalReviews} Reviews</div>
-            </div>
-            <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
-                ${Object.keys(counts).sort((a,b)=>b-a).map(star => {
-                    const count = counts[star];
-                    const pct = totalReviews ? (count / totalReviews) * 100 : 0;
-                    return `
-                    <div style="display:flex; align-items:center; gap:12px; font-size:0.9rem;">
-                        <span style="width:12px; font-weight:600;">${star}</span>
-                        <svg width="14" height="14" fill="#f59e0b" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01z"/></svg>
-                        <div style="flex:1; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
-                            <div style="width:${pct}%; height:100%; background:#f59e0b; border-radius:4px;"></div>
-                        </div>
-                        <span style="width:30px; text-align:right; color:var(--muted);">${count}</span>
-                    </div>`;
-                }).join('')}
-            </div>
+     
+     const ratingSummaryHtml = `
+        <div class="rating-summary">
+          <div class="rating-overall">
+             <div class="rating-score">${p.rating.toFixed(1)}</div>
+             <div class="rating-stars-lg">★★★★★</div>
+             <div class="rating-count-lg">Based on ${reviewCount} reviews</div>
+          </div>
+          <div class="rating-bars">
+             <div class="rating-bar-row">
+                 <span class="r-label">5 ★</span>
+                 <div class="r-track"><div class="r-fill" style="width:${(rDist[0]/reviewCount*100).toFixed(0)}%"></div></div>
+                 <span class="r-count">${rDist[0]}</span>
+             </div>
+             <div class="rating-bar-row">
+                 <span class="r-label">4 ★</span>
+                 <div class="r-track"><div class="r-fill" style="width:${(rDist[1]/reviewCount*100).toFixed(0)}%"></div></div>
+                 <span class="r-count">${rDist[1]}</span>
+             </div>
+             <div class="rating-bar-row">
+                 <span class="r-label">3 ★</span>
+                 <div class="r-track"><div class="r-fill" style="width:${(rDist[2]/reviewCount*100).toFixed(0)}%"></div></div>
+                 <span class="r-count">${rDist[2]}</span>
+             </div>
+             <div class="rating-bar-row">
+                 <span class="r-label">2 ★</span>
+                 <div class="r-track"><div class="r-fill" style="width:${(rDist[3]/reviewCount*100).toFixed(0)}%"></div></div>
+                 <span class="r-count">${rDist[3]}</span>
+             </div>
+             <div class="rating-bar-row">
+                 <span class="r-label">1 ★</span>
+                 <div class="r-track"><div class="r-fill" style="width:${(rDist[4]/reviewCount*100).toFixed(0)}%"></div></div>
+                 <span class="r-count">${rDist[4]}</span>
+             </div>
+          </div>
         </div>
      `;
 
-     let reviewsHtml = reviews.map(r => `
-         <div class="review-item" style="border-bottom:1px solid #f1f5f9; padding-bottom:20px; margin-bottom:20px;">
-            <div class="review-header" style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-                <div class="review-avatar" style="width:40px; height:40px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--muted);">${r.name.charAt(0)}</div>
-                <div>
-                    <div style="font-weight:700; font-size:0.95rem">${r.name}</div>
-                    <div class="stars" style="font-size:0.8rem; color:#f59e0b">${"★".repeat(Math.round(r.rating))}${"☆".repeat(5-Math.round(r.rating))}</div>
+     let reviewsHtml = `<div class="reviews-grid">` + getFakeReviews(p.id, p.cat).map(r => {
+         const colors = ['review-bg-blue', 'review-bg-green', 'review-bg-purple', 'review-bg-orange'];
+         const colorClass = colors[hashStr(r.name) % colors.length];
+         
+         return `
+         <div class="review-card">
+            <div class="review-header">
+                <div class="review-avatar ${colorClass}">${r.name.charAt(0)}</div>
+                <div class="review-meta">
+                    <div class="review-author">
+                        ${r.name}
+                        <span class="verified-badge">
+                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                           Verified Buyer
+                        </span>
+                    </div>
+                    <div class="review-stars">${"★".repeat(Math.floor(r.rating))}</div>
                 </div>
-                <div class="muted tiny" style="margin-left:auto">${r.date}</div>
+                <div class="review-date">${r.date}</div>
             </div>
-            <p style="color:var(--text); line-height:1.6; font-size:0.95rem;">${r.text}</p>
+            <div class="review-body">
+                “${r.text}”
+            </div>
+            <div class="review-tags">
+                <span class="review-tag">${r.tag}</span>
+            </div>
          </div>
-     `).join("");
+     `}).join("") + `</div>`;
 
       const html = `
         <div class="product-page">
            <!-- Improved Breadcrumb -->
            <nav class="breadcrumb" style="margin: 20px 0 32px 0; font-size: 0.85rem; color: var(--muted); display:flex; align-items:center; gap:8px;">
+              <button onclick="history.back()" style="border:none; background:none; padding:8px; margin-right:4px; margin-left:-8px; cursor:pointer; color:var(--text); display:flex; align-items:center; border-radius:50%; transition:background 0.2s" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='none'" title="Go Back">
+                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              </button>
+              
               <a href="index.html" style="color:var(--muted); text-decoration:none; transition:color 0.2s; display:flex; align-items:center; gap:4px">
                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                  Home
@@ -238,19 +269,21 @@
             
             <!-- Info Column -->
             <div class="product-info-col">
-                <div class="product-cat">${label(p.cat)}</div>
-                <h1 class="product-title">${p.name}</h1>
+                <div class="product-cat" style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:100px; background:#f0f9ff; color:#0284c7; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.04em;">
+                    ${label(p.cat)}
+                </div>
+                <h1 class="product-title" style="margin: 16px 0; font-size: clamp(2rem, 3vw, 2.8rem); line-height: 1.1; letter-spacing: -0.02em; font-weight: 800; color: var(--text);">${p.name}</h1>
                 
-                <div class="price-block">
-                    <div class="current-price">${p.price} DH</div>
-                    ${p.old ? `<div class="old-price">${p.old} DH</div>` : ''}
-                    ${p.old ? `<div class="save-badge">Save ${Math.round(((p.old - p.price)/p.old)*100)}%</div>` : ''}
+                <div class="price-block" style="margin-bottom: 20px;">
+                    <div class="current-price" style="font-size: 2.2rem; font-weight: 800; color: #1e293b;">${p.price} MAD</div>
+                    ${p.old ? `<div class="old-price" style="font-size: 1.2rem; margin-left:8px; position:relative; top:2px;">${p.old} MAD</div>` : ''}
+                    ${p.old ? `<div class="save-badge" style="background:#dc2626; margin-left:12px; padding:4px 10px; border-radius:6px; text-transform:uppercase;">Save ${Math.round(((p.old - p.price)/p.old)*100)}%</div>` : ''}
                 </div>
 
                 <div class="rating-block">
                     <span class="stars" style="color:#f59e0b; letter-spacing:1px;">★★★★★</span> 
                     <span>${p.rating.toFixed(1)}</span>
-                    <a href="#reviews" class="muted" style="text-decoration:underline; font-weight:400; margin-left:6px;">(11 reviews)</a>
+                    <a href="#reviews" class="muted" style="text-decoration:underline; font-weight:400; margin-left:6px;">(${reviewCount} reviews)</a>
                 </div>
                 
                 <p class="description">
@@ -261,44 +294,49 @@
 
                 ${colorHtml}
 
-                <div class="cart-actions">
-                     <div class="qty-box">
-                        <button class="qty-btn" onclick="updateQty(-1)">−</button>
-                        <input id="qtyInput" class="qty-val" value="1" readonly>
-                        <button class="qty-btn" onclick="updateQty(1)">+</button>
+                <div class="cart-actions" style="margin-top: 24px; display: grid; grid-template-columns: 140px 1fr auto; gap: 12px; align-items: stretch;">
+                     <div class="qty-box" style="height: 54px; display: flex; align-items: center; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff;">
+                        <button class="qty-btn" onclick="updateQty(-1)" style="flex: 1; height: 100%; border: none; background: none; cursor: pointer; font-size: 1.2rem; color: var(--text); transition: background 0.2s;">−</button>
+                        <input id="qtyInput" class="qty-val" value="1" readonly style="width: 40px; text-align: center; border: none; background: none; font-weight: 700; font-size: 1.1rem; color: var(--text);">
+                        <button class="qty-btn" onclick="updateQty(1)" style="flex: 1; height: 100%; border: none; background: none; cursor: pointer; font-size: 1.2rem; color: var(--text); transition: background 0.2s;">+</button>
                      </div>
-                     <button class="btn btn--primary add-btn" onclick="addToCart('${p.id}', getQty()); setTimeout(()=> window.location.href='index.html?cart=open', 100)">
-                        Add to Cart
+                     
+                     <button class="btn btn--primary add-btn" onclick="addToCart('${p.id}', getQty()); setTimeout(()=> window.location.href='index.html?cart=open', 100)" style="height: 54px; border-radius: 12px; font-size: 1.1rem; letter-spacing: 0.02em; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);">
+                        Add to Cart 
                      </button>
-                      <button class="fav-action-btn" onclick="addToCart('${p.id}', getQty()); showToast('Added to Cart')" title="Add to Wishlist">
+                     
+                      <button class="fav-action-btn" onclick="addToCart('${p.id}', getQty()); showToast('Added to Cart')" title="Add to Wishlist" style="height: 54px; width: 54px; border-radius: 12px; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #fff; transition: all 0.2s;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                      </button>
                 </div>
                 
-                <div class="trust-bar" style="margin-top:20px; border-top:1px solid var(--line); padding-top:30px; display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                    <div style="display:flex; align-items:center; gap:12px">
-                        <div style="width:40px; height:40px; background:#f0f9ff; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#0284c7">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                <div class="trust-bar" style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                    <div class="trust-item" style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
+                        <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0284c7; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                         </div>
-                        <div style="font-size:0.9rem; font-weight:600">Free Express Delivery</div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">Free Express<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">Delivery in 3 days</span></div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:12px">
-                        <div style="width:40px; height:40px; background:#f0fdf4; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#16a34a">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    
+                    <div class="trust-item" style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
+                        <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #16a34a; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                         </div>
-                        <div style="font-size:0.9rem; font-weight:600">2 Year Warranty</div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">2 Year<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">Official warranty</span></div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:12px">
-                        <div style="width:40px; height:40px; background:#fefce8; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#ca8a04">
-                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+
+                    <div class="trust-item" style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
+                        <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #ca8a04; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                         </div>
-                        <div style="font-size:0.9rem; font-weight:600">30-Day Returns</div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">30-Day<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">Easy returns</span></div>
                     </div>
-                     <div style="display:flex; align-items:center; gap:12px">
-                        <div style="width:40px; height:40px; background:#f5f3ff; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#7c3aed">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                    
+                     <div class="trust-item" style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
+                        <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #7c3aed; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
                         </div>
-                        <div style="font-size:0.9rem; font-weight:600">Secure Payment</div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">Secure<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">Payment</span></div>
                     </div>
                 </div>
             </div>
@@ -309,7 +347,7 @@
         <!-- REVIEWS SECTION -->
         <div class="reviews-section" id="reviews" style="margin-top: 80px;">
             <h3 style="font-size:1.6rem; margin-bottom:30px; font-weight:800;">Customer Reviews</h3>
-            ${summaryHtml}
+            ${ratingSummaryHtml}
             ${reviewsHtml}
         </div>
         
