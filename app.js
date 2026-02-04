@@ -1544,7 +1544,60 @@ function setupBackToTop() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', setupBackToTop);
+  document.addEventListener('DOMContentLoaded', () => {
+    setupBackToTop();
+    setupSearchSuggestions();
+  });
 } else {
   setupBackToTop();
+  setupSearchSuggestions();
+}
+
+function setupSearchSuggestions() {
+  const input = document.getElementById('q');
+  if (!input) return;
+  
+  const box = input.closest('.searchbox');
+  let list = document.querySelector('.suggestion-list');
+  
+  if (!list) {
+    list = document.createElement('div');
+    list.className = 'suggestion-list';
+    box.appendChild(list);
+  }
+
+  input.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase().trim();
+    if (term.length < 2) {
+      list.classList.remove('active');
+      return;
+    }
+
+    const matches = PRODUCTS.filter(p => p.name.toLowerCase().includes(term));
+    
+    if (matches.length > 0) {
+      list.innerHTML = matches.map(p => {
+         const img = (p.images && p.images.length) ? p.images[0] : '';
+         return `
+        <a href="product.html?id=${p.id}" class="suggestion-item">
+          <img src="${img}" class="suggestion-img" alt="${p.name}">
+          <div class="suggestion-info">
+            <div class="suggestion-name">${p.name}</div>
+            <div class="suggestion-price">${p.price} MAD</div>
+          </div>
+        </a>
+      `}).join('');
+      list.classList.add('active');
+    } else {
+      list.innerHTML = `<div style="padding:12px; text-align:center; color:var(--muted); font-size:0.9rem;">No results found</div>`;
+      list.classList.add('active');
+    }
+  });
+
+  // Hide when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!box.contains(e.target)) {
+      list.classList.remove('active');
+    }
+  });
 }
