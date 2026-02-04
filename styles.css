@@ -2250,6 +2250,21 @@ h2{margin:0; font-size:1.65rem}
     box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #0f172a, 0 6px 14px rgba(15,23,42,0.16);
 }
 
+.size-pill {
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 48px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .size-pill.selected {
   border-color: #2563eb !important;
   background: #eff6ff !important;
@@ -2257,10 +2272,16 @@ h2{margin:0; font-size:1.65rem}
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.2);
 }
 .size-pill.is-soldout {
-  opacity: 0.55;
-  border-style: dashed !important;
-  color: #94a3b8;
-  cursor: not-allowed !important;
+  opacity: 0.5;
+  background: #f8fafc;
+  color: #bdc3c7;
+  border-color: #e2e8f0;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+.size-pill:hover:not(:disabled) {
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
 }
 
 /* Trending horizontal scroll (Primor-like) */
@@ -2333,6 +2354,13 @@ h2{margin:0; font-size:1.65rem}
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   padding: 20px;
 }
+.main-image-wrapper video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0; /* Videos usually don't need padding */
+  display: none; /* Hidden by default */
+}
 .main-image-wrapper:hover img{
   transform: scale(1.05);
 }
@@ -2348,6 +2376,7 @@ h2{margin:0; font-size:1.65rem}
   padding-bottom: 4px;
 }
 .thumb-btn{
+  position: relative;
   aspect-ratio: 1;
   border: 1px solid rgba(0,0,0,0.06);
   background: #fff;
@@ -2358,6 +2387,24 @@ h2{margin:0; font-size:1.65rem}
   width: 100%;
   height: auto;
   padding: 4px;
+}
+.play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    padding-left: 2px; /* Visual center adjustment */
+    pointer-events: none;
+    z-index: 2;
 }
 .thumb-btn img{
   width:100%;

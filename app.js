@@ -471,6 +471,7 @@ const PRODUCTS = [
     old: 0,
     rating: 4.8,
     emoji: "🧥",
+    video: "https://goods-vod.kwcdn.com/goods-video/0fa0e2ee3a36c58fed983d037dd1e5804f269eb6gs2CV.f30.mp4",
     desc: "Lightweight Hooded Outdoor Coat, Regular Fit, Pockets Included, Fabric, Perfect for Casual Wear.",
     specs: {
         "Product Details": {
@@ -488,9 +489,19 @@ const PRODUCTS = [
             "Item ID": "NB4543728",
             "Origin": "Fujian,China"
         },
+        "Sizes": {
+            "Available Sizes": "M, L, XL, XXL, 3XL"
+        },
         "Care Instructions": {
             "Operation Instruction": "Machine wash or professional dry clean"
         }
+    },
+    sizesAvailability: {
+        "M": false,
+        "L": false,
+        "XL": false,
+        "XXL": true,
+        "3XL": false
     },
     images: [
       "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/milano%20jacket%20black%201.avif",
@@ -514,7 +525,7 @@ const PRODUCTS = [
 const SLIDES = [
   { tab:"electronics", kicker:"New Arrival", title:"Headphones that feel premium.",
     text:"ANC audio, wearables and power accessories—presented with a clean brand-store experience.",
-    image: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/headphones%20%26%20audio.png",
+    video: "https://cdn-static.oraimo.com/official/home_pc.mp4",
     tiles:[{emoji:"🎧", name:"ANC Earbuds", meta:"Deep bass", price:"79 MAD"},
            {emoji:"⌚", name:"AMOLED Watch", meta:"Health tracking", price:"69 MAD"},
            {emoji:"⚡", name:"GaN 65W", meta:"Fast charging", price:"29 MAD"},
@@ -843,9 +854,18 @@ function setupMegaMenus(){
 function initSlider(){
   const track = $("#sliderTrack");
   if(!track) return;
-  track.innerHTML = SLIDES.map(s => `
-    <div class="slide" ${s.image ? `style="background: transparent; padding: 0; display: block; border: none;"` : ''}>
-    ${s.image 
+  track.innerHTML = SLIDES.map(s => {
+    const isMedia = s.image || s.video;
+    return `
+    <div class="slide" ${isMedia ? `style="background: transparent; padding: 0; display: block; border: none;"` : ''}>
+    ${s.video
+       ? `<div style="position:relative; width:100%; height:100%">
+            <video src="${s.video}" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; border-radius: 26px; box-shadow: 0 18px 55px rgba(0,0,0,0.45);"></video>
+            <button class="slide__overlay-btn" onclick="setFilter('${s.tab}')">
+              ${s.tab === 'accessories' ? 'Backpacks' : s.tab.charAt(0).toUpperCase() + s.tab.slice(1)} <span style="margin-left:6px">→</span>
+            </button>
+          </div>`
+       : s.image 
        ? `<div style="position:relative; width:100%; height:100%">
             <img src="${s.image}" alt="${escapeHtml(s.title)}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 26px; box-shadow: 0 18px 55px rgba(0,0,0,0.45);" />
             <button class="slide__overlay-btn" onclick="setFilter('${s.tab}')">
@@ -871,7 +891,7 @@ function initSlider(){
           </div>`
     }
     </div>
-  `).join("");
+  `}).join("");
 
   const dots = $("#sliderDots");
   dots.innerHTML = SLIDES.map((_, i) => `<button class="dotBtn ${i===state.slideIndex?'is-active':''}" data-dot="${i}" aria-label="Slide ${i+1}"></button>`).join("");

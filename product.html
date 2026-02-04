@@ -129,7 +129,7 @@
              ${sizes.map((s) => {
                const available = sizeAvailability[s] !== false;
                return `
-               <button class="size-pill ${available ? '' : 'is-soldout'}" ${available ? '' : 'disabled'} onclick="return selectSize(this, '${s}')" style="padding:8px 14px; border-radius:10px; border:2px solid #e2e8f0; background:#fff; font-weight:700; cursor:pointer; transition:all .2s;" title="${available ? s : s + ' (Sold out)'}">${s}${available ? '' : ' · Sold Out'}</button>
+               <button class="size-pill ${available ? '' : 'is-soldout'}" ${available ? '' : 'disabled'} onclick="return selectSize(this, '${s}')" title="${available ? s : s + ' (Sold out)'}">${s}</button>
                `;
              }).join("")}
          </div>
@@ -138,9 +138,20 @@
 
      // Determine thumbs
      let thumbHtml = "";
+     
+     // Add Video Thumbnail if exists
+     if(p.video) {
+        thumbHtml += `
+            <div class="thumb-btn video-thumb" onclick="setMainVideo(this, '${p.video}')" style="position:relative; display:flex; align-items:center; justify-content:center; background:#000;">
+              <div style="position:absolute; width:24px; height:24px; background:rgba(0,0,0,0.6); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px;">▶</div>
+              <video src="${p.video}" muted style="width:100%; height:100%; object-fit:cover; opacity:0.7;"></video>
+            </div>
+        `;
+     }
+     
      if(p.images && p.images.length > 0) {
-         thumbHtml = p.images.map((src, i) => `
-            <div class="thumb-btn ${i===0?'active':''}" onclick="setMainImage(this, '${src}')">
+         thumbHtml += p.images.map((src, i) => `
+            <div class="thumb-btn ${i===0 && !p.video ?'active':''}" onclick="setMainImage(this, '${src}')">
               <img src="${src}" alt="">
             </div>
          `).join("");
@@ -268,8 +279,9 @@
         <div class="product-layout">
             <!-- Gallery Column -->
             <div class="product-gallery">
-                <div class="main-image-wrapper">
-                    <img id="ppMainImg" src="${p.images && p.images[0] ? p.images[0] : ''}" alt="${p.name}">
+                <div class="main-image-wrapper" style="position:relative;">
+                    <img id="ppMainImg" src="${p.images && p.images[0] ? p.images[0] : ''}" alt="${p.name}" style="${(p.images && p.images.length) ? '' : 'display:none'}">
+                    <video id="ppMainVideo" controls autoplay loop playsinline muted style="display:none; width:100%; height:100%; object-fit:contain; position:absolute; top:0; left:0; background:#fff;"></video>
                     ${!(p.images && p.images.length) ? `<div style="font-size:8rem">${p.emoji}</div>` : ''}
                 </div>
                 <div class="thumbnails">
@@ -371,6 +383,16 @@
      `;
      
      document.getElementById("product-content").innerHTML = html;
+
+     // Auto-play video if present
+     if (p.video) {
+         setTimeout(() => {
+             const vidBtn = document.querySelector('.thumb-btn[onclick*="setMainVideo"]');
+             if(vidBtn && typeof setMainVideo === 'function') {
+                 setMainVideo(vidBtn, p.video);
+             }
+         }, 50);
+     }
      
      if (typeof getCardHTML === "function") {
          const related = PRODUCTS.filter(x => x.cat === p.cat && x.id !== p.id).slice(0, 4);
@@ -430,7 +452,15 @@
   // Gallery Logic
   window.setMainImage = function(btn, src) {
       const img = document.getElementById("ppMainImg");
+      const vid = document.getElementById("ppMainVideo");
+      
+      if(vid) {
+          vid.pause();
+          vid.style.display = "none";
+      }
+      
       if(img) {
+          img.style.display = "block";
           img.style.opacity = "0.5";
           setTimeout(() => {
               img.src = src;
@@ -439,7 +469,24 @@
       }
       
       document.querySelectorAll(".thumb-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
+      if(btn) btn.classList.add("active");
+  };
+
+  window.setMainVideo = function(btn, src) {
+      const img = document.getElementById("ppMainImg");
+      const vid = document.getElementById("ppMainVideo");
+      
+      if(img) img.style.display = "none";
+      
+      if(vid) {
+          vid.src = src;
+          vid.style.display = "block";
+          vid.muted = true; // Ensure muted for autoplay
+          vid.play().catch(e => console.log("Autoplay blocked", e));
+      }
+      
+      document.querySelectorAll(".thumb-btn").forEach(b => b.classList.remove("active"));
+      if(btn) btn.classList.add("active");
   };
 
   // Color Logic
@@ -454,7 +501,15 @@
       
       if(imgUrl && imgUrl !== 'undefined') {
         const img = document.getElementById("ppMainImg");
+        const vid = document.getElementById("ppMainVideo");
+        
+        // Switch to image mode
+        if(vid) {
+            vid.pause();
+            vid.style.display = "none";
+        }
         if(img) {
+          img.style.display = "block";
           img.style.opacity = "0.5";
           setTimeout(() => {
             img.src = imgUrl;
