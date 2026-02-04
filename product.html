@@ -218,7 +218,7 @@
         </div>
      `;
 
-    let reviewsHtml = `<div class="reviews-grid">` + getFakeReviews(p.id, p.cat).slice(0, 7).map(r => {
+    let reviewsHtml = `<div class="reviews-grid">` + getFakeReviews(p.id, p.cat).slice(0, 1).map(r => {
          const colors = ['review-bg-blue', 'review-bg-green', 'review-bg-purple', 'review-bg-orange'];
          const colorClass = colors[hashStr(r.name) % colors.length];
          
@@ -333,7 +333,7 @@
                         <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #16a34a; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                         </div>
-                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">2 Year<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">Official warranty</span></div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">12 Months<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">Official warranty</span></div>
                     </div>
 
                     <div class="trust-item" style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">

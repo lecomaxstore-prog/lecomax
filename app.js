@@ -29,7 +29,7 @@ function starIcons(rating){
   return `<span class="stars">${star.repeat(full)}${half?halfStar:""}${emptyStar.repeat(empty)}</span>`;
 }
 function getFakeReviews(productId, cat){
-  const names = ["Yassine","Sara","Othman","Imane","Hamza","Aya","Sofiane","Nora","Ilyas","Kawtar","Hind","Mehdi","Salma","Anas","Rania","Walid"];
+  const names = ["Yassine","Othman","Hamza","Sofiane","Ilyas","Mehdi","Anas","Walid"];
   const tags = ["Fast delivery","Great quality","Worth it","Looks premium","Perfect fit","Super sound","Very comfortable","Good packaging"];
   const texts = {
     electronics: [
@@ -59,7 +59,7 @@ function getFakeReviews(productId, cat){
   };
   const rnd = pseudoRand(hashStr(productId));
   const list = [];
-  for(let i=0;i<10;i++){
+  for(let i=0;i<1;i++){
     const rating = 4 + Math.round(rnd()*10)/10; // 4.0 - 5.0
     const name = names[Math.floor(rnd()*names.length)];
     const tag = tags[Math.floor(rnd()*tags.length)];
@@ -350,6 +350,118 @@ const PRODUCTS = [
     sizesAvailability: {
       "XXL": true
     }
+  },
+  {
+    id: "mens_casual_summer_sport_suit",
+    cat: "clothing",
+    name: "Men's Casual Summer Sport Suit Large Size Trendy Korean Style Loose-Fit Running Fitness Breathable Quick-Dry Tracksuit",
+    price: 130,
+    old: 0,
+    rating: 4.7,
+    emoji: "🏃",
+    desc: "Stay cool and comfortable with this trendy Korean-style summer sport suit. Loose-fit, breathable, and quick-drying, perfect for running and fitness.",
+    specs: {
+        "General": {
+            "Product Type": "Sport Suit",
+            "Style": "Casual / Sport",
+            "Gender": "Men",
+            "Season": "Summer",
+            "Fit Type": "Loose-Fit"
+        },
+        "Features": {
+            "Breathable": "Yes",
+            "Quick-Dry": "Yes",
+            "Occasion": "Running, Fitness, Daily Wear"
+        }
+    },
+    images: [
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Summer%20Sport/white.jfif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Summer%20Sport/black.jfif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Summer%20Sport/3.jfif"
+    ],
+    colors: [
+      { name: "White", hex: "#ffffff", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Summer%20Sport/white.jfif" },
+      { name: "Black", hex: "#000000", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Summer%20Sport/black.jfif" }
+    ]
+  },
+  {
+    id: "mens_crossbody_bag",
+    cat: "accessories",
+    name: "Men's Crossbody Bag",
+    price: 150,
+    old: 0,
+    rating: 4.8,
+    emoji: "🎒",
+    desc: "Multi-Functional, Large Capacity, Lightweight Anti-Theft Password Lock Shoulder Bag. Breathable, Durable, Adjustable Strap. Suitable for Daily Commute, Hiking, Camping, And More.",
+    specs: {
+      "General": {
+        "Product Type": "Crossbody Bag",
+        "Gender": "Men",
+        "Style": "Casual / Sport",
+        "Usage": "Daily Commute, Hiking, Camping",
+        "Features": "Anti-Theft Password Lock, Large Capacity, Breathable, Durable"
+      },
+      "Dimensions": {
+        "Size": "Standard",
+        "Strap": "Adjustable"
+      }
+    },
+    images: [
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Crossbody%20Bag/1%20bag.jfif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Crossbody%20Bag/2%20bag.jfif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Crossbody%20Bag/3%20bag.jfif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Crossbody%20Bag/4%20bag.jfif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Crossbody%20Bag/5%20bag.jfif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Crossbody%20Bag/6%20bag.jfif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Crossbody%20Bag/7%20bag.jfif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Crossbody%20Bag/8%20bag.jfif"
+    ],
+    colors: [
+      { name: "Black and Golden", hex: "#1a1a1a", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Crossbody%20Bag/1%20bag.jfif" }
+    ]
+  },
+  {
+    id: "waterproof_waist_bag",
+    cat: "accessories",
+    name: "Waterproof Mobile Waist Bag",
+    price: 95,
+    old: 0,
+    rating: 4.7,
+    emoji: "👜",
+    desc: "Multifunctional Large Capacity Fanny Pack Anti Splash Wear-resistant Construction Site.",
+    specs: {
+      "General": {
+          "Brand": "CEXIKA",
+          "Model": "Mobile Waist Bag for Men Women",
+          "Item Type": "Waist packs",
+          "Style": "Casual",
+          "Gender": "Unisex",
+          "Safe": "High-concerned chemical: None"
+      },
+      "Material & Design": {
+          "Main Material": "Oxford",
+          "Composition": "Polyester",
+          "Pattern Type": "Solid",
+          "Shape": "Pillow"
+      },
+      "Dimensions & Origin": {
+          "Item Length": "33cm",
+          "Origin": "Mainland China",
+          "Province": "Guangdong"
+      }
+    },
+    images: [
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/bananabag/1%20banana.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/bananabag/2%20banana.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/bananabag/3%20banana.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/bananabag/4%20banana.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/bananabag/5%20banana.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/bananabag/6%20banana.avif"
+    ],
+    colors: [
+      { name: "Black", hex: "#1a1a1a", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/bananabag/1%20banana.avif" },
+      { name: "Gray", hex: "#808080", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/bananabag/2%20banana.avif" }
+    ]
   }
 ];
 
@@ -1272,7 +1384,6 @@ function getCardHTML(p) {
               </svg>
             </button>
         </div>
-        ${colorDots}
       </div>
       <div class="card__body">
          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
@@ -1284,6 +1395,7 @@ function getCardHTML(p) {
          </div>
 
          <h3 class="card__title">${escapeHtml(p.name)}</h3>
+     ${colorDots}
         
         <div class="card__bottom">
             <div class="card__price">
