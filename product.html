@@ -117,6 +117,25 @@
          </div>`;
      }
      
+     // Determine sizes
+     let sizeHtml = "";
+      const sizeStr = p.specs && p.specs["Sizes"] && p.specs["Sizes"]["Available Sizes"] ? p.specs["Sizes"]["Available Sizes"] : "";
+      const sizes = sizeStr ? sizeStr.split(",").map(s => s.trim()).filter(Boolean) : [];
+      const sizeAvailability = p.sizesAvailability || {};
+     if(sizes.length) {
+       sizeHtml = `<div class="options-wrap" style="margin-top:16px;">
+         <div class="option-label">Size: <span id="sizeValue" class="muted" style="font-weight:700; margin-left:6px;">Select</span></div>
+         <div class="sizes-list" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+             ${sizes.map((s) => {
+               const available = sizeAvailability[s] !== false;
+               return `
+               <button class="size-pill ${available ? '' : 'is-soldout'}" ${available ? '' : 'disabled'} onclick="return selectSize(this, '${s}')" style="padding:8px 14px; border-radius:10px; border:2px solid #e2e8f0; background:#fff; font-weight:700; cursor:pointer; transition:all .2s;" title="${available ? s : s + ' (Sold out)'}">${s}${available ? '' : ' · Sold Out'}</button>
+               `;
+             }).join("")}
+         </div>
+       </div>`;
+     }
+
      // Determine thumbs
      let thumbHtml = "";
      if(p.images && p.images.length > 0) {
@@ -150,26 +169,17 @@
         </div>`;
      }
 
-     // Generate fake reviews
-     let reviewCount = 0;
-     let rDist = [];
-     if(p.id.includes("backpack")) {
-        reviewCount = 49;
-        rDist = [40, 5, 3, 1, 0];
-     } else if(p.id.includes("genai")) {
-        reviewCount = 128;
-        rDist = [108, 15, 4, 0, 1];
-     } else {
-        reviewCount = Math.floor(hashStr(p.id) % 200 + 40);
-        let r = reviewCount;
-        let d5 = Math.floor(r*0.7); r-=d5;
-        let d4 = Math.floor(r*0.2); r-=d4;
-        let d3 = Math.floor(r*0.08); r-=d3;
-        let d2 = Math.floor(r*0.5); r-=d2; // The remaining is small, careful with math
-        if(r < 0) r=0;
-        let d1 = r;
-        rDist = [d5, d4, d3, d2, d1];
-     }
+      // Generate small fake reviews (max 7)
+      let reviewCount = Math.max(3, (hashStr(p.id) % 5) + 3); // 3..7
+      let rDist = [];
+      let r = reviewCount;
+      let d5 = Math.floor(r*0.7); r-=d5;
+      let d4 = Math.floor(r*0.2); r-=d4;
+      let d3 = Math.floor(r*0.08); r-=d3;
+      let d2 = Math.floor(r*0.5); r-=d2;
+      if(r < 0) r=0;
+      let d1 = r;
+      rDist = [d5, d4, d3, d2, d1];
      
      const ratingSummaryHtml = `
         <div class="rating-summary">
@@ -208,7 +218,7 @@
         </div>
      `;
 
-     let reviewsHtml = `<div class="reviews-grid">` + getFakeReviews(p.id, p.cat).map(r => {
+    let reviewsHtml = `<div class="reviews-grid">` + getFakeReviews(p.id, p.cat).slice(0, 7).map(r => {
          const colors = ['review-bg-blue', 'review-bg-green', 'review-bg-purple', 'review-bg-orange'];
          const colorClass = colors[hashStr(r.name) % colors.length];
          
@@ -293,6 +303,7 @@
                 <hr class="divider">
 
                 ${colorHtml}
+                ${sizeHtml}
 
                 <div class="cart-actions" style="margin-top: 24px; display: grid; grid-template-columns: 140px 1fr auto; gap: 12px; align-items: stretch;">
                      <div class="qty-box" style="height: 54px; display: flex; align-items: center; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff;">
@@ -301,11 +312,11 @@
                         <button class="qty-btn" onclick="updateQty(1)" style="flex: 1; height: 100%; border: none; background: none; cursor: pointer; font-size: 1.2rem; color: var(--text); transition: background 0.2s;">+</button>
                      </div>
                      
-                     <button class="btn btn--primary add-btn" onclick="addToCart('${p.id}', getQty()); setTimeout(()=> window.location.href='index.html?cart=open', 100)" style="height: 54px; border-radius: 12px; font-size: 1.1rem; letter-spacing: 0.02em; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);">
+                    <button class="btn btn--primary add-btn" onclick="handleAddToCart('${p.id}')" style="height: 54px; border-radius: 12px; font-size: 1.1rem; letter-spacing: 0.02em; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);">
                         Add to Cart 
                      </button>
                      
-                      <button class="fav-action-btn" onclick="addToCart('${p.id}', getQty()); showToast('Added to Cart')" title="Add to Wishlist" style="height: 54px; width: 54px; border-radius: 12px; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #fff; transition: all 0.2s;">
+                     <button class="fav-action-btn" onclick="handleAddToCart('${p.id}', true)" title="Add to Wishlist" style="height: 54px; width: 54px; border-radius: 12px; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #fff; transition: all 0.2s;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                      </button>
                 </div>
@@ -382,6 +393,40 @@
       return parseInt(document.getElementById("qtyInput").value) || 1;
   };
 
+      window.selectSize = function(btn, size) {
+        if(btn.classList.contains("is-soldout") || btn.disabled) return false;
+        document.querySelectorAll(".size-pill").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        const sv = document.getElementById("sizeValue");
+        if(sv) sv.textContent = size;
+        return false;
+      };
+
+    function getSelectedSize(){
+      const sv = document.getElementById("sizeValue");
+      if(!sv) return "";
+      const v = (sv.textContent || "").trim();
+      return v === "Select" ? "" : v;
+    }
+
+    function getProductSizes(id){
+      const p = PRODUCTS.find(x => x.id === id);
+      if(!p || !p.specs || !p.specs["Sizes"]) return [];
+      const s = p.specs["Sizes"]["Available Sizes"] || "";
+      return s ? s.split(",").map(x => x.trim()).filter(Boolean) : [];
+    }
+
+      window.handleAddToCart = function(id, silent){
+      const sizes = getProductSizes(id);
+      const size = getSelectedSize();
+      if(sizes.length && !size){
+        showToast("Please select a size");
+        return;
+      }
+      addToCart(id, getQty(), size || null);
+        showToast("Added to Cart");
+    };
+
   // Gallery Logic
   window.setMainImage = function(btn, src) {
       const img = document.getElementById("ppMainImg");
@@ -398,7 +443,7 @@
   };
 
   // Color Logic
-  window.selectColor = function(btn, imgUrl, colorName) {
+    window.selectColor = function(btn, imgUrl, colorName) {
       if(colorName) {
         const cn = document.getElementById("colorName");
         if(cn) cn.textContent = colorName;
@@ -408,18 +453,24 @@
       btn.classList.add("selected");
       
       if(imgUrl && imgUrl !== 'undefined') {
-          const thumbs = document.querySelectorAll(".thumb-btn img");
-          let foundThumb = null;
-          thumbs.forEach(t => {
-              if(t.src === imgUrl) foundThumb = t.parentElement;
-          });
-          
-          if(foundThumb) {
-              setMainImage(foundThumb, imgUrl);
-          } else {
-               const img = document.getElementById("ppMainImg");
-               if(img) img.src = imgUrl;
-          }
+        const img = document.getElementById("ppMainImg");
+        if(img) {
+          img.style.opacity = "0.5";
+          setTimeout(() => {
+            img.src = imgUrl;
+            img.style.opacity = "1";
+          }, 120);
+        }
+
+        // Sync active thumbnail if it exists
+        let foundThumb = null;
+        document.querySelectorAll(".thumb-btn img").forEach(t => {
+          if(t.src === imgUrl || t.src.endsWith(imgUrl)) foundThumb = t.parentElement;
+        });
+        if(foundThumb) {
+          document.querySelectorAll(".thumb-btn").forEach(b => b.classList.remove("active"));
+          foundThumb.classList.add("active");
+        }
       }
   };
   

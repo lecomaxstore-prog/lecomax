@@ -211,6 +211,145 @@ const PRODUCTS = [
         { name: "Black", hex: "#1a1a1a", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/backpack/1.jpeg" },
         { name: "Gray", hex: "#808080", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/backpack/2.jpeg" }
     ]
+  },
+  {
+    id: "casual_jacket_autumn",
+    cat: "clothing",
+    name: "Autumn Men's Casual Hoodie Baseball Jacket",
+    price: 350,
+    old: 0,
+    rating: 4.8,
+    emoji: "🧥",
+    desc: "Stylish embroidery and color blocking for a trendy youth look. Sizes available: XL, XXL.",
+    specs: {
+      "General": {
+        "Product Type": "Hoodie Baseball Jacket",
+        "Style": "Casual",
+        "Gender": "Men",
+        "Season": "Autumn",
+        "Color Options": "Black, Rust"
+      },
+      "Material & Build": {
+        "Material": "Polyester",
+        "Composition": "100% Polyester",
+        "Lining Ingredients": "100% Polyester",
+        "Lining": "Polyester Fiber (polyester)",
+        "Weaving Method": "Woven",
+        "Fabric": "Slight Stretch",
+        "Sheer": "No"
+      },
+      "Design": {
+        "Length": "Short Length",
+        "Sleeve Length": "Long Sleeve",
+        "Sleeve Type": "Regular Sleeve",
+        "Details": "Pocket",
+        "Pattern": "Alphabets",
+        "Collar Style": "Hooded",
+        "Fit Type": "Loose",
+        "Style": "Preppy",
+        "Type": "Workwear Jacket"
+      },
+      "Closure & Placket": {
+        "Closure Type": "Zipper",
+        "Placket Type": "Placket",
+        "Placket": "Zipper"
+      },
+      "Sizes": {
+        "Available Sizes": "XL, XXL"
+      },
+      "Care & Use": {
+        "Operation Instruction": "Machine wash or professional dry clean",
+        "Occasion": "Daily & Casual",
+        "Applicable People": "Men",
+        "Style source": "Stock"
+      }
+    },
+    images: [
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/1%20black%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/2%20black%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/3%20black.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/4%20black%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/5%20black%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/1%20rust%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/2%20rust.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/3%20rust%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/4%20rust%20.jpeg"
+    ],
+    colors: [
+      { name: "Black", hex: "#0b0b0b", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/1%20black%20.jpeg" },
+      { name: "Rust", hex: "#b4532a", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/1%20rust%20.jpeg" }
+    ],
+    sizesAvailability: {
+      "XL": false,
+      "XXL": true
+    }
+  },
+  {
+    id: "hooded_warm_jacket_rust",
+    cat: "clothing",
+    name: "Men's Fashion Hooded Embroidered Warm Jacket",
+    price: 550,
+    old: 0,
+    rating: 4.8,
+    emoji: "🧥",
+    desc: "Non-stretch, long sleeve, single breasted jacket for daily and casual wear. Size available: XXL.",
+    specs: {
+      "General": {
+        "Product Type": "Hooded Embroidered Warm Jacket",
+        "Style": "Casual",
+        "Gender": "Men",
+        "Color Options": "Rust",
+        "Origin": "Fujian, China"
+      },
+      "Material & Build": {
+        "Material": "Polyester",
+        "Composition": "100% Polyester",
+        "Other Material": "Polyester",
+        "Lining Ingredients": "100% Polyester",
+        "Filler": "Polyester Fiber (polyester)",
+        "Weaving Method": "Woven",
+        "Fabric": "Non-Stretch",
+        "Sheer": "No"
+      },
+      "Design": {
+        "Length": "Regular",
+        "Sleeve Length": "Long Sleeve",
+        "Sleeve Type": "Regular Sleeve",
+        "Details": "Zipper",
+        "Pattern": "Alphabets",
+        "Collar Style": "Hooded",
+        "Fit Type": "Loose",
+        "Style": "Fashion",
+        "Occasion": "Daily & Casual"
+      },
+      "Closure & Placket": {
+        "Placket Type": "Placket",
+        "Placket": "Single Breasted"
+      },
+      "Care & Use": {
+        "Operation Instruction": "Hand wash, do not dry clean",
+        "Applicable People": "Men"
+      },
+      "Sizes": {
+        "Available Sizes": "XXL"
+      }
+    },
+    images: [
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Fashion%20Hooded%20Embroidered%20Warm%20Jacket/1%20rust%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Fashion%20Hooded%20Embroidered%20Warm%20Jacket/2%20rust.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Fashion%20Hooded%20Embroidered%20Warm%20Jacket/3%20rust%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Fashion%20Hooded%20Embroidered%20Warm%20Jacket/4%20rust%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Fashion%20Hooded%20Embroidered%20Warm%20Jacket/5%20rust%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Fashion%20Hooded%20Embroidered%20Warm%20Jacket/6%20rust.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Fashion%20Hooded%20Embroidered%20Warm%20Jacket/7%20rust%20.jpeg",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Fashion%20Hooded%20Embroidered%20Warm%20Jacket/8%20rust%20.jpeg"
+    ],
+    colors: [
+      { name: "Rust", hex: "#b4532a", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Fashion%20Hooded%20Embroidered%20Warm%20Jacket/1%20rust%20.jpeg" }
+    ],
+    sizesAvailability: {
+      "XXL": true
+    }
   }
 ];
 
@@ -696,8 +835,20 @@ function closeAll(){
   openFavDrawer(false);
 }
 
-function addToCart(id, qty = 1){
-  state.cart[id] = (state.cart[id] || 0) + qty;
+function getCartKey(id, size){
+  return size ? `${id}__${size}` : id;
+}
+
+function parseCartKey(key){
+  const parts = String(key).split("__");
+  const id = parts.shift();
+  const size = parts.length ? parts.join("__") : null;
+  return { id, size };
+}
+
+function addToCart(id, qty = 1, size = null){
+  const key = getCartKey(id, size);
+  state.cart[key] = (state.cart[key] || 0) + qty;
   save(); renderCart(); openDrawer(true);
 }
 function openFavDrawer(show){
@@ -754,9 +905,9 @@ window.removeFav = function(id) {
     updateFavBadge();
 }
 
-function changeQty(id, delta){
-  const next = (state.cart[id] || 0) + delta;
-  if (next <= 0) delete state.cart[id]; else state.cart[id] = next;
+function changeQty(key, delta){
+  const next = (state.cart[key] || 0) + delta;
+  if (next <= 0) delete state.cart[key]; else state.cart[key] = next;
   save(); renderCart();
 }
 
@@ -786,26 +937,32 @@ function renderCart(){
   $("#checkout").style.cursor = "pointer";
 
   let total = 0;
-  wrap.innerHTML = entries.map(([id, qty]) => {
+  wrap.innerHTML = entries.map(([key, qty]) => {
+    const { id, size } = parseCartKey(key);
     const p = PRODUCTS.find(x => x.id === id);
     if (!p) return "";
     total += p.price * qty;
     return `
       <div class="cartItem">
         <div class="cartItem__top">
-          <div>
-            <div class="cartItem__name">${escapeHtml(p.name)}</div>
-            <div class="muted tiny" style="margin-top:4px">${label(p.cat)}</div>
+          <div class="cartItem__left">
+            <div class="cartItem__thumb">
+              ${p.images && p.images[0] ? `<img src="${p.images[0]}" alt="${escapeHtml(p.name)}">` : ""}
+            </div>
+            <div class="cartItem__meta">
+              <div class="cartItem__name">${escapeHtml(p.name)}</div>
+              <div class="cartItem__sub">${label(p.cat)}${size ? ` • Size: ${size}` : ""}</div>
+            </div>
           </div>
-          <button class="iconbtn" data-del="${id}" aria-label="Remove" style="width:32px; height:32px; border:none; background:transparent; opacity:0.5;">✕</button>
+          <button class="cartItem__remove" data-del="${key}" aria-label="Remove">✕</button>
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:8px">
+        <div class="cartItem__bottom">
           <div class="qty">
-            <button data-dec="${id}">−</button>
+            <button data-dec="${key}">−</button>
             <span>${qty}</span>
-            <button data-inc="${id}">+</button>
+            <button data-inc="${key}">+</button>
           </div>
-          <strong style="font-size:1.1rem">${p.price * qty} MAD</strong>
+          <div class="cartItem__price">${p.price * qty} MAD</div>
         </div>
       </div>
     `;
@@ -823,12 +980,13 @@ function checkout(){
 
   const lines = ["Order — Lecomax", "--------------------"];
   let total = 0;
-  for (const [id, qty] of entries){
+  for (const [key, qty] of entries){
+    const { id, size } = parseCartKey(key);
     const p = PRODUCTS.find(x => x.id === id);
     if (!p) continue;
     const sum = p.price * qty;
     total += sum;
-    lines.push(`${p.name} × ${qty} = ${sum} MAD`);
+    lines.push(`${p.name}${size ? ` (Size: ${size})` : ""} × ${qty} = ${sum} MAD`);
   }
   lines.push("--------------------");
   lines.push(`Total: ${total} MAD`);
