@@ -1463,8 +1463,20 @@ function renderGrid(){
 function renderTrending() {
     const el = $("#trendingList");
     if(!el) return;
-    // Pick 2 jackets
-    const list = PRODUCTS.filter(p => p.name.toLowerCase().includes("jacket")).slice(0, 2);
+    
+    // Explicitly show Milano Jacket + one other jacket
+    const milano = PRODUCTS.find(p => p.id === "milano_jacket");
+    const otherJackets = PRODUCTS.filter(p => p.name.toLowerCase().includes("jacket") && p.id !== "milano_jacket");
+    
+    let list = [];
+    if(milano) list.push(milano);
+    if(otherJackets.length > 0) list.push(otherJackets[0]); 
+    
+    // Fallback if not enough jackets
+    if(list.length < 2) {
+        list = PRODUCTS.slice(0, 2);
+    }
+    
     el.innerHTML = list.map(getCardHTML).join("");
 }
 
