@@ -1,7 +1,7 @@
 const YEAR = new Date().getFullYear();
 const cartKey = "cart";
 const legacyCartKey = "lc_cart_v2";
-const API_BASE = "http://localhost:3001";
+const ORDER_ENDPOINT = "https://lecomax.com/order.php";
 const form = document.getElementById("checkoutForm");
 const totalEl = document.getElementById("checkoutTotal");
 const itemsEl = document.getElementById("checkoutItems");
@@ -104,11 +104,6 @@ function renderSummary(items) {
   return total;
 }
 
-function generateOrderId() {
-  const rand = Math.floor(1000 + Math.random() * 9000);
-  return `LEC-${YEAR}-${rand}`;
-}
-
 function isValidPhone(value) {
   return /^\+?\d[\d\s()\-]{7,}$/.test(value.trim());
 }
@@ -117,25 +112,6 @@ function isLikelyNetworkError(err) {
   if (!err) return false;
   const message = String(err.message || err);
   return err.name === "TypeError" || /failed to fetch/i.test(message);
-}
-
-async function pingOrderServer() {
-  const isLocal = window.location.protocol === "file:" ||
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1";
-
-  if (!isLocal) return;
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 3000);
-  try {
-    const res = await fetch(`${API_BASE}/api/health`, { signal: controller.signal });
-    if (!res.ok) throw new Error("offline");
-  } catch (err) {
-    showMessage("Order service is offline. Please start the order server to place an order.", "error");
-  } finally {
-    clearTimeout(timeout);
-  }
 }
 
 function showSuccess() {
@@ -150,8 +126,6 @@ function hideSuccess() {
 
 const items = getCartItems();
 const total = renderSummary(items);
-
-pingOrderServer();
 
 if (!items.length) {
   showMessage("Your cart is empty. Please add items before checkout.", "error");
@@ -175,6 +149,7 @@ form.addEventListener("submit", async (e) => {
     city: form.city.value.trim(),
     postalCode: form.postalCode.value.trim()
   };
+  const honeypot = form.website ? form.website.value.trim() : "";
 
   if (!customer.name || !customer.phone || !customer.address || !customer.city || !customer.postalCode) {
     showMessage("Please fill in all required fields.", "error");
@@ -187,23 +162,26 @@ form.addEventListener("submit", async (e) => {
   }
 
   const order = {
-    orderId: generateOrderId(),
-    date: new Date().toISOString(),
-    customer,
-    items,
-    total
+    fullName: customer.name,
+    phone: customer.phone,
+    address: customer.address,
+    city: customer.city,
+    postalCode: customer.postalCode,
+    cartItems: items,
+    total,
+    website: honeypot
   };
 
   try {
-    const res = await fetch(`${API_BASE}/api/order`, {
+    const res = await fetch(ORDER_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(order)
     });
 
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || "Failed to place order");
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      throw new Error(data.message || "Failed to place order");
     }
 
     showSuccess();
@@ -211,7 +189,7 @@ form.addEventListener("submit", async (e) => {
     window.location.href = "thank-you.html";
   } catch (err) {
     if (isLikelyNetworkError(err)) {
-      showMessage("Order service is offline. Please start the order server and try again.", "error");
+      showMessage("Order service is unavailable. Please try again later.", "error");
       return;
     }
     showMessage(err.message || "Order failed. Please try again.", "error");

@@ -462,6 +462,52 @@ const PRODUCTS = [
       { name: "Black", hex: "#1a1a1a", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/bananabag/1%20banana.avif" },
       { name: "Gray", hex: "#808080", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/bananabag/2%20banana.avif" }
     ]
+  },
+  {
+    id: "milano_jacket",
+    cat: "clothing",
+    name: "Men's Casual Faux Fur Jacket with \"MILANO ITALIA\" Print",
+    price: 550,
+    old: 0,
+    rating: 4.8,
+    emoji: "🧥",
+    desc: "Lightweight Hooded Outdoor Coat, Regular Fit, Pockets Included, Fabric, Perfect for Casual Wear.",
+    specs: {
+        "Product Details": {
+            "Material": "Polyester",
+            "Composition": "100% Polyester",
+            "Details": "Pocket",
+            "Collar Style": "Hooded",
+            "Pattern": "Solid color",
+            "Sheer": "No",
+            "Fabric": "Slight Stretch",
+            "Filler": "Polyester Fiber (polyester)",
+            "Fit Type": "Regular",
+            "Weaving Method": "Woven",
+            "Style": "Casual",
+            "Item ID": "NB4543728",
+            "Origin": "Fujian,China"
+        },
+        "Care Instructions": {
+            "Operation Instruction": "Machine wash or professional dry clean"
+        }
+    },
+    images: [
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/milano%20jacket%20black%201.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/black%202.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/black%203.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/black%204.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/black%205.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/khaki%201.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/kahki%202.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/khaki3.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/khaki4.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/khaki5.avif"
+    ],
+    colors: [
+      { name: "Black", hex: "#000000", price: 550, img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/milano%20jacket%20black%201.avif" },
+      { name: "Khaki", hex: "#C3B091", price: 579, img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/khaki%201.avif" }
+    ]
   }
 ];
 
@@ -1200,8 +1246,14 @@ function updateModalQty(delta){
 function updateModalPrice(){
   const p = PRODUCTS.find(x => x.id === modalState.id);
   if(!p) return;
-  const total = p.price * modalState.qty;
-  $("#pmBtnPrice").textContent = `$${total}`;
+  
+  // Use stored current price or fallback to product base price
+  // But wait, if we switch products, modalState.currentPrice needs reset. 
+  // We handle that in openModal.
+  const price = modalState.currentPrice || p.price; 
+  
+  const total = price * modalState.qty;
+  $("#pmBtnPrice").textContent = `$${total}`; 
 }
 
 // Helper for modal image switching
@@ -1316,23 +1368,7 @@ window.selectPageColor = function(btn, src) {
    btn.classList.add("selected");
 };
 
-// Helper for modal color switching
-window.selectModalColor = function(btn, src, name) {
-  if(src && src !== 'undefined') {
-      const img = $("#pmImage img");
-      if(img) img.src = src;
-      // Also update active thumb if it matches
-      $$(".thumb-btn").forEach(b => {
-         const tImg = b.querySelector("img");
-         if(tImg && tImg.src === src) {
-             $$(".thumb-btn").forEach(x => x.classList.remove("active"));
-             b.classList.add("active");
-         }
-      });
-  }
-  $$(".p-color").forEach(b => b.classList.remove("selected"));
-  btn.classList.add("selected");
-};
+
 
 // Start Card Slider Logic
 // ... (Already defined above, but we need to ensure renderGrid calls are wired up correctly)
@@ -1432,6 +1468,33 @@ function renderTrending() {
     el.innerHTML = list.map(getCardHTML).join("");
 }
 
+
+window.selectModalColor = function(btn, src, name, price) {
+  // Update visual
+  $$(".p-color").forEach(x => x.classList.remove("selected"));
+  if(btn) btn.classList.add("selected");
+  
+  // Update image
+  const imgBox = $("#pmImage");
+  const img = imgBox ? imgBox.querySelector("img") : null;
+  if(img) img.src = src;
+  
+  // Scroll to image so user sees the change
+  if(imgBox) {
+      // Small timeout to allow UI to update if needed, though mostly synchronous
+      setTimeout(() => {
+        imgBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 10);
+  }
+  
+  // Update Price
+  if(price) {
+      modalState.currentPrice = price;
+      $("#pmPrice").textContent = `${price} MAD`;
+      updateModalPrice(); 
+  }
+};
+
 function openModal(id){
   const p = PRODUCTS.find(x => x.id === id);
   if(!p) return;
@@ -1439,6 +1502,13 @@ function openModal(id){
   modalState.id = id;
   modalState.qty = 1;
   $("#pmQty").textContent = "1";
+
+  // Initial Price (handle color specific prices)
+  let initPrice = p.price;
+  if(p.colors && p.colors.length > 0 && p.colors[0].price) {
+      initPrice = p.colors[0].price;
+  }
+  modalState.currentPrice = initPrice;
 
   // Populate
   $("#pmTitle").textContent = p.name;
@@ -1481,7 +1551,9 @@ function openModal(id){
   if (colorOpts) {
       if (p.colors && p.colors.length > 0) {
           colorOpts.innerHTML = p.colors.map((c, i) => `
-             <button class="p-color ${i===0?'selected':''}" style="--c:${c.hex}" onclick="selectModalColor(this, '${c.img}', '${c.name}')" title="${c.name}"></button>
+             <button class="p-color ${i===0?'selected':''}" style="--c:${c.hex}" 
+               onclick="selectModalColor(this, '${c.img}', '${c.name}', ${c.price || p.price})" 
+               title="${c.name}"></button>
           `).join("");
       } else {
           // Default colors if none specified or keep existing HTML? 
@@ -1495,14 +1567,14 @@ function openModal(id){
   }
 
   // Price
-  $("#pmPrice").textContent = `${p.price} MAD`;
-  $("#pmBtnPrice").textContent = `${p.price} MAD`;
-  
+  $("#pmPrice").textContent = `${initPrice} MAD`;
+  updateModalPrice(); // Just in case, though qty is 1
+
   if(p.old > 0){
     $("#pmOldPrice").textContent = `${p.old} MAD`;
     $("#pmOldPrice").style.display = "inline";
     $("#pmDiscount").style.display = "inline-flex";
-    const off = Math.round(((p.old - p.price) / p.old) * 100);
+    const off = Math.round(((p.old - initPrice) / p.old) * 100);
     $("#pmDiscount").textContent = `-${off}%`;
     $("#pmBadge").style.display = "block";
     $("#pmBadge").textContent = "Flash Deal";

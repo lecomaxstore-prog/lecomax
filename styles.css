@@ -1456,17 +1456,19 @@ h2{margin:0; font-size:1.65rem}
   position: fixed;
   bottom: 24px;
   right: 24px;
-  background-color: #25d366;
-  color: #fff;
   width: 60px;
   height: 60px;
+  background-color: #25d366;
+  color: #fff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-  z-index: 999;
+  z-index: 9999;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  text-decoration: none;
 }
 .whatsapp-float svg { width: 32px; height: 32px; fill: currentColor; } 
 .whatsapp-float:hover {
@@ -1676,7 +1678,7 @@ h2{margin:0; font-size:1.65rem}
 
 /* Back to Top */
 #backToTop {
-  position: fixed; bottom: 30px; right: 30px;
+  position: fixed; bottom: 100px; right: 30px;
   width: 44px; height: 44px;
   background: var(--text); color: #fff;
   border-radius: 12px;
@@ -2881,30 +2883,7 @@ h2{margin:0; font-size:1.65rem}
 }
 
 
-/* WhatsApp Float */
-.whatsapp-float {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 50px;
-  height: 50px;
-  background-color: #25d366;
-  color: white;
-  border-radius: 50%;
-  text-align: center;
-  font-size: 24px;
-  box-shadow: 0 10px 25px -5px rgba(37, 211, 102, 0.4);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none !important;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.whatsapp-float:hover {
-  transform: scale(1.1) translateY(-5px);
-  box-shadow: 0 15px 30px -5px rgba(37, 211, 102, 0.5);
-}
+
 
 /* Sales Notification */
 .sales-notification {
