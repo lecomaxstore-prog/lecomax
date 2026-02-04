@@ -2822,3 +2822,164 @@ h2{margin:0; font-size:1.65rem}
 .spec-key { color: var(--muted); font-weight: 500; }
 .spec-val { font-weight: 600; color: var(--text); text-align: right; }
 
+
+.suggestion-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  margin-top: 8px;
+  z-index: 100;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  display: none;
+}
+.suggestion-list.active {
+  display: block;
+}
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.1s;
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+}
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+.suggestion-item:hover {
+  background: #f8fafc;
+}
+.suggestion-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: #f1f5f9;
+}
+.suggestion-info {
+  flex: 1;
+}
+.suggestion-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.2;
+}
+.suggestion-price {
+  font-size: 0.85rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+
+/* WhatsApp Float */
+.whatsapp-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 50px;
+  height: 50px;
+  background-color: #25d366;
+  color: white;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 24px;
+  box-shadow: 0 10px 25px -5px rgba(37, 211, 102, 0.4);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none !important;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.whatsapp-float:hover {
+  transform: scale(1.1) translateY(-5px);
+  box-shadow: 0 15px 30px -5px rgba(37, 211, 102, 0.5);
+}
+
+/* Sales Notification */
+.sales-notification {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  background: white;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transform: translateY(150%);
+  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  z-index: 999;
+  max-width: 320px;
+  border: 1px solid var(--line);
+}
+.sales-notification.active {
+  transform: translateY(0);
+}
+.sales-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.sales-notification-content {
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+.sales-notification-title {
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.sales-notification-name {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.85rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.sales-time {
+  font-size: 0.75rem;
+  color: #16a34a;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sales-notification-close {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: white;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.sales-notification:hover .sales-notification-close {
+  opacity: 1;
+}
+
