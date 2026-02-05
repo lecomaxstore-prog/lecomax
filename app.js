@@ -2,6 +2,308 @@
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
+const TRANSLATIONS = {
+  en: {
+    support: "Support",
+    warranty: "Warranty",
+    stores: "Stores",
+    search_placeholder: "Search for products, brands and more...",
+    products: "Products",
+    collections: "Collections",
+    newsroom: "Newsroom",
+    shopping: "Shopping",
+    electronics: "Electronics",
+    clothing: "Clothing",
+    shoes: "Shoes",
+    backpacks: "Backpacks",
+    quick_picks: "Quick Picks",
+    new_arrivals: "New Arrivals",
+    best_sellers: "Best Sellers",
+    hot_deals: "Hot Deals",
+    cat_headphones: "Headphones & Audio",
+    shop_now: "Shop Now",
+    orders: "Orders",
+    track_order: "Track Order",
+    returns: "Returns",
+    shipping: "Shipping Info",
+    account: "Account",
+    signin: "Sign In",
+    register: "Register",
+    wishlist: "My Wishlist",
+    help: "Help",
+    faq: "FAQ",
+    contact: "Contact Us",
+    promo_new: "NEW",
+    promo_headline: "Premium picks, clean design.",
+    promo_subhead: "Electronics • Clothing • Shoes • Backpacks",
+    promo_shipping_title: "Free Shipping",
+    promo_shipping_desc: "On selected categories this week.",
+    exclusive_stores: "Exclusive Stores",
+    limited_offer: "Limited",
+    technical_support: "Technical Support",
+    fast: "Fast",
+    order_summary: "Order Summary",
+    copy_whatsapp: "Copy order or connect WhatsApp easily.",
+    cart_footer_text: "Checkout copies an order summary. You can connect WhatsApp or backend later.",
+    favorites: "Favorites",
+    flash_deal: "Flash Deal",
+    color: "Color",
+    size: "Size",
+    add_to_cart_btn: "Add to Cart",
+    modal_warranty: "12 Months Warranty",
+    modal_shipping: "Free Express Shipping",
+    back_home: "Back to Home",
+    verified_buyer: "Verified Buyer",
+    testimonial_text: "“Looks premium and feels professional.”",
+    trending: "Trending Now",
+    trending_sub: "Top picks selected for you.",
+    products_title: "Products",
+    products_sub: "Search, filter, sort — then add to cart.",
+    all: "All",
+    view_all: "View all",
+    fast_delivery: "Fast Delivery",
+    official_warranty: "Official Warranty",
+    premium_support: "Premium Support",
+    subscribe: "Subscribe",
+    join_club: "Join the Club",
+    join_club_desc: "Get exclusive access to new drops and secret sales.",
+    cart: "Cart",
+    checkout: "Checkout",
+    total: "Total",
+    clear_cart: "Clear cart",
+    footer_shop: "Shopping",
+    footer_support: "Support",
+    footer_company: "Company",
+    shop_online: "Shop Online",
+    help_center: "Help Center",
+    auth: "Authentication",
+    about: "About",
+    terms: "Terms",
+    privacy: "Privacy",
+    rights: "Lecomax. All rights reserved.",
+    visit_store: "Visit Our Store",
+    get_directions: "Get Directions",
+    email_us: "Email Us",
+    enter_email: "Enter your email",
+    what_people_say: "What people say",
+    clean_experience: "Clean, premium shopping experience."
+  },
+  fr: {
+    support: "Service Client",
+    warranty: "Garantie",
+    stores: "Nos Magasins",
+    search_placeholder: "Rechercher un produit, une marque...",
+    products: "Produits",
+    collections: "Collections",
+    newsroom: "Actualités",
+    shopping: "Boutique",
+    electronics: "High-Tech",
+    clothing: "Mode & Vêtements",
+    shoes: "Chaussures",
+    backpacks: "Maroquinerie & Sacs",
+    quick_picks: "Sélection Rapide",
+    new_arrivals: "Nouveautés",
+    best_sellers: "Meilleures Ventes",
+    hot_deals: "Ventes Flash",
+    cat_headphones: "Audio & Casques",
+    shop_now: "Découvrir",
+    orders: "Mes Commandes",
+    track_order: "Suivre ma commande",
+    returns: "Retours & Échanges",
+    shipping: "Livraison",
+    account: "Mon Compte",
+    signin: "Se connecter",
+    register: "Créer un compte",
+    wishlist: "Liste de souhaits",
+    help: "Centre d'aide",
+    faq: "FAQ",
+    contact: "Nous contacter",
+    promo_new: "NOUVEAU",
+    promo_headline: "Design épuré, qualité premium.",
+    promo_subhead: "High-Tech • Mode • Chaussures",
+    promo_shipping_title: "Livraison Offerte",
+    promo_shipping_desc: "Sur une sélection d'articles.",
+    exclusive_stores: "Boutiques Exclusives",
+    limited_offer: "Offre Limitée",
+    technical_support: "Support Technique",
+    fast: "Rapide",
+    order_summary: "Récapitulatif",
+    copy_whatsapp: "Copiez la commande ou continuez sur WhatsApp.",
+    cart_footer_text: "La validation génère un récapitulatif. Finalisation possible via WhatsApp.",
+    favorites: "Favoris",
+    flash_deal: "Vente Flash",
+    color: "Couleur",
+    size: "Taille",
+    add_to_cart_btn: "Ajouter au panier",
+    modal_warranty: "Garantie 12 Mois",
+    modal_shipping: "Livraison Express Offerte",
+    back_home: "Retour à l'accueil",
+    verified_buyer: "Acheteur Vérifié",
+    testimonial_text: "“Une finition premium et un rendu professionnel.”",
+    trending: "Tendances du moment",
+    trending_sub: "Une sélection des meilleurs produits pour vous.",
+    products_title: "Nos Produits",
+    products_sub: "Recherchez, filtrez et trouvez votre bonheur.",
+    all: "Tout",
+    view_all: "Tout voir",
+    fast_delivery: "Livraison Rapide",
+    official_warranty: "Garantie Officielle",
+    premium_support: "Service Premium",
+    subscribe: "S'inscrire",
+    join_club: "Rejoindre le Club",
+    join_club_desc: "Accès exclusif aux ventes privées et nouveautés.",
+    cart: "Mon Panier",
+    checkout: "Commander",
+    total: "Total",
+    clear_cart: "Vider le panier",
+    footer_shop: "Acheter",
+    footer_support: "Aide",
+    footer_company: "L'Entreprise",
+    shop_online: "Boutique en ligne",
+    help_center: "Centre d'aide",
+    auth: "Espace Client",
+    about: "À propos",
+    terms: "Conditions Générales",
+    privacy: "Confidentialité",
+    rights: "Lecomax. Tous droits réservés.",
+    visit_store: "Magasins",
+    get_directions: "Itinéraire",
+    email_us: "Email",
+    enter_email: "Votre adresse email",
+    what_people_say: "Avis Clients",
+    clean_experience: "Une expérience d'achat simple et élégante."
+  },
+  ar: {
+    support: "خدمة العملاء",
+    warranty: "الضمان والجودة",
+    stores: "فروعنا",
+    search_placeholder: "ابحث عن منتج، ماركة، أو فئة...",
+    products: "المنتجات",
+    collections: "المجموعات",
+    newsroom: "آخر الأخبار",
+    shopping: "التسوق",
+    electronics: "إلكترونيات",
+    clothing: "أزياء وملابس",
+    shoes: "أحذية",
+    backpacks: "حقائب وإكسسوارات",
+    quick_picks: "مختارات سريعة",
+    new_arrivals: "وصل حديثاً",
+    best_sellers: "الأكثر مبيعاً",
+    hot_deals: "عروض حصرية",
+    cat_headphones: "صوتيات وسماعات",
+    shop_now: "تسوق الآن",
+    orders: "طلباتي",
+    track_order: "تتبع الطلب",
+    returns: "سياسة الإرجاع",
+    shipping: "الشحن والتوصيل",
+    account: "حسابي",
+    signin: "تسجيل الدخول",
+    register: "إنشاء حساب",
+    wishlist: "قائمة الأمنيات",
+    help: "المساعدة",
+    faq: "الأسئلة الشائعة",
+    contact: "اتصل بنا",
+    promo_new: "جديد",
+    promo_headline: "جودة استثنائية، تصميم عصري.",
+    promo_subhead: "إلكترونيات • أزياء • أحذية",
+    promo_shipping_title: "شحن مجاني",
+    promo_shipping_desc: "على منتجات مختارة لفترة محدودة.",
+    exclusive_stores: "متاجرنا الحصرية",
+    limited_offer: "عرض محدود",
+    technical_support: "الدعم الفني",
+    fast: "سريع",
+    order_summary: "ملخص الطلب",
+    copy_whatsapp: "انسخ الطلب للمتابعة عبر واتساب.",
+    cart_footer_text: "الدفع يقوم بنسخ ملخص الطلب. يمكنك إتمام الشراء عبر واتساب.",
+    favorites: "المفضلة",
+    flash_deal: "عرض خاطف",
+    color: "اللون",
+    size: "المقاس",
+    add_to_cart_btn: "إضافة إلى السلة",
+    modal_warranty: "ضمان لمدة 12 شهراً",
+    modal_shipping: "شحن سريع ومجاني",
+    back_home: "العودة للرئيسية",
+    verified_buyer: "عميل موثق",
+    testimonial_text: "“تجربة تسوق فاخرة تعكس الاحترافية.”",
+    trending: "الأكثر رواجاً",
+    trending_sub: "تشكيلة مميزة اخترناها لك.",
+    products_title: "كتالوج المنتجات",
+    products_sub: "تصفح، ابحث، واختر ما يناسبك.",
+    all: "الكل",
+    view_all: "عرض الجميع",
+    fast_delivery: "توصيل سريع",
+    official_warranty: "ضمان معتمد",
+    premium_support: "خدمة متميزة",
+    subscribe: "اشترك",
+    join_club: "انضم إلى النادي",
+    join_club_desc: "تمتع بخصومات حصرية وكن أول من يعلم بجديدنا.",
+    cart: "سلة التسوق",
+    checkout: "إتمام الطلب",
+    total: "المجموع",
+    clear_cart: "إفراغ السلة",
+    footer_shop: "التسوق",
+    footer_support: "خدمة العملاء",
+    footer_company: "عن الشركة",
+    shop_online: "المتجر الإلكتروني",
+    help_center: "مركز المساعدة",
+    auth: "بوابة العملاء",
+    about: "من نحن",
+    terms: "الشروط والأحكام",
+    privacy: "سياسة الخصوصية",
+    rights: "Lecomax. جميع الحقوق محفوظة.",
+    visit_store: "زيارة المعرض",
+    get_directions: "الموقع على الخريطة",
+    email_us: "راسلنا",
+    enter_email: "أدخل بريدك الإلكتروني",
+    what_people_say: "آراء عملائنا",
+    clean_experience: "تجربة تسوق سلسة وعصرية."
+  }
+};
+
+function setLanguage(lang) {
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  
+  // Update Direction
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+  // Update Text Content
+  $$('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (t[key]) {
+      if (el.tagName === 'INPUT' && el.getAttribute('placeholder')) {
+        el.placeholder = t[key];
+      } else {
+        // Preserve icons if they exist as first child
+        const icon = el.querySelector('svg');
+        if (icon) {
+          el.childNodes.forEach(node => {
+             if (node.nodeType === 3 && node.textContent.trim().length > 0) {
+                 node.textContent = " " + t[key];
+             }
+          });
+        } else {
+          el.innerText = t[key];
+        }
+      }
+    }
+  });
+
+  // Update Filters
+  $$('.pillBtn').forEach(btn => {
+     const key = btn.dataset.filterBtn;
+     if (t[key]) {
+        // keep svg
+        const svg = btn.querySelector('svg');
+        btn.innerHTML = '';
+        if(svg) btn.appendChild(svg);
+        btn.appendChild(document.createTextNode(" " + t[key]));
+     }
+  });
+
+  // Save preference
+  localStorage.setItem('lecomax_lang', lang);
+}
 
 /* ===== PRO helpers: deterministic random + reviews + stars ===== */
 function hashStr(str){
@@ -655,9 +957,18 @@ function init(){
   const yearEl = $("#year");
   if(yearEl) yearEl.textContent = new Date().getFullYear();
 
+  // Initialize Language
+  const savedLang = localStorage.getItem('lecomax_lang') || 'en';
+  setLanguage(savedLang);
+  
   const langBtn = $("#langBtn");
   const langMenu = $("#langMenu");
   if(langBtn && langMenu){
+      // Set initial button text
+      const initialText = savedLang === 'fr' ? 'Français' : savedLang === 'ar' ? 'العربية' : 'English';
+      const textSpan = langBtn.querySelector(".chip__text");
+      if(textSpan) textSpan.textContent = initialText;
+
       langBtn.addEventListener("click", () => {
         const show = !langMenu.classList.contains("show");
         langMenu.classList.toggle("show", show);
@@ -667,6 +978,10 @@ function init(){
         const textSpan = langBtn.querySelector(".chip__text");
         if(textSpan) textSpan.textContent = btn.dataset.lang;
         else langBtn.innerText = btn.dataset.lang; 
+        
+        const langMap = { "English": "en", "Français": "fr", "العربية": "ar" };
+        const selectedLang = langMap[btn.dataset.lang] || "en";
+        setLanguage(selectedLang);
         
         langMenu.classList.remove("show");
         langBtn.setAttribute("aria-expanded","false");
@@ -1035,33 +1350,189 @@ function getList(){
 
 // renderGrid handled later by getCardHTML helper integration consistency
 
-function openModal(id){
+/* Quick Shop Logic */
+window.qsState = { id: null, color: null, size: null };
+
+window.openQuickShop = function(id) {
   const p = PRODUCTS.find(x => x.id === id);
   if (!p) return;
-  $("#modalBody").innerHTML = `
-    <div style="display:grid;grid-template-columns: 1fr 1.2fr;gap:14px;align-items:start">
-      <div class="card__img" style="height:240px;border-radius:18px">${p.emoji}</div>
-      <div>
-        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
-          <div style="font-weight:900;font-size:1.2rem">${escapeHtml(p.name)}</div>
-          <span class="tag">${label(p.cat)}</span>
-        </div>
-        <div class="muted" style="margin-top:10px;line-height:1.8">${escapeHtml(p.desc)}</div>
-        <div class="price" style="margin-top:12px">
-          <strong style="font-size:1.25rem">${p.price} MAD</strong>
-          ${p.old ? `<s>${p.old} MAD</s>` : ``}
-          <span class="rating" style="margin-left:auto">⭐ ${p.rating.toFixed(1)}</span>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
-          <button class="btn btn--primary" id="modalAdd">Add to cart</button>
-          <button class="btn btn--ghost" data-close="1">Close</button>
-        </div>
-      </div>
-    </div>
-  `;
-  $("#modalAdd").addEventListener("click", () => addToCart(id));
+  
+  // Initial State: First available color, null size
+  qsState.id = id;
+  qsState.color = (p.colors && p.colors.length) 
+                  ? (p.colors.find(c => !c.soldOut) || p.colors[0]) 
+                  : null;
+  qsState.size = null; 
+  
+  renderQuickShop();
+  
   $("#modal").classList.add("show");
   $("#modal").setAttribute("aria-hidden","false");
+};
+
+window.setQsColor = function(name) {
+  const p = PRODUCTS.find(x => x.id === qsState.id);
+  if(!p) return;
+  const c = p.colors.find(x => x.name === name);
+  if(c) {
+     qsState.color = c;
+     qsState.size = null; 
+     renderQuickShop();
+  }
+};
+
+window.setQsSize = function(size) {
+  qsState.size = size;
+  renderQuickShop();
+};
+
+function renderQuickShop() {
+  const p = PRODUCTS.find(x => x.id === qsState.id);
+  if(!p) return;
+  
+  const color = qsState.color;
+  const size = qsState.size;
+  
+  // Image
+  const imgSrc = color ? color.img : (p.images ? p.images[0] : null);
+  const imgHtml = imgSrc 
+    ? `<img src="${imgSrc}" style="width:100%; height:100%; object-fit:contain;">`
+    : `<div style="font-size:4rem">${p.emoji}</div>`;
+
+  // Colors
+  let colorHtml = "";
+  if (p.colors && p.colors.length) {
+      colorHtml = `
+        <div style="margin-bottom:20px">
+            <span class="qs-label" data-i18n="color">Color: <span>${color ? color.name : ''}</span></span>
+            <div class="qs-colors">
+               ${p.colors.map(c => {
+                  const isSoldOut = c.soldOut;
+                  return `
+                  <button class="qs-color-btn ${(color && color.name === c.name) ? 'selected' : ''} ${isSoldOut ? 'sold-out' : ''}" 
+                     onclick="${isSoldOut ? '' : `setQsColor('${escapeHtml(c.name)}')`}" 
+                     style="background:${c.hex}; ${isSoldOut ? 'opacity:0.4; cursor:not-allowed; position:relative;' : ''}" 
+                     title="${escapeHtml(c.name)}${isSoldOut ? ' (Sold Out)' : ''}">
+                     ${isSoldOut ? '<span style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; text-shadow:0 0 2px #000;">✕</span>' : ''}
+                  </button>
+               `}).join('')}
+            </div>
+        </div>
+      `;
+  }
+
+  // Sizes logic
+  let availableSizes = [];
+  let disabledSizes = []; 
+  
+  if (color) {
+      if (color.sizes) availableSizes = color.sizes;
+      if (color.disabledSizes) disabledSizes = color.disabledSizes;
+  } else if (p.sizes) {
+      availableSizes = p.sizes; // fallback
+  }
+
+  // Fallback to global sizes if no color sizes
+  if ((!availableSizes || availableSizes.length === 0) && p.specs && p.specs["Sizes"] && p.specs["Sizes"]["Available Sizes"]) {
+      const sizeStr = p.specs["Sizes"]["Available Sizes"];
+      availableSizes = sizeStr ? sizeStr.split(",").map(s => s.trim()).filter(Boolean) : [];
+  }
+  
+  let sizeHtml = "";
+  if(availableSizes && availableSizes.length > 0) {
+      sizeHtml = `
+        <div style="margin-bottom:24px">
+             <span class="qs-label" data-i18n="size">Size: <span>${size || 'Select size'}</span></span>
+            <div class="qs-sizes">
+               ${availableSizes.map(s => {
+                  const globalAvailable = (p.sizesAvailability || {})[s] !== false;
+                  const localAvailable = !disabledSizes.includes(s);
+                  const available = globalAvailable && localAvailable;
+
+                  return `
+                  <button onclick="${available ? `setQsSize('${s}')` : ''}" 
+                     class="qs-size-btn ${size === s ? 'selected' : ''} ${!available ? 'disabled' : ''}"
+                     ${!available ? 'disabled' : ''}
+                     title="${s} ${!available ? '(Sold Out)' : ''}"
+                     style="${!available ? 'opacity:0.5; position:relative; overflow:hidden;' : ''}">
+                     ${s}
+                     ${!available ? '<div style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.7); display:flex; align-items:center; justify-content:center;"><div style="width:100%; height:1px; background:#999; transform:rotate(-45deg);"></div></div>' : ''}
+                  </button>
+               `}).join('')}
+            </div>
+        </div>
+      `;
+  }
+  
+  // Translations
+  const t = TRANSLATIONS[localStorage.getItem('lecomax_lang') || 'en'] || TRANSLATIONS.en;
+  const isRtl = document.documentElement.dir === 'rtl';
+
+  $("#modalBody").innerHTML = `
+    <div class="qs-grid">
+       <div class="qs-image">
+          ${imgHtml}
+       </div>
+       <div class="qs-details">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+            <div class="qs-cat">${label(p.cat)}</div>
+            <div class="qs-rating">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                <span>${p.rating}</span>
+            </div>
+          </div>
+          
+          <h2 class="qs-title">${escapeHtml(p.name)}</h2>
+          
+          <div class="qs-price-row">
+             <div class="qs-price">
+                ${p.price}<small>MAD</small>
+             </div>
+             ${p.old ? `<span class="qs-old-price">${p.old} MAD</span>` : ''}
+             ${p.old ? `<span class="qs-discount">-${Math.round((p.old - p.price)/p.old * 100)}%</span>` : ''}
+          </div>
+
+          ${colorHtml}
+          ${sizeHtml}
+          
+          <div class="qs-actions">
+             <button id="qsAddBtn" class="qs-btn btn--primary" style="box-shadow:0 10px 20px -5px var(--accent-glow)" ${ (availableSizes.length && !size) ? 'disabled' : '' }>
+                ${ (availableSizes.length && !size) 
+                    ? 'Select Size' 
+                    : `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-${isRtl?'left':'right'}:6px"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg> ${t.add_to_cart_btn || 'Add to Cart'}` }
+             </button>
+          </div>
+          
+          <div class="qs-trust">
+              <div class="trust-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  <span>Secure Payment</span>
+              </div>
+              <div class="trust-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                  <span>Fast Delivery</span>
+              </div>
+          </div>
+          
+          <div class="qs-desc">
+             ${escapeHtml(p.desc)}
+          </div>
+       </div>
+    </div>
+  `;
+  
+  const btn = $("#qsAddBtn");
+  if(btn && !btn.disabled) {
+     btn.onclick = () => {
+        // Validation just in case
+        if (availableSizes.length && !size) return;
+        
+        const finalSize = size ? (color ? `${color.name} / ${size}` : size) : (color ? color.name : null);
+        addToCart(qsState.id, 1, finalSize);
+        closeAll();
+        showToast("Added to Cart");
+     };
+  }
 }
 
 function openDrawer(show){
@@ -1548,9 +2019,15 @@ function getCardHTML(p) {
                 <div>${p.price} <span style="font-size:0.75em; font-weight:600; color:#64748b">MAD</span></div>
                 ${p.old ? `<div style="font-size:0.8rem; color:#94a3b8; font-weight:500; text-decoration:line-through;">${p.old} MAD</div>` : ``}
             </div>
-            <button class="btn btn--card-action" onclick="openProductPage('${p.id}')">
-               Detail <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-            </button>
+            <div class="card__actions">
+               <button class="btn-icon-soft" onclick="event.stopPropagation(); openProductPage('${p.id}')" title="Quick View">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+               </button>
+               <button class="btn-add-cart" onclick="event.stopPropagation(); openQuickShop('${p.id}')">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                  <span>Add</span>
+               </button>
+            </div>
         </div>
       </div>
     </article>

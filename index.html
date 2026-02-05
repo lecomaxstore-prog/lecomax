@@ -36,19 +36,19 @@
       </div>
 
       <div class="topbar__right">
-        <a class="toplink" href="help-center.html">
+        <a class="toplink" href="help-center.html" data-i18n="support">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
           </svg>
           Support
         </a>
-        <a class="toplink" href="warranty.html">
+        <a class="toplink" href="warranty.html" data-i18n="warranty">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
           Warranty
         </a>
-        <a class="toplink" href="#stores">
+        <a class="toplink" href="#stores" data-i18n="stores">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
             <circle cx="12" cy="10" r="3"></circle>
@@ -69,7 +69,7 @@
       <!-- Full Width Search Layout -->
       <div class="search-container">
         <div class="searchbox">
-          <input type="search" id="q" placeholder="Search for products, brands and more..." autocomplete="off">
+          <input type="search" id="q" placeholder="Search for products, brands and more..." autocomplete="off" data-i18n="search_placeholder">
           <button class="searchbox__submit" type="button" aria-label="Search">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </button>
@@ -79,61 +79,61 @@
       <nav class="nav" aria-label="Main">
         <div class="nav__group">
           <button class="nav__btn" data-mega="products" type="button" aria-expanded="false">
-            Products <span class="chev">▾</span>
+            <span data-i18n="products">Products</span> <span class="chev">▾</span>
           </button>
           <div class="mega" id="mega-products" role="menu">
             <div class="mega__grid">
               <div class="mega__col">
-                <div class="mega__title">Electronics</div>
-                <a class="mega__link" href="#products" data-filter="electronics">Headphones</a>
+                <div class="mega__title" data-i18n="electronics">Electronics</div>
+                <a class="mega__link" href="#products" data-filter="electronics" data-i18n="cat_headphones">Headphones & Audio</a>
                 <a class="mega__link" href="#products" data-filter="electronics">Wearables</a>
                 <a class="mega__link" href="#products" data-filter="electronics">Power</a>
                 <a class="mega__link" href="#products" data-filter="electronics">Gaming</a>
               </div>
               <div class="mega__col">
-                <div class="mega__title">Fashion</div>
-                <a class="mega__link" href="#products" data-filter="clothing">Clothing</a>
-                <a class="mega__link" href="#products" data-filter="shoes">Shoes</a>
-                <a class="mega__link" href="#products" data-filter="accessories">Backpacks</a>
+                <div class="mega__title" data-i18n="clothing">Fashion</div>
+                <a class="mega__link" href="#products" data-filter="clothing" data-i18n="clothing">Clothing</a>
+                <a class="mega__link" href="#products" data-filter="shoes" data-i18n="shoes">Shoes</a>
+                <a class="mega__link" href="#products" data-filter="accessories" data-i18n="backpacks">Backpacks</a>
               </div>
               <div class="mega__col">
-                <div class="mega__title">Quick Picks</div>
-                <a class="mega__link" href="#products">New Arrivals</a>
-                <a class="mega__link" href="#products">Best Sellers</a>
-                <a class="mega__link" href="#products">Hot Deals</a>
+                <div class="mega__title" data-i18n="quick_picks">Quick Picks</div>
+                <a class="mega__link" href="#products" data-i18n="new_arrivals">New Arrivals</a>
+                <a class="mega__link" href="#products" data-i18n="best_sellers">Best Sellers</a>
+                <a class="mega__link" href="#products" data-i18n="hot_deals">Hot Deals</a>
               </div>
               <div class="mega__promo">
                 <div class="promoCard">
-                  <div class="promoCard__badge">NEW</div>
-                  <div class="promoCard__headline">Premium picks, clean design.</div>
-                  <div class="promoCard__text">Electronics • Clothing • Shoes • Backpacks</div>
-                  <a class="btn btn--primary" href="#products">Shop Now</a>
+                  <div class="promoCard__badge" data-i18n="promo_new">NEW</div>
+                  <div class="promoCard__headline" data-i18n="promo_headline">Premium picks, clean design.</div>
+                  <div class="promoCard__text" data-i18n="promo_subhead">Electronics • Clothing • Shoes • Backpacks</div>
+                  <a class="btn btn--primary" href="#products" data-i18n="shop_now">Shop Now</a>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <a class="nav__link" href="#collections">Collections</a>
-        <a class="nav__link" href="#news">Newsroom</a>
+        <a class="nav__link" href="#collections" data-i18n="collections">Collections</a>
+        <a class="nav__link" href="#news" data-i18n="newsroom">Newsroom</a>
 
         <div class="nav__group">
           <button class="nav__btn" data-mega="shopping" type="button" aria-expanded="false">
-            Shopping <span class="chev">▾</span>
+            <span data-i18n="shopping">Shopping</span> <span class="chev">▾</span>
           </button>
           <div class="mega" id="mega-shopping" role="menu">
             <div class="mega__grid mega__grid--small">
               <div class="mega__col">
-                <div class="mega__title">Shopping</div>
-                <a class="mega__link" href="#stores">Exclusive Stores</a>
-                <a class="mega__link" href="#products">Shop Online</a>
-                <a class="mega__link" href="#warranty">Warranty Policy</a>
+                <div class="mega__title" data-i18n="shopping">Shopping</div>
+                <a class="mega__link" href="#stores" data-i18n="exclusive_stores">Exclusive Stores</a>
+                <a class="mega__link" href="#products" data-i18n="shop_online">Shop Online</a>
+                <a class="mega__link" href="#warranty" data-i18n="warranty">Warranty Policy</a>
               </div>
               <div class="mega__promo">
                 <div class="promoMini">
-                  <div class="promoMini__kicker">Limited</div>
-                  <div class="promoMini__title">Free Shipping</div>
-                  <div class="promoMini__text">On selected categories this week.</div>
+                  <div class="promoMini__kicker" data-i18n="limited_offer">Limited</div>
+                  <div class="promoMini__title" data-i18n="promo_shipping_title">Free Shipping</div>
+                  <div class="promoMini__text" data-i18n="promo_shipping_desc">On selected categories this week.</div>
                 </div>
               </div>
             </div>
@@ -142,21 +142,21 @@
 
         <div class="nav__group">
           <button class="nav__btn" data-mega="support" type="button" aria-expanded="false">
-            Support <span class="chev">▾</span>
+            <span data-i18n="support">Support</span> <span class="chev">▾</span>
           </button>
           <div class="mega" id="mega-support" role="menu">
             <div class="mega__grid mega__grid--small">
               <div class="mega__col">
-                <div class="mega__title">Support</div>
-                <a class="mega__link" href="#support">Help Center</a>
-                <a class="mega__link" href="#support">Authentication</a>
-                <a class="mega__link" href="#warranty">Warranty Policy</a>
+                <div class="mega__title" data-i18n="support">Support</div>
+                <a class="mega__link" href="#support" data-i18n="help_center">Help Center</a>
+                <a class="mega__link" href="#support" data-i18n="auth">Authentication</a>
+                <a class="mega__link" href="#warranty" data-i18n="warranty">Warranty Policy</a>
               </div>
               <div class="mega__promo">
                 <div class="promoMini">
-                  <div class="promoMini__kicker">Fast</div>
-                  <div class="promoMini__title">Order Summary</div>
-                  <div class="promoMini__text">Copy order or connect WhatsApp easily.</div>
+                  <div class="promoMini__kicker" data-i18n="fast">Fast</div>
+                  <div class="promoMini__title" data-i18n="order_summary">Order Summary</div>
+                  <div class="promoMini__text" data-i18n="copy_whatsapp">Copy order or connect WhatsApp easily.</div>
                 </div>
               </div>
             </div>
@@ -547,12 +547,12 @@
             <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
             <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
           </div>
-          <div class="quote__title">“Looks premium and feels professional.”</div>
+          <div class="quote__title" data-i18n="testimonial_text">“Looks premium and feels professional.”</div>
           <div class="quote__foot">
             <div class="quote__avatar" style="background:#fefce8; color:#ca8a04">O</div>
             <div>
               <div class="quote__name">Omar L.</div>
-              <div class="quote__ver">Verified Buyer</div>
+              <div class="quote__ver" data-i18n="verified_buyer">Verified Buyer</div>
             </div>
           </div>
         </div>
@@ -561,7 +561,7 @@
       <div class="contact-card">
          <div class="contact-card__item">
            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-           <span>Visit Our Store</span>
+           <span data-i18n="visit_store">Visit Our Store</span>
          </div>
          <div class="map-embed-container" style="width:100%; max-width:500px; border-radius:18px; overflow:hidden; margin:10px 0 20px; box-shadow:0 8px 30px rgba(0,0,0,0.1); border:1px solid rgba(0,0,0,0.05);">
            <iframe 
@@ -570,7 +570,7 @@
            </iframe>
            <a href="https://www.google.com/maps/search/?api=1&query=49+RUE+IBN+KHALDON+SIDI+BENNOUR" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; background:#fff; color:#0f172a; padding:12px; font-weight:700; text-decoration:none; border-top:1px solid rgba(0,0,0,0.05); transition:background 0.2s;">
              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
-             Get Directions
+             <span data-i18n="get_directions">Get Directions</span>
            </a>
          </div>
          
@@ -581,7 +581,7 @@
            </a>
            <a href="mailto:lecomaxstore@gmail.com" class="btn btn--ghost">
              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-             Email Us
+             <span data-i18n="email_us">Email Us</span>
            </a>
          </div>
       </div>
@@ -593,14 +593,14 @@
     <div class="container newsletter__inner">
       <div class="newsletter__content">
         <div class="newsletter__icon">✉️</div>
-        <h3>Join the Club</h3>
-        <p>Get exclusive access to new drops and secret sales.</p>
+        <h3 data-i18n="join_club">Join the Club</h3>
+        <p data-i18n="join_club_desc">Get exclusive access to new drops and secret sales.</p>
         <form class="newsletter__form" onsubmit="event.preventDefault(); alert('Thanks for subscribing!');">
           <div class="input-group">
             <input type="email" class="newsletter__input" placeholder=" " required />
-            <label class="floating-label">Enter your email</label>
+            <label class="floating-label" data-i18n="enter_email">Enter your email</label>
           </div>
-          <button type="submit" class="btn btn--glow">Subscribe</button>
+          <button type="submit" class="btn btn--glow" data-i18n="subscribe">Subscribe</button>
         </form>
       </div>
     </div>
@@ -613,7 +613,7 @@
       <div class="container">
           <button onclick="closeProductPage()" class="btn btn--ghost" style="margin-bottom:20px; display:inline-flex; align-items:center; gap:8px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Back to Home
+            <span data-i18n="back_home">Back to Home</span>
           </button>
           <div id="product-page-content"></div>
       </div>
@@ -625,28 +625,28 @@
         <a class="brand brand--foot" href="#">
            <span class="brand__name" style="font-size:1.5rem"><span style="color:var(--accent)">L'</span>ECOMAX</span>
         </a>
-        <p class="muted">© <span id="year"></span> Lecomax. All rights reserved.</p>
+        <p class="muted">© <span id="year"></span> <span data-i18n="rights">Lecomax. All rights reserved.</span></p>
       </div>
 
       <div class="footCols">
         <div class="footCol" id="stores">
-          <div class="footCol__title">Shopping</div>
-          <a href="#products">Shop Online</a>
-          <a href="#collections">Collections</a>
-          <a href="warranty.html">Warranty Policy</a>
+          <div class="footCol__title" data-i18n="shopping">Shopping</div>
+          <a href="#products" data-i18n="shop_online">Shop Online</a>
+          <a href="#collections" data-i18n="collections">Collections</a>
+          <a href="warranty.html" data-i18n="warranty">Warranty Policy</a>
         </div>
         <div class="footCol" id="warranty">
-          <div class="footCol__title">Support</div>
-          <a href="help-center.html">Help Center</a>
-          <a href="authentication.html">Authentication</a>
-          <a href="warranty.html">Warranty</a>
+          <div class="footCol__title" data-i18n="support">Support</div>
+          <a href="help-center.html" data-i18n="help_center">Help Center</a>
+          <a href="authentication.html" data-i18n="auth">Authentication</a>
+          <a href="warranty.html" data-i18n="warranty">Warranty</a>
         </div>
         <div class="footCol">
-          <div class="footCol__title">Company</div>
-          <a href="about.html">About</a>
-          <a href="newsroom.html">Newsroom</a>
-          <a href="terms.html">Terms</a>
-          <a href="privacy.html">Privacy</a>
+          <div class="footCol__title" data-i18n="footer_company">Company</div>
+          <a href="about.html" data-i18n="about">About</a>
+          <a href="newsroom.html" data-i18n="newsroom">Newsroom</a>
+          <a href="terms.html" data-i18n="terms">Terms</a>
+          <a href="privacy.html" data-i18n="privacy">Privacy</a>
         </div>
       </div>
     </div>
@@ -664,18 +664,18 @@
     <div class="drawer__bg" data-close="1"></div>
     <div class="drawer__panel">
       <div class="drawer__head">
-        <div class="drawer__title">Cart</div>
+        <div class="drawer__title" data-i18n="cart">Cart</div>
         <button class="iconbtn" data-close="1" aria-label="Close" onclick="closeAll()">✕</button>
       </div>
       <div class="drawer__body" id="cartItems"></div>
       <div class="drawer__foot">
         <div class="totals">
-          <span class="muted">Total</span>
+          <span class="muted" data-i18n="total">Total</span>
           <strong id="total">0 MAD</strong>
         </div>
-        <button class="btn btn--primary w100" id="checkout">Checkout</button>
-        <button class="btn btn--ghost w100" id="clearCart">Clear cart</button>
-        <div class="muted tiny">Checkout copies an order summary. You can connect WhatsApp or backend later.</div>
+        <button class="btn btn--primary w100" id="checkout" data-i18n="checkout">Checkout</button>
+        <button class="btn btn--ghost w100" id="clearCart" data-i18n="clear_cart">Clear cart</button>
+        <div class="muted tiny" data-i18n="cart_footer_text">Checkout copies an order summary. You can connect WhatsApp or backend later.</div>
       </div>
     </div>
   </aside>
@@ -685,7 +685,7 @@
     <div class="drawer__bg" data-close="1"></div>
     <div class="drawer__panel">
       <div class="drawer__head">
-        <div class="drawer__title">Favorites</div>
+        <div class="drawer__title" data-i18n="favorites">Favorites</div>
         <button class="iconbtn" data-close="1" aria-label="Close" onclick="closeAll()">✕</button>
       </div>
       <div class="drawer__body" id="favItems"></div>
@@ -716,7 +716,7 @@
         
         <div class="product-view__info">
           <div class="product-view__header">
-            <span class="product-view__badge" id="pmBadge">Flash Deal</span>
+            <span class="product-view__badge" id="pmBadge" data-i18n="flash_deal">Flash Deal</span>
             <div class="product-view__rating">
               <span id="pmStars">★★★★★</span>
               <span class="product-view__reviews" id="pmReviews">(128 reviews)</span>
@@ -737,7 +737,7 @@
 
           <div class="product-view__variants">
             <div class="variant-group">
-              <label>Color</label>
+              <label data-i18n="color">Color</label>
               <div class="variant-options color-options">
                 <button class="p-color selected" style="--c:#111"></button>
                 <button class="p-color" style="--c:#555"></button>
@@ -745,7 +745,7 @@
               </div>
             </div>
             <div class="variant-group">
-              <label>Size</label>
+              <label data-i18n="size">Size</label>
               <div class="variant-options size-options">
                 <button class="p-size selected">S</button>
                 <button class="p-size">M</button>
@@ -762,7 +762,7 @@
                 <button class="qty-btn" id="pmQtyPlus">+</button>
              </div>
              <button class="btn btn--primary btn--lg w100" id="pmAddBtn">
-               <span class="btn__text">Add to Cart</span>
+               <span class="btn__text" data-i18n="add_to_cart_btn">Add to Cart</span>
                <span class="btn__price" id="pmBtnPrice">0.00 MAD</span>
              </button>
           </div>
@@ -770,11 +770,11 @@
           <div class="product-view__trust">
             <div class="trust-item">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-              <span>12 Months Warranty</span>
+              <span data-i18n="modal_warranty">12 Months Warranty</span>
             </div>
             <div class="trust-item">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-              <span>Free Express Shipping</span>
+              <span data-i18n="modal_shipping">Free Express Shipping</span>
             </div>
           </div>
 

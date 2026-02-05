@@ -1365,6 +1365,66 @@ h2{margin:0; font-size:1.65rem}
   transform: translateX(3px);
 }
 
+/* Enhanced Product Card Buttons */
+.card__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.btn-icon-soft {
+  width: 42px; height: 42px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.btn-icon-soft:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #eff6ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+.btn-icon-soft svg { stroke-width: 2px; }
+
+.btn-add-cart {
+  flex: 1;
+  border: none;
+  background: var(--text); /* Clean dark look */
+  color: #fff;
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  letter-spacing: 0.01em;
+}
+.btn-add-cart:hover {
+  background: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.4);
+}
+.btn-add-cart svg {
+  transition: transform 0.3s ease;
+}
+.btn-add-cart:hover svg {
+    transform: rotate(-10deg) scale(1.1);
+}
+
+
 
 
 /* Quotes */
@@ -1488,6 +1548,8 @@ h2{margin:0; font-size:1.65rem}
   -webkit-backdrop-filter: blur(24px);
   box-shadow: 0 40px 80px rgba(0,0,0,0.2);
   padding:24px;
+  max-height: 80vh;
+  overflow-y: auto;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
