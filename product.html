@@ -85,6 +85,9 @@
 
 <script src="app.js"></script>
 <script>
+  // Current product global
+  let currentProduct = null;
+
   document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
@@ -103,38 +106,35 @@
   function renderProductDetail(id) {
      const p = PRODUCTS.find(x => x.id === id);
      if(!p) { showNotFound(); return; }
+     currentProduct = p;
 
      // Determine colors
      let colorHtml = "";
      if(p.colors && p.colors.length > 0) {
+         // Auto-select first non-soldout color
+         const defaultColor = p.colors.find(c => !c.soldOut) || p.colors[0];
+
          colorHtml = `<div class="options-wrap">
-             <div class="option-label">Color: <span id="colorName">${p.colors[0].name}</span></div>
+             <div class="option-label">Color: <span id="colorName">${defaultColor.name}</span></div>
              <div class="colors-list">
                 ${p.colors.map((c, i) => `
-                   <button class="color-swatch ${i===0?'selected':''}" onclick="selectColor(this, '${c.img}', '${c.name.replace(/'/g, "\\'")}')" style="background:${c.hex};" title="${c.name}"></button>
+                   <button class="color-swatch ${c.soldOut ? 'sold-out' : ''} ${c.name === defaultColor.name ? 'selected' : ''}" 
+                     onclick="if(!this.classList.contains('sold-out')) selectColor(this, '${c.img}', '${c.name.replace(/'/g, "\\'")}')" 
+                     style="background:${c.hex}; ${c.soldOut ? 'opacity:0.4; cursor:not-allowed; position:relative;' : ''}" 
+                     title="${c.name} ${c.soldOut ? '(Sold Out)' : ''}">
+                     ${c.soldOut ? '<span style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:20px; text-shadow:0 0 2px #000;">✕</span>' : ''}
+                   </button>
                 `).join("")}
              </div>
          </div>`;
      }
      
-     // Determine sizes
+     // Determine sizes (Initial render based on default color)
      let sizeHtml = "";
-      const sizeStr = p.specs && p.specs["Sizes"] && p.specs["Sizes"]["Available Sizes"] ? p.specs["Sizes"]["Available Sizes"] : "";
-      const sizes = sizeStr ? sizeStr.split(",").map(s => s.trim()).filter(Boolean) : [];
-      const sizeAvailability = p.sizesAvailability || {};
-     if(sizes.length) {
-       sizeHtml = `<div class="options-wrap" style="margin-top:16px;">
-         <div class="option-label">Size: <span id="sizeValue" class="muted" style="font-weight:700; margin-left:6px;">Select</span></div>
-         <div class="sizes-list" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-             ${sizes.map((s) => {
-               const available = sizeAvailability[s] !== false;
-               return `
-               <button class="size-pill ${available ? '' : 'is-soldout'}" ${available ? '' : 'disabled'} onclick="return selectSize(this, '${s}')" title="${available ? s : s + ' (Sold out)'}">${s}</button>
-               `;
-             }).join("")}
-         </div>
-       </div>`;
-     }
+     // We create a container for sizes that we can update later
+     sizeHtml = `<div id="sizesContainer"></div>`;
+     
+     // ... rest of generation ...
 
      // Determine thumbs
      let thumbHtml = "";
@@ -151,7 +151,7 @@
      
      if(p.images && p.images.length > 0) {
          thumbHtml += p.images.map((src, i) => `
-            <div class="thumb-btn ${i===0 && !p.video ?'active':''}" onclick="setMainImage(this, '${src}')">
+            <div class="thumb-btn ${i===0 && !p.video ?'active':''}" onclick="setMainImage(this, '${src.replace(/'/g, "\\'")}')">
               <img src="${src}" alt="">
             </div>
          `).join("");
@@ -403,6 +403,64 @@
             document.querySelector(".related-section").style.display = 'none';
          }
      }
+
+     // Initial Size Render
+     const defaultColor = (p.colors && p.colors.find(c => !c.soldOut)) || (p.colors && p.colors[0]);
+     if(defaultColor) renderSizes(defaultColor.name);
+     else renderSizes(null); // Fallback to global specs
+  }
+
+  function renderSizes(colorName) {
+      const p = currentProduct;
+      if(!p) return;
+
+      const container = document.getElementById("sizesContainer");
+      if(!container) return;
+
+      let sizes = [];
+      let disabledSizes = [];
+
+      // 1. Try to get sizes from specific color
+      if(colorName && p.colors) {
+          const colorObj = p.colors.find(c => c.name === colorName);
+          if(colorObj) {
+              if (colorObj.sizes && colorObj.sizes.length > 0) {
+                  sizes = colorObj.sizes;
+              }
+              if (colorObj.disabledSizes) {
+                  disabledSizes = colorObj.disabledSizes;
+              }
+          }
+      }
+
+      // 2. Fallback to global specs if no color-specific sizes found
+      if(sizes.length === 0) {
+        const sizeStr = p.specs && p.specs["Sizes"] && p.specs["Sizes"]["Available Sizes"] ? p.specs["Sizes"]["Available Sizes"] : "";
+        sizes = sizeStr ? sizeStr.split(",").map(s => s.trim()).filter(Boolean) : [];
+      }
+
+      if(sizes.length === 0) {
+          container.innerHTML = "";
+          return;
+      }
+
+      const html = `<div class="options-wrap" style="margin-top:16px;">
+         <div class="option-label">Size: <span id="sizeValue" class="muted" style="font-weight:700; margin-left:6px;">Select</span></div>
+         <div class="sizes-list" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+             ${sizes.map((s) => {
+               // Global availability check (optional override)
+               const globalAvailable = (p.sizesAvailability || {})[s] !== false;
+               const localAvailable = !disabledSizes.includes(s);
+               const available = globalAvailable && localAvailable;
+               
+               return `
+               <button class="size-pill ${available ? '' : 'is-soldout'}" ${available ? '' : 'disabled'} onclick="return selectSize(this, '${s}')" title="${available ? s : s + ' (Sold out)'}">${s}</button>
+               `;
+             }).join("")}
+         </div>
+       </div>`;
+       
+       container.innerHTML = html;
   }
 
   window.updateQty = function(d) {
@@ -494,6 +552,9 @@
       if(colorName) {
         const cn = document.getElementById("colorName");
         if(cn) cn.textContent = colorName;
+        
+        // Update Sizes for this color
+        renderSizes(colorName);
       }
       
       document.querySelectorAll(".color-swatch").forEach(b => b.classList.remove("selected"));

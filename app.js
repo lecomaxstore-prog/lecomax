@@ -81,6 +81,62 @@ function loadVariant(productId){
 
 const PRODUCTS = [
   {
+    id: "baasploa_running_shoes",
+    cat: "shoes",
+    name: "Baasploa Men's Lightweight Running Shoes",
+    price: 250,
+    old: 0,
+    rating: 4.8,
+    emoji: "👟",
+    video: "https://goods-vod.kwcdn.com/goods-video/49ac0ebc85263ad26cc2bb9bd78ca2e8a291fd73.f30.mp4",
+    desc: "Baasploa Men's lightweight running shoes, mesh shoes with lace-up style, outdoor sports tennis shoes, lightweight and breathable, suitable for daily wear.",
+    specs: {
+        "General": {
+            "Brand": "BAASPLOA",
+            "Applicable People": "Adult, Male",
+            "Style": "Sports",
+            "Pattern": "Stripes",
+            "Support Type": "Stabilizing",
+            "Pronation": "Normal",
+            "Special Features": "Breathable"
+        },
+        "Material": {
+             "Upper Material": "Fabric",
+             "Sole Material": "MD, TPR",
+             "Insole Material": "PU",
+             "Inner Material": "Fabric",
+             "Closure Type": "Lace" 
+        },
+        "Season & Usage": {
+            "Season": "Spring/Summer/Fall",
+            "All-season": "Summer",
+            "Occasion": "Daily & Casual, Running & Work Out, Sports, Going Out, Festive"
+        }
+    },
+    images: [
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/black%201.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/light%20gray%201.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/white%201.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/blue%201.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/army%20green%201.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/black%202.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/black%203%3D4.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/light%20gray%202.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/light%20gray%203.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/yellow%201.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/dark%20gray%201.avif"
+    ],
+    colors: [
+        { name: "Black", hex: "#000000", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/black%201.avif", sizes: ["39", "40", "41", "42", "43", "44", "45", "46"], disabledSizes: ["39", "40", "41", "42", "43", "44", "45", "46"] },
+        { name: "Light Grey", hex: "#d3d3d3", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/light%20gray%201.avif", sizes: ["39", "40", "41", "42", "43", "44", "45", "46"], disabledSizes: ["39", "40", "41", "42", "43", "45", "46"] },
+        { name: "White", hex: "#ffffff", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/white%201.avif", sizes: ["39", "40", "41", "42", "43", "44", "45", "46"], disabledSizes: ["39", "40", "41", "42", "43", "44", "45", "46"] },
+        { name: "Blue", hex: "#0000ff", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/blue%201.avif", sizes: ["39", "40", "41", "42", "43", "44", "45", "46"], disabledSizes: ["39", "40", "41", "42", "43", "45", "46"] },
+        { name: "Army Green", hex: "#4b5320", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/army%20green%201.avif", sizes: ["39", "40", "41", "42", "43", "44", "45", "46"], disabledSizes: ["39", "40", "41", "42", "43", "45", "46"] },
+        { name: "Yellow", hex: "#FFD700", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/yellow%201.avif", sizes: ["39", "40", "41", "42", "43", "44", "45", "46"], disabledSizes: ["39", "40", "41", "42", "43", "44", "46"] },
+        { name: "Dark Gray", hex: "#555555", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Baasploashoes/dark%20gray%201.avif", sizes: ["39", "40", "41", "42", "43", "44", "45", "46"], disabledSizes: ["39", "40", "41", "42", "43", "44", "45", "46"] }
+    ]
+  },
+  {
     id: "genai1", 
     cat: "electronics", 
     name: "Genai Wireless Earbuds", 
@@ -533,6 +589,8 @@ const state = {
   filter:"all", 
   sort:"featured", 
   q:"", 
+  priceRange:"all",
+  ratingFilter:"all",
   cart: load("lc_cart_v2", {}), 
   favs: load("lc_favs_v2", []), 
   slideIndex:0, 
@@ -670,6 +728,52 @@ function init(){
   if($("[data-filter-btn]")) $$("[data-filter-btn]").forEach(b => b.addEventListener("click", () => setFilter(b.dataset.filterBtn)));
 
   if($("#sort")) $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; renderGrid(); });
+  
+  // New filter event listeners
+  if($("#productSearch")) $("#productSearch").addEventListener("input", (e) => { 
+    state.q = e.target.value.trim(); 
+    renderGrid(); 
+  });
+  if($("#priceRange")) $("#priceRange").addEventListener("change", (e) => { 
+    state.priceRange = e.target.value; 
+    renderGrid(); 
+  });
+  if($("#ratingFilter")) $("#ratingFilter").addEventListener("change", (e) => { 
+    state.ratingFilter = e.target.value; 
+    renderGrid(); 
+  });
+  if($("#searchBtn")) $("#searchBtn").addEventListener("click", () => {
+    const searchInput = $("#productSearch");
+    if(searchInput) {
+      state.q = searchInput.value.trim();
+      renderGrid();
+    }
+  });
+  if($("#clearSearch")) $("#clearSearch").addEventListener("click", () => {
+    const searchInput = $("#productSearch");
+    if(searchInput) {
+      searchInput.value = "";
+      state.q = "";
+      renderGrid();
+    }
+  });
+  // Show/hide clear button based on input
+  if($("#productSearch")) $("#productSearch").addEventListener("input", (e) => {
+    const clearBtn = $("#clearSearch");
+    if(clearBtn) {
+      clearBtn.style.display = e.target.value.trim() ? "block" : "none";
+    }
+  });
+  
+  // View toggle
+  $$(".view-btn").forEach(btn => btn.addEventListener("click", () => {
+    const view = btn.dataset.view;
+    $$(".view-btn").forEach(b => b.classList.toggle("is-active", b.dataset.view === view));
+    const grid = $("#grid");
+    if(grid) {
+      grid.classList.toggle("list-view", view === "list");
+    }
+  }));
 
   if($("#openCart")) $("#openCart").addEventListener("click", () => openDrawer(true));
   if($("#openFav")) $("#openFav").addEventListener("click", () => openFavDrawer(true));
@@ -835,28 +939,7 @@ function initSlider(){
     return `
     <div class="slide" ${isMedia ? `style="background: transparent; padding: 0; display: flex; flex-direction: column; gap: 24px; border: none; align-items: center;"` : ''}>
     ${s.video
-       ? `<video src="${s.video}" autoplay loop muted playsinline style="width: 100%; height: auto; max-height: 80vh; border-radius: 32px; box-shadow: 0 24px 60px -12px rgba(0,0,0,0.55); border: 1px solid rgba(0,0,0,0.05); display: block; object-fit: cover;"></video>
-            <style>
-              .hero-cta {
-                display: inline-flex; align-items: center; gap: 14px;
-                background: #0f172a;
-                color: #fff;
-                padding: 18px 56px; border-radius: 100px;
-                font-weight: 600; font-size: 1.2rem; text-decoration: none;
-                box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.4);
-                transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-                border: 1px solid rgba(255,255,255,0.1);
-                letter-spacing: -0.01em;
-              }
-              .hero-cta:hover {
-                transform: translateY(-4px) scale(1.02);
-                box-shadow: 0 30px 60px -12px rgba(15, 23, 42, 0.5);
-                background: #1e293b;
-                border-color: rgba(255,255,255,0.2);
-              }
-              .hero-cta svg { transition: transform 0.3s ease; }
-              .hero-cta:hover svg { transform: translateX(6px); }
-            </style>
+       ? `<video src="${s.video}" autoplay loop muted playsinline></video>
             <div>
               <a href="#products" class="hero-cta">
                 Shop Now
@@ -922,12 +1005,28 @@ function tile(t){
 function getList(){
   let list = [...PRODUCTS];
   if (state.filter !== "all") list = list.filter(p => p.cat === state.filter);
-  if (state.q) list = list.filter(p => (p.name + " " + p.desc).toLowerCase().includes(state.q));
+  if (state.q) list = list.filter(p => (p.name + " " + p.desc).toLowerCase().includes(state.q.toLowerCase()));
+  
+  // Price range filter
+  if (state.priceRange !== "all") {
+    const [min, max] = state.priceRange.includes("+") 
+      ? [parseInt(state.priceRange), Infinity]
+      : state.priceRange.split("-").map(Number);
+    list = list.filter(p => p.price >= min && (max === Infinity || p.price <= max));
+  }
+  
+  // Rating filter
+  if (state.ratingFilter !== "all") {
+    const minRating = parseFloat(state.ratingFilter.replace("+", ""));
+    list = list.filter(p => p.rating >= minRating);
+  }
 
   switch (state.sort){
     case "price_asc": list.sort((a,b)=>a.price-b.price); break;
     case "price_desc": list.sort((a,b)=>b.price-a.price); break;
     case "rating_desc": list.sort((a,b)=>b.rating-a.rating); break;
+    case "name_asc": list.sort((a,b)=>a.name.localeCompare(b.name)); break;
+    case "newest": list.sort((a,b)=>b.id.localeCompare(a.id)); break; // Assuming newer IDs are lexicographically larger
     default: list.sort((a,b)=> (b.rating-a.rating) || ((b.old>0)-(a.old>0)));
   }
   return list;

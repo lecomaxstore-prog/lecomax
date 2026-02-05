@@ -418,22 +418,68 @@
         <div>
           <h2>Products</h2>
           <p class="muted">Search, filter, sort — then add to cart.</p>
+          <div id="resultCount" class="result-count" style="margin-top: 8px; font-size: 0.9rem; color: var(--muted);"></div>
         </div>
 
         <div class="filters">
-          <button class="pillBtn is-active" data-filter-btn="all" type="button">All</button>
-          <button class="pillBtn" data-filter-btn="electronics" type="button">Electronics</button>
-          <button class="pillBtn" data-filter-btn="clothing" type="button">Clothing</button>
-          <button class="pillBtn" data-filter-btn="shoes" type="button">Shoes</button>
-          <button class="pillBtn" data-filter-btn="accessories" type="button">Backpacks</button>
+          <div class="search-filter">
+            <input type="text" id="productSearch" placeholder="Search products..." class="search-input">
+            <button class="search-btn" id="searchBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+            <button class="search-btn clear-btn" id="clearSearch" style="display: none;" title="Clear search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+          
+          <div class="filter-group">
+            <button class="pillBtn is-active" data-filter-btn="all" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 4.64 12 7.76 7.76 14.12 4.64 16.24 7.76"></polygon></svg>
+              All
+            </button>
+            <button class="pillBtn" data-filter-btn="electronics" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><circle cx="12" cy="14" r="4"></circle><line x1="12" y1="6" x2="12" y2="10"></line></svg>
+              Electronics
+            </button>
+            <button class="pillBtn" data-filter-btn="clothing" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V9.06h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z"></path></svg>
+              Clothing
+            </button>
+            <button class="pillBtn" data-filter-btn="shoes" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="7.5 4.27 12 6.11 16.5 4.27"></polyline><line x1="12" y1="6.11" x2="12" y2="18.11"></line></svg>
+              Shoes
+            </button>
+            <button class="pillBtn" data-filter-btn="accessories" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c-2.667 0-4.333.667-5 1-.667.333-1.333 1.333-2 1-.667 0-1.333-.667-2-1-.667-.333-2.333-1-5-1"></path><path d="M9 7h6"></path></svg>
+              Backpacks
+            </button>
+          </div>
 
-          <select class="select" id="sort" aria-label="Sort">
-            <option value="featured">Featured</option>
-            <option value="price_asc">Price: Low</option>
-            <option value="price_desc">Price: High</option>
-            <option value="rating_desc">Rating</option>
-          </select>
-        </div>
+          <div class="advanced-filters">
+            <select class="select" id="priceRange" aria-label="Price Range">
+              <option value="all">All Prices</option>
+              <option value="0-200">Under 200 MAD</option>
+              <option value="200-500">200-500 MAD</option>
+              <option value="500-1000">500-1000 MAD</option>
+              <option value="1000+">Over 1000 MAD</option>
+            </select>
+            
+            <select class="select" id="ratingFilter" aria-label="Rating">
+              <option value="all">All Ratings</option>
+              <option value="4+">4+ Stars</option>
+              <option value="4.5+">4.5+ Stars</option>
+              <option value="5">5 Stars</option>
+            </select>
+          </div>
+
+          <div class="view-toggle">
+            <button class="view-btn is-active" data-view="grid" title="Grid view">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            </button>
+            <button class="view-btn" data-view="list" title="List view">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            </button>
+          </div>
       </div>
 
       <div class="grid-wrapper">
