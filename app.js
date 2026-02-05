@@ -887,6 +887,38 @@ const SLIDES = [
     tiles:[]}
 ];
 
+let globalDiscount = 0; // Discount State
+
+function applyPromoCode() {
+  const input = document.getElementById('promoInput');
+  const btn = document.querySelector('.code-apply-btn');
+  
+  if(!input) return;
+  const val = input.value.trim().toUpperCase();
+  
+  if(val === 'STYLE30' || val === 'LECOMAX26') {
+    globalDiscount = 40;
+    renderGrid(); // Re-render to show new prices
+    
+    // UI Feedback
+    btn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      APPLIED!
+    `;
+    btn.style.background = "#22c55e";
+    btn.style.color = "#fff";
+    input.setAttribute("disabled", "true");
+    
+    // Notification
+    alert("Success! 40 MAD discount applied to all products.");
+    
+  } else {
+    alert("Invalid Code. Please try 'STYLE30' or 'LECOMAX26'.");
+    input.value = "";
+    input.focus();
+  }
+}
+
 const state = { 
   filter:"all", 
   sort:"featured", 
@@ -1964,35 +1996,38 @@ function openProductModal(id){
 }
 // Helper to generate a single Premium Card HTML
 function getCardHTML(p) {
-    const hasSale = !!(p.old && p.old > p.price);
-    const discount = hasSale ? Math.round(((p.old - p.price)/p.old)*100) : 0;
-    const isNew = (hashStr(p.id) % 3) === 0; // consistent random "new"
-    
-    let badge = "";
-    if(hasSale) badge = `<div class="badge badge--sale">-${discount}%</div>`;
-    else if(isNew) badge = `<div class="badge badge--new">New</div>`;
+    // 1. Calculate Prices with optional Global Discount
+    let finalPrice = p.price;
+    let displayOld = p.old;
+    let badgeHTML = "";
+
+    if (globalDiscount > 0) {
+        finalPrice = Math.max(0, p.price - globalDiscount);
+        displayOld = p.price; 
+        badgeHTML = `<div class="badge badge--sale" style="background:#22c55e">PROMO</div>`;
+    } else {
+        // Normal state
+        const hasSale = !!(p.old && p.old > p.price);
+        const discount = hasSale ? Math.round(((p.old - p.price)/p.old)*100) : 0;
+        const isNew = (hashStr(p.id) % 3) === 0;
+        
+        if(hasSale) badgeHTML = `<div class="badge badge--sale">-${discount}%</div>`;
+        else if(isNew) badgeHTML = `<div class="badge badge--new">New</div>`;
+    }
 
     // Determine initial image
     let initImg = p.emoji;
     if(p.images && p.images.length > 0) {
-       initImg = `<img src="${p.images[0]}" alt="${escapeHtml(p.name)}" class="card-main-img" id="img-${p.id}" style="width:100%; height:100%; object-fit:contain; padding:20px; transition: opacity 0.2s">`;
+       initImg = `<img src="${p.images[0]}" alt="${escapeHtml(p.name)}" class="card-main-img" id="img-${p.id}" style="width:100%; height:100%; object-fit:contain; padding:12px; transition: opacity 0.2s">`;
     }
     
     // Auto-scroll images logic (data attributes)
     const imgArray = p.images ? JSON.stringify(p.images).replaceAll('"', '&quot;') : "[]";
 
-    // Colors - Visual Dots
-    let colorDots = "";
-    if(p.colors && p.colors.length > 0) {
-        colorDots = `<div class="card__color-dots">
-          ${p.colors.map(c => `<button class="color-dot" onclick="return selectCardColor(event, this, '${p.id}', '${c.img}')" style="background:${c.hex}" title="${escapeHtml(c.name)}"></button>`).join("")}
-        </div>`;
-    }
-
     return `
     <article class="card" onclick="openProductPage('${p.id}')" style="cursor:pointer">
       <div class="card__img" id="card-img-${p.id}" onmouseenter="startCardSlide('${p.id}')" onmouseleave="stopCardSlide('${p.id}')" data-images="${imgArray}" data-idx="0">
-        ${badge}
+        ${badgeHTML}
         ${initImg}
         <div class="card__overlay-fav">
             <button class="fav-btn" onclick="event.stopPropagation(); toggleFav('${p.id}', this)" aria-label="Add to Wishlist" style="${state.favs.includes(p.id)? 'color:#ef4444' : ''}">
@@ -2013,7 +2048,6 @@ function getCardHTML(p) {
 
          <h3 class="card__title">${escapeHtml(p.name)}</h3>
      
-        
         <div class="card__bottom">
             <div class="card__actions">
                <button class="btn-add-cart" onclick="event.stopPropagation(); openQuickShop('${p.id}')">
@@ -2025,8 +2059,8 @@ function getCardHTML(p) {
                </button>
             </div>
             <div class="card__price">
-                <div>${p.price} <span style="font-size:0.75em; font-weight:600; color:#64748b">MAD</span></div>
-                ${p.old ? `<div style="font-size:0.8rem; color:#94a3b8; font-weight:500; text-decoration:line-through;">${p.old} MAD</div>` : ``}
+                <div>${finalPrice} <span style="font-size:0.75em; font-weight:600; color:#64748b">MAD</span></div>
+                ${displayOld ? `<div style="font-size:0.8rem; color:#94a3b8; font-weight:500; text-decoration:line-through;">${displayOld} MAD</div>` : ``}
             </div>
         </div>
       </div>
