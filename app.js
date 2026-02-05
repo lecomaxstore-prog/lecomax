@@ -2012,21 +2012,21 @@ function getCardHTML(p) {
          </div>
 
          <h3 class="card__title">${escapeHtml(p.name)}</h3>
-     ${colorDots}
+     
         
         <div class="card__bottom">
+            <div class="card__actions">
+               <button class="btn-add-cart" onclick="event.stopPropagation(); openQuickShop('${p.id}')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                  <span>Add</span>
+               </button>
+               <button class="btn-icon-soft" onclick="event.stopPropagation(); openProductPage('${p.id}')" title="Quick View">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+               </button>
+            </div>
             <div class="card__price">
                 <div>${p.price} <span style="font-size:0.75em; font-weight:600; color:#64748b">MAD</span></div>
                 ${p.old ? `<div style="font-size:0.8rem; color:#94a3b8; font-weight:500; text-decoration:line-through;">${p.old} MAD</div>` : ``}
-            </div>
-            <div class="card__actions">
-               <button class="btn-icon-soft" onclick="event.stopPropagation(); openProductPage('${p.id}')" title="Quick View">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
-               </button>
-               <button class="btn-add-cart" onclick="event.stopPropagation(); openQuickShop('${p.id}')">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-                  <span>Add</span>
-               </button>
             </div>
         </div>
       </div>

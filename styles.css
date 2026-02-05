@@ -1132,9 +1132,9 @@ h2{margin:0; font-size:1.65rem}
 /* Product Grid (Vertical) */
 .grid{
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Smaller cards */
-  gap: 16px; /* Tight gap */
-  padding: 10px 4px 40px 4px;
+  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr)); /* Wider cards for web */
+  gap: 24px; /* More breathing room */
+  padding: 20px 0 60px 0;
   width: 100%;
 }
 .grid.list-view{
@@ -1161,16 +1161,27 @@ h2{margin:0; font-size:1.65rem}
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  border-radius: 16px; /* Increased radius */
+  border-radius: 20px; /* Modern cleaner radius */
   overflow: hidden;
   position: relative;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  border: 1px solid rgba(15, 23, 42, 0.08); /* More distinct border */
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid rgba(15, 23, 42, 0.06); /* Softer border */
   opacity: 0;
   transform: translateY(20px);
   animation: fadeInUp 0.6s ease-out forwards;
+  will-change: transform, box-shadow;
 }
+
+.card:hover {
+  transform: translateY(-8px) scale(1.005);
+  box-shadow: 
+    0 20px 40px -5px rgba(0, 0, 0, 0.1), 
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: rgba(59, 130, 246, 0.15); /* Subtle accent glow */
+  z-index: 2;
+}
+
 @keyframes fadeInUp {
   to {
     opacity: 1;
@@ -1227,17 +1238,22 @@ h2{margin:0; font-size:1.65rem}
 
 /* Title */
 .card__title {
-  font-size: 1.05rem;
+  font-size: 1.15rem; /* Larger for web */
   font-weight: 700;
-  line-height: 1.4;
-  color: #1e293b;
-  margin-top: 6px;
+  line-height: 1.35;
+  color: #0f172a; /* Darker ink */
+  margin-top: 8px;
   margin-bottom: auto;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  height: 2.8em; /* Fixed height for alignment */
+  height: 2.7em; /* Fixed alignment height */
+  letter-spacing: -0.015em;
+  transition: color 0.2s;
+}
+.card:hover .card__title {
+  color: var(--accent);
 }
 
 /* Price */
@@ -1263,30 +1279,37 @@ h2{margin:0; font-size:1.65rem}
 }
 .card__img img, .card__img .card-main-img {
   width: 100%; height: 100%; object-fit: contain;
-  transition: transform 0.4s ease;
-  padding: 12px;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 12px; /* Less padding for larger image impact */
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.06));
 }
-.card:hover .card__img img { transform: scale(1.08); }
+.card:hover .card__img img { transform: scale(1.12); }
 
 .card__overlay-fav {
   position: absolute;
-  top: 8px; right: 8px;
+  top: 12px; right: 12px;
   z-index: 5;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   opacity: 0;
-  transform: translateY(-10px);
-  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: translateY(-8px) scale(0.9);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.card:hover .card__overlay-fav { opacity: 1; transform: translateY(0); }
+.card:hover .card__overlay-fav { opacity: 1; transform: translateY(0) scale(1); }
 .card__overlay-fav .fav-btn {
-  width: 32px; height: 32px; background: transparent;
+  width: 36px; height: 36px; background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  color: #64748b;
+  transition: color 0.2s;
 }
+.card__overlay-fav .fav-btn:hover { color: #ef4444; }
 
 .card__body {
-  padding: 12px;
-  display: flex; flex-direction: column; gap: 4px;
+  padding: 18px 20px 20px; /* Increased padding */
+  display: flex; flex-direction: column; gap: 8px;
+  background: radial-gradient(circle at top right, #fff, #fcfcfc);
 }
 
 .grid.list-view .card__title {
@@ -1297,11 +1320,18 @@ h2{margin:0; font-size:1.65rem}
 }
 
 .card__bottom {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-top: 4px;
+  display: flex; justify-content: space-between; align-items: flex-end; /* Align bottom */
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(0,0,0,0.04);
 }
-.card__price { font-weight: 700; font-size: 1.1rem; color: var(--text); }
-.card__price s { font-size: 0.8rem; color: var(--muted); font-weight: 400; margin-left: 6px; }
+.card__price { 
+  font-weight: 800; 
+  font-size: 1.2rem; 
+  color: var(--text); 
+  display: flex; flex-direction: column; line-height: 1.1; 
+}
+.card__price div:first-child { color: #0f172a; letter-spacing: -0.02em; }
 .card__rating { font-size: 0.75rem; color: var(--text); opacity: 0.8; display: flex; align-items: center; gap: 4px; }
 
 /* Clean up old card styles if any remain unused (Removed h3 hiding) */
@@ -1375,9 +1405,9 @@ h2{margin:0; font-size:1.65rem}
 }
 
 .btn-icon-soft {
-  width: 42px; height: 42px;
+  width: 34px; height: 34px;
   flex-shrink: 0;
-  border-radius: 12px;
+  border-radius: 8px;
   border: 1px solid #e2e8f0;
   background: #ffffff;
   color: #64748b;
@@ -1389,33 +1419,32 @@ h2{margin:0; font-size:1.65rem}
   border-color: var(--accent);
   color: var(--accent);
   background: #eff6ff;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 .btn-icon-soft svg { stroke-width: 2px; }
 
 .btn-add-cart {
-  flex: 1;
   border: none;
   background: var(--text); /* Clean dark look */
   color: #fff;
-  height: 42px;
-  padding: 0 20px;
-  border-radius: 12px;
-  font-size: 0.9rem;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
   font-weight: 600;
   display: inline-flex;
   align-items: center; justify-content: center;
-  gap: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  gap: 6px;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: pointer;
   letter-spacing: 0.01em;
 }
 .btn-add-cart:hover {
   background: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.4);
 }
 .btn-add-cart svg {
   transition: transform 0.3s ease;
