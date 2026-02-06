@@ -398,18 +398,80 @@
   </section>
 
   <!-- NEW TRENDING SECTION (Horizontal Scroll) -->
-  <section class="section" style="padding-bottom:0">
-    <div class="container">
-      <div class="section__head" style="margin-bottom:20px;">
-        <div>
-           <h2 style="font-size:1.8rem; margin-bottom:4px">Trending Now</h2>
-           <p class="muted">Top picks selected for you.</p>
-        </div>
-      </div>
-      <div class="horizontal-scroll" id="trendingList">
-         <!-- Populated by JS -->
-      </div>
+
+  <!-- PREMIUM TRENDING CAROUSEL -->
+  <section class="trending">
+    <div class="trending__head">
+      <h2 class="trending__title">Trending Now</h2>
+      <p class="trending__subtitle">Top picks selected for you.</p>
     </div>
+    <div class="trending__carousel">
+      <button class="trending__arrow trending__arrow--left" aria-label="Previous products"></button>
+      <div class="trending__track-wrapper">
+        <ul class="trending__track">
+          <li class="trending__card">
+            <div class="trending__img-wrap">
+              <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/milano%20jacket%20black%201.avif" alt="Men's Casual Faux Fur Jacket" class="trending__img" />
+            </div>
+            <div class="trending__info">
+              <div class="trending__title-row">
+                <span class="trending__title-product">Men's Casual Faux Fur Jacket</span>
+              </div>
+              <div class="trending__price-row">
+                <span class="trending__price-old">650 MAD</span>
+                <span class="trending__price-new">550 MAD</span>
+              </div>
+              <div class="trending__rating">
+                <span class="trending__stars" aria-label="4.8 out of 5 stars">★★★★☆</span>
+                <span class="trending__rating-value">4.8</span>
+              </div>
+              <button class="trending__add-btn" aria-label="Add to cart">ADD TO CART</button>
+            </div>
+          </li>
+          <li class="trending__card">
+            <div class="trending__img-wrap">
+              <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/1%20black%20.jpeg" alt="Autumn Men's Casual Hoodie Baseball Jacket" class="trending__img" />
+            </div>
+            <div class="trending__info">
+              <div class="trending__title-row">
+                <span class="trending__title-product">Autumn Men's Casual Hoodie Baseball Jacket</span>
+              </div>
+              <div class="trending__price-row">
+                <span class="trending__price-old">420 MAD</span>
+                <span class="trending__price-new">350 MAD</span>
+              </div>
+              <div class="trending__rating">
+                <span class="trending__stars" aria-label="4.8 out of 5 stars">★★★★☆</span>
+                <span class="trending__rating-value">4.8</span>
+              </div>
+              <button class="trending__add-btn" aria-label="Add to cart">ADD TO CART</button>
+            </div>
+          </li>
+          <li class="trending__card">
+            <div class="trending__img-wrap">
+              <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Fashion%20Hooded%20Embroidered%20Warm%20Jacket/1%20rust%20.jpeg" alt="Men's Fashion Hooded Embroidered Warm Jacket" class="trending__img" />
+            </div>
+            <div class="trending__info">
+              <div class="trending__title-row">
+                <span class="trending__title-product">Men's Fashion Hooded Embroidered Warm Jacket</span>
+              </div>
+              <div class="trending__price-row">
+                <span class="trending__price-old">599 MAD</span>
+                <span class="trending__price-new">550 MAD</span>
+              </div>
+              <div class="trending__rating">
+                <span class="trending__stars" aria-label="4.9 out of 5 stars">★★★★★</span>
+                <span class="trending__rating-value">4.9</span>
+              </div>
+              <button class="trending__add-btn" aria-label="Add to cart">ADD TO CART</button>
+            </div>
+          </li>
+          <!-- Add more product cards here as needed -->
+        </ul>
+      </div>
+      <button class="trending__arrow trending__arrow--right" aria-label="Next products"></button>
+    </div>
+    <div class="trending__dots"></div>
   </section>
 
   <section class="section" id="products">
