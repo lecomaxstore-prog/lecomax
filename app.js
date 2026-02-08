@@ -557,7 +557,8 @@ function getFakeReviews(productId, cat){
   };
   const rnd = pseudoRand(hashStr(productId));
   const list = [];
-  for(let i=0;i<1;i++){
+  const count = (productId === 'wireless_gaming_controller_v2') ? 3 : 1;
+  for(let i=0;i<count;i++){
     const rating = 4 + Math.round(rnd()*10)/10; // 4.0 - 5.0
     const name = names[Math.floor(rnd()*names.length)];
     const tag = tags[Math.floor(rnd()*tags.length)];
@@ -578,6 +579,35 @@ function loadVariant(productId){
 }
 
 const PRODUCTS = [
+  {
+    id: "wireless_gaming_controller_v2",
+    cat: "electronics",
+    name: "Interactive Screen Wireless Gaming Controller",
+    price: 600,
+    old: 0,
+    rating: 5.0,
+    emoji: "🎮",
+    video: "https://goods-vod.kwcdn.com/goods-video/0aebee3d158c144c141ed5725db238e6a0325743.f30.mp4",
+    desc: "Experience precision gaming with Hall Effect sticks and triggers that eliminate drift. This controller features an interactive screen, RGB lighting, and remappable buttons. Compatible with iOS, Switch, PC, Android, and Steam Deck. Includes an 1800mAh battery and charging dock. Note: Not Compatible with Xbox and PS5.",
+    specs: {
+        "General": {
+            "Brand": "FIEHDUW",
+            "Special Features": "Wireless",
+            "Wireless Property": "wireless",
+            "Components": "Contain Electronic Components/Motherboard"
+        }
+    },
+    images: [
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/1.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/2.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/3.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/4.avif",
+        "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/5.avif"
+    ],
+    colors: [
+         { name: "Black", hex: "#000000", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/1.avif", sizes: [], disabledSizes: [] }
+    ]
+  },
   {
     id: "baasploa_running_shoes",
     cat: "shoes",
@@ -1643,11 +1673,8 @@ function renderQuickShop() {
   const color = qsState.color;
   const size = qsState.size;
   
-  // Image
+  // Image URL
   const imgSrc = color ? color.img : (p.images ? p.images[0] : null);
-  const imgHtml = imgSrc 
-    ? `<img src="${imgSrc}" style="width:100%; height:100%; object-fit:contain;">`
-    : `<div style="font-size:4rem">${p.emoji}</div>`;
 
   // Colors
   let colorHtml = "";
@@ -1718,12 +1745,8 @@ function renderQuickShop() {
   const t = TRANSLATIONS[localStorage.getItem('lecomax_lang') || 'en'] || TRANSLATIONS.en;
   const isRtl = document.documentElement.dir === 'rtl';
 
-  $("#modalBody").innerHTML = `
-    <div class="qs-grid">
-       <div class="qs-image">
-          ${imgHtml}
-       </div>
-       <div class="qs-details">
+  // Details HTML separate
+  const detailsHtml = `
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
             <div class="qs-cat">${label(p.cat)}</div>
             <div class="qs-rating">
@@ -1767,9 +1790,57 @@ function renderQuickShop() {
           <div class="qs-desc">
              ${escapeHtml(p.desc)}
           </div>
-       </div>
-    </div>
   `;
+
+  // Partial Update Logic
+  const modalBody = $("#modalBody");
+  const existingQS = modalBody.querySelector('.qs-grid');
+  const existingTitle = modalBody.querySelector('.qs-title');
+  const isSameProduct = existingQS && existingTitle && existingTitle.textContent === p.name;
+
+
+  if (isSameProduct) {
+     // Update Details
+     const dp = modalBody.querySelector('.qs-details');
+     if(dp) dp.innerHTML = detailsHtml;
+
+     // Smooth Image Update
+     const imgContainer = modalBody.querySelector('.qs-image');
+     const currentImg = imgContainer ? imgContainer.querySelector('img') : null;
+     
+     if(imgSrc) {
+       if(!currentImg) {
+          if(imgContainer) imgContainer.innerHTML = `<img src="${imgSrc}" style="width:100%; height:100%; object-fit:contain; transition: opacity 0.4s ease;">`;
+       } else if(currentImg.src !== imgSrc && !currentImg.src.endsWith(imgSrc)) {
+           // Transition
+           currentImg.style.transition = 'opacity 0.4s ease'; 
+           currentImg.style.opacity = '0';
+           setTimeout(() => {
+                currentImg.src = imgSrc;
+                currentImg.style.opacity = '1';
+           }, 200);
+       }
+     } else {
+        if(imgContainer) imgContainer.innerHTML = `<div style="font-size:4rem">${p.emoji}</div>`;
+     }
+
+  } else {
+     // Full Render
+     const imgHtml = imgSrc 
+       ? `<img src="${imgSrc}" style="width:100%; height:100%; object-fit:contain; transition: opacity 0.4s ease;">`
+       : `<div style="font-size:4rem">${p.emoji}</div>`;
+
+     modalBody.innerHTML = `
+        <div class="qs-grid">
+           <div class="qs-image">
+              ${imgHtml}
+           </div>
+           <div class="qs-details">
+              ${detailsHtml}
+           </div>
+        </div>
+     `;
+  }
   
   const btn = $("#qsAddBtn");
   if(btn && !btn.disabled) {

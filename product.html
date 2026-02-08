@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9N1CPZQ1HG"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9N1CPZQ1HG');
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Product Details - Lecomax</title>
@@ -281,7 +290,7 @@
             <div class="product-gallery">
                 <div class="main-image-wrapper" style="position:relative;">
                     <div class="zoom-container" style="position:relative; overflow:hidden;">
-                      <img id="ppMainImg" src="${p.images && p.images[0] ? p.images[0] : ''}" alt="${p.name}" style="${(p.images && p.images.length) ? '' : 'display:none'}; cursor: zoom-in; transition: transform 0.2s;">
+                      <img id="ppMainImg" src="${p.images && p.images[0] ? p.images[0] : ''}" alt="${p.name}" style="${(p.images && p.images.length) ? '' : 'display:none'}; cursor: zoom-in; transition: opacity 0.4s ease, transform 0.2s;">
                       <div id="zoomLens" style="display:none; position:absolute; pointer-events:none; border:2px solid #3b82f6; border-radius:50%; width:120px; height:120px; background:rgba(59,130,246,0.08); z-index:10;"></div>
                     </div>
                     <video id="ppMainVideo" controls autoplay loop playsinline muted style="display:none; width:100%; height:100%; object-fit:contain; position:absolute; top:0; left:0; background:#fff;"></video>
@@ -522,11 +531,11 @@
       
       if(img) {
           img.style.display = "block";
-          img.style.opacity = "0.5";
+          img.style.opacity = "0"; 
           setTimeout(() => {
               img.src = src;
               img.style.opacity = "1";
-          }, 150);
+          }, 200);
       }
       
       document.querySelectorAll(".thumb-btn").forEach(b => b.classList.remove("active"));
@@ -574,11 +583,11 @@
         }
         if(img) {
           img.style.display = "block";
-          img.style.opacity = "0.5";
+          img.style.opacity = "0";
           setTimeout(() => {
             img.src = imgUrl;
             img.style.opacity = "1";
-          }, 120);
+          }, 200);
         }
 
         // Sync active thumbnail if it exists
@@ -600,5 +609,18 @@
 <button id="backToTop" aria-label="Back to top">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path></svg>
 </button>
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6989024f1377141c38bccfd9/default';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
 </body>
 </html>
