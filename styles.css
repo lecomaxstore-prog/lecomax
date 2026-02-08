@@ -1,4 +1,4 @@
-/* === Trending Products Carousel === */
+﻿/* === Trending Products Carousel === */
 .trending {
   background: #fff;
   border-radius: 20px;
@@ -282,13 +282,20 @@ a{color:inherit; text-decoration:none}
 }
 .topbar__right{display:flex; gap:20px; align-items:center}
 .toplink{
-  display:flex; align-items:center; gap:6px;
-  color:var(--muted); opacity:0.9;
-  transition: all 0.2s;
+  display:inline-flex; align-items:center; gap:8px;
+  color:var(--muted); font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 99px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: transparent;
 }
-.toplink:hover{color:var(--text); opacity:1}
-.toplink svg { stroke-width: 2px; opacity: 0.7; }
-.toplink:hover svg { opacity: 1; }
+.toplink:hover{
+  color:var(--accent); 
+  background: rgba(59, 130, 246, 0.08); /* accent-glow light */
+  transform: translateX(-3px);
+}
+.toplink svg { width: 18px; height: 18px; stroke-width: 2.5px; opacity: 0.8; transition: transform 0.2s; }
+.toplink:hover svg { opacity: 1; transform: translateX(-2px); }
 .dot{display:none}
 
 /* Header */
@@ -3876,4 +3883,91 @@ h2{margin:0; font-size:1.65rem}
     margin: 10px 0 30px;
   }
 }
+ / *   F o o t e r   E n h a n c e m e n t s   * / 
+ . f o o t - d e s c   { 
 
+/* Footer Enhancements */
+.foot-desc {
+  margin: 12px 0 24px;
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 300px;
+}
+.social-links {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.social-links a {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border-radius: 50%;
+  color: var(--text);
+  transition: all 0.2s;
+}
+.social-links a:hover {
+  background: var(--text);
+  color: #fff;
+  transform: translateY(-2px);
+}
+.contact-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.contact-row a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.contact-row a:hover {
+  color: var(--accent);
+}
+.copyright {
+  font-size: 0.85rem;
+  margin-top: auto;
+}
+
+ / *   S o c i a l   B u t t o n   E n h a n c e m e n t s   * / 
+ . s o c i a l - l i n k s   a . s o c i a l - b t n   { 
+     b a c k g r o u n d :   t r a n s p a r e n t ; 
+     w i d t h :   4 2 p x ; 
+     h e i g h t :   4 2 p x ; 
+     b o r d e r :   1 p x   s o l i d   # e 2 e 8 f 0 ; 
+     c o l o r :   # 6 4 7 4 8 b ; 
+     p o s i t i o n :   r e l a t i v e ; 
+     o v e r f l o w :   h i d d e n ; 
+     z - i n d e x :   1 ; 
+ } 
+ . s o c i a l - l i n k s   a . s o c i a l - b t n : : b e f o r e   { 
+     c o n t e n t :   ' ' ; 
+     p o s i t i o n :   a b s o l u t e ; 
+     i n s e t :   0 ; 
+     b a c k g r o u n d :   v a r ( - - b t n - c o l o r ,   # 0 f 1 7 2 a ) ; 
+     z - i n d e x :   - 1 ; 
+     t r a n s f o r m :   t r a n s l a t e Y ( 1 0 0 % ) ; 
+     t r a n s i t i o n :   t r a n s f o r m   0 . 3 s   c u b i c - b e z i e r ( 0 . 4 ,   0 ,   0 . 2 ,   1 ) ; 
+ } 
+ . s o c i a l - l i n k s   a . s o c i a l - b t n : h o v e r   { 
+     b o r d e r - c o l o r :   t r a n s p a r e n t ; 
+     c o l o r :   # f f f ; 
+     t r a n s f o r m :   t r a n s l a t e Y ( - 3 p x ) ; 
+     b o x - s h a d o w :   0   5 p x   1 5 p x   - 3 p x   v a r ( - - b t n - s h a d o w ,   r g b a ( 0 , 0 , 0 , 0 . 2 ) ) ; 
+ } 
+ . s o c i a l - l i n k s   a . s o c i a l - b t n : h o v e r : : b e f o r e   { 
+     t r a n s f o r m :   t r a n s l a t e Y ( 0 ) ; 
+ } 
+ . s o c i a l - b t n . i n s t a g r a m   {   - - b t n - c o l o r :   # E 1 3 0 6 C ;   - - b t n - s h a d o w :   r g b a ( 2 2 5 ,   4 8 ,   1 0 8 ,   0 . 4 ) ;   } 
+ . s o c i a l - b t n . w h a t s a p p   {   - - b t n - c o l o r :   # 2 5 D 3 6 6 ;   - - b t n - s h a d o w :   r g b a ( 3 7 ,   2 1 1 ,   1 0 2 ,   0 . 4 ) ;   } 
+ . s o c i a l - b t n . f a c e b o o k   {   - - b t n - c o l o r :   # 1 8 7 7 F 2 ;   - - b t n - s h a d o w :   r g b a ( 2 4 ,   1 1 9 ,   2 4 2 ,   0 . 4 ) ;   } 
+ 
+ 
+ 

@@ -1079,7 +1079,7 @@ const PRODUCTS = [
 const SLIDES = [
   { tab:"electronics", kicker:"New Arrival", title:"Headphones that feel premium.",
     text:"ANC audio, wearables and power accessories—presented with a clean brand-store experience.",
-    video: "https://cdn-static.oraimo.com/official/home_pc.mp4",
+    video: "https://www.dropbox.com/scl/fi/gg7ijijb9luakbe10s7ea/1770537466857.mp4?rlkey=0u4z2iv8pahppocuakddiqdqe&e=1&st=dt8cv1fw&raw=1",
     tiles:[]}
 ];
 
@@ -1114,6 +1114,28 @@ function applyPromoCode() {
     input.focus();
   }
 }
+
+window.activateGift = function() {
+  globalDiscount = 40;
+  renderGrid();
+  
+  const btn = document.querySelector('.listing-promo__btn');
+  if(btn) {
+      btn.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Offer Activated!
+      `;
+      btn.style.pointerEvents = 'none';
+      btn.style.background = '#22c55e';
+      btn.style.color = '#fff';
+      if(window.confetti) window.confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+  }
+  
+  // Show toast if available, else standard alert
+  const msg = "Success! 40 MAD discount applied to all products.";
+  if(window.showToast) window.showToast(msg);
+  else alert(msg);
+};
 
 const state = { 
   filter:"all", 
@@ -2563,3 +2585,33 @@ function setupSearchSuggestions() {
     }
   });
 }
+
+// === Quick Shop Trigger for Trending Items ===
+document.addEventListener('click', function(e) {
+  // Check if click is on .trending__add-btn or inside it
+  const btn = e.target.closest('.trending__add-btn');
+  if (btn) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Try to find product ID from card
+    const card = btn.closest('.trending__card');
+    if (card && card.dataset.id) {
+       if(window.openQuickShop) {
+           window.openQuickShop(card.dataset.id);
+       } else {
+           console.error("openQuickShop not defined");
+       }
+    } else {
+        // Fallback: Try to find by title matching
+        const titleEl = card.querySelector('.trending__title-product');
+        if(titleEl) {
+            const title = titleEl.textContent.trim();
+            const p = PRODUCTS.find(x => x.name === title);
+            if(p && window.openQuickShop) {
+                window.openQuickShop(p.id);
+            }
+        }
+    }
+  }
+});

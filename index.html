@@ -75,6 +75,31 @@
           </button>
         </div>
       </div>
+      <!-- Product Options Modal -->
+      <div id="product-options-modal" class="product-options-modal" style="display:none;">
+        <div class="product-options-modal__content">
+          <button class="product-options-modal__close" aria-label="Close">&times;</button>
+          <div class="product-options-modal__img-wrap">
+            <img id="product-options-modal-img" src="" alt="Product image">
+          </div>
+          <div class="product-options-modal__info">
+            <h2 id="product-options-modal-title" class="product-options-modal__title"></h2>
+            <div class="product-options-modal__price-row">
+              <span id="product-options-modal-price-old" class="product-options-modal__price-old"></span>
+              <span id="product-options-modal-price-new" class="product-options-modal__price-new"></span>
+            </div>
+            <div class="product-options-modal__colors">
+              <label class="product-options-modal__label">Choose color:</label>
+              <div id="product-options-modal-colors" class="product-options-modal__color-list"></div>
+            </div>
+            <div class="product-options-modal__sizes">
+              <label class="product-options-modal__label">Choose size:</label>
+              <div id="product-options-modal-sizes" class="product-options-modal__size-list"></div>
+            </div>
+            <button id="product-options-modal-add-btn" class="product-options-modal__add-btn">Add to cart</button>
+          </div>
+        </div>
+      </div>
 
       <nav class="nav" aria-label="Main">
         <div class="nav__group">
@@ -409,7 +434,7 @@
       <button class="trending__arrow trending__arrow--left" aria-label="Previous products"></button>
       <div class="trending__track-wrapper">
         <ul class="trending__track">
-          <li class="trending__card">
+          <li class="trending__card" data-id="milano_jacket">
             <div class="trending__img-wrap">
               <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/milanojacket/milano%20jacket%20black%201.avif" alt="Men's Casual Faux Fur Jacket" class="trending__img" />
             </div>
@@ -428,7 +453,7 @@
               <button class="trending__add-btn" aria-label="Add to cart">ADD TO CART</button>
             </div>
           </li>
-          <li class="trending__card">
+          <li class="trending__card" data-id="casual_jacket_autumn">
             <div class="trending__img-wrap">
               <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/1%20black%20.jpeg" alt="Autumn Men's Casual Hoodie Baseball Jacket" class="trending__img" />
             </div>
@@ -447,7 +472,7 @@
               <button class="trending__add-btn" aria-label="Add to cart">ADD TO CART</button>
             </div>
           </li>
-          <li class="trending__card">
+          <li class="trending__card" data-id="hooded_warm_jacket_rust">
             <div class="trending__img-wrap">
               <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/Men'S%20Fashion%20Hooded%20Embroidered%20Warm%20Jacket/1%20rust%20.jpeg" alt="Men's Fashion Hooded Embroidered Warm Jacket" class="trending__img" />
             </div>
@@ -546,18 +571,13 @@
 
       <div class="listing-promo">
         <div class="listing-promo__content">
-          <span class="listing-promo__tag">Limited Offer</span>
-          <h3 class="listing-promo__title">Upgrade your style for the season.</h3>
-          <p class="listing-promo__desc">Save up to 30% on premium electronics and fashion collections.</p>
-          <div class="code-container">
-            <div class="code-box">
-               <span class="code-box__label">ENTER PROMO CODE:</span>
-               <input type="text" id="promoInput" class="promo-input" placeholder="Enter code">
-            </div>
-            <button class="code-apply-btn" onclick="applyPromoCode()" title="Apply Code">
-               Apply -40 MAD
-            </button>
-          </div>
+          <span class="listing-promo__tag">Our Gift To You</span>
+          <h3 class="listing-promo__title">A Token of Gratitude.</h3>
+          <p class="listing-promo__desc">Thank you for visiting Lecomax. Activate your exclusive discount now.</p>
+          <button class="listing-promo__btn" onclick="activateGift()">
+             Claim 40 MAD Offer
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
         </div>
       </div>
 
@@ -704,28 +724,60 @@
         <a class="brand brand--foot" href="#">
            <span class="brand__name" style="font-size:1.5rem"><span style="color:var(--accent)">L'</span>ECOMAX</span>
         </a>
-        <p class="muted">© <span id="year"></span> <span data-i18n="rights">Lecomax. All rights reserved.</span></p>
+        <p class="foot-desc">Elevate your everyday with curated premium essentials. Experience the perfect blend of modern style and uncompromising quality, delivered directly to you.</p>
+        <div class="social-links">
+           <a href="#" aria-label="Instagram" class="social-btn instagram">
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+           </a>
+           <a href="https://wa.me/212699289568" target="_blank" aria-label="WhatsApp" class="social-btn whatsapp">
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+           </a>
+           <a href="#" aria-label="Facebook" class="social-btn facebook">
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+           </a>
+        </div>
+        <p class="muted copyright">© <span id="year">2026</span> Lecomax. All rights reserved.</p>
       </div>
 
       <div class="footCols">
-        <div class="footCol" id="stores">
+        <div class="footCol">
           <div class="footCol__title" data-i18n="shopping">Shopping</div>
-          <a href="#products" data-i18n="shop_online">Shop Online</a>
-          <a href="#collections" data-i18n="collections">Collections</a>
-          <a href="warranty.html" data-i18n="warranty">Warranty Policy</a>
+          <a href="#products">All Products</a>
+          <a href="#new-arrivals">New Arrivals</a>
+          <a href="#best-sellers">Best Sellers</a>
+          <a href="#electronics">Electronics</a>
+          <a href="#clothing">Fashion</a>
         </div>
-        <div class="footCol" id="warranty">
+        <div class="footCol">
           <div class="footCol__title" data-i18n="support">Support</div>
-          <a href="help-center.html" data-i18n="help_center">Help Center</a>
-          <a href="authentication.html" data-i18n="auth">Authentication</a>
-          <a href="warranty.html" data-i18n="warranty">Warranty</a>
+          <a href="help-center.html">Help Center</a>
+          <a href="#track">Track Order</a>
+          <a href="warranty.html">Warranty Policy</a>
+          <a href="#returns">Returns & Exchanges</a>
+          <a href="shipping.html">Shipping Info</a>
         </div>
         <div class="footCol">
           <div class="footCol__title" data-i18n="footer_company">Company</div>
-          <a href="about.html" data-i18n="about">About</a>
-          <a href="newsroom.html" data-i18n="newsroom">Newsroom</a>
-          <a href="terms.html" data-i18n="terms">Terms</a>
-          <a href="privacy.html" data-i18n="privacy">Privacy</a>
+          <a href="about.html">About Us</a>
+          <a href="newsroom.html">Newsroom</a>
+          <a href="terms.html">Terms of Service</a>
+          <a href="privacy.html">Privacy Policy</a>
+          <a href="#careers">Careers</a>
+        </div>
+        <div class="footCol">
+          <div class="footCol__title">Contact</div>
+          <div class="contact-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <a href="tel:+212699289568">+212 699-289568</a>
+          </div>
+          <div class="contact-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <a href="mailto:lecomaxstore@gmail.com">lecomaxstore@gmail.com</a>
+          </div>
+          <div class="contact-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span>Sidi Bennour, Morocco</span>
+          </div>
         </div>
       </div>
     </div>
