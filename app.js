@@ -2524,10 +2524,17 @@ function setupBackToTop() {
   const btn = document.getElementById('backToTop');
   if (!btn) return;
 
+  let hideTimer = null;
+
   window.addEventListener('scroll', () => {
     if (window.scrollY > 300) {
       btn.classList.add('show');
+      if (hideTimer) clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => {
+        btn.classList.remove('show');
+      }, 700);
     } else {
+      if (hideTimer) clearTimeout(hideTimer);
       btn.classList.remove('show');
     }
   });
