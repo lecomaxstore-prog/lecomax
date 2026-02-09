@@ -1119,7 +1119,7 @@ const PRODUCTS = [
 const SLIDES = [
   { tab:"electronics", kicker:"New Arrival", title:"Headphones that feel premium.",
     text:"ANC audio, wearables and power accessories—presented with a clean brand-store experience.",
-    video: "https://www.dropbox.com/scl/fi/gg7ijijb9luakbe10s7ea/1770537466857.mp4?rlkey=0u4z2iv8pahppocuakddiqdqe&e=1&st=dt8cv1fw&raw=1",
+    video: "https://www.dropbox.com/scl/fi/ijjlsh5g0qtz1txe075sp/1770625431125.mp4?rlkey=977tuc0zdeav4eqa2igf6e12g&st=h27cyv00&raw=1",
     tiles:[]}
 ];
 
@@ -1317,6 +1317,17 @@ function init(){
           
           nav.classList.add("open");
         }
+      });
+
+      // Close nav when clicking any link inside it
+      $$(".nav a").forEach(link => {
+          link.addEventListener("click", () => {
+              const nav = $(".nav");
+              if (nav && nav.classList.contains("open")) {
+                  nav.style.display = "none";
+                  nav.classList.remove("open");
+              }
+          });
       });
   }
 
@@ -1555,7 +1566,7 @@ function initSlider(){
     return `
     <div class="slide" ${isMedia ? `style="background: transparent; padding: 0; display: flex; flex-direction: column; gap: 24px; border: none; align-items: center;"` : ''}>
     ${s.video
-       ? `<video src="${s.video}" autoplay loop muted playsinline></video>
+      ? `<video src="${s.video}" autoplay loop muted playsinline preload="auto"></video>
             <div>
               <a href="#products" class="hero-cta">
                 Shop Now
