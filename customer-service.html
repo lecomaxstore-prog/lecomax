@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Live Agent - Lecomax</title>
+  <meta name="theme-color" content="#e8f1ff" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    :root {
+      --agent-bg: #f6f9ff;
+      --agent-ink: #0b1b3a;
+      --agent-ink-soft: rgba(11, 27, 58, 0.68);
+      --agent-blue: #2563eb;
+      --agent-blue-soft: rgba(37, 99, 235, 0.16);
+      --agent-card: #ffffff;
+      --agent-line: rgba(37, 99, 235, 0.12);
+      --agent-shadow: 0 24px 60px rgba(37, 99, 235, 0.18);
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 12% 8%, #ffffff 0%, #eef5ff 38%, #e8f1ff 100%);
+      color: var(--agent-ink);
+      font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial;
+    }
+
+    .agent-wrap {
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .agent-wrap::before {
+      content: "";
+      position: absolute;
+      inset: -20% -10% auto auto;
+      width: 420px;
+      height: 420px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.18), transparent 65%);
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .agent-wrap::after {
+      content: "";
+      position: absolute;
+      inset: auto auto -30% -10%;
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.14), transparent 65%);
+      filter: blur(10px);
+      pointer-events: none;
+    }
+
+    .agent-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .agent-header a {
+      color: var(--agent-ink);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .agent-header .brand {
+      font-family: "Fraunces", serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: 0.02em;
+    }
+
+    .agent-main {
+      position: relative;
+      z-index: 1;
+      padding: 24px 0 80px;
+    }
+
+    .agent-hero {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 36px;
+      align-items: center;
+    }
+
+    .agent-title {
+      font-family: "Fraunces", serif;
+      font-size: 3rem;
+      line-height: 1.1;
+      margin: 0 0 12px 0;
+      letter-spacing: 0.01em;
+    }
+
+    .agent-subtitle {
+      color: var(--agent-ink-soft);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin: 0 0 24px 0;
+    }
+
+    .agent-highlights {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .agent-highlight {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      color: var(--agent-ink);
+    }
+
+    .agent-highlight span {
+      color: var(--agent-ink-soft);
+      font-weight: 500;
+    }
+
+    .agent-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .agent-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: 1px solid var(--agent-line);
+      color: var(--agent-ink);
+      text-decoration: none;
+      font-weight: 600;
+      background: #ffffff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
+    }
+
+    .agent-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(37, 99, 235, 0.35);
+      box-shadow: 0 16px 30px rgba(37, 99, 235, 0.18);
+    }
+
+    .agent-btn--primary {
+      background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+      border: none;
+      color: #ffffff;
+      box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
+    }
+
+    .agent-card {
+      background: var(--agent-card);
+      border: 1px solid var(--agent-line);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: var(--agent-shadow);
+    }
+
+    .agent-card__header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .agent-avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 22px;
+      background: linear-gradient(140deg, #2563eb 0%, #93c5fd 70%);
+      color: #ffffff;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      font-size: 1.3rem;
+      font-family: "Fraunces", serif;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
+      overflow: hidden;
+    }
+
+    .agent-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .agent-meta h3 {
+      margin: 0 0 6px 0;
+      font-size: 1.2rem;
+    }
+
+    .agent-meta p {
+      margin: 0;
+      color: var(--agent-ink-soft);
+      font-size: 0.95rem;
+    }
+
+    .agent-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.12);
+      color: #1d4ed8;
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-top: 8px;
+    }
+
+    .agent-status::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2563eb;
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.45);
+    }
+
+    .agent-details {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .agent-detail {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.95rem;
+      color: var(--agent-ink-soft);
+      border-bottom: 1px dashed rgba(37, 99, 235, 0.18);
+      padding-bottom: 10px;
+    }
+
+    .agent-detail strong {
+      color: var(--agent-ink);
+      font-weight: 600;
+    }
+
+    .agent-note {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--agent-ink-soft);
+      font-size: 0.92rem;
+    }
+
+    .agent-trust {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .agent-trust .trust-card {
+      background: #f7faff;
+      border-radius: 18px;
+      padding: 14px;
+      border: 1px solid rgba(37, 99, 235, 0.12);
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--agent-ink-soft);
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
+    }
+
+    .agent-trust .trust-card strong {
+      display: block;
+      color: var(--agent-ink);
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 900px) {
+      .agent-hero {
+        grid-template-columns: 1fr;
+      }
+      .agent-title {
+        font-size: 2.4rem;
+      }
+      .agent-trust {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .agent-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .agent-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .agent-btn {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="agent-wrap">
+    <div class="container">
+      <header class="agent-header">
+        <a href="index.html">Back to store</a>
+        <div class="brand">LECOMAX LIVE</div>
+        <a href="help-center.html">Help Center</a>
+      </header>
+
+      <main class="agent-main">
+        <section class="agent-hero">
+          <div>
+            <h1 class="agent-title">Your dedicated live agent is ready.</h1>
+            <p class="agent-subtitle">Skip the queue and speak to a real specialist. We handle orders, product questions, and delivery updates in minutes.</p>
+            <div class="agent-highlights">
+              <div class="agent-highlight">Fast replies <span>Average response: 2 minutes</span></div>
+              <div class="agent-highlight">Priority assistance <span>Order changes and urgent updates</span></div>
+              <div class="agent-highlight">Clear guidance <span>Product fit, sizing, and setup</span></div>
+            </div>
+            <div class="agent-actions">
+              <a class="agent-btn agent-btn--primary" href="https://wa.me/212699289568">Start WhatsApp</a>
+              <a class="agent-btn" href="#" id="liveChatBtn">Live Chat</a>
+              <a class="agent-btn" href="tel:+212699289568">Call Agent</a>
+              <a class="agent-btn" href="mailto:contact@lecomax.com">Email Agent</a>
+            </div>
+          </div>
+
+          <aside class="agent-card">
+            <div class="agent-card__header">
+              <div class="agent-avatar">
+                <img src="https://github.com/lecomaxstore-prog/lecomax/raw/refs/heads/main/my%20photo.jfif" alt="Zakaria Zemzami" />
+              </div>
+              <div class="agent-meta">
+                <h3>Zakaria Zemzami</h3>
+                <p>Senior Live Agent</p>
+                <div class="agent-status">Online now</div>
+              </div>
+            </div>
+            <div class="agent-details">
+              <div class="agent-detail"><span>Availability</span><strong>09:00 - 21:00 (GMT+1)</strong></div>
+              <div class="agent-detail"><span>Languages</span><strong>English, French, Arabic</strong></div>
+              <div class="agent-detail"><span>Order support</span><strong>New orders + changes</strong></div>
+              <div class="agent-detail"><span>Returns help</span><strong>Guided in 1 step</strong></div>
+            </div>
+            <div class="agent-note">Need a quick answer? Share your order number and preferred delivery city. We will prioritize you.</div>
+            <div class="agent-trust">
+              <div class="trust-card"><strong>Official Store</strong>Verified Lecomax team</div>
+              <div class="trust-card"><strong>Secure</strong>Your data stays protected</div>
+              <div class="trust-card"><strong>Local</strong>Morocco-based support</div>
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+  </div>
+  <!--Start of Tawk.to Script-->
+  <script type="text/javascript">
+    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+    (function(){
+      var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+      s1.async = true;
+      s1.src = "https://embed.tawk.to/6989024f1377141c38bccfd9/default";
+      s1.charset = "UTF-8";
+      s1.setAttribute("crossorigin", "*");
+      s0.parentNode.insertBefore(s1, s0);
+    })();
+  </script>
+  <!--End of Tawk.to Script-->
+  <script>
+    const liveChatBtn = document.getElementById("liveChatBtn");
+    if (liveChatBtn) {
+      liveChatBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        if (window.Tawk_API && typeof window.Tawk_API.maximize === "function") {
+          window.Tawk_API.maximize();
+        }
+      });
+    }
+  </script>
+</body>
+</html>
