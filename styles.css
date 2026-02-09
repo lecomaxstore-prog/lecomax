@@ -1002,41 +1002,41 @@ a{color:inherit; text-decoration:none}
 .benefit-desc{ font-size: 0.85rem; color: var(--muted); line-height: 1.4; margin-top:2px; }
 
 /* Sections */
-.section{padding:32px 0}
+.section{padding:26px 0}
 .section--alt{
   border-top:1px solid var(--line);
   border-bottom:1px solid var(--line);
   background: rgba(0,0,0,.015);
 }
-.section--tight{padding:22px 0 30px}
+.section--tight{padding:18px 0 24px}
 .section__head{
   display:flex; justify-content:space-between; align-items:flex-end;
-  gap:12px; flex-wrap:wrap;
-  margin-bottom:12px;
+  gap:10px; flex-wrap:wrap;
+  margin-bottom:10px;
 }
 
 /* Features Section */
 .section--features {
-  padding: 20px 0;
+  padding: 16px 0;
   border-bottom: 1px solid var(--line);
   background: #fdfdfd; 
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .features-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 16px;
 }
 @media (max-width: 768px) {
-  .features-grid { grid-template-columns: 1fr; gap: 10px; }
+  .features-grid { grid-template-columns: 1fr; gap: 8px; }
 }
 
 .feature-card {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
+  gap: 12px;
+  padding: 12px 14px;
   background: #fff;
   border-radius: 16px;
   border: 1px solid var(--line);
@@ -1074,7 +1074,7 @@ a{color:inherit; text-decoration:none}
   line-height: 1.3;
 }
 .section__head p {
-  margin-top: 4px;
+  margin-top: 2px;
   font-size: 0.95rem;
   color: var(--muted);
   display: flex;
@@ -1978,7 +1978,7 @@ h2{margin:0; font-size:1.65rem}
 }
 
 /* Responsive */
-@media (max-width: 980px){
+@media (max-width: 768px){
   .nav{
     display:none; /* Initially hidden */
     flex-direction: column;
@@ -2049,6 +2049,31 @@ h2{margin:0; font-size:1.65rem}
     z-index: 200;
     border: 1px solid rgba(0,0,0,0.05);
   }
+  
+  /* Mobile Header Improvements */
+  .header__inner {
+    padding: 12px 0;
+    gap: 12px;
+  }
+  .brand__name {
+    font-size: 1.1rem;
+  }
+  .actions {
+    gap: 8px;
+  }
+  
+  /* Mobile Topbar Improvements */
+  .topbar__right {
+    gap: 12px;
+  }
+  .toplink {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+  .toplink svg {
+    width: 16px;
+    height: 16px;
+  }
 
   .search-container.show {
     display: block; /* Use block to ensure child takes full width */
@@ -2094,8 +2119,8 @@ h2{margin:0; font-size:1.65rem}
 /* Tawk Custom Trigger */
 .tawk-custom-trigger {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
+  bottom: 20px;
+  right: 20px;
   z-index: 9999;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -2103,23 +2128,24 @@ h2{margin:0; font-size:1.65rem}
   background: transparent;
   border: none;
   padding: 0;
+  margin: 0;
 }
 
 /* Live Agent Badge */
 .tawk-custom-trigger::after {
   content: 'Live Agent';
   position: absolute;
-  bottom: -6px;
+  bottom: -5px;
   left: 50%;
   transform: translateX(-50%);
   background-color: #22c55e;
   color: #fff;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 4px 10px;
-  border-radius: 12px;
+  letter-spacing: 0.4px;
+  padding: 3px 8px;
+  border-radius: 10px;
   border: 2px solid #fff;
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
   z-index: 10;
@@ -2133,8 +2159,8 @@ h2{margin:0; font-size:1.65rem}
 }
 
 .tawk-custom-trigger img {
-  width: 75px;
-  height: 75px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   object-fit: cover;
   display: block;
@@ -2325,7 +2351,7 @@ h2{margin:0; font-size:1.65rem}
 
 /* Newsletter */
 .newsletter {
-  padding: 48px 0;
+  padding: 40px 0;
   text-align: center;
   background: linear-gradient(135deg, #f8fafc, #f1f5f9);
   border-top: 1px solid rgba(0,0,0,0.05);
@@ -2404,7 +2430,7 @@ h2{margin:0; font-size:1.65rem}
 
 /* Premium Newsletter Overrides */
 .newsletter {
-  padding: 48px 0;
+  padding: 40px 0;
   background: #fff;
 }
 .newsletter__inner {
@@ -2412,8 +2438,8 @@ h2{margin:0; font-size:1.65rem}
 }
 .newsletter__content {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  border-radius: 28px;
-  padding: 44px 32px;
+  border-radius: 26px;
+  padding: 36px 26px;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -2440,7 +2466,7 @@ h2{margin:0; font-size:1.65rem}
 }
 @keyframes float { 0%{transform:translateY(0)} 50%{transform:translateY(-6px)} 100%{transform:translateY(0)} }
 .newsletter h3 {
- font-size: 2.2rem;
+ font-size: 2.05rem;
  font-weight: 800;
  margin-bottom: 10px;
  letter-spacing: -0.02em;
@@ -2451,8 +2477,8 @@ h2{margin:0; font-size:1.65rem}
 }
 .newsletter p {
  color: #cad4e0;
- margin-bottom: 22px;
- font-size: 1.05rem;
+ margin-bottom: 18px;
+ font-size: 1rem;
  max-width: 400px;
  margin-left: auto;
  margin-right: auto;
@@ -2519,8 +2545,8 @@ h2{margin:0; font-size:1.65rem}
 }
 @media (max-width: 600px) {
  .newsletter__form { flex-direction: column; }
- .newsletter__content { padding: 32px 20px; }
- .newsletter h3 { font-size: 1.8rem; }
+ .newsletter__content { padding: 28px 18px; }
+ .newsletter h3 { font-size: 1.7rem; }
  .btn--glow { width: 100%; padding: 16px; }
 }
 
@@ -2531,19 +2557,19 @@ h2{margin:0; font-size:1.65rem}
 }
 
 @media (max-width: 768px) {
-  .section { padding: 24px 0; }
-  .section--tight { padding: 18px 0 24px; }
-  .section__head { margin-bottom: 10px; }
-  .filters { padding: 10px; gap: 8px; }
+  .section { padding: 20px 0; }
+  .section--tight { padding: 16px 0 20px; }
+  .section__head { margin-bottom: 8px; }
+  .filters { padding: 8px; gap: 8px; }
   .search-filter { min-width: 0; flex: 1; }
-  .footer { padding: 18px 0; }
+  .footer { padding: 16px 0; }
 }
 
 @media (max-width: 520px) {
   .slider { min-height: 280px; }
   .slide { padding: 18px 16px; }
   .slide--image { padding: 18px 18px; }
-  .contact-card { padding: 28px 18px; }
+  .contact-card { padding: 24px 16px; }
 }
 
 
@@ -3241,6 +3267,21 @@ h2{margin:0; font-size:1.65rem}
   border-color: rgba(220, 38, 38, 0.35);
   background: #fef2f2;
   color: #991b1b;
+}
+
+/* Mobile Checkout Styles */
+@media (max-width: 768px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .checkout-card {
+    padding: 18px;
+  }
+  .checkout-field--row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 .checkout-message.is-success{
   border-color: rgba(16, 185, 129, 0.35);
