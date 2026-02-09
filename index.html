@@ -23,40 +23,27 @@
   <link rel="stylesheet" href="newsletter.css" />
 </head>
 <body class="page-home">
-  <div class="topbar">
-    <div class="container topbar__inner">
-      <div class="topbar__left">
-        <button class="chip" id="langBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="2" y1="12" x2="22" y2="12"></line>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-          </svg>
-          <span class="chip__text">English</span>
-          <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-             <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </button>
-        <div class="dropdown" id="langMenu" role="listbox" aria-label="Language">
-          <button class="dropdown__item" data-lang="English">English</button>
-          <button class="dropdown__item" data-lang="Français">Français</button>
-          <button class="dropdown__item" data-lang="العربية">العربية</button>
-        </div>
+  
+  <!-- Language Selection Modal -->
+  <div id="language-modal" class="lang-modal">
+    <div class="lang-modal__content">
+      <div class="lang-modal__header">
+        <h2 class="lang-modal__title">Welcome to Lecomax</h2>
+        <p class="lang-modal__subtitle">Please select your preferred language</p>
       </div>
-
-      <div class="topbar__right">
-        <a class="toplink" href="customer-service.html" data-i18n="support">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-          </svg>
-          Support
-        </a>
-        <a class="toplink" href="warranty.html" data-i18n="warranty">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-          </svg>
-          Warranty
-        </a>
+      <div class="lang-modal__grid">
+        <button class="lang-card" onclick="selectInitialLang('en')">
+          <span class="lang-card__flag">🇺🇸</span>
+          <span class="lang-card__name">English</span>
+        </button>
+        <button class="lang-card" onclick="selectInitialLang('fr')">
+          <span class="lang-card__flag">🇫🇷</span>
+          <span class="lang-card__name">Français</span>
+        </button>
+        <button class="lang-card" onclick="selectInitialLang('ar')">
+          <span class="lang-card__flag">🇲🇦</span>
+          <span class="lang-card__name">العربية</span>
+        </button>
       </div>
     </div>
   </div>
@@ -571,17 +558,7 @@
           </div>
       </div>
 
-      <div class="listing-promo">
-        <div class="listing-promo__content">
-          <span class="listing-promo__tag">Our Gift To You</span>
-          <h3 class="listing-promo__title">A Token of Gratitude.</h3>
-          <p class="listing-promo__desc">Thank you for visiting Lecomax. Activate your exclusive discount now.</p>
-          <button class="listing-promo__btn" onclick="activateGift()">
-             Claim 40 MAD Offer
-             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-          </button>
-        </div>
-      </div>
+
 
       <div class="grid-wrapper">
         

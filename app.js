@@ -501,6 +501,16 @@ function setLanguage(lang) {
   localStorage.setItem('lecomax_lang', lang);
 }
 
+// Global modal selection
+window.selectInitialLang = function(lang) {
+  setLanguage(lang);
+  const modal = document.getElementById('language-modal');
+  if(modal) {
+    modal.classList.remove('show');
+    setTimeout(() => { modal.style.display = 'none'; }, 500);
+  }
+};
+
 /* ===== PRO helpers: deterministic random + reviews + stars ===== */
 function hashStr(str){
   let h = 2166136261;
@@ -1238,8 +1248,19 @@ function init(){
   if(yearEl) yearEl.textContent = new Date().getFullYear();
 
   // Initialize Language
-  const savedLang = localStorage.getItem('lecomax_lang') || 'en';
-  setLanguage(savedLang);
+  const savedLang = localStorage.getItem('lecomax_lang');
+  if(savedLang) {
+    setLanguage(savedLang);
+    const modal = document.getElementById('language-modal');
+    if (modal) modal.style.display = 'none';
+  } else {
+     const modal = document.getElementById('language-modal');
+     if(modal) {
+       setTimeout(() => modal.classList.add('show'), 100);
+     } else {
+       setLanguage('en');
+     }
+  }
   
   const langBtn = $("#langBtn");
   const langMenu = $("#langMenu");
