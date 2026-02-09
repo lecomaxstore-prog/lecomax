@@ -97,6 +97,19 @@
   // Current product global
   let currentProduct = null;
 
+  // Listen for language changes to re-render product details
+  window.addEventListener('languageChanged', (e) => {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+      if(id && typeof renderProductDetail === 'function') {
+          renderProductDetail(id);
+          // Re-init zoom
+          if(typeof enableProductImageZoom === 'function') {
+             setTimeout(enableProductImageZoom, 100); 
+          }
+      }
+  });
+
   document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
@@ -113,8 +126,126 @@
   }
 
   function renderProductDetail(id) {
-     const p = PRODUCTS.find(x => x.id === id);
-     if(!p) { showNotFound(); return; }
+     const rawP = PRODUCTS.find(x => x.id === id);
+     if(!rawP) { showNotFound(); return; }
+     
+     // Localize based on current settings
+     const lang = localStorage.getItem('lecomax_lang') || 'en';
+     const p = { ...rawP }; // clone to avoid mutating original shared object permanently if we switched back and forth
+     
+     if(lang === 'fr') {
+         if(p.name_fr) p.name = p.name_fr;
+         if(p.desc_fr) p.desc = p.desc_fr;
+     } else if (lang === 'ar') {
+         if(p.name_ar) p.name = p.name_ar;
+         if(p.desc_ar) p.desc = p.desc_ar;
+     }
+     
+     // Translation Dictionary for UI Elements
+     const UI_TEXT = {
+         en: {
+             specs_title: "Product Specifications",
+             reviews_title: "Customer Reviews",
+             based_on: "Based on",
+             reviews: "reviews",
+             you_might_like: "You might also like",
+             verified_buyer: "Verified Buyer",
+             add_to_cart: "Add to Cart",
+             save: "Save",
+             free_shipping_title: "Free Express",
+             free_shipping_desc: "Delivery in 3 days",
+             warranty_title: "12 Months",
+             warranty_desc: "Official warranty",
+             returns_title: "30-Day",
+             returns_desc: "Easy returns",
+             payment_title: "Secure",
+             payment_desc: "Payment",
+             color: "Color"
+         },
+         fr: {
+             specs_title: "Spécifications du Produit",
+             reviews_title: "Avis Clients",
+             based_on: "Basé sur",
+             reviews: "avis",
+             you_might_like: "Vous aimerez peut-être aussi",
+             verified_buyer: "Acheteur Vérifié",
+             add_to_cart: "Ajouter au Panier",
+             save: "Économisez",
+             free_shipping_title: "Livraison Express",
+             free_shipping_desc: "Gratuite en 3 jours",
+             warranty_title: "12 Mois",
+             warranty_desc: "Garantie officielle",
+             returns_title: "30 Jours",
+             returns_desc: "Retours faciles",
+             payment_title: "Paiement",
+             payment_desc: "Sécurisé",
+             color: "Couleur"
+         },
+         ar: {
+             specs_title: "مواصفات المنتج",
+             reviews_title: "آراء العملاء",
+             based_on: "بناءً على",
+             reviews: "مراجعة",
+             you_might_like: "قد يعجبك أيضاً",
+             verified_buyer: "مشتري موثق",
+             add_to_cart: "أضف إلى السلة",
+             save: "وفر",
+             free_shipping_title: "شحن سريع",
+             free_shipping_desc: "توصيل خلال 3 أيام",
+             warranty_title: "12 شهراً",
+             warranty_desc: "ضمان معتمد",
+             returns_title: "30 يوماً",
+             returns_desc: "استرجاع سهل",
+             payment_title: "دفع",
+             payment_desc: "آمن",
+             color: "اللون"
+         }
+     };
+     
+     const txt = UI_TEXT[lang] || UI_TEXT.en;
+     
+     // Spec Key/Value Translations (Best Effort)
+     const SPEC_TRANS = {
+        fr: {
+            "Brand": "Marque", "Model": "Modèle", "Material": "Matériau", "Color": "Couleur",
+            "Style": "Style", "Gender": "Genre", "Season": "Saison", "Size": "Taille",
+            "Weight": "Poids", "Dimensions": "Dimensions", "Features": "Caractéristiques",
+            "General": "Général", "Design": "Design", "Black": "Noir", "White": "Blanc",
+            "Men": "Hommes", "Women": "Femmes", "Casual": "Décontracté", "Sports": "Sport",
+            "Polyester": "Polyester", "Cotton": "Coton", "Origin": "Origine", "China": "Chine",
+            "Wireless": "Sans fil", "Battery": "Batterie", "Charging": "Recharge",
+            "Product Type": "Type de Produit", "Closure Type": "Fermeture", "Sleeve Length": "Manches",
+            "Available Sizes": "Tailles Disponibles", "Usage": "Usage", "Pattern": "Motif",
+            "Solid": "Uni", "Hooded": "À capuche", "Pockets": "Poches", "Regular": "Régulier",
+            "Loose": "Ample", "Fit Type": "Coupe", "Connectivity": "Connectivité", "None": "Aucun"
+        },
+        ar: {
+            "Brand": "العلامة التجارية", "Model": "الموديل", "Material": "الخامة", "Color": "اللون",
+            "Style": "النمط", "Gender": "الجنس", "Season": "الفصل", "Size": "المقاس",
+            "Weight": "الوزن", "Dimensions": "الأبعاد", "Features": "الميزات",
+            "General": "عام", "Design": "التصميم", "Black": "أسود", "White": "أبيض",
+            "Men": "رجال", "Women": "نساء", "Casual": "كاجوال", "Sports": "رياضي",
+            "Polyester": "بوليستر", "Cotton": "قطن", "Origin": "المنشأ", "China": "الصين",
+            "Wireless": "لاسلكي", "Battery": "البطارية", "Charging": "الشحن",
+            "Product Type": "نوع المنتج", "Closure Type": "نوع الإغلاق", "Sleeve Length": "طول الكم",
+            "Available Sizes": "المقاسات المتوفرة", "Usage": "الاستخدام", "Pattern": "النقش",
+            "Solid": "لون موحد", "Hooded": "بقلنسوة", "Pockets": "جيوب", "Regular": "عادي",
+            "Loose": "واسع", "Fit Type": "نوع القصة", "Connectivity": "الاتصال", "None": "لا يوجد"
+        }
+     };
+     
+     const trSpec = (str) => {
+         if(!str) return str;
+         if(typeof str !== 'string') return str;
+         const map = SPEC_TRANS[lang];
+         if(!map) return str;
+         // Try exact match first
+         if(map[str]) return map[str];
+         // Try replace common words if key is sentence-like? (Risky, skip for now to avoid broken sentences)
+         return str;
+     }
+
+
      currentProduct = p;
 
      // Determine colors
@@ -124,7 +255,7 @@
          const defaultColor = p.colors.find(c => !c.soldOut) || p.colors[0];
 
          colorHtml = `<div class="options-wrap">
-             <div class="option-label">Color: <span id="colorName">${defaultColor.name}</span></div>
+             <div class="option-label">${txt.color}: <span id="colorName">${defaultColor.name}</span></div>
              <div class="colors-list">
                 ${p.colors.map((c, i) => `
                    <button class="color-swatch ${c.soldOut ? 'sold-out' : ''} ${c.name === defaultColor.name ? 'selected' : ''}" 
@@ -170,16 +301,16 @@
      let specsHtml = "";
      if (p.specs) {
         specsHtml = `<div class="specs-block" id="specs">
-            <h3 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 30px;">Product Specifications</h3>
+            <h3 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 30px;">${txt.specs_title}</h3>
             <div class="specs-grid-layout">
                 ${Object.entries(p.specs).map(([category, items]) => `
                     <div class="spec-group">
-                        <h4>${category}</h4>
+                        <h4>${trSpec(category)}</h4>
                         <div class="spec-list">
                             ${Object.entries(items).map(([key, value]) => `
                                 <div class="spec-row">
-                                    <span class="spec-key">${key}</span>
-                                    <span class="spec-val">${value}</span>
+                                    <span class="spec-key">${trSpec(key)}</span>
+                                    <span class="spec-val">${trSpec(value)}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -206,7 +337,7 @@
           <div class="rating-overall">
              <div class="rating-score">${p.rating.toFixed(1)}</div>
              <div class="rating-stars-lg">★★★★★</div>
-             <div class="rating-count-lg">Based on ${reviewCount} reviews</div>
+             <div class="rating-count-lg">${txt.based_on} ${reviewCount} ${txt.reviews}</div>
           </div>
           <div class="rating-bars">
              <div class="rating-bar-row">
@@ -238,7 +369,7 @@
         </div>
      `;
 
-    let reviewsHtml = `<div class="reviews-grid">` + getFakeReviews(p.id, p.cat).slice(0, 1).map(r => {
+    let reviewsHtml = `<div class="reviews-grid">` + getFakeReviews(p.id, p.cat, lang).slice(0, 1).map(r => {
          const colors = ['review-bg-blue', 'review-bg-green', 'review-bg-purple', 'review-bg-orange'];
          const colorClass = colors[hashStr(r.name) % colors.length];
          
@@ -251,7 +382,7 @@
                         ${r.name}
                         <span class="verified-badge">
                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                           Verified Buyer
+                           ${txt.verified_buyer}
                         </span>
                     </div>
                     <div class="review-stars">${"★".repeat(Math.floor(r.rating))}</div>
@@ -337,7 +468,7 @@
                      </div>
                      
                     <button class="btn btn--primary add-btn" onclick="handleAddToCart('${p.id}')" style="height: 54px; border-radius: 12px; font-size: 1.1rem; letter-spacing: 0.02em; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);">
-                        Add to Cart 
+                        ${txt.add_to_cart}
                      </button>
                      
                      <button class="fav-action-btn" onclick="handleAddToCart('${p.id}', true)" title="Add to Wishlist" style="height: 54px; width: 54px; border-radius: 12px; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #fff; transition: all 0.2s;">
@@ -350,28 +481,28 @@
                         <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0284c7; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                         </div>
-                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">Free Express<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">Delivery in 3 days</span></div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">${txt.free_shipping_title}<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">${txt.free_shipping_desc}</span></div>
                     </div>
                     
                     <div class="trust-item" style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
                         <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #16a34a; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                         </div>
-                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">12 Months<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">Official warranty</span></div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">${txt.warranty_title}<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">${txt.warranty_desc}</span></div>
                     </div>
 
                     <div class="trust-item" style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
                         <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #ca8a04; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                         </div>
-                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">30-Day<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">Easy returns</span></div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">${txt.returns_title}<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">${txt.returns_desc}</span></div>
                     </div>
                     
                      <div class="trust-item" style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
                         <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #7c3aed; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
                         </div>
-                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">Secure<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">Payment</span></div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">${txt.payment_title}<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">${txt.payment_desc}</span></div>
                     </div>
                 </div>
             </div>
@@ -381,14 +512,14 @@
 
         <!-- REVIEWS SECTION -->
         <div class="reviews-section" id="reviews" style="margin-top: 80px;">
-            <h3 style="font-size:1.6rem; margin-bottom:30px; font-weight:800;">Customer Reviews</h3>
+            <h3 style="font-size:1.6rem; margin-bottom:30px; font-weight:800;">${txt.reviews_title}</h3>
             ${ratingSummaryHtml}
             ${reviewsHtml}
         </div>
         
         <!-- RELATED PRODUCTS -->
         <div class="related-section" style="margin-top:80px; padding-top:40px; border-top:1px solid var(--line)">
-             <h3 style="font-size:1.6rem; margin-bottom:24px; font-weight:800;">You might also like</h3>
+             <h3 style="font-size:1.6rem; margin-bottom:24px; font-weight:800;">${txt.you_might_like}</h3>
              <div class="horizontal-scroll" id="relatedList" style="display:flex; gap:16px; overflow-x:auto; padding-bottom:20px;"></div>
         </div>
       </div>

@@ -17,6 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="preload" as="video" href="https://www.dropbox.com/scl/fi/ijjlsh5g0qtz1txe075sp/1770625431125.mp4?rlkey=977tuc0zdeav4eqa2igf6e12g&st=h27cyv00&raw=1">
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="card-enhancements.css" />
@@ -29,21 +30,30 @@
   <div id="language-modal" class="lang-modal">
     <div class="lang-modal__content">
       <div class="lang-modal__header">
-        <h2 class="lang-modal__title">Welcome to Lecomax</h2>
-        <p class="lang-modal__subtitle">Please select your preferred language</p>
+        <h2 class="lang-modal__title" data-i18n="welcome_title">Welcome to Lecomax</h2>
+        <p class="lang-modal__subtitle" data-i18n="language_select">Please select your preferred language</p>
       </div>
       <div class="lang-modal__grid">
         <button class="lang-card" onclick="selectInitialLang('en')">
-          <span class="lang-card__flag">🇺🇸</span>
-          <span class="lang-card__name">English</span>
+          <div class="lang-card__content">
+            <img class="lang-card__flag" src="https://flagcdn.com/w80/us.png" alt="US" loading="lazy">
+            <span class="lang-card__name">English</span>
+          </div>
+          <span class="lang-card__code">US</span>
         </button>
         <button class="lang-card" onclick="selectInitialLang('fr')">
-          <span class="lang-card__flag">🇫🇷</span>
-          <span class="lang-card__name">Français</span>
+          <div class="lang-card__content">
+            <img class="lang-card__flag" src="https://flagcdn.com/w80/fr.png" alt="FR" loading="lazy">
+            <span class="lang-card__name">Français</span>
+          </div>
+          <span class="lang-card__code">FR</span>
         </button>
         <button class="lang-card" onclick="selectInitialLang('ar')">
-          <span class="lang-card__flag">🇲🇦</span>
-          <span class="lang-card__name">العربية</span>
+           <div class="lang-card__content">
+            <img class="lang-card__flag" src="https://flagcdn.com/w80/ma.png" alt="MA" loading="lazy">
+            <span class="lang-card__name">العربية</span>
+          </div>
+          <span class="lang-card__code">MA</span>
         </button>
       </div>
     </div>
@@ -79,14 +89,14 @@
               <span id="product-options-modal-price-new" class="product-options-modal__price-new"></span>
             </div>
             <div class="product-options-modal__colors">
-              <label class="product-options-modal__label">Choose color:</label>
+              <label class="product-options-modal__label" data-i18n="choose_color">Choose color:</label>
               <div id="product-options-modal-colors" class="product-options-modal__color-list"></div>
             </div>
             <div class="product-options-modal__sizes">
-              <label class="product-options-modal__label">Choose size:</label>
+              <label class="product-options-modal__label" data-i18n="choose_size">Choose size:</label>
               <div id="product-options-modal-sizes" class="product-options-modal__size-list"></div>
             </div>
-            <button id="product-options-modal-add-btn" class="product-options-modal__add-btn">Add to cart</button>
+            <button id="product-options-modal-add-btn" class="product-options-modal__add-btn" data-i18n="add_to_cart_btn">Add to cart</button>
           </div>
         </div>
       </div>
@@ -101,9 +111,9 @@
               <div class="mega__col">
                 <div class="mega__title" data-i18n="electronics">Electronics</div>
                 <a class="mega__link" href="#products" data-filter="electronics" data-i18n="cat_headphones">Headphones & Audio</a>
-                <a class="mega__link" href="#products" data-filter="electronics">Wearables</a>
-                <a class="mega__link" href="#products" data-filter="electronics">Power</a>
-                <a class="mega__link" href="#products" data-filter="electronics">Gaming</a>
+                <a class="mega__link" href="#products" data-filter="electronics" data-i18n="wearables">Wearables</a>
+                <a class="mega__link" href="#products" data-filter="electronics" data-i18n="power">Power</a>
+                <a class="mega__link" href="#products" data-filter="electronics" data-i18n="gaming">Gaming</a>
               </div>
               <div class="mega__col">
                 <div class="mega__title" data-i18n="clothing">Fashion</div>
@@ -214,7 +224,18 @@
 
       <div class="heroGrid" style="grid-template-columns: 1fr;">
         <div class="slider" aria-label="Featured">
-          <div class="slider__track" id="sliderTrack"></div>
+          <div class="slider__track" id="sliderTrack">
+            <!-- Server-Side Rendered Slide for Speed -->
+            <div class="slide" style="background: transparent; padding: 0; display: flex; flex-direction: column; gap: 24px; border: none; align-items: center;">
+              <video src="https://www.dropbox.com/scl/fi/ijjlsh5g0qtz1txe075sp/1770625431125.mp4?rlkey=977tuc0zdeav4eqa2igf6e12g&amp;st=h27cyv00&amp;raw=1" autoplay loop muted playsinline preload="auto"></video>
+              <div>
+                <a href="#products" class="hero-cta" data-i18n="shop_now">
+                  Shop Now
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+              </div>
+            </div>
+          </div>
           <div class="slider__dots" id="sliderDots" aria-label="Dots"></div>
         </div>
 
@@ -296,8 +317,8 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 14"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
           </div>
           <div class="feature-content">
-            <h3>Fast Delivery</h3>
-            <p>Shipping within 3 days.</p>
+            <h3 data-i18n="fast_delivery">Fast Delivery</h3>
+            <p data-i18n="feature_fast_desc">Shipping within 3 days.</p>
           </div>
         </div>
         <div class="feature-card">
@@ -305,8 +326,8 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
           </div>
           <div class="feature-content">
-             <h3>Official Warranty</h3>
-             <p>1-year coverage.</p>
+             <h3 data-i18n="official_warranty">Official Warranty</h3>
+             <p data-i18n="feature_warranty_desc">1-year coverage.</p>
           </div>
         </div>
         <div class="feature-card">
@@ -314,8 +335,8 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
           </div>
           <div class="feature-content">
-             <h3>Premium Support</h3>
-             <p>24/7 expert assistance.</p>
+             <h3 data-i18n="premium_support">Premium Support</h3>
+             <p data-i18n="feature_support_desc">24/7 expert assistance.</p>
           </div>
         </div>
       </div>
@@ -326,16 +347,16 @@
     <div class="container">
       <div class="section__head">
         <div>
-          <h2 style="font-size: 2rem; letter-spacing: -0.02em; margin-bottom: 6px;">Curated Collections</h2>
+          <h2 style="font-size: 2rem; letter-spacing: -0.02em; margin-bottom: 6px;" data-i18n="curated_collections">Curated Collections</h2>
 
         </div>
-        <a class="btn btn--view-all" href="#products">View all</a>
+        <a class="btn btn--view-all" href="#products" data-i18n="view_all">View all</a>
       </div>
 
       <div class="catGrid">
         <a class="catCard catCard--tech" href="#products" data-jump-filter="electronics">
           <div class="catCard__top">
-            <span class="catCard__badge">Top</span>
+            <span class="catCard__badge" data-i18n="badge_top">Top</span>
             <div class="catCard__visual">
                <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/headphones%20%26%20audio.png" alt="Headphones & Audio">
                <div class="catCard__fab">
@@ -344,10 +365,10 @@
             </div>
           </div>
           <div>
-            <div class="catCard__title">Headphones & Audio</div>
-            <div class="catCard__text">ANC • Bass • Clear calls</div>
+            <div class="catCard__title" data-i18n="cat_headphones">Headphones & Audio</div>
+            <div class="catCard__text" data-i18n="cat_audio_desc">ANC • Bass • Clear calls</div>
             <div class="btn btn--soft" style="width:100%;">
-              Shop Electronics
+              <span data-i18n="shop_electronics">Shop Electronics</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </div>
           </div>
@@ -355,7 +376,7 @@
 
         <a class="catCard catCard--wear" href="#products" data-jump-filter="clothing">
           <div class="catCard__top">
-            <span class="catCard__badge">New</span>
+            <span class="catCard__badge" data-i18n="badge_new">New</span>
             <div class="catCard__visual">
                <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/clothes%20section%20.jpeg" alt="Clothing" loading="lazy">
                <div class="catCard__fab">
@@ -364,10 +385,10 @@
             </div>
           </div>
           <div>
-            <div class="catCard__title">Clothing</div>
-            <div class="catCard__text">Premium basics • Streetwear</div>
+            <div class="catCard__title" data-i18n="clothing">Clothing</div>
+            <div class="catCard__text" data-i18n="cat_clothing_desc">Premium basics • Streetwear</div>
             <div class="btn btn--soft" style="width:100%;">
-              Shop Clothing
+              <span data-i18n="shop_clothing">Shop Clothing</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </div>
           </div>
@@ -375,7 +396,7 @@
 
         <a class="catCard catCard--shoe" href="#products" data-jump-filter="shoes">
           <div class="catCard__top">
-            <span class="catCard__badge">Best</span>
+            <span class="catCard__badge" data-i18n="badge_best">Best</span>
             <div class="catCard__visual">
                <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/shoes%20section.png" alt="Shoes" loading="lazy">
                <div class="catCard__fab">
@@ -384,10 +405,10 @@
             </div>
           </div>
           <div>
-            <div class="catCard__title">Shoes</div>
-            <div class="catCard__text">Sneakers • Running • Classic</div>
+            <div class="catCard__title" data-i18n="shoes">Shoes</div>
+            <div class="catCard__text" data-i18n="cat_shoes_desc">Sneakers • Running • Classic</div>
             <div class="btn btn--soft" style="width:100%;">
-              Shop Shoes
+              <span data-i18n="shop_shoes">Shop Shoes</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </div>
           </div>
@@ -395,7 +416,7 @@
 
         <a class="catCard catCard--bag" href="#products" data-jump-filter="accessories">
           <div class="catCard__top">
-            <span class="catCard__badge">Hot</span>
+            <span class="catCard__badge" data-i18n="badge_hot">Hot</span>
             <div class="catCard__visual">
                <img class="catCard__img catCard__img--hero" src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/backpack%20section.png" alt="Backpacks" loading="lazy">
                <div class="catCard__fab">
@@ -404,10 +425,10 @@
             </div>
           </div>
           <div>
-            <div class="catCard__title">Backpacks</div>
-            <div class="catCard__text">Daily carry • Travel ready</div>
+            <div class="catCard__title" data-i18n="backpacks">Backpacks</div>
+            <div class="catCard__text" data-i18n="cat_backpacks_desc">Daily carry • Travel ready</div>
             <div class="btn btn--soft" style="width:100%;">
-              Shop Backpacks
+              <span data-i18n="shop_backpacks">Shop Backpacks</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </div>
           </div>
@@ -421,8 +442,8 @@
   <!-- PREMIUM TRENDING CAROUSEL -->
   <section class="trending">
     <div class="trending__head">
-      <h2 class="trending__title">Trending Now</h2>
-      <p class="trending__subtitle">Top picks selected for you.</p>
+      <h2 class="trending__title" data-i18n="trending">Trending Now</h2>
+      <p class="trending__subtitle" data-i18n="trending_sub">Top picks selected for you.</p>
     </div>
     <div class="trending__carousel">
       <button class="trending__arrow trending__arrow--left" aria-label="Previous products"></button>
@@ -434,7 +455,7 @@
             </div>
             <div class="trending__info">
               <div class="trending__title-row">
-                <span class="trending__title-product">Men's Casual Faux Fur Jacket</span>
+                <span class="trending__title-product" data-i18n="p_milano_jacket">Men's Casual Faux Fur Jacket</span>
               </div>
               <div class="trending__price-row">
                 <span class="trending__price-old">650 MAD</span>
@@ -444,7 +465,7 @@
                 <span class="trending__stars" aria-label="4.8 out of 5 stars">★★★★☆</span>
                 <span class="trending__rating-value">4.8</span>
               </div>
-              <button class="trending__add-btn" aria-label="Add to cart">ADD TO CART</button>
+              <button class="trending__add-btn" aria-label="Add to cart" data-i18n="add_to_cart_caps">ADD TO CART</button>
             </div>
           </li>
           <li class="trending__card" data-id="casual_jacket_autumn">
@@ -453,7 +474,7 @@
             </div>
             <div class="trending__info">
               <div class="trending__title-row">
-                <span class="trending__title-product">Autumn Men's Casual Hoodie Baseball Jacket</span>
+                <span class="trending__title-product" data-i18n="p_casual_base_jacket">Autumn Men's Casual Hoodie Baseball Jacket</span>
               </div>
               <div class="trending__price-row">
                 <span class="trending__price-old">420 MAD</span>
@@ -463,7 +484,7 @@
                 <span class="trending__stars" aria-label="4.8 out of 5 stars">★★★★☆</span>
                 <span class="trending__rating-value">4.8</span>
               </div>
-              <button class="trending__add-btn" aria-label="Add to cart">ADD TO CART</button>
+              <button class="trending__add-btn" aria-label="Add to cart" data-i18n="add_to_cart_caps">ADD TO CART</button>
             </div>
           </li>
           <li class="trending__card" data-id="hooded_warm_jacket_rust">
@@ -472,7 +493,7 @@
             </div>
             <div class="trending__info">
               <div class="trending__title-row">
-                <span class="trending__title-product">Men's Fashion Hooded Embroidered Warm Jacket</span>
+                <span class="trending__title-product" data-i18n="p_hooded_jacket">Men's Fashion Hooded Embroidered Warm Jacket</span>
               </div>
               <div class="trending__price-row">
                 <span class="trending__price-old">599 MAD</span>
@@ -482,7 +503,7 @@
                 <span class="trending__stars" aria-label="4.9 out of 5 stars">★★★★★</span>
                 <span class="trending__rating-value">4.9</span>
               </div>
-              <button class="trending__add-btn" aria-label="Add to cart">ADD TO CART</button>
+              <button class="trending__add-btn" aria-label="Add to cart" data-i18n="add_to_cart_caps">ADD TO CART</button>
             </div>
           </li>
           <li class="trending__card" data-id="wireless_gaming_controller_v2">
@@ -491,7 +512,7 @@
             </div>
             <div class="trending__info">
               <div class="trending__title-row">
-                <span class="trending__title-product">Interactive Screen Wireless Gaming Controller</span>
+                <span class="trending__title-product" data-i18n="p_gaming_controller">Interactive Screen Wireless Gaming Controller</span>
               </div>
               <div class="trending__price-row">
                 <span class="trending__price-old">700 MAD</span>
@@ -501,7 +522,7 @@
                 <span class="trending__stars" aria-label="5.0 out of 5 stars">★★★★★</span>
                 <span class="trending__rating-value">5.0</span>
               </div>
-              <button class="trending__add-btn" aria-label="Add to cart">ADD TO CART</button>
+              <button class="trending__add-btn" aria-label="Add to cart" data-i18n="add_to_cart_caps">ADD TO CART</button>
             </div>
           </li>
           <li class="trending__card" data-id="baasploa_running_shoes">
@@ -510,7 +531,7 @@
             </div>
             <div class="trending__info">
               <div class="trending__title-row">
-                <span class="trending__title-product">Baasploa Men's Lightweight Running Shoes</span>
+                <span class="trending__title-product" data-i18n="p_running_shoes">Baasploa Men's Lightweight Running Shoes</span>
               </div>
               <div class="trending__price-row">
                 <span class="trending__price-old">300 MAD</span>
@@ -520,7 +541,7 @@
                 <span class="trending__stars" aria-label="4.8 out of 5 stars">★★★★☆</span>
                 <span class="trending__rating-value">4.8</span>
               </div>
-              <button class="trending__add-btn" aria-label="Add to cart">ADD TO CART</button>
+              <button class="trending__add-btn" aria-label="Add to cart" data-i18n="add_to_cart_caps">ADD TO CART</button>
             </div>
           </li>
           <!-- Add more product cards here as needed -->
@@ -535,14 +556,14 @@
     <div class="container">
       <div class="section__head">
         <div>
-          <h2>Products</h2>
-          <p class="muted">Search, filter, sort — then add to cart.</p>
+          <h2 data-i18n="products_title">Products</h2>
+          <p class="muted" data-i18n="products_sub">Search, filter, sort — then add to cart.</p>
           <div id="resultCount" class="result-count" style="margin-top: 8px; font-size: 0.9rem; color: var(--muted);"></div>
         </div>
 
         <div class="filters">
           <div class="search-filter">
-            <input type="text" id="productSearch" placeholder="Search products..." class="search-input">
+            <input type="text" id="productSearch" placeholder="Search products..." class="search-input" data-i18n="search_products_placeholder">
             <button class="search-btn" id="searchBtn">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </button>
@@ -576,18 +597,18 @@
 
           <div class="advanced-filters">
             <select class="select" id="priceRange" aria-label="Price Range">
-              <option value="all">All Prices</option>
-              <option value="0-200">Under 200 MAD</option>
-              <option value="200-500">200-500 MAD</option>
-              <option value="500-1000">500-1000 MAD</option>
-              <option value="1000+">Over 1000 MAD</option>
+              <option value="all" data-i18n="filter_price_all">All Prices</option>
+              <option value="0-200" data-i18n="filter_price_under_200">Under 200 MAD</option>
+              <option value="200-500" data-i18n="filter_price_200_500">200-500 MAD</option>
+              <option value="500-1000" data-i18n="filter_price_500_1000">500-1000 MAD</option>
+              <option value="1000+" data-i18n="filter_price_1000_plus">Over 1000 MAD</option>
             </select>
             
             <select class="select" id="ratingFilter" aria-label="Rating">
-              <option value="all">All Ratings</option>
-              <option value="4+">4+ Stars</option>
-              <option value="4.5+">4.5+ Stars</option>
-              <option value="5">5 Stars</option>
+              <option value="all" data-i18n="filter_rating_all">All Ratings</option>
+              <option value="4+" data-i18n="filter_rating_4_plus">4+ Stars</option>
+              <option value="4.5+" data-i18n="filter_rating_4_5_plus">4.5+ Stars</option>
+              <option value="5" data-i18n="filter_rating_5">5 Stars</option>
             </select>
           </div>
 
@@ -615,8 +636,8 @@
     <div class="container">
       <div class="section__head">
         <div>
-          <h2>What people say</h2>
-          <p class="muted">Clean, premium shopping experience.</p>
+          <h2 data-i18n="what_people_say">What people say</h2>
+          <p class="muted" data-i18n="clean_experience">Clean, premium shopping experience.</p>
         </div>
       </div>
 
@@ -630,12 +651,12 @@
             <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
             <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
           </div>
-          <div class="quote__title">“Fast delivery & great packaging.”</div>
+          <div class="quote__title" data-i18n="quote_sarah">“Fast delivery & great packaging.”</div>
           <div class="quote__foot">
             <div class="quote__avatar" style="background:#e0f2fe; color:#0284c7">S</div>
             <div>
               <div class="quote__name">Sarah M.</div>
-              <div class="quote__ver">Verified Buyer</div>
+              <div class="quote__ver" data-i18n="verified_buyer">Verified Buyer</div>
             </div>
           </div>
         </div>
@@ -649,12 +670,12 @@
             <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
             <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
           </div>
-          <div class="quote__title">“The categories make it super easy to shop.”</div>
+          <div class="quote__title" data-i18n="quote_karim">“The categories make it super easy to shop.”</div>
           <div class="quote__foot">
             <div class="quote__avatar" style="background:#f0fdf4; color:#16a34a">K</div>
             <div>
               <div class="quote__name">Karim T.</div>
-              <div class="quote__ver">Verified Buyer</div>
+              <div class="quote__ver" data-i18n="verified_buyer">Verified Buyer</div>
             </div>
           </div>
         </div>
@@ -668,7 +689,7 @@
             <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
             <svg width="16" height="16" fill="#fbbf24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
           </div>
-          <div class="quote__title" data-i18n="testimonial_text">“Looks premium and feels professional.”</div>
+          <div class="quote__title" data-i18n="quote_omar">“Looks premium and feels professional.”</div>
           <div class="quote__foot">
             <div class="quote__avatar" style="background:#fefce8; color:#ca8a04">O</div>
             <div>
@@ -746,7 +767,7 @@
         <a class="brand brand--foot" href="#">
            <span class="brand__name" style="font-size:1.5rem"><span style="color:var(--accent)">L'</span>ECOMAX</span>
         </a>
-        <p class="foot-desc">Elevate your everyday with curated premium essentials. Experience the perfect blend of modern style and uncompromising quality, delivered directly to you.</p>
+        <p class="foot-desc" data-i18n="footer_desc">Elevate your everyday with curated premium essentials. Experience the perfect blend of modern style and uncompromising quality, delivered directly to you.</p>
         <div class="social-links">
            <a href="#" aria-label="Instagram" class="social-btn instagram">
              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
@@ -756,43 +777,43 @@
              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
            </a>
         </div>
-        <p class="muted copyright">© <span id="year">2026</span> Lecomax. All rights reserved.</p>
+        <p class="muted copyright">© <span id="year">2026</span> <span data-i18n="rights">Lecomax. All rights reserved.</span></p>
       </div>
 
       <div class="footCols">
         <div class="footCol">
           <div class="footCol__title" data-i18n="shopping">Shopping</div>
-          <a href="#products">All Products</a>
-          <a href="#new-arrivals">New Arrivals</a>
-          <a href="#best-sellers">Best Sellers</a>
-          <a href="#electronics">Electronics</a>
-          <a href="#clothing">Fashion</a>
+          <a href="#products" data-i18n="all_products">All Products</a>
+          <a href="#new-arrivals" data-i18n="new_arrivals">New Arrivals</a>
+          <a href="#best-sellers" data-i18n="best_sellers">Best Sellers</a>
+          <a href="#electronics" data-i18n="electronics">Electronics</a>
+          <a href="#clothing" data-i18n="clothing">Fashion</a>
         </div>
         <div class="footCol">
           <div class="footCol__title" data-i18n="support">Support</div>
-          <a href="help-center.html">Help Center</a>
-          <a href="#track">Track Order</a>
-          <a href="warranty.html">Warranty Policy</a>
-          <a href="#returns">Returns & Exchanges</a>
-          <a href="shipping.html">Shipping Info</a>
+          <a href="help-center.html" data-i18n="help_center">Help Center</a>
+          <a href="#track" data-i18n="track_order">Track Order</a>
+          <a href="warranty.html" data-i18n="warranty">Warranty Policy</a>
+          <a href="#returns" data-i18n="returns">Returns & Exchanges</a>
+          <a href="shipping.html" data-i18n="shipping">Shipping Info</a>
         </div>
         <div class="footCol">
           <div class="footCol__title" data-i18n="footer_company">Company</div>
-          <a href="about.html">About Us</a>
-          <a href="newsroom.html">Newsroom</a>
-          <a href="terms.html">Terms of Service</a>
-          <a href="privacy.html">Privacy Policy</a>
-          <a href="#careers">Careers</a>
+          <a href="about.html" data-i18n="about">About Us</a>
+          <a href="newsroom.html" data-i18n="newsroom">Newsroom</a>
+          <a href="terms.html" data-i18n="terms">Terms of Service</a>
+          <a href="privacy.html" data-i18n="privacy">Privacy Policy</a>
+          <a href="#careers" data-i18n="careers">Careers</a>
         </div>
         <div class="footCol">
-          <div class="footCol__title">Contact</div>
+          <div class="footCol__title" data-i18n="contact">Contact</div>
           <div class="contact-row">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
               <path d="M15 11a4 4 0 0 1 4 4" />
               <path d="M19 8a7 7 0 0 1 3 5" />
             </svg>
-            <a href="customer-service.html">Live Agent</a>
+            <a href="customer-service.html" data-i18n="live_agent">Live Agent</a>
           </div>
           <div class="contact-row">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
@@ -804,7 +825,7 @@
           </div>
           <div class="contact-row">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            <span>Sidi Bennour, Morocco</span>
+            <span data-i18n="address_city_country">Sidi Bennour, Morocco</span>
           </div>
         </div>
       </div>
@@ -853,6 +874,7 @@
 
   <div class="tawk-custom-trigger" role="button" onclick="Tawk_API.toggle();" title="Chat with us">
     <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/my%20photo.jfif" alt="Chat with us">
+    <span class="live-agent-label" data-i18n="live_agent">Live Agent</span>
   </div>
 
   <div class="product-modal-ent" id="productModal" aria-hidden="true">

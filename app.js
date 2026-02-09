@@ -200,6 +200,8 @@ const $$ = (s) => document.querySelectorAll(s);
 
 const TRANSLATIONS = {
   en: {
+    welcome_title: "Welcome to Lecomax",
+    language_select: "Please select your preferred language",
     support: "Support",
     warranty: "Warranty",
     stores: "Stores",
@@ -212,6 +214,7 @@ const TRANSLATIONS = {
     clothing: "Clothing",
     shoes: "Shoes",
     backpacks: "Backpacks",
+    accessories: "Backpacks",
     quick_picks: "Quick Picks",
     new_arrivals: "New Arrivals",
     best_sellers: "Best Sellers",
@@ -250,7 +253,9 @@ const TRANSLATIONS = {
     modal_shipping: "Free Express Shipping",
     back_home: "Back to Home",
     verified_buyer: "Verified Buyer",
-    testimonial_text: "“Looks premium and feels professional.”",
+    quote_sarah: "“Fast delivery & great packaging.”",
+    quote_karim: "“The categories make it super easy to shop.”",
+    quote_omar: "“Looks premium and feels professional.”",
     trending: "Trending Now",
     trending_sub: "Top picks selected for you.",
     products_title: "Products",
@@ -282,9 +287,66 @@ const TRANSLATIONS = {
     email_us: "Email Us",
     enter_email: "Enter your email",
     what_people_say: "What people say",
-    clean_experience: "Clean, premium shopping experience."
+    clean_experience: "Clean, premium shopping experience.",
+    choose_color: "Choose color:",
+    choose_size: "Choose size:",
+    wearables: "Wearables",
+    power: "Power",
+    gaming: "Gaming",
+    feature_fast_desc: "Shipping within 3 days.",
+    feature_warranty_desc: "1-year coverage.",
+    feature_support_desc: "24/7 expert assistance.",
+    curated_collections: "Curated Collections",
+    badge_top: "Top",
+    badge_new: "New",
+    badge_best: "Best",
+    badge_hot: "Hot",
+    cat_audio_desc: "ANC • Bass • Clear calls",
+    cat_clothing_desc: "Premium basics • Streetwear",
+    cat_shoes_desc: "Sneakers • Running • Classic",
+    cat_backpacks_desc: "Daily carry • Travel ready",
+    shop_electronics: "Shop Electronics",
+    shop_clothing: "Shop Clothing",
+    shop_shoes: "Shop Shoes",
+    shop_backpacks: "Shop Backpacks",
+    search_products_placeholder: "Search products...",
+    filter_price_all: "All Prices",
+    filter_price_under_200: "Under 200 MAD",
+    filter_price_200_500: "200-500 MAD",
+    filter_price_500_1000: "500-1000 MAD",
+    filter_price_1000_plus: "Over 1000 MAD",
+    filter_rating_all: "All Ratings",
+    filter_rating_4_plus: "4+ Stars",
+    filter_rating_4_5_plus: "4.5+ Stars",
+    filter_rating_5: "5 Stars",
+    p_milano_jacket: "Men's Casual Faux Fur Jacket",
+    p_casual_base_jacket: "Autumn Men's Casual Hoodie Baseball Jacket",
+    p_hooded_jacket: "Men's Fashion Hooded Embroidered Warm Jacket",
+    p_gaming_controller: "Interactive Screen Wireless Gaming Controller",
+    p_running_shoes: "Baasploa Men's Lightweight Running Shoes",
+    p_wireless_gaming_controller_v2: "Interactive Screen Wireless Gaming Controller",
+    p_baasploa_running_shoes: "Baasploa Men's Lightweight Running Shoes",
+    p_genai1: "Genai Wireless Earbuds",
+    p_backpack_vacuum: "Vacuum Travel Backpack",
+    p_casual_jacket_autumn: "Autumn Men's Casual Hoodie Baseball Jacket",
+    p_hooded_warm_jacket_rust: "Men's Fashion Hooded Embroidered Warm Jacket",
+    p_mens_casual_summer_sport_suit: "Men's Casual Summer Sport Suit",
+    p_mens_crossbody_bag: "Men's Crossbody Bag",
+    p_waterproof_waist_bag: "Waterproof Mobile Waist Bag",
+    all_products: "All Products",
+    careers: "Careers",
+    live_agent: "Live Agent",
+    notification_someone: "Someone in",
+    notification_bought: "bought",
+    notification_verified: "Verified Purchase",
+    footer_desc: "Elevate your everyday with curated premium essentials. Experience the perfect blend of modern style and uncompromising quality, delivered directly to you.",
+    address_city_country: "Sidi Bennour, Morocco",
+    add_to_cart_caps: "ADD TO CART",
+    btn_add: "Add"
   },
   fr: {
+    welcome_title: "Bienvenue sur Lecomax",
+    language_select: "Veuillez sélectionner votre langue préférée",
     support: "Service Client",
     warranty: "Garantie",
     stores: "Nos Magasins",
@@ -297,6 +359,7 @@ const TRANSLATIONS = {
     clothing: "Mode & Vêtements",
     shoes: "Chaussures",
     backpacks: "Maroquinerie & Sacs",
+    accessories: "Maroquinerie & Sacs",
     quick_picks: "Sélection Rapide",
     new_arrivals: "Nouveautés",
     best_sellers: "Meilleures Ventes",
@@ -335,7 +398,9 @@ const TRANSLATIONS = {
     modal_shipping: "Livraison Express Offerte",
     back_home: "Retour à l'accueil",
     verified_buyer: "Acheteur Vérifié",
-    testimonial_text: "“Une finition premium et un rendu professionnel.”",
+    quote_sarah: "“Livraison rapide et emballage soigné.”",
+    quote_karim: "“Les catégories rendent les achats très faciles.”",
+    quote_omar: "“Une finition premium et un rendu professionnel.”",
     trending: "Tendances du moment",
     trending_sub: "Une sélection des meilleurs produits pour vous.",
     products_title: "Nos Produits",
@@ -367,9 +432,66 @@ const TRANSLATIONS = {
     email_us: "Email",
     enter_email: "Votre adresse email",
     what_people_say: "Avis Clients",
-    clean_experience: "Une expérience d'achat simple et élégante."
+    clean_experience: "Une expérience d'achat simple et élégante.",
+    choose_color: "Choisir la couleur :",
+    choose_size: "Choisir la taille :",
+    wearables: "Objets Connectés",
+    power: "Énergie & Charge",
+    gaming: "Gaming",
+    feature_fast_desc: "Expédition sous 3 jours.",
+    feature_warranty_desc: "Couverture 1 an.",
+    feature_support_desc: "Assistance experte 24/7.",
+    curated_collections: "Collections Exclusives",
+    badge_top: "Top",
+    badge_new: "Nouveau",
+    badge_best: "Meilleur",
+    badge_hot: "Hot",
+    cat_audio_desc: "ANC • Basses • Appels clairs",
+    cat_clothing_desc: "Basiques Premium • Streetwear",
+    cat_shoes_desc: "Baskets • Running • Classique",
+    cat_backpacks_desc: "Quotidien • Voyage",
+    shop_electronics: "Voir High-Tech",
+    shop_clothing: "Voir Mode",
+    shop_shoes: "Voir Chaussures",
+    shop_backpacks: "Voir Sacs",
+    search_products_placeholder: "Rechercher des produits...",
+    filter_price_all: "Tous les prix",
+    filter_price_under_200: "Moins de 200 MAD",
+    filter_price_200_500: "200-500 MAD",
+    filter_price_500_1000: "500-1000 MAD",
+    filter_price_1000_plus: "Plus de 1000 MAD",
+    filter_rating_all: "Tous les avis",
+    filter_rating_4_plus: "4+ Étoiles",
+    filter_rating_4_5_plus: "4.5+ Étoiles",
+    filter_rating_5: "5 Étoiles",
+    p_milano_jacket: "Veste Fausse Fourrure Casual Homme",
+    p_casual_base_jacket: "Veste Baseball à Capuche Automne Homme",
+    p_hooded_jacket: "Veste Chaude Brodée à Capuche Homme",
+    p_gaming_controller: "Manette Sans Fil Écran Interactif",
+    p_running_shoes: "Chaussures Running Légères Baasploa",
+    p_wireless_gaming_controller_v2: "Manette de Jeu Sans Fil avec Écran Interactif",
+    p_baasploa_running_shoes: "Chaussures de Running Légères Baasploa Homme",
+    p_genai1: "Écouteurs Sans Fil Genai",
+    p_backpack_vacuum: "Sac à Dos Voyage Compression Sous Vide",
+    p_casual_jacket_autumn: "Veste Baseball à Capuche Automne Homme",
+    p_hooded_warm_jacket_rust: "Veste Chaude Brodée à Capuche Homme",
+    p_mens_casual_summer_sport_suit: "Ensemble Sport Été Décontracté Homme",
+    p_mens_crossbody_bag: "Sac Bandoulière Homme",
+    p_waterproof_waist_bag: "Banane Étanche Multifonction",
+    all_products: "Tous les produits",
+    careers: "Carrières",
+    live_agent: "Agent en direct",
+    notification_someone: "Quelqu'un à",
+    notification_bought: "a acheté",
+    notification_verified: "Achat Vérifié",
+    footer_desc: "Élevez votre quotidien avec des essentiels haut de gamme. Découvrez le mélange parfait de style moderne et de qualité sans compromis, livré directement chez vous.",
+    address_city_country: "Sidi Bennour, Maroc",
+    add_to_cart_caps: "AJOUTER AU PANIER",
+    btn_add: "Ajouter"
   },
   ar: {
+    welcome_title: "مرحباً بكم في Lecomax",
+    language_select: "يرجى اختيار لغتكم المفضلة",
     support: "خدمة العملاء",
     warranty: "الضمان والجودة",
     stores: "فروعنا",
@@ -382,6 +504,7 @@ const TRANSLATIONS = {
     clothing: "أزياء وملابس",
     shoes: "أحذية",
     backpacks: "حقائب وإكسسوارات",
+    accessories: "حقائب وإكسسوارات",
     quick_picks: "مختارات سريعة",
     new_arrivals: "وصل حديثاً",
     best_sellers: "الأكثر مبيعاً",
@@ -420,7 +543,9 @@ const TRANSLATIONS = {
     modal_shipping: "شحن سريع ومجاني",
     back_home: "العودة للرئيسية",
     verified_buyer: "عميل موثق",
-    testimonial_text: "“تجربة تسوق فاخرة تعكس الاحترافية.”",
+    quote_sarah: "“توصيل سريع وتغليف رائع.”",
+    quote_karim: "“فئات المنتجات تجعل التسوق سهلاً للغاية.”",
+    quote_omar: "“تجربة تسوق فاخرة تعكس الاحترافية.”",
     trending: "الأكثر رواجاً",
     trending_sub: "تشكيلة مميزة اخترناها لك.",
     products_title: "كتالوج المنتجات",
@@ -452,7 +577,62 @@ const TRANSLATIONS = {
     email_us: "راسلنا",
     enter_email: "أدخل بريدك الإلكتروني",
     what_people_say: "آراء عملائنا",
-    clean_experience: "تجربة تسوق سلسة وعصرية."
+    clean_experience: "تجربة تسوق سلسة وعصرية.",
+    choose_color: "اختر اللون:",
+    choose_size: "اختر المقاس:",
+    wearables: "أجهزة قابلة للارتداء",
+    power: "شواحن وطاقة",
+    gaming: "ألعاب الفيديو",
+    feature_fast_desc: "شحن خلال 3 أيام.",
+    feature_warranty_desc: "تغطية لمدة سنة.",
+    feature_support_desc: "دعم فني على مدار الساعة.",
+    curated_collections: "مجموعات مختارة",
+    badge_top: "قمة",
+    badge_new: "جديد",
+    badge_best: "الأفضل",
+    badge_hot: "رائج",
+    cat_audio_desc: "عزل ضوضاء • صوت قوي • مكالمات واضحة",
+    cat_clothing_desc: "أساسيات فاخرة • أزياء عصرية",
+    cat_shoes_desc: "أحذية رياضية • ركض • كلاسيك",
+    cat_backpacks_desc: "للاستخدام اليومي • للسفر",
+    shop_electronics: "تسوق الإلكترونيات",
+    shop_clothing: "تسوق الملابس",
+    shop_shoes: "تسوق الأحذية",
+    shop_backpacks: "تسوق الحقائب",
+    search_products_placeholder: "البحث عن المنتجات...",
+    filter_price_all: "كل الأسعار",
+    filter_price_under_200: "أقل من 200 درهم",
+    filter_price_200_500: "200-500 درهم",
+    filter_price_500_1000: "500-1000 درهم",
+    filter_price_1000_plus: "أكثر من 1000 درهم",
+    filter_rating_all: "كل التقييمات",
+    filter_rating_4_plus: "+4 نجوم",
+    filter_rating_4_5_plus: "+4.5 نجوم",
+    filter_rating_5: "5 نجوم",
+    p_milano_jacket: "جاكيت فرو صناعي كاجوال للرجال",
+    p_casual_base_jacket: "جاكيت بيسبول بقلنسوة خريفي للرجال",
+    p_hooded_jacket: "جاكيت دافئ مطرز بقلنسوة للرجال",
+    p_gaming_controller: "وحدة تحكم ألعاب لاسلكية بشاشة تفاعلية",
+    p_running_shoes: "أحذية ركض خفيفة الوزن للرجال من Baasploa",
+    p_wireless_gaming_controller_v2: "وحدة تحكم ألعاب لاسلكية بشاشة تفاعلية",
+    p_baasploa_running_shoes: "أحذية ركض خفيفة للرجال من باسبلوا",
+    p_genai1: "سماعات أذن لاسلكية Genai",
+    p_backpack_vacuum: "حقيبة ظهر للسفر مع ضغط تفريغ الهواء",
+    p_casual_jacket_autumn: "جاكيت بيسبول خريفي بقلنسوة للرجال",
+    p_hooded_warm_jacket_rust: "جاكيت دافئ مطرز بقلنسوة للرجال",
+    p_mens_casual_summer_sport_suit: "بدلة رياضية صيفية كاجوال للرجال",
+    p_mens_crossbody_bag: "حقيبة كتف للرجال مضادة للسرقة",
+    p_waterproof_waist_bag: "حقيبة خصر مقاومة للماء",
+    all_products: "كل المنتجات",
+    careers: "وظائف",
+    live_agent: "وكيل مباشر",
+    notification_someone: "شخص في",
+    notification_bought: "اشترى",
+    notification_verified: "شراء موثق",
+    footer_desc: "ارتقِ بيومك مع أساسيات متميزة ومختارة. استمتع بالمزيج المثالي بين الأسلوب العصري والجودة التي لا تقبل المساومة، وتصلك مباشرةً.",
+    address_city_country: "سيدي بنور، المغرب",
+    add_to_cart_caps: "إضافة إلى السلة",
+    btn_add: "إضافة"
   }
 };
 
@@ -499,6 +679,7 @@ function setLanguage(lang) {
 
   // Save preference
   localStorage.setItem('lecomax_lang', lang);
+  window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
 }
 
 // Global modal selection
@@ -536,43 +717,112 @@ function starIcons(rating){
   const emptyStar = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01z"/></svg>';
   return `<span class="stars">${star.repeat(full)}${half?halfStar:""}${emptyStar.repeat(empty)}</span>`;
 }
-function getFakeReviews(productId, cat){
-  const names = ["Yassine","Othman","Hamza","Sofiane","Ilyas","Mehdi","Anas","Walid"];
-  const tags = ["Fast delivery","Great quality","Worth it","Looks premium","Perfect fit","Super sound","Very comfortable","Good packaging"];
-  const texts = {
-    electronics: [
-      "Sound is clean and the bass is surprisingly strong. Battery is solid for daily use.",
-      "Pairs quickly and calls are clear. The case feels premium for this price.",
-      "Comfortable in the ear and stable. I use it every day for the gym.",
-      "For the price, it's excellent. Noise isolation is good and volume is strong."
-    ],
-    clothing: [
-      "Nice fabric and clean stitching. Fits well and looks expensive.",
-      "Very comfortable and the size is accurate. Looks great in real life.",
-      "Quality is better than expected. Perfect for daily wear.",
-      "Great style and finishing. I will order another color."
-    ],
-    shoes: [
-      "Very comfortable and lightweight. Looks great with casual outfits.",
-      "Good grip and solid build. Great value for money.",
-      "The design is clean and premium. Fits perfectly.",
-      "Comfort level is excellent. I can wear it for hours."
-    ],
-    accessories: [
-      "Strong materials and a clean design. Perfect for everyday use.",
-      "Looks premium and the zippers feel smooth. Very practical.",
-      "Great size and comfortable to carry. Quality is top.",
-      "Really stylish and well made. I recommend it."
-    ]
+function getFakeReviews(productId, cat, lang='en'){
+  const names = {
+      en: ["Yassine","Othman","Hamza","Sofiane","Ilyas","Mehdi","Anas","Walid"],
+      fr: ["Yassine","Othman","Hamza","Sofiane","Ilyas","Mehdi","Anas","Walid"],
+      ar: ["ياسين","عثمان","حمزة","سفيان","إلياس","مهدي","أنس","وليد"]
   };
+  
+  const tags = {
+      en: ["Fast delivery","Great quality","Worth it","Looks premium","Perfect fit","Super sound","Very comfortable","Good packaging"],
+      fr: ["Livraison rapide","Super qualité","Vaut le coup","Aspect premium","Coupe parfaite","Super son","Très confortable","Bon emballage"],
+      ar: ["توصيل سريع","جودة ممتازة","يستحق الشراء","مظهر فاخر","مقاس مثالي","صوت رائع","مريح جداً","تغليف جيد"]
+  };
+
+  const texts = {
+    en: {
+        electronics: [
+          "Sound is clean and the bass is surprisingly strong. Battery is solid for daily use.",
+          "Pairs quickly and calls are clear. The case feels premium for this price.",
+          "Comfortable in the ear and stable. I use it every day for the gym.",
+          "For the price, it's excellent. Noise isolation is good and volume is strong."
+        ],
+        clothing: [
+          "Nice fabric and clean stitching. Fits well and looks expensive.",
+          "Very comfortable and the size is accurate. Looks great in real life.",
+          "Quality is better than expected. Perfect for daily wear.",
+          "Great style and finishing. I will order another color."
+        ],
+        shoes: [
+          "Very comfortable and lightweight. Looks great with casual outfits.",
+          "Good grip and solid build. Great value for money.",
+          "The design is clean and premium. Fits perfectly.",
+          "Comfort level is excellent. I can wear it for hours."
+        ],
+        accessories: [
+          "Strong materials and a clean design. Perfect for everyday use.",
+          "Looks premium and the zippers feel smooth. Very practical.",
+          "Great size and comfortable to carry. Quality is top.",
+          "Really stylish and well made. I recommend it."
+        ]
+    },
+    fr: {
+        electronics: [
+          "Le son est net et les basses étonnamment puissantes. La batterie tient bien pour un usage quotidien.",
+          "S'appaire rapidement et les appels sont clairs. Le boîtier fait premium pour ce prix.",
+          "Confortable dans l'oreille et stable. Je l'utilise tous les jours pour le sport.",
+          "Pour le prix, c'est excellent. L'isolation phonique est bonne et le volume puissant."
+        ],
+        clothing: [
+          "Joli tissu et coutures propres. Taille bien et a l'air cher.",
+          "Très confortable et la taille est précise. Rend super bien en vrai.",
+          "La qualité est meilleure que prévu. Parfait pour tous les jours.",
+          "Super style et finitions. Je vais commander une autre couleur."
+        ],
+        shoes: [
+          "Très confortable et léger. Super avec des tenues décontractées.",
+          "Bonne adhérence et construction solide. Excellent rapport qualité/prix.",
+          "Le design est épuré et premium. Taille parfaitement.",
+          "Le niveau de confort est excellent. Je peux les porter pendant des heures."
+        ],
+        accessories: [
+          "Matériaux solides et design épuré. Parfait pour un usage quotidien.",
+          "Aspect premium et les fermetures éclair sont fluides. Très pratique.",
+          "Super taille et confortable à porter. La qualité est top.",
+          "Vraiment stylé et bien fait. Je le recommande."
+        ]
+    },
+    ar: {
+        electronics: [
+          "الصوت نقي والباس قوي بشكل مدهش. البطارية ممتازة للاستخدام اليومي.",
+          "يقترن بسرعة والمكالمات واضحة. العلبة تبدو فاخرة بالنسبة لهذا السعر.",
+          "مريح في الأذن وثابت. أستخدمه كل يوم في الجيم.",
+          "بالنسبة للسعر، ممتاز. عزل الضوضاء جيد ومستوى الصوت قوي."
+        ],
+        clothing: [
+          "قماش جميل وخياطة نظيفة. المقاس مناسب ويبدو باهظ الثمن.",
+          "مريح جداً والمقاس دقيق. يبدو رائعاً في الواقع.",
+          "الجودة أفضل من المتوقع. مثالي للارتداء اليومي.",
+          "تصميم وتشطيب رائع. سأطلب لوناً آخر."
+        ],
+        shoes: [
+          "مريح جداً وخفيف الوزن. يبدو رائعاً مع الملابس الكاجوال.",
+          "ثبات جيد وبناء قوي. قيمة ممتازة مقابل المال.",
+          "التصميم نظيف وفخم. يناسب تماماً.",
+          "مستوى الراحة ممتاز. يمكنني ارتداؤه لساعات."
+        ],
+        accessories: [
+          "مواد قوية وتصميم نظيف. مثالي للاستخدام اليومي.",
+          "يبدو فاخراً والسحابات تعمل بسلاسة. عملي جداً.",
+          "حجم ممتاز ومريح للحمل. الجودة عالية.",
+          "أنيق حقاً ومصنوع بإتقان. أنصح به."
+        ]
+    }
+  };
+
+  const currentNames = names[lang] || names.en;
+  const currentTags = tags[lang] || tags.en;
+  const currentTexts = texts[lang] || texts.en;
+
   const rnd = pseudoRand(hashStr(productId));
   const list = [];
   const count = (productId === 'wireless_gaming_controller_v2') ? 3 : 1;
   for(let i=0;i<count;i++){
     const rating = 4 + Math.round(rnd()*10)/10; // 4.0 - 5.0
-    const name = names[Math.floor(rnd()*names.length)];
-    const tag = tags[Math.floor(rnd()*tags.length)];
-    const tarr = texts[cat] || texts.electronics;
+    const name = currentNames[Math.floor(rnd()*currentNames.length)];
+    const tag = currentTags[Math.floor(rnd()*currentTags.length)];
+    const tarr = currentTexts[cat] || currentTexts.electronics;
     const text = tarr[Math.floor(rnd()*tarr.length)];
     const daysAgo = 2 + Math.floor(rnd()*120);
     const d = new Date(Date.now() - daysAgo*24*3600*1000);
@@ -593,12 +843,16 @@ const PRODUCTS = [
     id: "wireless_gaming_controller_v2",
     cat: "electronics",
     name: "Interactive Screen Wireless Gaming Controller",
+    name_fr: "Manette de Jeu Sans Fil avec Écran Interactif",
+    name_ar: "وحدة تحكم ألعاب لاسلكية بشاشة تفاعلية",
     price: 600,
     old: 0,
     rating: 5.0,
     emoji: "🎮",
     video: "https://goods-vod.kwcdn.com/goods-video/0aebee3d158c144c141ed5725db238e6a0325743.f30.mp4",
     desc: "Experience precision gaming with Hall Effect sticks and triggers that eliminate drift. This controller features an interactive screen, RGB lighting, and remappable buttons. Compatible with iOS, Switch, PC, Android, and Steam Deck. Includes an 1800mAh battery and charging dock. Note: Not Compatible with Xbox and PS5.",
+    desc_fr: "Découvrez le jeu de précision avec des sticks et gâchettes à effet Hall qui éliminent le drift. Cette manette dispose d'un écran interactif, d'un éclairage RVB et de boutons remappables. Compatible avec iOS, Switch, PC, Android et Steam Deck. Inclut une batterie de 1800mAh et une station de charge. Remarque : Non compatible avec Xbox et PS5.",
+    desc_ar: "استمتع بتجربة ألعاب دقيقة مع أذرع ومحفزات تأثير القاعة التي تقضي على الانحراف. تحتوي وحدة التحكم هذه على شاشة تفاعلية وإضاءة RGB وأزرار قابلة لإعادة التعيين. متوافق مع iOS و Switch و PC و Android و Steam Deck. تتضمن بطارية 1800 مللي أمبير وقاعدة شحن. ملاحظة: غير متوافق مع Xbox و PS5.",
     specs: {
         "General": {
             "Brand": "FIEHDUW",
@@ -622,12 +876,16 @@ const PRODUCTS = [
     id: "baasploa_running_shoes",
     cat: "shoes",
     name: "Baasploa Men's Lightweight Running Shoes",
+    name_fr: "Chaussures de Running Légères Baasploa pour Homme",
+    name_ar: "أحذية ركض خفيفة للرجال من باسبلوا",
     price: 250,
     old: 0,
     rating: 4.8,
     emoji: "👟",
     video: "https://goods-vod.kwcdn.com/goods-video/49ac0ebc85263ad26cc2bb9bd78ca2e8a291fd73.f30.mp4",
     desc: "Baasploa Men's lightweight running shoes, mesh shoes with lace-up style, outdoor sports tennis shoes, lightweight and breathable, suitable for daily wear.",
+    desc_fr: "Chaussures de running légères pour hommes Baasploa, en maille avec laçage, chaussures de tennis pour sports de plein air, légères et respirantes, adaptées à un usage quotidien.",
+    desc_ar: "أحذية ركض خفيفة للرجال من باسبلوا، أحذية شبكية برباط، أحذية تنس للرياضات الخارجية، خفيفة وقابلة للتنفس، مناسبة للاستخدام اليومي.",
     specs: {
         "General": {
             "Brand": "BAASPLOA",
@@ -678,11 +936,15 @@ const PRODUCTS = [
     id: "genai1", 
     cat: "electronics", 
     name: "Genai Wireless Earbuds", 
+    name_fr: "Écouteurs Sans Fil Genai",
+    name_ar: "سماعات أذن لاسلكية Genai",
     price: 150, 
     old: 0, 
     rating: 5.0, 
     emoji: "🎧",
     desc: "Noise Cancellation for Calls, Dual Microphones, Automatic Pairing, Quick And Precise Connectivity, Long Standby Time of 5.4 Hours.",
+    desc_fr: "Annulation du bruit pour les appels, double microphone, appairage automatique, connectivité rapide et précise, longue durée de veille de 5,4 heures.",
+    desc_ar: "إلغاء ضوضاء للمكالمات، ميكروفون مزدوج، اقتران تلقائي، اتصال سريع ودقيق، وقت استعداد طويل يصل إلى 5.4 ساعات.",
     specs: {
         "General": {
             "Product Type": "Wireless Bluetooth Earbuds",
@@ -744,11 +1006,15 @@ const PRODUCTS = [
     id: "backpack_vacuum",
     cat: "accessories",
     name: "Vacuum Travel Backpack",
+    name_fr: "Sac à Dos de Voyage à Compression Sous Vide",
+    name_ar: "حقيبة ظهر للسفر مع ضغط تفريغ الهواء",
     price: 1200,
     old: 1500,
     rating: 4.9,
     emoji: "🎒",
     desc: "Travel Backpack Vacuum Compression Laptop Backpack 43.18 cm Extended Large Capacity School Backpack Hiking Business Backpack.",
+    desc_fr: "Sac à dos de voyage avec compression sous vide pour ordinateur portable 43,18 cm, grande capacité étendue, sac à dos scolaire, randonnée, affaires.",
+    desc_ar: "حقيبة ظهر للسفر مع ضغط تفريغ الهواء للابتوب 43.18 سم، سعة كبيرة ممتدة، حقيبة مدرسية، للمشي لمسافات طويلة والأعمال.",
     specs: {
       "General": {
           "Product Type": "Backpack",
@@ -810,11 +1076,15 @@ const PRODUCTS = [
     id: "casual_jacket_autumn",
     cat: "clothing",
     name: "Autumn Men's Casual Hoodie Baseball Jacket",
+    name_fr: "Veste de Baseball à Capuche Décontractée pour Homme - Automne",
+    name_ar: "جاكيت بيسبول بقلنسوة كاجوال خريفي للرجال",
     price: 350,
     old: 0,
     rating: 4.8,
     emoji: "🧥",
     desc: "Stylish embroidery and color blocking for a trendy youth look. Sizes available: XL, XXL.",
+    desc_fr: "Broderie élégante et blocs de couleurs pour un look jeune et tendance. Tailles disponibles : XL, XXL.",
+    desc_ar: "تطريز أنيق وتصميم ألوان متعددة لمظهر شبابي عصري. المقاسات المتوفرة: XL, XXL.",
     specs: {
       "General": {
         "Product Type": "Hoodie Baseball Jacket",
@@ -882,11 +1152,15 @@ const PRODUCTS = [
     id: "hooded_warm_jacket_rust",
     cat: "clothing",
     name: "Men's Fashion Hooded Embroidered Warm Jacket",
+    name_fr: "Veste Chaude à Capuche Brodée Mode Homme",
+    name_ar: "جاكيت دافئ بقلنسوة مطرز وعصري للرجال",
     price: 550,
     old: 0,
     rating: 4.8,
     emoji: "🧥",
     desc: "Non-stretch, long sleeve, single breasted jacket for daily and casual wear. Size available: XXL.",
+    desc_fr: "Non extensible, manches longues, veste à simple boutonnage pour un usage quotidien et décontracté. Taille disponible : XXL.",
+    desc_ar: "غير قابل للتمدد، أكمام طويلة، جاكيت بصدر واحد للاستخدام اليومي والكاجوال. المقاس المتوفر: XXL.",
     specs: {
       "General": {
         "Product Type": "Hooded Embroidered Warm Jacket",
@@ -949,11 +1223,15 @@ const PRODUCTS = [
     id: "mens_casual_summer_sport_suit",
     cat: "clothing",
     name: "Men's Casual Summer Sport Suit Large Size Trendy Korean Style Loose-Fit Running Fitness Breathable Quick-Dry Tracksuit",
+    name_fr: "Ensemble Sport Été Décontracté Homme Grande Taille Style Coréen",
+    name_ar: "بدلة رياضية صيفية كاجوال للرجال مقاس كبير نمط كوري",
     price: 130,
     old: 0,
     rating: 4.7,
     emoji: "🏃",
     desc: "Stay cool and comfortable with this trendy Korean-style summer sport suit. Loose-fit, breathable, and quick-drying, perfect for running and fitness.",
+    desc_fr: "Restez au frais et à l'aise avec cet ensemble de sport d'été de style coréen tendance. Coupe ample, respirant et séchage rapide, parfait pour la course et le fitness.",
+    desc_ar: "ابق باردًا ومرتاحًا مع هذه البدلة الرياضية الصيفية العصرية على الطراز الكوري. قصة واسعة، قابلة للتنفس، وسريعة الجفاف، مثالية للركض واللياقة البدنية.",
     specs: {
         "General": {
             "Product Type": "Sport Suit",
@@ -982,11 +1260,15 @@ const PRODUCTS = [
     id: "mens_crossbody_bag",
     cat: "accessories",
     name: "Men's Crossbody Bag",
+    name_fr: "Sac Bandoulière pour Homme",
+    name_ar: "حقيبة كتف للرجال",
     price: 150,
     old: 0,
     rating: 4.8,
     emoji: "🎒",
     desc: "Multi-Functional, Large Capacity, Lightweight Anti-Theft Password Lock Shoulder Bag. Breathable, Durable, Adjustable Strap. Suitable for Daily Commute, Hiking, Camping, And More.",
+    desc_fr: "Multifonctionnel, grande capacité, sac à bandoulière léger avec verrouillage par mot de passe antivol. Respirant, durable, sangle réglable. Convient pour les trajets quotidiens, la randonnée, le camping, et plus encore.",
+    desc_ar: "متعددة الوظائف، سعة كبيرة، حقيبة كتف خفيفة الوزن مع قفل كلمة مرور ضد السرقة. قابلة للتنفس، متينة، حزام قابل للتعديل. مناسبة للتنقل اليومي، المشي لمسافات طويلة، التخييم، والمزيد.",
     specs: {
       "General": {
         "Product Type": "Crossbody Bag",
@@ -1018,11 +1300,15 @@ const PRODUCTS = [
     id: "waterproof_waist_bag",
     cat: "accessories",
     name: "Waterproof Mobile Waist Bag",
+    name_fr: "Sac Banane Étanche pour Mobile",
+    name_ar: "حقيبة خصر مقاومة للماء للجوال",
     price: 95,
     old: 0,
     rating: 4.7,
     emoji: "👜",
     desc: "Multifunctional Large Capacity Fanny Pack Anti Splash Wear-resistant Construction Site.",
+    desc_fr: "Sac banane multifonctionnel grande capacité, anti-éclaboussures, résistant à l'usure, idéal pour les chantiers.",
+    desc_ar: "حقيبة خصر متعددة الوظائف بسعة كبيرة، مضادة للرذاذ، مقاومة للاهتراء، مثالية لمواقع العمل.",
     specs: {
       "General": {
           "Brand": "CEXIKA",
@@ -1061,12 +1347,16 @@ const PRODUCTS = [
     id: "milano_jacket",
     cat: "clothing",
     name: "Men's Casual Faux Fur Jacket with \"MILANO ITALIA\" Print",
+    name_fr: "Veste en Fausse Fourrure Décontractée Homme avec Imprimé \"MILANO ITALIA\"",
+    name_ar: "جاكيت فرو صناعي كاجوال للرجال مع طباعة \"MILANO ITALIA\"",
     price: 550,
     old: 0,
     rating: 4.8,
     emoji: "🧥",
     video: "https://goods-vod.kwcdn.com/goods-video/0fa0e2ee3a36c58fed983d037dd1e5804f269eb6gs2CV.f30.mp4",
     desc: "Lightweight Hooded Outdoor Coat, Regular Fit, Pockets Included, Fabric, Perfect for Casual Wear.",
+    desc_fr: "Manteau d'extérieur à capuche léger, coupe régulière, poches incluses, tissu, parfait pour une tenue décontractée.",
+    desc_ar: "معطف خارجي بقلنسوة خفيف الوزن، قصة عادية، جيوب متضمنة، قماش، مثالي للارتداء اليومي.",
     specs: {
         "Product Details": {
             "Material": "Polyester",
@@ -1249,18 +1539,23 @@ function init(){
 
   // Initialize Language
   const savedLang = localStorage.getItem('lecomax_lang');
+  
+  // Set language if saved, but do NOT hide modal automatically.
+  // We want to force the choice or at least show it.
   if(savedLang) {
     setLanguage(savedLang);
-    const modal = document.getElementById('language-modal');
-    if (modal) modal.style.display = 'none';
   } else {
-     const modal = document.getElementById('language-modal');
-     if(modal) {
-       setTimeout(() => modal.classList.add('show'), 100);
-     } else {
-       setLanguage('en');
-     }
+    // Default fallback if nothing saved
+    setLanguage('en');
   }
+
+  // Always show the modal on load
+  const modal = document.getElementById('language-modal');
+  if(modal) {
+     modal.style.display = 'flex'; // Ensure it's not hidden by inline styles
+     setTimeout(() => modal.classList.add('show'), 100);
+  }
+  
   
   const langBtn = $("#langBtn");
   const langMenu = $("#langMenu");
@@ -1561,6 +1856,15 @@ function setupMegaMenus(){
 function initSlider(){
   const track = $("#sliderTrack");
   if(!track) return;
+  
+  // Performance Optimization: If HTML already contains the slide (Server-Side/Static Rendered), 
+  // don't overwrite it to prevent video reload/flicker.
+  if (track.children.length > 0 && SLIDES.length === 1) {
+     const dots = $("#sliderDots");
+     if(dots) dots.style.display = 'none';
+     return;
+  }
+
   track.innerHTML = SLIDES.map(s => {
     const isMedia = s.image || s.video;
     return `
@@ -1568,7 +1872,7 @@ function initSlider(){
     ${s.video
       ? `<video src="${s.video}" autoplay loop muted playsinline preload="auto"></video>
             <div>
-              <a href="#products" class="hero-cta">
+              <a href="#products" class="hero-cta" data-i18n="shop_now">
                 Shop Now
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
               </a>
@@ -1774,7 +2078,9 @@ function renderQuickShop() {
   }
   
   // Translations
-  const t = TRANSLATIONS[localStorage.getItem('lecomax_lang') || 'en'] || TRANSLATIONS.en;
+  const lang = localStorage.getItem('lecomax_lang') || 'en';
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  const pName = t["p_" + p.id] || p.name;
   const isRtl = document.documentElement.dir === 'rtl';
 
   // Details HTML separate
@@ -1787,7 +2093,7 @@ function renderQuickShop() {
             </div>
           </div>
           
-          <h2 class="qs-title">${escapeHtml(p.name)}</h2>
+          <h2 class="qs-title">${escapeHtml(pName)}</h2>
           
           <div class="qs-price-row">
              <div class="qs-price">
@@ -2083,11 +2389,13 @@ window.closeSuccessModal = function() {
 }
 
 function label(cat){
-  if (cat === "electronics") return "Electronics";
-  if (cat === "clothing") return "Clothing";
-  if (cat === "shoes") return "Shoes";
-  if (cat === "accessories") return "Backpacks";
-  return "All";
+  const lang = localStorage.getItem('lecomax_lang') || 'en';
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  if (cat === "electronics") return t.electronics;
+  if (cat === "clothing") return t.clothing;
+  if (cat === "shoes") return t.shoes;
+  if (cat === "accessories") return t.backpacks;
+  return t.all;
 }
 function escapeHtml(str){
   return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
@@ -2317,6 +2625,12 @@ function openProductModal(id){
 }
 // Helper to generate a single Premium Card HTML
 function getCardHTML(p) {
+    // Translation Setup
+    const lang = localStorage.getItem('lecomax_lang') || 'en';
+    const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+    const pName = t["p_" + p.id] || p.name;
+    const addBtnText = t["btn_add"] || "Add";
+
     // 1. Calculate Prices with optional Global Discount
     let finalPrice = p.price;
     let displayOld = p.old;
@@ -2339,7 +2653,7 @@ function getCardHTML(p) {
     // Determine initial image
     let initImg = p.emoji;
     if(p.images && p.images.length > 0) {
-       initImg = `<img src="${p.images[0]}" alt="${escapeHtml(p.name)}" class="card-main-img" id="img-${p.id}" style="width:100%; height:100%; object-fit:contain; padding:12px; transition: opacity 0.2s">`;
+       initImg = `<img src="${p.images[0]}" alt="${escapeHtml(pName)}" class="card-main-img" id="img-${p.id}" style="width:100%; height:100%; object-fit:contain; padding:12px; transition: opacity 0.2s">`;
     }
     
     // Auto-scroll images logic (data attributes)
@@ -2367,13 +2681,13 @@ function getCardHTML(p) {
              </div>
          </div>
 
-         <h3 class="card__title">${escapeHtml(p.name)}</h3>
+         <h3 class="card__title">${escapeHtml(pName)}</h3>
      
         <div class="card__bottom">
             <div class="card__actions">
                <button class="btn-add-cart" onclick="event.stopPropagation(); openQuickShop('${p.id}')">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-                  <span>Add</span>
+                  <span>${addBtnText}</span>
                </button>
                <button class="btn-icon-soft" onclick="event.stopPropagation(); openProductPage('${p.id}')" title="Quick View">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
@@ -2453,6 +2767,11 @@ function openModal(id){
   const p = PRODUCTS.find(x => x.id === id);
   if(!p) return;
 
+  // Translation
+  const lang = localStorage.getItem('lecomax_lang') || 'en';
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  const pName = t["p_" + p.id] || p.name;
+
   modalState.id = id;
   modalState.qty = 1;
   $("#pmQty").textContent = "1";
@@ -2465,7 +2784,7 @@ function openModal(id){
   modalState.currentPrice = initPrice;
 
   // Populate
-  $("#pmTitle").textContent = p.name;
+  $("#pmTitle").textContent = pName;
   $("#pmDesc").textContent = p.desc || "Premium quality product designed for your lifestyle. Durable materials, modern aesthetic, and built to last.";
   
   // Image Handling
@@ -2475,7 +2794,7 @@ function openModal(id){
 
   if (p.images && p.images.length > 0) {
       // Main Image
-      imgBox.innerHTML = `<img src="${p.images[0]}" alt="${escapeHtml(p.name)}" style="width:100%; height:100%; object-fit:contain; border-radius:12px; display:block;">`;
+      imgBox.innerHTML = `<img src="${p.images[0]}" alt="${escapeHtml(pName)}" style="width:100%; height:100%; object-fit:contain; border-radius:12px; display:block;">`;
       
       // Thumbs
       const thumbs = $(".product-view__thumbs");
@@ -2604,11 +2923,11 @@ function setupExtensions() {
     const notif = document.createElement('div');
     notif.className = 'sales-notification';
     notif.innerHTML = `
-      <img src="" class="sales-img" alt="">
-      <button class="sales-notification-close" onclick="this.parentElement.classList.remove('active')">&times;</button>
-      <div class="sales-notification-content">
-        <div class="sales-notification-title">Someone in <span class="sales-city">Casablanca</span> bought</div>
+      <img src="" class="sales-img" alt=""><span data-i18n="notification_someone">Someone in</span> <span class="sales-city">Casablanca</span> <span data-i18n="notification_bought">bought</span></div>
         <div class="sales-notification-name">Product Name</div>
+        <div class="sales-time">
+           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+           <span data-i18n="notification_verified">Verified Purchase</span>tification-name">Product Name</div>
         <div class="sales-time">
            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
            Verified Purchase

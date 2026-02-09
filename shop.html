@@ -45,7 +45,7 @@
       </div>
 
       <div class="topbar__right">
-        <a class="toplink" href="help-center.html" data-i18n="support">
+        <a class="toplink" href="customer-service.html" data-i18n="support">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
           </svg>
@@ -56,13 +56,6 @@
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
           Warranty
-        </a>
-        <a class="toplink" href="index.html#stores" data-i18n="stores">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-            <circle cx="12" cy="10" r="3"></circle>
-          </svg>
-          Stores
         </a>
       </div>
     </div>
@@ -98,14 +91,14 @@
               <span id="product-options-modal-price-new" class="product-options-modal__price-new"></span>
             </div>
             <div class="product-options-modal__colors">
-              <label class="product-options-modal__label">Choose color:</label>
+              <label class="product-options-modal__label" data-i18n="choose_color">Choose color:</label>
               <div id="product-options-modal-colors" class="product-options-modal__color-list"></div>
             </div>
             <div class="product-options-modal__sizes">
-              <label class="product-options-modal__label">Choose size:</label>
+              <label class="product-options-modal__label" data-i18n="choose_size">Choose size:</label>
               <div id="product-options-modal-sizes" class="product-options-modal__size-list"></div>
             </div>
-            <button id="product-options-modal-add-btn" class="product-options-modal__add-btn">Add to cart</button>
+            <button id="product-options-modal-add-btn" class="product-options-modal__add-btn" data-i18n="add_to_cart_btn">Add to cart</button>
           </div>
         </div>
       </div>
@@ -120,9 +113,9 @@
               <div class="mega__col">
                 <div class="mega__title" data-i18n="electronics">Electronics</div>
                 <a class="mega__link" href="#products" data-filter="electronics" data-i18n="cat_headphones">Headphones & Audio</a>
-                <a class="mega__link" href="#products" data-filter="electronics">Wearables</a>
-                <a class="mega__link" href="#products" data-filter="electronics">Power</a>
-                <a class="mega__link" href="#products" data-filter="electronics">Gaming</a>
+                <a class="mega__link" href="#products" data-filter="electronics" data-i18n="wearables">Wearables</a>
+                <a class="mega__link" href="#products" data-filter="electronics" data-i18n="power">Power</a>
+                <a class="mega__link" href="#products" data-filter="electronics" data-i18n="gaming">Gaming</a>
               </div>
               <div class="mega__col">
                 <div class="mega__title" data-i18n="clothing">Fashion</div>
@@ -265,18 +258,18 @@
 
           <div class="advanced-filters">
             <select class="select" id="priceRange" aria-label="Price Range">
-              <option value="all">All Prices</option>
-              <option value="0-200">Under 200 MAD</option>
-              <option value="200-500">200-500 MAD</option>
-              <option value="500-1000">500-1000 MAD</option>
-              <option value="1000+">Over 1000 MAD</option>
+              <option value="all" data-i18n="filter_price_all">All Prices</option>
+              <option value="0-200" data-i18n="filter_price_under_200">Under 200 MAD</option>
+              <option value="200-500" data-i18n="filter_price_200_500">200-500 MAD</option>
+              <option value="500-1000" data-i18n="filter_price_500_1000">500-1000 MAD</option>
+              <option value="1000+" data-i18n="filter_price_1000_plus">Over 1000 MAD</option>
             </select>
             
             <select class="select" id="ratingFilter" aria-label="Rating">
-              <option value="all">All Ratings</option>
-              <option value="4+">4+ Stars</option>
-              <option value="4.5+">4.5+ Stars</option>
-              <option value="5">5 Stars</option>
+              <option value="all" data-i18n="filter_rating_all">All Ratings</option>
+              <option value="4+" data-i18n="filter_rating_4_plus">4+ Stars</option>
+              <option value="4.5+" data-i18n="filter_rating_4_5_plus">4.5+ Stars</option>
+              <option value="5" data-i18n="filter_rating_5">5 Stars</option>
             </select>
           </div>
 
@@ -374,9 +367,7 @@
            <a href="#" aria-label="Instagram" class="social-btn instagram">
              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
            </a>
-           <a href="https://wa.me/212699289568" target="_blank" aria-label="WhatsApp" class="social-btn whatsapp">
-             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-           </a>
+
            <a href="#" aria-label="Facebook" class="social-btn facebook">
              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
            </a>
@@ -411,6 +402,14 @@
         </div>
         <div class="footCol">
           <div class="footCol__title">Contact</div>
+          <div class="contact-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
+              <path d="M15 11a4 4 0 0 1 4 4" />
+              <path d="M19 8a7 7 0 0 1 3 5" />
+            </svg>
+            <a href="customer-service.html">Live Agent</a>
+          </div>
           <div class="contact-row">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
             <a href="tel:+212699289568">+212 699-289568</a>
@@ -470,6 +469,7 @@
 
   <div class="tawk-custom-trigger" role="button" onclick="Tawk_API.toggle();" title="Chat with us">
     <img src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/my%20photo.jfif" alt="Chat with us">
+    <span class="live-agent-label" data-i18n="live_agent">Live Agent</span>
   </div>
 
   <div class="product-modal-ent" id="productModal" aria-hidden="true">
