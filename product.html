@@ -13,6 +13,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Product Details - Lecomax</title>
+
+  <!-- Open Graph / Link Preview Tags -->
+  <meta property="og:title" content="Premium Product - Lecomax" />
+  <meta property="og:description" content="Check out our latest premium electronics, fashion, and accessories. Fast delivery and quality guaranteed." />
+  <meta property="og:type" content="product" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/1.avif" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Premium Product - Lecomax" />
+  <meta name="twitter:description" content="Check out our latest premium electronics, fashion, and accessories." />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/1.avif" />
+
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -23,7 +35,7 @@
     <div class="container announcement__inner">
       <span style="display:flex; align-items:center; gap:8px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-        Free shipping on all orders over 300 MAD
+        Free shipping on all products
       </span>
       <div class="toplinks">
         <a class="toplink" href="help-center.html">
@@ -40,8 +52,13 @@
 
   <header class="header" id="header">
     <div class="container header__inner">
-      <a class="brand" href="index.html">
-        <span class="brand__name"><span style="color:var(--accent)">L'</span>ECOMAX</span>
+      <a class="brand" href="index.html" aria-label="Lecomax Home">
+        <!-- New Logo Icon -->
+        <svg class="brand__logo" width="34" height="34" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 8C8 5.79086 9.79086 4 12 4H16C18.2091 4 20 5.79086 20 8V32C20 34.2091 18.2091 36 16 36H12C9.79086 36 8 34.2091 8 32V8Z" fill="#3b82f6"/>
+          <path d="M22 24C22 21.7909 23.7909 20 26 20H32C34.2091 20 36 21.7909 36 24V32C36 34.2091 34.2091 36 32 36H26C23.7909 36 22 34.2091 22 32V24Z" fill="#0f172a"/>
+        </svg>
+        <span class="brand__name">LECOMAX</span>
       </a>
 
       <div class="search-container">
@@ -320,25 +337,37 @@
         </div>`;
      }
 
-      // Generate small fake reviews (max 7)
-      let reviewCount = Math.max(3, (hashStr(p.id) % 5) + 3); // 3..7
-      let rDist = [];
-      let r = reviewCount;
-      let d5 = Math.floor(r*0.7); r-=d5;
-      let d4 = Math.floor(r*0.2); r-=d4;
-      let d3 = Math.floor(r*0.08); r-=d3;
-      let d2 = Math.floor(r*0.5); r-=d2;
-      if(r < 0) r=0;
-      let d1 = r;
-      rDist = [d5, d4, d3, d2, d1];
+      // Generate realistic high ratings (mostly 5 and 4 stars)
+      let reviewCount = Math.max(12, (hashStr(p.id) % 20) + 12); // 12..32 reviews
+      let rTotal = reviewCount;
+      
+      // Dynamic distribution logic based on rating
+      let d5=0, d4=0, d3=0, d2=0, d1=0;
+      
+      if (p.rating >= 4.7) {
+        d5 = Math.ceil(rTotal * 0.85);
+        if(d5 > rTotal) d5 = rTotal;
+        d4 = rTotal - d5;
+      } else if (p.rating >= 4.0) {
+        d5 = Math.floor(rTotal * 0.60);
+        d4 = Math.floor(rTotal * 0.30);
+        d3 = rTotal - d5 - d4;
+      } else {
+        d5 = Math.floor(rTotal * 0.50);
+        d4 = Math.floor(rTotal * 0.30);
+        d3 = Math.floor(rTotal * 0.15);
+        d2 = rTotal - d5 - d4 - d3;
+      }
+      
+      let rDist = [d5, d4, d3, d2, d1];
      
      const ratingSummaryHtml = `
         <div class="rating-summary">
-          <div class="rating-overall">
-             <div class="rating-score">${p.rating.toFixed(1)}</div>
-             <div class="rating-stars-lg">★★★★★</div>
-             <div class="rating-count-lg">${txt.based_on} ${reviewCount} ${txt.reviews}</div>
-          </div>
+              <div class="rating-overall">
+                 <div class="rating-score">${p.rating.toFixed(1)}</div>
+                 <div class="rating-stars-lg" style="color: #f59e0b;">${typeof starIcons === 'function' ? starIcons(Math.round(p.rating)) : "★★★★★"}</div>
+                 <div class="rating-count-lg">${txt.based_on} ${reviewCount} ${txt.reviews}</div>
+              </div>
           <div class="rating-bars">
              <div class="rating-bar-row">
                  <span class="r-label">5 ★</span>
@@ -369,7 +398,7 @@
         </div>
      `;
 
-    let reviewsHtml = `<div class="reviews-grid">` + getFakeReviews(p.id, p.cat, lang).slice(0, 1).map(r => {
+    let reviewsHtml = `<div class="reviews-grid">` + getFakeReviews(p.id, p.cat, lang, p.rating).slice(0, 5).map(r => {
          const colors = ['review-bg-blue', 'review-bg-green', 'review-bg-purple', 'review-bg-orange'];
          const colorClass = colors[hashStr(r.name) % colors.length];
          
@@ -385,7 +414,7 @@
                            ${txt.verified_buyer}
                         </span>
                     </div>
-                    <div class="review-stars">${"★".repeat(Math.floor(r.rating))}</div>
+                    <div class="review-stars" style="color: #f59e0b;">${typeof starIcons === 'function' ? starIcons(Math.round(r.rating)) : "★".repeat(Math.round(r.rating))}</div>
                 </div>
                 <div class="review-date">${r.date}</div>
             </div>
@@ -445,10 +474,10 @@
                     ${p.old ? `<div class="save-badge" style="background:#dc2626; margin-left:12px; padding:4px 10px; border-radius:6px; text-transform:uppercase;">Save ${Math.round(((p.old - p.price)/p.old)*100)}%</div>` : ''}
                 </div>
 
-                <div class="rating-block">
-                    <span class="stars" style="color:#f59e0b; letter-spacing:1px;">★★★★★</span> 
-                    <span>${p.rating.toFixed(1)}</span>
-                    <a href="#reviews" class="muted" style="text-decoration:underline; font-weight:400; margin-left:6px;">(${reviewCount} reviews)</a>
+                <div class="rating-block" style="color: #f59e0b;">
+                    ${typeof starIcons === 'function' ? starIcons(Math.round(p.rating)) : '<span class="stars" style="letter-spacing:1px;">★★★★★</span>'} 
+                    <span style="color:var(--text); font-weight:600; margin-left:4px;">${p.rating.toFixed(1)}</span>
+                    <a href="#reviews" class="muted" style="text-decoration:underline; font-weight:400; margin-left:6px; color:var(--muted);">(${reviewCount} reviews)</a>
                 </div>
                 
                 <p class="description">

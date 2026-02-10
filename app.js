@@ -239,7 +239,7 @@ const TRANSLATIONS = {
     hero_statement_subtitle: "Discover the new standard of premium electronics and fashion.",
     hero_statement_cta: "Explore Collection",
     promo_shipping_title: "Free Shipping",
-    promo_shipping_desc: "On selected categories this week.",
+    promo_shipping_desc: "Free shipping on all products.",
     exclusive_stores: "Exclusive Stores",
     limited_offer: "Limited",
     technical_support: "Technical Support",
@@ -388,7 +388,7 @@ const TRANSLATIONS = {
     hero_statement_subtitle: "Découvrez la nouvelle norme de l'électronique premium et de la mode.",
     hero_statement_cta: "Explorer la collection",
     promo_shipping_title: "Livraison Offerte",
-    promo_shipping_desc: "Sur une sélection d'articles.",
+    promo_shipping_desc: "Livraison gratuite sur tous les produits.",
     exclusive_stores: "Boutiques Exclusives",
     limited_offer: "Offre Limitée",
     technical_support: "Support Technique",
@@ -537,7 +537,7 @@ const TRANSLATIONS = {
     hero_statement_subtitle: "اكتشف المعيار الجديد للإلكترونيات والأزياء الراقية.",
     hero_statement_cta: "استكشف المجموعة",
     promo_shipping_title: "شحن مجاني",
-    promo_shipping_desc: "على منتجات مختارة لفترة محدودة.",
+    promo_shipping_desc: "توصيل مجاني على جميع المنتجات.",
     exclusive_stores: "متاجرنا الحصرية",
     limited_offer: "عرض محدود",
     technical_support: "الدعم الفني",
@@ -1221,6 +1221,32 @@ const PRODUCTS = [
     colors: [
         { name: "Black", hex: "#1a1a1a", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/backpack/1.jpeg" },
         { name: "Gray", hex: "#808080", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/backpack/2.jpeg" }
+    ]
+  },
+  {
+    id: "barcur_tr90_sunglasses",
+    cat: "accessories",
+    name: "BARCUR Design TR90 Sunglasses Men Polarized Light Weight Sports Sun Glasses Women Eyewear Accessory Oculos UVAB Protection",
+    name_fr: "Lunettes de soleil BARCUR TR90 polarisees, legeres, sport, protection UVAB",
+    name_ar: "نظارات شمس BARCUR TR90 مستقطبة وخفيفة للحماية من UVAB",
+    price: 135,
+    old: 0,
+    rating: 4.8,
+    emoji: "🕶️",
+    video: "https://video.aliexpress-media.com/play/u/ae_sg_item/2215188288148/p/1/e/6/t/10301/1100193499213.mp4?from=chrome&definition=h265",
+    desc: "Polarized TR90 sunglasses with UVAB protection, lightweight frame for daily and sport use.",
+    desc_fr: "Lunettes TR90 polarisees avec protection UVAB, monture legere pour usage quotidien et sport.",
+    desc_ar: "نظارات شمس TR90 مستقطبة مع حماية UVAB، إطار خفيف للاستخدام اليومي والرياضة.",
+    images: [
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/BARCURDesignTR90/blue%20gray%201.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/BARCURDesignTR90/red%20gray%202.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/BARCURDesignTR90/3.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/BARCURDesignTR90/4.avif",
+      "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/BARCURDesignTR90/5.avif"
+    ],
+    colors: [
+      { name: "Blue Gray", hex: "#6b7c8a", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/BARCURDesignTR90/blue%20gray%201.avif" },
+      { name: "Red Gray", hex: "#8b5a5a", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/BARCURDesignTR90/red%20gray%202.avif" }
     ]
   },
   {
