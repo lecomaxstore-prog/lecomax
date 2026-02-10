@@ -593,6 +593,17 @@
   <!--Start of Tawk.to Script-->
   <script type="text/javascript">
     var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+    Tawk_API.onLoad = function(){
+      Tawk_API.hideWidget();
+      if (window._tawkPendingOpen) {
+        Tawk_API.showWidget();
+        Tawk_API.maximize();
+        window._tawkPendingOpen = false;
+      }
+    };
+    Tawk_API.onMinimize = function(){
+      Tawk_API.hideWidget();
+    };
     (function(){
       var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
       s1.async = true;
@@ -604,13 +615,37 @@
   </script>
   <!--End of Tawk.to Script-->
   <script>
+    function openTawk() {
+      window._tawkPendingOpen = true;
+
+      function tryOpen() {
+        if (window.Tawk_API && typeof window.Tawk_API.maximize === "function") {
+          window.Tawk_API.showWidget();
+          window.Tawk_API.maximize();
+          window._tawkPendingOpen = false;
+          return true;
+        }
+        return false;
+      }
+
+      if (tryOpen()) {
+        return;
+      }
+
+      var tries = 0;
+      var timer = setInterval(function () {
+        if (tryOpen() || tries >= 20) {
+          clearInterval(timer);
+        }
+        tries += 1;
+      }, 250);
+    }
+
     const liveChatBtn = document.getElementById("liveChatBtn");
     if (liveChatBtn) {
       liveChatBtn.addEventListener("click", (event) => {
         event.preventDefault();
-        if (window.Tawk_API && typeof window.Tawk_API.maximize === "function") {
-          window.Tawk_API.maximize();
-        }
+        openTawk();
       });
     }
   </script>
