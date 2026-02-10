@@ -342,7 +342,8 @@ const TRANSLATIONS = {
     footer_desc: "Elevate your everyday with curated premium essentials. Experience the perfect blend of modern style and uncompromising quality, delivered directly to you.",
     address_city_country: "Sidi Bennour, Morocco",
     add_to_cart_caps: "ADD TO CART",
-    btn_add: "Add"
+    btn_add: "Add",
+    select_size: "Select Size"
   },
   fr: {
     welcome_title: "Bienvenue sur Lecomax",
@@ -487,7 +488,8 @@ const TRANSLATIONS = {
     footer_desc: "Élevez votre quotidien avec des essentiels haut de gamme. Découvrez le mélange parfait de style moderne et de qualité sans compromis, livré directement chez vous.",
     address_city_country: "Sidi Bennour, Maroc",
     add_to_cart_caps: "AJOUTER AU PANIER",
-    btn_add: "Ajouter"
+    btn_add: "Ajouter",
+    select_size: "Choisir la taille"
   },
   ar: {
     welcome_title: "مرحباً بكم في Lecomax",
@@ -632,7 +634,8 @@ const TRANSLATIONS = {
     footer_desc: "ارتقِ بيومك مع أساسيات متميزة ومختارة. استمتع بالمزيج المثالي بين الأسلوب العصري والجودة التي لا تقبل المساومة، وتصلك مباشرةً.",
     address_city_country: "سيدي بنور، المغرب",
     add_to_cart_caps: "إضافة إلى السلة",
-    btn_add: "إضافة"
+    btn_add: "إضافة",
+    select_size: "اختر المقاس"
   }
 };
 
@@ -2109,7 +2112,7 @@ function renderQuickShop() {
           <div class="qs-actions">
              <button id="qsAddBtn" class="qs-btn btn--primary" style="box-shadow:0 10px 20px -5px var(--accent-glow)" ${ (availableSizes.length && !size) ? 'disabled' : '' }>
                 ${ (availableSizes.length && !size) 
-                    ? 'Select Size' 
+                    ? (t.select_size || 'Select Size') 
                     : `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-${isRtl?'left':'right'}:6px"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg> ${t.add_to_cart_btn || 'Add to Cart'}` }
              </button>
           </div>
@@ -2126,7 +2129,7 @@ function renderQuickShop() {
           </div>
           
           <div class="qs-desc">
-             ${escapeHtml(p.desc)}
+             ${escapeHtml((lang === 'fr' && p.desc_fr) ? p.desc_fr : (lang === 'ar' && p.desc_ar) ? p.desc_ar : p.desc)}
           </div>
   `;
 
