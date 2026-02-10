@@ -85,6 +85,113 @@
   goTo(0, true);
   updateDots();
 })();
+
+// === Hero Slider (Full-Width Banners) ===
+(function() {
+  const slider = document.querySelector('.slider');
+  const track = document.getElementById('sliderTrack');
+  const dots = document.getElementById('sliderDots');
+  if (!slider || !track || !dots) return;
+
+  const slides = Array.from(track.children);
+  if (slides.length <= 1) return;
+
+  let index = 0;
+  let autoTimer = null;
+  const autoDelay = 5200;
+  const swipeThreshold = 0.15; // 15% of slider width
+  let isDragging = false;
+  let startX = 0;
+  let currentX = 0;
+
+  function renderDots() {
+    dots.innerHTML = slides
+      .map((_, i) => `<button class="dotBtn${i === index ? ' is-active' : ''}" data-slide="${i}" aria-label="Go to slide ${i + 1}"></button>`)
+      .join('');
+    dots.querySelectorAll('[data-slide]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        index = Number(btn.dataset.slide);
+        goTo(index, true);
+      });
+    });
+  }
+
+  function updateDots() {
+    dots.querySelectorAll('.dotBtn').forEach((btn, i) => {
+      btn.classList.toggle('is-active', i === index);
+    });
+  }
+
+  function goTo(i, userInitiated) {
+    index = (i + slides.length) % slides.length;
+    track.style.transition = 'transform .7s cubic-bezier(.2,.8,.2,1)';
+    track.style.transform = `translateX(-${index * 100}%)`;
+    updateDots();
+    if (userInitiated) restartAuto();
+  }
+
+  function startAuto() {
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = setInterval(() => {
+      goTo(index + 1, false);
+    }, autoDelay);
+  }
+
+  function stopAuto() {
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = null;
+  }
+
+  function restartAuto() {
+    stopAuto();
+    startAuto();
+  }
+
+  slider.addEventListener('mouseenter', stopAuto);
+  slider.addEventListener('mouseleave', startAuto);
+
+  slider.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    startX = e.clientX;
+    currentX = startX;
+    track.style.transition = 'none';
+    slider.setPointerCapture(e.pointerId);
+    stopAuto();
+  });
+
+  slider.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    currentX = e.clientX;
+    const dx = currentX - startX;
+    const offsetPct = (dx / slider.clientWidth) * 100;
+    track.style.transform = `translateX(${-(index * 100) + offsetPct}%)`;
+  });
+
+  function endDrag(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    slider.releasePointerCapture(e.pointerId);
+    const dx = e.clientX - startX;
+    const travel = Math.abs(dx) / slider.clientWidth;
+    if (travel > swipeThreshold) {
+      index = dx < 0 ? index + 1 : index - 1;
+    }
+    goTo(index, false);
+    startAuto();
+  }
+
+  slider.addEventListener('pointerup', endDrag);
+  slider.addEventListener('pointercancel', endDrag);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopAuto();
+    else startAuto();
+  });
+
+  renderDots();
+  goTo(0, false);
+  startAuto();
+})();
 // Lecomax — premium brand-store UI (mega menus + hero slider + category places + product grid + cart)
 
 // --- Product Image Zoom ---
