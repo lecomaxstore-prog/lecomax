@@ -1539,21 +1539,21 @@ function init(){
 
   // Initialize Language
   const savedLang = localStorage.getItem('lecomax_lang');
-  
-  // Set language if saved, but do NOT hide modal automatically.
-  // We want to force the choice or at least show it.
+  const modal = document.getElementById('language-modal');
+
   if(savedLang) {
     setLanguage(savedLang);
+    // Hide modal if language is already saved
+    if(modal) modal.style.display = 'none';
   } else {
     // Default fallback if nothing saved
     setLanguage('en');
-  }
-
-  // Always show the modal on load
-  const modal = document.getElementById('language-modal');
-  if(modal) {
-     modal.style.display = 'flex'; // Ensure it's not hidden by inline styles
-     setTimeout(() => modal.classList.add('show'), 100);
+    
+    // Show modal only if no preference is saved
+    if(modal) {
+       modal.style.display = 'flex'; 
+       setTimeout(() => modal.classList.add('show'), 100);
+    }
   }
   
   
