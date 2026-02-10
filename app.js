@@ -639,7 +639,7 @@ const TRANSLATIONS = {
   }
 };
 
-function setLanguage(lang) {
+function setLanguage(lang, save = true) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
   
   // Update Direction
@@ -696,13 +696,16 @@ function setLanguage(lang) {
   });
 
   // Save preference
-  localStorage.setItem('lecomax_lang', lang);
+  if (save) {
+    localStorage.setItem('lecomax_lang', lang);
+  }
   window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
 }
 
 // Global modal selection
 window.selectInitialLang = function(lang) {
-  setLanguage(lang);
+  setLanguage(lang, true);
+  sessionStorage.setItem('lecomax_multilang_session', 'true');
   const modal = document.getElementById('language-modal');
   if(modal) {
     modal.classList.remove('show');
@@ -1551,26 +1554,81 @@ function updateFavBadge() {
 
 init();
 
+function ensureLanguageModal() {
+  let modal = document.getElementById('language-modal');
+  if (modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'language-modal';
+  modal.className = 'lang-modal';
+  modal.innerHTML = `
+    <div class="lang-modal__content">
+      <div class="lang-modal__header">
+        <h2 class="lang-modal__title">Welcome • Bienvenue • مرحبا</h2>
+        <p class="lang-modal__subtitle" data-i18n="language_select">Please select your preferred language<br>Veuillez choisir votre langue préférée<br>يرجى اختيار لغتكم المفضلة</p>
+      </div>
+      <div class="lang-modal__grid">
+        <button class="lang-card" onclick="selectInitialLang('en')">
+          <div class="lang-card__content">
+            <img class="lang-card__flag" src="https://flagcdn.com/w80/us.png" alt="US" loading="lazy">
+            <span class="lang-card__name">English</span>
+          </div>
+          <span class="lang-card__code">US</span>
+        </button>
+        <button class="lang-card" onclick="selectInitialLang('fr')">
+          <div class="lang-card__content">
+            <img class="lang-card__flag" src="https://flagcdn.com/w80/fr.png" alt="FR" loading="lazy">
+            <span class="lang-card__name">Français</span>
+          </div>
+          <span class="lang-card__code">FR</span>
+        </button>
+        <button class="lang-card" onclick="selectInitialLang('ar')">
+           <div class="lang-card__content">
+            <img class="lang-card__flag" src="https://flagcdn.com/w80/ma.png" alt="MA" loading="lazy">
+            <span class="lang-card__name">العربية</span>
+          </div>
+          <span class="lang-card__code">MA</span>
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  return modal;
+}
+
 function init(){
   const yearEl = $("#year");
   if(yearEl) yearEl.textContent = new Date().getFullYear();
 
   // Initialize Language
   const savedLang = localStorage.getItem('lecomax_lang');
-  const modal = document.getElementById('language-modal');
+  
+  // Ensure modal exists
+  let modal = document.getElementById('language-modal');
+  if (!modal) {
+     modal = ensureLanguageModal();
+  }
 
+  // Set language from saved preference or default to english
   if(savedLang) {
     setLanguage(savedLang);
-    // Hide modal if language is already saved
-    if(modal) modal.style.display = 'none';
   } else {
-    // Default fallback if nothing saved
-    setLanguage('en');
-    
-    // Show modal only if no preference is saved
+    setLanguage('en', false);
+  }
+
+  // Check if we already asked in this session
+  const sessionAsked = sessionStorage.getItem('lecomax_multilang_session');
+
+  if(sessionAsked) {
+    if(modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+    }
+  } else {
+    // Show modal
     if(modal) {
        modal.style.display = 'flex'; 
-       setTimeout(() => modal.classList.add('show'), 100);
+       setTimeout(() => modal.classList.add('show'), 50);
     }
   }
   
