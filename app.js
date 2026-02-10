@@ -2923,32 +2923,58 @@ function setupExtensions() {
     const notif = document.createElement('div');
     notif.className = 'sales-notification';
     notif.innerHTML = `
-      <img src="" class="sales-img" alt=""><span data-i18n="notification_someone">Someone in</span> <span class="sales-city">Casablanca</span> <span data-i18n="notification_bought">bought</span></div>
+      <button class="sales-notification-close" onclick="this.parentElement.classList.remove('active')">&times;</button>
+      <img src="" class="sales-img" alt="">
+      <div class="sales-notification-content">
+        <div class="sales-notification-title">
+           <span data-i18n="notification_someone">Someone in</span> 
+           <span class="sales-city">Casablanca</span> 
+           <span data-i18n="notification_bought">bought</span>
+        </div>
         <div class="sales-notification-name">Product Name</div>
         <div class="sales-time">
            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-           <span data-i18n="notification_verified">Verified Purchase</span>tification-name">Product Name</div>
-        <div class="sales-time">
-           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-           Verified Purchase
+           <span data-i18n="notification_verified">Verified Purchase</span>
         </div>
       </div>
     `;
     document.body.appendChild(notif);
 
     const cities = ["Casablanca", "Rabat", "Marrakech", "Tanger", "Agadir", "Fes", "Kenitra"];
+    const cityTranslations = {
+        "Casablanca": { ar: "الدار البيضاء", fr: "Casablanca" },
+        "Rabat": { ar: "الرباط", fr: "Rabat" },
+        "Marrakech": { ar: "مراكش", fr: "Marrakech" },
+        "Tanger": { ar: "طنجة", fr: "Tanger" },
+        "Agadir": { ar: "أكادير", fr: "Agadir" },
+        "Fes": { ar: "فاس", fr: "Fès" },
+        "Kenitra": { ar: "القنيطرة", fr: "Kénitra" }
+    };
     
     function showNotification() {
       const p = PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)];
       if(!p) return;
       
-      const city = cities[Math.floor(Math.random() * cities.length)];
+      const rawCity = cities[Math.floor(Math.random() * cities.length)];
+      const lang = document.documentElement.lang || 'en';
+      let displayCity = rawCity;
+
+      if (lang === 'ar' && cityTranslations[rawCity] && cityTranslations[rawCity].ar) {
+          displayCity = cityTranslations[rawCity].ar;
+      } else if (lang === 'fr' && cityTranslations[rawCity] && cityTranslations[rawCity].fr) {
+          displayCity = cityTranslations[rawCity].fr;
+      }
+
       const el = document.querySelector('.sales-notification');
       const img = (p.images && p.images.length) ? p.images[0] : '';
       
+      // Get translated product name if available
+      const t = (typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS[lang]) ? TRANSLATIONS[lang] : (typeof TRANSLATIONS !== 'undefined' ? TRANSLATIONS.en : {});
+      const pName = (t && t["p_" + p.id]) ? t["p_" + p.id] : p.name;
+
       el.querySelector('.sales-img').src = img;
-      el.querySelector('.sales-city').textContent = city;
-      el.querySelector('.sales-notification-name').textContent = p.name;
+      el.querySelector('.sales-city').textContent = displayCity;
+      el.querySelector('.sales-notification-name').textContent = pName;
       
       el.classList.add('active');
       

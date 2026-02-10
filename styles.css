@@ -4299,3 +4299,207 @@ h2{margin:0; font-size:1.65rem}
  
  
  
+/* =========================================
+   RTL Enhancements for Arabic
+   ========================================= */
+
+/* Global RTL Settings */
+[dir='rtl'] {
+  --font-heading: 'Cairo', sans-serif;
+  --font-body: 'Cairo', sans-serif;
+}
+
+[dir='rtl'] body {
+  font-family: var(--font-body);
+  text-align: right;
+  direction: rtl;
+}
+
+/* Typography Overrides */
+[dir='rtl'] h1, [dir='rtl'] h2, [dir='rtl'] h3, 
+[dir='rtl'] h4, [dir='rtl'] h5, [dir='rtl'] h6,
+[dir='rtl'] button, [dir='rtl'] input, [dir='rtl'] select, [dir='rtl'] textarea,
+[dir='rtl'] .brand, [dir='rtl'] .nav__link, [dir='rtl'] .mega__title {
+  font-family: var(--font-heading);
+  letter-spacing: 0;
+}
+
+/* Header & Navigation */
+[dir='rtl'] .header__inner {
+  gap: 16px;
+}
+
+[dir='rtl'] .brand {
+  margin-right: 0;
+  margin-left: 16px;
+}
+
+/* Navigation Menu */
+[dir='rtl'] .nav__link {
+  /* Margins/Paddings automatically flip due to direction: rtl usually, 
+     but specific transforms need manual flip */
+}
+
+[dir='rtl'] .nav__btn {
+  /* Chevron spacing */
+}
+[dir='rtl'] .nav__btn svg.chev {
+  margin-left: 0;
+  margin-right: 6px;
+}
+
+[dir='rtl'] .mega {
+  left: auto;
+  right: 0;
+}
+
+[dir='rtl'] .mega__title {
+  padding-left: 0;
+  padding-right: 12px;
+}
+
+[dir='rtl'] .mega__link:hover {
+  transform: translateX(-4px); 
+}
+
+/* Search Box */
+[dir='rtl'] .searchbox input {
+  padding: 12px 20px 12px 50px;
+  text-align: right;
+}
+
+[dir='rtl'] .searchbox__submit {
+  right: auto;
+  left: 6px;
+}
+
+[dir='rtl'] .actions {
+  margin-left: 0;
+  margin-right: auto; /* Push to left if needed? No, flex gap handles it. */
+}
+
+/* Mobile Nav */
+[dir='rtl'] .burger {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+/* Sliders & Carousels */
+/* Force LTR track to maintain JS compatibility, but flip content back to RTL */
+[dir='rtl'] .slider__track, 
+[dir='rtl'] .trending__carousel,
+[dir='rtl'] .trending__track,
+[dir='rtl'] .cards-slider {
+  direction: ltr; 
+}
+
+[dir='rtl'] .slide, 
+[dir='rtl'] .catCard,
+[dir='rtl'] .productCard, 
+[dir='rtl'] .trending__card {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Mirror Arrow Buttons visual direction */
+/* Removed: Arrows should point to the direction of movement, which matches LTR track */
+
+/* Product Cards */
+[dir='rtl'] .productCard__badge {
+  left: auto;
+  right: 12px;
+}
+
+[dir='rtl'] .productCard__actions {
+  right: auto;
+  left: 12px;
+}
+
+/* Benefit List (Hero Side) */
+[dir='rtl'] .benefit-item {
+  text-align: right;
+}
+
+[dir='rtl'] .benefit-icon {
+  margin-right: 0;
+  margin-left: 12px;
+}
+
+/* Modals */
+[dir='rtl'] .product-options-modal__close {
+  right: auto;
+  left: 20px;
+}
+
+[dir='rtl'] .qs-grid {
+  /* Grid handles column order, but ensure gap is correct */
+}
+
+[dir='rtl'] .qs-label span {
+  margin-left: 0;
+  margin-right: 4px;
+}
+
+[dir='rtl'] .qs-cat {
+  margin-left: 0; /* Reset generic LTR margin if any */
+}
+
+/* Footer */
+[dir='rtl'] .footer-grid {
+  text-align: right;
+}
+
+/* Form Elements */
+[dir='rtl'] .form-group label {
+  text-align: right;
+  display: block;
+}
+
+/* Buttons with Icons */
+[dir='rtl'] .btn svg {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+/* Category Cards Layout Flip */
+[dir='rtl'] .catCard__img--hero {
+  right: auto;
+  left: 15px;
+}
+
+[dir='rtl'] .catCard__fab {
+  right: auto;
+  left: 30px;
+}
+
+/* Ensure hover effect works on the left side too */
+[dir='rtl'] .catCard:hover .catCard__fab {
+  transform: scale(1.1) rotate(-90deg); /* Rotate other way or keep? Keep is fine */
+}
+
+
+/* Sales Notification RTL */
+[dir='rtl'] .sales-notification {
+  /* Keep on left side even in RTL to avoid covering chat widgets */
+  left: 24px;
+  right: auto;
+}
+
+[dir='rtl'] .sales-notification-close {
+  right: auto;
+  left: -8px;
+}
+
+
+/* Ensure Notification Text Alignment in RTL */
+[dir='rtl'] .sales-notification-content,
+[dir='rtl'] .sales-notification-name,
+[dir='rtl'] .sales-notification-title {
+  text-align: right;
+  direction: rtl;
+}
+
+[dir='rtl'] .sales-time {
+  flex-direction: row; /* Icon sticks to text properly */
+}
+
