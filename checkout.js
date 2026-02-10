@@ -13,6 +13,39 @@ if (document.getElementById("year")) {
   document.getElementById("year").textContent = YEAR;
 }
 
+function getLang() {
+  return document.documentElement.lang || 'en';
+}
+
+const CHECKOUT_MESSAGES = {
+  en: {
+    fill_required: "Please fill in all required fields.",
+    invalid_phone: "Please enter a valid phone number.",
+    order_unavailable: "Order service is unavailable. Please try again later.",
+    order_failed: "Order failed. Please try again.",
+    thank_you_url: "thank-you.html"
+  },
+  ar: {
+    fill_required: "يرجى ملء جميع الحقول المطلوبة.",
+    invalid_phone: "يرجى إدخال رقم هاتف صحيح.",
+    order_unavailable: "خدمة الطلب غير متوفرة. يرجى المحاولة لاحقاً.",
+    order_failed: "فشل الطلب. يرجى المحاولة مرة أخرى.",
+    thank_you_url: "thank-you-ar.html"
+  },
+  fr: {
+    fill_required: "Veuillez remplir tous les champs obligatoires.",
+    invalid_phone: "Veuillez entrer un numéro de téléphone valide.",
+    order_unavailable: "Le service de commande est indisponible. Veuillez réessayer plus tard.",
+    order_failed: "La commande a échoué. Veuillez réessayer.",
+    thank_you_url: "thank-you-fr.html"
+  }
+};
+
+function getMsg(key) {
+  const lang = getLang();
+  return (CHECKOUT_MESSAGES[lang] || CHECKOUT_MESSAGES.en)[key];
+}
+
 function showMessage(text, type = "info") {
   if (!msgEl) return;
   msgEl.textContent = text;
@@ -152,12 +185,12 @@ form.addEventListener("submit", async (e) => {
   const honeypot = form.website ? form.website.value.trim() : "";
 
   if (!customer.name || !customer.phone || !customer.address || !customer.city || !customer.postalCode) {
-    showMessage("Please fill in all required fields.", "error");
+    showMessage(getMsg("fill_required"), "error");
     return;
   }
 
   if (!isValidPhone(customer.phone)) {
-    showMessage("Please enter a valid phone number.", "error");
+    showMessage(getMsg("invalid_phone"), "error");
     return;
   }
 
@@ -186,17 +219,17 @@ form.addEventListener("submit", async (e) => {
 
     showSuccess();
     localStorage.removeItem(cartKey);
-    window.location.href = "thank-you.html";
+    window.location.href = getMsg("thank_you_url");
   } catch (err) {
     if (isLikelyNetworkError(err)) {
-      showMessage("Order service is unavailable. Please try again later.", "error");
+      showMessage(getMsg("order_unavailable"), "error");
       return;
     }
-    showMessage(err.message || "Order failed. Please try again.", "error");
+    showMessage(err.message || getMsg("order_failed"), "error");
   }
 });
 
 successBtn.addEventListener("click", () => {
   hideSuccess();
-  window.location.href = "thank-you.html";
+  window.location.href = getMsg("thank_you_url");
 });

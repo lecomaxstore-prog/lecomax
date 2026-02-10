@@ -646,6 +646,21 @@ function setLanguage(lang) {
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
 
+  // Update Live Agent links
+  document.querySelectorAll('a[href*="customer-service"]').forEach(link => {
+      if (lang === 'ar') link.href = 'customer-service-ar.html';
+      else if (lang === 'fr') link.href = 'customer-service-fr.html';
+      else link.href = 'customer-service.html';
+  });
+
+  // Update Checkout links in cart drawer etc.
+  // Note: Most checkout transitions happen via JS (checkoutBtn), but if there are hardcoded links:
+  $$('a[href*="checkout.html"]').forEach(link => {
+       if (lang === 'ar') link.href = 'checkout-ar.html';
+       else if (lang === 'fr') link.href = 'checkout-fr.html';
+       else link.href = 'checkout.html';
+  });
+
   // Update Text Content
   $$('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
@@ -2378,7 +2393,13 @@ function renderCart(){
 function checkout(){
   const entries = Object.entries(state.cart);
   if (!entries.length) return alert("Cart is empty.");
-  window.location.href = "checkout.html";
+  
+  const lang = localStorage.getItem('lecomax_lang') || 'en';
+  let target = 'checkout.html';
+  if(lang === 'ar') target = 'checkout-ar.html';
+  else if(lang === 'fr') target = 'checkout-fr.html';
+
+  window.location.href = target;
 }
 
 function openSuccessModal() {
