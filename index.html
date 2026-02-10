@@ -244,7 +244,7 @@
         <div class="slider" aria-label="Featured">
           <div class="slider__track" id="sliderTrack">
             <!-- Server-Side Rendered Slide for Speed -->
-            <div class="slide" style="background: transparent; padding: 0; display: flex; flex-direction: column; gap: 24px; border: none; align-items: center; position: relative; overflow: hidden; border-radius: 20px;">
+            <div class="slide" style="background: transparent; padding: 0; display: flex; flex-direction: column; gap: 24px; border: none; align-items: center; overflow: hidden; border-radius: 20px;">
               <video 
                 src="https://www.dropbox.com/scl/fi/ijjlsh5g0qtz1txe075sp/1770625431125.mp4?rlkey=977tuc0zdeav4eqa2igf6e12g&st=h27cyv00&raw=1" 
                 autoplay 
@@ -255,22 +255,16 @@
                 fetchpriority="high"
                 style="background-color: #0b1220; object-fit: cover; width: 100%; height: 100%; min-height: 480px; display: block;"
               ></video>
-              
-              <!-- Hero Overlay Title -->
-              <div class="hero-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; z-index: 2; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 100%); pointer-events: none;">
-                  <h1 style="color: #fff; font-size: 3.5rem; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 16px 0; text-shadow: 0 8px 32px rgba(0,0,0,0.5);">
-                    Graceful & Powerful
-                  </h1>
-                  <p style="color: rgba(255,255,255,0.9); font-size: 1.2rem; font-weight: 500; max-width: 500px; line-height: 1.5; margin: 0 0 32px 0;">
-                     Discover the new standard of premium electronics and fashion.
-                  </p>
-                  <a href="#products" class="btn btn--primary" style="pointer-events: auto; padding: 14px 36px; font-size: 1.1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.3); border: none;">
-                     Shop Collection
-                  </a>
-              </div>
             </div>
           </div>
           <div class="slider__dots" id="sliderDots" aria-label="Dots"></div>
+        </div>
+        
+        <!-- Hero Statement Section -->
+        <div class="hero-statement">
+            <h1 class="hero-statement__title">Graceful & Powerful</h1>
+            <p class="hero-statement__subtitle">Discover the new standard of premium electronics and fashion.</p>
+            <a href="shop.html" class="hero-statement__btn">Explore Collection</a>
         </div>
 
         <!-- Hidden Side Cards to make video full width -->
