@@ -738,17 +738,17 @@ function starIcons(rating){
   const emptyStar = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01z"/></svg>';
   return `<span class="stars">${star.repeat(full)}${half?halfStar:""}${emptyStar.repeat(empty)}</span>`;
 }
-function getFakeReviews(productId, cat, lang='en'){
+function getFakeReviews(productId, cat, lang='en', avgRating=4.8){
   const names = {
-      en: ["Yassine","Othman","Hamza","Sofiane","Ilyas","Mehdi","Anas","Walid"],
-      fr: ["Yassine","Othman","Hamza","Sofiane","Ilyas","Mehdi","Anas","Walid"],
-      ar: ["ياسين","عثمان","حمزة","سفيان","إلياس","مهدي","أنس","وليد"]
+      en: ["Yassine", "Othman", "Hamza", "Sofiane", "Ilyas", "Mehdi", "Anas", "Walid", "Amine", "Karim", "Omar", "Badr", "Hassan", "Youssef", "Taha", "Saad"],
+      fr: ["Yassine", "Othman", "Hamza", "Sofiane", "Ilyas", "Mehdi", "Anas", "Walid", "Amine", "Karim", "Omar", "Badr", "Hassan", "Youssef", "Taha", "Saad"],
+      ar: ["ياسين", "عثمان", "حمزة", "سفيان", "إلياس", "مهدي", "أنس", "وليد", "أمين", "كريم", "عمر", "بدر", "حسن", "يوسف", "طه", "سعد"]
   };
   
   const tags = {
-      en: ["Fast delivery","Great quality","Worth it","Looks premium","Perfect fit","Super sound","Very comfortable","Good packaging"],
-      fr: ["Livraison rapide","Super qualité","Vaut le coup","Aspect premium","Coupe parfaite","Super son","Très confortable","Bon emballage"],
-      ar: ["توصيل سريع","جودة ممتازة","يستحق الشراء","مظهر فاخر","مقاس مثالي","صوت رائع","مريح جداً","تغليف جيد"]
+      en: ["Fast delivery", "Great quality", "Worth it", "Looks premium", "Perfect fit", "Super sound", "Very comfortable", "Good packaging", "Highly recommended", "Excellent service", "Just as described", "Amazing value"],
+      fr: ["Livraison rapide", "Super qualité", "Vaut le coup", "Aspect premium", "Coupe parfaite", "Super son", "Très confortable", "Bon emballage", "Hautement recommandé", "Service excellent", "Conforme à la description", "Rapport qualité prix top"],
+      ar: ["توصيل سريع", "جودة ممتازة", "يستحق الشراء", "مظهر فاخر", "مقاس مثالي", "صوت رائع", "مريح جداً", "تغليف جيد", "أنصح به بشدة", "خدمة ممتازة", "مطابق للوصف", "قيمة رائعة"]
   };
 
   const texts = {
@@ -757,25 +757,57 @@ function getFakeReviews(productId, cat, lang='en'){
           "Sound is clean and the bass is surprisingly strong. Battery is solid for daily use.",
           "Pairs quickly and calls are clear. The case feels premium for this price.",
           "Comfortable in the ear and stable. I use it every day for the gym.",
-          "For the price, it's excellent. Noise isolation is good and volume is strong."
+          "For the price, it's excellent. Noise isolation is good and volume is strong.",
+          "Honestly better than my expensive ones. Connects instantly with my phone.",
+          "The build quality is impressive, feels very durable and sleek.",
+          "Microphone quality is great for calls, everyone hears me clearly.",
+          "Game changer for my commute, blocks out noise effectively.",
+		  "Good headphones but the charging cable was a bit short.",
+		  "Decent sound quality, good for the price point.",
+		  "Works well but sometimes connection toggles.",
+		  "Not bad, fits my ears okay."
         ],
         clothing: [
           "Nice fabric and clean stitching. Fits well and looks expensive.",
           "Very comfortable and the size is accurate. Looks great in real life.",
           "Quality is better than expected. Perfect for daily wear.",
-          "Great style and finishing. I will order another color."
+          "Great style and finishing. I will order another color.",
+          "The material is soft and breathable, really enjoying wearing this.",
+          "Was skeptical about the size but it fits perfectly. Very happy.",
+          "Wash after wash it keeps its shape. High quality confirmed.",
+          "Modern cut and feels very premium. Getting compliments on it.",
+		  "Fabric is okay, but size runs a little small.",
+		  "Good looking shirt, but wrinkles easily.",
+		  "Material is decent, nothing too special but good value.",
+		  "Fits okay, maybe order a size up next time."
         ],
         shoes: [
           "Very comfortable and lightweight. Looks great with casual outfits.",
           "Good grip and solid build. Great value for money.",
           "The design is clean and premium. Fits perfectly.",
-          "Comfort level is excellent. I can wear it for hours."
+          "Comfort level is excellent. I can wear it for hours.",
+          "Sole is very supportive, my feet don't hurt anymore.",
+          "Looks even better in person than in the photos. Very sleek.",
+          "True to size and very airy, feet stay cool.",
+          "Sturdy construction but surprisingly light on the foot.",
+		  "Shoes look good but took a few days to break in.",
+		  "Comfortable enough for walking, but maybe not running.",
+		  "Decent pair of sneakers for the price.",
+		  "Good style, sizing is slightly tight."
         ],
         accessories: [
           "Strong materials and a clean design. Perfect for everyday use.",
           "Looks premium and the zippers feel smooth. Very practical.",
           "Great size and comfortable to carry. Quality is top.",
-          "Really stylish and well made. I recommend it."
+          "Really stylish and well made. I recommend it.",
+          "Fits all my essentials without looking bulky. Smart design.",
+          "The texture of the material feels very high-end.",
+          "Durable and handle seems strong. Expecting this to last.",
+          "Minimalist design but very functional. Love it.",
+		  "Useful item, but zipper can be a bit stiff.",
+		  "Looks nice, holds what I need.",
+		  "Good bag for the price, simple design.",
+		  "Functional and sturdy enough for daily use."
         ]
     },
     fr: {
@@ -783,25 +815,57 @@ function getFakeReviews(productId, cat, lang='en'){
           "Le son est net et les basses étonnamment puissantes. La batterie tient bien pour un usage quotidien.",
           "S'appaire rapidement et les appels sont clairs. Le boîtier fait premium pour ce prix.",
           "Confortable dans l'oreille et stable. Je l'utilise tous les jours pour le sport.",
-          "Pour le prix, c'est excellent. L'isolation phonique est bonne et le volume puissant."
+          "Pour le prix, c'est excellent. L'isolation phonique est bonne et le volume puissant.",
+          "Honnêtement meilleurs que mes écouteurs chers. Connexion instantanée avec mon téléphone.",
+          "La qualité de fabrication est impressionnante, semble très durable.",
+          "La qualité du micro est top pour les appels, on m'entend clairement.",
+          "Change la donne pour mes trajets, bloque bien le bruit.",
+		  "Bons écouteurs mais le câble est un peu court.",
+		  "Qualité sonore correcte, bien pour le prix.",
+		  "Marche bien mais parfois la connexion saute.",
+		  "Pas mal, tient bien dans mes oreilles."
         ],
         clothing: [
           "Joli tissu et coutures propres. Taille bien et a l'air cher.",
           "Très confortable et la taille est précise. Rend super bien en vrai.",
           "La qualité est meilleure que prévu. Parfait pour tous les jours.",
-          "Super style et finitions. Je vais commander une autre couleur."
+          "Super style et finitions. Je vais commander une autre couleur.",
+          "La matière est douce et respirante, vraiment agréable à porter.",
+          "J'étais sceptique sur la taille mais ça tombe parfaitement. Très content.",
+          "Lavage après lavage, ça garde sa forme. Qualité confirmée.",
+          "Coupe moderne et sensation très premium. Je reçois des compliments.",
+		  "Tissu correct, mais taille un peu petit.",
+		  "Belle chemise, mais se froisse facilement.",
+		  "Matière décente, rien de spécial mais bon rapport qualité prix.",
+		  "Taille ok, peut-être prendre une taille au-dessus."
         ],
         shoes: [
           "Très confortable et léger. Super avec des tenues décontractées.",
           "Bonne adhérence et construction solide. Excellent rapport qualité/prix.",
           "Le design est épuré et premium. Taille parfaitement.",
-          "Le niveau de confort est excellent. Je peux les porter pendant des heures."
+          "Le niveau de confort est excellent. Je peux les porter pendant des heures.",
+          "La semelle soutient bien, je n'ai plus mal aux pieds.",
+          "Rend encore mieux en vrai que sur les photos. Très élégant.",
+          "Fidèle à la taille et très aéré, les pieds restent au frais.",
+          "Construction robuste mais étonnamment légère au pied.",
+		  "Chaussures jolies mais il faut les faire quelques jours.",
+		  "Assez confortables pour marcher, moins pour courir.",
+		  "Paire correcte pour le prix.",
+		  "Bon style, un peu serré au début."
         ],
         accessories: [
           "Matériaux solides et design épuré. Parfait pour un usage quotidien.",
           "Aspect premium et les fermetures éclair sont fluides. Très pratique.",
           "Super taille et confortable à porter. La qualité est top.",
-          "Vraiment stylé et bien fait. Je le recommande."
+          "Vraiment stylé et bien fait. Je le recommande.",
+          "Contient tous mes essentiels sans faire encombrant. Design malin.",
+          "La texture du matériau fait très haut de gamme.",
+          "Durable et la poignée semble solide. Je m'attends à ce que ça dure.",
+          "Design minimaliste mais très fonctionnel. J'adore.",
+		  "Article utile, mais la fermeture est un peu dure.",
+		  "Sympa, contient ce qu'il faut.",
+		  "Bon sac pour le prix, design simple.",
+		  "Fonctionnel et assez solide."
         ]
     },
     ar: {
@@ -809,25 +873,57 @@ function getFakeReviews(productId, cat, lang='en'){
           "الصوت نقي والباس قوي بشكل مدهش. البطارية ممتازة للاستخدام اليومي.",
           "يقترن بسرعة والمكالمات واضحة. العلبة تبدو فاخرة بالنسبة لهذا السعر.",
           "مريح في الأذن وثابت. أستخدمه كل يوم في الجيم.",
-          "بالنسبة للسعر، ممتاز. عزل الضوضاء جيد ومستوى الصوت قوي."
+          "بالنسبة للسعر، ممتاز. عزل الضوضاء جيد ومستوى الصوت قوي.",
+          "بصراحة أفضل من سماعاتي الغالية. تتصل بسرعة بالهاتف.",
+          "جودة التصنيع مبهرة، تبدو قوية وأنيقة جداً.",
+          "جودة الميكروفون رائعة للمكالمات، الكل يسمعني بوضوح.",
+          "غيرت تجربتي في المواصلات، تعزل الضجيج بشكل فعال.",
+		  "سماعات جيدة لكن كابل الشحن قصير قليلاً.",
+		  "جودة صوت مقبولة، جيدة بالنسبة للسعر.",
+		  "تعمل بشكل جيد لكن أحياناً الاتصال يتقطع.",
+		  "ليست سيئة، تناسب أذني جيداً."
         ],
         clothing: [
           "قماش جميل وخياطة نظيفة. المقاس مناسب ويبدو باهظ الثمن.",
           "مريح جداً والمقاس دقيق. يبدو رائعاً في الواقع.",
           "الجودة أفضل من المتوقع. مثالي للارتداء اليومي.",
-          "تصميم وتشطيب رائع. سأطلب لوناً آخر."
+          "تصميم وتشطيب رائع. سأطلب لوناً آخر.",
+          "الخامة ناعمة وتسمح بالتنفس، ممتعة جداً في اللبس.",
+          "كنت متردداً بخصوص المقاس لكنه جاء ممتازاً. سعيد جداً.",
+          "بعد الغسيل يحافظ على شكله. جودة عالية مؤكدة.",
+          "قصة عصرية وملمس فاخر. أتلقى إعجاباً عليها.",
+		  "القماش مقبول، لكن المقاس صغير قليلاً.",
+		  "قميص جميل، لكن يتجعد بسهولة.",
+		  "الخامة عادية، ليست مميزة جداً لكنها قيمة جيدة.",
+		  "المقاس مقبول، ربما أطلب أكبر المرة القادمة."
         ],
         shoes: [
           "مريح جداً وخفيف الوزن. يبدو رائعاً مع الملابس الكاجوال.",
           "ثبات جيد وبناء قوي. قيمة ممتازة مقابل المال.",
           "التصميم نظيف وفخم. يناسب تماماً.",
-          "مستوى الراحة ممتاز. يمكنني ارتداؤه لساعات."
+          "مستوى الراحة ممتاز. يمكنني ارتداؤه لساعات.",
+          "النعل يدعم القدم بشكل جيد، لم أعد أشعر بألم.",
+          "يبدو في الواقع أفضل من الصور. أنيق جداً.",
+          "المقاس مضبوط وجيد التهوية، القدم تبقى باردة.",
+          "بناء متين ولكنه خفيف بشكل مفاجئ على القدم.",
+		  "الأحذية تبدو جيدة لكن تحتاج وقت لتصبح مريحة.",
+		  "مريحة للمشي، لكن ربما ليست للجري.",
+		  "زوج جيد من الأحذية بالنسبة للسعر.",
+		  "ستايل جيد، المقاس ضيق قليلاً."
         ],
         accessories: [
           "مواد قوية وتصميم نظيف. مثالي للاستخدام اليومي.",
           "يبدو فاخراً والسحابات تعمل بسلاسة. عملي جداً.",
           "حجم ممتاز ومريح للحمل. الجودة عالية.",
-          "أنيق حقاً ومصنوع بإتقان. أنصح به."
+          "أنيق حقاً ومصنوع بإتقان. أنصح به.",
+          "يتسع لكل أغراضي دون أن يبدو ضخماً. تصميم ذكي.",
+          "ملمس الخامة يوحي بالفخامة العالية.",
+          "متين والمقبض يبدو قوياً. أتوقع أن يدوم طويلاً.",
+          "تصميم بسيط ولكنه عملي جداً. أحببته.",
+		  "غرض مفيد، لكن السحاب صلب قليلاً.",
+		  "شكل جميل، يحمل ما أحتاجه.",
+		  "حقيبة جيدة للسعر، تصميم بسيط.",
+		  "عملية وقوية بما يكفي للاستخدام اليومي."
         ]
     }
   };
@@ -838,9 +934,33 @@ function getFakeReviews(productId, cat, lang='en'){
 
   const rnd = pseudoRand(hashStr(productId));
   const list = [];
-  const count = (productId === 'wireless_gaming_controller_v2') ? 3 : 1;
+  // Randomly generate between 4 and 8 reviews for variation
+  const count = 4 + Math.floor(rnd() * 5);
+  
+  // Use passed avgRating or default high
+  const avg = (typeof avgRating !== 'undefined') ? avgRating : 4.8;
+  
   for(let i=0;i<count;i++){
-    const rating = 4 + Math.round(rnd()*10)/10; // 4.0 - 5.0
+    let rating;
+    let rVal = rnd(); // 0..1
+    
+    // Logic: 
+    // If average is high (4.7+), mostly 5s (85%), some 4s (15%).
+    // If average is mid (4.5), mixed 5s (60%), 4s (30%), 3s (10%).
+    
+    if (avg >= 4.7) {
+        rating = (rVal > 0.15) ? 5 : 4; 
+    } else if (avg >= 4.0) {
+        if(rVal > 0.40) rating = 5;
+        else if(rVal > 0.15) rating = 4;
+        else rating = 3;
+    } else {
+        if(rVal > 0.60) rating = 5;
+        else if(rVal > 0.30) rating = 4;
+        else if(rVal > 0.10) rating = 3;
+        else rating = 2;
+    }
+
     const name = currentNames[Math.floor(rnd()*currentNames.length)];
     const tag = currentTags[Math.floor(rnd()*currentTags.length)];
     const tarr = currentTexts[cat] || currentTexts.electronics;
@@ -848,7 +968,8 @@ function getFakeReviews(productId, cat, lang='en'){
     const daysAgo = 2 + Math.floor(rnd()*120);
     const d = new Date(Date.now() - daysAgo*24*3600*1000);
     const date = d.toLocaleDateString(undefined, {year:"numeric", month:"short", day:"2-digit"});
-    list.push({name, rating: Math.min(5, Math.max(4, rating)), tag, text, date});
+
+    list.push({name, rating, tag, text, date});
   }
   return list;
 }
@@ -1248,7 +1369,7 @@ const PRODUCTS = [
     name_ar: "بدلة رياضية صيفية كاجوال للرجال مقاس كبير نمط كوري",
     price: 130,
     old: 0,
-    rating: 4.7,
+    rating: 4.5,
     emoji: "🏃",
     desc: "Stay cool and comfortable with this trendy Korean-style summer sport suit. Loose-fit, breathable, and quick-drying, perfect for running and fitness.",
     desc_fr: "Restez au frais et à l'aise avec cet ensemble de sport d'été de style coréen tendance. Coupe ample, respirant et séchage rapide, parfait pour la course et le fitness.",

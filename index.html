@@ -14,6 +14,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Lecomax — Official Store</title>
   <meta name="theme-color" content="#0b1220" />
+  
+  <!-- Open Graph / Link Preview Tags -->
+  <meta property="og:title" content="Lecomax — Official Store" />
+  <meta property="og:description" content="Discover premium electronics, fashion, and accessories. Quality products with fast delivery and excellent service." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://lecomax.com/" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/1.avif" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Lecomax — Official Store" />
+  <meta name="twitter:description" content="Discover premium electronics, fashion, and accessories." />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/1.avif" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -62,8 +75,13 @@
   <div id="home-view">
     <header class="header" id="header">
     <div class="container header__inner">
-      <a class="brand" href="index.html">
-        <span class="brand__name"><span style="color:var(--accent)">L'</span>ECOMAX</span>
+      <a class="brand" href="index.html" aria-label="Lecomax Home">
+        <!-- New Logo Icon -->
+        <svg class="brand__logo" width="34" height="34" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+           <path d="M8 8C8 5.79086 9.79086 4 12 4H16C18.2091 4 20 5.79086 20 8V32C20 34.2091 18.2091 36 16 36H12C9.79086 36 8 34.2091 8 32V8Z" fill="#3b82f6"/>
+           <path d="M22 24C22 21.7909 23.7909 20 26 20H32C34.2091 20 36 21.7909 36 24V32C36 34.2091 34.2091 36 32 36H26C23.7909 36 22 34.2091 22 32V24Z" fill="#0f172a"/>
+        </svg>
+        <span class="brand__name">LECOMAX</span>
       </a>
 
       <!-- Full Width Search Layout -->
@@ -226,7 +244,7 @@
         <div class="slider" aria-label="Featured">
           <div class="slider__track" id="sliderTrack">
             <!-- Server-Side Rendered Slide for Speed -->
-            <div class="slide" style="background: transparent; padding: 0; display: flex; flex-direction: column; gap: 24px; border: none; align-items: center;">
+            <div class="slide" style="background: transparent; padding: 0; display: flex; flex-direction: column; gap: 24px; border: none; align-items: center; position: relative; overflow: hidden; border-radius: 20px;">
               <video 
                 src="https://www.dropbox.com/scl/fi/ijjlsh5g0qtz1txe075sp/1770625431125.mp4?rlkey=977tuc0zdeav4eqa2igf6e12g&st=h27cyv00&raw=1" 
                 autoplay 
@@ -235,70 +253,21 @@
                 playsinline 
                 preload="auto" 
                 fetchpriority="high"
-                style="background-color: #0b1220; object-fit: cover; border-radius: 20px;"
+                style="background-color: #0b1220; object-fit: cover; width: 100%; height: 100%; min-height: 480px; display: block;"
               ></video>
-              <div style="width: 100%; display: flex; justify-content: center; gap: 20px; margin-top: -10px;">
-                <a href="#products" class="hero-btn primary">
-                  Shop Collection
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                </a>
-                <a href="#trending" class="hero-btn secondary">
-                  Trending Now
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.1.2-2.2.5-3.3.3.8.7 1.8 1.5 2.8z"/></svg>
-                </a>
+              
+              <!-- Hero Overlay Title -->
+              <div class="hero-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; z-index: 2; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 100%); pointer-events: none;">
+                  <h1 style="color: #fff; font-size: 3.5rem; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 16px 0; text-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+                    Graceful & Powerful
+                  </h1>
+                  <p style="color: rgba(255,255,255,0.9); font-size: 1.2rem; font-weight: 500; max-width: 500px; line-height: 1.5; margin: 0 0 32px 0;">
+                     Discover the new standard of premium electronics and fashion.
+                  </p>
+                  <a href="#products" class="btn btn--primary" style="pointer-events: auto; padding: 14px 36px; font-size: 1.1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.3); border: none;">
+                     Shop Collection
+                  </a>
               </div>
-              <style>
-                .hero-btn {
-                  display: inline-flex;
-                  align-items: center;
-                  justify-content: center;
-                  gap: 14px;
-                  height: 56px;
-                  padding: 0 32px;
-                  border-radius: 100px;
-                  font-size: 0.85rem;
-                  font-weight: 800;
-                  text-transform: uppercase;
-                  letter-spacing: 0.1em;
-                  text-decoration: none;
-                  white-space: nowrap;
-                  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-                  position: relative;
-                  overflow: hidden;
-                  min-width: 200px;
-                }
-                .hero-btn.primary {
-                  background: #ffffff;
-                  color: #000;
-                  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                  border: 1px solid #ffffff;
-                }
-                .hero-btn.primary:hover {
-                  transform: translateY(-4px);
-                  box-shadow: 0 20px 40px rgba(255, 255, 255, 0.25);
-                }
-                .hero-btn.secondary {
-                  background: rgba(15, 23, 42, 0.6);
-                  backdrop-filter: blur(16px);
-                  -webkit-backdrop-filter: blur(16px);
-                  color: #fff;
-                  border: 1px solid rgba(255, 255, 255, 0.15);
-                  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                }
-                .hero-btn.secondary:hover {
-                    background: rgba(15, 23, 42, 0.85);
-                    border-color: rgba(255, 255, 255, 0.3);
-                    transform: translateY(-4px);
-                }
-                @media (max-width: 480px) {
-                  .hero-btn { 
-                    height: 48px; 
-                    padding: 0 24px; 
-                    font-size: 0.8rem; 
-                    min-width: 160px;
-                  }
-                }
-              </style>
             </div>
           </div>
           <div class="slider__dots" id="sliderDots" aria-label="Dots"></div>
