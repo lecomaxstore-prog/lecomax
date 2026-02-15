@@ -6,13 +6,32 @@
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    ad_storage: 'denied',
+    analytics_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    wait_for_update: 500
+  });
   gtag('js', new Date());
 
-  gtag('config', 'G-9N1CPZQ1HG');
+  gtag('config', 'G-9N1CPZQ1HG', { anonymize_ip: true });
 </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Checkout - Lecomax</title>
+  <title>Complete Secure Checkout - Lecomax</title>
+  <meta name="description" content="Complete your order securely with Lecomax — advanced protection, fast confirmation, and reliable Morocco delivery." />
+  <meta name="robots" content="noindex,follow" />
+  <link rel="canonical" href="https://lecomax.com/checkout.html" />
+  <meta property="og:title" content="Complete Secure Checkout — Lecomax" />
+  <meta property="og:description" content="Complete your order securely with Lecomax — advanced protection, fast confirmation, and reliable Morocco delivery." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://lecomax.com/checkout.html" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/1.avif" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Complete Secure Checkout — Lecomax" />
+  <meta name="twitter:description" content="Complete your order securely with Lecomax — advanced protection, fast confirmation, and reliable Morocco delivery." />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/1.avif" />
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -21,7 +40,7 @@
     <div class="container announcement__inner">
       <span style="display:flex; align-items:center; gap:8px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-        Secure checkout
+        100% secure checkout
       </span>
       <div class="toplinks">
         <a class="toplink" href="index.html">Back to shop</a>
@@ -32,7 +51,7 @@
   <header class="header" id="header">
     <div class="container header__inner">
       <a class="brand" href="index.html">
-        <span class="brand__name"><span style="color:var(--accent)">L'</span>ECOMAX</span>
+        <span class="brand__name"><span class="brand__accent">L'</span>ECOMAX</span>
       </a>
       <div class="actions">
         <a href="index.html" class="iconbtn" aria-label="Home">
@@ -48,49 +67,55 @@
         <nav class="breadcrumb" style="margin: 8px 0 14px 0; font-size: 0.85rem; color: var(--muted); display:flex; align-items:center; gap:8px;">
           <a href="index.html" style="color:var(--muted); text-decoration:none;">Home</a>
           <span style="opacity:0.3">/</span>
-          <span style="color:var(--text); font-weight:500">Checkout</span>
+          <span style="color:var(--text); font-weight:500">Secure Checkout</span>
         </nav>
 
         <div class="product-layout checkout-grid">
           <div>
-            <h1 class="product-title checkout-title">Shipping Information</h1>
+            <h1 class="product-title checkout-title">Delivery Details</h1>
             <form id="checkoutForm" class="card checkout-card">
               <div class="checkout-fields">
-                <div id="checkoutMessage" class="checkout-message" style="display:none;"></div>
+                <div id="checkoutMessage" class="checkout-message" style="display:none;" aria-live="polite"></div>
                 <div class="checkout-field" style="display:none;">
                   <label for="website" class="checkout-label">Website</label>
                   <input id="website" name="website" class="checkout-input" autocomplete="off" tabindex="-1" placeholder="Leave this empty" />
                 </div>
                 <div class="checkout-field">
                   <label for="fullName" class="checkout-label">Full Name</label>
-                  <input id="fullName" name="fullName" required class="checkout-input" placeholder="Full name" />
+                  <input id="fullName" name="fullName" required class="checkout-input" placeholder="Enter your full name" autocomplete="name" />
                 </div>
                 <div class="checkout-field">
                   <label for="phone" class="checkout-label">Phone</label>
-                  <input id="phone" name="phone" required class="checkout-input" placeholder="Phone number" />
+                  <input id="phone" name="phone" required class="checkout-input" placeholder="Enter your phone number" autocomplete="tel" inputmode="tel" />
                 </div>
                 <div class="checkout-field">
                   <label for="address" class="checkout-label">Address</label>
-                  <input id="address" name="address" required class="checkout-input" placeholder="Street address" />
+                  <input id="address" name="address" required class="checkout-input" placeholder="Enter your full address" autocomplete="street-address" />
                 </div>
                 <div class="checkout-field checkout-field--row">
                   <div>
                     <label for="city" class="checkout-label">City</label>
-                    <input id="city" name="city" required class="checkout-input" placeholder="City" />
+                    <input id="city" name="city" required class="checkout-input" placeholder="Enter your city" autocomplete="address-level2" />
                   </div>
                   <div>
                     <label for="postalCode" class="checkout-label">Postal Code</label>
-                    <input id="postalCode" name="postalCode" required class="checkout-input" placeholder="Postal code" />
+                    <input id="postalCode" name="postalCode" required class="checkout-input" placeholder="Enter your postal code" autocomplete="postal-code" inputmode="numeric" />
                   </div>
                 </div>
-                <button class="btn btn--primary checkout-submit" type="submit">Place Order</button>
-                <div class="checkout-hint">We will contact you to confirm delivery details.</div>
+                <div class="checkout-field">
+                  <div id="turnstileWidget" class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="light"></div>
+                </div>
+                <button class="btn btn--primary checkout-submit" type="submit">Confirm Order</button>
+                <div class="checkout-hint">Our team will contact you shortly to confirm your order and delivery details.</div>
+                <div class="checkout-hint" style="margin-top:8px; font-size:0.86rem;">
+                  ✔ Official warranty • ✔ Advanced anti-bot protection • ✔ Fast delivery in Morocco
+                </div>
               </div>
             </form>
           </div>
 
           <aside class="card checkout-card checkout-summary">
-            <h2 class="checkout-summary__title">Order Summary</h2>
+            <h2 class="checkout-summary__title">Your Order Summary</h2>
             <div id="checkoutItems" class="checkout-items"></div>
             <div class="totals checkout-totals">
               <span class="muted">Total</span>
@@ -112,14 +137,16 @@
     <div class="checkout-modal__backdrop"></div>
     <div class="checkout-modal__card">
       <div class="checkout-modal__icon">✓</div>
-      <h3>Order received</h3>
-      <p class="muted">We will contact you to confirm shipping details.</p>
-      <button class="btn btn--primary" id="checkoutDone">Continue</button>
+      <h3>Order received successfully</h3>
+      <p class="muted">Thank you. We’ll contact you shortly to confirm details and finalize delivery.</p>
+      <button class="btn btn--primary" id="checkoutDone">Back to shop</button>
     </div>
   </div>
 
   <script src="app.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script src="checkout.js"></script>
+  <script src="cookie-consent.js"></script>
 <!--Start of Tawk.to Script-->
 <script type="text/javascript">
 var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
@@ -135,3 +162,4 @@ s0.parentNode.insertBefore(s1,s0);
 <!--End of Tawk.to Script-->
 </body>
 </html>
+

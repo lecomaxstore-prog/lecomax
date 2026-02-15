@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /checkout.html
+Disallow: /checkout-fr.html
+Disallow: /checkout-ar.html
+Disallow: /thank-you.html
+Disallow: /thank-you-fr.html
+Disallow: /thank-you-ar.html
+Disallow: /track-order.html
+
+Sitemap: https://lecomax.com/sitemap.xml

@@ -6,13 +6,23 @@
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    ad_storage: 'denied',
+    analytics_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    wait_for_update: 500
+  });
   gtag('js', new Date());
 
-  gtag('config', 'G-9N1CPZQ1HG');
+  gtag('config', 'G-9N1CPZQ1HG', { anonymize_ip: true });
 </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Product Details - Lecomax</title>
+  <meta name="description" content="Explore detailed Lecomax product pages with pricing, reviews, options, and secure checkout flow." />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" href="https://lecomax.com/product.html" />
 
   <!-- Open Graph / Link Preview Tags -->
   <meta property="og:title" content="Premium Product - Lecomax" />
@@ -33,8 +43,8 @@
   <!-- Announcement Bar -->
   <div class="announcement">
     <div class="container announcement__inner">
-      <span style="display:flex; align-items:center; gap:8px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+      <span class="announcement-note">
+        <svg class="announcement-note__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
         Free shipping on all products
       </span>
       <div class="toplinks">
@@ -63,7 +73,7 @@
 
       <div class="search-container">
         <div class="searchbox">
-          <input type="search" placeholder="Search..." disabled style="opacity:0.7">
+          <input type="search" placeholder="Search..." disabled class="search-input-disabled">
           <button class="searchbox__submit" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
         </div>
       </div>
@@ -83,7 +93,7 @@
   <main class="section">
     <div class="container" id="product-content">
       <!-- Content injected by JS -->
-      <div style="padding:100px; text-align:center; color:var(--muted)">Loading product...</div>
+      <div class="product-loading">Loading product...</div>
     </div>
   </main>
 
@@ -110,9 +120,32 @@
   </aside>
 
 <script src="app.js"></script>
+<script src="cookie-consent.js"></script>
 <script>
   // Current product global
   let currentProduct = null;
+  let currentUIText = null;
+  let productGalleryItems = [];
+  let activeGalleryIndex = 0;
+
+  document.addEventListener('keydown', (e) => {
+    const viewer = document.getElementById('imageViewer');
+    if(!viewer || !viewer.classList.contains('is-open')) return;
+    if(e.key === 'Escape') {
+      e.preventDefault();
+      closeImageViewer();
+      return;
+    }
+    if(e.key === 'ArrowRight') {
+      e.preventDefault();
+      scrollImageViewer(1);
+      return;
+    }
+    if(e.key === 'ArrowLeft') {
+      e.preventDefault();
+      scrollImageViewer(-1);
+    }
+  });
 
   // Listen for language changes to re-render product details
   window.addEventListener('languageChanged', (e) => {
@@ -120,10 +153,6 @@
       const id = params.get("id");
       if(id && typeof renderProductDetail === 'function') {
           renderProductDetail(id);
-          // Re-init zoom
-          if(typeof enableProductImageZoom === 'function') {
-             setTimeout(enableProductImageZoom, 100); 
-          }
       }
   });
 
@@ -139,7 +168,7 @@
   });
 
   function showNotFound() {
-      document.getElementById("product-content").innerHTML = "<div style='text-align:center; padding: 60px;'><h2>Product Not Found</h2><br><a href='index.html' class='btn btn--primary'>Continue Shopping</a></div>";
+      document.getElementById("product-content").innerHTML = "<div class='product-not-found'><h2>Product Not Found</h2><br><a href='index.html' class='btn btn--primary'>Continue Shopping</a></div>";
   }
 
   function renderProductDetail(id) {
@@ -165,9 +194,17 @@
              reviews_title: "Customer Reviews",
              based_on: "Based on",
              reviews: "reviews",
+           home: "Home",
+           back: "Go Back",
              you_might_like: "You might also like",
              verified_buyer: "Verified Buyer",
              add_to_cart: "Add to Cart",
+           size: "Size",
+           select: "Select",
+           please_select_size: "Please select a size",
+           added_to_cart: "Added to Cart",
+           added_to_favorites: "Added to Favorites",
+           removed_from_favorites: "Removed from Favorites",
              save: "Save",
              free_shipping_title: "Free Express",
              free_shipping_desc: "Delivery in 3 days",
@@ -184,9 +221,17 @@
              reviews_title: "Avis Clients",
              based_on: "Basé sur",
              reviews: "avis",
+           home: "Accueil",
+           back: "Retour",
              you_might_like: "Vous aimerez peut-être aussi",
              verified_buyer: "Acheteur Vérifié",
              add_to_cart: "Ajouter au Panier",
+           size: "Taille",
+           select: "Choisir",
+           please_select_size: "Veuillez choisir une taille",
+           added_to_cart: "Ajouté au panier",
+           added_to_favorites: "Ajouté aux favoris",
+           removed_from_favorites: "Retiré des favoris",
              save: "Économisez",
              free_shipping_title: "Livraison Express",
              free_shipping_desc: "Gratuite en 3 jours",
@@ -203,9 +248,17 @@
              reviews_title: "آراء العملاء",
              based_on: "بناءً على",
              reviews: "مراجعة",
+           home: "الرئيسية",
+           back: "رجوع",
              you_might_like: "قد يعجبك أيضاً",
              verified_buyer: "مشتري موثق",
              add_to_cart: "أضف إلى السلة",
+           size: "المقاس",
+           select: "اختر",
+           please_select_size: "يرجى اختيار المقاس",
+           added_to_cart: "تمت الإضافة إلى السلة",
+           added_to_favorites: "تمت الإضافة إلى المفضلة",
+           removed_from_favorites: "تمت الإزالة من المفضلة",
              save: "وفر",
              free_shipping_title: "شحن سريع",
              free_shipping_desc: "توصيل خلال 3 أيام",
@@ -220,6 +273,7 @@
      };
      
      const txt = UI_TEXT[lang] || UI_TEXT.en;
+    currentUIText = txt;
      
      // Spec Key/Value Translations (Best Effort)
      const SPEC_TRANS = {
@@ -264,6 +318,8 @@
 
 
      currentProduct = p;
+  productGalleryItems = Array.isArray(p.images) ? p.images.filter(Boolean) : [];
+  activeGalleryIndex = 0;
 
      // Determine colors
      let colorHtml = "";
@@ -277,9 +333,9 @@
                 ${p.colors.map((c, i) => `
                    <button class="color-swatch ${c.soldOut ? 'sold-out' : ''} ${c.name === defaultColor.name ? 'selected' : ''}" 
                      onclick="if(!this.classList.contains('sold-out')) selectColor(this, '${c.img}', '${c.name.replace(/'/g, "\\'")}')" 
-                     style="background:${c.hex}; ${c.soldOut ? 'opacity:0.4; cursor:not-allowed; position:relative;' : ''}" 
+                     data-swatch-color="${c.hex}"
                      title="${c.name} ${c.soldOut ? '(Sold Out)' : ''}">
-                     ${c.soldOut ? '<span style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:20px; text-shadow:0 0 2px #000;">✕</span>' : ''}
+                     ${c.soldOut ? '<span class="color-swatch__x">✕</span>' : ''}
                    </button>
                 `).join("")}
              </div>
@@ -299,9 +355,9 @@
      // Add Video Thumbnail if exists
      if(p.video) {
         thumbHtml += `
-            <div class="thumb-btn video-thumb" onclick="setMainVideo(this, '${p.video}')" style="position:relative; display:flex; align-items:center; justify-content:center; background:#000;">
-              <div style="position:absolute; width:24px; height:24px; background:rgba(0,0,0,0.6); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px;">▶</div>
-              <video src="${p.video}" muted style="width:100%; height:100%; object-fit:cover; opacity:0.7;"></video>
+            <div class="thumb-btn video-thumb" onclick="setMainVideo(this, '${p.video}')">
+              <div class="video-thumb__play">▶</div>
+              <video src="${p.video}" muted class="video-thumb__media" preload="metadata"></video>
             </div>
         `;
      }
@@ -309,7 +365,7 @@
      if(p.images && p.images.length > 0) {
          thumbHtml += p.images.map((src, i) => `
             <div class="thumb-btn ${i===0 && !p.video ?'active':''}" onclick="setMainImage(this, '${src.replace(/'/g, "\\'")}')">
-              <img src="${src}" alt="">
+              <img src="${src}" alt="${p.name}" loading="lazy" decoding="async">
             </div>
          `).join("");
      }
@@ -318,7 +374,7 @@
      let specsHtml = "";
      if (p.specs) {
         specsHtml = `<div class="specs-block" id="specs">
-            <h3 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 30px;">${txt.specs_title}</h3>
+            <h3 class="section-title">${txt.specs_title}</h3>
             <div class="specs-grid-layout">
                 ${Object.entries(p.specs).map(([category, items]) => `
                     <div class="spec-group">
@@ -364,34 +420,34 @@
      const ratingSummaryHtml = `
         <div class="rating-summary">
               <div class="rating-overall">
-                 <div class="rating-score">${p.rating.toFixed(1)}</div>
-                 <div class="rating-stars-lg" style="color: #f59e0b;">${typeof starIcons === 'function' ? starIcons(Math.round(p.rating)) : "★★★★★"}</div>
+                 <div class="rating-score">${p.rating.toFixed(1)} <span class="rating-out-of">/ 5</span></div>
+                 <div class="rating-stars-lg rating-stars-accent">${typeof starIcons === 'function' ? starIcons(Math.round(p.rating)) : "★★★★★"}</div>
                  <div class="rating-count-lg">${txt.based_on} ${reviewCount} ${txt.reviews}</div>
               </div>
           <div class="rating-bars">
              <div class="rating-bar-row">
                  <span class="r-label">5 ★</span>
-                 <div class="r-track"><div class="r-fill" style="width:${(rDist[0]/reviewCount*100).toFixed(0)}%"></div></div>
+                 <div class="r-track"><div class="r-fill" data-width="${(rDist[0]/reviewCount*100).toFixed(0)}"></div></div>
                  <span class="r-count">${rDist[0]}</span>
              </div>
              <div class="rating-bar-row">
                  <span class="r-label">4 ★</span>
-                 <div class="r-track"><div class="r-fill" style="width:${(rDist[1]/reviewCount*100).toFixed(0)}%"></div></div>
+                 <div class="r-track"><div class="r-fill" data-width="${(rDist[1]/reviewCount*100).toFixed(0)}"></div></div>
                  <span class="r-count">${rDist[1]}</span>
              </div>
              <div class="rating-bar-row">
                  <span class="r-label">3 ★</span>
-                 <div class="r-track"><div class="r-fill" style="width:${(rDist[2]/reviewCount*100).toFixed(0)}%"></div></div>
+                 <div class="r-track"><div class="r-fill" data-width="${(rDist[2]/reviewCount*100).toFixed(0)}"></div></div>
                  <span class="r-count">${rDist[2]}</span>
              </div>
              <div class="rating-bar-row">
                  <span class="r-label">2 ★</span>
-                 <div class="r-track"><div class="r-fill" style="width:${(rDist[3]/reviewCount*100).toFixed(0)}%"></div></div>
+                 <div class="r-track"><div class="r-fill" data-width="${(rDist[3]/reviewCount*100).toFixed(0)}"></div></div>
                  <span class="r-count">${rDist[3]}</span>
              </div>
              <div class="rating-bar-row">
                  <span class="r-label">1 ★</span>
-                 <div class="r-track"><div class="r-fill" style="width:${(rDist[4]/reviewCount*100).toFixed(0)}%"></div></div>
+                 <div class="r-track"><div class="r-fill" data-width="${(rDist[4]/reviewCount*100).toFixed(0)}"></div></div>
                  <span class="r-count">${rDist[4]}</span>
              </div>
           </div>
@@ -414,7 +470,7 @@
                            ${txt.verified_buyer}
                         </span>
                     </div>
-                    <div class="review-stars" style="color: #f59e0b;">${typeof starIcons === 'function' ? starIcons(Math.round(r.rating)) : "★".repeat(Math.round(r.rating))}</div>
+                    <div class="review-stars review-stars-accent">${typeof starIcons === 'function' ? starIcons(Math.round(r.rating)) : "★".repeat(Math.round(r.rating))}</div>
                 </div>
                 <div class="review-date">${r.date}</div>
             </div>
@@ -430,31 +486,31 @@
       const html = `
         <div class="product-page">
            <!-- Improved Breadcrumb -->
-           <nav class="breadcrumb" style="margin: 8px 0 14px 0; font-size: 0.85rem; color: var(--muted); display:flex; align-items:center; gap:8px;">
-              <button onclick="history.back()" style="border:none; background:none; padding:8px; margin-right:4px; margin-left:-8px; cursor:pointer; color:var(--text); display:flex; align-items:center; border-radius:50%; transition:background 0.2s" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='none'" title="Go Back">
+            <nav class="breadcrumb breadcrumb--product">
+              <button class="breadcrumb-back" onclick="history.back()" title="${txt.back}">
                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
               </button>
               
-              <a href="index.html" style="color:var(--muted); text-decoration:none; transition:color 0.2s; display:flex; align-items:center; gap:4px">
+              <a href="index.html" class="breadcrumb-home">
                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                 Home
+                  ${txt.home}
               </a>
-              <span style="opacity:0.3">/</span>
-              <a href="index.html?cat=${p.cat}" style="color:var(--muted); text-decoration:none; transition:color 0.2s">${label(p.cat)}</a>
-              <span style="opacity:0.3">/</span>
-              <span style="color:var(--text); font-weight:500">${p.name}</span>
+              <span class="breadcrumb-sep">/</span>
+              <a href="index.html?cat=${p.cat}" class="breadcrumb-link">${label(p.cat)}</a>
+              <span class="breadcrumb-sep">/</span>
+              <span class="breadcrumb-current">${p.name}</span>
            </nav>
         
         <div class="product-layout">
             <!-- Gallery Column -->
             <div class="product-gallery">
-                <div class="main-image-wrapper" style="position:relative;">
-                    <div class="zoom-container" style="position:relative; overflow:hidden;">
-                      <img id="ppMainImg" src="${p.images && p.images[0] ? p.images[0] : ''}" alt="${p.name}" style="${(p.images && p.images.length) ? '' : 'display:none'}; cursor: zoom-in; transition: opacity 0.4s ease, transform 0.2s;">
-                      <div id="zoomLens" style="display:none; position:absolute; pointer-events:none; border:2px solid #3b82f6; border-radius:50%; width:120px; height:120px; background:rgba(59,130,246,0.08); z-index:10;"></div>
+                <div class="main-image-wrapper">
+                    <div class="zoom-container">
+                      <img id="ppMainImg" class="pp-main-img ${(p.images && p.images.length) ? '' : 'is-hidden'}" src="${p.images && p.images[0] ? p.images[0] : ''}" alt="${p.name}" loading="eager" decoding="async" fetchpriority="high">
+                      <div id="zoomLens" class="zoom-lens"></div>
                     </div>
-                    <video id="ppMainVideo" controls autoplay loop playsinline muted style="display:none; width:100%; height:100%; object-fit:contain; position:absolute; top:0; left:0; background:#fff;"></video>
-                    ${!(p.images && p.images.length) ? `<div style="font-size:8rem">${p.emoji}</div>` : ''}
+                    <video id="ppMainVideo" class="pp-main-video" controls autoplay loop playsinline muted></video>
+                  <div id="ppImageFallback" class="product-image-fallback ${!(p.images && p.images.length) ? 'is-visible' : ''}">${p.emoji}</div>
                 </div>
                 <div class="thumbnails">
                     ${thumbHtml}
@@ -463,21 +519,21 @@
             
             <!-- Info Column -->
             <div class="product-info-col">
-                <div class="product-cat" style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:100px; background:#f0f9ff; color:#0284c7; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.04em;">
+                <div class="product-cat">
                     ${label(p.cat)}
                 </div>
-                <h1 class="product-title" style="margin: 8px 0; font-size: clamp(2rem, 3vw, 2.8rem); line-height: 1.1; letter-spacing: -0.02em; font-weight: 800; color: var(--text);">${p.name}</h1>
+                <h1 class="product-title">${p.name}</h1>
                 
-                <div class="price-block" style="margin-bottom: 20px;">
-                    <div class="current-price" style="font-size: 2.2rem; font-weight: 800; color: #1e293b;">${p.price} MAD</div>
-                    ${p.old ? `<div class="old-price" style="font-size: 1.2rem; margin-left:8px; position:relative; top:2px;">${p.old} MAD</div>` : ''}
-                    ${p.old ? `<div class="save-badge" style="background:#dc2626; margin-left:12px; padding:4px 10px; border-radius:6px; text-transform:uppercase;">Save ${Math.round(((p.old - p.price)/p.old)*100)}%</div>` : ''}
+                <div class="price-block">
+                  <div class="current-price">${p.price} MAD</div>
+                  ${p.old ? `<div class="old-price">${p.old} MAD</div>` : ''}
+                  ${p.old ? `<div class="save-badge">${txt.save} ${Math.round(((p.old - p.price)/p.old)*100)}%</div>` : ''}
                 </div>
 
-                <div class="rating-block" style="color: #f59e0b;">
-                    ${typeof starIcons === 'function' ? starIcons(Math.round(p.rating)) : '<span class="stars" style="letter-spacing:1px;">★★★★★</span>'} 
-                    <span style="color:var(--text); font-weight:600; margin-left:4px;">${p.rating.toFixed(1)}</span>
-                    <a href="#reviews" class="muted" style="text-decoration:underline; font-weight:400; margin-left:6px; color:var(--muted);">(${reviewCount} reviews)</a>
+                <div class="rating-block">
+                  ${typeof starIcons === 'function' ? starIcons(Math.round(p.rating)) : '<span class="stars rating-stars-fallback">★★★★★</span>'} 
+                  <span class="rating-value">${p.rating.toFixed(1)}</span>
+                  <a href="#reviews" class="muted rating-link">(${reviewCount} ${txt.reviews})</a>
                 </div>
                 
                 <p class="description">
@@ -489,49 +545,49 @@
                 ${colorHtml}
                 ${sizeHtml}
 
-                <div class="cart-actions" style="margin-top: 24px; display: grid; grid-template-columns: 140px 1fr auto; gap: 12px; align-items: stretch;">
-                     <div class="qty-box" style="height: 54px; display: flex; align-items: center; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff;">
-                        <button class="qty-btn" onclick="updateQty(-1)" style="flex: 1; height: 100%; border: none; background: none; cursor: pointer; font-size: 1.2rem; color: var(--text); transition: background 0.2s;">−</button>
-                        <input id="qtyInput" class="qty-val" value="1" readonly style="width: 40px; text-align: center; border: none; background: none; font-weight: 700; font-size: 1.1rem; color: var(--text);">
-                        <button class="qty-btn" onclick="updateQty(1)" style="flex: 1; height: 100%; border: none; background: none; cursor: pointer; font-size: 1.2rem; color: var(--text); transition: background 0.2s;">+</button>
+                <div class="cart-actions">
+                   <div class="qty-box">
+                    <button class="qty-btn" onclick="updateQty(-1)">−</button>
+                    <input id="qtyInput" class="qty-val" value="1" readonly>
+                    <button class="qty-btn" onclick="updateQty(1)">+</button>
                      </div>
                      
-                    <button class="btn btn--primary add-btn" onclick="handleAddToCart('${p.id}')" style="height: 54px; border-radius: 12px; font-size: 1.1rem; letter-spacing: 0.02em; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);">
+                    <button id="addToCartBtn" class="btn btn--primary add-btn" onclick="handleAddToCart('${p.id}')">
                         ${txt.add_to_cart}
                      </button>
                      
-                     <button class="fav-action-btn" onclick="handleAddToCart('${p.id}', true)" title="Add to Wishlist" style="height: 54px; width: 54px; border-radius: 12px; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #fff; transition: all 0.2s;">
+                    <button id="favActionBtn" class="fav-action-btn" onclick="handleToggleFavorite('${p.id}')" title="${txt.added_to_favorites}">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                      </button>
                 </div>
                 
-                <div class="trust-bar" style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
-                    <div class="trust-item" style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
-                        <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0284c7; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                <div class="trust-bar">
+                  <div class="trust-item">
+                    <div class="trust-icon trust-icon--shipping">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                         </div>
-                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">${txt.free_shipping_title}<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">${txt.free_shipping_desc}</span></div>
+                    <div class="trust-copy">${txt.free_shipping_title}<br><span>${txt.free_shipping_desc}</span></div>
                     </div>
                     
-                    <div class="trust-item" style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
-                        <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #16a34a; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                  <div class="trust-item">
+                    <div class="trust-icon trust-icon--warranty">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                         </div>
-                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">${txt.warranty_title}<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">${txt.warranty_desc}</span></div>
+                    <div class="trust-copy">${txt.warranty_title}<br><span>${txt.warranty_desc}</span></div>
                     </div>
 
-                    <div class="trust-item" style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
-                        <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #ca8a04; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                  <div class="trust-item">
+                    <div class="trust-icon trust-icon--returns">
                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                         </div>
-                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">${txt.returns_title}<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">${txt.returns_desc}</span></div>
+                    <div class="trust-copy">${txt.returns_title}<br><span>${txt.returns_desc}</span></div>
                     </div>
                     
-                     <div class="trust-item" style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
-                        <div style="width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #7c3aed; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                   <div class="trust-item">
+                    <div class="trust-icon trust-icon--payment">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
                         </div>
-                        <div style="font-size: 0.9rem; font-weight: 700; color: #334155;">${txt.payment_title}<br><span style="font-weight:400; font-size:0.8rem; color:#64748b;">${txt.payment_desc}</span></div>
+                    <div class="trust-copy">${txt.payment_title}<br><span>${txt.payment_desc}</span></div>
                     </div>
                 </div>
             </div>
@@ -540,21 +596,32 @@
         ${specsHtml}
 
         <!-- REVIEWS SECTION -->
-        <div class="reviews-section" id="reviews" style="margin-top: 80px;">
-            <h3 style="font-size:1.6rem; margin-bottom:30px; font-weight:800;">${txt.reviews_title}</h3>
+        <div class="reviews-section" id="reviews">
+          <h3 class="section-title">${txt.reviews_title}</h3>
             ${ratingSummaryHtml}
             ${reviewsHtml}
         </div>
         
         <!-- RELATED PRODUCTS -->
-        <div class="related-section" style="margin-top:80px; padding-top:40px; border-top:1px solid var(--line)">
-             <h3 style="font-size:1.6rem; margin-bottom:24px; font-weight:800;">${txt.you_might_like}</h3>
-             <div class="horizontal-scroll" id="relatedList" style="display:flex; gap:16px; overflow-x:auto; padding-bottom:20px;"></div>
+        <div class="related-section">
+           <h3 class="section-title section-title--related">${txt.you_might_like}</h3>
+           <div class="horizontal-scroll related-scroll" id="relatedList"></div>
+        </div>
+
+        <div id="imageViewer" class="image-viewer" aria-hidden="true" role="dialog" aria-label="Product image viewer">
+          <div class="image-viewer__backdrop" onclick="closeImageViewer()"></div>
+          <button type="button" class="image-viewer__close" onclick="closeImageViewer()" aria-label="Close image viewer">✕</button>
+          <button type="button" class="image-viewer__nav image-viewer__nav--prev" onclick="scrollImageViewer(-1)" aria-label="Previous image">❮</button>
+          <img id="imageViewerImg" class="image-viewer__img" src="" alt="Product image preview">
+          <button type="button" class="image-viewer__nav image-viewer__nav--next" onclick="scrollImageViewer(1)" aria-label="Next image">❯</button>
+          <div id="imageViewerCounter" class="image-viewer__counter"></div>
         </div>
       </div>
      `;
      
      document.getElementById("product-content").innerHTML = html;
+    applyDynamicProductStyles();
+    setupProductImageState();
 
      // Auto-play video if present
      if (p.video) {
@@ -580,7 +647,136 @@
      const defaultColor = (p.colors && p.colors.find(c => !c.soldOut)) || (p.colors && p.colors[0]);
      if(defaultColor) renderSizes(defaultColor.name);
      else renderSizes(null); // Fallback to global specs
+
+      bindMainImageViewerTrigger();
+
+      syncFavoriteButton(p.id);
+      updateAddToCartState();
   }
+
+  function applyDynamicProductStyles() {
+    document.querySelectorAll('.color-swatch[data-swatch-color]').forEach((swatch) => {
+      const color = swatch.dataset.swatchColor;
+      if (color) swatch.style.setProperty('--swatch-color', color);
+    });
+
+    document.querySelectorAll('.r-fill[data-width]').forEach((bar) => {
+      const value = Number(bar.dataset.width);
+      const normalized = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0;
+      bar.style.width = `${normalized}%`;
+    });
+  }
+
+  function setupProductImageState() {
+    const wrapper = document.querySelector('.main-image-wrapper');
+    const img = document.getElementById('ppMainImg');
+    const fallback = document.getElementById('ppImageFallback');
+
+    if(!wrapper || !img) return;
+
+    const setLoading = (isLoading) => {
+      wrapper.classList.toggle('is-loading', !!isLoading);
+    };
+
+    const toggleFallback = (visible) => {
+      if(fallback) fallback.classList.toggle('is-visible', !!visible);
+    };
+
+    img.onload = () => {
+      setLoading(false);
+      toggleFallback(false);
+      img.classList.remove('is-hidden');
+    };
+
+    img.onerror = () => {
+      setLoading(false);
+      img.classList.add('is-hidden');
+      toggleFallback(true);
+    };
+
+    if(!img.src) {
+      setLoading(false);
+      toggleFallback(true);
+      img.classList.add('is-hidden');
+      return;
+    }
+
+    if(img.complete && img.naturalWidth > 0) {
+      setLoading(false);
+      toggleFallback(false);
+      img.classList.remove('is-hidden');
+      return;
+    }
+
+    setLoading(true);
+    toggleFallback(false);
+  }
+
+  function getGalleryIndexBySrc(src) {
+    if(!src || !productGalleryItems.length) return 0;
+    try {
+      const target = new URL(src, window.location.href).href;
+      const found = productGalleryItems.findIndex((item) => new URL(item, window.location.href).href === target);
+      return found >= 0 ? found : 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  function updateImageViewerFrame() {
+    const viewer = document.getElementById('imageViewer');
+    const img = document.getElementById('imageViewerImg');
+    const counter = document.getElementById('imageViewerCounter');
+    if(!viewer || !img || !productGalleryItems.length) return;
+
+    const total = productGalleryItems.length;
+    if(activeGalleryIndex < 0) activeGalleryIndex = 0;
+    if(activeGalleryIndex > total - 1) activeGalleryIndex = total - 1;
+
+    img.src = productGalleryItems[activeGalleryIndex];
+    counter.textContent = `${activeGalleryIndex + 1} / ${total}`;
+
+    const prev = viewer.querySelector('.image-viewer__nav--prev');
+    const next = viewer.querySelector('.image-viewer__nav--next');
+    const hideNav = total < 2;
+    if(prev) prev.style.display = hideNav ? 'none' : 'inline-flex';
+    if(next) next.style.display = hideNav ? 'none' : 'inline-flex';
+  }
+
+  function bindMainImageViewerTrigger() {
+    const img = document.getElementById('ppMainImg');
+    if(!img) return;
+    img.onclick = () => {
+      const src = img.getAttribute('src') || img.src;
+      openImageViewer(getGalleryIndexBySrc(src));
+    };
+  }
+
+  window.openImageViewer = function(index) {
+    const viewer = document.getElementById('imageViewer');
+    if(!viewer || !productGalleryItems.length) return;
+    activeGalleryIndex = Number.isFinite(Number(index)) ? Number(index) : 0;
+    updateImageViewerFrame();
+    viewer.classList.add('is-open');
+    viewer.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('image-viewer-open');
+  };
+
+  window.closeImageViewer = function() {
+    const viewer = document.getElementById('imageViewer');
+    if(!viewer) return;
+    viewer.classList.remove('is-open');
+    viewer.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('image-viewer-open');
+  };
+
+  window.scrollImageViewer = function(step) {
+    if(!productGalleryItems.length) return;
+    const total = productGalleryItems.length;
+    if(total < 2) return;
+    activeGalleryIndex = (activeGalleryIndex + step + total) % total;
+    updateImageViewerFrame();
+  };
 
   function renderSizes(colorName) {
       const p = currentProduct;
@@ -616,9 +812,10 @@
           return;
       }
 
-      const html = `<div class="options-wrap" style="margin-top:16px;">
-         <div class="option-label">Size: <span id="sizeValue" class="muted" style="font-weight:700; margin-left:6px;">Select</span></div>
-         <div class="sizes-list" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+      const txt = currentUIText || { size: "Size", select: "Select" };
+      const html = `<div class="options-wrap options-wrap--sizes">
+        <div class="option-label">${txt.size}: <span id="sizeValue" data-placeholder="${txt.select}" class="muted size-value">${txt.select}</span></div>
+         <div class="sizes-list">
              ${sizes.map((s) => {
                // Global availability check (optional override)
                const globalAvailable = (p.sizesAvailability || {})[s] !== false;
@@ -633,6 +830,7 @@
        </div>`;
        
        container.innerHTML = html;
+        updateAddToCartState();
   }
 
   window.updateQty = function(d) {
@@ -651,6 +849,7 @@
         btn.classList.add("selected");
         const sv = document.getElementById("sizeValue");
         if(sv) sv.textContent = size;
+        updateAddToCartState();
         return false;
       };
 
@@ -658,7 +857,21 @@
       const sv = document.getElementById("sizeValue");
       if(!sv) return "";
       const v = (sv.textContent || "").trim();
-      return v === "Select" ? "" : v;
+      const placeholder = (sv.dataset.placeholder || "Select").trim();
+      return v === placeholder ? "" : v;
+    }
+
+    function productNeedsSizeSelection(){
+      const selectable = document.querySelectorAll(".size-pill:not(.is-soldout):not([disabled])");
+      return selectable.length > 0;
+    }
+
+    function updateAddToCartState(){
+      const addBtn = document.getElementById("addToCartBtn");
+      if(!addBtn) return;
+      const needsSize = productNeedsSizeSelection();
+      const hasSize = !!getSelectedSize();
+      addBtn.disabled = needsSize && !hasSize;
     }
 
     function getProductSizes(id){
@@ -672,17 +885,56 @@
       const sizes = getProductSizes(id);
       const size = getSelectedSize();
       if(sizes.length && !size){
-        showToast("Please select a size");
+        showToast((currentUIText && currentUIText.please_select_size) || "Please select a size");
         return;
       }
       addToCart(id, getQty(), size || null);
-        showToast("Added to Cart");
+      showToast((currentUIText && currentUIText.added_to_cart) || "Added to Cart");
     };
+
+  window.handleToggleFavorite = function(id) {
+    let favs = [];
+    try {
+      favs = JSON.parse(localStorage.getItem("lc_favs_v2") || "[]");
+      if(!Array.isArray(favs)) favs = [];
+    } catch (e) {
+      favs = [];
+    }
+
+    const idx = favs.indexOf(id);
+    const adding = idx === -1;
+    if(adding) favs.push(id);
+    else favs.splice(idx, 1);
+
+    localStorage.setItem("lc_favs_v2", JSON.stringify(favs));
+    syncFavoriteButton(id);
+    showToast(adding
+      ? ((currentUIText && currentUIText.added_to_favorites) || "Added to Favorites")
+      : ((currentUIText && currentUIText.removed_from_favorites) || "Removed from Favorites"));
+  };
+
+  function syncFavoriteButton(id){
+    const btn = document.getElementById("favActionBtn");
+    if(!btn) return;
+    let favs = [];
+    try {
+      favs = JSON.parse(localStorage.getItem("lc_favs_v2") || "[]");
+      if(!Array.isArray(favs)) favs = [];
+    } catch (e) {
+      favs = [];
+    }
+    const active = favs.includes(id);
+    btn.classList.toggle("is-active", active);
+    const svg = btn.querySelector("svg");
+    if(svg) svg.setAttribute("fill", active ? "currentColor" : "none");
+  }
 
   // Gallery Logic
   window.setMainImage = function(btn, src) {
       const img = document.getElementById("ppMainImg");
       const vid = document.getElementById("ppMainVideo");
+      const wrapper = document.querySelector('.main-image-wrapper');
+      const fallback = document.getElementById('ppImageFallback');
       
       if(vid) {
           vid.pause();
@@ -691,7 +943,10 @@
       
       if(img) {
           img.style.display = "block";
+        img.classList.remove('is-hidden');
           img.style.opacity = "0"; 
+        if(wrapper) wrapper.classList.add('is-loading');
+        if(fallback) fallback.classList.remove('is-visible');
           setTimeout(() => {
               img.src = src;
               img.style.opacity = "1";
@@ -705,8 +960,12 @@
   window.setMainVideo = function(btn, src) {
       const img = document.getElementById("ppMainImg");
       const vid = document.getElementById("ppMainVideo");
+      const wrapper = document.querySelector('.main-image-wrapper');
+      const fallback = document.getElementById('ppImageFallback');
       
       if(img) img.style.display = "none";
+      if(wrapper) wrapper.classList.remove('is-loading');
+      if(fallback) fallback.classList.remove('is-visible');
       
       if(vid) {
           vid.src = src;
@@ -735,6 +994,8 @@
       if(imgUrl && imgUrl !== 'undefined') {
         const img = document.getElementById("ppMainImg");
         const vid = document.getElementById("ppMainVideo");
+        const wrapper = document.querySelector('.main-image-wrapper');
+        const fallback = document.getElementById('ppImageFallback');
         
         // Switch to image mode
         if(vid) {
@@ -743,7 +1004,10 @@
         }
         if(img) {
           img.style.display = "block";
+          img.classList.remove('is-hidden');
           img.style.opacity = "0";
+          if(wrapper) wrapper.classList.add('is-loading');
+          if(fallback) fallback.classList.remove('is-visible');
           setTimeout(() => {
             img.src = imgUrl;
             img.style.opacity = "1";

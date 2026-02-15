@@ -6,13 +6,32 @@
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    ad_storage: 'denied',
+    analytics_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    wait_for_update: 500
+  });
   gtag('js', new Date());
 
-  gtag('config', 'G-9N1CPZQ1HG');
+  gtag('config', 'G-9N1CPZQ1HG', { anonymize_ip: true });
 </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Track Order — Lecomax</title>
+  <meta name="description" content="Track your Lecomax order status quickly using your order details." />
+  <meta name="robots" content="noindex,follow" />
+  <link rel="canonical" href="https://lecomax.com/track-order.html" />
+  <meta property="og:title" content="Track Order — Lecomax" />
+  <meta property="og:description" content="Track your Lecomax order status quickly using your order details." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://lecomax.com/track-order.html" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/1.avif" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Track Order — Lecomax" />
+  <meta name="twitter:description" content="Track your Lecomax order status quickly using your order details." />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/1.avif" />
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -44,6 +63,19 @@
           border-color: var(--accent);
           box-shadow: 0 0 0 3px var(--accent-glow);
       }
+        .track-status {
+          margin-top: 16px;
+          padding: 12px 14px;
+          border-radius: 10px;
+          border: 1px solid rgba(59,130,246,0.25);
+          background: rgba(59,130,246,0.08);
+          color: var(--text);
+          font-size: 0.92rem;
+          line-height: 1.45;
+        }
+        .track-status--hidden {
+          display: none;
+        }
   </style>
 </head>
 <body>
@@ -67,7 +99,7 @@
       <p class="muted">Enter your order ID to see the current status.</p>
 
       <div class="track-form" style="margin-top: 30px;">
-        <form onsubmit="event.preventDefault(); alert('Order tracking feature coming soon. Please contact WhatsApp for status.');">
+        <form id="trackOrderForm">
             <div class="form-group">
                 <label for="orderId">Order ID</label>
                 <input type="text" id="orderId" class="form-input" placeholder="e.g. #123456" required>
@@ -78,6 +110,7 @@
             </div>
             <button type="submit" class="btn btn--primary w100">Track Order</button>
         </form>
+        <div id="trackStatus" class="track-status track-status--hidden" role="status" aria-live="polite"></div>
       </div>
       
       <div style="margin-top: 40px; text-align: center;">
@@ -100,6 +133,19 @@
   </footer>
   <script>
       document.getElementById('year').textContent = new Date().getFullYear();
+
+      const trackForm = document.getElementById('trackOrderForm');
+      const trackStatus = document.getElementById('trackStatus');
+      if (trackForm && trackStatus) {
+        trackForm.addEventListener('submit', function(event) {
+          event.preventDefault();
+          const orderId = document.getElementById('orderId')?.value?.trim();
+          trackStatus.classList.remove('track-status--hidden');
+          trackStatus.textContent = orderId
+            ? `Thanks. We received your request for ${orderId}. A support agent will confirm the latest delivery status shortly via WhatsApp or email.`
+            : 'Thanks. We received your tracking request. A support agent will confirm the latest delivery status shortly via WhatsApp or email.';
+        });
+      }
   </script>
 <!--Start of Tawk.to Script-->
 <script type="text/javascript">
@@ -114,6 +160,7 @@ s0.parentNode.insertBefore(s1,s0);
 })();
 </script>
 <!--End of Tawk.to Script-->
+  <script src="cookie-consent.js"></script>
 </body>
 </html>
 

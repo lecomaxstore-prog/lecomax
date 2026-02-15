@@ -1,11 +1,13 @@
 // === Trending Products Carousel Logic ===
 (function() {
+  const trendingRoot = document.querySelector('.trending');
   const track = document.querySelector('.trending__track');
-  if (!track) return;
+  if (!track || !trendingRoot) return;
   const cards = Array.from(track.children);
   const leftBtn = document.querySelector('.trending__arrow--left');
   const rightBtn = document.querySelector('.trending__arrow--right');
   const dotsContainer = document.querySelector('.trending__dots');
+  if (!leftBtn || !rightBtn || !dotsContainer || cards.length === 0) return;
   let current = 0;
   let cardsPerView = 4;
 
@@ -43,6 +45,7 @@
       const dot = document.createElement('button');
       dot.className = 'trending__dot' + (i === current ? ' trending__dot--active' : '');
       dot.setAttribute('aria-label', `Go to slide ${i+1}`);
+      dot.setAttribute('aria-current', i === current ? 'true' : 'false');
       dot.onclick = () => goTo(i);
       dotsContainer.appendChild(dot);
     }
@@ -52,7 +55,7 @@
   rightBtn.onclick = () => goTo(current + 1);
 
   // Keyboard navigation
-  document.querySelector('.trending').addEventListener('keydown', e => {
+  trendingRoot.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') leftBtn.click();
     if (e.key === 'ArrowRight') rightBtn.click();
   });
@@ -92,6 +95,7 @@
   const track = document.getElementById('sliderTrack');
   const dots = document.getElementById('sliderDots');
   if (!slider || !track || !dots) return;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const slides = Array.from(track.children);
   if (slides.length <= 1) return;
@@ -131,6 +135,7 @@
   }
 
   function startAuto() {
+    if (prefersReducedMotion) return;
     if (autoTimer) clearInterval(autoTimer);
     autoTimer = setInterval(() => {
       goTo(index + 1, false);
@@ -170,7 +175,9 @@
   function endDrag(e) {
     if (!isDragging) return;
     isDragging = false;
-    slider.releasePointerCapture(e.pointerId);
+    if (typeof e.pointerId === 'number' && slider.hasPointerCapture(e.pointerId)) {
+      slider.releasePointerCapture(e.pointerId);
+    }
     const dx = e.clientX - startX;
     const travel = Math.abs(dx) / slider.clientWidth;
     if (travel > swipeThreshold) {
@@ -182,6 +189,16 @@
 
   slider.addEventListener('pointerup', endDrag);
   slider.addEventListener('pointercancel', endDrag);
+  slider.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      goTo(index - 1, true);
+    }
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      goTo(index + 1, true);
+    }
+  });
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stopAuto();
@@ -196,6 +213,9 @@
 
 // --- Product Image Zoom ---
 function enableProductImageZoom() {
+  const viewer = document.getElementById('imageViewer');
+  if (viewer) return;
+
   const img = document.getElementById('ppMainImg');
   const lens = document.getElementById('zoomLens');
   if (!img || !lens) return;
@@ -300,7 +320,7 @@ function enableProductImageZoom() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(enableProductImageZoom, 400); // Wait for product image to render
+  // Product page uses modal viewer navigation on image click.
 });
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -352,8 +372,8 @@ const TRANSLATIONS = {
     technical_support: "Technical Support",
     fast: "Fast",
     order_summary: "Order Summary",
-    copy_whatsapp: "Copy order or connect WhatsApp easily.",
-    cart_footer_text: "Checkout copies an order summary. You can connect WhatsApp or backend later.",
+    copy_whatsapp: "Share your order instantly on WhatsApp.",
+    cart_footer_text: "Secure checkout with instant order summary and WhatsApp confirmation option.",
     favorites: "Favorites",
     flash_deal: "Flash Deal",
     color: "Color",
@@ -429,6 +449,21 @@ const TRANSLATIONS = {
     filter_rating_4_plus: "4+ Stars",
     filter_rating_4_5_plus: "4.5+ Stars",
     filter_rating_5: "5 Stars",
+    sort_featured: "Featured",
+    sort_price_low_high: "Price: Low to High",
+    sort_price_high_low: "Price: High to Low",
+    sort_rating_top: "Top Rated",
+    sort_name_az: "Name: A-Z",
+    sort_newest: "Newest",
+    in_stock_only: "In-stock only",
+    max_price: "Max Price",
+    reset_filters: "Reset Filters",
+    active_filters: "Active Filters",
+    clear_all_filters: "Clear all",
+    filter_search: "Search",
+    filter_sort: "Sort",
+    copy_filter_link: "Copy Filter Link",
+    filters_link_copied: "Filter link copied",
     p_milano_jacket: "Men's Casual Faux Fur Jacket",
     p_casual_base_jacket: "Autumn Men's Casual Hoodie Baseball Jacket",
     p_hooded_jacket: "Men's Fashion Hooded Embroidered Warm Jacket",
@@ -501,8 +536,8 @@ const TRANSLATIONS = {
     technical_support: "Support Technique",
     fast: "Rapide",
     order_summary: "Récapitulatif",
-    copy_whatsapp: "Copiez la commande ou continuez sur WhatsApp.",
-    cart_footer_text: "La validation génère un récapitulatif. Finalisation possible via WhatsApp.",
+    copy_whatsapp: "Partagez votre commande instantanément sur WhatsApp.",
+    cart_footer_text: "Paiement sécurisé avec récapitulatif instantané et confirmation via WhatsApp.",
     favorites: "Favoris",
     flash_deal: "Vente Flash",
     color: "Couleur",
@@ -578,6 +613,21 @@ const TRANSLATIONS = {
     filter_rating_4_plus: "4+ Étoiles",
     filter_rating_4_5_plus: "4.5+ Étoiles",
     filter_rating_5: "5 Étoiles",
+    sort_featured: "Recommandés",
+    sort_price_low_high: "Prix : croissant",
+    sort_price_high_low: "Prix : décroissant",
+    sort_rating_top: "Mieux notés",
+    sort_name_az: "Nom : A-Z",
+    sort_newest: "Nouveautés",
+    in_stock_only: "En stock uniquement",
+    max_price: "Prix max",
+    reset_filters: "Réinitialiser",
+    active_filters: "Filtres actifs",
+    clear_all_filters: "Tout effacer",
+    filter_search: "Recherche",
+    filter_sort: "Tri",
+    copy_filter_link: "Copier le lien filtre",
+    filters_link_copied: "Lien des filtres copié",
     p_milano_jacket: "Veste Fausse Fourrure Casual Homme",
     p_casual_base_jacket: "Veste Baseball à Capuche Automne Homme",
     p_hooded_jacket: "Veste Chaude Brodée à Capuche Homme",
@@ -650,8 +700,8 @@ const TRANSLATIONS = {
     technical_support: "الدعم الفني",
     fast: "سريع",
     order_summary: "ملخص الطلب",
-    copy_whatsapp: "انسخ الطلب للمتابعة عبر واتساب.",
-    cart_footer_text: "الدفع يقوم بنسخ ملخص الطلب. يمكنك إتمام الشراء عبر واتساب.",
+    copy_whatsapp: "شارك طلبك فوراً عبر واتساب.",
+    cart_footer_text: "دفع آمن مع ملخص طلب فوري وخيار التأكيد عبر واتساب.",
     favorites: "المفضلة",
     flash_deal: "عرض خاطف",
     color: "اللون",
@@ -727,6 +777,21 @@ const TRANSLATIONS = {
     filter_rating_4_plus: "+4 نجوم",
     filter_rating_4_5_plus: "+4.5 نجوم",
     filter_rating_5: "5 نجوم",
+    sort_featured: "مميز",
+    sort_price_low_high: "السعر: من الأقل للأعلى",
+    sort_price_high_low: "السعر: من الأعلى للأقل",
+    sort_rating_top: "الأعلى تقييماً",
+    sort_name_az: "الاسم: أ-ي",
+    sort_newest: "الأحدث",
+    in_stock_only: "المتوفر فقط",
+    max_price: "أقصى سعر",
+    reset_filters: "إعادة الضبط",
+    active_filters: "الفلاتر النشطة",
+    clear_all_filters: "مسح الكل",
+    filter_search: "بحث",
+    filter_sort: "الترتيب",
+    copy_filter_link: "نسخ رابط الفلاتر",
+    filters_link_copied: "تم نسخ رابط الفلاتر",
     p_milano_jacket: "جاكيت فرو صناعي كاجوال للرجال",
     p_casual_base_jacket: "جاكيت بيسبول بقلنسوة خريفي للرجال",
     p_hooded_jacket: "جاكيت دافئ مطرز بقلنسوة للرجال",
@@ -1720,10 +1785,10 @@ function applyPromoCode() {
     input.setAttribute("disabled", "true");
     
     // Notification
-    alert("Success! 40 MAD discount applied to all products.");
+    showToast("Success! 40 MAD discount applied to all products.");
     
   } else {
-    alert("Invalid Code. Please try 'STYLE30' or 'LECOMAX26'.");
+    showToast("Invalid code. Try 'STYLE30' or 'LECOMAX26'.");
     input.value = "";
     input.focus();
   }
@@ -1757,11 +1822,99 @@ const state = {
   q:"", 
   priceRange:"all",
   ratingFilter:"all",
+  maxPrice: Infinity,
+  onlyInStock: false,
   cart: load("lc_cart_v2", {}), 
   favs: load("lc_favs_v2", []), 
   slideIndex:0, 
   heroTab:"electronics" 
 };
+
+const persistedFilters = load("lc_shop_filters_v1", {});
+if (persistedFilters && typeof persistedFilters === "object") {
+  state.filter = persistedFilters.filter || state.filter;
+  state.sort = persistedFilters.sort || state.sort;
+  state.q = persistedFilters.q || "";
+  state.priceRange = persistedFilters.priceRange || state.priceRange;
+  state.ratingFilter = persistedFilters.ratingFilter || state.ratingFilter;
+  state.onlyInStock = !!persistedFilters.onlyInStock;
+  state.maxPrice = Number.isFinite(Number(persistedFilters.maxPrice))
+    ? Number(persistedFilters.maxPrice)
+    : state.maxPrice;
+}
+
+function saveFilterPrefs(){
+  save("lc_shop_filters_v1", {
+    filter: state.filter,
+    sort: state.sort,
+    q: state.q,
+    priceRange: state.priceRange,
+    ratingFilter: state.ratingFilter,
+    maxPrice: Number.isFinite(state.maxPrice) ? state.maxPrice : null,
+    onlyInStock: !!state.onlyInStock
+  });
+  syncFiltersToUrl();
+}
+
+function syncFiltersToUrl(){
+  if (!window.history || !window.URLSearchParams) return;
+  const params = new URLSearchParams(window.location.search);
+
+  const setParam = (key, value, fallback) => {
+    if (value === undefined || value === null || value === "" || value === fallback) params.delete(key);
+    else params.set(key, String(value));
+  };
+
+  setParam("cat", state.filter, "all");
+  setParam("sort", state.sort, "featured");
+  setParam("q", state.q, "");
+  setParam("price", state.priceRange, "all");
+  setParam("rating", state.ratingFilter, "all");
+  setParam("stock", state.onlyInStock ? "1" : "", "");
+  setParam("max", Number.isFinite(state.maxPrice) ? Math.round(state.maxPrice) : "", "");
+
+  try {
+    const view = localStorage.getItem("lc_shop_view_v1") || "grid";
+    setParam("view", view, "grid");
+  } catch (e) {}
+
+  const next = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${window.location.hash || ""}`;
+  window.history.replaceState({}, "", next);
+}
+
+function applyFiltersFromUrl(){
+  if (!window.URLSearchParams) return;
+  const params = new URLSearchParams(window.location.search);
+  if (!params.toString()) return;
+
+  const cat = params.get("cat");
+  if (cat) state.filter = cat;
+
+  const sort = params.get("sort");
+  if (sort) state.sort = sort;
+
+  const q = params.get("q");
+  if (q !== null) state.q = q;
+
+  const price = params.get("price");
+  if (price) state.priceRange = price;
+
+  const rating = params.get("rating");
+  if (rating) state.ratingFilter = rating;
+
+  const stock = params.get("stock");
+  state.onlyInStock = stock === "1" || stock === "true";
+
+  const max = Number(params.get("max"));
+  if (Number.isFinite(max) && max > 0) state.maxPrice = max;
+
+  try {
+    const view = params.get("view");
+    if (view === "grid" || view === "list") localStorage.setItem("lc_shop_view_v1", view);
+  } catch (e) {}
+}
+
+applyFiltersFromUrl();
 
 function toggleFav(id, btn){
   const idx = state.favs.indexOf(id);
@@ -1988,25 +2141,81 @@ function init(){
   if($("[data-jump-filter]")) $$("[data-jump-filter]").forEach(a => a.addEventListener("click", () => setFilter(a.dataset.jumpFilter)));
   if($("[data-filter-btn]")) $$("[data-filter-btn]").forEach(b => b.addEventListener("click", () => setFilter(b.dataset.filterBtn)));
 
-  if($("#sort")) $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; renderGrid(); });
+  if($("#sort")) $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; saveFilterPrefs(); renderGrid(); });
   
   // New filter event listeners
   if($("#productSearch")) $("#productSearch").addEventListener("input", (e) => { 
     state.q = e.target.value.trim(); 
+    saveFilterPrefs();
     renderGrid(); 
   });
   if($("#priceRange")) $("#priceRange").addEventListener("change", (e) => { 
     state.priceRange = e.target.value; 
+    saveFilterPrefs();
     renderGrid(); 
   });
   if($("#ratingFilter")) $("#ratingFilter").addEventListener("change", (e) => { 
     state.ratingFilter = e.target.value; 
+    saveFilterPrefs();
     renderGrid(); 
   });
+
+  const sortSelect = $("#sort");
+  if (sortSelect) sortSelect.value = state.sort;
+
+  if($("#priceRange")) $("#priceRange").value = state.priceRange;
+  if($("#ratingFilter")) $("#ratingFilter").value = state.ratingFilter;
+  if($("#productSearch")) {
+    $("#productSearch").value = state.q;
+    if($("#clearSearch")) $("#clearSearch").style.display = state.q ? "block" : "none";
+  }
+  $$("[data-filter-btn]").forEach(x => x.classList.toggle("is-active", x.dataset.filterBtn === state.filter));
+
+  const stockToggle = $("#onlyInStock");
+  if(stockToggle) {
+    stockToggle.checked = !!state.onlyInStock;
+    stockToggle.addEventListener("change", (e) => {
+      state.onlyInStock = !!e.target.checked;
+      saveFilterPrefs();
+      renderGrid();
+    });
+  }
+
+  const maxPriceInput = $("#maxPriceRange");
+  const maxPriceValue = $("#maxPriceValue");
+  if(maxPriceInput) {
+    const catalogMax = Math.max(...PRODUCTS.map(p => Number(p.price) || 0), 0);
+    const roundedMax = Math.max(100, Math.ceil(catalogMax / 50) * 50);
+    maxPriceInput.max = String(roundedMax);
+
+    if(!Number.isFinite(state.maxPrice) || state.maxPrice > roundedMax) {
+      state.maxPrice = roundedMax;
+    }
+
+    maxPriceInput.value = String(state.maxPrice);
+
+    const updateMaxPriceLabel = () => {
+      if(maxPriceValue) maxPriceValue.textContent = `${Math.round(Number(maxPriceInput.value) || roundedMax)} MAD`;
+    };
+
+    updateMaxPriceLabel();
+    maxPriceInput.addEventListener("input", updateMaxPriceLabel);
+    maxPriceInput.addEventListener("change", () => {
+      state.maxPrice = Number(maxPriceInput.value) || roundedMax;
+      saveFilterPrefs();
+      renderGrid();
+    });
+  }
+
+  syncFilterControlsFromState();
+
+  if($("#resetFilters")) $("#resetFilters").addEventListener("click", resetAllFilters);
+
   if($("#searchBtn")) $("#searchBtn").addEventListener("click", () => {
     const searchInput = $("#productSearch");
     if(searchInput) {
       state.q = searchInput.value.trim();
+      saveFilterPrefs();
       renderGrid();
     }
   });
@@ -2015,9 +2224,52 @@ function init(){
     if(searchInput) {
       searchInput.value = "";
       state.q = "";
+      saveFilterPrefs();
       renderGrid();
     }
   });
+
+  if($("#copyFilterLink")) $("#copyFilterLink").addEventListener("click", async () => {
+    syncFiltersToUrl();
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      const lang = localStorage.getItem('lecomax_lang') || 'en';
+      const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+      showToast(t.filters_link_copied || "Filter link copied");
+    } catch (e) {
+      showToast(url);
+    }
+  });
+
+  const activeChipsWrap = $("#activeFilterChips");
+  if(activeChipsWrap) {
+    activeChipsWrap.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-chip-remove]");
+      if(!btn) return;
+
+      const key = btn.dataset.chipRemove;
+      if(key === "all") {
+        resetAllFilters();
+        return;
+      }
+
+      if(key === "filter") state.filter = "all";
+      if(key === "q") state.q = "";
+      if(key === "priceRange") state.priceRange = "all";
+      if(key === "ratingFilter") state.ratingFilter = "all";
+      if(key === "onlyInStock") state.onlyInStock = false;
+      if(key === "sort") state.sort = "featured";
+      if(key === "maxPrice") {
+        const maxInput = $("#maxPriceRange");
+        state.maxPrice = maxInput ? (Number(maxInput.max) || 2000) : Infinity;
+      }
+
+      syncFilterControlsFromState();
+      saveFilterPrefs();
+      renderGrid();
+    });
+  }
   // Show/hide clear button based on input
   if($("#productSearch")) $("#productSearch").addEventListener("input", (e) => {
     const clearBtn = $("#clearSearch");
@@ -2026,14 +2278,23 @@ function init(){
     }
   });
   
-  // View toggle
-  $$(".view-btn").forEach(btn => btn.addEventListener("click", () => {
-    const view = btn.dataset.view;
-    $$(".view-btn").forEach(b => b.classList.toggle("is-active", b.dataset.view === view));
+  // View toggle (persisted)
+  const storedShopView = (function(){
+    try { return localStorage.getItem("lc_shop_view_v1") || "grid"; }
+    catch (e) { return "grid"; }
+  })();
+
+  const applyShopView = (view) => {
+    const safeView = view === "list" ? "list" : "grid";
+    $$(".view-btn").forEach(b => b.classList.toggle("is-active", b.dataset.view === safeView));
     const grid = $("#grid");
-    if(grid) {
-      grid.classList.toggle("list-view", view === "list");
-    }
+    if(grid) grid.classList.toggle("list-view", safeView === "list");
+    try { localStorage.setItem("lc_shop_view_v1", safeView); } catch (e) {}
+  };
+
+  applyShopView(storedShopView);
+  $$(".view-btn").forEach(btn => btn.addEventListener("click", () => {
+    applyShopView(btn.dataset.view);
   }));
 
   if($("#openCart")) $("#openCart").addEventListener("click", () => openDrawer(true));
@@ -2152,7 +2413,114 @@ function setFilter(f){
   state.filter = f;
   $$("[data-filter-btn]").forEach(x => x.classList.toggle("is-active", x.dataset.filterBtn === f));
   document.getElementById("products").scrollIntoView({behavior:"smooth"});
+  syncFilterControlsFromState();
+  saveFilterPrefs();
   renderGrid();
+}
+
+function syncFilterControlsFromState(){
+  if($("#sort")) $("#sort").value = state.sort;
+  if($("#priceRange")) $("#priceRange").value = state.priceRange;
+  if($("#ratingFilter")) $("#ratingFilter").value = state.ratingFilter;
+
+  const searchInput = $("#productSearch");
+  const clearBtn = $("#clearSearch");
+  if(searchInput) searchInput.value = state.q || "";
+  if(clearBtn) clearBtn.style.display = (state.q || "").trim() ? "block" : "none";
+
+  const stockToggle = $("#onlyInStock");
+  if(stockToggle) stockToggle.checked = !!state.onlyInStock;
+
+  const maxInput = $("#maxPriceRange");
+  const maxValue = $("#maxPriceValue");
+  if(maxInput){
+    const fullMax = Number(maxInput.max) || 2000;
+    const safeMax = Number.isFinite(state.maxPrice) ? Math.min(state.maxPrice, fullMax) : fullMax;
+    maxInput.value = String(Math.round(safeMax));
+    if(maxValue) maxValue.textContent = `${Math.round(safeMax)} MAD`;
+  }
+
+  $$("[data-filter-btn]").forEach(x => x.classList.toggle("is-active", x.dataset.filterBtn === state.filter));
+}
+
+function resetAllFilters(){
+  state.filter = "all";
+  state.sort = "featured";
+  state.q = "";
+  state.priceRange = "all";
+  state.ratingFilter = "all";
+  state.onlyInStock = false;
+
+  const maxInput = $("#maxPriceRange");
+  if(maxInput) state.maxPrice = Number(maxInput.max) || 2000;
+  else state.maxPrice = Infinity;
+
+  syncFilterControlsFromState();
+  saveFilterPrefs();
+  renderGrid();
+}
+
+function getActiveFilterChips(){
+  const lang = localStorage.getItem('lecomax_lang') || 'en';
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  const chips = [];
+
+  if(state.filter !== "all") chips.push({ key: "filter", label: label(state.filter) });
+  if((state.q || "").trim()) chips.push({ key: "q", label: `${t.filter_search || "Search"}: ${state.q}` });
+
+  const priceSelect = $("#priceRange");
+  if(state.priceRange !== "all") {
+    const optionText = priceSelect?.selectedOptions?.[0]?.textContent?.trim() || state.priceRange;
+    chips.push({ key: "priceRange", label: optionText });
+  }
+
+  const ratingSelect = $("#ratingFilter");
+  if(state.ratingFilter !== "all") {
+    const optionText = ratingSelect?.selectedOptions?.[0]?.textContent?.trim() || state.ratingFilter;
+    chips.push({ key: "ratingFilter", label: optionText });
+  }
+
+  if(state.onlyInStock) chips.push({ key: "onlyInStock", label: t.in_stock_only || "In-stock only" });
+
+  const maxInput = $("#maxPriceRange");
+  const fullMax = Number(maxInput?.max) || 2000;
+  if(Number.isFinite(state.maxPrice) && Math.round(state.maxPrice) < fullMax) {
+    chips.push({ key: "maxPrice", label: `${t.max_price || "Max Price"}: ${Math.round(state.maxPrice)} MAD` });
+  }
+
+  const sortSelect = $("#sort");
+  if(state.sort !== "featured") {
+    const sortText = sortSelect?.selectedOptions?.[0]?.textContent?.trim() || state.sort;
+    chips.push({ key: "sort", label: `${t.filter_sort || "Sort"}: ${sortText}` });
+  }
+
+  return chips;
+}
+
+function renderActiveFilterChips(){
+  const wrap = $("#activeFilterChips");
+  if(!wrap) return;
+
+  const chips = getActiveFilterChips();
+  if(!chips.length){
+    wrap.classList.remove("is-visible");
+    wrap.innerHTML = "";
+    return;
+  }
+
+  const lang = localStorage.getItem('lecomax_lang') || 'en';
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  const heading = `<span class="chip-pill">${escapeHtml(t.active_filters || "Active Filters")}</span>`;
+  const items = chips.map(chip => `
+    <span class="chip-pill">
+      ${escapeHtml(chip.label)}
+      <button type="button" class="chip-pill__remove" data-chip-remove="${chip.key}" aria-label="Remove filter">✕</button>
+    </span>
+  `).join("");
+  const clear = `<button type="button" class="chip-pill--clear" data-chip-remove="all">${escapeHtml(t.clear_all_filters || t.reset_filters || "Clear all")}</button>`;
+
+  wrap.classList.add("is-visible");
+  wrap.innerHTML = `${heading}${items}${clear}`;
 }
 
 function setupMegaMenus(){
@@ -2276,6 +2644,14 @@ function getList(){
   let list = [...PRODUCTS];
   if (state.filter !== "all") list = list.filter(p => p.cat === state.filter);
   if (state.q) list = list.filter(p => (p.name + " " + p.desc).toLowerCase().includes(state.q.toLowerCase()));
+
+  if (Number.isFinite(state.maxPrice)) {
+    list = list.filter(p => p.price <= state.maxPrice);
+  }
+
+  if (state.onlyInStock) {
+    list = list.filter(isProductInStock);
+  }
   
   // Price range filter
   if (state.priceRange !== "all") {
@@ -2302,11 +2678,16 @@ function getList(){
   return list;
 }
 
+function isProductInStock(product){
+  if (!product || !Array.isArray(product.colors) || !product.colors.length) return true;
+  return product.colors.some(color => !color.soldOut);
+}
+
 
 // renderGrid handled later by getCardHTML helper integration consistency
 
 /* Quick Shop Logic */
-window.qsState = { id: null, color: null, size: null };
+window.qsState = { id: null, color: null, size: null, images: [], imageIndex: 0 };
 
 window.openQuickShop = function(id) {
   const p = PRODUCTS.find(x => x.id === id);
@@ -2318,6 +2699,8 @@ window.openQuickShop = function(id) {
                   ? (p.colors.find(c => !c.soldOut) || p.colors[0]) 
                   : null;
   qsState.size = null; 
+  qsState.images = p.images || [];
+  qsState.imageIndex = 0;
   
   renderQuickShop();
   
@@ -2332,6 +2715,7 @@ window.setQsColor = function(name) {
   if(c) {
      qsState.color = c;
      qsState.size = null; 
+     qsState.imageIndex = 0;
      renderQuickShop();
   }
 };
@@ -2349,7 +2733,7 @@ function renderQuickShop() {
   const size = qsState.size;
   
   // Image URL
-  const imgSrc = color ? color.img : (p.images ? p.images[0] : null);
+  const imgSrc = color ? color.img : (qsState.images[qsState.imageIndex] || null);
 
   // Colors
   let colorHtml = "";
@@ -2503,6 +2887,15 @@ function renderQuickShop() {
 
   } else {
      // Full Render
+     const hasMultipleImages = qsState.images.length > 1;
+     const arrowsHtml = hasMultipleImages ? `
+  <button class="qs-arrow left" onclick="qsPrevImage()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <button class="qs-arrow right" onclick="qsNextImage()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+` : '';
      const imgHtml = imgSrc 
        ? `<img src="${imgSrc}" style="width:100%; height:100%; object-fit:contain; transition: opacity 0.4s ease;">`
        : `<div style="font-size:4rem">${p.emoji}</div>`;
@@ -2510,7 +2903,7 @@ function renderQuickShop() {
      modalBody.innerHTML = `
         <div class="qs-grid">
            <div class="qs-image">
-              ${imgHtml}
+              ${imgHtml}${arrowsHtml}
            </div>
            <div class="qs-details">
               ${detailsHtml}
@@ -2530,6 +2923,29 @@ function renderQuickShop() {
         closeAll();
         showToast("Added to Cart");
      };
+  }
+}
+
+function qsNextImage() {
+  if (!qsState.images || qsState.images.length <= 1) return;
+  qsState.imageIndex = (qsState.imageIndex + 1) % qsState.images.length;
+  updateQSImage();
+}
+
+function qsPrevImage() {
+  if (!qsState.images || qsState.images.length <= 1) return;
+  qsState.imageIndex = (qsState.imageIndex - 1 + qsState.images.length) % qsState.images.length;
+  updateQSImage();
+}
+
+function updateQSImage() {
+  const img = modalBody.querySelector('.qs-image img');
+  if (img && qsState.images[qsState.imageIndex]) {
+    img.style.opacity = '0';
+    setTimeout(() => {
+      img.src = qsState.images[qsState.imageIndex];
+      img.style.opacity = '1';
+    }, 200);
   }
 }
 
@@ -2605,10 +3021,11 @@ function renderFavs(){
   
   if (!list.length){
     wrap.innerHTML = `
-      <div class="muted" style="text-align:center; padding:40px; display:flex; flex-direction:column; align-items:center;">
-        <div style="font-size:3rem; opacity:0.1; margin-bottom:10px; filter:grayscale(1)">❤️</div>
-        <p>No favorites yet.</p>
-        <button onclick="closeAll()" class="btn btn--ghost btn--small" style="margin-top:10px">Discover Products</button>
+      <div class="favEmpty" role="status" aria-live="polite" style="margin:auto 0; min-height:55%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:28px 18px; border:1px dashed rgba(15,23,42,0.12); border-radius:20px; background:linear-gradient(180deg, rgba(248,250,252,0.9), rgba(255,255,255,0.96));">
+        <div class="favEmpty__icon" aria-hidden="true" style="width:68px; height:68px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:1.9rem; color:rgba(15,23,42,0.22); background:rgba(15,23,42,0.04); margin-bottom:14px;">❤</div>
+        <p class="favEmpty__title" style="margin:0; font-size:1.65rem; font-weight:800; letter-spacing:-0.02em; color:var(--text);">No favorites yet.</p>
+        <p class="favEmpty__text" style="margin:10px 0 0; max-width:30ch; color:var(--muted); line-height:1.6;">Tap the heart on any product to save it here.</p>
+        <button onclick="closeAll()" class="btn btn--ghost btn--small favEmpty__btn" style="margin-top:18px; min-height:44px; padding:0 18px; border-radius:999px; font-weight:700;">Discover Products</button>
       </div>`;
     return;
   }
@@ -2713,7 +3130,10 @@ function renderCart(){
 
 function checkout(){
   const entries = Object.entries(state.cart);
-  if (!entries.length) return alert("Cart is empty.");
+  if (!entries.length) {
+    showToast("Your cart is empty.");
+    return;
+  }
   
   const lang = localStorage.getItem('lecomax_lang') || 'en';
   let target = 'checkout.html';
@@ -2724,7 +3144,7 @@ function checkout(){
 }
 
 function openSuccessModal() {
-  alert("Order Placed!\nYour order has been copied. Send it via WhatsApp to complete the purchase.");
+  showToast("Order placed. Your summary is copied—send it on WhatsApp to complete purchase.");
   // const m = document.getElementById("successModal");
   // if(m) m.classList.add("active");
 }
@@ -3053,6 +3473,7 @@ function renderGrid(){
   const list = getList();
   const rc = $("#resultCount");
   if(rc) rc.textContent = `${list.length} item${list.length===1?"":"s"}`;
+  renderActiveFilterChips();
 
   if (!list.length){ 
     grid.innerHTML = `<div class="muted" style="grid-column:1/-1; text-align:center; padding:40px;">No results found. Try adjusting your filters.</div>`; 
@@ -3236,17 +3657,73 @@ function setupBackToTop() {
   });
 
   btn.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
   });
+}
+
+function applyImageOptimizations(root = document) {
+  const images = root.querySelectorAll ? root.querySelectorAll('img') : [];
+  images.forEach((img, index) => {
+    if (!img.hasAttribute('decoding')) {
+      img.setAttribute('decoding', 'async');
+    }
+    if (!img.hasAttribute('loading')) {
+      const isPriorityImage = !!img.closest('.slider, .hero, .heroBanner, .product-hero');
+      img.setAttribute('loading', isPriorityImage && index < 2 ? 'eager' : 'lazy');
+    }
+  });
+
+  const firstVisual = root.querySelector
+    ? root.querySelector('.slider img, .hero img, .heroBanner img, .product-hero img, .trending__img')
+    : null;
+  if (firstVisual && !firstVisual.hasAttribute('fetchpriority')) {
+    firstVisual.setAttribute('fetchpriority', 'high');
+  }
+}
+
+function secureExternalLinks() {
+  document.querySelectorAll('a[target="_blank"]').forEach((link) => {
+    const rel = (link.getAttribute('rel') || '').toLowerCase().split(/\s+/).filter(Boolean);
+    if (!rel.includes('noopener')) rel.push('noopener');
+    if (!rel.includes('noreferrer')) rel.push('noreferrer');
+    link.setAttribute('rel', rel.join(' '));
+  });
+}
+
+function setupDynamicEnhancements() {
+  if (window.__lecomaxEnhancementsReady) return;
+  window.__lecomaxEnhancementsReady = true;
+
+  applyImageOptimizations(document);
+  secureExternalLinks();
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        if (node.nodeType !== 1) continue;
+        if (node.matches && node.matches('img')) {
+          applyImageOptimizations(node.parentElement || document);
+        } else if (node.querySelector) {
+          applyImageOptimizations(node);
+        }
+      }
+    }
+    secureExternalLinks();
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
 }
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
+    setupDynamicEnhancements();
     setupBackToTop();
     setupSearchSuggestions();
     setupExtensions();
   });
 } else {
+  setupDynamicEnhancements();
   setupBackToTop();
   setupSearchSuggestions();
   setupExtensions();
@@ -3261,7 +3738,7 @@ function setupExtensions() {
     notif.className = 'sales-notification';
     notif.innerHTML = `
       <button class="sales-notification-close" onclick="this.parentElement.classList.remove('active')">&times;</button>
-      <img src="" class="sales-img" alt="">
+      <img src="" class="sales-img" alt="" loading="lazy" decoding="async">
       <div class="sales-notification-content">
         <div class="sales-notification-title">
            <span data-i18n="notification_someone">Someone in</span> 
@@ -3310,6 +3787,7 @@ function setupExtensions() {
       const pName = (t && t["p_" + p.id]) ? t["p_" + p.id] : p.name;
 
       el.querySelector('.sales-img').src = img;
+      el.querySelector('.sales-img').alt = pName;
       el.querySelector('.sales-city').textContent = displayCity;
       el.querySelector('.sales-notification-name').textContent = pName;
       
@@ -3356,7 +3834,7 @@ function setupSearchSuggestions() {
          const img = (p.images && p.images.length) ? p.images[0] : '';
          return `
         <a href="product.html?id=${p.id}" class="suggestion-item">
-          <img src="${img}" class="suggestion-img" alt="${p.name}">
+          <img src="${img}" class="suggestion-img" alt="${p.name}" loading="lazy" decoding="async">
           <div class="suggestion-info">
             <div class="suggestion-name">${p.name}</div>
             <div class="suggestion-price">${p.price} MAD</div>

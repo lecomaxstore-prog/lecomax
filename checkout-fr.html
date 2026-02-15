@@ -6,13 +6,32 @@
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    ad_storage: 'denied',
+    analytics_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    wait_for_update: 500
+  });
   gtag('js', new Date());
 
-  gtag('config', 'G-9N1CPZQ1HG');
+  gtag('config', 'G-9N1CPZQ1HG', { anonymize_ip: true });
 </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Caisse - Lecomax</title>
+  <title>Finaliser ma commande en sécurité - Lecomax</title>
+  <meta name="description" content="Finalisez votre commande en toute sécurité avec Lecomax : protection avancée, confirmation rapide et livraison fiable au Maroc." />
+  <meta name="robots" content="noindex,follow" />
+  <link rel="canonical" href="https://lecomax.com/checkout-fr.html" />
+  <meta property="og:title" content="Finaliser ma commande en sécurité — Lecomax" />
+  <meta property="og:description" content="Finalisez votre commande en toute sécurité avec Lecomax : protection avancée, confirmation rapide et livraison fiable au Maroc." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://lecomax.com/checkout-fr.html" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/1.avif" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Finaliser ma commande en sécurité — Lecomax" />
+  <meta name="twitter:description" content="Finalisez votre commande en toute sécurité avec Lecomax : protection avancée, confirmation rapide et livraison fiable au Maroc." />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/WirelessGamingController/1.avif" />
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -21,7 +40,7 @@
     <div class="container announcement__inner">
       <span style="display:flex; align-items:center; gap:8px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-        Paiement sécurisé
+        Commande 100% sécurisée
       </span>
       <div class="toplinks">
         <a class="toplink" href="index.html">Retour à la boutique</a>
@@ -48,49 +67,55 @@
         <nav class="breadcrumb" style="margin: 8px 0 14px 0; font-size: 0.85rem; color: var(--muted); display:flex; align-items:center; gap:8px;">
           <a href="index.html" style="color:var(--muted); text-decoration:none;">Accueil</a>
           <span style="opacity:0.3">/</span>
-          <span style="color:var(--text); font-weight:500">Caisse</span>
+          <span style="color:var(--text); font-weight:500">Paiement sécurisé</span>
         </nav>
 
         <div class="product-layout checkout-grid">
           <div>
-            <h1 class="product-title checkout-title">Informations de livraison</h1>
+            <h1 class="product-title checkout-title">Coordonnées de livraison</h1>
             <form id="checkoutForm" class="card checkout-card">
               <div class="checkout-fields">
-                <div id="checkoutMessage" class="checkout-message" style="display:none;"></div>
+                <div id="checkoutMessage" class="checkout-message" style="display:none;" aria-live="polite"></div>
                 <div class="checkout-field" style="display:none;">
                   <label for="website" class="checkout-label">Site web</label>
                   <input id="website" name="website" class="checkout-input" autocomplete="off" tabindex="-1" placeholder="Laissez ce champ vide" />
                 </div>
                 <div class="checkout-field">
                   <label for="fullName" class="checkout-label">Nom complet</label>
-                  <input id="fullName" name="fullName" required class="checkout-input" placeholder="Nom complet" />
+                  <input id="fullName" name="fullName" required class="checkout-input" placeholder="Saisissez votre nom complet" autocomplete="name" />
                 </div>
                 <div class="checkout-field">
                   <label for="phone" class="checkout-label">Téléphone</label>
-                  <input id="phone" name="phone" required class="checkout-input" placeholder="Numéro de téléphone" />
+                  <input id="phone" name="phone" required class="checkout-input" placeholder="Saisissez votre numéro de téléphone" autocomplete="tel" inputmode="tel" />
                 </div>
                 <div class="checkout-field">
                   <label for="address" class="checkout-label">Adresse</label>
-                  <input id="address" name="address" required class="checkout-input" placeholder="Adresse complète" />
+                  <input id="address" name="address" required class="checkout-input" placeholder="Saisissez votre adresse complète" autocomplete="street-address" />
                 </div>
                 <div class="checkout-field checkout-field--row">
                   <div>
                     <label for="city" class="checkout-label">Ville</label>
-                    <input id="city" name="city" required class="checkout-input" placeholder="Ville" />
+                    <input id="city" name="city" required class="checkout-input" placeholder="Saisissez votre ville" autocomplete="address-level2" />
                   </div>
                   <div>
                     <label for="postalCode" class="checkout-label">Code postal</label>
-                    <input id="postalCode" name="postalCode" required class="checkout-input" placeholder="Code postal" />
+                    <input id="postalCode" name="postalCode" required class="checkout-input" placeholder="Saisissez votre code postal" autocomplete="postal-code" inputmode="numeric" />
                   </div>
                 </div>
-                <button class="btn btn--primary checkout-submit" type="submit">Passer la commande</button>
-                <div class="checkout-hint">Nous vous contacterons pour confirmer les détails de la livraison.</div>
+                <div class="checkout-field">
+                  <div id="turnstileWidget" class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="light"></div>
+                </div>
+                <button class="btn btn--primary checkout-submit" type="submit">Confirmer ma commande</button>
+                <div class="checkout-hint">Notre équipe vous contacte rapidement pour confirmer les détails de votre commande et de la livraison.</div>
+                <div class="checkout-hint" style="margin-top:8px; font-size:0.86rem;">
+                  ✔ Garantie officielle • ✔ Protection avancée anti-bot • ✔ Livraison rapide au Maroc
+                </div>
               </div>
             </form>
           </div>
 
           <aside class="card checkout-card checkout-summary">
-            <h2 class="checkout-summary__title">Résumé de la commande</h2>
+            <h2 class="checkout-summary__title">Résumé de votre commande</h2>
             <div id="checkoutItems" class="checkout-items"></div>
             <div class="totals checkout-totals">
               <span class="muted">Total</span>
@@ -112,14 +137,16 @@
     <div class="checkout-modal__backdrop"></div>
     <div class="checkout-modal__card">
       <div class="checkout-modal__icon">✓</div>
-      <h3>Commande reçue</h3>
-      <p class="muted">Nous vous contacterons pour confirmer les détails de l'expédition.</p>
-      <button class="btn btn--primary" id="checkoutDone">Continuer</button>
+      <h3>Commande reçue avec succès</h3>
+      <p class="muted">Merci. Nous vous contacterons sous peu pour confirmer les détails et finaliser la livraison.</p>
+      <button class="btn btn--primary" id="checkoutDone">Retour à la boutique</button>
     </div>
   </div>
 
   <script src="app.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script src="checkout.js"></script>
+  <script src="cookie-consent.js"></script>
 <!--Start of Tawk.to Script-->
 <script type="text/javascript">
 var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
