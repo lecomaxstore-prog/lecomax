@@ -858,6 +858,7 @@ a{color:inherit; text-decoration:none}
   background: none;
   box-shadow: none;
   touch-action: pan-y;
+  min-height: 100svh;
 }
 .slider__track{
   display:flex;
@@ -893,32 +894,68 @@ a{color:inherit; text-decoration:none}
 }
 .slide video {
   width: 100%;
-  height: auto;
-  max-height: 65vh;
-  border-radius: 32px;
-  box-shadow: 0 24px 60px -12px rgba(0,0,0,0.55);
-  border: 1px solid rgba(0,0,0,0.05);
-  display: block;
-  object-fit: cover;
+  height: 100%;
+  max-height: none;
   border-radius: 0;
   box-shadow: none;
   border: none;
+  display: block;
+  object-fit: cover;
 }
 
 /* Mobile adjustments for video */
 @media (max-width: 768px) {
   .slide video {
-    max-height: 52vh;
-    border-radius: 0;
+    max-height: none;
   }
 }
 
 @media (max-width: 520px) {
   .slide video {
-    max-height: 44vh;
-    border-radius: 0;
-    box-shadow: none;
+    max-height: none;
   }
+}
+
+.slide--hero-video{
+  background: transparent;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border: none;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 0;
+  min-height: 100svh;
+}
+@media (max-width: 768px) {
+  .slide--hero-video {
+    gap: 16px;
+  }
+}
+.hero-video{
+  background-color: #0b1220;
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
+  height: 100svh;
+  max-height: none;
+  min-height: 100svh;
+  display: block;
+}
+
+.slider__track {
+  min-height: 100svh;
+}
+
+.slide--hero-video video,
+.slide--hero-video .hero-video {
+  width: 100%;
+  height: 100svh;
+  min-height: 100svh;
+  max-height: none;
+  object-fit: cover;
+  border-radius: 0;
 }
 
 /* Hero CTA button */
@@ -2876,7 +2913,7 @@ h2{margin:0; font-size:1.65rem}
   .grid{grid-template-columns: repeat(2, 1fr)}
   .catGrid{grid-template-columns: repeat(2, 1fr)}
   .quotes{grid-template-columns: 1fr}
-  .slider{height: auto; min-height: 0}
+  .slider{height: auto; min-height: 100svh}
 }
 
 @keyframes slideDownMobile {
@@ -2889,7 +2926,7 @@ h2{margin:0; font-size:1.65rem}
   .catGrid{grid-template-columns: repeat(2, 1fr)} /* Keep grid 2-col on mobile */
   .search-container { margin: 0 10px; } /* Reduce margins on mobile */
   .slide{grid-template-columns: 1fr}
-  .slider{height: auto; min-height: 0; border-radius: 16px}
+  .slider{height: auto; min-height: 100svh; border-radius: 0}
   .slider img { border-radius: 12px !important; }
   
   .catCard { min-height: 200px; padding: 18px; }
@@ -2938,6 +2975,62 @@ h2{margin:0; font-size:1.65rem}
   .heroTabs::-webkit-scrollbar { display: none; }
   .heroTab { flex: 0 0 auto; white-space: nowrap; }
   .slide { padding: 22px 16px; }
+
+  .section { padding: 16px 0; }
+  .section__head h2 { font-size: clamp(1.35rem, 5vw, 1.75rem); line-height: 1.2; }
+  .section__head p { font-size: 0.94rem; line-height: 1.55; }
+
+  .grid {
+    gap: 14px;
+    padding: 12px 0 36px;
+  }
+  .card {
+    border-radius: 16px;
+    animation-duration: 0.35s;
+  }
+  .card:hover {
+    transform: none;
+    box-shadow: 0 10px 26px -10px rgba(0,0,0,0.18);
+  }
+  .card__img img,
+  .card__img .card-main-img {
+    padding: 8px;
+  }
+  .card__body {
+    padding: 14px;
+    gap: 6px;
+  }
+  .card__title {
+    font-size: 1rem;
+    height: auto;
+    -webkit-line-clamp: 2;
+  }
+  .card__price {
+    font-size: 1.05rem;
+  }
+  .btn--card-action,
+  .btn-add-cart {
+    min-height: 40px;
+  }
+
+  .hero-statement { padding: 28px 14px; }
+  .hero-statement__subtitle { line-height: 1.5; }
+
+  .contact-card {
+    border-radius: 20px;
+    padding: 24px 14px;
+  }
+  .contact-card h3 {
+    font-size: 1.4rem;
+  }
+
+  .iconbtn,
+  .burger,
+  .qty button,
+  .cartItem__remove {
+    min-width: 44px;
+    min-height: 44px;
+  }
 
   .modal__panel {
     width: calc(100% - 16px);
@@ -3515,7 +3608,7 @@ h2{margin:0; font-size:1.65rem}
 }
 
 @media (max-width: 900px) {
-  .slider { height: auto; min-height: 0; }
+  .slider { height: auto; min-height: 100svh; }
   .slide { grid-template-columns: 1fr; padding: 22px 22px; gap: 16px; }
   .slide--image { padding: 22px 24px; }
 }
@@ -3530,7 +3623,7 @@ h2{margin:0; font-size:1.65rem}
 }
 
 @media (max-width: 520px) {
-  .slider { height: auto; min-height: 0; }
+  .slider { height: auto; min-height: 100svh; }
   .slide { padding: 18px 16px; }
   .slide--image { padding: 18px 18px; }
   .contact-card { padding: 24px 16px; }
