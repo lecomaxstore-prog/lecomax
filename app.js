@@ -2078,32 +2078,33 @@ function init(){
 
   setupMegaMenus();
 
+  const closeMobileNav = () => {
+    const nav = $(".nav");
+    const burger = $("#burger");
+    if (nav) nav.classList.remove("open");
+    if (burger) burger.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("mobile-nav-open");
+  };
+
+  const closeMobileSearch = () => {
+    const search = $(".search-container");
+    const toggle = $("#toggleSearch");
+    if (search) search.classList.remove("show");
+    if (toggle) toggle.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("mobile-search-open");
+  };
+
   if($("#burger")) {
+      $("#burger").setAttribute("aria-expanded", "false");
       $("#burger").addEventListener("click", () => {
         const nav = $(".nav");
         if(!nav) return;
-        const isOpen = nav.classList.contains("open"); 
-        
-        if (isOpen) {
-          nav.style.display = "none";
-          nav.classList.remove("open");
-        } else {
-          nav.style.display = "flex";
-          nav.style.flexDirection = ""; 
-          nav.style.alignItems = "";
-          nav.style.gap = "";
-          nav.style.position = "";
-          nav.style.top = "";
-          nav.style.left = "";
-          nav.style.width = "";
-          nav.style.padding = "";
-          nav.style.border = "";
-          nav.style.borderRadius = "";
-          nav.style.background = "";
-          nav.style.backdropFilter = "";
-          
-          nav.classList.add("open");
-        }
+
+        const willOpen = !nav.classList.contains("open");
+        nav.classList.toggle("open", willOpen);
+        $("#burger").setAttribute("aria-expanded", willOpen ? "true" : "false");
+        document.body.classList.toggle("mobile-nav-open", willOpen);
+        if (willOpen) closeMobileSearch();
       });
 
       // Close nav when clicking any link inside it
@@ -2111,8 +2112,7 @@ function init(){
           link.addEventListener("click", () => {
               const nav = $(".nav");
               if (nav && nav.classList.contains("open")) {
-                  nav.style.display = "none";
-                  nav.classList.remove("open");
+                  closeMobileNav();
               }
           });
       });
@@ -2303,12 +2303,17 @@ function init(){
   if($("#toggleSearch")) $("#toggleSearch").addEventListener("click", () => {
     const search = $(".search-container");
     if(search) {
-        const isShow = search.classList.toggle("show");
-        if(isShow) {
+        const willShow = !search.classList.contains("show");
+        search.classList.toggle("show", willShow);
+        $("#toggleSearch").setAttribute("aria-expanded", willShow ? "true" : "false");
+        document.body.classList.toggle("mobile-search-open", willShow);
+
+        if(willShow) {
+           closeMobileNav();
            const inp = search.querySelector("input");
            if(inp) {
-             inp.value = ""; 
-             setTimeout(() => inp.focus(), 150); 
+             inp.value = "";
+             setTimeout(() => inp.focus(), 150);
            }
         }
     }
@@ -2322,14 +2327,29 @@ function init(){
       
       const inSearch = e.target.closest(".search-container") || e.target.closest("#toggleSearch");
       if (!inSearch) {
-          const s = $(".search-container");
-          if(s && s.classList.contains("show")) s.classList.remove("show");
+          closeMobileSearch();
       }
+
+      const inMobileNav = e.target.closest(".nav") || e.target.closest("#burger");
+      if (!inMobileNav) closeMobileNav();
       
       const inLang = e.target.closest("#langBtn") || e.target.closest("#langMenu");
       if (!inLang && $("#langMenu") && $("#langBtn")) { $("#langMenu").classList.remove("show"); $("#langBtn").setAttribute("aria-expanded","false"); }
   });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAll(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeAll();
+      closeMobileSearch();
+      closeMobileNav();
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 768) {
+      closeMobileSearch();
+      closeMobileNav();
+    }
+  });
 
   if($("#grid")) {
       $$("[data-hero-tab]").forEach(btn => btn.addEventListener("click", () => {
@@ -2954,7 +2974,19 @@ function openDrawer(show){
   if(d) {
     d.classList.toggle("show", show);
     d.setAttribute("aria-hidden", String(!show));
+    syncOverlayLock();
   }
+}
+
+function syncOverlayLock(){
+  const hasOverlay = !!(
+    $("#drawer.show") ||
+    $("#favDrawer.show") ||
+    $("#modal.show") ||
+    $("#productModal.is-open") ||
+    $("#language-modal.show")
+  );
+  document.body.classList.toggle("overlay-open", hasOverlay);
 }
 
 function showToast(msg) {
@@ -2986,6 +3018,7 @@ function closeAll(){
   }
   openDrawer(false);
   openFavDrawer(false);
+  syncOverlayLock();
 }
 
 function getCartKey(id, size){
@@ -3010,6 +3043,7 @@ function openFavDrawer(show){
     fd.classList.toggle("show", show);
     fd.setAttribute("aria-hidden", String(!show));
     if(show) renderFavs();
+    syncOverlayLock();
   }
 }
 
