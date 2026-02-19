@@ -891,6 +891,7 @@ window.selectInitialLang = function(lang) {
   if(modal) {
     modal.classList.remove('show');
     setTimeout(() => { modal.style.display = 'none'; }, 500);
+    syncOverlayLock();
   }
 };
 
@@ -2039,12 +2040,16 @@ function init(){
     if(modal) {
         modal.style.display = 'none';
         modal.classList.remove('show');
+        syncOverlayLock();
     }
   } else {
     // Show modal
     if(modal) {
        modal.style.display = 'flex'; 
-       setTimeout(() => modal.classList.add('show'), 50);
+       setTimeout(() => {
+         modal.classList.add('show');
+         syncOverlayLock();
+       }, 50);
     }
   }
   
@@ -2726,6 +2731,7 @@ window.openQuickShop = function(id) {
   
   $("#modal").classList.add("show");
   $("#modal").setAttribute("aria-hidden","false");
+  syncOverlayLock();
 };
 
 window.setQsColor = function(name) {
@@ -3664,6 +3670,7 @@ function openModal(id){
   // Open
   $("#productModal").classList.add("is-open");
   $("#productModal").setAttribute("aria-hidden", "false");
+  syncOverlayLock();
 }
 
 
