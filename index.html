@@ -97,7 +97,7 @@
   <link rel="dns-prefetch" href="//embed.tawk.to">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="preload" as="video" href="https://www.dropbox.com/scl/fi/ijjlsh5g0qtz1txe075sp/1770625431125.mp4?rlkey=977tuc0zdeav4eqa2igf6e12g&st=h27cyv00&raw=1" fetchpriority="high">
+  <link rel="preload" as="image" href="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/Hero%20Section%20lecomax.png" fetchpriority="high">
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="card-enhancements.css" />
   <link rel="stylesheet" href="modal.css" />
@@ -338,25 +338,16 @@
 
 
       <div class="heroGrid heroGrid--single">
-        <div class="slider" aria-label="Featured">
-          <div class="slider__track" id="sliderTrack">
-            <!-- Server-Side Rendered Slide for Speed -->
-            <div class="slide slide--hero-video">
-              <video 
-                src="https://www.dropbox.com/scl/fi/ijjlsh5g0qtz1txe075sp/1770625431125.mp4?rlkey=977tuc0zdeav4eqa2igf6e12g&st=h27cyv00&raw=1" 
-                autoplay 
-                loop 
-                muted 
-                playsinline 
-                preload="auto" 
-                fetchpriority="high"
-                class="hero-video"
-              ></video>
-            </div>
-          </div>
-          <div class="slider__dots" id="sliderDots" aria-label="Dots"></div>
+        <div class="hero-featured-image">
+          <img
+            src="https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/Hero%20Section%20lecomax.png"
+            alt="Lecomax hero"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          >
         </div>
-        
+
         <!-- Hero Statement Section -->
         <div class="hero-statement">
           <h1 class="hero-statement__title" data-i18n="hero_statement_title">Graceful &amp; Powerful</h1>

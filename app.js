@@ -1759,7 +1759,6 @@ const PRODUCTS = [
 const SLIDES = [
   { tab:"electronics", kicker:"New Arrival", title:"Headphones that feel premium.",
     text:"ANC audio, wearables and power accessories—presented with a clean brand-store experience.",
-    video: "https://www.dropbox.com/scl/fi/ijjlsh5g0qtz1txe075sp/1770625431125.mp4?rlkey=977tuc0zdeav4eqa2igf6e12g&st=h27cyv00&raw=1",
     tiles:[]}
 ];
 
@@ -3926,3 +3925,64 @@ document.addEventListener('click', function(e) {
     }
   }
 });
+
+// Hero video loading enhancement
+(function() {
+  const heroVideo = document.querySelector('.hero-video');
+  const slide = document.querySelector('.slide--hero-video');
+  const playBtn = document.querySelector('.hero-video__play-btn');
+  
+  if (heroVideo && slide && playBtn) {
+    slide.classList.add('loading');
+    
+    // Function to update play button visibility
+    function updatePlayButton() {
+      if (heroVideo.paused || heroVideo.ended || window.innerWidth <= 768) {
+        playBtn.classList.add('show');
+      } else {
+        playBtn.classList.remove('show');
+      }
+    }
+    
+    // Play button click handler
+    playBtn.addEventListener('click', () => {
+      heroVideo.play().catch(() => {
+        // Autoplay failed, user interaction required
+      });
+    });
+    
+    // Video event listeners
+    heroVideo.addEventListener('loadeddata', () => {
+      heroVideo.classList.add('loaded');
+      slide.classList.remove('loading');
+      updatePlayButton();
+    });
+    
+    heroVideo.addEventListener('play', updatePlayButton);
+    heroVideo.addEventListener('pause', updatePlayButton);
+    heroVideo.addEventListener('ended', updatePlayButton);
+    
+    // Handle autoplay failure
+    heroVideo.addEventListener('loadstart', () => {
+      // If autoplay fails, show play button
+      setTimeout(() => {
+        if (heroVideo.paused && !heroVideo.error) {
+          updatePlayButton();
+        }
+      }, 1000);
+    });
+    
+    // Error handling
+    heroVideo.addEventListener('error', () => {
+      heroVideo.style.display = 'none';
+      slide.classList.remove('loading');
+      playBtn.style.display = 'none';
+    });
+    
+    // Initial check
+    updatePlayButton();
+    
+    // Update on resize
+    window.addEventListener('resize', updatePlayButton);
+  }
+})();
