@@ -35,8 +35,8 @@ try {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DEFAULT_ADMIN_EMAIL = 'admin@lecomax.com';
-const DEFAULT_ADMIN_PASSWORD = 'lecomax1970';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 // Database Connection
 const pool = mysql.createPool({
@@ -52,25 +52,90 @@ const pool = mysql.createPool({
   }
 });
 
-async function ensureDefaultAdmin() {
-    try {
-        const [rows] = await pool.execute('SELECT id FROM admins WHERE username = ? LIMIT 1', [DEFAULT_ADMIN_EMAIL]);
-        if (rows.length > 0) {
-            return;
-        }
+let authConfig = null;
 
-        const passwordHash = await bcrypt.hash(DEFAULT_ADMIN_PASSWORD, 10);
-        await pool.execute(
-            'INSERT INTO admins (username, password_hash) VALUES (?, ?)',
-            [DEFAULT_ADMIN_EMAIL, passwordHash]
-        );
-        console.log('Default admin created: admin@lecomax.com');
-    } catch (error) {
-        console.error('Default admin check failed (DB unavailable). Will retry in background:', error.message);
-        setTimeout(() => {
-            ensureDefaultAdmin().catch(() => {});
-        }, 30000);
+async function resolveAuthConfig() {
+    if (authConfig) return authConfig;
+
+    const [tables] = await pool.execute(`
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = DATABASE() AND table_name IN ('admins', 'users')
+        ORDER BY FIELD(table_name, 'admins', 'users')
+        LIMIT 1
+    `);
+
+    if (!tables.length) {
+        throw new Error('No admins/users table found');
     }
+
+    const tableName = tables[0].table_name;
+    const [columns] = await pool.execute(`
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = DATABASE() AND table_name = ?
+    `, [tableName]);
+
+    const columnNames = new Set(columns.map((column) => column.column_name));
+    const identityColumn = columnNames.has('email') ? 'email' : (columnNames.has('username') ? 'username' : null);
+    const passwordColumn = columnNames.has('password_hash') ? 'password_hash' : (columnNames.has('password') ? 'password' : null);
+    const hasRole = columnNames.has('role');
+
+    if (!identityColumn || !passwordColumn) {
+        throw new Error(`Table ${tableName} must contain email/username and password_hash/password columns`);
+    }
+
+    authConfig = {
+        tableName,
+        identityColumn,
+        passwordColumn,
+        hasRole
+    };
+
+    return authConfig;
+}
+
+async function ensureAdminUser() {
+    if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+        console.log('Admin ensure skipped: ADMIN_EMAIL or ADMIN_PASSWORD missing');
+        return;
+    }
+
+    const config = await resolveAuthConfig();
+    const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+
+    const [rows] = await pool.execute(
+        `SELECT id FROM ${config.tableName} WHERE ${config.identityColumn} = ? LIMIT 1`,
+        [ADMIN_EMAIL]
+    );
+
+    if (!rows.length) {
+        if (config.hasRole) {
+            await pool.execute(
+                `INSERT INTO ${config.tableName} (${config.identityColumn}, ${config.passwordColumn}, role) VALUES (?, ?, 'admin')`,
+                [ADMIN_EMAIL, passwordHash]
+            );
+        } else {
+            await pool.execute(
+                `INSERT INTO ${config.tableName} (${config.identityColumn}, ${config.passwordColumn}) VALUES (?, ?)`,
+                [ADMIN_EMAIL, passwordHash]
+            );
+        }
+    } else {
+        if (config.hasRole) {
+            await pool.execute(
+                `UPDATE ${config.tableName} SET ${config.passwordColumn} = ?, role = 'admin' WHERE ${config.identityColumn} = ?`,
+                [passwordHash, ADMIN_EMAIL]
+            );
+        } else {
+            await pool.execute(
+                `UPDATE ${config.tableName} SET ${config.passwordColumn} = ? WHERE ${config.identityColumn} = ?`,
+                [passwordHash, ADMIN_EMAIL]
+            );
+        }
+    }
+
+    console.log('Admin ensured');
 }
 
 // Middleware
@@ -94,6 +159,42 @@ const requireAuth = (req, res, next) => {
     if (req.session.adminId) return next();
     res.status(401).json({ error: 'Unauthorized' });
 };
+
+app.post('/api/login', async (req, res) => {
+    const input = (req.body.username || req.body.email || '').trim();
+    const password = req.body.password || '';
+
+    if (!input || !password) {
+        return res.status(400).json({ error: 'Missing credentials' });
+    }
+
+    try {
+        const config = await resolveAuthConfig();
+        const shouldUseEmail = input.includes('@') && config.identityColumn === 'email';
+        const lookupColumn = shouldUseEmail ? 'email' : config.identityColumn;
+
+        const [rows] = await pool.execute(
+            `SELECT id, ${config.passwordColumn} AS password_hash FROM ${config.tableName} WHERE ${lookupColumn} = ? LIMIT 1`,
+            [input]
+        );
+
+        if (!rows.length) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        const admin = rows[0];
+        const match = await bcrypt.compare(password, admin.password_hash || '');
+        if (!match) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        req.session.adminId = admin.id;
+        return res.json({ success: true });
+    } catch (error) {
+        console.error('Login failed:', error);
+        return res.status(500).json({ error: 'Server error' });
+    }
+});
 
 // --- API Routes ---
 if (apiRoutes) {
@@ -142,7 +243,12 @@ app.get('*', (req, res) => {
 });
 
 async function startServer() {
-    await ensureDefaultAdmin();
+    try {
+        await ensureAdminUser();
+    } catch (error) {
+        console.error('Admin ensure step failed:', error.message);
+    }
+
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`✅ Server running on port ${PORT}`);
         console.log(`GMAIL_ENABLED: ${GMAIL_ENABLED}`);
