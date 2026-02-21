@@ -4,10 +4,25 @@ const session = require('express-session');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const path = require('path');
+const fs = require('fs');
 
-// Import Routes
-const apiRoutes = require('./routes/api');
-const gmailRoutes = require('./routes/gmail');
+// Import Routes (load only if they exist)
+let apiRoutes = null;
+let gmailRoutes = null;
+const apiRoutePath = path.join(__dirname, 'routes', 'api.js');
+const gmailRoutePath = path.join(__dirname, 'routes', 'gmail.js');
+
+if (fs.existsSync(apiRoutePath)) {
+    apiRoutes = require('./routes/api');
+} else {
+    console.warn('[WARN] routes/api.js not found. /api routes from module are disabled.');
+}
+
+if (fs.existsSync(gmailRoutePath)) {
+    gmailRoutes = require('./routes/gmail');
+} else {
+    console.warn('[WARN] routes/gmail.js not found. /api/gmail routes from module are disabled.');
+}
 
 let getAuthUrl, handleCallback, syncEmails;
 let GMAIL_ENABLED = true;
@@ -71,8 +86,13 @@ const requireAuth = (req, res, next) => {
 };
 
 // --- API Routes ---
-app.use('/api', apiRoutes(db, requireAuth, GMAIL_ENABLED, syncEmails));
-app.use('/api/gmail', gmailRoutes(db, requireAuth, GMAIL_ENABLED, getAuthUrl, handleCallback));
+if (apiRoutes) {
+    app.use('/api', apiRoutes(db, requireAuth, GMAIL_ENABLED, syncEmails));
+}
+
+if (gmailRoutes) {
+    app.use('/api/gmail', gmailRoutes(db, requireAuth, GMAIL_ENABLED, getAuthUrl, handleCallback));
+}
 
 // --- Gmail OAuth2 Callback Route ---
 app.get('/admin/oauth2/callback', async (req, res) => {
