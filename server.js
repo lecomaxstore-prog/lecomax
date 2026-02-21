@@ -39,28 +39,38 @@ const DEFAULT_ADMIN_EMAIL = 'admin@lecomax.com';
 const DEFAULT_ADMIN_PASSWORD = 'lecomax1970';
 
 // Database Connection
-const db = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'lecomax_admin',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
+  waitForConnections: true,
+  connectionLimit: 10,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 async function ensureDefaultAdmin() {
-    const [rows] = await db.execute('SELECT id FROM admins WHERE username = ? LIMIT 1', [DEFAULT_ADMIN_EMAIL]);
-    if (rows.length > 0) {
-        return;
-    }
+    try {
+        const [rows] = await pool.execute('SELECT id FROM admins WHERE username = ? LIMIT 1', [DEFAULT_ADMIN_EMAIL]);
+        if (rows.length > 0) {
+            return;
+        }
 
-    const passwordHash = await bcrypt.hash(DEFAULT_ADMIN_PASSWORD, 10);
-    await db.execute(
-        'INSERT INTO admins (username, password_hash) VALUES (?, ?)',
-        [DEFAULT_ADMIN_EMAIL, passwordHash]
-    );
-    console.log('Default admin created: admin@lecomax.com');
+        const passwordHash = await bcrypt.hash(DEFAULT_ADMIN_PASSWORD, 10);
+        await pool.execute(
+            'INSERT INTO admins (username, password_hash) VALUES (?, ?)',
+            [DEFAULT_ADMIN_EMAIL, passwordHash]
+        );
+        console.log('Default admin created: admin@lecomax.com');
+    } catch (error) {
+        console.error('Default admin check failed (DB unavailable). Will retry in background:', error.message);
+        setTimeout(() => {
+            ensureDefaultAdmin().catch(() => {});
+        }, 30000);
+    }
 }
 
 // Middleware
@@ -87,11 +97,11 @@ const requireAuth = (req, res, next) => {
 
 // --- API Routes ---
 if (apiRoutes) {
-    app.use('/api', apiRoutes(db, requireAuth, GMAIL_ENABLED, syncEmails));
+    app.use('/api', apiRoutes(pool, requireAuth, GMAIL_ENABLED, syncEmails));
 }
 
 if (gmailRoutes) {
-    app.use('/api/gmail', gmailRoutes(db, requireAuth, GMAIL_ENABLED, getAuthUrl, handleCallback));
+    app.use('/api/gmail', gmailRoutes(pool, requireAuth, GMAIL_ENABLED, getAuthUrl, handleCallback));
 }
 
 // --- Gmail OAuth2 Callback Route ---
@@ -101,7 +111,7 @@ app.get('/admin/oauth2/callback', async (req, res) => {
     
     try {
         if (!GMAIL_ENABLED) throw new Error('Gmail integration disabled.');
-        await handleCallback(code, db);
+        await handleCallback(code, pool);
         res.send('<script>window.opener.location.reload(); window.close();</script>Gmail Connected Successfully! You can close this window.');
     } catch (err) {
         console.error(err);
@@ -132,16 +142,11 @@ app.get('*', (req, res) => {
 });
 
 async function startServer() {
-    try {
-        await ensureDefaultAdmin();
-        app.listen(PORT, '0.0.0.0', () => {
-            console.log(`✅ Server running on port ${PORT}`);
-            console.log(`GMAIL_ENABLED: ${GMAIL_ENABLED}`);
-        });
-    } catch (error) {
-        console.error('Failed to start server:', error);
-        process.exit(1);
-    }
+    await ensureDefaultAdmin();
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`✅ Server running on port ${PORT}`);
+        console.log(`GMAIL_ENABLED: ${GMAIL_ENABLED}`);
+    });
 }
 
 startServer();
