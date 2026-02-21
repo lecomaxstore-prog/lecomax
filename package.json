@@ -1,0 +1,18 @@
+{
+  "name": "lecomax-admin-backend",
+  "version": "1.0.0",
+  "description": "Admin backend for LECOMAX with Gmail integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "create-admin": "node create-admin.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "googleapis": "^134.0.0",
+    "mysql2": "^3.9.2"
+  }
+}
