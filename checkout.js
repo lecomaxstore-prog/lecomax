@@ -81,6 +81,16 @@ function parseCartKey(key) {
   return { id, size };
 }
 
+function resolveMadPrice(value) {
+  if (typeof window.applyPsychologicalPriceMAD === "function") {
+    return window.applyPsychologicalPriceMAD(value);
+  }
+  const parsed = Math.floor(Number(value));
+  if (!Number.isFinite(parsed) || parsed <= 0) return 1;
+  if (parsed % 10 === 9) return parsed;
+  return Math.max(1, parsed - 1);
+}
+
 function getCartItems() {
   const direct = JSON.parse(localStorage.getItem(cartKey) || "[]");
   const safeDirect = Array.isArray(direct) ? direct : [];
@@ -90,7 +100,7 @@ function getCartItems() {
     return {
       id: item.id,
       title: item.title || (p ? p.name : ""),
-      price: Number(item.price) || (p ? Number(p.price) : 0),
+      price: p ? Number(p.price) : (Number(item.price) > 0 ? resolveMadPrice(item.price) : 0),
       qty: Number(item.qty) || 1,
       image: item.image || (p && p.images && p.images[0] ? p.images[0] : ""),
       color: item.color || "",

@@ -199,6 +199,7 @@
              you_might_like: "You might also like",
              verified_buyer: "Verified Buyer",
              add_to_cart: "Add to Cart",
+             sold_out: "Sold Out",
            size: "Size",
            select: "Select",
            please_select_size: "Please select a size",
@@ -226,6 +227,7 @@
              you_might_like: "Vous aimerez peut-être aussi",
              verified_buyer: "Acheteur Vérifié",
              add_to_cart: "Ajouter au Panier",
+             sold_out: "Épuisé",
            size: "Taille",
            select: "Choisir",
            please_select_size: "Veuillez choisir une taille",
@@ -253,6 +255,7 @@
              you_might_like: "قد يعجبك أيضاً",
              verified_buyer: "مشتري موثق",
              add_to_cart: "أضف إلى السلة",
+             sold_out: "نفذت الكمية",
            size: "المقاس",
            select: "اختر",
            please_select_size: "يرجى اختيار المقاس",
@@ -552,8 +555,8 @@
                     <button class="qty-btn" onclick="updateQty(1)">+</button>
                      </div>
                      
-                    <button id="addToCartBtn" class="btn btn--primary add-btn" onclick="handleAddToCart('${p.id}')">
-                        ${txt.add_to_cart}
+                    <button id="addToCartBtn" class="btn btn--primary add-btn" onclick="handleAddToCart('${p.id}')" ${!isProductInStock(p) ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+                        ${!isProductInStock(p) ? (txt.sold_out || 'Sold Out') : txt.add_to_cart}
                      </button>
                      
                     <button id="favActionBtn" class="fav-action-btn" onclick="handleToggleFavorite('${p.id}')" title="${txt.added_to_favorites}">

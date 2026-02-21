@@ -1,0 +1,82 @@
+@media (max-width: 600px) {
+  .filters {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    padding: 10px 4px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 16px rgba(15,23,42,0.10) !important;
+  }
+  .filters .search-filter {
+    flex-direction: row;
+    gap: 6px;
+    width: 100%;
+  }
+  .filters .search-input {
+    font-size: 1rem;
+    padding: 10px 12px;
+    border-radius: 8px;
+    width: 100%;
+    min-width: 0;
+  }
+  .filters .search-btn {
+    min-width: 38px;
+    min-height: 38px;
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+  .filters .filter-group {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+    width: 100%;
+  }
+  .filters .pillBtn {
+    font-size: 0.98rem;
+    padding: 8px 10px;
+    border-radius: 8px;
+    min-width: 0;
+  }
+  .filters .advanced-filters {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  .filters .select {
+    width: 100%;
+    font-size: 1rem;
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+  .filters .view-toggle {
+    flex-direction: row;
+    gap: 8px;
+    justify-content: center;
+    width: 100%;
+  }
+  .filters .view-btn {
+    min-width: 38px;
+    min-height: 38px;
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+}
+
+/* Hero Image Improvements for Mobile */
+@media (max-width: 600px) {
+  .slide--hero-video {
+    min-height: 100vh;
+    height: 100vh;
+    position: relative;
+  }
+  .slide--hero-video img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}

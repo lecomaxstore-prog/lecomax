@@ -392,9 +392,11 @@ const TRANSLATIONS = {
     products_sub: "Search, filter, sort — then add to cart.",
     all: "All",
     view_all: "View all",
-    fast_delivery: "Fast Delivery",
-    official_warranty: "Official Warranty",
-    premium_support: "Premium Support",
+    quality: "QUALITY",
+    best_prices: "BEST PRICES",
+    fast_delivery: "FAST DELIVERY",
+    official_warranty: "QUALITY",
+    premium_support: "24/7 SUPPORT",
     subscribe: "Subscribe",
     join_club: "Join the Club",
     join_club_desc: "Get exclusive access to new drops and secret sales.",
@@ -423,9 +425,9 @@ const TRANSLATIONS = {
     wearables: "Wearables",
     power: "Power",
     gaming: "Gaming",
-    feature_fast_desc: "Shipping within 3 days.",
-    feature_warranty_desc: "1-year coverage.",
-    feature_support_desc: "24/7 expert assistance.",
+    feature_fast_desc: "",
+    feature_warranty_desc: "",
+    feature_support_desc: "",
     curated_collections: "Curated Collections",
     badge_top: "Top",
     badge_new: "New",
@@ -488,6 +490,7 @@ const TRANSLATIONS = {
     address_city_country: "Sidi Bennour, Morocco",
     add_to_cart_caps: "ADD TO CART",
     btn_add: "Add",
+    sold_out: "Sold Out",
     select_size: "Select Size"
   },
   fr: {
@@ -556,9 +559,11 @@ const TRANSLATIONS = {
     products_sub: "Recherchez, filtrez et trouvez votre bonheur.",
     all: "Tout",
     view_all: "Tout voir",
-    fast_delivery: "Livraison Rapide",
-    official_warranty: "Garantie Officielle",
-    premium_support: "Service Premium",
+    quality: "QUALITY",
+    best_prices: "BEST PRICES",
+    fast_delivery: "FAST DELIVERY",
+    official_warranty: "QUALITY",
+    premium_support: "24/7 SUPPORT",
     subscribe: "S'inscrire",
     join_club: "Rejoindre le Club",
     join_club_desc: "Accès exclusif aux ventes privées et nouveautés.",
@@ -587,9 +592,9 @@ const TRANSLATIONS = {
     wearables: "Objets Connectés",
     power: "Énergie & Charge",
     gaming: "Gaming",
-    feature_fast_desc: "Expédition sous 3 jours.",
-    feature_warranty_desc: "Couverture 1 an.",
-    feature_support_desc: "Assistance experte 24/7.",
+    feature_fast_desc: "",
+    feature_warranty_desc: "",
+    feature_support_desc: "",
     curated_collections: "Collections Exclusives",
     badge_top: "Top",
     badge_new: "Nouveau",
@@ -652,6 +657,7 @@ const TRANSLATIONS = {
     address_city_country: "Sidi Bennour, Maroc",
     add_to_cart_caps: "AJOUTER AU PANIER",
     btn_add: "Ajouter",
+    sold_out: "Épuisé",
     select_size: "Choisir la taille"
   },
   ar: {
@@ -720,9 +726,11 @@ const TRANSLATIONS = {
     products_sub: "تصفح، ابحث، واختر ما يناسبك.",
     all: "الكل",
     view_all: "عرض الجميع",
-    fast_delivery: "توصيل سريع",
-    official_warranty: "ضمان معتمد",
-    premium_support: "خدمة متميزة",
+    quality: "QUALITY",
+    best_prices: "BEST PRICES",
+    fast_delivery: "FAST DELIVERY",
+    official_warranty: "QUALITY",
+    premium_support: "24/7 SUPPORT",
     subscribe: "اشترك",
     join_club: "انضم إلى النادي",
     join_club_desc: "تمتع بخصومات حصرية وكن أول من يعلم بجديدنا.",
@@ -751,9 +759,9 @@ const TRANSLATIONS = {
     wearables: "أجهزة قابلة للارتداء",
     power: "شواحن وطاقة",
     gaming: "ألعاب الفيديو",
-    feature_fast_desc: "شحن خلال 3 أيام.",
-    feature_warranty_desc: "تغطية لمدة سنة.",
-    feature_support_desc: "دعم فني على مدار الساعة.",
+    feature_fast_desc: "",
+    feature_warranty_desc: "",
+    feature_support_desc: "",
     curated_collections: "مجموعات مختارة",
     badge_top: "قمة",
     badge_new: "جديد",
@@ -816,6 +824,7 @@ const TRANSLATIONS = {
     address_city_country: "سيدي بنور، المغرب",
     add_to_cart_caps: "إضافة إلى السلة",
     btn_add: "إضافة",
+    sold_out: "نفذت الكمية",
     select_size: "اختر المقاس"
   }
 };
@@ -1162,6 +1171,39 @@ function loadVariant(productId){
   try{ return JSON.parse(localStorage.getItem("lc_variant_"+productId)||"null"); }catch(e){ return null; }
 }
 
+function applyPsychologicalPriceMAD(rawPrice){
+  const parsed = Math.floor(Number(rawPrice));
+  if (!Number.isFinite(parsed) || parsed <= 0) return 1;
+  if (parsed % 10 === 9) return parsed;
+  return Math.max(1, parsed - 1);
+}
+
+function applyPsychologicalPricingToProducts(products){
+  if (!Array.isArray(products)) return;
+
+  products.forEach((product) => {
+    if (!product || typeof product !== "object") return;
+
+    if (typeof product.price !== "undefined") {
+      product.price = applyPsychologicalPriceMAD(product.price);
+    }
+
+    if (typeof product.old !== "undefined" && Number(product.old) > 0) {
+      product.old = applyPsychologicalPriceMAD(product.old);
+    }
+
+    if (Array.isArray(product.colors)) {
+      product.colors.forEach((color) => {
+        if (color && typeof color.price !== "undefined") {
+          color.price = applyPsychologicalPriceMAD(color.price);
+        }
+      });
+    }
+  });
+}
+
+window.applyPsychologicalPriceMAD = applyPsychologicalPriceMAD;
+
 const PRODUCTS = [
   {
     id: "wireless_gaming_controller_v2",
@@ -1402,7 +1444,7 @@ const PRODUCTS = [
     name: "BARCUR Design TR90 Sunglasses Men Polarized Light Weight Sports Sun Glasses Women Eyewear Accessory Oculos UVAB Protection",
     name_fr: "Lunettes de soleil BARCUR TR90 polarisees, legeres, sport, protection UVAB",
     name_ar: "نظارات شمس BARCUR TR90 مستقطبة وخفيفة للحماية من UVAB",
-    price: 135,
+    price: 129,
     old: 0,
     rating: 4.8,
     emoji: "🕶️",
@@ -1490,8 +1532,8 @@ const PRODUCTS = [
       "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/4%20rust%20.jpeg"
     ],
     colors: [
-      { name: "Black", hex: "#0b0b0b", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/1%20black%20.jpeg" },
-      { name: "Rust", hex: "#b4532a", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/1%20rust%20.jpeg" }
+      { name: "Black", hex: "#0b0b0b", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/1%20black%20.jpeg", soldOut: true },
+      { name: "Rust", hex: "#b4532a", img: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/images/casualjacket/1%20rust%20.jpeg", soldOut: true }
     ],
     sizesAvailability: {
       "XL": false,
@@ -1652,7 +1694,7 @@ const PRODUCTS = [
     name: "Waterproof Mobile Waist Bag",
     name_fr: "Sac Banane Étanche pour Mobile",
     name_ar: "حقيبة خصر مقاومة للماء للجوال",
-    price: 95,
+    price: 91,
     old: 0,
     rating: 4.7,
     emoji: "👜",
@@ -1733,7 +1775,7 @@ const PRODUCTS = [
     sizesAvailability: {
         "M": false,
         "L": false,
-        "XL": false,
+        "XL": true,
         "XXL": true,
         "3XL": false
     },
@@ -1755,6 +1797,8 @@ const PRODUCTS = [
     ]
   }
 ];
+
+applyPsychologicalPricingToProducts(PRODUCTS);
 
 const SLIDES = [
   { tab:"electronics", kicker:"New Arrival", title:"Headphones that feel premium.",
@@ -2371,6 +2415,7 @@ function init(){
       // Render products first so the page never looks empty even if the slider fails to load.
       renderGrid();
       renderTrending(); // New
+      syncStaticTrendingPrices();
 
       // Slider is optional (network image issues shouldn't break the whole page)
       try{
@@ -2814,10 +2859,8 @@ function renderQuickShop() {
                   <button onclick="${available ? `setQsSize('${s}')` : ''}" 
                      class="qs-size-btn ${size === s ? 'selected' : ''} ${!available ? 'disabled' : ''}"
                      ${!available ? 'disabled' : ''}
-                     title="${s} ${!available ? '(Sold Out)' : ''}"
-                     style="${!available ? 'opacity:0.5; position:relative; overflow:hidden;' : ''}">
+                     title="${s} ${!available ? '(Sold Out)' : ''}">
                      ${s}
-                     ${!available ? '<div style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.7); display:flex; align-items:center; justify-content:center;"><div style="width:100%; height:1px; background:#999; transform:rotate(-45deg);"></div></div>' : ''}
                   </button>
                `}).join('')}
             </div>
@@ -2830,6 +2873,7 @@ function renderQuickShop() {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
   const pName = t["p_" + p.id] || p.name;
   const isRtl = document.documentElement.dir === 'rtl';
+  const isSoldOut = !isProductInStock(p);
 
   // Details HTML separate
   const detailsHtml = `
@@ -2855,10 +2899,12 @@ function renderQuickShop() {
           ${sizeHtml}
           
           <div class="qs-actions">
-             <button id="qsAddBtn" class="qs-btn btn--primary" style="box-shadow:0 10px 20px -5px var(--accent-glow)" ${ (availableSizes.length && !size) ? 'disabled' : '' }>
-                ${ (availableSizes.length && !size) 
-                    ? (t.select_size || 'Select Size') 
-                    : `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-${isRtl?'left':'right'}:6px"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg> ${t.add_to_cart_btn || 'Add to Cart'}` }
+             <button id="qsAddBtn" class="qs-btn" ${ isSoldOut ? 'disabled' : ((availableSizes.length && !size) ? 'disabled' : '') }>
+                ${ isSoldOut 
+                    ? (t.sold_out || 'Sold Out')
+                    : ((availableSizes.length && !size) 
+                        ? (t.select_size || 'Select Size') 
+                        : `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-${isRtl?'left':'right'}:6px"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg> ${t.add_to_cart_btn || 'Add to Cart'}`) }
              </button>
           </div>
           
@@ -3433,7 +3479,8 @@ function getCardHTML(p) {
     const lang = localStorage.getItem('lecomax_lang') || 'en';
     const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
     const pName = t["p_" + p.id] || p.name;
-    const addBtnText = t["btn_add"] || "Add";
+    const isSoldOut = !isProductInStock(p);
+    const addBtnText = isSoldOut ? (t["sold_out"] || "Sold Out") : (t["btn_add"] || "Add");
 
     // 1. Calculate Prices with optional Global Discount
     let finalPrice = p.price;
@@ -3443,15 +3490,16 @@ function getCardHTML(p) {
     if (globalDiscount > 0) {
         finalPrice = Math.max(0, p.price - globalDiscount);
         displayOld = p.price; 
-        badgeHTML = `<div class="badge badge--sale" style="background:#22c55e">PROMO</div>`;
+        badgeHTML = `<div class="card-badge card-badge--sale" style="background:#22c55e">PROMO</div>`;
     } else {
         // Normal state
         const hasSale = !!(p.old && p.old > p.price);
         const discount = hasSale ? Math.round(((p.old - p.price)/p.old)*100) : 0;
         const isNew = (hashStr(p.id) % 3) === 0;
         
-        if(hasSale) badgeHTML = `<div class="badge badge--sale">-${discount}%</div>`;
-        else if(isNew) badgeHTML = `<div class="badge badge--new">New</div>`;
+        if(isSoldOut) badgeHTML = `<div class="card-badge card-badge--soldout" style="background:#ef4444">Sold Out</div>`;
+        else if(hasSale) badgeHTML = `<div class="card-badge card-badge--sale">-${discount}%</div>`;
+        else if(isNew) badgeHTML = `<div class="card-badge card-badge--new">New</div>`;
     }
 
     // Determine initial image
@@ -3489,7 +3537,7 @@ function getCardHTML(p) {
      
         <div class="card__bottom">
             <div class="card__actions">
-               <button class="btn-add-cart" onclick="event.stopPropagation(); openQuickShop('${p.id}')">
+               <button class="btn-add-cart" onclick="event.stopPropagation(); ${isSoldOut ? '' : `openQuickShop('${p.id}')`}" ${isSoldOut ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                   <span>${addBtnText}</span>
                </button>
@@ -3539,6 +3587,45 @@ function renderTrending() {
     }
     
     el.innerHTML = list.map(getCardHTML).join("");
+}
+
+function extractMadNumber(text) {
+  const match = String(text || "").match(/\d+/);
+  return match ? Number(match[0]) : NaN;
+}
+
+function syncStaticTrendingPrices() {
+  const cards = $$(".trending__card[data-id]");
+  if (!cards.length) return;
+
+  cards.forEach((card) => {
+    const product = PRODUCTS.find((p) => p.id === card.dataset.id);
+    const newEl = card.querySelector(".trending__price-new");
+    const oldEl = card.querySelector(".trending__price-old");
+
+    if (newEl) {
+      const nextPrice = product
+        ? product.price
+        : applyPsychologicalPriceMAD(extractMadNumber(newEl.textContent));
+      if (Number.isFinite(nextPrice) && nextPrice > 0) {
+        newEl.textContent = `${nextPrice} MAD`;
+      }
+    }
+
+    if (oldEl) {
+      const fallbackOld = extractMadNumber(oldEl.textContent);
+      const baseOld = product && product.old > 0 ? product.old : fallbackOld;
+      const adjustedOld = applyPsychologicalPriceMAD(baseOld);
+      const currentNew = newEl ? extractMadNumber(newEl.textContent) : NaN;
+
+      if (Number.isFinite(adjustedOld) && adjustedOld > 0 && (!Number.isFinite(currentNew) || adjustedOld > currentNew)) {
+        oldEl.textContent = `${adjustedOld} MAD`;
+        oldEl.style.display = "";
+      } else {
+        oldEl.style.display = "none";
+      }
+    }
+  });
 }
 
 
