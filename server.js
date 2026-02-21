@@ -19,7 +19,7 @@ try {
 }
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 const DEFAULT_ADMIN_EMAIL = 'admin@lecomax.com';
 const DEFAULT_ADMIN_PASSWORD = 'lecomax1970';
 
@@ -98,6 +98,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
 // 3. Add a fallback so that /admin loads admin/index.html
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin', 'index.html'));
+});
+
 app.get('/admin/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin', 'index.html'));
 });
@@ -110,7 +114,7 @@ app.get('*', (req, res) => {
 async function startServer() {
     try {
         await ensureDefaultAdmin();
-        app.listen(PORT, () => {
+        app.listen(PORT, '0.0.0.0', () => {
             console.log(`✅ Server running on port ${PORT}`);
             console.log(`GMAIL_ENABLED: ${GMAIL_ENABLED}`);
         });
