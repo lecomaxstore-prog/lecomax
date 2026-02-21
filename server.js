@@ -4,7 +4,15 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 const mysql = require('mysql2/promise');
 const path = require('path');
-const { getAuthUrl, handleCallback, syncEmails } = require('./gmail');
+const fs = require('fs');
+let getAuthUrl, handleCallback, syncEmails;
+let GMAIL_ENABLED = true;
+try {
+  ({ getAuthUrl, handleCallback, syncEmails } = require('./gmail'));
+} catch (e) {
+  GMAIL_ENABLED = false;
+  console.warn('[WARN] gmail.js not found or failed to load. Gmail OAuth routes will be disabled.');
+}
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -112,6 +120,7 @@ app.get('/api/orders', requireAuth, async (req, res) => {
 // Sync Gmail
 app.post('/api/sync', requireAuth, async (req, res) => {
     try {
+        if (!GMAIL_ENABLED) throw new Error('Gmail integration disabled.');
         const result = await syncEmails(db);
         res.json(result);
     } catch (err) {
@@ -121,8 +130,17 @@ app.post('/api/sync', requireAuth, async (req, res) => {
 });
 
 // --- Gmail OAuth2 Routes ---
+if (!GMAIL_ENABLED) {
+  app.get('/api/gmail/auth', requireAuth, (req, res) => {
+    res.status(501).json({ error: 'Gmail integration disabled: gmail.js not deployed.' });
+  });
+  app.get('/admin/oauth2/callback', (req, res) => {
+    res.status(501).send('Gmail integration disabled: gmail.js not deployed.');
+  });
+}
 
 app.get('/api/gmail/auth', requireAuth, (req, res) => {
+    if (!GMAIL_ENABLED) return res.status(501).json({ error: 'Gmail integration disabled.' });
     const url = getAuthUrl();
     res.json({ url });
 });
@@ -132,6 +150,7 @@ app.get('/admin/oauth2/callback', async (req, res) => {
     if (!code) return res.send('No code provided');
     
     try {
+        if (!GMAIL_ENABLED) throw new Error('Gmail integration disabled.');
         await handleCallback(code, db);
         res.send('<script>window.opener.location.reload(); window.close();</script>Gmail Connected Successfully! You can close this window.');
     } catch (err) {
@@ -142,19 +161,48 @@ app.get('/admin/oauth2/callback', async (req, res) => {
 
 // --- Serve Frontend ---
 
-// Serve static files from the admin folder
-app.use('/admin', express.static(path.join(__dirname, '../admin')));
+// Resolve directories whether server.js is at repo root or inside /server
+const candidateAdminDirs = [
+  path.join(__dirname, 'admin'),
+  path.join(__dirname, '..', 'admin'),
+];
+const ADMIN_DIR = candidateAdminDirs.find(d => fs.existsSync(d)) || candidateAdminDirs[0];
 
-// Fallback for /admin to serve index.html
-app.get('/admin/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../admin/index.html'));
+const candidatePublicDirs = [
+  path.join(__dirname, 'public'),
+  path.join(__dirname, '..', 'public'),
+  __dirname,                 // allow serving static HTML/CSS at repo root
+  path.join(__dirname, '..'), // allow serving static HTML/CSS at repo root when server.js is in /server
+];
+const PUBLIC_DIR = candidatePublicDirs.find(d => fs.existsSync(d)) || candidatePublicDirs[0];
+
+// Serve static files for your main site (HTML/CSS/JS)
+app.use(express.static(PUBLIC_DIR));
+
+// Admin UI under /admin
+app.use('/admin', express.static(ADMIN_DIR));
+
+// Default route
+app.get('/', (req, res) => {
+  // If you have index.html in repo root/public, express.static will handle it.
+  // Otherwise redirect to admin.
+  const indexCandidates = [
+    path.join(PUBLIC_DIR, 'index.html'),
+    path.join(PUBLIC_DIR, 'lecomax.com', 'index.html'),
+  ];
+  const indexFile = indexCandidates.find(f => fs.existsSync(f));
+  if (indexFile) return res.sendFile(indexFile);
+  return res.redirect('/admin');
 });
 
-// Redirect root to /admin
-app.get('/', (req, res) => {
-    res.redirect('/admin');
+// Fallback for /admin to serve its index.html
+app.get('/admin/*', (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'index.html'));
 });
 
 app.listen(PORT, () => {
-    console.log(`Admin backend running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`PUBLIC_DIR: ${PUBLIC_DIR}`);
+  console.log(`ADMIN_DIR: ${ADMIN_DIR}`);
+  console.log(`GMAIL_ENABLED: ${GMAIL_ENABLED}`);
 });
