@@ -7,7 +7,7 @@ const path = require('path');
 const { getAuthUrl, handleCallback, syncEmails } = require('./gmail');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 // Database Connection
 const db = mysql.createPool({
@@ -23,6 +23,8 @@ const db = mysql.createPool({
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.set('trust proxy', 1); // Trust Render's reverse proxy for secure cookies
+
 app.use(session({
     secret: process.env.SESSION_SECRET || 'super-secret-key-change-me',
     resave: false,
@@ -146,6 +148,11 @@ app.use('/admin', express.static(path.join(__dirname, '../admin')));
 // Fallback for /admin to serve index.html
 app.get('/admin/*', (req, res) => {
     res.sendFile(path.join(__dirname, '../admin/index.html'));
+});
+
+// Redirect root to /admin
+app.get('/', (req, res) => {
+    res.redirect('/admin');
 });
 
 app.listen(PORT, () => {
