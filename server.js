@@ -1,21 +1,27 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const bcrypt = require('bcrypt');
 const mysql = require('mysql2/promise');
+const bcrypt = require('bcrypt');
 const path = require('path');
-const fs = require('fs');
+
+// Import Routes
+const apiRoutes = require('./routes/api');
+const gmailRoutes = require('./routes/gmail');
+
 let getAuthUrl, handleCallback, syncEmails;
 let GMAIL_ENABLED = true;
 try {
-  ({ getAuthUrl, handleCallback, syncEmails } = require('./gmail'));
+  ({ getAuthUrl, handleCallback, syncEmails } = require('./config/gmail'));
 } catch (e) {
   GMAIL_ENABLED = false;
-  console.warn('[WARN] gmail.js not found or failed to load. Gmail OAuth routes will be disabled.');
+  console.warn('[WARN] config/gmail.js not found or failed to load. Gmail OAuth routes will be disabled.');
 }
 
 const app = express();
 const PORT = process.env.PORT || 10000;
+const DEFAULT_ADMIN_EMAIL = 'admin@lecomax.com';
+const DEFAULT_ADMIN_PASSWORD = 'lecomax1970';
 
 // Database Connection
 const db = mysql.createPool({
@@ -27,6 +33,20 @@ const db = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
+
+async function ensureDefaultAdmin() {
+    const [rows] = await db.execute('SELECT id FROM admins WHERE username = ? LIMIT 1', [DEFAULT_ADMIN_EMAIL]);
+    if (rows.length > 0) {
+        return;
+    }
+
+    const passwordHash = await bcrypt.hash(DEFAULT_ADMIN_PASSWORD, 10);
+    await db.execute(
+        'INSERT INTO admins (username, password_hash) VALUES (?, ?)',
+        [DEFAULT_ADMIN_EMAIL, passwordHash]
+    );
+    console.log('Default admin created: admin@lecomax.com');
+}
 
 // Middleware
 app.use(express.json());
@@ -51,100 +71,10 @@ const requireAuth = (req, res, next) => {
 };
 
 // --- API Routes ---
+app.use('/api', apiRoutes(db, requireAuth, GMAIL_ENABLED, syncEmails));
+app.use('/api/gmail', gmailRoutes(db, requireAuth, GMAIL_ENABLED, getAuthUrl, handleCallback));
 
-// Login
-app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body;
-    try {
-        const [rows] = await db.execute('SELECT * FROM admins WHERE username = ?', [username]);
-        if (rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
-        
-        const admin = rows[0];
-        const match = await bcrypt.compare(password, admin.password_hash);
-        if (!match) return res.status(401).json({ error: 'Invalid credentials' });
-        
-        req.session.adminId = admin.id;
-        res.json({ success: true });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
-// Logout
-app.post('/api/logout', (req, res) => {
-    req.session.destroy();
-    res.json({ success: true });
-});
-
-// Get Stats (KPIs)
-app.get('/api/stats', requireAuth, async (req, res) => {
-    try {
-        // Last 30 days daily stats
-        const [dailyStats] = await db.execute(`
-            SELECT 
-                DATE(order_date) as date, 
-                COUNT(*) as orders, 
-                SUM(total) as revenue 
-            FROM orders 
-            WHERE order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-            GROUP BY DATE(order_date)
-            ORDER BY date ASC
-        `);
-
-        // Check if Gmail is connected
-        const [tokens] = await db.execute('SELECT id FROM gmail_tokens LIMIT 1');
-        const isGmailConnected = tokens.length > 0;
-
-        res.json({
-            dailyStats,
-            isGmailConnected
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
-// Get Latest Orders
-app.get('/api/orders', requireAuth, async (req, res) => {
-    try {
-        const [orders] = await db.execute('SELECT * FROM orders ORDER BY order_date DESC LIMIT 50');
-        res.json(orders);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
-// Sync Gmail
-app.post('/api/sync', requireAuth, async (req, res) => {
-    try {
-        if (!GMAIL_ENABLED) throw new Error('Gmail integration disabled.');
-        const result = await syncEmails(db);
-        res.json(result);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message || 'Sync failed' });
-    }
-});
-
-// --- Gmail OAuth2 Routes ---
-if (!GMAIL_ENABLED) {
-  app.get('/api/gmail/auth', requireAuth, (req, res) => {
-    res.status(501).json({ error: 'Gmail integration disabled: gmail.js not deployed.' });
-  });
-  app.get('/admin/oauth2/callback', (req, res) => {
-    res.status(501).send('Gmail integration disabled: gmail.js not deployed.');
-  });
-}
-
-app.get('/api/gmail/auth', requireAuth, (req, res) => {
-    if (!GMAIL_ENABLED) return res.status(501).json({ error: 'Gmail integration disabled.' });
-    const url = getAuthUrl();
-    res.json({ url });
-});
-
+// --- Gmail OAuth2 Callback Route ---
 app.get('/admin/oauth2/callback', async (req, res) => {
     const code = req.query.code;
     if (!code) return res.send('No code provided');
@@ -159,50 +89,35 @@ app.get('/admin/oauth2/callback', async (req, res) => {
     }
 });
 
-// --- Serve Frontend ---
+// --- Serve Static Files ---
 
-// Resolve directories whether server.js is at repo root or inside /server
-const candidateAdminDirs = [
-  path.join(__dirname, 'admin'),
-  path.join(__dirname, '..', 'admin'),
-];
-const ADMIN_DIR = candidateAdminDirs.find(d => fs.existsSync(d)) || candidateAdminDirs[0];
+// 1. Serve the main website from /public
+app.use(express.static(path.join(__dirname, 'public')));
 
-const candidatePublicDirs = [
-  path.join(__dirname, 'public'),
-  path.join(__dirname, '..', 'public'),
-  __dirname,                 // allow serving static HTML/CSS at repo root
-  path.join(__dirname, '..'), // allow serving static HTML/CSS at repo root when server.js is in /server
-];
-const PUBLIC_DIR = candidatePublicDirs.find(d => fs.existsSync(d)) || candidatePublicDirs[0];
+// 2. Serve admin panel from /admin
+app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
-// Serve static files for your main site (HTML/CSS/JS)
-app.use(express.static(PUBLIC_DIR));
-
-// Admin UI under /admin
-app.use('/admin', express.static(ADMIN_DIR));
-
-// Default route
-app.get('/', (req, res) => {
-  // If you have index.html in repo root/public, express.static will handle it.
-  // Otherwise redirect to admin.
-  const indexCandidates = [
-    path.join(PUBLIC_DIR, 'index.html'),
-    path.join(PUBLIC_DIR, 'lecomax.com', 'index.html'),
-  ];
-  const indexFile = indexCandidates.find(f => fs.existsSync(f));
-  if (indexFile) return res.sendFile(indexFile);
-  return res.redirect('/admin');
-});
-
-// Fallback for /admin to serve its index.html
+// 3. Add a fallback so that /admin loads admin/index.html
 app.get('/admin/*', (req, res) => {
-  res.sendFile(path.join(ADMIN_DIR, 'index.html'));
+    res.sendFile(path.join(__dirname, 'admin', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-  console.log(`PUBLIC_DIR: ${PUBLIC_DIR}`);
-  console.log(`ADMIN_DIR: ${ADMIN_DIR}`);
-  console.log(`GMAIL_ENABLED: ${GMAIL_ENABLED}`);
+// Fallback for main website (optional, for SPA routing if needed)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+async function startServer() {
+    try {
+        await ensureDefaultAdmin();
+        app.listen(PORT, () => {
+            console.log(`✅ Server running on port ${PORT}`);
+            console.log(`GMAIL_ENABLED: ${GMAIL_ENABLED}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+}
+
+startServer();
