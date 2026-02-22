@@ -3589,7 +3589,7 @@ h2{margin:0; font-size:1.65rem}
 .newsletter__input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
 
 /* Back to Top */
-.page-home #backToTop {
+#backToTop {
   position: fixed; bottom: 86px; left: 24px;
   width: 42px; height: 42px;
   background: #0f172a; color: #fff;
@@ -3603,11 +3603,11 @@ h2{margin:0; font-size:1.65rem}
   z-index: 90;
   box-shadow: 0 10px 26px rgba(0,0,0,0.18);
 }
-.page-home #backToTop.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
-.page-home #backToTop:hover { transform: translateY(-2px); background: #111827; }
-.page-home #backToTop svg { width: 18px; height: 18px; }
+#backToTop.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+#backToTop:hover { transform: translateY(-2px); background: #111827; }
+#backToTop svg { width: 18px; height: 18px; }
 @media (max-width: 600px) {
-  .page-home #backToTop { bottom: 72px; left: 16px; width: 40px; height: 40px; }
+  #backToTop { bottom: 72px; left: 16px; width: 40px; height: 40px; }
 }
 
 /* Success Modal */
@@ -4777,6 +4777,12 @@ h2{margin:0; font-size:1.65rem}
   height: 52px;
 }
 
+.product-page .qty-btn{
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .product-page .add-btn{
   min-height: 52px;
   border-radius: 12px !important;
@@ -4861,6 +4867,16 @@ h2{margin:0; font-size:1.65rem}
 }
 
 .product-page .reviews-section{ margin-top:80px; }
+
+.product-page .rating-summary{
+  border: 1px solid #e2e8f0;
+}
+
+.product-page .r-label{
+  min-width: 44px;
+  color: #334155;
+  font-weight: 600;
+}
 
 .product-page .related-section{
   margin-top:80px;
