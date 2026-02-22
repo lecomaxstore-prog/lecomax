@@ -2135,7 +2135,6 @@ function init(){
         const selectedLang = btn.dataset.langCode || ({
           "English": "en",
           "Français": "fr",
-          "Fran�ais": "fr",
           "العربية": "ar",
           "???????": "ar"
         }[btn.dataset.lang] || "en");
@@ -2627,29 +2626,73 @@ function renderActiveFilterChips(){
 }
 
 function setupMegaMenus(){
-  const groups = $$("[data-mega]");
-  groups.forEach(btn => btn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const key = btn.dataset.mega;
-    const panel = document.getElementById(`mega-${key}`);
-    if(!panel) return;
-    const open = panel.classList.contains("show");
-    $$(".mega").forEach(m => m.classList.remove("show"));
-    groups.forEach(b => b.setAttribute("aria-expanded","false"));
-    panel.classList.toggle("show", !open);
-    btn.setAttribute("aria-expanded", String(!open));
-  }));
+  const nav = $(".nav");
+  if (!nav) return;
 
-  document.addEventListener("click", (e) => {
-    if (e.target.closest(".nav__group")) return;
-    $$(".mega").forEach(m => m.classList.remove("show"));
-    groups.forEach(b => b.setAttribute("aria-expanded","false"));
+  const groups = () => nav.querySelectorAll("[data-mega]");
+  const panels = () => nav.querySelectorAll(".mega");
+
+  function closeAllMegaMenus() {
+    panels().forEach(panel => panel.classList.remove("show"));
+    groups().forEach(btn => btn.setAttribute("aria-expanded", "false"));
+  }
+
+  function toggleMegaMenu(btn) {
+    const key = btn?.dataset?.mega;
+    if (!key) return;
+    const panel = document.getElementById(`mega-${key}`);
+    if (!panel) return;
+
+    const willOpen = !panel.classList.contains("show");
+    closeAllMegaMenus();
+    if (willOpen) {
+      panel.classList.add("show");
+      btn.setAttribute("aria-expanded", "true");
+    }
+  }
+
+  nav.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-mega]");
+    if (!btn || !nav.contains(btn)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    toggleMegaMenu(btn);
   });
 
-  $$("[data-filter]").forEach(a => a.addEventListener("click", () => {
+  nav.addEventListener("keydown", (e) => {
+    const btn = e.target.closest("[data-mega]");
+    if (!btn) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleMegaMenu(btn);
+    }
+    if (e.key === "Escape") {
+      closeAllMegaMenus();
+      btn.blur();
+    }
+  });
+
+  nav.addEventListener("mouseover", (e) => {
+    if (window.innerWidth <= 768) return;
+    const canHover = window.matchMedia && window.matchMedia("(hover: hover)").matches;
+    if (!canHover) return;
+    const btn = e.target.closest("[data-mega]");
+    if (!btn || !nav.contains(btn)) return;
+    toggleMegaMenu(btn);
+  });
+
+  nav.addEventListener("mouseleave", () => {
+    if (window.innerWidth > 768) closeAllMegaMenus();
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".nav")) return;
+    closeAllMegaMenus();
+  });
+
+  $$('[data-filter]').forEach(a => a.addEventListener("click", () => {
     setFilter(a.dataset.filter);
-    $$(".mega").forEach(m => m.classList.remove("show"));
-    groups.forEach(b => b.setAttribute("aria-expanded","false"));
+    closeAllMegaMenus();
   }));
 
   // Modal Triggers
