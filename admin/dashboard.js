@@ -1,4 +1,5 @@
-const STORAGE_KEY = 'lecomax_sales';
+const SALES_API_BASE = '/api/admin/sales';
+const FORM_DRAFT_KEY = 'lecomax_admin_sale_form_draft';
 
 // DOM Elements
 const els = {
@@ -35,47 +36,136 @@ let currentEditId = null;
 let activeQuickFilter = 'all';
 
 // Initialization
-function init() {
-    loadSalesFromStorage();
+async function init() {
+    await loadSalesFromServer();
     setupEventListeners();
     setDefaultDate();
+    restoreFormDraft();
     renderDashboard();
 }
 
 // Data Management
-function loadSalesFromStorage() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-        try {
-            const parsed = JSON.parse(stored);
-            if (!Array.isArray(parsed)) {
-                salesData = [];
-                return;
-            }
+function normalizeSale(sale) {
+    return {
+        ...sale,
+        amount: toAmount(sale?.amount),
+        date: sale?.date || getToday(),
+        product: String(sale?.product || ''),
+        customer: String(sale?.customer || ''),
+        phone: String(sale?.phone || ''),
+        city: String(sale?.city || ''),
+        address: String(sale?.address || ''),
+        notes: String(sale?.notes || '')
+    };
+}
 
-            salesData = parsed.map((sale) => ({
-                ...sale,
-                amount: toAmount(sale?.amount),
-                date: sale?.date || getToday(),
-                product: String(sale?.product || ''),
-                customer: String(sale?.customer || ''),
-                phone: String(sale?.phone || ''),
-                city: String(sale?.city || ''),
-                address: String(sale?.address || ''),
-                notes: String(sale?.notes || '')
-            }));
-        } catch (e) {
-            console.error('Failed to parse sales data', e);
-            salesData = [];
+async function apiRequest(url, options = {}) {
+    const response = await fetch(url, {
+        headers: {
+            'Content-Type': 'application/json',
+            ...(options.headers || {})
+        },
+        ...options
+    });
+
+    if (!response.ok) {
+        let errorMessage = 'Request failed';
+        try {
+            const payload = await response.json();
+            errorMessage = payload?.error || errorMessage;
+        } catch (_) {
+            errorMessage = response.statusText || errorMessage;
         }
-    } else {
-        salesData = [];
+        throw new Error(errorMessage);
+    }
+
+    if (response.status === 204) {
+        return null;
+    }
+
+    return response.json();
+}
+
+async function loadSalesFromServer() {
+    const rows = await apiRequest(SALES_API_BASE);
+    salesData = Array.isArray(rows) ? rows.map(normalizeSale) : [];
+}
+
+async function createSaleOnServer(newSale) {
+    const created = await apiRequest(SALES_API_BASE, {
+        method: 'POST',
+        body: JSON.stringify(newSale)
+    });
+    return normalizeSale(created);
+}
+
+async function updateSaleOnServer(id, salePatch) {
+    const updated = await apiRequest(`${SALES_API_BASE}/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        body: JSON.stringify(salePatch)
+    });
+    return normalizeSale(updated);
+}
+
+async function deleteSaleOnServer(id) {
+    await apiRequest(`${SALES_API_BASE}/${encodeURIComponent(id)}`, {
+        method: 'DELETE'
+    });
+}
+
+async function replaceSalesOnServer(rows) {
+    await apiRequest(`${SALES_API_BASE}/bulk-replace`, {
+        method: 'POST',
+        body: JSON.stringify(rows)
+    });
+}
+
+function saveFormDraft() {
+    const formData = new FormData(els.saleForm);
+    const draft = {
+        saleProduct: String(formData.get('saleProduct') || ''),
+        saleCustomer: String(formData.get('saleCustomer') || ''),
+        salePhone: String(formData.get('salePhone') || ''),
+        saleCity: String(formData.get('saleCity') || ''),
+        saleAmount: String(formData.get('saleAmount') || ''),
+        saleDate: String(formData.get('saleDate') || ''),
+        saleAddress: String(formData.get('saleAddress') || ''),
+        saleNotes: String(formData.get('saleNotes') || '')
+    };
+
+    localStorage.setItem(FORM_DRAFT_KEY, JSON.stringify(draft));
+}
+
+function restoreFormDraft() {
+    const rawDraft = localStorage.getItem(FORM_DRAFT_KEY);
+    if (!rawDraft) {
+        return;
+    }
+
+    try {
+        const draft = JSON.parse(rawDraft);
+        if (!draft || typeof draft !== 'object') {
+            return;
+        }
+
+        const fields = ['saleProduct', 'saleCustomer', 'salePhone', 'saleCity', 'saleAmount', 'saleDate', 'saleAddress', 'saleNotes'];
+        fields.forEach((fieldName) => {
+            const field = els.saleForm.elements.namedItem(fieldName);
+            if (field && 'value' in field) {
+                field.value = String(draft[fieldName] || '');
+            }
+        });
+
+        if (!els.saleDate.value) {
+            setDefaultDate();
+        }
+    } catch (error) {
+        console.error('Failed to restore sale form draft', error);
     }
 }
 
-function saveSalesToStorage() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(salesData));
-    renderDashboard();
+function clearFormDraft() {
+    localStorage.removeItem(FORM_DRAFT_KEY);
 }
 
 // Utilities
@@ -109,7 +199,7 @@ function showToast(message, isError = false) {
 }
 
 // Core Logic
-function handleAddSale(e) {
+async function handleAddSale(e) {
     e.preventDefault();
     
     const formData = new FormData(els.saleForm);
@@ -133,15 +223,21 @@ function handleAddSale(e) {
         createdAt: Date.now()
     };
 
-    salesData.push(newSale);
-    saveSalesToStorage();
-    
-    els.saleForm.reset();
-    setDefaultDate();
-    showToast('Saved successfully');
+    try {
+        const createdSale = await createSaleOnServer(newSale);
+        salesData.push(createdSale);
+        renderDashboard();
+
+        els.saleForm.reset();
+        setDefaultDate();
+        clearFormDraft();
+        showToast('Saved successfully');
+    } catch (error) {
+        showToast(error.message || 'Failed to save sale', true);
+    }
 }
 
-function handleEditSale(e) {
+async function handleEditSale(e) {
     e.preventDefault();
     
     const formData = new FormData(els.editForm);
@@ -153,30 +249,44 @@ function handleEditSale(e) {
     }
 
     const index = salesData.findIndex(s => s.id === currentEditId);
-    if (index !== -1) {
-        salesData[index] = {
-            ...salesData[index],
-            date: formData.get('editDate'),
-            product: formData.get('editProduct').trim(),
-            customer: formData.get('editCustomer').trim(),
-            phone: formData.get('editPhone').trim(),
-            city: formData.get('editCity').trim(),
-            address: formData.get('editAddress').trim(),
-            amount: amount,
-            notes: formData.get('editNotes').trim()
-        };
-        
-        saveSalesToStorage();
+    if (index === -1) {
+        showToast('Sale not found', true);
+        return;
+    }
+
+    const payload = {
+        ...salesData[index],
+        date: formData.get('editDate'),
+        product: formData.get('editProduct').trim(),
+        customer: formData.get('editCustomer').trim(),
+        phone: formData.get('editPhone').trim(),
+        city: formData.get('editCity').trim(),
+        address: formData.get('editAddress').trim(),
+        amount: amount,
+        notes: formData.get('editNotes').trim()
+    };
+
+    try {
+        const updatedSale = await updateSaleOnServer(currentEditId, payload);
+        salesData[index] = updatedSale;
+        renderDashboard();
         closeModal();
         showToast('Updated successfully');
+    } catch (error) {
+        showToast(error.message || 'Failed to update sale', true);
     }
 }
 
-function deleteSale(id) {
+async function deleteSale(id) {
     if (confirm('Are you sure you want to delete this sale?')) {
-        salesData = salesData.filter(s => s.id !== id);
-        saveSalesToStorage();
-        showToast('Deleted successfully');
+        try {
+            await deleteSaleOnServer(id);
+            salesData = salesData.filter(s => s.id !== id);
+            renderDashboard();
+            showToast('Deleted successfully');
+        } catch (error) {
+            showToast(error.message || 'Failed to delete sale', true);
+        }
     }
 }
 
@@ -378,23 +488,15 @@ function handleImport(e) {
     if (!file) return;
     
     const reader = new FileReader();
-    reader.onload = function(event) {
+    reader.onload = async function(event) {
         try {
             const importedData = JSON.parse(event.target.result);
             if (Array.isArray(importedData)) {
                 if (confirm(`This will replace your current data with ${importedData.length} imported records. Continue?`)) {
-                    salesData = importedData.map((sale) => ({
-                        ...sale,
-                        amount: toAmount(sale?.amount),
-                        date: sale?.date || getToday(),
-                        product: String(sale?.product || ''),
-                        customer: String(sale?.customer || ''),
-                        phone: String(sale?.phone || ''),
-                        city: String(sale?.city || ''),
-                        address: String(sale?.address || ''),
-                        notes: String(sale?.notes || '')
-                    }));
-                    saveSalesToStorage();
+                    const normalized = importedData.map(normalizeSale);
+                    await replaceSalesOnServer(normalized);
+                    salesData = normalized;
+                    renderDashboard();
                     showToast('Backup restored successfully');
                 }
             } else {
@@ -411,6 +513,8 @@ function handleImport(e) {
 // Event Listeners
 function setupEventListeners() {
     els.saleForm.addEventListener('submit', handleAddSale);
+    els.saleForm.addEventListener('input', saveFormDraft);
+    els.saleForm.addEventListener('change', saveFormDraft);
     els.editForm.addEventListener('submit', handleEditSale);
     
     els.searchInput.addEventListener('input', renderDashboard);
@@ -441,4 +545,9 @@ function setupEventListeners() {
 }
 
 // Start
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+    init().catch((error) => {
+        console.error('Dashboard initialization failed:', error);
+        showToast(error.message || 'Could not load sales data from server', true);
+    });
+});
