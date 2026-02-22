@@ -36,33 +36,56 @@ let activeQuickFilter = 'all';
 
 // Initialization
 function init() {
-    loadData();
+    loadSalesFromStorage();
     setupEventListeners();
     setDefaultDate();
-    updateDashboard();
+    renderDashboard();
 }
 
 // Data Management
-function loadData() {
+function loadSalesFromStorage() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
         try {
-            salesData = JSON.parse(stored);
+            const parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed)) {
+                salesData = [];
+                return;
+            }
+
+            salesData = parsed.map((sale) => ({
+                ...sale,
+                amount: toAmount(sale?.amount),
+                date: sale?.date || getToday(),
+                product: String(sale?.product || ''),
+                customer: String(sale?.customer || ''),
+                phone: String(sale?.phone || ''),
+                city: String(sale?.city || ''),
+                address: String(sale?.address || ''),
+                notes: String(sale?.notes || '')
+            }));
         } catch (e) {
             console.error('Failed to parse sales data', e);
             salesData = [];
         }
+    } else {
+        salesData = [];
     }
 }
 
-function saveData() {
+function saveSalesToStorage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(salesData));
-    updateDashboard();
+    renderDashboard();
 }
 
 // Utilities
 function formatMAD(amount) {
     return `MAD ${Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function toAmount(value) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function getToday() {
@@ -90,7 +113,7 @@ function handleAddSale(e) {
     e.preventDefault();
     
     const formData = new FormData(els.saleForm);
-    const amount = parseFloat(formData.get('saleAmount'));
+    const amount = Number(formData.get('saleAmount'));
     
     if (amount <= 0) {
         showToast('Amount must be greater than 0', true);
@@ -111,7 +134,7 @@ function handleAddSale(e) {
     };
 
     salesData.push(newSale);
-    saveData();
+    saveSalesToStorage();
     
     els.saleForm.reset();
     setDefaultDate();
@@ -122,7 +145,7 @@ function handleEditSale(e) {
     e.preventDefault();
     
     const formData = new FormData(els.editForm);
-    const amount = parseFloat(formData.get('editAmount'));
+    const amount = Number(formData.get('editAmount'));
     
     if (amount <= 0) {
         showToast('Amount must be greater than 0', true);
@@ -143,7 +166,7 @@ function handleEditSale(e) {
             notes: formData.get('editNotes').trim()
         };
         
-        saveData();
+        saveSalesToStorage();
         closeModal();
         showToast('Updated successfully');
     }
@@ -152,7 +175,7 @@ function handleEditSale(e) {
 function deleteSale(id) {
     if (confirm('Are you sure you want to delete this sale?')) {
         salesData = salesData.filter(s => s.id !== id);
-        saveData();
+        saveSalesToStorage();
         showToast('Deleted successfully');
     }
 }
@@ -182,11 +205,11 @@ function closeModal() {
 }
 
 // UI Updates
-function updateDashboard() {
+function renderDashboard() {
     updateMonthDropdown();
     const filteredData = getFilteredData();
     
-    updateSummaryCards(filteredData);
+    calculateTotals(filteredData);
     renderTable(filteredData);
 }
 
@@ -246,10 +269,10 @@ function getFilteredData() {
     return data.sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 
-function updateSummaryCards(filteredData) {
+function calculateTotals(filteredData) {
     // All time
     const totalOrders = salesData.length;
-    const totalRev = salesData.reduce((sum, s) => sum + s.amount, 0);
+    const totalRev = salesData.reduce((sum, s) => sum + toAmount(s.amount), 0);
     
     els.totalOrders.textContent = totalOrders;
     els.totalRevenue.textContent = formatMAD(totalRev);
@@ -259,11 +282,11 @@ function updateSummaryCards(filteredData) {
     const thisMonthData = salesData.filter(s => getMonthKey(s.date) === thisMonth);
     
     els.thisMonthOrders.textContent = thisMonthData.length;
-    els.thisMonthRevenue.textContent = formatMAD(thisMonthData.reduce((sum, s) => sum + s.amount, 0));
+    els.thisMonthRevenue.textContent = formatMAD(thisMonthData.reduce((sum, s) => sum + toAmount(s.amount), 0));
     
     // Selected/Filtered
     els.selectedMonthOrders.textContent = filteredData.length;
-    els.selectedMonthRevenue.textContent = formatMAD(filteredData.reduce((sum, s) => sum + s.amount, 0));
+    els.selectedMonthRevenue.textContent = formatMAD(filteredData.reduce((sum, s) => sum + toAmount(s.amount), 0));
 }
 
 function renderTable(data) {
@@ -280,7 +303,7 @@ function renderTable(data) {
             <td>${escapeHTML(sale.phone)}</td>
             <td>${escapeHTML(sale.city)}</td>
             <td>${escapeHTML(sale.address)}</td>
-            <td style="font-weight: 600; color: var(--primary-dark); white-space: nowrap">${formatMAD(sale.amount)}</td>
+            <td style="font-weight: 600; color: var(--primary-dark); white-space: nowrap">${formatMAD(toAmount(sale.amount))}</td>
             <td><small style="color: var(--muted)">${escapeHTML(sale.notes)}</small></td>
             <td>
                 <div class="table-actions">
@@ -360,8 +383,18 @@ function handleImport(e) {
             const importedData = JSON.parse(event.target.result);
             if (Array.isArray(importedData)) {
                 if (confirm(`This will replace your current data with ${importedData.length} imported records. Continue?`)) {
-                    salesData = importedData;
-                    saveData();
+                    salesData = importedData.map((sale) => ({
+                        ...sale,
+                        amount: toAmount(sale?.amount),
+                        date: sale?.date || getToday(),
+                        product: String(sale?.product || ''),
+                        customer: String(sale?.customer || ''),
+                        phone: String(sale?.phone || ''),
+                        city: String(sale?.city || ''),
+                        address: String(sale?.address || ''),
+                        notes: String(sale?.notes || '')
+                    }));
+                    saveSalesToStorage();
                     showToast('Backup restored successfully');
                 }
             } else {
@@ -380,15 +413,15 @@ function setupEventListeners() {
     els.saleForm.addEventListener('submit', handleAddSale);
     els.editForm.addEventListener('submit', handleEditSale);
     
-    els.searchInput.addEventListener('input', updateDashboard);
-    els.monthFilter.addEventListener('change', updateDashboard);
+    els.searchInput.addEventListener('input', renderDashboard);
+    els.monthFilter.addEventListener('change', renderDashboard);
     
     els.quickFilters.forEach(btn => {
         btn.addEventListener('click', (e) => {
             els.quickFilters.forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
             activeQuickFilter = e.target.dataset.quickFilter;
-            updateDashboard();
+            renderDashboard();
         });
     });
     
