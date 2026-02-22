@@ -2132,12 +2132,25 @@ function init(){
         langBtn.setAttribute("aria-expanded", String(show));
       });
       $$("#langMenu .dropdown__item").forEach(btn => btn.addEventListener("click", () => {
+        const selectedLang = btn.dataset.langCode || ({
+          "English": "en",
+          "Français": "fr",
+          "Fran�ais": "fr",
+          "العربية": "ar",
+          "???????": "ar"
+        }[btn.dataset.lang] || "en");
+
+        const labelByCode = {
+          en: "English",
+          fr: "Français",
+          ar: "العربية"
+        };
+
         const textSpan = langBtn.querySelector(".chip__text");
-        if(textSpan) textSpan.textContent = btn.dataset.lang;
-        else langBtn.innerText = btn.dataset.lang; 
-        
-        const langMap = { "English": "en", "Français": "fr", "العربية": "ar" };
-        const selectedLang = langMap[btn.dataset.lang] || "en";
+        const displayLabel = labelByCode[selectedLang] || btn.dataset.lang || "English";
+        if(textSpan) textSpan.textContent = displayLabel;
+        else langBtn.innerText = displayLabel;
+
         setLanguage(selectedLang);
         
         langMenu.classList.remove("show");
