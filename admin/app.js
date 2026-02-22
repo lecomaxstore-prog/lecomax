@@ -10,22 +10,9 @@ function setAuthenticated(value) {
     localStorage.setItem(AUTH_KEY, value ? 'true' : 'false');
 }
 
-function animateCounter(element, target, prefix = '', suffix = '') {
-    const duration = 1300;
-    const startTime = performance.now();
-
-    function tick(now) {
-        const progress = Math.min((now - startTime) / duration, 1);
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        const value = Math.floor(target * easeOut);
-        element.textContent = `${prefix}${value.toLocaleString()}${suffix}`;
-
-        if (progress < 1) {
-            requestAnimationFrame(tick);
-        }
-    }
-
-    requestAnimationFrame(tick);
+function setCounterValue(element, target, prefix = '', suffix = '') {
+    const value = Number.isFinite(target) ? target : 0;
+    element.textContent = `${prefix}${value.toLocaleString()}${suffix}`;
 }
 
 function initLoginPage() {
@@ -79,7 +66,7 @@ function initDashboardPage() {
         const target = Number(element.dataset.counter || 0);
         const prefix = element.dataset.prefix || '';
         const suffix = element.dataset.suffix || '';
-        animateCounter(element, target, prefix, suffix);
+        setCounterValue(element, target, prefix, suffix);
     });
 
     if (logoutBtn) {
