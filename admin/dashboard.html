@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LECOMAX Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="dashboard-page" id="dashboardContent" style="display:none;">
+        <header class="dashboard-header">
+            <div>
+                <h1>LECOMAX Dashboard</h1>
+                <p>Overview of your store performance</p>
+            </div>
+            <button id="logoutBtn" class="btn-outline" type="button">Logout</button>
+        </header>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <span>Total visitors</span>
+                <h2 data-counter="189430" data-prefix="" data-suffix="">0</h2>
+            </article>
+            <article class="stat-card">
+                <span>Today’s visitors</span>
+                <h2 data-counter="3472" data-prefix="" data-suffix="">0</h2>
+            </article>
+            <article class="stat-card">
+                <span>Total orders</span>
+                <h2 data-counter="5840" data-prefix="" data-suffix="">0</h2>
+            </article>
+            <article class="stat-card">
+                <span>Total revenue</span>
+                <h2 data-counter="462780" data-prefix="$" data-suffix="">0</h2>
+            </article>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
