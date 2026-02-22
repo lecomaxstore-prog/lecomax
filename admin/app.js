@@ -3,6 +3,16 @@ const ADMIN_PASSWORD = 'lecomax123';
 const AUTH_KEY = 'lecomax_admin_auth';
 const SALES_STORAGE_KEY = 'lecomax_admin_sales_records';
 
+function goToAdminPage(pageFile) {
+    const target = new URL(pageFile, window.location.href);
+    window.location.href = target.href;
+}
+
+function replaceToAdminPage(pageFile) {
+    const target = new URL(pageFile, window.location.href);
+    window.location.replace(target.href);
+}
+
 function isAuthenticated() {
     return localStorage.getItem(AUTH_KEY) === 'true';
 }
@@ -312,7 +322,7 @@ function exportCsv(records, fileName) {
 
 function initLoginPage() {
     if (isAuthenticated()) {
-        window.location.replace('/admin/dashboard.html');
+        replaceToAdminPage('dashboard.html');
         return;
     }
 
@@ -341,7 +351,7 @@ function initLoginPage() {
 
         if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
             setAuthenticated(true);
-            window.location.href = '/admin/dashboard.html';
+            goToAdminPage('dashboard.html');
             return;
         }
 
@@ -351,7 +361,7 @@ function initLoginPage() {
 
 function initDashboardPage() {
     if (!isAuthenticated()) {
-        window.location.replace('/admin/index.html');
+        replaceToAdminPage('index.html');
         return;
     }
 
@@ -592,14 +602,23 @@ function initDashboardPage() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             setAuthenticated(false);
-            window.location.href = '/admin/index.html';
+            goToAdminPage('index.html');
         });
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const path = window.location.pathname;
+    if (document.getElementById('loginForm')) {
+        initLoginPage();
+        return;
+    }
 
+    if (document.getElementById('dashboardContent')) {
+        initDashboardPage();
+        return;
+    }
+
+    const path = window.location.pathname.toLowerCase();
     if (path.endsWith('/dashboard.html')) {
         initDashboardPage();
         return;

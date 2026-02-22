@@ -436,7 +436,7 @@ function setupEventListeners() {
     });
     
     els.logoutBtn.addEventListener('click', () => {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     });
 }
 
