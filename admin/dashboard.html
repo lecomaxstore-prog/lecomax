@@ -1,51 +1,190 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LECOMAX Admin Dashboard</title>
-    <link rel="stylesheet" href="style.css">
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9N1CPZ01HG"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-9N1CPZ01HG');
-</script>
+    <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-    <main class="dashboard-page" id="dashboardContent" style="display:none;">
+    <main class="dashboard-page">
         <header class="dashboard-header">
             <div>
                 <h1>LECOMAX Dashboard</h1>
-                <p>Overview of your store performance</p>
+                <p>Manual sales administration panel</p>
             </div>
-            <button id="logoutBtn" class="btn-outline" type="button">Logout</button>
+            <button id="logoutBtn" class="btn btn-outline" type="button">Logout</button>
         </header>
 
         <section class="stats-grid">
             <article class="stat-card">
-                <span>Total visitors</span>
-                <h2 data-counter-key="totalVisitors" data-prefix="" data-suffix="">0</h2>
+                <span>Total Orders</span>
+                <h2 id="totalOrders">0</h2>
             </article>
             <article class="stat-card">
-                <span>Today's visitors</span>
-                <h2 data-counter-key="todaysVisitors" data-prefix="" data-suffix="">0</h2>
+                <span>Total Revenue</span>
+                <h2 id="totalRevenue">MAD 0.00</h2>
             </article>
             <article class="stat-card">
-                <span>Total orders</span>
-                <h2 data-counter-key="totalOrders" data-prefix="" data-suffix="">0</h2>
+                <span id="thisMonthOrdersLabel">This Month Orders</span>
+                <h2 id="thisMonthOrders">0</h2>
             </article>
             <article class="stat-card">
-                <span>Total revenue</span>
-                <h2 data-counter-key="totalRevenue" data-prefix="MAD " data-suffix="">0</h2>
+                <span id="thisMonthRevenueLabel">This Month Revenue</span>
+                <h2 id="thisMonthRevenue">MAD 0.00</h2>
             </article>
+            <article class="stat-card selected-card">
+                <span id="selectedOrdersLabel">Selected Month Orders</span>
+                <h2 id="selectedMonthOrders">0</h2>
+            </article>
+            <article class="stat-card selected-card">
+                <span id="selectedRevenueLabel">Selected Month Revenue</span>
+                <h2 id="selectedMonthRevenue">MAD 0.00</h2>
+            </article>
+        </section>
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <h3>Add Manual Sale</h3>
+            </div>
+            <form id="saleForm" class="sale-form" novalidate>
+                <div class="form-grid">
+                    <div>
+                        <label for="saleProduct">Product name *</label>
+                        <input id="saleProduct" name="saleProduct" type="text" required>
+                    </div>
+                    <div>
+                        <label for="saleCustomer">Customer name *</label>
+                        <input id="saleCustomer" name="saleCustomer" type="text" required>
+                    </div>
+                    <div>
+                        <label for="salePhone">Phone number *</label>
+                        <input id="salePhone" name="salePhone" type="text" required>
+                    </div>
+                    <div>
+                        <label for="saleCity">City *</label>
+                        <input id="saleCity" name="saleCity" type="text" required>
+                    </div>
+                    <div>
+                        <label for="saleAmount">Amount (MAD) *</label>
+                        <input id="saleAmount" name="saleAmount" type="number" min="0.01" step="0.01" required>
+                    </div>
+                    <div>
+                        <label for="saleDate">Date</label>
+                        <input id="saleDate" name="saleDate" type="date">
+                    </div>
+                    <div class="full-width">
+                        <label for="saleAddress">Full address</label>
+                        <input id="saleAddress" name="saleAddress" type="text">
+                    </div>
+                    <div class="full-width">
+                        <label for="saleNotes">Notes</label>
+                        <textarea id="saleNotes" name="saleNotes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <h3>Sales History</h3>
+                <div class="panel-actions">
+                    <button id="exportCsvBtn" type="button" class="btn btn-outline">Export CSV</button>
+                    <button id="downloadJsonBtn" type="button" class="btn btn-outline">Download JSON Backup</button>
+                    <button id="importJsonBtn" type="button" class="btn btn-outline">Import JSON Backup</button>
+                    <input id="importJsonInput" type="file" accept="application/json" hidden>
+                </div>
+            </div>
+
+            <div class="filters-grid">
+                <input id="searchInput" type="text" placeholder="Search by product, customer, phone, city">
+                <select id="monthFilter"></select>
+                <div class="quick-filters">
+                    <button class="quick-filter active" type="button" data-quick-filter="all">All time</button>
+                    <button class="quick-filter" type="button" data-quick-filter="thisMonth">This month</button>
+                    <button class="quick-filter" type="button" data-quick-filter="today">Today</button>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Product</th>
+                            <th>Customer</th>
+                            <th>Phone</th>
+                            <th>City</th>
+                            <th>Address</th>
+                            <th>Amount (MAD)</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <tr>
+                            <td colspan="9" class="empty-row">No sales yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
     </main>
 
-    <script src="app.js"></script>
+    <div id="editModal" class="modal" aria-hidden="true">
+        <div class="modal-backdrop" data-close-modal="true"></div>
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+            <div class="modal-head">
+                <h3 id="editModalTitle">Edit Sale</h3>
+                <button id="closeModalBtn" class="icon-btn" type="button" aria-label="Close"></button>
+            </div>
+            <form id="editForm" class="sale-form" novalidate>
+                <div class="form-grid">
+                    <div>
+                        <label for="editProduct">Product name *</label>
+                        <input id="editProduct" name="editProduct" type="text" required>
+                    </div>
+                    <div>
+                        <label for="editCustomer">Customer name *</label>
+                        <input id="editCustomer" name="editCustomer" type="text" required>
+                    </div>
+                    <div>
+                        <label for="editPhone">Phone number *</label>
+                        <input id="editPhone" name="editPhone" type="text" required>
+                    </div>
+                    <div>
+                        <label for="editCity">City *</label>
+                        <input id="editCity" name="editCity" type="text" required>
+                    </div>
+                    <div>
+                        <label for="editAmount">Amount (MAD) *</label>
+                        <input id="editAmount" name="editAmount" type="number" min="0.01" step="0.01" required>
+                    </div>
+                    <div>
+                        <label for="editDate">Date</label>
+                        <input id="editDate" name="editDate" type="date">
+                    </div>
+                    <div class="full-width">
+                        <label for="editAddress">Full address</label>
+                        <input id="editAddress" name="editAddress" type="text">
+                    </div>
+                    <div class="full-width">
+                        <label for="editNotes">Notes</label>
+                        <textarea id="editNotes" name="editNotes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <script src="dashboard.js"></script>
 </body>
 </html>
-
