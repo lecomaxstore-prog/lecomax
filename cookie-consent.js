@@ -140,9 +140,35 @@
         border-color: #0f172a;
       }
       @media (max-width: 700px) {
-        .lc-cookie-consent { left: 12px; right: 12px; bottom: 12px; }
-        .lc-cookie-consent__actions { width: 100%; }
-        .lc-cookie-btn { flex: 1; }
+        .lc-cookie-consent {
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border-radius: 16px 16px 0 0;
+          border-left: 0;
+          border-right: 0;
+          border-bottom: 0;
+          padding: 20px;
+          box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+        .lc-cookie-consent__inner {
+          display: block; /* Stack vertically */
+          text-align: center;
+        }
+        .lc-cookie-consent__text {
+          margin-bottom: 16px;
+          font-size: 0.85rem;
+        }
+        .lc-cookie-consent__actions {
+          width: 100%;
+          justify-content: stretch;
+          gap: 12px;
+        }
+        .lc-cookie-btn {
+          flex: 1;
+          height: 48px; /* Larger touch target */
+          font-size: 1rem;
+        }
       }
     `;
     document.head.appendChild(style);

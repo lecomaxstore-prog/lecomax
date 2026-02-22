@@ -1,0 +1,142 @@
+﻿--- styles.css
++++ styles.css
+@@ -1000,60 +1000,60 @@
+ /* Final shop filter layout override */
+   #products .filters {
+     display: grid;
+-    grid-template-columns: minmax(0, 1fr) auto;
++    grid-template-columns: 1fr auto auto;
+     grid-template-areas:
+-      "search search"
+-      "pills pills"
+-      "advanced view";
++      "search advanced view"
++      "pills pills pills";
+     align-items: center;
+-    gap: 12px;
+-    padding: 12px;
++    gap: 16px;
++    padding: 16px;
+     border: 1px solid rgba(15, 23, 42, 0.08);
+     border-radius: 16px;
+     background: #fff;
+     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+   }
+ 
+   #products .filters .search-filter {
+     grid-area: search;
+     width: 100%;
+-    min-width: 0;
++    max-width: 500px;
+   }
+ 
+   #products .filters .filter-group {
+     grid-area: pills;
+     display: flex;
+-    flex-wrap: nowrap;
+-    overflow-x: auto;
+-    -webkit-overflow-scrolling: touch;
+-    scrollbar-width: none;
++    flex-wrap: wrap;
+     gap: 10px;
+     width: 100%;
+-    padding: 2px 0;
+-  }
+-
+-  #products .filters .filter-group::-webkit-scrollbar {
+-    display: none;
+   }
+ 
+   #products .filters .pillBtn {
+     flex: 0 0 auto;
+     white-space: nowrap;
+   }
+ 
+   #products .filters .advanced-filters {
+     grid-area: advanced;
+-    display: grid;
+-    grid-template-columns: repeat(2, minmax(160px, 1fr));
+-    gap: 10px;
+-    width: 100%;
+-    min-width: 0;
++    display: flex;
++    gap: 12px;
+   }
+ 
+   #products .filters .advanced-filters .select {
+-    width: 100%;
++    min-width: 160px;
+     min-height: 46px;
+   }
+ 
+   #products .filters .view-toggle {
+     grid-area: view;
+-    justify-self: end;
+-    align-self: end;
+-    gap: 6px;
++    display: flex;
++    gap: 8px;
+   }
+ 
+   #products .filters .power-controls,
+   #products .filters .active-filter-chips {
+     display: none !important;
+   }
+ 
++  @media (max-width: 992px) {
++    #products .filters {
++      grid-template-columns: 1fr auto;
++      grid-template-areas:
++        "search search"
++        "pills pills"
++        "advanced view";
++    }
++    #products .filters .search-filter {
++      max-width: 100%;
++    }
++  }
++
+   @media (max-width: 768px) {
+     #products .filters {
+       grid-template-columns: 1fr;
+       grid-template-areas:
+         "search"
+         "pills"
+         "advanced"
+         "view";
+-      padding: 10px;
+-      gap: 10px;
++      gap: 12px;
++      padding: 12px;
+     }
+ 
+-    #products .filters .advanced-filters {
+-      grid-template-columns: repeat(2, minmax(0, 1fr));
++    #products .filters .filter-group {
++      flex-wrap: nowrap;
++      overflow-x: auto;
++      -webkit-overflow-scrolling: touch;
++      scrollbar-width: none;
++      padding-bottom: 4px;
++    }
++
++    #products .filters .filter-group::-webkit-scrollbar {
++      display: none;
++    }
++
++    #products .filters .advanced-filters {
++      display: grid;
++      grid-template-columns: 1fr 1fr;
++      gap: 8px;
++    }
++
++    #products .filters .advanced-filters .select {
++      min-width: 0;
++      width: 100%;
+     }
+ 
+     #products .filters .view-toggle {
+-      justify-self: end;
++      justify-content: center;
+     }
+   }

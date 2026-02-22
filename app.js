@@ -831,6 +831,11 @@ const TRANSLATIONS = {
 
 function setLanguage(lang, save = true) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  const HERO_IMAGES = {
+    en: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/Hero%20Section%20lecomax.png",
+    fr: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/hero%20section%20photo%20frensh%20version.png",
+    ar: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/hero%20section%20photo%20arabic%20version.png"
+  };
   
   // Update Direction
   document.documentElement.lang = lang;
@@ -884,6 +889,15 @@ function setLanguage(lang, save = true) {
         btn.appendChild(document.createTextNode(" " + t[key]));
      }
   });
+
+  // Update Hero Image by language
+  const heroImage = document.querySelector('.hero-featured-image img');
+  if (heroImage) {
+    const heroSrc = HERO_IMAGES[lang] || HERO_IMAGES.en;
+    if (heroImage.src !== heroSrc) {
+      heroImage.src = heroSrc;
+    }
+  }
 
   // Save preference
   if (save) {

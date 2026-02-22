@@ -1420,7 +1420,7 @@ a{color:inherit; text-decoration:none}
   height: 6px; background: #fee2e2; border-radius: 99px; margin-top: 8px; position: relative; width: 100%; overflow: hidden;
 }
 .flash-card__progress .bar {
-  height: 100%; bg: #ef4444; background: #ef4444; border-radius: 99px;
+  height: 100%; background: #ef4444; border-radius: 99px;
 }
 .flash-card__stock { font-size: 0.75rem; color: #ef4444; font-weight: 600; margin-top: 4px; }
 
@@ -2174,6 +2174,7 @@ h2{margin:0; font-size:1.65rem}
   margin-top: 8px;
   margin-bottom: auto;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -2242,6 +2243,7 @@ h2{margin:0; font-size:1.65rem}
 }
 
 .grid.list-view .card__title {
+  line-clamp: 3;
   -webkit-line-clamp: 3;
   white-space: normal;
   text-overflow: ellipsis; 
@@ -2465,6 +2467,7 @@ h2{margin:0; font-size:1.65rem}
   font-weight: 800;
   margin: 0;
   background: linear-gradient(135deg, var(--text) 0%, #475569 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.25;
@@ -2726,6 +2729,7 @@ h2{margin:0; font-size:1.65rem}
   line-height: 1.4; 
   color: var(--text);
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -3166,6 +3170,7 @@ h2{margin:0; font-size:1.65rem}
   .card__title {
     font-size: 1rem;
     height: auto;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
   }
   .card__price {
@@ -3693,6 +3698,7 @@ h2{margin:0; font-size:1.65rem}
  margin-bottom: 10px;
  letter-spacing: -0.02em;
  background: linear-gradient(to right, #fff, #94a3b8);
+ background-clip: text;
  -webkit-background-clip: text;
  -webkit-text-fill-color: transparent;
  color: #fff; /* Fallback */
@@ -3840,6 +3846,7 @@ h2{margin:0; font-size:1.65rem}
   font-weight: 600;
   font-size: 1rem;
   outline: none;
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 .pp-qty-selector input::-webkit-outer-spin-button,
@@ -5724,6 +5731,7 @@ html[lang="ar"] .checkout-page .checkout-item__price {
   color: var(--text);
   font-size: 0.85rem;
   display: -webkit-box;
+  line-clamp: 1;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -6056,6 +6064,7 @@ html[lang="ar"] .checkout-page .checkout-item__price {
   color: #0f172a; margin-bottom: 12px;
   letter-spacing: -0.04em;
   background: linear-gradient(135deg, #0f172a 0%, #3b82f6 100%); /* Add accent to gradient */
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -6197,14 +6206,6 @@ html[dir='rtl'] .catCard__visual {
 }
 
 /* Navigation Menu */
-[dir='rtl'] .nav__link {
-  /* Margins/Paddings automatically flip due to direction: rtl usually, 
-     but specific transforms need manual flip */
-}
-
-[dir='rtl'] .nav__btn {
-  /* Chevron spacing */
-}
 [dir='rtl'] .nav__btn svg.chev {
   margin-left: 0;
   margin-right: 6px;
@@ -6293,9 +6294,6 @@ html[dir='rtl'] .catCard__visual {
   left: 20px;
 }
 
-[dir='rtl'] .qs-grid {
-  /* Grid handles column order, but ensure gap is correct */
-}
 
 [dir='rtl'] .qs-label span {
   margin-left: 0;
@@ -6683,6 +6681,7 @@ html[dir='rtl'] .catCard__visual {
   margin: 0 0 16px 0;
   line-height: 1.1;
   background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
