@@ -15,6 +15,39 @@ function setCounterValue(element, target, prefix = '', suffix = '') {
     element.textContent = `${prefix}${value.toLocaleString()}${suffix}`;
 }
 
+async function loadDashboardStats() {
+    const counterElements = document.querySelectorAll('[data-counter-key]');
+
+    if (!counterElements.length) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/admin/ga-stats', { credentials: 'same-origin' });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch analytics stats');
+        }
+
+        const stats = await response.json();
+
+        counterElements.forEach((element) => {
+            const key = element.dataset.counterKey;
+            const prefix = element.dataset.prefix || '';
+            const suffix = element.dataset.suffix || '';
+            const target = Number(stats[key] || 0);
+            setCounterValue(element, target, prefix, suffix);
+        });
+    } catch (error) {
+        console.error('Dashboard stats load error:', error);
+        counterElements.forEach((element) => {
+            const prefix = element.dataset.prefix || '';
+            const suffix = element.dataset.suffix || '';
+            setCounterValue(element, 0, prefix, suffix);
+        });
+    }
+}
+
 function initLoginPage() {
     if (isAuthenticated()) {
         window.location.replace('/admin/dashboard.html');
@@ -28,6 +61,13 @@ function initLoginPage() {
 
     if (!loginForm) {
         return;
+    }
+
+    if (emailInput) {
+        emailInput.value = '';
+    }
+    if (passwordInput) {
+        passwordInput.value = '';
     }
 
     loginForm.addEventListener('submit', (event) => {
@@ -62,12 +102,7 @@ function initDashboardPage() {
 
     dashboardContent.style.display = 'block';
 
-    document.querySelectorAll('[data-counter]').forEach((element) => {
-        const target = Number(element.dataset.counter || 0);
-        const prefix = element.dataset.prefix || '';
-        const suffix = element.dataset.suffix || '';
-        setCounterValue(element, target, prefix, suffix);
-    });
+    loadDashboardStats();
 
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {

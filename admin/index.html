@@ -21,12 +21,12 @@
             <h1>LECOMAX Admin</h1>
             <p>Sign in to access dashboard</p>
 
-            <form id="loginForm" novalidate>
+            <form id="loginForm" novalidate autocomplete="off">
                 <label for="email">Email</label>
-                <input id="email" type="email" placeholder="admin@lecomax.com" autocomplete="off" required>
+                <input id="email" name="admin_login_email" type="email" placeholder="Enter email" autocomplete="new-password" autocapitalize="off" spellcheck="false" required>
 
                 <label for="password">Password</label>
-                <input id="password" type="password" placeholder="Enter password" autocomplete="off" required>
+                <input id="password" name="admin_login_password" type="password" placeholder="Enter password" autocomplete="new-password" required>
 
                 <p id="errorMsg" class="error-msg" aria-live="polite"></p>
                 <button type="submit" class="btn-primary">Login</button>
