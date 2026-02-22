@@ -7401,3 +7401,133 @@ html[dir='rtl'] .catCard__visual {
       padding: 0 14px;
     }
   }
+
+/* =========================================
+   Arabic RTL (Final Overrides)
+   Applies only when Arabic is active
+   ========================================= */
+html[dir='rtl'] body {
+  font-family: 'Cairo', 'Tajawal', 'Inter', system-ui, -apple-system, sans-serif;
+  text-align: right;
+}
+
+html[dir='rtl'] .header__inner,
+html[dir='rtl'] .nav,
+html[dir='rtl'] .actions,
+html[dir='rtl'] .searchbox,
+html[dir='rtl'] .card__bottom,
+html[dir='rtl'] .card__actions,
+html[dir='rtl'] .trending__price-row,
+html[dir='rtl'] .trending__rating,
+html[dir='rtl'] .quote__foot,
+html[dir='rtl'] .contact-card__actions {
+  flex-direction: row-reverse;
+}
+
+html[dir='rtl'] .brand,
+html[dir='rtl'] .nav__link,
+html[dir='rtl'] .nav__btn,
+html[dir='rtl'] .mega__title,
+html[dir='rtl'] .mega__link,
+html[dir='rtl'] .card,
+html[dir='rtl'] .card__body,
+html[dir='rtl'] .card__title,
+html[dir='rtl'] .card__category,
+html[dir='rtl'] .catCard,
+html[dir='rtl'] .catCard__title,
+html[dir='rtl'] .catCard__text,
+html[dir='rtl'] .trending__info,
+html[dir='rtl'] .quote,
+html[dir='rtl'] .quote__title,
+html[dir='rtl'] .quote__name,
+html[dir='rtl'] .footer,
+html[dir='rtl'] input,
+html[dir='rtl'] textarea,
+html[dir='rtl'] select {
+  text-align: right;
+}
+
+html[dir='rtl'] .grid,
+html[dir='rtl'] .catGrid,
+html[dir='rtl'] .features-grid,
+html[dir='rtl'] .footCols {
+  direction: rtl;
+}
+
+html[dir='rtl'] .searchbox input {
+  text-align: right;
+  padding-right: 18px;
+  padding-left: 52px;
+}
+
+html[dir='rtl'] .searchbox__submit {
+  right: auto;
+  left: 10px;
+}
+
+html[dir='rtl'] .mega {
+  right: 0;
+  left: auto;
+}
+
+html[dir='rtl'] .grid.list-view .card {
+  grid-template-columns: 1fr 180px;
+}
+
+html[dir='rtl'] .grid.list-view .card__img {
+  order: 2;
+}
+
+html[dir='rtl'] .grid.list-view .card__body {
+  order: 1;
+}
+
+html[dir='rtl'] .card__price {
+  align-items: flex-end;
+}
+
+html[dir='rtl'] .card__rating-box,
+html[dir='rtl'] .card__rating,
+html[dir='rtl'] .stars,
+html[dir='rtl'] .quote__stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+html[dir='rtl'] .btn svg,
+html[dir='rtl'] .hero-cta svg,
+html[dir='rtl'] .card__rating-box svg,
+html[dir='rtl'] .stars svg,
+html[dir='rtl'] .quote__stars svg,
+html[dir='rtl'] .trending__rating svg,
+html[dir='rtl'] .btn-add-cart svg {
+  transform: none;
+}
+
+html[dir='rtl'] .btn-add-cart,
+html[dir='rtl'] .btn--card-action {
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  html[dir='rtl'] .header__inner,
+  html[dir='rtl'] .nav,
+  html[dir='rtl'] .actions {
+    flex-direction: row;
+  }
+
+  html[dir='rtl'] .grid,
+  html[dir='rtl'] .catGrid,
+  html[dir='rtl'] .features-grid,
+  html[dir='rtl'] .quotes,
+  html[dir='rtl'] .footCols {
+    direction: rtl;
+  }
+
+  html[dir='rtl'] .search-container,
+  html[dir='rtl'] .search-container .searchbox {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

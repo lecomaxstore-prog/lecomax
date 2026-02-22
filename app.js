@@ -831,6 +831,7 @@ const TRANSLATIONS = {
 
 function setLanguage(lang, save = true) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  const isArabic = lang === 'ar';
   const HERO_IMAGES = {
     en: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/Hero%20Section%20lecomax.png",
     fr: "https://raw.githubusercontent.com/lecomaxstore-prog/lecomax/refs/heads/main/hero%20section%20photo%20frensh%20version.png",
@@ -839,7 +840,13 @@ function setLanguage(lang, save = true) {
   
   // Update Direction
   document.documentElement.lang = lang;
-  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  if (isArabic) {
+    document.documentElement.setAttribute('dir', 'rtl');
+    document.documentElement.classList.add('rtl-active');
+  } else {
+    document.documentElement.removeAttribute('dir');
+    document.documentElement.classList.remove('rtl-active');
+  }
 
   // Update Live Agent links
   document.querySelectorAll('a[href*="customer-service"]').forEach(link => {
