@@ -13,9 +13,8 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 import { auth, db, ADMIN_EMAIL } from './firebase-config.js';
 
-const ORDERS_COLLECTION = 'orders';
+const SALES_COLLECTION = 'sales';
 const FORM_DRAFT_KEY = 'lecomax_admin_sale_form_draft';
-const SALES_CACHE_KEY = 'lecomax_admin_sales_cache';
 
 const els = {
     totalOrders: document.getElementById('totalOrders'),
@@ -132,22 +131,11 @@ function normalizeSaleFromObject(raw) {
 }
 
 async function loadSalesFromFirestore() {
-    try {
-        const ordersRef = collection(db, ORDERS_COLLECTION);
-        const salesQuery = query(ordersRef, orderBy('date', 'desc'));
-        const snapshot = await getDocs(salesQuery);
-        salesData = snapshot.docs.map(normalizeSaleFromDoc);
-        saveSalesCache();
-    } catch (error) {
-        const cachedSales = loadSalesCache();
-        if (cachedSales.length) {
-            salesData = cachedSales;
-            showToast('Using locally saved sales data', true);
-            return;
-        }
-
-        throw error;
-    }
+    const salesRef = collection(db, SALES_COLLECTION);
+    const salesQuery = query(salesRef, orderBy('date', 'desc'));
+    const snapshot = await getDocs(salesQuery);
+    salesData = snapshot.docs.map(normalizeSaleFromDoc);
+    console.log('[dashboard] Loaded sales from Firestore:', salesData.length);
 }
 
 async function createSaleOnFirestore(newSale) {
@@ -164,7 +152,8 @@ async function createSaleOnFirestore(newSale) {
         updatedAt: serverTimestamp()
     };
 
-    const ref = await addDoc(collection(db, ORDERS_COLLECTION), payload);
+    const ref = await addDoc(collection(db, SALES_COLLECTION), payload);
+    console.log('[dashboard] Sale saved to Firestore with id:', ref.id);
     return { ...newSale, id: ref.id };
 }
 
@@ -181,17 +170,17 @@ async function updateSaleOnFirestore(id, salePatch) {
         updatedAt: serverTimestamp()
     };
 
-    await updateDoc(doc(db, ORDERS_COLLECTION, id), payload);
+    await updateDoc(doc(db, SALES_COLLECTION, id), payload);
     return { ...salePatch, id };
 }
 
 async function deleteSaleOnFirestore(id) {
-    await deleteDoc(doc(db, ORDERS_COLLECTION, id));
+    await deleteDoc(doc(db, SALES_COLLECTION, id));
 }
 
 async function replaceSalesOnFirestore(rows) {
     const normalizedRows = rows.map(normalizeSaleFromObject);
-    const existing = await getDocs(collection(db, ORDERS_COLLECTION));
+    const existing = await getDocs(collection(db, SALES_COLLECTION));
 
     if (!existing.empty) {
         const deleteBatch = writeBatch(db);
@@ -202,7 +191,7 @@ async function replaceSalesOnFirestore(rows) {
     }
 
     for (const row of normalizedRows) {
-        await addDoc(collection(db, ORDERS_COLLECTION), {
+        await addDoc(collection(db, SALES_COLLECTION), {
             clientName: row.clientName,
             phone: row.phone,
             city: row.city,
@@ -269,29 +258,6 @@ function restoreFormDraft() {
 
 function clearFormDraft() {
     localStorage.removeItem(FORM_DRAFT_KEY);
-}
-
-function saveSalesCache() {
-    localStorage.setItem(SALES_CACHE_KEY, JSON.stringify(salesData));
-}
-
-function loadSalesCache() {
-    const rawCache = localStorage.getItem(SALES_CACHE_KEY);
-    if (!rawCache) {
-        return [];
-    }
-
-    try {
-        const parsed = JSON.parse(rawCache);
-        if (!Array.isArray(parsed)) {
-            return [];
-        }
-
-        return parsed.map(normalizeSaleFromObject);
-    } catch (error) {
-        console.error('Failed to parse sales cache', error);
-        return [];
-    }
 }
 
 function updateMonthDropdown() {
@@ -398,6 +364,7 @@ function renderDashboard() {
 
 async function handleAddSale(event) {
     event.preventDefault();
+    console.log('[dashboard] Save sale submit event triggered');
 
     const formData = new FormData(els.saleForm);
     const price = Number(formData.get('saleAmount'));
@@ -426,27 +393,16 @@ async function handleAddSale(event) {
     try {
         const created = await createSaleOnFirestore(newSale);
         salesData.push(created);
-        saveSalesCache();
         renderDashboard();
 
         els.saleForm.reset();
         setDefaultDate();
         clearFormDraft();
         showToast('Saved successfully');
+        console.log('[dashboard] Sale saved and UI updated');
     } catch (error) {
-        const localSale = {
-            ...newSale,
-            id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-        };
-
-        salesData.push(localSale);
-        saveSalesCache();
-        renderDashboard();
-
-        els.saleForm.reset();
-        setDefaultDate();
-        clearFormDraft();
-        showToast(error.message ? `Saved locally only: ${error.message}` : 'Saved locally only (cloud save failed)', true);
+        console.error('[dashboard] Failed to save sale to Firestore:', error);
+        showToast(error.message || 'Failed to save sale to Firestore', true);
     }
 }
 
@@ -513,11 +469,11 @@ async function handleEditSale(event) {
     try {
         const updated = await updateSaleOnFirestore(currentEditId, patch);
         salesData[index] = updated;
-        saveSalesCache();
         renderDashboard();
         closeModal();
         showToast('Updated successfully');
     } catch (error) {
+        console.error('[dashboard] Failed to update sale:', error);
         showToast(error.message || 'Failed to update order', true);
     }
 }
@@ -530,10 +486,10 @@ async function deleteSale(id) {
     try {
         await deleteSaleOnFirestore(id);
         salesData = salesData.filter((s) => s.id !== id);
-        saveSalesCache();
         renderDashboard();
         showToast('Deleted successfully');
     } catch (error) {
+        console.error('[dashboard] Failed to delete sale:', error);
         showToast(error.message || 'Failed to delete order', true);
     }
 }
@@ -607,6 +563,7 @@ function handleImport(event) {
             renderDashboard();
             showToast('Backup restored successfully');
         } catch (error) {
+            console.error('[dashboard] Failed to import backup:', error);
             showToast(error.message || 'Error reading backup file', true);
         } finally {
             els.importJsonInput.value = '';
@@ -703,6 +660,6 @@ onAuthStateChanged(auth, async (user) => {
         await initAfterAuth();
     } catch (error) {
         console.error('Dashboard initialization failed:', error);
-        showToast(error.message || 'Could not load orders', true);
+        showToast(error.message || 'Could not load sales', true);
     }
 });
