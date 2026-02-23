@@ -106,6 +106,26 @@ textarea {
     font-size: .9rem;
 }
 
+.error-msg.success {
+    color: #15803d;
+}
+
+.link-btn {
+    border: 0;
+    background: transparent;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 0;
+    margin: -2px 0 8px;
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.link-btn:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
 .btn-primary,
 .btn-outline {
     height: 44px;
