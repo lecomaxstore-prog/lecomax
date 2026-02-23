@@ -11,6 +11,25 @@ function replaceToPage(pageFile) {
     window.location.replace(target.href);
 }
 
+function getFriendlyAuthError(error) {
+    const code = String(error?.code || '').toLowerCase();
+
+    const map = {
+        'auth/invalid-email': 'Please enter a valid email address.',
+        'auth/missing-password': 'Please enter your password.',
+        'auth/invalid-credential': 'Incorrect email or password.',
+        'auth/user-not-found': 'No account was found with this email.',
+        'auth/wrong-password': 'Incorrect email or password.',
+        'auth/too-many-requests': 'Too many attempts. Please try again in a few minutes.',
+        'auth/network-request-failed': 'Network error. Check your connection and try again.',
+        'auth/user-disabled': 'This account has been disabled. Contact support.',
+        'auth/internal-error': 'Something went wrong. Please try again.',
+        'auth/missing-email': 'Enter your admin email first.'
+    };
+
+    return map[code] || error?.message || 'Unable to sign in. Please try again.';
+}
+
 function setFeedback(message, type = 'error') {
     const errorMsg = document.getElementById('errorMsg');
     if (errorMsg) {
@@ -71,7 +90,7 @@ function initLoginPage() {
 
             goToPage('dashboard.html');
         } catch (error) {
-            setFeedback(error?.message || 'Invalid credentials');
+            setFeedback(getFriendlyAuthError(error));
         }
     });
 
@@ -90,7 +109,7 @@ function initLoginPage() {
                 await sendPasswordResetEmail(auth, email);
                 setFeedback('Password reset email sent. Check your inbox.', 'success');
             } catch (error) {
-                setFeedback(error?.message || 'Failed to send reset email.');
+                setFeedback(getFriendlyAuthError(error));
             }
         });
     }

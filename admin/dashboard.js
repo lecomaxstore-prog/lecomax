@@ -30,7 +30,11 @@ const els = {
     historyBody: document.getElementById('historyBody'),
     searchInput: document.getElementById('searchInput'),
     monthFilter: document.getElementById('monthFilter'),
+    sortFilter: document.getElementById('sortFilter'),
     quickFilters: document.querySelectorAll('.quick-filter'),
+    clearFiltersBtn: document.getElementById('clearFiltersBtn'),
+    filteredOrders: document.getElementById('filteredOrders'),
+    filteredRevenue: document.getElementById('filteredRevenue'),
 
     exportCsvBtn: document.getElementById('exportCsvBtn'),
     downloadJsonBtn: document.getElementById('downloadJsonBtn'),
@@ -48,6 +52,7 @@ const els = {
 let salesData = [];
 let currentEditId = null;
 let activeQuickFilter = 'all';
+let activeSort = 'newest';
 let isInitialized = false;
 
 function formatMAD(amount) {
@@ -65,6 +70,45 @@ function getToday() {
 
 function getMonthKey(dateStr) {
     return String(dateStr || '').slice(0, 7);
+}
+
+function parseDateString(dateStr) {
+    return new Date(`${String(dateStr || '').slice(0, 10)}T00:00:00`);
+}
+
+function isWithinLastDays(dateStr, days) {
+    const target = parseDateString(dateStr);
+    if (Number.isNaN(target.getTime())) {
+        return false;
+    }
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    const minDate = new Date(now);
+    minDate.setDate(now.getDate() - (days - 1));
+
+    return target >= minDate && target <= now;
+}
+
+function isDateInCurrentWeek(dateStr) {
+    const target = parseDateString(dateStr);
+    if (Number.isNaN(target.getTime())) {
+        return false;
+    }
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    const day = now.getDay();
+    const diffToMonday = day === 0 ? 6 : day - 1;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - diffToMonday);
+
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+
+    return target >= weekStart && target <= weekEnd;
 }
 
 function setDefaultDate() {
@@ -307,9 +351,41 @@ function getFilteredData() {
         data = data.filter((s) => s.date === today);
     } else if (activeQuickFilter === 'thisMonth') {
         data = data.filter((s) => getMonthKey(s.date) === thisMonth);
+    } else if (activeQuickFilter === 'thisWeek') {
+        data = data.filter((s) => isDateInCurrentWeek(s.date));
+    } else if (activeQuickFilter === 'last30') {
+        data = data.filter((s) => isWithinLastDays(s.date, 30));
     }
 
-    return data.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return data;
+}
+
+function sortData(data) {
+    const sorted = [...data];
+
+    if (activeSort === 'oldest') {
+        return sorted.sort((a, b) => new Date(a.date) - new Date(b.date));
+    }
+
+    if (activeSort === 'amountHigh') {
+        return sorted.sort((a, b) => toAmount(b.price) - toAmount(a.price));
+    }
+
+    if (activeSort === 'amountLow') {
+        return sorted.sort((a, b) => toAmount(a.price) - toAmount(b.price));
+    }
+
+    return sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+function updateFilteredSummary(filteredData) {
+    if (!els.filteredOrders || !els.filteredRevenue) {
+        return;
+    }
+
+    els.filteredOrders.textContent = filteredData.length.toLocaleString();
+    const total = filteredData.reduce((sum, sale) => sum + toAmount(sale.price), 0);
+    els.filteredRevenue.textContent = formatMAD(total);
 }
 
 function calculateTotals(filteredData) {
@@ -347,8 +423,8 @@ function renderTable(data) {
             <td><small style="color: var(--muted)">${escapeHTML(sale.notes)}</small></td>
             <td>
                 <div class="table-actions">
-                    <button class="btn btn-outline" data-action="edit" data-id="${escapeHTML(sale.id)}" style="padding: 4px 8px; font-size: 12px;">Edit</button>
-                    <button class="btn btn-danger" data-action="delete" data-id="${escapeHTML(sale.id)}" style="padding: 4px 8px; font-size: 12px;">Delete</button>
+                    <button class="btn btn-outline row-action-btn" data-action="edit" data-id="${escapeHTML(sale.id)}">Edit</button>
+                    <button class="btn btn-danger row-action-btn" data-action="delete" data-id="${escapeHTML(sale.id)}">Delete</button>
                 </div>
             </td>
         </tr>
@@ -358,8 +434,30 @@ function renderTable(data) {
 function renderDashboard() {
     updateMonthDropdown();
     const filteredData = getFilteredData();
-    calculateTotals(filteredData);
-    renderTable(filteredData);
+    const sortedData = sortData(filteredData);
+    calculateTotals(sortedData);
+    updateFilteredSummary(sortedData);
+    renderTable(sortedData);
+}
+
+function resetFilters() {
+    if (els.searchInput) {
+        els.searchInput.value = '';
+    }
+    if (els.monthFilter) {
+        els.monthFilter.value = 'all';
+    }
+    if (els.sortFilter) {
+        els.sortFilter.value = 'newest';
+    }
+
+    activeQuickFilter = 'all';
+    activeSort = 'newest';
+    els.quickFilters.forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.quickFilter === 'all');
+    });
+
+    renderDashboard();
 }
 
 async function handleAddSale(event) {
@@ -589,6 +687,10 @@ function setupEventListeners() {
 
     els.searchInput.addEventListener('input', renderDashboard);
     els.monthFilter.addEventListener('change', renderDashboard);
+    els.sortFilter.addEventListener('change', (event) => {
+        activeSort = event.currentTarget.value;
+        renderDashboard();
+    });
 
     els.quickFilters.forEach((btn) => {
         btn.addEventListener('click', (event) => {
@@ -598,6 +700,8 @@ function setupEventListeners() {
             renderDashboard();
         });
     });
+
+    els.clearFiltersBtn.addEventListener('click', resetFilters);
 
     els.exportCsvBtn.addEventListener('click', exportCSV);
     els.downloadJsonBtn.addEventListener('click', downloadJSON);

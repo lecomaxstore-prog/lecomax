@@ -102,11 +102,25 @@
             <div class="filters-grid">
                 <input id="searchInput" type="text" placeholder="Search by product, customer, phone, city">
                 <select id="monthFilter"></select>
+                <select id="sortFilter">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="amountHigh">Amount: high to low</option>
+                    <option value="amountLow">Amount: low to high</option>
+                </select>
                 <div class="quick-filters">
                     <button class="quick-filter active" type="button" data-quick-filter="all">All time</button>
                     <button class="quick-filter" type="button" data-quick-filter="thisMonth">This month</button>
+                    <button class="quick-filter" type="button" data-quick-filter="thisWeek">This week</button>
+                    <button class="quick-filter" type="button" data-quick-filter="last30">Last 30 days</button>
                     <button class="quick-filter" type="button" data-quick-filter="today">Today</button>
                 </div>
+                <button id="clearFiltersBtn" type="button" class="btn btn-outline">Clear filters</button>
+            </div>
+
+            <div class="filtered-summary" id="filteredSummary">
+                <span class="summary-pill">Filtered Orders: <strong id="filteredOrders">0</strong></span>
+                <span class="summary-pill">Filtered Revenue: <strong id="filteredRevenue">MAD 0.00</strong></span>
             </div>
 
             <div class="table-wrap">
