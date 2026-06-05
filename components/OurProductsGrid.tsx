@@ -179,49 +179,6 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
           </Link>
         </div>
 
-        {/* â”€â”€ Filter tabs â”€â”€ */}
-        <div
-          className="flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-1"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(16px)",
-            transition: "opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s",
-          }}
-        >
-          {TABS.map((tab) => {
-            const count = tab.key === "tous"
-              ? products.length
-              : products.filter((p) => p.category === tab.key).length;
-            if (count === 0 && tab.key !== "tous") return null;
-            const isActive = active === tab.key;
-            return (
-              <button
-                key={tab.key}
-                onClick={() => handleTab(tab.key)}
-                className={`relative flex-none flex items-center gap-2 px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.14em] transition-all duration-250 whitespace-nowrap overflow-hidden ${
-                  isActive
-                    ? "bg-black text-white shadow-[0_2px_12px_rgba(0,0,0,0.18)]"
-                    : "bg-white text-neutral-500 border border-neutral-200 hover:border-neutral-400 hover:text-black"
-                }`}
-              >
-                {/* Green bottom line on active */}
-                {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#3ecf4c]" />
-                )}
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={tab.icon} />
-                </svg>
-                {tab.label}
-                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm ${
-                  isActive ? "bg-white/15 text-white/80" : "bg-neutral-100 text-neutral-400"
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
         {/* â”€â”€ Grid â”€â”€ */}
         <div
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
