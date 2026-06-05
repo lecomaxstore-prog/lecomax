@@ -109,7 +109,7 @@ export const categories = [
   {
     slug: "chaussures",
     label: "Chaussures",
-    hero: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1920&q=80",
+    hero: "/images/pages images/chaussures.png",
     description: "Running, trail et lifestyle — la chaussure parfaite pour chaque usage.",
   },
   {

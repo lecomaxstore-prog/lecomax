@@ -7,8 +7,7 @@ import { categories, productsByCategory } from "@/lib/products";
 const categoryImages: Record<string, string> = {
   homme: "/images/pages images/homme.png",
   femme: "/images/pages images/femme.png",
-  chaussures:
-    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80",
+  chaussures: "/images/pages images/chaussures.png",
   accessoires: "/images/pages images/accessoires.png",
 };
 
