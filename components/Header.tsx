@@ -170,15 +170,23 @@ export default function Header() {
         </div>
       </div>
 
+      {/* ── Mobile overlay backdrop ──────────────────────────────── */}
+      {open && (
+        <div
+          className="fixed inset-0 top-[60px] bg-black/30 z-30 md:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
       {/* ── Mobile slide-down menu ───────────────────────────────── */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          open ? "max-h-[520px] border-t border-neutral-100" : "max-h-0"
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out relative z-40 bg-white ${
+          open ? "max-h-[600px] border-t border-neutral-100" : "max-h-0"
         }`}
       >
         {/* Search bar */}
         <div className="px-4 pt-4 pb-3">
-          <div className="flex items-center gap-2 border border-neutral-200 bg-neutral-50 px-4 py-2.5">
+          <div className="flex items-center gap-2 border border-neutral-200 bg-neutral-50 rounded-lg px-4 py-2.5">
             <SearchIcon />
             <input
               type="search"
@@ -190,44 +198,59 @@ export default function Header() {
 
         {/* Main nav links */}
         <nav className="flex flex-col px-3 pb-1">
-          {categories.map((c) => (
-            <Link
-              key={c.slug}
-              href={`/${c.slug}`}
-              onClick={() => setOpen(false)}
-              className="flex items-center justify-between px-3 py-3.5 border-b border-neutral-100 last:border-0 group"
-            >
-              <span className="text-[13px] font-black uppercase tracking-wide group-hover:text-neutral-500 transition-colors">
-                {c.label}
-              </span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-neutral-300 group-hover:text-black group-hover:translate-x-0.5 transition-all">
-                <path d="M9 18l6-6-6-6"/>
-              </svg>
-            </Link>
-          ))}
+          {categories.map((c, i) => {
+            const colors = ["#3ecf4c", "#3ecf4c", "#3ecf4c", "#3ecf4c"];
+            return (
+              <Link
+                key={c.slug}
+                href={`/${c.slug}`}
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-between px-3 py-4 border-b border-neutral-100 last:border-0 group active:bg-neutral-50 rounded-md"
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className="w-1 h-6 rounded-full"
+                    style={{ background: colors[i], opacity: 0.7 }}
+                  />
+                  <span className="text-[14px] font-black uppercase tracking-wide">
+                    {c.label}
+                  </span>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-neutral-300 group-active:text-black transition-all">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </Link>
+            );
+          })}
           <Link
             href="/promotions"
             onClick={() => setOpen(false)}
-            className="flex items-center justify-between px-3 py-3.5 group"
+            className="flex items-center justify-between px-3 py-4 group active:bg-red-50 rounded-md"
           >
-            <span className="text-[13px] font-black uppercase tracking-wide text-red-600 flex items-center gap-2">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-600" />
-              Promotions
-            </span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-red-300 group-hover:translate-x-0.5 transition-transform">
+            <div className="flex items-center gap-3">
+              <span className="w-1 h-6 rounded-full bg-red-500" />
+              <span className="text-[14px] font-black uppercase tracking-wide text-red-600 flex items-center gap-2">
+                <span className="relative flex h-[7px] w-[7px] shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-60" />
+                  <span className="relative inline-flex rounded-full h-[7px] w-[7px] bg-red-600" />
+                </span>
+                Promotions
+              </span>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-red-200 group-active:text-red-500 transition-transform">
               <path d="M9 18l6-6-6-6"/>
             </svg>
           </Link>
         </nav>
 
         {/* Utility links row */}
-        <div className="border-t border-neutral-100 mx-3 mt-1 pt-3 pb-4 grid grid-cols-2 gap-2">
+        <div className="border-t border-neutral-100 mx-3 mt-1 pt-3 pb-5 grid grid-cols-2 gap-2">
           {utilLinks.map((u) => (
             <Link
               key={u.label}
               href={u.href}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-3 py-2.5 border border-neutral-100 hover:border-black hover:bg-neutral-50 transition-all"
+              className="flex items-center gap-2.5 px-3 py-3 rounded-lg border border-neutral-100 active:border-black active:bg-neutral-50 transition-all"
             >
               <span className="text-neutral-500">{u.icon}</span>
               <span className="text-[11px] font-black uppercase tracking-wide">{u.label}</span>
