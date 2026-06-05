@@ -225,18 +225,20 @@ export default function Header() {
           <Link
             href="/promotions"
             onClick={() => setOpen(false)}
-            className="group flex items-center justify-between py-3.5 mt-3 rounded-xl px-3 bg-red-50 border border-red-100"
+            className="group flex items-center justify-between py-4 mt-4 rounded-xl px-4 bg-red-600 border border-red-600 active:bg-red-700 transition-colors"
           >
             <div className="flex items-center gap-3">
               <span className="relative flex h-2 w-2 shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-60" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-60" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
               </span>
-              <span className="text-[20px] font-black uppercase tracking-tight text-red-600">Promotions</span>
+              <span className="text-[20px] font-black uppercase tracking-tight text-white">Promotions</span>
             </div>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-red-300 group-hover:translate-x-1 transition-transform duration-200">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
+            <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center group-active:bg-white/30 transition-colors">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </div>
           </Link>
         </nav>
 
