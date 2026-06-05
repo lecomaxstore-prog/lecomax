@@ -96,7 +96,7 @@ const accessoires: Product[] = [
     category: "accessoires",
     subCategory: "Sacs",
     price: 69,
-    badge: "Nouveau",
+    badge: "Bestseller",
     colors: ["Noir", "Gris"],
     sizes: ["Taille unique"],
     image: "/images/products/Sac%20banane/1.avif",
@@ -184,7 +184,7 @@ const accessoires: Product[] = [
     price: 149,
     colors: ["Blanc", "Noir"],
     sizes: ["Taille unique"],
-    badge: "Nouveau",
+    badge: "Bestseller",
     image: "/images/products/GENAI%20%C3%89couteurs%20st%C3%A9r%C3%A9o%20HD%20sans%20fil%20TWS/1%20white.avif",
     gallery: [
       "/images/products/GENAI%20%C3%89couteurs%20st%C3%A9r%C3%A9o%20HD%20sans%20fil%20TWS/2%20black.avif",
