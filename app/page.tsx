@@ -1,6 +1,7 @@
 import HeroBanner from "@/components/HeroBanner";
 import CategoryTiles from "@/components/CategoryTiles";
 import ProductRail from "@/components/ProductRail";
+import OurProductsGrid from "@/components/OurProductsGrid";
 import ScrollReveal from "@/components/ScrollReveal";
 import Testimonials from "@/components/Testimonials";
 import Image from "next/image";
@@ -36,6 +37,8 @@ export default async function HomePage() {
       />
 
       <CategoryTiles />
+
+      <OurProductsGrid products={allProducts} />
 
       {/* ── Editorial split banner ───────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 md:px-6 py-10 grid md:grid-cols-2 gap-3">
