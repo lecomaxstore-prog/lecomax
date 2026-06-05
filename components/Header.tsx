@@ -175,74 +175,90 @@ export default function Header() {
       {/* ── Mobile full-screen menu ───────────────────────────────── */}
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/50 z-[9998] md:hidden transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] md:hidden transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
         onClick={() => setOpen(false)}
       />
 
       {/* Slide-in panel */}
       <div
-        className={`fixed top-0 left-0 h-full w-[80vw] max-w-[320px] bg-white z-[9999] md:hidden flex flex-col transition-transform duration-300 ease-in-out ${open ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed top-0 left-0 h-full w-[85vw] max-w-[340px] z-[9999] md:hidden flex flex-col transition-transform duration-300 ease-in-out ${open ? "translate-x-0" : "-translate-x-full"}`}
+        style={{ background: "#0a0a0a" }}
       >
         {/* Panel header */}
-        <div className="flex items-center justify-between px-5 h-[60px] border-b border-neutral-100">
-          <span className="text-[13px] font-black uppercase tracking-[0.15em] text-neutral-400">Menu</span>
+        <div className="flex items-center justify-between px-5 h-[64px] border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] animate-pulse" />
+            <span className="text-[11px] font-black uppercase tracking-[0.25em] text-white/40">L&apos;ecomax</span>
+          </div>
           <button
             aria-label="Fermer"
             onClick={() => setOpen(false)}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-full border border-white/10 text-white/60 hover:border-white/30 hover:text-white transition-all"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <path d="M18 6 6 18M6 6l12 12"/>
             </svg>
           </button>
         </div>
 
         {/* Nav links */}
-        <nav className="flex flex-col flex-1 overflow-y-auto px-4 py-3">
-          {categories.map((c) => (
+        <nav className="flex flex-col flex-1 overflow-y-auto px-5 pt-6 pb-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/25 mb-4">Catégories</p>
+          {categories.map((c, i) => (
             <Link
               key={c.slug}
               href={`/${c.slug}`}
               onClick={() => setOpen(false)}
-              className="flex items-center justify-between py-4 border-b border-neutral-100 last:border-0"
+              className="group flex items-center justify-between py-3.5 border-b border-white/[0.06] last:border-0"
             >
-              <span className="text-[18px] font-black uppercase tracking-tight">{c.label}</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-neutral-300">
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] font-black text-white/20 w-4 tabular-nums">0{i + 1}</span>
+                <span className="text-[20px] font-black uppercase tracking-tight text-white group-hover:text-[#3ecf4c] transition-colors duration-200">{c.label}</span>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-white/20 group-hover:text-[#3ecf4c] group-hover:translate-x-1 transition-all duration-200">
                 <path d="M9 18l6-6-6-6"/>
               </svg>
             </Link>
           ))}
+
+          {/* Promotions */}
           <Link
             href="/promotions"
             onClick={() => setOpen(false)}
-            className="flex items-center justify-between py-4 border-b border-neutral-100"
+            className="group flex items-center justify-between py-3.5 mt-2 rounded-lg px-3 bg-red-950/40 border border-red-900/30"
           >
-            <span className="text-[18px] font-black uppercase tracking-tight text-red-600 flex items-center gap-2.5">
+            <div className="flex items-center gap-3">
               <span className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-60" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
               </span>
-              Promotions
-            </span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-red-200">
+              <span className="text-[20px] font-black uppercase tracking-tight text-red-400">Promotions</span>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-red-700 group-hover:translate-x-1 transition-transform duration-200">
               <path d="M9 18l6-6-6-6"/>
             </svg>
           </Link>
         </nav>
 
-        {/* Bottom utility links */}
-        <div className="border-t border-neutral-100 px-4 py-4 grid grid-cols-2 gap-2">
-          {utilLinks.map((u) => (
-            <Link
-              key={u.label}
-              href={u.href}
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-neutral-50 active:bg-neutral-100 transition-colors"
-            >
-              <span className="text-neutral-500 shrink-0">{u.icon}</span>
-              <span className="text-[11px] font-bold uppercase tracking-wide leading-tight">{u.label}</span>
-            </Link>
-          ))}
+        {/* Bottom section */}
+        <div className="px-5 pb-8 pt-4 border-t border-white/10">
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/25 mb-3">Liens utiles</p>
+          <div className="grid grid-cols-2 gap-2">
+            {utilLinks.map((u) => (
+              <Link
+                key={u.label}
+                href={u.href}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 px-3 py-3 rounded-lg border border-white/10 hover:border-[#3ecf4c]/40 hover:bg-[#3ecf4c]/5 transition-all"
+              >
+                <span className="text-white/40">{u.icon}</span>
+                <span className="text-[11px] font-bold uppercase tracking-wide leading-tight text-white/70">{u.label}</span>
+              </Link>
+            ))}
+          </div>
+
+          {/* Brand line */}
+          <p className="text-[10px] text-white/20 text-center mt-5 tracking-widest uppercase">L&apos;ecomax © 2025</p>
         </div>
       </div>
     </>
