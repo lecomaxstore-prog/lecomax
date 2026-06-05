@@ -23,7 +23,7 @@ export default async function HomePage() {
   const newArrivals = allProducts.filter((p) => p.badge === "Nouveau");
   const bestSellers = allProducts.filter((p) => p.badge === "Bestseller");
   // Fall back: if no featured in DB, show first 4 DB products as "nouveautés"
-  const featuredForRail = newArrivals.length > 0 ? newArrivals : dbProducts.slice(0, 8);
+  const featuredForRail = (newArrivals.length > 0 ? newArrivals : dbProducts).slice(0, 8);
   const bestSellersForRail = bestSellers.length > 0 ? bestSellers : dbProducts.slice(0, 8);
 
   return (

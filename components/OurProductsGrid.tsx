@@ -129,7 +129,7 @@ function ProductCard({ product, index }: { product: CardProduct; index: number }
 
 export default function OurProductsGrid({ products }: { products: CardProduct[] }) {
   const [active, setActive] = useState("tous");
-  const [displayed, setDisplayed] = useState(8);
+  const [displayed, setDisplayed] = useState(20);
   const { ref, visible } = useInView();
 
   const filtered = active === "tous"
@@ -142,7 +142,7 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
   // Reset displayed count on tab change
   const handleTab = (key: string) => {
     setActive(key);
-    setDisplayed(8);
+    setDisplayed(20);
   };
 
   return (
