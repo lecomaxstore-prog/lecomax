@@ -181,7 +181,7 @@ export default function CartPage() {
               {/* Shipping info */}
               <div className="px-6 py-3 bg-[#f0fdf4] border-b border-[#3ecf4c]/20 flex items-center gap-2 text-[11px] font-black text-[#16a34a] uppercase tracking-wider">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                Livraison 35 MAD · Gratuite pour Sidi Bennour
+                  Livraison 35 MAD partout au Maroc
               </div>
 
               {/* Column headers */}
