@@ -268,7 +268,7 @@ export default async function ProductPage({
       <ProductAccordion
         description={product.description}
         features={features}
-        descriptionImage={(product.descriptionImages ?? (product.descriptionImage ? [product.descriptionImage] : []))[0]}
+        descriptionImages={product.descriptionImages ?? (product.descriptionImage ? [product.descriptionImage] : [])}
         productSlug={product.slug}
       />
 

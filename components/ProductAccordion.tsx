@@ -42,32 +42,28 @@ function AccordionItem({
 export default function ProductAccordion({
   description,
   features,
-  descriptionImage,
+  descriptionImages,
   productSlug,
 }: {
   description: string;
   features: string[];
-  descriptionImage?: string;
+  descriptionImages?: string[];
   productSlug: string;
 }) {
+  const hasImages = descriptionImages && descriptionImages.length > 0;
   return (
     <div className="mt-10 border-b border-neutral-200">
       {/* Description Produit */}
       <AccordionItem title="Description Produit" defaultOpen={true}>
-        {descriptionImage ? (
-          <div className="flex flex-col-reverse md:flex-row gap-6 md:gap-10 md:items-start">
-            <div className="flex-1">
-              <div className="w-8 h-[2px] bg-black mb-4" />
-              <p className="text-[15px] text-neutral-700 leading-[1.8] tracking-wide">{description}</p>
-            </div>
-            <div className="w-full md:w-[520px] flex-shrink-0 overflow-hidden border border-neutral-100">
-              <img src={descriptionImage} alt="description" className="w-full h-auto" />
-            </div>
-          </div>
-        ) : (
-          <div>
-            <div className="w-8 h-[2px] bg-black mb-4" />
-            <p className="text-[15px] text-neutral-700 leading-[1.8] tracking-wide max-w-2xl">{description}</p>
+        <div className="w-8 h-[2px] bg-black mb-4" />
+        <p className="text-[15px] text-neutral-700 leading-[1.8] tracking-wide max-w-2xl mb-8">{description}</p>
+        {hasImages && (
+          <div className="flex flex-col gap-3">
+            {descriptionImages!.map((src, i) => (
+              <div key={i} className="w-full overflow-hidden border border-neutral-100">
+                <img src={src} alt={`description ${i + 1}`} className="w-full h-auto" loading={i === 0 ? "eager" : "lazy"} />
+              </div>
+            ))}
           </div>
         )}
       </AccordionItem>
