@@ -77,25 +77,35 @@ export default function Header() {
         </div>
 
         {/* Centre: nav */}
-        <nav className="hidden md:flex items-center gap-1 text-[13px] font-bold uppercase">
+        <nav className="hidden md:flex items-center gap-0.5 text-[12px] font-black uppercase tracking-[0.08em]">
           {categories.map((c) => (
             <Link
               key={c.slug}
               href={`/${c.slug}`}
-              className="relative px-3 py-2 group"
+              className="relative px-3.5 py-1.5 group rounded-sm overflow-hidden"
             >
-              <span className="relative z-10 group-hover:opacity-60 transition-opacity duration-200">{c.label}</span>
-              <span className="absolute inset-x-3 bottom-1 h-[2px] bg-black scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]" />
+              {/* Pill hover bg */}
+              <span className="absolute inset-0 bg-neutral-100 scale-x-0 scale-y-75 group-hover:scale-x-100 group-hover:scale-y-100 origin-center transition-transform duration-200 ease-out rounded-sm" />
+              <span className="relative z-10 transition-colors duration-200">{c.label}</span>
+              {/* Green underline */}
+              <span className="absolute inset-x-3.5 bottom-0.5 h-[2px] bg-[#3ecf4c] scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]" />
             </Link>
           ))}
           <Link
             href="/promotions"
-            className="relative px-3 py-2 group"
+            className="relative ml-1 px-3.5 py-1.5 group rounded-sm overflow-hidden"
           >
-            <span className="relative z-10 text-red-600 group-hover:opacity-70 transition-opacity duration-200">
+            {/* Red pill hover bg */}
+            <span className="absolute inset-0 bg-red-50 scale-x-0 scale-y-75 group-hover:scale-x-100 group-hover:scale-y-100 origin-center transition-transform duration-200 ease-out rounded-sm" />
+            <span className="relative z-10 flex items-center gap-1.5 text-red-600">
+              {/* Pulsing dot */}
+              <span className="relative flex h-[7px] w-[7px] shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-60" />
+                <span className="relative inline-flex rounded-full h-[7px] w-[7px] bg-red-600" />
+              </span>
               Promotions
             </span>
-            <span className="absolute inset-x-3 bottom-1 h-[2px] bg-red-600 scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]" />
+            <span className="absolute inset-x-3.5 bottom-0.5 h-[2px] bg-red-500 scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]" />
           </Link>
         </nav>
 
