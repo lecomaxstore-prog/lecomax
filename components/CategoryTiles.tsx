@@ -5,14 +5,11 @@ import Link from "next/link";
 import { categories, productsByCategory } from "@/lib/products";
 
 const categoryImages: Record<string, string> = {
-  homme:
-    "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=900&q=80",
-  femme:
-    "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=900&q=80",
+  homme: "/images/pages images/homme.png",
+  femme: "/images/pages images/femme.png",
   chaussures:
     "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80",
-  accessoires:
-    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80",
+  accessoires: "/images/pages images/accessoires.png",
 };
 
 function useInView(threshold = 0.15) {
