@@ -1,6 +1,8 @@
 ﻿export type Product = {
   slug: string;
   name: string;
+  displayName?: string;
+  specs?: string[];
   category: "homme" | "femme" | "chaussures" | "accessoires";
   subCategory: string;
   price: number;
@@ -63,6 +65,8 @@ const accessoires: Product[] = [
   {
     slug: "a-manette-sans-fil-rgb-v2",
     name: "Manette de Jeu Sans Fil Interactive (No Drift) — iOS / Switch / PC / Android / Steam Deck · RGB · Batterie 1800mAh · V2 Noir",
+    displayName: "Manette Sans Fil No Drift V2 — RGB · 1800mAh",
+    specs: ["No Drift Hall Effect", "iOS · Switch · PC · Android · Steam Deck", "RGB Personnalisable", "Batterie 1800 mAh", "Station de charge incluse", "Boutons remappables"],
     category: "accessoires",
     subCategory: "Gaming",
     price: 499,

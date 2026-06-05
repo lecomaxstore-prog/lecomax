@@ -64,11 +64,17 @@ function getFeatures(subCategory: string): string[] {
   }
   if (sub === "gaming" || sub.includes("manette")) {
     return [
-      "Connexion sans fil 2.4GHz + Bluetooth",
-      "Compatible PC, PS4/PS5, Mobile",
-      "Vibrations HD double moteur",
+      "Sticks à effet Hall (No Drift garanti)",
+      "Connexion sans fil 2.4GHz + Bluetooth 5.0",
+      "Compatible iOS, Switch, PC, Android, Steam Deck",
+      "Gâchettes progressives à effet Hall",
+      "Éclairage RGB personnalisable",
+      "Batterie 1800 mAh rechargeable",
+      "Station de charge incluse",
+      "Boutons entièrement remappables",
       "Autonomie jusqu'à 20h",
-      "Charge USB-C",
+      "Charge USB-C rapide",
+      "Non compatible Xbox et PS5",
     ];
   }
   if (sub === "sacs" || sub.includes("sac")) {
@@ -210,8 +216,19 @@ export default async function ProductPage({
           </p>
 
           <h1 className="h-display text-3xl md:text-[2.2rem] leading-[1.05]">
-            {product.name}
+            {product.displayName ?? product.name}
           </h1>
+
+          {/* Spec chips */}
+          {product.specs && product.specs.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-4">
+              {product.specs.map((s) => (
+                <span key={s} className="text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 bg-neutral-100 text-neutral-600 border border-neutral-200">
+                  {s}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Price */}
           <div className="flex items-baseline gap-3 mt-5">
