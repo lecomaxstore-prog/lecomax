@@ -31,9 +31,8 @@ export async function POST(req: Request) {
 
         <!-- Header -->
         <tr>
-          <td style="background:linear-gradient(135deg,#111111 0%,#333333 100%);padding:32px 40px;text-align:center;">
-            <p style="margin:0;font-size:22px;font-weight:900;color:#ffffff;letter-spacing:0.1em;text-transform:uppercase;">L'ECOMAX</p>
-            <p style="margin:6px 0 0;font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:0.2em;text-transform:uppercase;">Sport · Style · Performance</p>
+          <td style="background:linear-gradient(135deg,#111111 0%,#333333 100%);padding:0;text-align:center;">
+            <img src="https://lecomax.com/images/email%20image/email%20image.png" alt="L'ecomax" width="560" style="display:block;width:100%;max-width:560px;height:auto;" />
           </td>
         </tr>
 
