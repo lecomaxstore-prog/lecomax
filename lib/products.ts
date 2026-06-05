@@ -97,13 +97,13 @@ export const categories = [
   {
     slug: "homme",
     label: "Homme",
-    hero: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=1920&q=80",
+    hero: "/images/pages images/homme.png",
     description: "Vestes, bombers, sweats et hoodies pour hommes. Du casual au sport.",
   },
   {
     slug: "femme",
     label: "Femme",
-    hero: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=1920&q=80",
+    hero: "/images/pages images/femme.png",
     description: "Vestes, bombers et hoodies pour femmes. Style et confort au quotidien.",
   },
   {
@@ -115,7 +115,7 @@ export const categories = [
   {
     slug: "accessoires",
     label: "Accessoires",
-    hero: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1920&q=80",
+    hero: "/images/pages images/accessoires.png",
     description: "Manettes gaming, ecouteurs, sacs a dos et accessoires tech.",
   },
 ] as const;
