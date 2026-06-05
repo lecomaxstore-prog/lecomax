@@ -38,7 +38,7 @@ function buildEmailHtml(type: NotifyType, name: string, orderNumber: string, ite
       icon: "✕",
       color: "#991b1b",
       bgColor: "#fef2f2",
-      body: `Nous vous informons que votre commande a été annulée. Si vous avez des questions, contactez-nous à contact@lecomax.ma.`,
+      body: `Nous vous informons que votre commande a été annulée. Si vous avez des questions, contactez-nous à contact@lecomax.com.`,
     },
   };
 
@@ -54,6 +54,9 @@ function buildEmailHtml(type: NotifyType, name: string, orderNumber: string, ite
   <tr><td style="background:linear-gradient(135deg,#111 0%,#333 100%);padding:28px 40px;text-align:center;">
     <p style="margin:0;font-size:20px;font-weight:900;color:#fff;letter-spacing:0.1em;">L'ECOMAX</p>
     <p style="margin:4px 0 0;font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.2em;">SPORT · STYLE · PERFORMANCE</p>
+  </td></tr>
+  <tr><td style="padding:0;">
+    <img src="https://lecomax.com/images/email%20image/email%20image.png" alt="L'ecomax" width="560" style="display:block;width:100%;max-width:560px;height:auto;" />
   </td></tr>
   <tr><td style="background:${c.bgColor};padding:18px 40px;text-align:center;border-bottom:1px solid rgba(0,0,0,0.06);">
     <p style="margin:0;font-size:26px;">${c.icon}</p>
@@ -82,7 +85,7 @@ function buildEmailHtml(type: NotifyType, name: string, orderNumber: string, ite
     <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">L'équipe <strong style="color:#111;">L'ECOMAX</strong></p>
   </td></tr>
   <tr><td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:16px 40px;text-align:center;">
-    <p style="margin:0;font-size:11px;color:#9ca3af;">© 2026 L'ECOMAX · contact@lecomax.ma</p>
+    <p style="margin:0;font-size:11px;color:#9ca3af;">© 2026 L'ECOMAX · contact@lecomax.com</p>
   </td></tr>
 </table>
 </td></tr>
