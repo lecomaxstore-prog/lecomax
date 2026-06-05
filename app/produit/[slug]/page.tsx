@@ -9,6 +9,7 @@ import { ProductColorProvider } from "@/components/ProductColorContext";
 import ProductCarousel from "@/components/ProductCarousel";
 import ReviewSection from "@/components/ReviewSection";
 import ProductAccordion from "@/components/ProductAccordion";
+import NewsletterSection from "@/components/NewsletterSection";
 
 export const dynamic = "force-dynamic";
 
@@ -301,6 +302,9 @@ export default async function ProductPage({
           <ProductCarousel products={related} />
         </section>
       )}
+
+      {/* ── Newsletter ── */}
+      <NewsletterSection />
     </div>
   );
 }
