@@ -10,6 +10,7 @@ import PageTracker from "@/components/PageTracker";
 import AdminLayoutWrapper from "@/components/AdminLayoutWrapper";
 import SiteProtection from "@/components/SiteProtection";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import IntroAnimation from "@/components/IntroAnimation";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -188,6 +189,7 @@ export default function RootLayout({
         }
       `}</Script>
       <body className="min-h-screen flex flex-col font-sans">
+        <IntroAnimation />
         <CartProvider>
           <SiteProtection />
           <PageTracker />

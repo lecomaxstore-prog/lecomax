@@ -79,6 +79,14 @@ export default function Header() {
 
         {/* Centre: nav */}
         <nav className="hidden md:flex items-center gap-0.5 text-[12px] font-black uppercase tracking-[0.08em]">
+          <Link
+            href="/"
+            className="relative px-3.5 py-1.5 group rounded-sm overflow-hidden"
+          >
+            <span className="absolute inset-0 bg-neutral-100 scale-x-0 scale-y-75 group-hover:scale-x-100 group-hover:scale-y-100 origin-center transition-transform duration-200 ease-out rounded-sm" />
+            <span className="relative z-10 transition-colors duration-200">Accueil</span>
+            <span className="absolute inset-x-3.5 bottom-0.5 h-[2px] bg-[#3ecf4c] scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]" />
+          </Link>
           {categories.map((c) => (
             <Link
               key={c.slug}
