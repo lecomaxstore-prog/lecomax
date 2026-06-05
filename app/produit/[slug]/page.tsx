@@ -268,7 +268,7 @@ export default async function ProductPage({
               </svg>
               <div>
                 <p className="font-black text-[12px] uppercase">Livraison gratuite</p>
-                <p className="text-neutral-400 text-[11px] mt-0.5">Dès 500 MAD</p>
+                <p className="text-neutral-400 text-[11px] mt-0.5">35 MAD · Gratuite Sidi Bennour</p>
               </div>
             </div>
             <div className="flex items-start gap-3 border border-neutral-100 p-3.5">

@@ -18,7 +18,7 @@ const PROMO_CODES: Record<string, { type: "percent" | "fixed"; value: number; la
 
 export default function CartPage() {
   const { items, total, count, setQty, remove, clear } = useCart();
-  const shipping = total >= 500 || total === 0 ? 0 : 49;
+  const shipping = total === 0 ? 0 : 35;
 
   const [promoInput, setPromoInput] = useState("");
   const [promoApplied, setPromoApplied] = useState<null | { code: string; type: "percent" | "fixed"; value: number; label: string }>(null);
@@ -178,24 +178,11 @@ export default function CartPage() {
                 </Link>
               </div>
 
-              {/* Free shipping bar */}
-              {total < 500 && (
-                <div className="px-6 py-3 bg-[#f0fdf4] border-b border-[#3ecf4c]/20">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[11px] font-bold text-neutral-600">Livraison gratuite dès 500 MAD</span>
-                    <span className="text-[11px] font-black text-[#3ecf4c]">{formatMAD(500 - total)} restants</span>
-                  </div>
-                  <div className="h-[4px] bg-[#3ecf4c]/20 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (total / 500) * 100)}%`, background: "#3ecf4c" }} />
-                  </div>
-                </div>
-              )}
-              {total >= 500 && (
-                <div className="px-6 py-3 bg-[#f0fdf4] border-b border-[#3ecf4c]/20 flex items-center gap-2 text-[11px] font-black text-[#16a34a] uppercase tracking-wider">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8L4 7h16l-4-4z"/></svg>
-                  Livraison gratuite offerte !
-                </div>
-              )}
+              {/* Shipping info */}
+              <div className="px-6 py-3 bg-[#f0fdf4] border-b border-[#3ecf4c]/20 flex items-center gap-2 text-[11px] font-black text-[#16a34a] uppercase tracking-wider">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                Livraison 35 MAD · Gratuite pour Sidi Bennour
+              </div>
 
               {/* Column headers */}
               <div className="hidden md:grid grid-cols-[1fr_100px_120px_100px] px-6 py-3 border-b border-neutral-100 text-[10px] font-black uppercase tracking-[0.15em] text-neutral-400">

@@ -66,7 +66,7 @@ const faqs = [
   {
     question: "Quels sont les délais de livraison ?",
     answer:
-      "La livraison standard prend 3 à 5 jours ouvrables au Maroc. La livraison est gratuite pour toute commande supérieure à 500 MAD.",
+      "La livraison standard prend 3 à 5 jours ouvrables au Maroc. Les frais de livraison sont de 35 MAD. La livraison est gratuite pour Sidi Bennour.",
   },
   {
     question: "Comment retourner un article ?",

@@ -5,7 +5,7 @@ const items = [
         <path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
       </svg>
     ),
-    text: "LIVRAISON GRATUITE DÈS 500 MAD",
+    text: "LIVRAISON 35 MAD · GRATUITE POUR SIDI BENNOUR",
     color: "#4ade80",
     glow: "rgba(74,222,128,0.35)",
   },

@@ -146,7 +146,7 @@ export default function CategoryFilters({
       <div className="border-t border-neutral-100 bg-neutral-50 py-10 text-center">
         <p className="text-[12px] uppercase tracking-[0.3em] text-neutral-400 mb-2">Livraison & retours</p>
         <p className="text-[14px] text-neutral-600">
-          Livraison gratuite d&eacute;s 500 MAD &nbsp;·&nbsp; Retours gratuits sous 30 jours
+          Livraison 35 MAD &nbsp;·&nbsp; Gratuite pour Sidi Bennour &nbsp;·&nbsp; Retours gratuits sous 30 jours
         </p>
         <div className="flex items-center justify-center gap-6 mt-5">
           <Link href="/aide" className="text-[12px] font-black uppercase tracking-wide underline underline-offset-4 hover:no-underline">

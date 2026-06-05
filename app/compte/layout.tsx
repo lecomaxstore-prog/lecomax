@@ -217,7 +217,7 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
           {/* Promo card */}
           <div className="bg-white border border-neutral-100 p-5">
             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400 mb-1">Livraison</p>
-            <p className="font-black text-[13px] uppercase tracking-wide mb-2">Offerte dès 500 DH</p>
+            <p className="font-black text-[13px] uppercase tracking-wide mb-2">35 MAD · Gratuite Sidi Bennour</p>
             <p className="text-[11px] text-neutral-500 leading-relaxed">Maroc · France · Belgique · Suisse</p>
           </div>
         </aside>
