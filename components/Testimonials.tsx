@@ -91,7 +91,7 @@ function AnimatedStat({ value, label, delay = 0 }: { value: string; label: strin
   );
 }
 
-
+function Stars({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-0.5" aria-label={`Note ${rating} sur 5`}>
       {Array.from({ length: 5 }).map((_, i) => (
