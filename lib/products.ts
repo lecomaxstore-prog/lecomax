@@ -63,6 +63,34 @@ const femme: Product[] = [];
 /* ────────────────────────── ACCESSOIRES ────────────────────────── */
 const accessoires: Product[] = [
   {
+    slug: "a-lenovo-k3-pro-enceinte",
+    name: "Lenovo K3 PRO — Enceinte Bluetooth HiFi Son Stéréo Cinéma",
+    displayName: "Lenovo K3 PRO — Enceinte HiFi Stéréo",
+    specs: ["Son stéréo HiFi", "Léger & portable", "Qualité cinéma", "Bluetooth"],
+    category: "accessoires",
+    subCategory: "Audio",
+    price: 99,
+    badge: "Nouveau",
+    colors: ["Noir"],
+    sizes: ["Taille unique"],
+    image: "/images/products/Lenovo%20K3%20PRO/1.avif",
+    gallery: [
+      "/images/products/Lenovo%20K3%20PRO/2.avif",
+      "/images/products/Lenovo%20K3%20PRO/3.avif",
+      "/images/products/Lenovo%20K3%20PRO/4.avif",
+      "/images/products/Lenovo%20K3%20PRO/5.avif",
+    ],
+    descriptionImages: [
+      "/images/products/Lenovo%20K3%20PRO/descption%20images/1.avif",
+      "/images/products/Lenovo%20K3%20PRO/descption%20images/2.avif",
+      "/images/products/Lenovo%20K3%20PRO/descption%20images/3.avif",
+      "/images/products/Lenovo%20K3%20PRO/descption%20images/4.avif",
+    ],
+    video: "https://goods-vod.kwcdn.com/goods-video/3ccdd98e1c3a4c8c5425ae7b9fe3fe1f3f607509.f30.mp4",
+    sizeGuideType: "none",
+    description: "L'enceinte Lenovo K3 PRO délivre un son stéréo HiFi à qualité cinéma dans un format ultra-léger et portable. Idéale pour écouter de la musique, regarder des films ou prendre des appels en déplacement. Connexion Bluetooth simple et rapide, autonomie longue durée.",
+  },
+  {
     slug: "a-manette-sans-fil-rgb-v2",
     name: "Manette de Jeu Sans Fil Interactive (No Drift) — iOS / Switch / PC / Android / Steam Deck · RGB · Batterie 1800mAh · V2 Noir",
     displayName: "Manette Sans Fil No Drift V2 — RGB · 1800mAh",
