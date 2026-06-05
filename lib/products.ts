@@ -71,9 +71,7 @@ const accessoires: Product[] = [
     subCategory: "Audio",
     price: 99,
     badge: "Nouveau",
-    colors: ["Noir"],
-    sizes: ["Taille unique"],
-    image: "/images/products/Lenovo%20K3%20PRO/1.avif",
+    colors: ["Édition Standard"],
     gallery: [
       "/images/products/Lenovo%20K3%20PRO/2.avif",
       "/images/products/Lenovo%20K3%20PRO/3.avif",

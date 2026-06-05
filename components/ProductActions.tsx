@@ -9,6 +9,7 @@ import type { Product } from "@/lib/products";
 
 const colorMap: Record<string, string> = {
   "Noir": "#0a0a0a", "Blanc": "#f5f5f5", "Blanc casse": "#fafaf5",
+  "Édition Standard": "#1a1a2e",
   "Gris": "#9ca3af", "Gris chine": "#d1d5db", "Gris fonce": "#4b5563",
   "Gris anthracite": "#374151", "Bleu": "#3b82f6", "Bleu marine": "#1e3a5f",
   "Bleu nuit": "#1e2a4a", "Bleu ciel": "#7dd3fc", "Navy": "#1e3a5f",
