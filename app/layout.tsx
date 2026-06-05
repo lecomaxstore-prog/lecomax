@@ -102,7 +102,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "google-site-verification-pending",
+    google: "NkVjvr5b1I2GKIs6YjwtU1HEPQNHUjPBgY8RHD1kRWQ",
   },
   formatDetection: { telephone: false },
 };
