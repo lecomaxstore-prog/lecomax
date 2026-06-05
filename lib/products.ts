@@ -61,6 +61,38 @@ const femme: Product[] = [];
 /* ────────────────────────── ACCESSOIRES ────────────────────────── */
 const accessoires: Product[] = [
   {
+    slug: "a-manette-sans-fil-rgb-v2",
+    name: "Manette de Jeu Sans Fil Interactive (No Drift) — iOS / Switch / PC / Android / Steam Deck · RGB · Batterie 1800mAh · V2 Noir",
+    category: "accessoires",
+    subCategory: "Gaming",
+    price: 349,
+    oldPrice: 499,
+    badge: "Nouveau",
+    colors: ["Noir"],
+    sizes: ["Taille unique"],
+    image: "/images/products/Manette%20de%20Jeu%20Sans%20Fil/1.avif",
+    gallery: [
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/2.avif",
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/3.avif",
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/4.avif",
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/5.avif",
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/6.avif",
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/7.avif",
+    ],
+    descriptionImages: [
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/description/1.avif",
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/description/2.avif",
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/description/3.avif",
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/description/4.avif",
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/description/5.avif",
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/description/6.avif",
+      "/images/products/Manette%20de%20Jeu%20Sans%20Fil/description/7.avif",
+    ],
+    video: "https://goods-vod.kwcdn.com/goods-video/0aebee3d158c144c141ed5725db238e6a0325743.f30.mp4",
+    sizeGuideType: "none",
+    description: "Manette gaming sans fil avec technologie No Drift (sticks à effet Hall) pour une précision maximale sans dérive. Compatible iOS, Nintendo Switch, PC, Android et Steam Deck. Éclairage RGB personnalisable, gâchettes progressives à effet Hall, boutons remappables, batterie 1800 mAh avec station de charge incluse. Non compatible Xbox et PS5.",
+  },
+  {
     slug: "a-genai-tws-hd",
     name: "GENAI Écouteurs Stéréo HD Sans Fil TWS",
     category: "accessoires",
