@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import ProductCard from "@/components/ProductCard";
 import { products as staticProducts, apiToCard, type CardProduct } from "@/lib/products";
 
@@ -69,18 +70,29 @@ export default function BoutiquePage() {
           </nav>
 
           <div className="flex flex-col gap-6">
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white/30 mb-3">
-                L&apos;ecomax
-              </p>
-              <h1 className="font-black text-4xl md:text-5xl uppercase tracking-tight leading-none">
-                Notre
-                <span className="block" style={{ color: "#3ecf4c" }}>Boutique</span>
-              </h1>
-              <p className="text-white/50 text-sm mt-4 max-w-md">
-                Découvrez tous nos articles — chaussures, accessoires et plus encore.
-                Livraison offerte au Maroc.
-              </p>
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-1">
+                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white/30 mb-3">
+                  L&apos;ecomax
+                </p>
+                <h1 className="font-black text-4xl md:text-5xl uppercase tracking-tight leading-none">
+                  Notre
+                  <span className="block" style={{ color: "#3ecf4c" }}>Boutique</span>
+                </h1>
+                <p className="text-white/50 text-sm mt-4 max-w-md">
+                  Découvrez tous nos articles — chaussures, accessoires et plus encore.
+                  Livraison offerte au Maroc.
+                </p>
+              </div>
+              <div className="relative w-full md:w-[420px] h-[220px] md:h-[280px] rounded-2xl overflow-hidden shrink-0">
+                <Image
+                  src="/images/pages images/notre boutique image.png"
+                  alt="Notre Boutique"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
             </div>
 
             {/* Stats inline strip */}
