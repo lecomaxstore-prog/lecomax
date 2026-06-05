@@ -76,23 +76,48 @@ export default function ProductActions({ product }: { product: Product }) {
       {/* Color picker — above size selector */}
       {hasColors && (
         <div className="mb-5">
-          <p className="text-[12px] font-black uppercase tracking-wide mb-2">
-            Couleur — <span className="font-normal text-neutral-500">{color}</span>
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {product.colors.map((c) => (
-              <button
-                key={c}
-                title={c}
-                onClick={() => setColor(c)}
-                className={`w-9 h-9 border-2 transition-colors ring-1 ring-neutral-200 ${
-                  color === c
-                    ? "border-black scale-110"
-                    : "border-transparent hover:border-neutral-400"
-                }`}
-                style={{ backgroundColor: getColorHex(c) }}
-              />
-            ))}
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[12px] font-black uppercase tracking-wide">
+              Couleur
+            </p>
+            <span className="text-[12px] text-neutral-500 font-medium">{color}</span>
+          </div>
+          <div className="flex flex-wrap gap-2.5">
+            {product.colors.map((c) => {
+              const isSelected = color === c;
+              const hex = getColorHex(c);
+              const isLight = ["#f5f5f5","#fafaf5","#d1d5db","#fcd5ce","#f9a8d4","#f5f0e8","#f7e7ce","#fef08a","#c4b5fd","#7dd3fc"].includes(hex);
+              return (
+                <button
+                  key={c}
+                  title={c}
+                  onClick={() => setColor(c)}
+                  className="relative group flex-shrink-0 transition-transform duration-150"
+                  style={{ transform: isSelected ? "scale(1.08)" : "scale(1)" }}
+                >
+                  {/* Swatch */}
+                  <span
+                    className={`flex w-10 h-10 rounded-full transition-all duration-200 ${
+                      isSelected
+                        ? "ring-2 ring-offset-2 ring-[#3ecf4c] shadow-md"
+                        : "ring-1 ring-neutral-200 hover:ring-neutral-400 hover:ring-offset-1"
+                    }`}
+                    style={{ backgroundColor: hex, border: isLight ? "1px solid #d4d4d4" : "none" }}
+                  >
+                    {/* Checkmark for selected */}
+                    {isSelected && (
+                      <svg className="m-auto" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={isLight ? "#000" : "#fff"} strokeWidth="3" strokeLinecap="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    )}
+                  </span>
+                  {/* Tooltip */}
+                  <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none">
+                    {c}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
