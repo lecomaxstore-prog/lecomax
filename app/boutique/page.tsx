@@ -65,7 +65,8 @@ export default function BoutiquePage() {
           src="/images/pages images/notre boutique image.png"
           alt="Notre Boutique"
           fill
-          className="object-cover object-top opacity-30"
+          className="object-cover opacity-30"
+          style={{ objectPosition: 'center 15%' }}
           priority
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-20">
