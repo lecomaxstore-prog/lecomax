@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import { CartProvider } from "@/components/CartContext";
 import PageTracker from "@/components/PageTracker";
 import AdminLayoutWrapper from "@/components/AdminLayoutWrapper";
+import SiteProtection from "@/components/SiteProtection";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -187,6 +188,7 @@ export default function RootLayout({
       `}</Script>
       <body className="min-h-screen flex flex-col font-sans">
         <CartProvider>
+          <SiteProtection />
           <PageTracker />
           <AdminLayoutWrapper>
             <Header />

@@ -82,7 +82,6 @@ export default function ProductGallery({
             muted
             loop
             playsInline
-            controls
             poster={images[0]}
             className="absolute inset-0 w-full h-full object-cover"
           />
