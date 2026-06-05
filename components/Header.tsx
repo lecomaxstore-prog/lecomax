@@ -26,6 +26,7 @@ export default function Header() {
   }, []);
 
   return (
+    <>
     <header className={`sticky top-0 z-40 bg-white/95 backdrop-blur-md transition-shadow duration-200 ${scrolled ? "shadow-[0_1px_12px_0_rgba(0,0,0,0.08)]" : "shadow-[0_1px_0_0_#e5e5e5]"}`}>
       {/* ── Top utility bar ─────────────────────────────────────── */}
       <div className="hidden md:block bg-neutral-950">
@@ -169,17 +170,18 @@ export default function Header() {
           </IconBtn>
         </div>
       </div>
+    </header>
 
       {/* ── Mobile full-screen menu ───────────────────────────────── */}
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/50 z-[45] md:hidden transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className={`fixed inset-0 bg-black/50 z-[9998] md:hidden transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
         onClick={() => setOpen(false)}
       />
 
       {/* Slide-in panel */}
       <div
-        className={`fixed top-0 left-0 h-full w-[80vw] max-w-[320px] bg-white z-50 md:hidden flex flex-col transition-transform duration-300 ease-in-out ${open ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed top-0 left-0 h-full w-[80vw] max-w-[320px] bg-white z-[9999] md:hidden flex flex-col transition-transform duration-300 ease-in-out ${open ? "translate-x-0" : "-translate-x-full"}`}
       >
         {/* Panel header */}
         <div className="flex items-center justify-between px-5 h-[60px] border-b border-neutral-100">
@@ -243,7 +245,7 @@ export default function Header() {
           ))}
         </div>
       </div>
-    </header>
+    </>
   );
 }
 
