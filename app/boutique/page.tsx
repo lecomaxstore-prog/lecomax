@@ -60,8 +60,15 @@ export default function BoutiquePage() {
   return (
     <div className="min-h-screen bg-[#f7f7f8]">
       {/* ── Hero ── */}
-      <div className="bg-black text-white">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-14">
+      <div className="bg-black text-white relative overflow-hidden">
+        <Image
+          src="/images/pages images/notre boutique image.png"
+          alt="Notre Boutique"
+          fill
+          className="object-cover opacity-30"
+          priority
+        />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-20">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-white/40 mb-6">
             <Link href="/" className="hover:text-white/70 transition-colors">Accueil</Link>
@@ -70,29 +77,18 @@ export default function BoutiquePage() {
           </nav>
 
           <div className="flex flex-col gap-6">
-            <div className="flex flex-col md:flex-row items-center gap-8">
-              <div className="flex-1">
-                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white/30 mb-3">
-                  L&apos;ecomax
-                </p>
-                <h1 className="font-black text-4xl md:text-5xl uppercase tracking-tight leading-none">
-                  Notre
-                  <span className="block" style={{ color: "#3ecf4c" }}>Boutique</span>
-                </h1>
-                <p className="text-white/50 text-sm mt-4 max-w-md">
-                  Découvrez tous nos articles — chaussures, accessoires et plus encore.
-                  Livraison offerte au Maroc.
-                </p>
-              </div>
-              <div className="relative w-full md:w-[420px] h-[220px] md:h-[280px] rounded-2xl overflow-hidden shrink-0">
-                <Image
-                  src="/images/pages images/notre boutique image.png"
-                  alt="Notre Boutique"
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white/30 mb-3">
+                L&apos;ecomax
+              </p>
+              <h1 className="font-black text-4xl md:text-5xl uppercase tracking-tight leading-none">
+                Notre
+                <span className="block" style={{ color: "#3ecf4c" }}>Boutique</span>
+              </h1>
+              <p className="text-white/50 text-sm mt-4 max-w-md">
+                Découvrez tous nos articles — chaussures, accessoires et plus encore.
+                Livraison offerte au Maroc.
+              </p>
             </div>
 
             {/* Stats inline strip */}
