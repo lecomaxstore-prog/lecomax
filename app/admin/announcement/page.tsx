@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase, type Announcement } from "@/lib/supabase";
+import type { Announcement } from "@/lib/supabase";
 
 export default function AnnouncementPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -11,8 +11,9 @@ export default function AnnouncementPage() {
 
   async function load() {
     setLoading(true);
-    const { data } = await supabase.from("announcements").select("*").order("created_at", { ascending: false });
-    setAnnouncements((data as Announcement[]) ?? []);
+    const res = await fetch("/api/announcements");
+    const data = await res.json();
+    setAnnouncements(Array.isArray(data) ? data : []);
     setLoading(false);
   }
 
@@ -23,22 +24,30 @@ export default function AnnouncementPage() {
     if (!text.trim()) return;
     setSaving(true);
     setMsg(null);
-    // deactivate all existing, then add new active one
-    await supabase.from("announcements").update({ active: false }).neq("id", "00000000-0000-0000-0000-000000000000");
-    const { error } = await supabase.from("announcements").insert({ text: text.trim(), active: true });
+    // Deactivate all, then insert new active one
+    const allRes = await fetch("/api/announcements");
+    const all: Announcement[] = await allRes.json();
+    await Promise.all(all.map((a) => fetch(`/api/announcements/${a.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ active: false }) })));
+    const res = await fetch("/api/announcements", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text.trim(), active: true }),
+    });
+    const json = await res.json();
     setSaving(false);
-    if (error) setMsg({ type: "err", text: error.message });
+    if (!res.ok) setMsg({ type: "err", text: json.error ?? "Erreur inconnue" });
     else { setMsg({ type: "ok", text: "Annonce publiée ✓" }); setText(""); load(); }
   }
 
   async function setActive(id: string) {
-    await supabase.from("announcements").update({ active: false }).neq("id", "00000000-0000-0000-0000-000000000000");
-    await supabase.from("announcements").update({ active: true }).eq("id", id);
+    const allRes = await fetch("/api/announcements");
+    const all: Announcement[] = await allRes.json();
+    await Promise.all(all.map((a) => fetch(`/api/announcements/${a.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ active: a.id === id }) })));
     load();
   }
 
   async function handleDelete(id: string) {
-    await supabase.from("announcements").delete().eq("id", id);
+    await fetch(`/api/announcements/${id}`, { method: "DELETE" });
     load();
   }
 

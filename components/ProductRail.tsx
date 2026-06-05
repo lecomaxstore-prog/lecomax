@@ -3,7 +3,7 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import ProductCard from "./ProductCard";
 import Link from "next/link";
-import type { Product } from "@/lib/products";
+import type { CardProduct } from "@/lib/products";
 
 export default function ProductRail({
   title,
@@ -11,7 +11,7 @@ export default function ProductRail({
   cta,
 }: {
   title: string;
-  products: Product[];
+  products: CardProduct[];
   cta?: { label: string; href: string };
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -107,7 +107,7 @@ export default function ProductRail({
   }, [maxIndex]);
 
   return (
-    <section ref={sectionRef} className="max-w-7xl mx-auto px-4 md:px-6 py-16">
+    <section ref={sectionRef} className="max-w-7xl mx-auto px-4 md:px-6 py-10">
       {/* Header */}
       <div className="rail-header sr sr-up flex items-center justify-between mb-8">
         <div>

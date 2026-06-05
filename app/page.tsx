@@ -2,14 +2,28 @@ import HeroBanner from "@/components/HeroBanner";
 import CategoryTiles from "@/components/CategoryTiles";
 import ProductRail from "@/components/ProductRail";
 import ScrollReveal from "@/components/ScrollReveal";
+import Testimonials from "@/components/Testimonials";
 import Image from "next/image";
 import Link from "next/link";
-import { products } from "@/lib/products";
+import { products as staticProducts, type CardProduct } from "@/lib/products";
+import { getDbProducts } from "@/lib/db-server";
 
-export default function HomePage() {
-  const newArrivals = products.filter((p) => p.badge === "Nouveau");
-  const bestSellers = products.filter((p) => p.badge === "Bestseller");
-  const onSale = products.filter((p) => p.oldPrice);
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  // Merge DB products with static, DB products appear first
+  const dbProducts = await getDbProducts({ activeOnly: true });
+  const dbSlugs = new Set(dbProducts.map((p) => p.slug));
+  const allProducts: CardProduct[] = [
+    ...dbProducts,
+    ...(staticProducts as CardProduct[]).filter((p) => !dbSlugs.has(p.slug)),
+  ];
+
+  const newArrivals = allProducts.filter((p) => p.badge === "Nouveau");
+  const bestSellers = allProducts.filter((p) => p.badge === "Bestseller");
+  // Fall back: if no featured in DB, show first 4 DB products as "nouveautés"
+  const featuredForRail = newArrivals.length > 0 ? newArrivals : dbProducts.slice(0, 8);
+  const bestSellersForRail = bestSellers.length > 0 ? bestSellers : dbProducts.slice(0, 8);
 
   return (
     <>
@@ -17,14 +31,14 @@ export default function HomePage() {
 
       <ProductRail
         title="Nouveautés"
-        products={newArrivals}
-        cta={{ label: "Tout voir", href: "/chaussures" }}
+        products={featuredForRail}
+        cta={{ label: "Tout voir", href: "/nouveautes" }}
       />
 
       <CategoryTiles />
 
       {/* ── Editorial split banner ───────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-16 grid md:grid-cols-2 gap-3">
+      <section className="max-w-7xl mx-auto px-4 md:px-6 py-10 grid md:grid-cols-2 gap-3">
         <ScrollReveal direction="up">
           <Link
           href="/chaussures"
@@ -79,7 +93,7 @@ export default function HomePage() {
 
       <ProductRail
         title="Bestsellers"
-        products={bestSellers}
+        products={bestSellersForRail}
         cta={{ label: "Tout voir", href: "/bestsellers" }}
       />
 
@@ -116,9 +130,11 @@ export default function HomePage() {
 
       <ProductRail
         title="En promotion"
-        products={onSale}
+        products={allProducts.filter((p) => p.oldPrice)}
         cta={{ label: "Voir les promos", href: "/promotions" }}
       />
+
+      <Testimonials />
 
       {/* ── ecoClub ─────────────────────────────────────────────── */}      <ScrollReveal direction="up">      <section className="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-[1.2fr_1fr] gap-12 items-center">
         <div>

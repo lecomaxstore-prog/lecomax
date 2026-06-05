@@ -1,8 +1,26 @@
+"use client";
+import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/lib/products";
+import { products as staticProducts, apiToCard, type CardProduct } from "@/lib/products";
 
 export default function PromotionsPage() {
-  const list = products.filter((p) => p.oldPrice);
+  const [list, setList] = useState<CardProduct[]>(staticProducts.filter((p) => p.oldPrice));
+
+  useEffect(() => {
+    fetch("/api/products?active=true")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const dbPromo = data.filter((p: { original_price: number | null; price: number }) =>
+            p.original_price && p.original_price > p.price
+          ).map(apiToCard);
+          const staticSlugs = new Set(dbPromo.map((p) => p.slug));
+          const staticPromo = staticProducts.filter((p) => p.oldPrice && !staticSlugs.has(p.slug));
+          setList([...dbPromo, ...staticPromo]);
+        }
+      })
+      .catch(() => {});
+  }, []);
   return (
     <div>
       <section className="bg-red-600 text-white">

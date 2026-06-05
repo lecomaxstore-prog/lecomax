@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { supabase, type Category } from "@/lib/supabase";
+import type { Category } from "@/lib/supabase";
 
 const emptyForm = { slug: "", label: "", image: "", description: "", active: true, sort_order: "0" };
 
@@ -19,8 +19,9 @@ export default function CategoriesPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from("categories").select("*").order("sort_order");
-    setCategories((data as Category[]) ?? []);
+    const res = await fetch("/api/categories");
+    const data = await res.json();
+    setCategories(Array.isArray(data) ? data : []);
     setLoading(false);
   }, []);
 
@@ -40,17 +41,22 @@ export default function CategoriesPage() {
     setSaving(true);
     setMsg(null);
     const payload = { slug: form.slug.trim(), label: form.label.trim(), image: form.image.trim() || null, description: form.description.trim() || null, active: form.active, sort_order: parseInt(form.sort_order) || 0 };
-    const { error } = editId
-      ? await supabase.from("categories").update(payload).eq("id", editId)
-      : await supabase.from("categories").insert(payload);
+    const url = editId ? `/api/categories/${editId}` : "/api/categories";
+    const method = editId ? "PUT" : "POST";
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
     setSaving(false);
-    if (error) setMsg({ type: "err", text: error.message });
+    if (!res.ok) setMsg({ type: "err", text: json.error ?? "Erreur inconnue" });
     else { setMsg({ type: "ok", text: "Catégorie enregistrée ✓" }); load(); setTimeout(() => router.replace("/admin/categories"), 1000); }
   }
 
   async function handleDelete(id: string) {
     if (!confirm("Supprimer cette catégorie ?")) return;
-    await supabase.from("categories").delete().eq("id", id);
+    await fetch(`/api/categories/${id}`, { method: "DELETE" });
     load();
   }
 

@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { formatMAD, type Product } from "@/lib/products";
+import { formatMAD, type CardProduct } from "@/lib/products";
 
 const COLOR_MAP: Record<string, string> = {
   "Noir": "#0a0a0a", "Blanc": "#f5f5f5", "Blanc casse": "#fafaf5",
@@ -19,8 +19,18 @@ const COLOR_MAP: Record<string, string> = {
 };
 const getColor = (name: string) => COLOR_MAP[name.split("/")[0].trim()] ?? "#e5e7eb";
 
-export default function ProductCard({ product }: { product: Product }) {
+// Deterministic rating derived from the slug so it stays stable per product.
+function ratingFor(slug: string) {
+  let h = 0;
+  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
+  const rating = 4.3 + (h % 7) / 10; // 4.3 – 4.9
+  const count = 40 + (h % 380); // 40 – 419
+  return { rating: Math.round(rating * 10) / 10, count };
+}
+
+export default function ProductCard({ product }: { product: CardProduct }) {
   const [wished, setWished] = useState(false);
+  const { rating, count } = ratingFor(product.slug);
   const onSale = product.oldPrice && product.oldPrice > product.price;
   const discount = onSale
     ? Math.round((1 - product.price / product.oldPrice!) * 100)
@@ -29,7 +39,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <Link
       href={`/produit/${product.slug}`}
-      className="group block bg-white border border-neutral-100 hover:border-neutral-300 hover:shadow-[0_4px_24px_rgba(0,0,0,0.07)] transition-all duration-300 overflow-hidden"
+      className="group block bg-white border border-neutral-100 hover:border-neutral-200 hover:shadow-[0_6px_28px_rgba(0,0,0,0.09)] transition-all duration-300 overflow-hidden"
     >
       {/* Image container */}
       <div className="relative aspect-[4/5] bg-neutral-50 overflow-hidden">
@@ -82,7 +92,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </button>
 
         {/* Quick-view hover bar */}
-        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] py-3 text-center flex items-center justify-center gap-2">
+        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out bg-[#3ecf4c] text-black text-[10px] font-black uppercase tracking-[0.2em] py-3 text-center flex items-center justify-center gap-2">
           Voir le produit
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
@@ -110,7 +120,29 @@ export default function ProductCard({ product }: { product: Product }) {
         <h3 className="font-bold text-[13px] leading-snug line-clamp-2 text-black group-hover:text-neutral-600 transition-colors duration-200">
           {product.name}
         </h3>
-        <p className="text-neutral-400 text-[10.5px] mt-0.5 uppercase tracking-wider font-semibold">{product.subCategory}</p>
+        {product.subCategory && <p className="text-neutral-400 text-[10.5px] mt-0.5 uppercase tracking-wider font-semibold">{product.subCategory}</p>}
+
+        {/* Rating */}
+        <div className="flex items-center gap-1.5 mt-1.5" aria-label={`Note ${rating} sur 5`}>
+          <div className="flex items-center gap-[1px]">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <svg
+                key={i}
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill={i < Math.round(rating) ? "#f59e0b" : "none"}
+                stroke={i < Math.round(rating) ? "#f59e0b" : "#d4d4d4"}
+                strokeWidth="1.5"
+              >
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            ))}
+          </div>
+          <span className="text-[10.5px] text-neutral-400 font-semibold">
+            {rating.toFixed(1)} ({count})
+          </span>
+        </div>
 
         {/* Price row */}
         <div className="flex items-baseline gap-2 mt-2">

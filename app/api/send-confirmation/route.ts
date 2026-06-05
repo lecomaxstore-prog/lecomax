@@ -120,7 +120,7 @@ export async function POST(req: Request) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "LECOMAX <onboarding@resend.dev>",
+      from: "LECOMAX <noreply@lecomax.com>",
       to: [to_email],
       subject: `Votre commande ${order_number} est confirmee - LECOMAX`,
       html,

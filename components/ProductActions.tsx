@@ -176,7 +176,11 @@ export default function ProductActions({ product }: { product: Product }) {
       <SizeGuideModal
         open={sizeGuideOpen}
         onClose={() => setSizeGuideOpen(false)}
-        type={product.category === "chaussures" ? "chaussures" : "vetements"}
+        type={
+          product.sizeGuideType === "shoes" ? "chaussures"
+          : product.sizeGuideType === "clothing" ? "vetements"
+          : product.category === "chaussures" ? "chaussures" : "vetements"
+        }
         availableSizes={availableSizes}
       />
     </div>

@@ -1,8 +1,26 @@
+"use client";
+import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/lib/products";
+import { products as staticProducts, apiToCard, type CardProduct } from "@/lib/products";
 
 export default function BestsellersPage() {
-  const list = products.filter((p) => p.badge === "Bestseller");
+  const [list, setList] = useState<CardProduct[]>(
+    staticProducts.filter((p) => p.badge === "Bestseller")
+  );
+
+  useEffect(() => {
+    fetch("/api/products?active=true")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const dbFeatured = data.filter((p: { featured: boolean }) => p.featured).map(apiToCard);
+          const staticSlugs = new Set(dbFeatured.map((p) => p.slug));
+          const staticBest = staticProducts.filter((p) => p.badge === "Bestseller" && !staticSlugs.has(p.slug));
+          setList([...dbFeatured, ...staticBest]);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div>

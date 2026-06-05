@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { CartItem } from "@/components/CartContext";
@@ -42,6 +42,14 @@ export default function MerciPage() {
   const [particles, setParticles] = useState<Particle[]>([]);
   const [stage, setStage] = useState(0);
   const [waOpened, setWaOpened] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyTracking = useCallback((num: string) => {
+    navigator.clipboard?.writeText(num).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, []);
 
   useEffect(() => {
     let parsed: Order | null = null;
@@ -85,7 +93,13 @@ export default function MerciPage() {
 
   const deliveryDate = useMemo(() => {
     const d = new Date();
-    d.setDate(d.getDate() + 3);
+    let daysAdded = 0;
+    while (daysAdded < 3) {
+      d.setDate(d.getDate() + 1);
+      if (d.getDay() !== 0) daysAdded++; // skip Sundays (0)
+    }
+    // If the final date lands on Sunday, push one more day
+    if (d.getDay() === 0) d.setDate(d.getDate() + 1);
     return d.toLocaleDateString("fr-MA", { weekday: "long", day: "numeric", month: "long" });
   }, []);
 
@@ -244,52 +258,115 @@ export default function MerciPage() {
         {/* ── Order card ── */}
         {stage >= 4 && order && (
           <div className="w-full max-w-md mb-5" style={{ animation: "fade-up 0.6s 0.05s ease both" }}>
-            <div className="rounded-2xl p-px"
-              style={{ background: "linear-gradient(135deg, #FFD700 0%, #A855F7 50%, #06B6D4 100%)" }}>
-              <div className="rounded-[15px] bg-white overflow-hidden">
-                <div className="px-5 py-4 flex items-center justify-between border-b border-neutral-100">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-neutral-400">N° Commande</p>
-                    <p className="font-black text-lg tracking-wider text-neutral-900 mt-0.5"
-                      style={{ animation: "count-up-reveal 0.5s 0.3s ease both", opacity: 0 }}>
-                      {order.number}
-                    </p>
+            <div className="rounded-2xl overflow-hidden" style={{ boxShadow: "0 2px 24px rgba(62,207,76,0.13), 0 1px 4px rgba(0,0,0,0.07)", border: "1.5px solid #d1fae5" }}>
+
+              {/* ── Green header band: tracking number ── */}
+              <div className="px-5 pt-5 pb-4" style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)" }}>
+                {/* Label row */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-1.5">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600">Numéro de suivi</span>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[10px] font-black uppercase tracking-[0.1em] text-neutral-400">Total</p>
-                    <p className="font-black text-lg text-neutral-900 mt-0.5"
-                      style={{ animation: "count-up-reveal 0.5s 0.45s ease both", opacity: 0 }}>
-                      {formatMAD(order.total)}
-                    </p>
+                  <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "#3ecf4c18", color: "#3ecf4c" }}>Confirmé ✓</span>
+                </div>
+
+                {/* Tracking number + copy */}
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 rounded-xl px-4 py-3.5 flex items-center justify-between bg-white" style={{ border: "1.5px solid #86efac", boxShadow: "0 1px 6px rgba(62,207,76,0.1)" }}>
+                    <span className="font-black text-[22px] tracking-[0.18em] text-neutral-900" style={{ animation: "count-up-reveal 0.5s 0.3s ease both", opacity: 0, letterSpacing: "0.18em" }}>
+                      {order.number}
+                    </span>
+                    <button
+                      onClick={() => copyTracking(order.number)}
+                      className="ml-3 shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wide transition-all duration-200 active:scale-95"
+                      style={{ background: copied ? "#3ecf4c" : "#111", color: copied ? "#000" : "#fff", boxShadow: copied ? "0 2px 8px rgba(62,207,76,0.4)" : "none" }}
+                    >
+                      {copied ? (
+                        <><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>Copié!</>
+                      ) : (
+                        <><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copier</>
+                      )}
+                    </button>
                   </div>
                 </div>
 
+                {/* Barcode decoration */}
+                <div className="mt-3 flex items-end gap-[2px] h-5" style={{ opacity: 0.12 }}>
+                  {Array.from({ length: 40 }, (_, i) => (
+                    <div key={i} className="bg-neutral-800 rounded-sm" style={{ width: i % 4 === 0 ? 3 : i % 7 === 0 ? 2 : 1.5, height: `${35 + ((i * 23) % 65)}%` }} />
+                  ))}
+                </div>
+              </div>
+
+              {/* ── White body: items + totals ── */}
+              <div className="bg-white">
+                {/* Items */}
                 <ul className="divide-y divide-neutral-50">
                   {order.items.slice(0, 3).map((item) => (
-                    <li key={item.slug + item.size} className="flex items-center gap-3 px-5 py-3">
-                      <div className="relative w-11 h-[52px] rounded-lg overflow-hidden bg-neutral-100 shrink-0 border border-neutral-200">
-                        <Image src={item.image} alt={item.name} fill sizes="44px" className="object-cover" />
+                    <li key={item.slug + item.size} className="flex items-center gap-3 px-5 py-3.5">
+                      <div className="relative w-12 h-14 rounded-xl overflow-hidden shrink-0" style={{ background: "#f5f5f5", border: "1px solid #f0f0f0" }}>
+                        <Image src={item.image} alt={item.name} fill sizes="48px" className="object-cover" />
+                        {item.quantity > 1 && (
+                          <span className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-neutral-900 text-white text-[9px] font-black flex items-center justify-center leading-none">
+                            {item.quantity}
+                          </span>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[12px] font-semibold leading-tight truncate text-neutral-800">{item.name}</p>
-                        <p className="text-[10px] text-neutral-400 mt-0.5">{item.size} · ×{item.quantity}</p>
+                        <p className="text-[12px] font-bold leading-tight truncate text-neutral-900">{item.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded-md font-medium">Taille {item.size}</span>
+                          {item.quantity > 1 && <span className="text-[10px] text-neutral-400">×{item.quantity}</span>}
+                        </div>
                       </div>
-                      <span className="text-[12px] font-bold text-neutral-700 shrink-0 tabular-nums">{formatMAD(item.price * item.quantity)}</span>
+                      <span className="text-[13px] font-black text-neutral-800 shrink-0 tabular-nums">{formatMAD(item.price * item.quantity)}</span>
                     </li>
                   ))}
                   {order.items.length > 3 && (
-                    <li className="px-5 py-2 text-center text-[11px] text-neutral-400">
+                    <li className="px-5 py-2.5 text-center text-[11px] text-neutral-400 bg-neutral-50">
                       +{order.items.length - 3} autre{order.items.length - 3 > 1 ? "s" : ""} article{order.items.length - 3 > 1 ? "s" : ""}
                     </li>
                   )}
                 </ul>
 
-                <div className="px-5 py-3 border-t border-neutral-100 flex items-center gap-2">
-                  <span className="text-base">{order.payment === "livraison" ? "💵" : "💳"}</span>
-                  <span className="text-xs text-neutral-500">{order.payment === "livraison" ? "Paiement à la livraison" : "Carte bancaire"}</span>
-                  {order.shipping === 0 && (
-                    <span className="ml-auto text-[10px] text-emerald-600 font-bold">✓ Livraison gratuite</span>
-                  )}
+                {/* Totals */}
+                <div className="mx-5 mt-1 pt-3 pb-3 border-t border-dashed border-neutral-200 space-y-2">
+                  <div className="flex justify-between text-[12px]">
+                    <span className="text-neutral-400">Sous-total</span>
+                    <span className="text-neutral-500 font-medium tabular-nums">{formatMAD(order.total - (order.shipping ?? 0))}</span>
+                  </div>
+                  <div className="flex justify-between text-[12px]">
+                    <span className="text-neutral-400">Livraison</span>
+                    {order.shipping === 0
+                      ? <span className="text-emerald-600 font-bold">Gratuite ✓</span>
+                      : <span className="text-neutral-500 font-medium tabular-nums">{formatMAD(order.shipping)}</span>
+                    }
+                  </div>
+                  {/* Total row with green accent */}
+                  <div className="flex justify-between items-center pt-2 mt-1 border-t border-neutral-100">
+                    <span className="text-[13px] font-black uppercase tracking-wide text-neutral-900">Total</span>
+                    <span className="font-black text-[18px] tabular-nums" style={{ color: "#3ecf4c" }}>{formatMAD(order.total)}</span>
+                  </div>
+                </div>
+
+                {/* Payment footer */}
+                <div className="px-4 py-3 flex items-center gap-2.5 border-t border-neutral-100 mx-0" style={{ background: "linear-gradient(135deg, #f9fafb 0%, #f5f5f5 100%)" }}>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-base" style={{ background: order.payment === "livraison" ? "#f0fdf4" : "#eff6ff", border: `1.5px solid ${order.payment === "livraison" ? "#86efac" : "#bfdbfe"}` }}>
+                      {order.payment === "livraison" ? "💵" : "💳"}
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-neutral-700 leading-tight">{order.payment === "livraison" ? "Paiement à la livraison" : "Carte bancaire"}</p>
+                      <p className="text-[9px] text-neutral-400 mt-0.5 uppercase tracking-wide">Mode de paiement</p>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-[9px] text-neutral-400 uppercase tracking-wide">Date</p>
+                    <p className="text-[11px] font-bold text-neutral-500 tabular-nums font-mono">{new Date(order.date).toLocaleDateString("fr-MA", { day: "2-digit", month: "2-digit", year: "2-digit" })}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -402,36 +479,25 @@ export default function MerciPage() {
           </div>
         )}
 
-        {/* ── WhatsApp auto-open notice (mobile) ── */}
-        {stage >= 5 && order && (
-          <div className="w-full max-w-md mb-5" style={{ animation: "fade-up 0.6s 0.08s ease both" }}>
-            <div className="rounded-2xl px-5 py-4 flex items-start gap-3 border border-green-200 bg-green-50">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="#25D366" className="shrink-0 mt-0.5">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-              </svg>
-              <div>
-                <p className="text-sm font-bold text-green-800">Confirmation WhatsApp</p>
-                <p className="text-xs text-green-700 mt-0.5 leading-relaxed">
-                  Appuyez sur le bouton ci-dessous pour envoyer votre confirmation de commande <span className="font-bold">{order.number}</span> sur WhatsApp. Notre équipe la traitera immédiatement.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* WhatsApp notice removed — absorbed into button below */}
 
         {/* ── CTAs ── */}
         {stage >= 5 && (
           <div className="w-full max-w-md flex flex-col gap-3" style={{ animation: "fade-up 0.6s 0.15s ease both" }}>
+
+            {/* Primary: Track order */}
             <Link
-              href="/"
-              className="w-full py-4 rounded-2xl font-black uppercase text-sm tracking-[0.1em] text-center text-white transition-all duration-200 active:scale-[0.97]"
-              style={{
-                background: "linear-gradient(135deg, #111 0%, #333 100%)",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.12)",
-              }}
+              href={order ? `/suivre-commande?order=${order.number}` : "/suivre-commande"}
+              className="w-full py-4 rounded-2xl font-black uppercase text-sm tracking-[0.1em] text-center flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.97]"
+              style={{ background: "#3ecf4c", color: "#000", boxShadow: "0 6px 20px rgba(62,207,76,0.45)" }}
             >
-              Continuer mes achats →
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              Suivre ma commande
             </Link>
+
+            {/* Secondary: WhatsApp */}
             {order && (
               <a
                 href={`https://wa.me/212699289568?text=${encodeURIComponent(
@@ -440,20 +506,33 @@ export default function MerciPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setWaOpened(true)}
-                className="w-full py-3.5 rounded-2xl font-bold text-sm tracking-[0.06em] text-center text-white flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.97]"
-                style={{ background: waOpened ? "linear-gradient(135deg, #128C7E 0%, #075E54 100%)" : "linear-gradient(135deg, #25D366 0%, #128C7E 100%)", boxShadow: "0 4px 16px rgba(37,211,102,0.3)" }}
+                className="w-full py-3.5 rounded-2xl font-bold text-sm tracking-[0.06em] text-center flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.97]"
+                style={{
+                  background: waOpened ? "linear-gradient(135deg, #128C7E 0%, #075E54 100%)" : "linear-gradient(135deg, #25D366 0%, #128C7E 100%)",
+                  boxShadow: "0 4px 16px rgba(37,211,102,0.25)",
+                  color: "#fff",
+                }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                 </svg>
                 {waOpened ? "WhatsApp ouvert — appuyez sur Envoyer" : "Confirmer sur WhatsApp"}
               </a>
             )}
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 py-1">
+              <div className="flex-1 h-px bg-neutral-100" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-300">ou</span>
+              <div className="flex-1 h-px bg-neutral-100" />
+            </div>
+
+            {/* Tertiary: Continue shopping */}
             <Link
-              href="/suivre-commande"
-              className="w-full py-3.5 rounded-2xl font-bold uppercase text-sm tracking-[0.08em] text-center border-2 border-neutral-200 text-neutral-600 hover:border-neutral-400 hover:text-neutral-900 transition-all duration-200 active:scale-[0.97]"
+              href="/"
+              className="w-full py-3 rounded-2xl font-bold text-sm tracking-[0.06em] text-center text-neutral-500 border border-neutral-200 hover:border-neutral-400 hover:text-neutral-800 transition-all duration-200 active:scale-[0.97]"
             >
-              Suivre ma commande
+              Continuer mes achats →
             </Link>
           </div>
         )}

@@ -71,39 +71,46 @@ const socials = [
 ];
 
 const trustBadges = [
-  { label: "Livraison gratuite dès 500 MAD", path: "M20 7H4C2.9 7 2 7.9 2 9v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 8.5 12 8.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" },
-  { label: "Retours 30 jours", path: "M3 2v6h6M3 8C4.5 4.5 8 2 12 2a10 10 0 0110 10 10 10 0 01-10 10c-4.1 0-7.6-2.5-9.2-6" },
-  { label: "Paiement sécurisé", path: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" },
+  { label: "Livraison gratuite", sub: "Dès 500 MAD d'achat", path: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM18.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" },
+  { label: "Retours gratuits", sub: "Sous 30 jours", path: "M3 2v6h6M3 8C4.5 4.5 8 2 12 2a10 10 0 0110 10 10 10 0 01-10 10c-4.1 0-7.6-2.5-9.2-6" },
+  { label: "Paiement sécurisé", sub: "100% protégé", path: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" },
+  { label: "Service client", sub: "7j/7 disponible", path: "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" },
 ];
 
 export default function Footer() {
   return (
     <footer className="bg-neutral-950 text-white mt-20">
+      {/* Green accent bar */}
+      <div className="h-[3px] bg-gradient-to-r from-[#3ecf4c] via-[#6bdd6b] to-[#3ecf4c]" />
+
       {/* Trust bar */}
       <div className="border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-5 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
+        <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 md:divide-x divide-white/10">
           {trustBadges.map((b) => (
-            <div key={b.label} className="flex items-center gap-3 py-3 md:py-0 md:px-6 first:pl-0 last:pr-0">
-              <div className="w-8 h-8 border border-white/20 flex items-center justify-center shrink-0">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <div key={b.label} className="flex items-center gap-3 md:px-6 first:pl-0 last:pr-0">
+              <div className="w-9 h-9 rounded-full bg-[#3ecf4c]/10 border border-[#3ecf4c]/20 flex items-center justify-center shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="1.8" strokeLinecap="round">
                   <path d={b.path}/>
                 </svg>
               </div>
-              <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-white/70">{b.label}</span>
+              <div>
+                <p className="text-[12px] font-black uppercase tracking-wide text-white/90 leading-tight">{b.label}</p>
+                <p className="text-[11px] text-white/40 mt-0.5">{(b as any).sub}</p>
+              </div>
             </div>
           ))}
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-14">
-        {/* Brand + newsletter */}
-        <div className="grid md:grid-cols-[1.4fr_1fr] gap-12 pb-12 border-b border-white/10">
+        {/* Brand + contact + newsletter */}
+        <div className="grid md:grid-cols-3 gap-12 pb-12 border-b border-white/10">
+          {/* Brand */}
           <div>
             <Logo variant="light" />
-            <p className="text-white/50 text-[13px] mt-4 max-w-xs leading-relaxed">
-              Mode, accessoires et tech — tout ce qu&apos;il vous faut pour exprimer votre style au quotidien.
+            <p className="text-white/50 text-[13px] mt-4 leading-relaxed">
+              Sport, style et tech — tout ce qu&apos;il vous faut pour performer au quotidien. Livraison rapide partout au Maroc.
             </p>
-            {/* Social links */}
             <div className="flex items-center gap-2 mt-6">
               {socials.map((s) => (
                 <a
@@ -112,7 +119,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="w-9 h-9 border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-white/50 transition-all duration-200"
+                  className="w-9 h-9 rounded-full border border-white/15 flex items-center justify-center text-white/50 hover:text-white hover:border-white/40 hover:bg-white/5 transition-all duration-200"
                 >
                   {s.icon}
                 </a>
@@ -120,39 +127,73 @@ export default function Footer() {
             </div>
           </div>
 
+          {/* Contact */}
           <div>
-            <h3 className="font-black text-[11px] uppercase tracking-[0.25em] text-white/50 mb-4">Newsletter</h3>
-            <p className="text-white/60 text-[13px] mb-4 leading-relaxed">
+            <h3 className="font-black text-[11px] uppercase tracking-[0.25em] text-white/40 mb-5">Contact</h3>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3">
+                <svg className="mt-0.5 shrink-0" style={{color:'#3ecf4c'}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                <div>
+                  <p className="text-[11px] text-white/40 uppercase tracking-wide mb-0.5">WhatsApp</p>
+                  <a href="https://wa.me/212600000000" className="text-[13px] text-white/80 hover:text-white transition-colors">+212 600 000 000</a>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <svg className="mt-0.5 shrink-0" style={{color:'#3ecf4c'}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <div>
+                  <p className="text-[11px] text-white/40 uppercase tracking-wide mb-0.5">Email</p>
+                  <a href="mailto:contact@lecomax.ma" className="text-[13px] text-white/80 hover:text-white transition-colors">contact@lecomax.ma</a>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <svg className="mt-0.5 shrink-0" style={{color:'#3ecf4c'}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 5.25 8 13 8 13s8-7.75 8-13a8 8 0 00-8-8z"/></svg>
+                <div>
+                  <p className="text-[11px] text-white/40 uppercase tracking-wide mb-0.5">Adresse</p>
+                  <p className="text-[13px] text-white/80">Casablanca, Maroc</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          {/* Newsletter */}
+          <div>
+            <h3 className="font-black text-[11px] uppercase tracking-[0.25em] text-white/40 mb-5">Newsletter</h3>
+            <p className="text-white/55 text-[13px] mb-5 leading-relaxed">
               Nouveautés, offres exclusives et invitations en avant-première.
             </p>
-            <form className="flex gap-0">
+            <form className="flex flex-col gap-2">
               <input
                 type="email"
                 required
                 placeholder="Votre adresse email"
-                className="flex-1 bg-white/5 border border-white/20 border-r-0 px-4 py-3 text-[13px] placeholder-white/30 focus:outline-none focus:border-white/50 transition-colors"
+                className="w-full bg-white/5 border border-white/15 px-4 py-3 text-[13px] text-white placeholder-white/25 focus:outline-none focus:border-white/40 transition-colors"
               />
-              <button className="bg-white text-black px-5 py-3 font-black uppercase text-[11px] tracking-wider hover:bg-neutral-100 transition-colors whitespace-nowrap">
-                S&apos;inscrire
+              <button
+                type="submit"
+                className="w-full py-3 font-black uppercase text-[11px] tracking-widest border border-white/30 text-white bg-white/8 hover:bg-white hover:text-black transition-all duration-200"
+              >
+                S&apos;inscrire gratuitement
               </button>
             </form>
+            <p className="text-[10px] text-white/25 mt-2">Pas de spam. Désinscription en 1 clic.</p>
           </div>
         </div>
 
         {/* Nav columns */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-b border-white/10">
           {cols.map((c) => (
             <div key={c.title}>
-              <h4 className="font-black text-[11px] uppercase tracking-[0.25em] text-white/50 mb-4">
+              <h4 className="font-black text-[11px] uppercase tracking-[0.25em] text-white/40 mb-4">
                 {c.title}
               </h4>
-              <ul className="space-y-2.5">
+              <ul className="space-y-3">
                 {c.links.map((l) => (
                   <li key={l.label}>
                     <Link
                       href={l.href}
-                      className="text-[13px] text-white/60 hover:text-white transition-colors duration-200"
+                      className="text-[13px] text-white/55 hover:text-white transition-colors duration-200 flex items-center gap-1.5 group"
                     >
+                      <span className="w-0 group-hover:w-2 h-px bg-[#3ecf4c] transition-all duration-200 overflow-hidden shrink-0" />
                       {l.label}
                     </Link>
                   </li>
@@ -163,15 +204,18 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col md:flex-row justify-between gap-4 pt-8 border-t border-white/10 text-[11px] text-white/40">
-          <div className="flex items-center gap-1">
-            <span>© {new Date().getFullYear()} L&apos;ecomax.</span>
-            <span>Tous droits réservés.</span>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 text-[11px] text-white/35">
+          <div>© {new Date().getFullYear()} L&apos;ecomax. Tous droits réservés. — Fait avec ♥ au Maroc</div>
+          <div className="flex items-center gap-1.5">
+            {["VISA", "MC", "AMEX", "PayPal"].map((p) => (
+              <span key={p} className="px-2.5 py-1.5 rounded bg-white/8 text-white/60 text-[9px] font-black tracking-wider leading-none border border-white/10">{p}</span>
+            ))}
+            <span className="px-2.5 py-1.5 rounded text-[9px] font-black tracking-wider leading-none border whitespace-nowrap" style={{backgroundColor:'rgba(62,207,76,0.1)',color:'#3ecf4c',borderColor:'rgba(62,207,76,0.2)'}}>À la livraison</span>
           </div>
           <div className="flex gap-5">
-            <Link href="/conditions/" className="hover:text-white/70 transition-colors">Conditions</Link>
-            <Link href="/confidentialite/" className="hover:text-white/70 transition-colors">Confidentialité</Link>
-            <Link href="/cookies/" className="hover:text-white/70 transition-colors">Cookies</Link>
+            <Link href="/conditions/" className="hover:text-white/60 transition-colors">Conditions</Link>
+            <Link href="/confidentialite/" className="hover:text-white/60 transition-colors">Confidentialité</Link>
+            <Link href="/cookies/" className="hover:text-white/60 transition-colors">Cookies</Link>
           </div>
         </div>
       </div>

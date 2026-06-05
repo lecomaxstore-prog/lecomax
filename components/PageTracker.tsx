@@ -1,7 +1,6 @@
 "use client";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 export default function PageTracker() {
   const pathname = usePathname();
@@ -10,11 +9,15 @@ export default function PageTracker() {
     // Don't track admin pages
     if (pathname.startsWith("/admin")) return;
 
-    supabase.from("page_views").insert({
-      path: pathname,
-      referrer: document.referrer || null,
-      user_agent: navigator.userAgent || null,
-    }).then(() => {
+    fetch("/api/page-views", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        path: pathname,
+        referrer: document.referrer || null,
+        user_agent: navigator.userAgent || null,
+      }),
+    }).catch(() => {
       // silent — tracking should never block UX
     });
 

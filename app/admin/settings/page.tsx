@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 type SettingsMap = Record<string, string>;
 
@@ -40,10 +39,11 @@ export default function SettingsPage() {
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase.from("settings").select("key, value");
-      if (data) {
+      const res = await fetch("/api/settings");
+      const data = await res.json();
+      if (Array.isArray(data)) {
         const map: SettingsMap = { ...DEFAULT_SETTINGS };
-        data.forEach((row) => { map[row.key] = String(row.value ?? ""); });
+        data.forEach((row: { key: string; value: string }) => { map[row.key] = String(row.value ?? ""); });
         setSettings(map);
       }
       setLoading(false);
@@ -55,14 +55,14 @@ export default function SettingsPage() {
     e.preventDefault();
     setSaving(true);
     setMsg(null);
-    const rows = Object.entries(settings).map(([key, value]) => ({
-      key,
-      value: value,
-      updated_at: new Date().toISOString(),
-    }));
-    const { error } = await supabase.from("settings").upsert(rows, { onConflict: "key" });
+    const res = await fetch("/api/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(settings),
+    });
+    const json = await res.json();
     setSaving(false);
-    if (error) setMsg({ type: "err", text: error.message });
+    if (!res.ok) setMsg({ type: "err", text: json.error ?? "Erreur inconnue" });
     else setMsg({ type: "ok", text: "Paramètres enregistrés ✓" });
   }
 

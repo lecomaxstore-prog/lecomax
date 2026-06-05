@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase, type Product } from "@/lib/supabase";
+import type { Product } from "@/lib/supabase";
 
 export default function StockPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -18,8 +18,10 @@ export default function StockPage() {
 
   async function load() {
     setLoading(true);
-    const { data } = await supabase.from("products").select("*").order("stock", { ascending: true });
-    setProducts((data as Product[]) ?? []);
+    const res = await fetch("/api/products?sort=stock");
+    const data = await res.json();
+    const sorted = Array.isArray(data) ? [...data].sort((a, b) => a.stock - b.stock) : [];
+    setProducts(sorted);
     setLoading(false);
   }
 
@@ -29,8 +31,12 @@ export default function StockPage() {
     const val = parseInt(stockInputs[id] ?? "");
     if (isNaN(val) || val < 0) { showToast("Stock invalide", false); return; }
     setUpdating(id);
-    const { error } = await supabase.from("products").update({ stock: val }).eq("id", id);
-    if (error) showToast("Erreur : " + error.message, false);
+    const res = await fetch(`/api/products/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ stock: val }),
+    });
+    if (!res.ok) { const j = await res.json(); showToast("Erreur : " + (j.error ?? "inconnue"), false); }
     else { showToast("Stock mis à jour ✓"); await load(); }
     setUpdating(null);
   }

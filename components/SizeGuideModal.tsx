@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-const shoesSizes = [
+type ClothingRow = { label: string; fr: string; poitrine: string; taille: string };
+type ShoeRow = { eu: string; us: string; uk: string; cm: string };
+
+const DEFAULT_SHOES: ShoeRow[] = [
   { eu: "38", us: "6",   uk: "5",   cm: "24.0" },
   { eu: "39", us: "6.5", uk: "5.5", cm: "24.5" },
   { eu: "40", us: "7",   uk: "6",   cm: "25.0" },
@@ -14,7 +17,7 @@ const shoesSizes = [
   { eu: "46", us: "12",  uk: "11",  cm: "30.0" },
 ];
 
-const clothingSizes = [
+const DEFAULT_CLOTHING: ClothingRow[] = [
   { label: "XS",  fr: "34-36", poitrine: "82-86",   taille: "62-66" },
   { label: "S",   fr: "36-38", poitrine: "86-90",   taille: "66-70" },
   { label: "M",   fr: "38-40", poitrine: "90-94",   taille: "70-74" },
@@ -34,6 +37,21 @@ export default function SizeGuideModal({
   type?: "chaussures" | "vetements";
   availableSizes?: string[];
 }) {
+  const [shoesSizes, setShoesSizes]     = useState<ShoeRow[]>(DEFAULT_SHOES);
+  const [clothingSizes, setClothingSizes] = useState<ClothingRow[]>(DEFAULT_CLOTHING);
+
+  // Fetch dynamic size guide once on first open
+  useEffect(() => {
+    if (!open) return;
+    fetch("/api/size-guide")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.shoes?.length)    setShoesSizes(data.shoes);
+        if (data.clothing?.length) setClothingSizes(data.clothing);
+      })
+      .catch(() => {});
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { supabase, type Promotion } from "@/lib/supabase";
+import type { Promotion } from "@/lib/supabase";
 
 const emptyForm = { label: "", product_ids: "", discount_percent: "", active: true, expires_at: "" };
 
@@ -19,8 +19,9 @@ export default function PromotionsPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from("promotions").select("*").order("created_at", { ascending: false });
-    setPromotions((data as Promotion[]) ?? []);
+    const res = await fetch("/api/promotions");
+    const data = await res.json();
+    setPromotions(Array.isArray(data) ? data : []);
     setLoading(false);
   }, []);
 
@@ -44,17 +45,22 @@ export default function PromotionsPage() {
       active: form.active,
       expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
     };
-    const { error } = editId
-      ? await supabase.from("promotions").update(payload).eq("id", editId)
-      : await supabase.from("promotions").insert(payload);
+    const url = editId ? `/api/promotions/${editId}` : "/api/promotions";
+    const method = editId ? "PUT" : "POST";
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
     setSaving(false);
-    if (error) setMsg({ type: "err", text: error.message });
+    if (!res.ok) setMsg({ type: "err", text: json.error ?? "Erreur inconnue" });
     else { setMsg({ type: "ok", text: "Promotion enregistrée ✓" }); load(); setTimeout(() => router.replace("/admin/promotions"), 1000); }
   }
 
   async function handleDelete(id: string) {
     if (!confirm("Supprimer cette promotion ?")) return;
-    await supabase.from("promotions").delete().eq("id", id);
+    await fetch(`/api/promotions/${id}`, { method: "DELETE" });
     load();
   }
 

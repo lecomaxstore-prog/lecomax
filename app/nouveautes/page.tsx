@@ -1,8 +1,26 @@
+"use client";
+import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/lib/products";
+import { products as staticProducts, apiToCard, type CardProduct } from "@/lib/products";
 
 export default function NouveautesPage() {
-  const list = products.filter((p) => p.badge === "Nouveau");
+  const [list, setList] = useState<CardProduct[]>(
+    staticProducts.filter((p) => p.badge === "Nouveau")
+  );
+
+  useEffect(() => {
+    fetch("/api/products?active=true")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const dbCards = data.map(apiToCard);
+          const staticSlugs = new Set(dbCards.map((p) => p.slug));
+          const staticNew = staticProducts.filter((p) => p.badge === "Nouveau" && !staticSlugs.has(p.slug));
+          setList([...dbCards, ...staticNew]);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div>

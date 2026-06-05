@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 type CustomerRow = {
   name: string;
@@ -27,11 +26,9 @@ export default function CustomersPage() {
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
-        .from("orders")
-        .select("customer, total, status, created_at")
-        .order("created_at", { ascending: false });
-      if (!data) { setLoading(false); return; }
+      const res = await fetch("/api/orders");
+      const data = res.ok ? await res.json() : [];
+      if (!Array.isArray(data) || data.length === 0) { setLoading(false); return; }
 
       const map = new Map<string, CustomerRow>();
       for (const o of data as { customer: { name: string; phone: string; email: string; city: string }; total: number; status: string; created_at: string }[]) {

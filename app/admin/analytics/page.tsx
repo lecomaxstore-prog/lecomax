@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 type DayStat = { date: string; views: number; orders: number; revenue: number };
 type PageStat = { path: string; count: number };
@@ -43,18 +42,11 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     async function load() {
-      const since = new Date();
-      since.setDate(since.getDate() - DAYS);
-      const sinceISO = since.toISOString();
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const [{ data: views }, { data: orders }, { data: todayViews }] = await Promise.all([
-        supabase.from("page_views").select("path, created_at").gte("created_at", sinceISO).order("created_at"),
-        supabase.from("orders").select("total, status, customer, created_at").gte("created_at", sinceISO),
-        supabase.from("page_views").select("id", { count: "exact" }).gte("created_at", today.toISOString()),
-      ]);
+      const res = await fetch(`/api/analytics?days=${DAYS}`);
+      const raw = await res.json();
+      const views: { path: string; created_at: string }[] = raw.views ?? [];
+      const orders: { total: number; status: string; customer: { city: string }; created_at: string }[] = raw.orders ?? [];
+      const visitors_today: number = raw.visitors_today ?? 0;
 
       // Build day-by-day stats
       const dayMap: Record<string, DayStat> = {};
@@ -98,7 +90,7 @@ export default function AnalyticsPage() {
         views: views?.length ?? 0,
         orders: orders?.length ?? 0,
         revenue: totalRevenue,
-        visitors_today: todayViews?.length ?? 0,
+        visitors_today: visitors_today ?? 0,
       });
 
       setLoading(false);

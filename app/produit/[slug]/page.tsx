@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { formatMAD, getProduct, products } from "@/lib/products";
+import { formatMAD, getProduct, products, type Product } from "@/lib/products";
+import { getDbProductRaw } from "@/lib/db-server";
 import ProductActions from "@/components/ProductActions";
 import ProductCard from "@/components/ProductCard";
 import ProductGallery from "@/components/ProductGallery";
@@ -8,6 +9,8 @@ import { ProductColorProvider } from "@/components/ProductColorContext";
 import ProductCarousel from "@/components/ProductCarousel";
 import ReviewSection from "@/components/ReviewSection";
 import ProductAccordion from "@/components/ProductAccordion";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return products.map((p) => ({ slug: p.slug }));
@@ -129,7 +132,36 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = getProduct(slug);
+
+  // Try static first, then fall back to DB
+  let product: Product | null = getProduct(slug) ?? null;
+
+  if (!product) {
+    const dbProd = await getDbProductRaw(slug);
+    if (!dbProd) notFound();
+    // Convert API product to Product-compatible shape
+    product = {
+      slug: dbProd.slug,
+      name: dbProd.name,
+      category: dbProd.category as "homme" | "femme" | "chaussures" | "accessoires",
+      subCategory: dbProd.brand ?? dbProd.category,
+      price: dbProd.price,
+      oldPrice: dbProd.original_price ?? undefined,
+      colors: (dbProd.colors as string[]) ?? [],
+      sizes: (dbProd.sizes as string[]) ?? [],
+      image: (dbProd.images ?? [])[0] ?? "",
+      gallery: (dbProd.images ?? []).slice(1),
+      badge: dbProd.featured ? "Nouveau" : undefined,
+      description: dbProd.description ?? "",
+      sizeGuideType: (() => {
+        const guideTag = (dbProd.tags as string[] | null)?.find((t: string) => t.startsWith("__guide:"));
+        if (guideTag === "__guide:shoes") return "shoes";
+        if (guideTag === "__guide:clothing") return "clothing";
+        return undefined;
+      })(),
+    };
+  }
+
   if (!product) notFound();
 
   const onSale = !!(product.oldPrice && product.oldPrice > product.price);
@@ -202,25 +234,6 @@ export default async function ProductPage({
           </p>
 
           <div className="w-full h-px bg-neutral-100 my-6" />
-
-          {/* Color selector — hidden when gallery handles it via colorImages */}
-          {product.colors.length > 0 && product.colors[0] !== "Taille unique" && !product.colorImages && (
-            <div className="mb-6">
-              <p className="text-[12px] font-black uppercase tracking-wide mb-3">
-                Couleur — <span className="font-normal text-neutral-500">{product.colors[0]}</span>
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {product.colors.map((c) => (
-                  <button
-                    key={c}
-                    title={c}
-                    className="w-8 h-8 border-2 border-transparent hover:border-black transition-colors ring-1 ring-neutral-200 first:border-black"
-                    style={{ backgroundColor: getColorHex(c) }}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Size + Add to cart */}
           <ProductActions product={product} />

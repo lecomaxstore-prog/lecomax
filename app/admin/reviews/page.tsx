@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 type Review = {
   id: string;
@@ -42,12 +41,9 @@ export default function ReviewsPage() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("reviews")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) { console.error(error); }
-    setReviews((data as Review[]) ?? []);
+    const res = await fetch("/api/reviews");
+    const data = await res.json();
+    if (Array.isArray(data)) setReviews(data);
     setLoading(false);
   }
 
@@ -56,9 +52,11 @@ export default function ReviewsPage() {
   async function deleteReview(id: string) {
     if (!confirm("Supprimer cet avis définitivement ?")) return;
     setDeletingId(id);
-    const { error } = await supabase.from("reviews").delete().eq("id", id);
-    if (error) showToast("Erreur : " + error.message, false);
-    else { showToast("Avis supprimé ✓"); await load(); }
+    const res = await fetch(`/api/reviews/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const json = await res.json();
+      showToast("Erreur : " + (json.error ?? "inconnue"), false);
+    } else { showToast("Avis supprimé ✓"); await load(); }
     setDeletingId(null);
   }
 

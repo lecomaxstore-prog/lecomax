@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { supabase, type Order } from "@/lib/supabase";
+import type { Order } from "@/lib/supabase";
 
 export default function VatInvoicePage() {
   const searchParams = useSearchParams();
@@ -11,7 +11,7 @@ export default function VatInvoicePage() {
 
   useEffect(() => {
     if (!id) { setLoading(false); return; }
-    supabase.from("orders").select("*").eq("id", id).single().then(({ data }) => {
+    fetch(`/api/orders/${id}`).then((r) => r.json()).then((data) => {
       setOrder(data as Order);
       setLoading(false);
     });

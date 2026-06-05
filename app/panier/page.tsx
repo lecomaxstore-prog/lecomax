@@ -2,221 +2,397 @@
 
 export const dynamic = "force-static";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 
+// ── Demo promo codes ──────────────────────────────────────────────
+const PROMO_CODES: Record<string, { type: "percent" | "fixed"; value: number; label: string }> = {
+  ECOMAX10:  { type: "percent", value: 10,  label: "-10%" },
+  SOLDES20:  { type: "percent", value: 20,  label: "-20%" },
+  BIENVENUE: { type: "fixed",   value: 50,  label: "-50 MAD" },
+  ECO30:     { type: "percent", value: 30,  label: "-30%" },
+};
+
 export default function CartPage() {
   const { items, total, count, setQty, remove, clear } = useCart();
   const shipping = total >= 500 || total === 0 ? 0 : 49;
 
+  const [promoInput, setPromoInput] = useState("");
+  const [promoApplied, setPromoApplied] = useState<null | { code: string; type: "percent" | "fixed"; value: number; label: string }>(null);
+  const [promoError, setPromoError] = useState("");
+  const [promoOpen, setPromoOpen] = useState(false);
+
+  const discount = promoApplied
+    ? promoApplied.type === "percent"
+      ? Math.round((total * promoApplied.value) / 100)
+      : Math.min(promoApplied.value, total)
+    : 0;
+
+  const grandTotal = total + shipping - discount;
+
+  function applyPromo() {
+    const code = promoInput.trim().toUpperCase();
+    const found = PROMO_CODES[code];
+    if (!found) {
+      setPromoError("Code invalide. Essayez ECOMAX10 ou BIENVENUE.");
+      setPromoApplied(null);
+      return;
+    }
+    setPromoApplied({ code, ...found });
+    setPromoError("");
+    setPromoInput("");
+  }
+
+  function removePromo() {
+    setPromoApplied(null);
+    setPromoError("");
+    setPromoInput("");
+  }
+
   return (
-    <div className="min-h-[60vh]">
-      {/* Page header */}
-      <div className="border-b border-neutral-100 bg-neutral-50">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
-          <p className="label-eyebrow mb-2">Boutique</p>
-          <h1 className="h-display text-3xl md:text-4xl">Votre panier</h1>
-          {count > 0 && (
-            <p className="text-neutral-400 text-sm mt-1.5">
-              {count} article{count !== 1 ? "s" : ""} sélectionné{count !== 1 ? "s" : ""}
-            </p>
-          )}
+    <div className="min-h-[60vh] bg-[#f7f7f8]">
+      {/* Breadcrumb */}
+      <div className="bg-white border-b border-neutral-100">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 text-[12px] text-neutral-400 flex items-center gap-2">
+          <Link href="/" className="hover:text-black transition-colors">Accueil</Link>
+          <span>/</span>
+          <span className="text-black font-semibold">Panier</span>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-10">
+      {/* Checkout stepper */}
+      <div className="bg-white border-b border-neutral-100 overflow-hidden">
+        <style>{`
+          @keyframes stepPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(62,207,76,0.5); }
+            50%       { box-shadow: 0 0 0 10px rgba(62,207,76,0); }
+          }
+          @keyframes stepShine {
+            0%   { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
+            40%  { opacity: 0.6; }
+            100% { transform: translateX(250%) skewX(-20deg); opacity: 0; }
+          }
+          @keyframes lineGrow {
+            from { transform: scaleX(0); }
+            to   { transform: scaleX(1); }
+          }
+          @keyframes stepBounce {
+            0%, 100% { transform: translateY(0); }
+            40%      { transform: translateY(-4px); }
+            60%      { transform: translateY(-2px); }
+          }
+          .step-active-circle {
+            animation: stepPulse 2s ease-in-out infinite, stepBounce 2.4s ease-in-out infinite;
+          }
+          .step-active-shine::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+            border-radius: 9999px;
+            animation: stepShine 2.2s ease-in-out infinite;
+          }
+          .step-connector-fill {
+            transform-origin: left;
+            animation: lineGrow 0.6s ease-out forwards;
+          }
+        `}</style>
+        <div className="max-w-3xl mx-auto px-4 py-5 flex items-center justify-center gap-0">
+          {[
+            { n: 1, label: "PANIER" },
+            { n: 2, label: "PAIEMENT" },
+            { n: 3, label: "CONFIRMATION" },
+          ].map((step, idx) => (
+            <div key={step.n} className="flex items-center">
+              <div className="flex flex-col items-center gap-1.5">
+                <div
+                  className={`relative w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-black border-2 transition-all overflow-hidden ${
+                    step.n === 1
+                      ? "bg-[#3ecf4c] border-[#3ecf4c] text-white step-active-circle step-active-shine"
+                      : "bg-white border-neutral-200 text-neutral-400"
+                  }`}
+                >
+                  {step.n}
+                </div>
+                <span className={`text-[10px] tracking-[0.15em] font-black transition-colors ${step.n === 1 ? "text-[#3ecf4c]" : "text-neutral-300"}`}>
+                  {step.label}
+                </span>
+              </div>
+              {idx < 2 && (
+                <div className="w-16 md:w-28 h-[2px] bg-neutral-100 mx-2 mb-5 relative overflow-hidden">
+                  {step.n === 1 && (
+                    <div className="absolute inset-0 step-connector-fill" style={{ background: "linear-gradient(90deg, #3ecf4c, #6bdd6b)" }} />
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
         {items.length === 0 ? (
           <div className="py-24 flex flex-col items-center text-center">
-            {/* Empty bag icon */}
-            <div className="w-20 h-20 border-2 border-neutral-200 flex items-center justify-center mb-6">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-300">
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <path d="M16 10a4 4 0 01-8 0"/>
+            <div className="w-24 h-24 rounded-full bg-neutral-100 flex items-center justify-center mb-6">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-400">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
               </svg>
             </div>
-            <h2 className="h-display text-2xl mb-2">Panier vide</h2>
+            <h2 className="font-black text-2xl mb-2 uppercase tracking-wide">Panier vide</h2>
             <p className="text-neutral-400 text-sm mb-8 max-w-xs">Découvrez notre sélection et ajoutez vos articles préférés.</p>
             <Link
-              href="/"
-              className="bg-black text-white px-8 py-4 font-black uppercase text-[12px] tracking-[0.12em] hover:bg-neutral-800 active:scale-95 transition-all inline-flex items-center gap-2"
+              href="/boutique"
+              className="inline-flex items-center gap-2 px-8 py-4 font-black uppercase text-[12px] tracking-[0.12em] text-white hover:opacity-90 active:scale-95 transition-all"
+              style={{ background: "#000", color: "#fff" }}
             >
               Découvrir la boutique
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </Link>
           </div>
         ) : (
-          <div className="grid lg:grid-cols-[1.6fr_1fr] gap-12 mt-2">
-            {/* Items list */}
-            <div>
-              {/* Free shipping progress */}
-              {total < 500 && (
-                <div className="mb-6 p-4 bg-neutral-50 border border-neutral-100">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] uppercase tracking-wider font-bold text-neutral-500">
-                      Livraison gratuite dès 500 MAD
-                    </span>
-                    <span className="text-[11px] font-black text-black">{formatMAD(500 - total)} restants</span>
-                  </div>
-                  <div className="h-[3px] bg-neutral-200 overflow-hidden">
-                    <div
-                      className="h-full bg-black transition-all duration-500"
-                      style={{ width: `${Math.min(100, (total / 500) * 100)}%` }}
-                    />
-                  </div>
+          <div className="grid lg:grid-cols-[1fr_380px] gap-6 items-start">
+            {/* ── LEFT: Items ── */}
+            <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
+              {/* Cart heading row */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
+                <div className="flex items-center gap-2">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-700">
+                    <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+                  </svg>
+                  <span className="font-black text-[15px]">Mon panier</span>
+                  <span className="ml-1 w-6 h-6 rounded-full text-white text-[11px] font-black flex items-center justify-center" style={{ background: "#3ecf4c", color: "#000" }}>
+                    {count}
+                  </span>
                 </div>
-              )}
-              {total >= 500 && (
-                <div className="mb-6 p-3.5 bg-black text-white flex items-center gap-2 text-[11px] uppercase tracking-wider font-bold">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 7H4C2.9 7 2 7.9 2 9v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2z"/><path d="M16 3H8L4 7h16l-4-4z"/><path d="M12 12v4M10 14h4"/></svg>
-                  Livraison gratuite offerte !
-                </div>
-              )}
-
-              <ul className="divide-y divide-neutral-100">
-                {items.map((i) => (
-                  <li
-                    key={i.slug + i.size}
-                    className="py-6 grid grid-cols-[88px_1fr] gap-5 items-start"
-                  >
-                    {/* Product image */}
-                    <Link href={`/produit/${i.slug}`} className="relative block w-[88px] h-[110px] bg-neutral-50 overflow-hidden group">
-                      <Image
-                        src={i.image}
-                        alt={i.name}
-                        fill
-                        sizes="88px"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </Link>
-
-                    {/* Details */}
-                    <div className="flex flex-col gap-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <Link
-                            href={`/produit/${i.slug}`}
-                            className="font-bold text-[14px] leading-snug hover:text-neutral-600 transition-colors line-clamp-2"
-                          >
-                            {i.name}
-                          </Link>
-                          <p className="text-[12px] text-neutral-400 mt-0.5 uppercase tracking-wide">
-                            Pointure : {i.size}
-                          </p>
-                        </div>
-                        <span className="font-black text-[15px] whitespace-nowrap shrink-0">
-                          {formatMAD(i.price * i.quantity)}
-                        </span>
-                      </div>
-
-                      {/* Actions row */}
-                      <div className="mt-3 flex items-center gap-4">
-                        {/* Qty stepper */}
-                        <div className="inline-flex border border-neutral-200 divide-x divide-neutral-200">
-                          <button
-                            onClick={() => setQty(i.slug, i.size, i.quantity - 1)}
-                            className="w-8 h-8 flex items-center justify-center text-lg font-light hover:bg-neutral-50 transition-colors"
-                            aria-label="Diminuer"
-                          >
-                            −
-                          </button>
-                          <span className="w-9 h-8 flex items-center justify-center text-[13px] font-bold">
-                            {i.quantity}
-                          </span>
-                          <button
-                            onClick={() => setQty(i.slug, i.size, i.quantity + 1)}
-                            className="w-8 h-8 flex items-center justify-center text-lg font-light hover:bg-neutral-50 transition-colors"
-                            aria-label="Augmenter"
-                          >
-                            +
-                          </button>
-                        </div>
-
-                        <button
-                          onClick={() => remove(i.slug, i.size)}
-                          className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-neutral-400 hover:text-black transition-colors font-bold"
-                        >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                          Retirer
-                        </button>
-                      </div>
-
-                      {/* Unit price */}
-                      <p className="text-[11px] text-neutral-400 mt-1">{formatMAD(i.price)} / unité</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="pt-4 flex items-center justify-between">
-                <button
-                  onClick={clear}
-                  className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-neutral-400 hover:text-black transition-colors font-bold"
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                  Vider le panier
-                </button>
                 <Link
                   href="/"
-                  className="text-[11px] uppercase tracking-wider text-neutral-400 hover:text-black transition-colors font-bold flex items-center gap-1.5"
+                  className="text-[12px] text-neutral-500 hover:text-black transition-colors font-semibold flex items-center gap-1.5"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                   Continuer les achats
                 </Link>
               </div>
+
+              {/* Free shipping bar */}
+              {total < 500 && (
+                <div className="px-6 py-3 bg-[#f0fdf4] border-b border-[#3ecf4c]/20">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[11px] font-bold text-neutral-600">Livraison gratuite dès 500 MAD</span>
+                    <span className="text-[11px] font-black text-[#3ecf4c]">{formatMAD(500 - total)} restants</span>
+                  </div>
+                  <div className="h-[4px] bg-[#3ecf4c]/20 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (total / 500) * 100)}%`, background: "#3ecf4c" }} />
+                  </div>
+                </div>
+              )}
+              {total >= 500 && (
+                <div className="px-6 py-3 bg-[#f0fdf4] border-b border-[#3ecf4c]/20 flex items-center gap-2 text-[11px] font-black text-[#16a34a] uppercase tracking-wider">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8L4 7h16l-4-4z"/></svg>
+                  Livraison gratuite offerte !
+                </div>
+              )}
+
+              {/* Column headers */}
+              <div className="hidden md:grid grid-cols-[1fr_100px_120px_100px] px-6 py-3 border-b border-neutral-100 text-[10px] font-black uppercase tracking-[0.15em] text-neutral-400">
+                <span>Produit</span>
+                <span className="text-center">Prix</span>
+                <span className="text-center">Quantité</span>
+                <span className="text-right">Total</span>
+              </div>
+
+              {/* Items */}
+              <ul className="divide-y divide-neutral-100">
+                {items.map((i) => (
+                  <li key={i.slug + i.size} className="px-6 py-5 grid grid-cols-[72px_1fr] md:grid-cols-[72px_1fr_100px_120px_100px] gap-4 items-center">
+                    {/* Image */}
+                    <Link href={`/produit/${i.slug}`} className="relative block w-[72px] h-[90px] bg-neutral-50 rounded-lg overflow-hidden group shrink-0">
+                      <Image src={i.image} alt={i.name} fill sizes="72px" className="object-cover group-hover:scale-105 transition-transform duration-500"/>
+                    </Link>
+                    {/* Name + size */}
+                    <div className="min-w-0">
+                      <Link href={`/produit/${i.slug}`} className="font-bold text-[13px] leading-snug hover:text-neutral-600 transition-colors line-clamp-2">{i.name}</Link>
+                      <p className="text-[11px] text-neutral-400 mt-0.5 uppercase tracking-wide">Pointure : {i.size}</p>
+                      {/* Mobile: price + remove */}
+                      <div className="flex items-center gap-3 mt-2 md:hidden">
+                        <span className="text-[13px] font-black">{formatMAD(i.price)}</span>
+                        <button onClick={() => remove(i.slug, i.size)} className="text-[10px] text-neutral-400 hover:text-red-500 transition-colors font-bold uppercase tracking-wider">Retirer</button>
+                      </div>
+                    </div>
+                    {/* Unit price (desktop) */}
+                    <span className="hidden md:block text-center text-[13px] font-semibold text-neutral-700">{formatMAD(i.price)}</span>
+                    {/* Qty stepper */}
+                    <div className="hidden md:flex items-center justify-center">
+                      <div className="inline-flex border border-neutral-200 rounded-lg overflow-hidden">
+                        <button onClick={() => setQty(i.slug, i.size, i.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">−</button>
+                        <span className="w-9 h-8 flex items-center justify-center text-[13px] font-black border-x border-neutral-200">{i.quantity}</span>
+                        <button onClick={() => setQty(i.slug, i.size, i.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">+</button>
+                      </div>
+                    </div>
+                    {/* Row total + remove (desktop) */}
+                    <div className="hidden md:flex flex-col items-end gap-1.5">
+                      <span className="text-[14px] font-black">{formatMAD(i.price * i.quantity)}</span>
+                      <button onClick={() => remove(i.slug, i.size)} className="text-neutral-300 hover:text-red-400 transition-colors" aria-label="Retirer">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Footer */}
+              <div className="px-6 py-4 border-t border-neutral-100 flex justify-end">
+                <button onClick={clear} className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-neutral-400 hover:text-red-500 transition-colors font-bold">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                  Vider le panier
+                </button>
+              </div>
             </div>
 
-            {/* Order summary */}
-            <aside>
-              <div className="border border-neutral-200 p-6 sticky top-24">
-                <h2 className="font-black text-[12px] uppercase tracking-[0.18em] mb-5 pb-4 border-b border-neutral-100">
-                  Récapitulatif
-                </h2>
-
-                <dl className="space-y-3 text-[13px]">
-                  <div className="flex justify-between text-neutral-600">
-                    <dt>Sous-total ({count} article{count !== 1 ? "s" : ""})</dt>
-                    <dd className="font-semibold text-black">{formatMAD(total)}</dd>
-                  </div>
-                  <div className="flex justify-between text-neutral-600">
-                    <dt>Livraison</dt>
-                    <dd className={`font-semibold ${shipping === 0 ? "text-black" : "text-black"}`}>
-                      {shipping === 0 ? (
-                        <span className="text-green-600 font-bold">Gratuite</span>
-                      ) : formatMAD(shipping)}
-                    </dd>
-                  </div>
-                </dl>
-
-                <div className="flex justify-between mt-5 pt-5 border-t border-neutral-200 font-black">
-                  <span className="text-[14px] uppercase tracking-wide">Total</span>
-                  <span className="text-[18px]">{formatMAD(total + shipping)}</span>
+            {/* ── RIGHT: Summary ── */}
+            <aside className="sticky top-24 space-y-4">
+              <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
+                {/* Header */}
+                <div className="px-6 py-4 border-b border-neutral-100 flex items-center justify-between">
+                  <h2 className="font-black text-[13px] uppercase tracking-[0.15em]">Récapitulatif</h2>
+                  <span className="text-[11px] text-neutral-400">{count} article{count !== 1 ? "s" : ""}</span>
                 </div>
 
-                <Link
-                  href="/checkout"
-                  className="mt-6 w-full bg-black text-white py-4 font-black uppercase text-[12px] tracking-[0.15em] hover:bg-neutral-800 active:scale-[0.98] transition-all block text-center"
-                >
-                  Passer à la caisse
-                </Link>
+                <div className="px-6 py-5 space-y-3">
+                  {/* Sous-total */}
+                  <div className="flex justify-between text-[13px] text-neutral-600">
+                    <span>Sous-total</span>
+                    <span className="font-bold text-black">{formatMAD(total)}</span>
+                  </div>
 
-                {/* Trust signals */}
-                <div className="mt-5 space-y-2">
-                  {[
-                    { icon: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", label: "Paiement 100% sécurisé" },
-                    { icon: "M5 12h14M12 5l7 7-7 7", label: "Livraison 2–5 jours ouvrés au Maroc" },
-                    { icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", label: "Retours gratuits sous 30 jours" },
-                  ].map(t => (
-                    <div key={t.label} className="flex items-center gap-2.5 text-[11px] text-neutral-500">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0 text-neutral-400">
-                        <path d={t.icon}/>
-                      </svg>
-                      {t.label}
+                  {/* Livraison */}
+                  <div className="flex justify-between text-[13px] text-neutral-600">
+                    <span>Livraison</span>
+                    <span className="font-bold">
+                      {shipping === 0
+                        ? <span className="text-[#16a34a] flex items-center gap-1">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                            Gratuite
+                          </span>
+                        : formatMAD(shipping)}
+                    </span>
+                  </div>
+
+                  {/* Promo discount line */}
+                  {promoApplied && (
+                    <div className="flex justify-between text-[13px]">
+                      <span className="flex items-center gap-1.5 text-[#16a34a] font-bold">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+                        Code {promoApplied.code}
+                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded" style={{ background: "#f0fdf4", color: "#16a34a" }}>{promoApplied.label}</span>
+                      </span>
+                      <span className="font-bold text-[#16a34a]">−{formatMAD(discount)}</span>
                     </div>
-                  ))}
+                  )}
+
+                  {/* ── Promo code input ── */}
+                  <div className="pt-1">
+                    {!promoApplied ? (
+                      <div>
+                        <button
+                          onClick={() => setPromoOpen(o => !o)}
+                          className="flex items-center gap-1.5 text-[12px] text-neutral-500 hover:text-black transition-colors font-semibold w-full"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                            <path d="M21.5 12.5l-9-9a2 2 0 00-1.4-.5H4a2 2 0 00-2 2v7.1a2 2 0 00.5 1.4l9 9a2 2 0 002.8 0l7.2-7.2a2 2 0 000-2.8z"/>
+                            <circle cx="8" cy="8" r="1" fill="currentColor" stroke="none"/>
+                          </svg>
+                          Vous avez un code promo ?
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`ml-auto transition-transform duration-200 ${promoOpen ? "rotate-180" : ""}`}><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
+
+                        {promoOpen && (
+                          <div className="mt-3 flex gap-2">
+                            <input
+                              type="text"
+                              value={promoInput}
+                              onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoError(""); }}
+                              onKeyDown={e => e.key === "Enter" && applyPromo()}
+                              placeholder="CODE PROMO"
+                              className="flex-1 border border-neutral-200 rounded-lg px-3 py-2.5 text-[12px] font-bold uppercase tracking-wider outline-none focus:border-[#3ecf4c] transition-colors placeholder:text-neutral-300"
+                            />
+                            <button
+                              onClick={applyPromo}
+                              className="px-4 py-2.5 text-[12px] font-black uppercase tracking-wide rounded-lg transition-colors"
+                              style={{ background: "#000", color: "#fff" }}
+                            >
+                              OK
+                            </button>
+                          </div>
+                        )}
+                        {promoError && (
+                          <p className="mt-2 text-[11px] text-red-500 font-semibold flex items-center gap-1">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                            {promoError}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between px-3 py-2.5 rounded-lg" style={{ background: "#f0fdf4", border: "1px solid rgba(62,207,76,0.3)" }}>
+                        <span className="text-[12px] font-black text-[#16a34a] flex items-center gap-1.5">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+                          {promoApplied.code} appliqué
+                        </span>
+                        <button onClick={removePromo} className="text-neutral-400 hover:text-red-500 transition-colors">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Total */}
+                  <div className="flex justify-between items-center pt-3 mt-1 border-t border-neutral-100">
+                    <span className="font-black text-[15px]">Total TTC</span>
+                    <div className="text-right">
+                      {discount > 0 && (
+                        <div className="text-[12px] text-neutral-400 line-through">{formatMAD(total + shipping)}</div>
+                      )}
+                      <span className="font-black text-[22px]" style={{ color: "#3ecf4c" }}>{formatMAD(grandTotal)}</span>
+                    </div>
+                  </div>
                 </div>
+
+                {/* CTA */}
+                <div className="px-6 pb-6">
+                  <Link
+                    href="/checkout"
+                    className="w-full flex items-center justify-center gap-2 py-4 font-black uppercase text-[12px] tracking-[0.15em] rounded-xl hover:opacity-90 active:scale-[0.98] transition-all shadow-md"
+                    style={{ background: "#000", color: "#fff", boxShadow: "0 4px 20px rgba(0,0,0,0.18)" }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" strokeWidth="2"/></svg>
+                    Procéder au paiement
+                  </Link>
+
+                  <p className="text-center text-[11px] text-neutral-400 mt-3 flex items-center justify-center gap-1.5">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#3ecf4c]"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Paiement sécurisé · Livraison offerte au Maroc
+                  </p>
+                </div>
+              </div>
+
+              {/* Trust badges card */}
+              <div className="bg-white rounded-xl border border-neutral-200 px-5 py-4 space-y-3">
+                {[
+                  { icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", label: "Retours gratuits sous 30 jours" },
+                  { icon: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8z", label: "Livraison 2–5 jours ouvrés" },
+                  { icon: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", label: "Paiement 100% sécurisé" },
+                ].map(t => (
+                  <div key={t.label} className="flex items-center gap-2.5 text-[12px] text-neutral-600">
+                    <span className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(62,207,76,0.12)" }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" style={{ color: "#3ecf4c" }}><path d={t.icon}/></svg>
+                    </span>
+                    {t.label}
+                  </div>
+                ))}
               </div>
             </aside>
           </div>

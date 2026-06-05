@@ -16,6 +16,7 @@
   colorImages?: Record<string, string>;
   colorSizes?: Record<string, string[]>;
   video?: string;
+  sizeGuideType?: "clothing" | "shoes" | "none";
 };
 
 /* ─────────────────────────── CHAUSSURES ────────────────────────── */
@@ -51,6 +52,12 @@ const chaussures: Product[] = [
   },
 ];
 
+/* ───────────────────────────── HOMME ──────────────────────────── */
+const homme: Product[] = [];
+
+/* ───────────────────────────── FEMME ──────────────────────────── */
+const femme: Product[] = [];
+
 /* ────────────────────────── ACCESSOIRES ────────────────────────── */
 const accessoires: Product[] = [
   {
@@ -80,6 +87,8 @@ const accessoires: Product[] = [
 
 export const products: Product[] = [
   ...chaussures,
+  ...homme,
+  ...femme,
   ...accessoires,
 ];
 
@@ -138,3 +147,45 @@ export const formatMAD = (n: number) =>
     currency: "MAD",
     maximumFractionDigits: 0,
   }).format(n);
+
+// ─── Normalised card type accepted by ProductCard / ProductRail ───────────────
+export type CardProduct = {
+  slug: string;
+  name: string;
+  category: string;
+  subCategory?: string;
+  price: number;
+  oldPrice?: number;
+  image: string;
+  colors: string[];
+  sizes: string[];
+  badge?: string;
+};
+
+/** Convert an API/Supabase product to the CardProduct format */
+export function apiToCard(p: {
+  slug: string;
+  name: string;
+  category: string;
+  price: number;
+  original_price?: number | null;
+  images?: string[] | null;
+  colors?: string[] | null;
+  sizes?: string[] | null;
+  featured?: boolean;
+  brand?: string | null;
+}): CardProduct {
+  return {
+    slug: p.slug,
+    name: p.name,
+    category: p.category,
+    price: p.price,
+    oldPrice: p.original_price ?? undefined,
+    image:
+      (p.images ?? [])[0] ??
+      "https://placehold.co/400x500/f5f5f5/888888/png?text=Photo",
+    colors: (p.colors as string[]) ?? [],
+    sizes: (p.sizes as string[]) ?? [],
+    badge: p.featured ? "Nouveau" : undefined,
+  };
+}

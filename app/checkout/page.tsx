@@ -6,8 +6,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
-import { supabase } from "@/lib/supabase";
-import emailjs from "@emailjs/browser";
 
 type Field = {
   prenom: string; nom: string; email: string; telephone: string;
@@ -48,7 +46,7 @@ function Input({
           onChange={(e) => onChange(name, e.target.value)}
           className={`w-full ${icon ? "pl-10" : "pl-4"} pr-4 py-3 text-sm border-0 border-b-2 bg-neutral-50 rounded-xl outline-none transition-all duration-200
             focus:bg-white focus:shadow-[0_0_0_2px_rgba(0,0,0,0.08)] focus:border-b-black
-            ${error ? "border-b-red-400 bg-red-50/50" : "border-b-neutral-200 hover:border-b-neutral-400"}`}
+            ${error ? "border-b-red-400 bg-red-50/50" : "border-b-neutral-200 hover:border-b-[#3ecf4c] focus:border-b-[#3ecf4c]"}`}
         />
         {error && (
           <p className="mt-1 text-[10px] text-red-500 font-medium flex items-center gap-1">
@@ -63,15 +61,17 @@ function Input({
 
 function Section({ step, title, icon, children }: { step: number; title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.04)]">
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-neutral-100 bg-neutral-50/50">
-        <div className="w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center shrink-0">
-          {icon}
+    <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "0 1px_4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)" }}>
+      {/* Green top accent per section */}
+      <div className="h-[3px]" style={{ background: "linear-gradient(90deg, #3ecf4c, #6bdd6b)" }} />
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-neutral-100">
+        <div className="w-9 h-9 rounded-full text-white flex items-center justify-center shrink-0 font-black text-[14px] shadow-sm" style={{ background: "#3ecf4c", color: "#000" }}>
+          {step}
         </div>
-        <div className="flex items-baseline gap-2">
-          <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Étape {step}</span>
+        <div>
           <h2 className="font-black text-[14px] uppercase tracking-[0.06em]">{title}</h2>
         </div>
+        <div className="ml-auto text-neutral-300">{icon}</div>
       </div>
       <div className="p-6">{children}</div>
     </div>
@@ -112,121 +112,71 @@ export default function CheckoutPage() {
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
     setLoading(true);
-    const number = `ECO-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    const orderLines = items
-      .map((i) => `• ${i.name}${i.color ? ` — ${i.color}` : ""} (Taille: ${i.size}) × ${i.quantity} = ${formatMAD(i.price * i.quantity)}`)
-      .join("\n");
-
-    // Save order to Supabase
     try {
-      const { error: dbErr } = await supabase.from("orders").insert({
-        order_number: number,
-        customer: {
-          name: `${form.prenom} ${form.nom}`,
-          phone: form.telephone,
-          email: form.email,
-          city: form.ville,
-          address: `${form.adresse}${form.codePostal ? ", " + form.codePostal : ""}`,
-        },
-        items: items.map((i) => ({
-          slug: i.slug,
-          name: i.name,
-          price: i.price,
-          qty: i.quantity,
-          image: i.image ?? "",
-          size: i.size ?? "",
-          color: i.color ?? "",
-        })),
-        total: grandTotal,
-        payment_method: payment === "livraison" ? "Paiement à la livraison" : "Carte bancaire",
-        status: "pending",
-        tracking_number: null,
-        notes: null,
-      });
-      if (dbErr) console.error("Supabase insert error:", dbErr);
-    } catch (err) {
-      console.error("Supabase save failed:", err);
-    }
-
-    // Also send email notification to admin
-    try {
-      await fetch("https://formspree.io/f/xvzdjpee", {
+      const res = await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          _subject: `🛍️ Nouvelle commande ${number} — ${form.prenom} ${form.nom}`,
-          commande: number,
-          client: `${form.prenom} ${form.nom}`,
-          email: form.email,
-          telephone: form.telephone,
-          adresse: `${form.adresse}, ${form.ville}${form.codePostal ? " " + form.codePostal : ""}`,
-          paiement: payment === "livraison" ? "Paiement à la livraison" : "Carte bancaire",
-          articles: orderLines,
-          sous_total: formatMAD(total),
-          livraison: shipping === 0 ? "Gratuite" : formatMAD(shipping),
-          total: formatMAD(grandTotal),
-          date: new Date().toLocaleString("fr-MA", { timeZone: "Africa/Casablanca" }),
+          customer: {
+            name: `${form.prenom} ${form.nom}`,
+            phone: form.telephone,
+            email: form.email,
+            city: form.ville,
+            address: `${form.adresse}${form.codePostal ? ", " + form.codePostal : ""}`,
+          },
+          items: items.map((i) => ({
+            slug: i.slug,
+            name: i.name,
+            price: i.price,
+            qty: i.quantity,
+            image: i.image ?? "",
+            size: i.size ?? "",
+            color: i.color ?? "",
+          })),
+          total: grandTotal,
+          shipping,
+          payment_method: payment === "livraison" ? "Paiement à la livraison" : "Carte bancaire",
         }),
       });
-    } catch {
-      // Continue even if email fails
-    }
 
-    // Send confirmation email to customer via EmailJS
-    if (form.email && process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID) {
-      try {
-        await emailjs.send(
-          process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-          process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
-          {
-            to_email: form.email,
-            to_name: form.prenom,
-            order_number: number,
-            order_items: orderLines,
-            order_total: formatMAD(grandTotal),
-            shipping: shipping === 0 ? "Gratuite" : formatMAD(shipping),
-            payment_method: payment === "livraison" ? "Paiement à la livraison" : "Carte bancaire",
-            delivery_city: form.ville,
-          },
-          process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!,
-        );
-      } catch {
-        // Continue even if customer email fails
+      const data = await res.json();
+      if (!res.ok) {
+        console.error("Order API error:", data.error);
+        setLoading(false);
+        return;
       }
-    }
 
-    // Send automatic confirmation email to customer via Resend
-    if (form.email) {
-      try {
-        const emailRes = await fetch("/api/send-confirmation", {
+      const number = data.order_number;
+      localStorage.setItem(
+        "lecomax_last_order",
+        JSON.stringify({ number, items, total: grandTotal, shipping, customer: form, payment, date: new Date().toISOString() })
+      );
+
+      // Auto-send confirmation email if client provided an email
+      if (form.email) {
+        fetch("/api/send-confirmation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             to_email: form.email,
-            to_name: form.prenom,
+            to_name: `${form.prenom} ${form.nom}`,
             order_number: number,
-            order_items: orderLines,
-            order_total: formatMAD(grandTotal),
-            shipping: shipping === 0 ? "Gratuite" : formatMAD(shipping),
+            order_items: items.map((i) => `• ${i.name} x${i.quantity}${i.size ? " (" + i.size + ")" : ""}${i.color ? " — " + i.color : ""}`).join("\n"),
+            order_total: grandTotal,
+            shipping: shipping,
             payment_method: payment === "livraison" ? "Paiement à la livraison" : "Carte bancaire",
             delivery_city: form.ville,
           }),
-        });
-        const emailData = await emailRes.json();
-        if (!emailRes.ok) console.error("Email error:", emailData);
-        else console.log("Confirmation email sent to", form.email);
-      } catch (err) {
-        console.error("Email fetch failed:", err);
+        }).catch(() => {}); // fire and forget — don't block redirect
       }
-    }
 
-    localStorage.setItem(
-      "lecomax_last_order",
-      JSON.stringify({ number, items, total: grandTotal, shipping, customer: form, payment, date: new Date().toISOString() })
-    );
-    clear();
-    router.push("/merci");
+      clear();
+      router.push("/merci");
+    } catch (err) {
+      console.error("Order submission failed:", err);
+      setLoading(false);
+    }
   };
 
   if (items.length === 0 && !loading) {
@@ -243,31 +193,80 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-[#f7f7f8]">
       {/* ── Top bar ── */}
-      <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-neutral-100">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/panier" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-black transition-colors">
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-neutral-100">
+        {/* Breadcrumb row */}
+        <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
+          <Link href="/panier" className="flex items-center gap-1.5 text-[12px] font-semibold text-neutral-400 hover:text-black transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
             Panier
           </Link>
-          <Link href="/" className="font-black text-[14px] uppercase tracking-[0.16em]">L&apos;ecomax</Link>
           <div className="flex items-center gap-1.5 text-[11px] font-semibold text-neutral-400">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ color: "#3ecf4c" }}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Paiement sécurisé
           </div>
         </div>
-        {/* Step progress */}
-        <div className="max-w-5xl mx-auto px-4 pb-3 flex items-center gap-2">
+
+        {/* Stepper — same style as /panier */}
+        <div className="max-w-3xl mx-auto px-4 pb-4 flex items-center justify-center gap-0">
+          <style>{`
+            @keyframes checkoutPulse {
+              0%, 100% { box-shadow: 0 0 0 0 rgba(62,207,76,0.5); }
+              50%       { box-shadow: 0 0 0 10px rgba(62,207,76,0); }
+            }
+            @keyframes checkoutBounce {
+              0%, 100% { transform: translateY(0); }
+              40%      { transform: translateY(-4px); }
+              60%      { transform: translateY(-2px); }
+            }
+            @keyframes checkoutShine {
+              0%   { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
+              40%  { opacity: 0.6; }
+              100% { transform: translateX(250%) skewX(-20deg); opacity: 0; }
+            }
+            .checkout-step-active {
+              animation: checkoutPulse 2s ease-in-out infinite, checkoutBounce 2.4s ease-in-out infinite;
+            }
+            .checkout-step-active-shine::after {
+              content: '';
+              position: absolute;
+              inset: 0;
+              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+              border-radius: 9999px;
+              animation: checkoutShine 2.2s ease-in-out infinite;
+            }
+          `}</style>
           {[
-            { label: "Coordonnées", n: 1 },
-            { label: "Livraison", n: 2 },
-            { label: "Paiement", n: 3 },
-          ].map((s, i) => (
-            <div key={s.n} className="flex items-center gap-2">
-              <div className={`flex items-center gap-1.5 text-[11px] font-bold ${i === 0 ? "text-black" : "text-neutral-300"}`}>
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${i === 0 ? "bg-black text-white" : "bg-neutral-200 text-neutral-400"}`}>{s.n}</span>
-                <span className="hidden sm:block uppercase tracking-wider">{s.label}</span>
+            { n: 1, label: "PANIER", done: true,   active: false },
+            { n: 2, label: "PAIEMENT", done: false, active: true  },
+            { n: 3, label: "CONFIRMATION", done: false, active: false },
+          ].map((step, idx) => (
+            <div key={step.n} className="flex items-center">
+              <div className="flex flex-col items-center gap-1.5">
+                <div
+                  className={`relative w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-black border-2 transition-all overflow-hidden ${
+                    step.active
+                      ? "border-[#3ecf4c] text-black checkout-step-active checkout-step-active-shine"
+                      : step.done
+                      ? "border-[#3ecf4c] text-black"
+                      : "bg-white border-neutral-200 text-neutral-400"
+                  }`}
+                  style={step.active || step.done ? { background: "#3ecf4c" } : {}}
+                >
+                  {step.done
+                    ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    : step.n}
+                </div>
+                <span className={`text-[10px] tracking-[0.15em] font-black ${step.active ? "text-[#3ecf4c]" : step.done ? "text-[#3ecf4c]" : "text-neutral-300"}`}>
+                  {step.label}
+                </span>
               </div>
-              {i < 2 && <div className="w-8 h-px bg-neutral-200" />}
+              {idx < 2 && (
+                <div className="w-16 md:w-28 h-[2px] bg-neutral-100 mx-2 mb-5 relative overflow-hidden">
+                  {step.done && (
+                    <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, #3ecf4c, #6bdd6b)" }} />
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -328,28 +327,30 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPayment("livraison")}
-                  className={`group relative flex items-center gap-4 p-5 rounded-2xl border-2 text-left transition-all duration-200
-                    ${payment === "livraison"
-                      ? "border-black bg-black text-white shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
-                      : "border-neutral-200 bg-white hover:border-neutral-400 hover:shadow-md"}`}
+                  className={`group relative flex items-center gap-4 p-5 rounded-2xl border-2 text-left transition-all duration-200 ${
+                    payment === "livraison"
+                      ? "border-[#3ecf4c] text-black shadow-[0_8px_24px_rgba(62,207,76,0.25)]"
+                      : "border-neutral-200 bg-white hover:border-[#3ecf4c]/50 hover:shadow-md"
+                  }`}
+                  style={payment === "livraison" ? { background: "#f0fdf4" } : {}}
                 >
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${payment === "livraison" ? "bg-white/10" : "bg-neutral-100"}`}>
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={payment === "livraison" ? "white" : "#111"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${payment === "livraison" ? "bg-[#3ecf4c]/20" : "bg-neutral-100"}`}>
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={payment === "livraison" ? "#16a34a" : "#111"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M17 9V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2m2 4h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm7-5a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`font-black text-[14px] ${payment === "livraison" ? "text-white" : "text-black"}`}>Paiement à la livraison</p>
-                    <p className={`text-[12px] mt-1 leading-relaxed ${payment === "livraison" ? "text-white/60" : "text-neutral-400"}`}>Payez en espèces à la réception</p>
+                    <p className="font-black text-[14px] text-black">Paiement à la livraison</p>
+                    <p className={`text-[12px] mt-1 leading-relaxed ${payment === "livraison" ? "text-neutral-500" : "text-neutral-400"}`}>Payez en espèces à la réception</p>
                     {payment === "livraison" && (
-                      <span className="inline-flex items-center gap-1.5 mt-2 text-[11px] text-emerald-300 font-bold">
+                      <span className="inline-flex items-center gap-1.5 mt-2 text-[11px] font-bold" style={{ color: "#16a34a" }}>
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
                         Sélectionné
                       </span>
                     )}
                   </div>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${payment === "livraison" ? "border-white bg-white" : "border-neutral-300"}`}>
-                    {payment === "livraison" && <span className="w-2.5 h-2.5 rounded-full bg-black" />}
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${payment === "livraison" ? "border-[#3ecf4c]" : "border-neutral-300"}`}>
+                    {payment === "livraison" && <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#3ecf4c" }} />}
                   </div>
                 </button>
 
@@ -394,7 +395,8 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={loading}
-              className="lg:hidden w-full bg-black text-white py-4 rounded-2xl font-black uppercase text-sm tracking-[0.1em] hover:bg-neutral-800 transition-all duration-200 active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-3 shadow-[0_4px_14px_rgba(0,0,0,0.2)]"
+              className="lg:hidden w-full py-4 rounded-2xl font-black uppercase text-sm tracking-[0.1em] hover:opacity-90 transition-all duration-200 active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-3"
+              style={{ background: "#000", color: "#fff", boxShadow: "0 4px 18px rgba(0,0,0,0.18)" }}
             >
               {loading ? (
                 <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Traitement…</>
@@ -454,9 +456,9 @@ export default function CheckoutPage() {
                     Livraison gratuite à partir de <strong>500 MAD</strong> d'achat
                   </p>
                 )}
-                <div className="flex justify-between font-black text-[15px] pt-2 border-t border-neutral-200">
-                  <span>Total</span>
-                  <span>{formatMAD(grandTotal)}</span>
+                <div className="flex justify-between font-black text-[16px] pt-2 border-t border-neutral-200">
+                  <span>Total TTC</span>
+                  <span style={{ color: "#3ecf4c" }}>{formatMAD(grandTotal)}</span>
                 </div>
               </div>
 
@@ -465,7 +467,8 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="hidden lg:flex w-full bg-black text-white py-4 rounded-xl font-black uppercase text-sm tracking-[0.1em] hover:bg-neutral-800 transition-all duration-200 active:scale-[0.99] disabled:opacity-60 items-center justify-center gap-2.5 shadow-[0_4px_14px_rgba(0,0,0,0.15)]"
+                  className="hidden lg:flex w-full py-4 rounded-xl font-black uppercase text-sm tracking-[0.1em] hover:opacity-90 transition-all duration-200 active:scale-[0.99] disabled:opacity-60 items-center justify-center gap-2.5"
+                  style={{ background: "#000", color: "#fff", boxShadow: "0 4px 18px rgba(0,0,0,0.18)" }}
                 >
                   {loading ? (
                     <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Traitement…</>
