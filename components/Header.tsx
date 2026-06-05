@@ -258,7 +258,7 @@ export default function Header() {
               </Link>
             ))}
           </div>
-          <p className="text-[10px] text-neutral-300 text-center mt-5 tracking-widest uppercase">L&apos;ecomax © 2025</p>
+          <p className="text-[10px] text-neutral-300 text-center mt-5 tracking-widest uppercase">L&apos;ecomax © 2026</p>
         </div>
       </div>
     </>
