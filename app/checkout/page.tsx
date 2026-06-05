@@ -86,7 +86,8 @@ export default function CheckoutPage() {
   const [payment, setPayment] = useState<"livraison" | "carte">("livraison");
   const [loading, setLoading] = useState(false);
 
-  const shipping = total >= 500 || total === 0 ? 0 : 49;
+  const isSidiBennour = form.ville.trim().toLowerCase().replace(/-/g, " ") === "sidi bennour";
+  const shipping = total === 0 || isSidiBennour ? 0 : 35;
   const grandTotal = total + shipping;
 
   const set = (k: keyof Field, v: string) => {
@@ -453,7 +454,7 @@ export default function CheckoutPage() {
                 </div>
                 {shipping > 0 && (
                   <p className="text-[10px] text-neutral-400 bg-neutral-100 rounded-lg px-3 py-2">
-                    Livraison gratuite à partir de <strong>500 MAD</strong> d'achat
+                    Livraison <strong>gratuite</strong> pour Sidi Bennour
                   </p>
                 )}
                 <div className="flex justify-between font-black text-[16px] pt-2 border-t border-neutral-200">
