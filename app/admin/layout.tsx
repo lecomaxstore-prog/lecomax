@@ -232,29 +232,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen flex bg-[#f6f6f4]">
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-black text-white flex flex-col transition-transform duration-300
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#0f0f0f] text-white flex flex-col transition-transform duration-300
         ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static lg:flex`}>
         {/* Brand */}
-        <div className="px-6 py-4 border-b border-white/10 flex items-center gap-3">
-          <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+        <div className="px-5 py-4 border-b border-white/8 flex items-center gap-3">
+          <div className="w-8 h-8 bg-[#3ecf4c] rounded-lg flex items-center justify-center shrink-0">
             <span className="text-black font-black text-[11px]">E</span>
           </div>
           <div>
             <p className="font-black text-sm tracking-wide">L&apos;ECOMAX</p>
-            <p className="text-white/40 text-[10px]">Panel Admin</p>
+            <p className="text-white/35 text-[10px]">Panel Admin</p>
           </div>
-          <button onClick={() => setOpen(false)} className="ml-auto lg:hidden text-white/50 hover:text-white">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          <button onClick={() => setOpen(false)} className="ml-auto lg:hidden text-white/40 hover:text-white p-1">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 overflow-y-auto py-2">
+        <nav className="flex-1 px-3 overflow-y-auto py-3 space-y-0.5">
           {navSections.map((section) => {
             const items = section.hrefs.map((href) => nav.find((n) => n.href === href)).filter((x): x is typeof nav[0] => !!x);
             return (
-              <div key={section.title} className="mb-1">
-                <p className="px-3 pt-3 pb-1 text-[9px] font-bold text-white/25 uppercase tracking-[0.15em]">{section.title}</p>
+              <div key={section.title} className="mb-2">
+                <p className="px-3 pt-2 pb-1.5 text-[9px] font-bold text-white/20 uppercase tracking-[0.18em]">{section.title}</p>
                 <div className="space-y-0.5">
                   {items.map((item) => {
                     const active = pathname.startsWith(item.href);
@@ -264,14 +264,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         key={item.href}
                         href={item.href}
                         onClick={() => setOpen(false)}
-                        className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors
-                          ${active ? "bg-white text-black" : "text-white/60 hover:text-white hover:bg-white/10"}`}
+                        className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-150
+                          ${active
+                            ? "bg-white text-black shadow-sm"
+                            : "text-white/55 hover:text-white hover:bg-white/8"}`}
                       >
-                        <span className={active ? "text-black" : "text-white/50"}>{item.icon}</span>
-                        <span className="flex-1">{item.label}</span>
+                        <span className={`shrink-0 ${active ? "text-black" : "text-white/40"}`}>{item.icon}</span>
+                        <span className="flex-1 truncate">{item.label}</span>
                         {badgeCount > 0 && (
-                          <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight
-                            ${item.badge === "stock" ? "bg-yellow-400 text-yellow-900" : item.badge === "messages" ? "bg-blue-500 text-white" : "bg-orange-500 text-white"}`}>
+                          <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight shrink-0
+                            ${item.badge === "stock" ? "bg-amber-400 text-amber-950"
+                              : item.badge === "messages" ? "bg-blue-500 text-white"
+                              : "bg-orange-500 text-white"}`}>
                             {badgeCount}
                           </span>
                         )}
@@ -285,12 +289,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Logout */}
-        <div className="px-3 py-4 border-t border-white/10">
+        <div className="px-3 py-4 border-t border-white/8">
           <button
             onClick={logout}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-white/45 hover:text-white hover:bg-white/8 transition-colors"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
             Déconnexion
@@ -299,32 +303,72 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Mobile overlay */}
-      {open && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setOpen(false)} />}
+      {open && <div className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-sm" onClick={() => setOpen(false)} />}
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="h-14 bg-white border-b border-neutral-200 flex items-center px-4 md:px-6 gap-4 sticky top-0 z-20">
-          <button onClick={() => setOpen(true)} className="lg:hidden p-1 text-neutral-500 hover:text-black">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <header className="h-14 bg-white border-b border-neutral-100 flex items-center px-4 md:px-6 gap-3 sticky top-0 z-20 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+          <button onClick={() => setOpen(true)} className="lg:hidden p-1.5 -ml-1 text-neutral-500 hover:text-black hover:bg-neutral-100 rounded-lg transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
-          <nav className="text-sm text-neutral-400 hidden md:flex items-center gap-1">
-            <span>Admin</span>
-            <span>/</span>
-            <span className="text-black font-medium capitalize">{pathname.split("/admin/")[1] || "Dashboard"}</span>
+          {/* Page title on mobile */}
+          <span className="lg:hidden font-black text-sm capitalize">
+            {pathname.split("/admin/")[1]?.split("/")[0]?.replace("-", " ") || "Dashboard"}
+          </span>
+          {/* Breadcrumb on desktop */}
+          <nav className="text-sm text-neutral-400 hidden lg:flex items-center gap-1.5">
+            <span className="text-neutral-300">Admin</span>
+            <span className="text-neutral-200">/</span>
+            <span className="text-neutral-800 font-semibold capitalize">
+              {pathname.split("/admin/")[1]?.split("/")[0]?.replace("-", " ") || "Dashboard"}
+            </span>
           </nav>
-          <div className="ml-auto flex items-center gap-3">
-            <Link href="/" target="_blank" className="text-xs text-neutral-500 hover:text-black flex items-center gap-1.5 border border-neutral-200 px-3 py-1.5 rounded-lg hover:border-black transition-colors">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <div className="ml-auto flex items-center gap-2">
+            {/* Badge alerts in header */}
+            {badges.orders > 0 && (
+              <Link href="/admin/orders" className="flex items-center gap-1.5 text-[11px] font-bold bg-orange-50 text-orange-600 border border-orange-200 px-2.5 py-1 rounded-lg hover:bg-orange-100 transition-colors">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                {badges.orders} en attente
+              </Link>
+            )}
+            <Link href="/" target="_blank" className="hidden sm:flex text-xs text-neutral-500 hover:text-black items-center gap-1.5 border border-neutral-200 px-3 py-1.5 rounded-lg hover:border-black transition-colors">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               Voir le site
             </Link>
           </div>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto pb-20 lg:pb-8">
           {children}
         </main>
+
+        {/* Mobile bottom nav bar */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-neutral-100 flex items-center justify-around px-2 h-16 shadow-[0_-1px_0_rgba(0,0,0,0.06)]">
+          {[
+            { href: "/admin/dashboard", label: "Accueil", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
+            { href: "/admin/orders", label: "Commandes", badge: "orders", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> },
+            { href: "/admin/products", label: "Produits", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg> },
+            { href: "/admin/analytics", label: "Stats", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> },
+            { href: "/admin/messages", label: "Messages", badge: "messages", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> },
+          ].map((item) => {
+            const active = pathname.startsWith(item.href);
+            const badgeCount = item.badge ? (badges[item.badge] ?? 0) : 0;
+            return (
+              <Link key={item.href} href={item.href} className={`relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors ${active ? "text-black" : "text-neutral-400"}`}>
+                {badgeCount > 0 && (
+                  <span className="absolute -top-0.5 right-0.5 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center">
+                    {badgeCount > 9 ? "9+" : badgeCount}
+                  </span>
+                )}
+                <span className={active ? "text-black" : ""}>{item.icon}</span>
+                <span className={`text-[9px] font-bold ${active ? "text-black" : "text-neutral-400"}`}>{item.label}</span>
+                {active && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-black rounded-full" />}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
     </div>
   );
