@@ -61,7 +61,7 @@ export default function NewsletterSection() {
             <ul className="space-y-3.5">
               {perks.map((p) => (
                 <li key={p.label} className="flex items-center gap-3">
-                  <span className="w-8 h-8 shrink-0 border border-[#3ecf4c]/30 bg-[#3ecf4c]/8 flex items-center justify-center">
+                  <span className="w-8 h-8 shrink-0 border border-[#3ecf4c]/30 bg-[#3ecf4c]/10 flex items-center justify-center">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                       <path d={p.icon} />
                     </svg>
@@ -76,7 +76,7 @@ export default function NewsletterSection() {
           <div className="hidden md:block w-[1px] self-stretch bg-gradient-to-b from-transparent via-white/10 to-transparent" />
 
           {/* ── Right: form ── */}
-          <div className="pt-10 md:pt-0 md:pl-4 border-t border-white/8 md:border-0">
+          <div className="pt-10 md:pt-0 md:pl-4 border-t border-white/10 md:border-0">
             {status === "success" ? (
               <div className="flex flex-col items-start gap-4">
                 <div className="w-14 h-14 border border-[#3ecf4c]/40 bg-[#3ecf4c]/10 flex items-center justify-center">
@@ -111,7 +111,7 @@ export default function NewsletterSection() {
                       onChange={(e) => { setEmail(e.target.value); setStatus("idle"); }}
                       placeholder="votre@email.com"
                       required
-                      className="w-full pl-11 pr-4 py-4 bg-white/4 border border-white/10 text-white text-[13px] placeholder:text-neutral-600 focus:outline-none focus:border-[#3ecf4c] focus:bg-[#3ecf4c]/5 transition-all duration-200"
+                      className="w-full pl-11 pr-4 py-4 bg-white/5 border border-white/10 text-white text-[13px] placeholder:text-neutral-600 focus:outline-none focus:border-[#3ecf4c] focus:bg-[#3ecf4c]/5 transition-all duration-200"
                     />
                   </div>
                   <button
