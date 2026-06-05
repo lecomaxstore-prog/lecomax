@@ -63,6 +63,32 @@ const femme: Product[] = [];
 /* ────────────────────────── ACCESSOIRES ────────────────────────── */
 const accessoires: Product[] = [
   {
+    slug: "a-sac-bandouliere-antivol-code",
+    name: "Sac Bandoulière Anti-Vol Homme — Verrou à Code Numérique, Finitions Dorées",
+    displayName: "Sac Bandoulière Anti-Vol — Verrou à Code",
+    specs: ["Verrou à code numérique", "Technologie anti-vol", "Finitions métalliques dorées", "Sangle réglable", "Port USB compatible", "Tissu durable"],
+    category: "accessoires",
+    subCategory: "Sacs",
+    price: 99,
+    badge: "Nouveau",
+    colors: ["Noir"],
+    sizes: ["Taille unique"],
+    image: "/images/products/Sac%20bandouli%C3%A8re/1.avif",
+    gallery: [
+      "/images/products/Sac%20bandouli%C3%A8re/2.avif",
+      "/images/products/Sac%20bandouli%C3%A8re/3.avif",
+      "/images/products/Sac%20bandouli%C3%A8re/4.avif",
+    ],
+    descriptionImages: [
+      "/images/products/Sac%20bandouli%C3%A8re/descption/1.avif",
+      "/images/products/Sac%20bandouli%C3%A8re/descption/2.avif",
+      "/images/products/Sac%20bandouli%C3%A8re/descption/3.avif",
+      "/images/products/Sac%20bandouli%C3%A8re/descption/4.avif",
+    ],
+    sizeGuideType: "none",
+    description: "Sac bandoulière anti-vol pour hommes avec verrou à code numérique et technologie anti-vol avancée. Sangle réglable, finitions métalliques dorées élégantes, tissu durable résistant aux rayures. Compartiments zippés organisés et port USB intégré. Idéal pour la moto, le voyage, la salle de sport et l'usage quotidien.",
+  },
+  {
     slug: "a-sac-banane-pu-polyvalent",
     name: "Sac Banane Polyvalent PU — Ceinture / Bandoulière / Épaule / Poitrine",
     displayName: "Sac Banane PU — Multiport Réglable",
