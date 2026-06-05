@@ -243,8 +243,8 @@ export function apiToCard(p: {
     price: p.price,
     oldPrice: p.original_price ?? undefined,
     image:
-      (p.images ?? [])[0] ??
-      "https://placehold.co/400x500/f5f5f5/888888/png?text=Photo",
+      (p.images ?? []).find((url) => !!url) ??
+      "/images/placeholder.png",
     colors: (p.colors as string[]) ?? [],
     sizes: (p.sizes as string[]) ?? [],
     badge: p.featured ? "Nouveau" : undefined,
