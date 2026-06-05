@@ -221,9 +221,13 @@ export default async function ProductPage({
 
           {/* Spec chips */}
           {product.specs && product.specs.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-4">
+            <div className="flex flex-wrap gap-2 mt-5">
               {product.specs.map((s) => (
-                <span key={s} className="text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 bg-neutral-100 text-neutral-600 border border-neutral-200">
+                <span
+                  key={s}
+                  className="inline-flex items-center gap-1.5 text-[10.5px] font-black uppercase tracking-[0.08em] px-3 py-1.5 bg-white border border-neutral-200 text-neutral-700 hover:border-[#3ecf4c] hover:text-black hover:bg-[#3ecf4c]/5 transition-colors duration-200"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] shrink-0" />
                   {s}
                 </span>
               ))}
