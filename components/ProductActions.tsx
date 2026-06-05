@@ -34,12 +34,12 @@ export default function ProductActions({ product }: { product: Product }) {
   const { color, setColor } = useProductColor();
   const hasColors = product.colors.length > 0 && product.colors[0] !== "Taille unique";
   const hasColorImages = !!(product.colorImages);
-  const availableSizes = (product.colorSizes && color && product.colorSizes[color])
+  const availableSizes = ((product.colorSizes && color && product.colorSizes[color])
     ? product.colorSizes[color]
-    : product.sizes;
+    : product.sizes) ?? [];
 
   const [size, setSize] = useState<string | null>(
-    product.sizes.length === 1 && product.sizes[0] === "Taille unique" ? "Taille unique" : null
+    (product.sizes ?? []).length === 1 && product.sizes[0] === "Taille unique" ? "Taille unique" : null
   );
   const [error, setError] = useState<string | null>(null);
   const [added, setAdded] = useState(false);

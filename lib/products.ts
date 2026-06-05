@@ -72,6 +72,7 @@ const accessoires: Product[] = [
     price: 99,
     badge: "Nouveau",
     colors: ["Édition Standard"],
+    sizes: ["Taille unique"],
     gallery: [
       "/images/products/Lenovo%20K3%20PRO/2.avif",
       "/images/products/Lenovo%20K3%20PRO/3.avif",
