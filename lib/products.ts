@@ -63,6 +63,33 @@ const femme: Product[] = [];
 /* ────────────────────────── ACCESSOIRES ────────────────────────── */
 const accessoires: Product[] = [
   {
+    slug: "a-sac-banane-pu-polyvalent",
+    name: "Sac Banane Polyvalent PU — Ceinture / Bandoulière / Épaule / Poitrine",
+    displayName: "Sac Banane PU — Multiport Réglable",
+    specs: ["Matériau PU premium", "4 façons de porter", "Fermeture éclair lisse", "Maille respirante", "Plusieurs poches", "Léger & voyage"],
+    category: "accessoires",
+    subCategory: "Sacs",
+    price: 69,
+    badge: "Nouveau",
+    colors: ["Noir", "Gris"],
+    sizes: ["Taille unique"],
+    image: "/images/products/Sac%20banane/1.avif",
+    gallery: [
+      "/images/products/Sac%20banane/2.avif",
+      "/images/products/Sac%20banane/3.avif",
+      "/images/products/Sac%20banane/4.avif",
+      "/images/products/Sac%20banane/5.avif",
+    ],
+    descriptionImages: [
+      "/images/products/Sac%20banane/descption%20images/1.avif",
+      "/images/products/Sac%20banane/descption%20images/2.avif",
+      "/images/products/Sac%20banane/descption%20images/6.avif",
+      "/images/products/Sac%20banane/descption%20images/7.avif",
+    ],
+    sizeGuideType: "none",
+    description: "Sac banane polyvalent en matériau PU de qualité premium. Réglable pour se porter à la taille, en bandoulière, à l'épaule ou sur la poitrine. Fermeture éclair ultra-lisse, plusieurs poches organisées et dos en maille respirante pour un confort optimal. Idéal pour le voyage, la randonnée et le quotidien.",
+  },
+  {
     slug: "a-lenovo-k3-pro-enceinte",
     name: "Lenovo K3 PRO — Enceinte Bluetooth HiFi Son Stéréo Cinéma",
     displayName: "Lenovo K3 PRO — Enceinte HiFi Stéréo",
