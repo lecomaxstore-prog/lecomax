@@ -109,7 +109,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@lecomax.com"
+                  placeholder="Entrez votre identifiant ou email"
                   required
                   autoComplete="email"
                   className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black focus:ring-2 focus:ring-black/5 transition-all bg-neutral-50 focus:bg-white placeholder:text-neutral-300"
