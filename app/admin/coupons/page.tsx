@@ -7,7 +7,7 @@ type Coupon = {
   expires_at: string | null; active: boolean; created_at: string;
 };
 
-const emptyForm = { code: "", type: "percent" as const, value: "", min_order: "", max_uses: "", expires_at: "" };
+const emptyForm: { code: string; type: "percent" | "fixed"; value: string; min_order: string; max_uses: string; expires_at: string } = { code: "", type: "percent", value: "", min_order: "", max_uses: "", expires_at: "" };
 
 function generateCode() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -26,6 +26,14 @@ type OrderResult = {
 };
 
 export default function SuivreCommandePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-2 border-black border-t-transparent rounded-full" /></div>}>
+      <SuivreCommandeInner />
+    </Suspense>
+  );
+}
+
+function SuivreCommandeInner() {
   const searchParams = useSearchParams();
   const [orderNum, setOrderNum] = useState("");
   const [email, setEmail] = useState("");

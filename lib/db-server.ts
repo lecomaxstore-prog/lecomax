@@ -28,6 +28,7 @@ type ApiProduct = {
   stock: number;
   active: boolean;
   created_at: string;
+  tags: string[] | null;
 };
 
 export async function getDbProducts(options?: {
