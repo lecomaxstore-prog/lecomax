@@ -186,15 +186,15 @@ export default function Header() {
       >
         {/* Panel header */}
         <div className="flex items-center justify-between px-5 h-[64px] border-b border-neutral-100">
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] animate-pulse" />
-            <span className="text-[11px] font-black uppercase tracking-[0.25em] text-neutral-400">L&apos;ecomax</span>
-          </div>
+          <Link href="/" onClick={() => setOpen(false)}>
+            <Logo />
+          </Link>
           <button
             aria-label="Fermer"
             onClick={() => setOpen(false)}
-            className="w-9 h-9 flex items-center justify-center rounded-full border border-neutral-200 text-neutral-400 hover:border-neutral-400 hover:text-black transition-all"
+            className="flex items-center gap-1.5 text-neutral-400 hover:text-black transition-colors"
           >
+            <span className="text-[11px] font-bold uppercase tracking-wider">Fermer</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <path d="M18 6 6 18M6 6l12 12"/>
             </svg>
