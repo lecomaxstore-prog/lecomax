@@ -54,7 +54,8 @@ export default async function CategoryPage({
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center scale-[1.03] transition-transform duration-[8s] ease-out"
+          className="object-cover scale-[1.03] transition-transform duration-[8s] ease-out"
+          style={{ objectPosition: 'center 20%' }}
         />
         {/* Multi-layer gradient: dark bottom + slight vignette */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
