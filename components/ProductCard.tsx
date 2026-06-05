@@ -54,6 +54,9 @@ export default function ProductCard({ product }: { product: CardProduct }) {
         {/* Subtle dark vignette on hover */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/8 transition-colors duration-500" />
 
+        {/* Shimmer sweep on hover */}
+        <div className="shimmer-on-hover" />
+
         {/* Badges */}
         <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
           {product.badge && (

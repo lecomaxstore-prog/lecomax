@@ -281,3 +281,44 @@ body {
 .sr-line.in {
   animation: line-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
 }
+
+/* ── Hero image entrance ──────────────────────────────────────────── */
+@keyframes hero-image-entrance {
+  from { opacity: 0; transform: scale(1.04); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.hero-image-entrance {
+  animation: hero-image-entrance 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Shimmer card sweep ────────────────────────────────────────────── */
+@keyframes shimmer-sweep {
+  from { transform: translateX(-110%) skewX(-12deg); }
+  to   { transform: translateX(220%)  skewX(-12deg); }
+}
+.shimmer-on-hover {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.shimmer-on-hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.14) 50%, transparent 100%);
+  transform: translateX(-110%) skewX(-12deg);
+  transition: none;
+}
+.group:hover .shimmer-on-hover::after {
+  animation: shimmer-sweep 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* ── Number count-up glow ─────────────────────────────────────────── */
+@keyframes stat-value-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.92); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+.stat-value-in {
+  animation: stat-value-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
