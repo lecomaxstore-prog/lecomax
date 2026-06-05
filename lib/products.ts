@@ -99,6 +99,10 @@ const accessoires: Product[] = [
     badge: "Bestseller",
     colors: ["Noir", "Gris"],
     sizes: ["Taille unique"],
+    colorImages: {
+      "Noir": "/images/products/Sac%20banane/1.avif",
+      "Gris": "/images/products/Sac%20banane/2.avif",
+    },
     image: "/images/products/Sac%20banane/1.avif",
     gallery: [
       "/images/products/Sac%20banane/2.avif",

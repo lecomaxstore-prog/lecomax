@@ -83,6 +83,7 @@ export default function ProductGallery({
             loop
             playsInline
             controls
+            poster={images[0]}
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
@@ -114,6 +115,27 @@ export default function ProductGallery({
 
       {/* Thumbnail strip */}
       <div className="flex gap-2 overflow-x-auto pb-1">
+        {/* Video thumbnail — shown first when video exists */}
+        {video && (
+          <button
+            onClick={() => setActive("video")}
+            className={`relative flex-shrink-0 w-[72px] h-[72px] bg-neutral-900 border-2 transition-colors overflow-hidden flex items-center justify-center ${
+              active === "video"
+                ? "border-black"
+                : "border-transparent hover:border-neutral-300"
+            }`}
+          >
+            <Image
+              src={images[0]}
+              alt="Vidéo"
+              fill
+              sizes="72px"
+              className="object-cover opacity-40"
+              loading="lazy"
+            />
+            <span className="relative z-10 text-white text-2xl leading-none">▶</span>
+          </button>
+        )}
         {images.map((src, i) => (
           <button
             key={i}
@@ -134,8 +156,6 @@ export default function ProductGallery({
             />
           </button>
         ))}
-
-
       </div>
     </div>
   );
