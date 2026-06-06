@@ -94,8 +94,6 @@ export default function CheckoutPage() {
   const [loyaltyTier, setLoyaltyTier] = useState<"Bronze" | "Silver" | "Gold">("Bronze");
   const [loyaltyDiscountPct, setLoyaltyDiscountPct] = useState(0); // 0, 30, or 50
 
-  const [headerVisible, setHeaderVisible] = useState(false);
-  const lastScrollY = useRef(0);
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const paypalRendered = useRef(false);
   // Always-fresh ref for PayPal callbacks (prevents stale closure bug)
@@ -103,18 +101,7 @@ export default function CheckoutPage() {
   // Track if error originated from form validation (not from PayPal itself)
   const paypalFormErrorRef = useRef(false);
 
-  useEffect(() => {
-    // Check initial scroll position
-    setHeaderVisible(window.pageYOffset === 0);
-
-    const handleScroll = () => {
-      const currentY = window.pageYOffset ?? window.scrollY;
-      setHeaderVisible(currentY <= 0);
-      lastScrollY.current = currentY;
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // Scroll listener removed — stepper is now sticky and always visible
 
   // Fetch EcoClub tier to apply automatic loyalty discount
   useEffect(() => {
@@ -363,8 +350,8 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f7f8]">
-      {/* ── Stepper bar ── fixed below 60px nav, hides on scroll down ── */}
-      <div style={{ position: "fixed", top: headerVisible ? "60px" : "-200px", left: 0, right: 0, zIndex: 20, transition: "top 0.35s ease", background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: "1px solid #f3f4f6" }}>
+      {/* ── Stepper bar ── sticky, always visible, sticks below the site header ── */}
+      <div className="sticky top-0 z-20" style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: "1px solid #f3f4f6" }}>
         {/* Breadcrumb row */}
         <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
           <Link href="/panier" className="flex items-center gap-1.5 text-[12px] font-semibold text-neutral-400 hover:text-black transition-colors">
@@ -442,9 +429,6 @@ export default function CheckoutPage() {
           ))}
         </div>
       </div>
-
-      {/* Spacer: nav(60) + stepper(~120) = 180px */}
-      <div style={{ height: "180px" }} />
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="max-w-5xl mx-auto px-4 py-8 grid lg:grid-cols-[1fr_360px] gap-6 items-start">
