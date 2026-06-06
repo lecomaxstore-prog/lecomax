@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
+// PayPal loaded via vanilla SDK (see useEffect below)
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 
@@ -93,6 +93,8 @@ export default function CheckoutPage() {
 
   const [headerVisible, setHeaderVisible] = useState(false);
   const lastScrollY = useRef(0);
+  const paypalContainerRef = useRef<HTMLDivElement>(null);
+  const paypalRendered = useRef(false);
 
   useEffect(() => {
     // Check initial scroll position
@@ -112,6 +114,80 @@ export default function CheckoutPage() {
   const shipping = total === 0 || isSidiBennour ? 0 : 35;
   const discount = couponApplied?.discount ?? 0;
   const grandTotal = total + shipping - discount;
+
+  // Load vanilla PayPal SDK and render buttons when PayPal selected
+  useEffect(() => {
+    if (payment !== "paypal") return;
+    const PAYPAL_CLIENT_ID = "BAA_LM04femxzGuKaHnfkjbfDUo0kMPz1pkuuEkmVPjEnbtDQY_yuNtk4_iq1VgVFszSiVOOOnkXbpfkhQ";
+
+    const renderButtons = () => {
+      const container = paypalContainerRef.current;
+      if (!container || paypalRendered.current) return;
+      if (!(window as any).paypal) return;
+      paypalRendered.current = true;
+      container.innerHTML = "";
+      (window as any).paypal.Buttons({
+        style: { layout: "vertical", color: "blue", shape: "rect", label: "pay", height: 48 },
+        createOrder: (_data: unknown, actions: any) => {
+          const errs = validate();
+          if (Object.keys(errs).length) { setErrors(errs); return Promise.reject(new Error("Form invalid")); }
+          const usdAmount = (grandTotal / 10).toFixed(2);
+          return actions.order.create({
+            intent: "CAPTURE",
+            purchase_units: [{ amount: { currency_code: "USD", value: usdAmount }, description: `L'ecomax — ${items.map((i: any) => i.name.slice(0,30)).join(", ").slice(0, 127)}` }],
+          });
+        },
+        onApprove: async (_data: unknown, actions: any) => {
+          setLoading(true);
+          const details = await actions.order.capture();
+          const transactionId = details.id;
+          const res = await fetch("/api/orders", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              customer: { name: `${form.prenom} ${form.nom}`, phone: form.telephone, email: form.email, city: form.ville, address: `${form.adresse}${form.codePostal ? ", " + form.codePostal : ""}` },
+              items: items.map((i: any) => ({ slug: i.slug, name: i.name, price: i.price, qty: i.quantity, image: i.image ?? "", size: i.size ?? "", color: i.color ?? "" })),
+              total: grandTotal, shipping, coupon_id: couponApplied?.id ?? null, discount,
+              payment_method: `PayPal (${transactionId})`,
+            }),
+          });
+          const data = await res.json();
+          if (form.email) {
+            fetch("/api/send-confirmation", { method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ to_email: form.email, to_name: `${form.prenom} ${form.nom}`, order_number: data.order_number, order_items: items.map((i: any) => `• ${i.name} x${i.quantity}`).join("\n"), order_total: grandTotal, shipping, payment_method: "PayPal", delivery_city: form.ville }),
+            }).catch(() => {});
+          }
+          clear();
+          router.push("/merci");
+        },
+        onError: () => {
+          setLoading(false);
+          alert("Paiement PayPal échoué. Veuillez réessayer ou choisir le paiement à la livraison.");
+        },
+      }).render(container);
+    };
+
+    // If SDK already loaded, render immediately
+    if ((window as any).paypal) { renderButtons(); return; }
+
+    // Otherwise inject script tag
+    const existing = document.getElementById("paypal-sdk");
+    if (existing) { existing.addEventListener("load", renderButtons); return; }
+    const script = document.createElement("script");
+    script.id = "paypal-sdk";
+    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD`;
+    script.onload = renderButtons;
+    script.onerror = () => console.error("Failed to load PayPal SDK");
+    document.head.appendChild(script);
+
+    return () => { /* keep script in DOM for reuse */ };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [payment, grandTotal]);
+
+  // Reset rendered flag when payment changes away from paypal
+  useEffect(() => {
+    if (payment !== "paypal") { paypalRendered.current = false; }
+  }, [payment]);
 
   const applyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -234,7 +310,6 @@ export default function CheckoutPage() {
   }
 
   return (
-    <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "BAA_LM04femxzGuKaHnfkjbfDUo0kMPz1pkuuEkmVPjEnbtDQY_yuNtk4_iq1VgVFszSiVOOOnkXbpfkhQ", currency: "USD" }}>
     <div className="min-h-screen bg-[#f7f7f8]">
       {/* ── Stepper bar ── fixed below 60px nav, hides on scroll down ── */}
       <div style={{ position: "fixed", top: headerVisible ? "60px" : "-200px", left: 0, right: 0, zIndex: 20, transition: "top 0.35s ease", background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: "1px solid #f3f4f6" }}>
@@ -439,74 +514,7 @@ export default function CheckoutPage() {
                 {payment === "paypal" && (
                   <div className="rounded-2xl border-2 border-[#0070ba]/20 bg-[#f0f7ff] p-4">
                     <p className="text-[11px] text-neutral-500 mb-3 text-center font-semibold uppercase tracking-wider">Remplissez le formulaire puis cliquez sur PayPal</p>
-                    <PayPalButtons
-                      style={{ layout: "vertical", color: "blue", shape: "rect", label: "pay", height: 48 }}
-                      forceReRender={[grandTotal]}
-                      createOrder={(_data, actions) => {
-                          const errs = validate();
-                          if (Object.keys(errs).length) {
-                            setErrors(errs);
-                            throw new Error("Form invalid");
-                          }
-                          // Convert MAD to USD (1 USD ≈ 10 MAD)
-                          const usdAmount = (grandTotal / 10).toFixed(2);
-                          return actions.order.create({
-                            intent: "CAPTURE",
-                            purchase_units: [{
-                              amount: { currency_code: "USD", value: usdAmount },
-                              description: `L'ecomax — ${items.map(i => i.name.slice(0,30)).join(", ").slice(0, 127)}`,
-                            }],
-                          });
-                        }}
-                      onApprove={async (_data, actions) => {
-                          setLoading(true);
-                          const details = await actions.order!.capture();
-                          const transactionId = details.id;
-                          // Save order to DB
-                          const res = await fetch("/api/orders", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              customer: {
-                                name: `${form.prenom} ${form.nom}`,
-                                phone: form.telephone,
-                                email: form.email,
-                                city: form.ville,
-                                address: `${form.adresse}${form.codePostal ? ", " + form.codePostal : ""}`,
-                              },
-                              items: items.map((i) => ({ slug: i.slug, name: i.name, price: i.price, qty: i.quantity, image: i.image ?? "", size: i.size ?? "", color: i.color ?? "" })),
-                              total: grandTotal,
-                              shipping,
-                              coupon_id: couponApplied?.id ?? null,
-                              discount,
-                              payment_method: `PayPal (${transactionId})`,
-                            }),
-                          });
-                          const data = await res.json();
-                          if (form.email) {
-                            fetch("/api/send-confirmation", {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({
-                                to_email: form.email,
-                                to_name: `${form.prenom} ${form.nom}`,
-                                order_number: data.order_number,
-                                order_items: items.map((i) => `• ${i.name} x${i.quantity}`).join("\n"),
-                                order_total: grandTotal,
-                                shipping,
-                                payment_method: "PayPal",
-                                delivery_city: form.ville,
-                              }),
-                            }).catch(() => {});
-                          }
-                          clear();
-                          router.push("/merci");
-                        }}
-                        onError={() => {
-                          setLoading(false);
-                          alert("Paiement PayPal échoué. Veuillez réessayer ou choisir le paiement à la livraison.");
-                        }}
-                      />
+                    <div ref={paypalContainerRef} id="paypal-button-container" />
                   </div>
                 )}
 
@@ -681,6 +689,5 @@ export default function CheckoutPage() {
         </div>
       </form>
     </div>
-    </PayPalScriptProvider>
   );
 }
