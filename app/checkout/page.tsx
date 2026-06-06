@@ -97,7 +97,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.pageYOffset ?? window.scrollY;
-      setHeaderVisible(currentY < 10);
+      setHeaderVisible(currentY === 0);
       lastScrollY.current = currentY;
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
