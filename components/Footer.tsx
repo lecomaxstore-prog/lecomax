@@ -33,7 +33,17 @@ const cols = [
     links: [
       { label: "À propos", href: "/a-propos/" },
       { label: "Carrières", href: "/carrieres/" },
-      { label: "Boutiques", href: "/boutiques/" },
+      { label: "Notre boutique", href: "/boutiques/" },
+      { label: "ecoClub", href: "/ecoclub/" },
+    ],
+  },
+  {
+    title: "Légal",
+    links: [
+      { label: "Politique de confidentialité", href: "/politique-confidentialite/" },
+      { label: "Conditions d'utilisation", href: "/conditions-utilisation/" },
+      { label: "Politique de retours", href: "/retours/" },
+      { label: "Politique de cookies", href: "/cookies/" },
     ],
   },
 ];
@@ -149,7 +159,7 @@ export default function Footer() {
                 <svg className="mt-0.5 shrink-0" style={{color:'#3ecf4c'}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 5.25 8 13 8 13s8-7.75 8-13a8 8 0 00-8-8z"/></svg>
                 <div>
                   <p className="text-[11px] text-white/40 uppercase tracking-wide mb-0.5">Adresse</p>
-                  <p className="text-[13px] text-white/80">Casablanca, Maroc</p>
+                  <p className="text-[13px] text-white/80">Sidi Bennour, Maroc</p>
                 </div>
               </li>
             </ul>
@@ -180,7 +190,7 @@ export default function Footer() {
         </div>
 
         {/* Nav columns */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-b border-white/10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 py-12 border-b border-white/10">
           {cols.map((c) => (
             <div key={c.title}>
               <h4 className="font-black text-[11px] uppercase tracking-[0.25em] text-white/40 mb-4">
@@ -212,10 +222,11 @@ export default function Footer() {
             ))}
             <span className="px-2.5 py-1.5 rounded text-[9px] font-black tracking-wider leading-none border whitespace-nowrap" style={{backgroundColor:'rgba(62,207,76,0.1)',color:'#3ecf4c',borderColor:'rgba(62,207,76,0.2)'}}>À la livraison</span>
           </div>
-          <div className="flex gap-5">
-            <Link href="/conditions/" className="hover:text-white/60 transition-colors">Conditions</Link>
-            <Link href="/confidentialite/" className="hover:text-white/60 transition-colors">Confidentialité</Link>
+          <div className="flex flex-wrap justify-center gap-5">
+            <Link href="/conditions-utilisation/" className="hover:text-white/60 transition-colors">Conditions</Link>
+            <Link href="/politique-confidentialite/" className="hover:text-white/60 transition-colors">Confidentialité</Link>
             <Link href="/cookies/" className="hover:text-white/60 transition-colors">Cookies</Link>
+            <Link href="/retours/" className="hover:text-white/60 transition-colors">Retours</Link>
           </div>
         </div>
       </div>
