@@ -86,10 +86,31 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Partial<Field>>({});
   const [payment, setPayment] = useState<"livraison" | "paypal">("livraison");
   const [loading, setLoading] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponApplied, setCouponApplied] = useState<{ id: string; code: string; type: string; value: number; discount: number } | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
 
   const isSidiBennour = form.ville.trim().toLowerCase().replace(/-/g, " ") === "sidi bennour";
   const shipping = total === 0 || isSidiBennour ? 0 : 35;
-  const grandTotal = total + shipping;
+  const discount = couponApplied?.discount ?? 0;
+  const grandTotal = total + shipping - discount;
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    setCouponError("");
+    setCouponApplied(null);
+    const res = await fetch("/api/coupons/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: couponCode.trim(), order_total: total + shipping }),
+    });
+    const data = await res.json();
+    setCouponLoading(false);
+    if (!res.ok) setCouponError(data.error ?? "Code invalide");
+    else setCouponApplied(data);
+  };
 
   const set = (k: keyof Field, v: string) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -139,6 +160,8 @@ export default function CheckoutPage() {
           })),
           total: grandTotal,
           shipping,
+          coupon_id: couponApplied?.id ?? null,
+          discount,
           payment_method: "Paiement à la livraison",
         }),
       });
@@ -434,6 +457,8 @@ export default function CheckoutPage() {
                               items: items.map((i) => ({ slug: i.slug, name: i.name, price: i.price, qty: i.quantity, image: i.image ?? "", size: i.size ?? "", color: i.color ?? "" })),
                               total: grandTotal,
                               shipping,
+                              coupon_id: couponApplied?.id ?? null,
+                              discount,
                               payment_method: `PayPal (${transactionId})`,
                             }),
                           });
@@ -538,6 +563,39 @@ export default function CheckoutPage() {
                 ))}
               </ul>
 
+              {/* Coupon input */}
+              <div className="px-5 pt-3 pb-1">
+                {couponApplied ? (
+                  <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5">
+                    <div className="flex items-center gap-2">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span className="text-[12px] font-black text-emerald-700">{couponApplied.code}</span>
+                      <span className="text-[11px] text-emerald-600">− {formatMAD(couponApplied.discount)}</span>
+                    </div>
+                    <button onClick={() => { setCouponApplied(null); setCouponCode(""); }} className="text-[10px] text-neutral-400 hover:text-red-500 font-bold transition-colors">Retirer</button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      value={couponCode}
+                      onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(""); }}
+                      onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), applyCoupon())}
+                      placeholder="Code promo"
+                      className="flex-1 px-3 py-2 text-[12px] font-bold border border-neutral-200 rounded-xl bg-neutral-50 focus:outline-none focus:border-black uppercase tracking-widest placeholder:normal-case placeholder:font-normal placeholder:tracking-normal"
+                    />
+                    <button
+                      type="button"
+                      onClick={applyCoupon}
+                      disabled={couponLoading || !couponCode.trim()}
+                      className="px-3 py-2 bg-black text-white text-[11px] font-black rounded-xl hover:bg-neutral-800 transition-colors disabled:opacity-40"
+                    >
+                      {couponLoading ? <span className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin inline-block" /> : "Appliquer"}
+                    </button>
+                  </div>
+                )}
+                {couponError && <p className="text-[11px] text-red-500 font-medium mt-1.5 flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>{couponError}</p>}
+              </div>
+
               {/* Totals */}
               <div className="px-5 py-4 space-y-2.5 border-t border-neutral-100 bg-neutral-50/60">
                 <div className="flex justify-between text-sm text-neutral-500">
@@ -554,6 +612,12 @@ export default function CheckoutPage() {
                   <p className="text-[10px] text-neutral-400 bg-neutral-100 rounded-lg px-3 py-2">
                     Livraison <strong>gratuite</strong> pour Sidi Bennour
                   </p>
+                )}
+                {couponApplied && (
+                  <div className="flex justify-between text-sm text-emerald-600">
+                    <span className="font-semibold">Réduction ({couponApplied.code})</span>
+                    <span className="font-black">− {formatMAD(couponApplied.discount)}</span>
+                  </div>
                 )}
                 <div className="flex justify-between font-black text-[16px] pt-2 border-t border-neutral-200">
                   <span>Total TTC</span>

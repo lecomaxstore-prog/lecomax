@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { customer, items, total, shipping, payment_method, notes } = body as {
+  const { customer, items, total, shipping, payment_method, coupon_id, discount, notes } = body as {
     customer: {
       name: string;
       phone: string;
@@ -71,6 +71,8 @@ export async function POST(req: NextRequest) {
     total: number;
     shipping?: number;
     payment_method: string;
+    coupon_id?: string | null;
+    discount?: number;
     notes?: string;
   };
 
@@ -100,6 +102,13 @@ export async function POST(req: NextRequest) {
   if (error) {
     console.error("Order insert error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Increment coupon used_count (non-blocking)
+  if (coupon_id) {
+    supabase.from("coupons").select("used_count").eq("id", coupon_id).single().then(({ data: c }) => {
+      if (c) supabase.from("coupons").update({ used_count: c.used_count + 1 }).eq("id", coupon_id).then(() => {});
+    });
   }
 
   // Send confirmation email (non-blocking)
