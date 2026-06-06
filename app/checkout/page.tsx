@@ -234,7 +234,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!, currency: "USD" }}>
+    <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "BAA_LM04femxzGuKaHnfkjbfDUo0kMPz1pkuuEkmVPjEnbtDQY_yuNtk4_iq1VgVFszSiVOOOnkXbpfkhQ", currency: "USD" }}>
     <div className="min-h-screen bg-[#f7f7f8]">
       {/* ── Stepper bar ── fixed below 60px nav, hides on scroll down ── */}
       <div style={{ position: "fixed", top: headerVisible ? "60px" : "-200px", left: 0, right: 0, zIndex: 20, transition: "top 0.35s ease", background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: "1px solid #f3f4f6" }}>
