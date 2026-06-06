@@ -94,14 +94,35 @@ export default function CheckoutPage() {
   const [loyaltyTier, setLoyaltyTier] = useState<"Bronze" | "Silver" | "Gold">("Bronze");
   const [loyaltyDiscountPct, setLoyaltyDiscountPct] = useState(0); // 0, 30, or 50
 
+  // Mobile (<1024px): hide stepper when scrolling down, show when at top or scrolling up
+  // Desktop (≥1024px): always visible
+  const [stepperVisible, setStepperVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const y = window.scrollY;
+      if (window.innerWidth >= 1024) {
+        setStepperVisible(true);
+      } else {
+        setStepperVisible(y <= 10 || y < lastScrollY.current);
+      }
+      lastScrollY.current = y;
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
+
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const paypalRendered = useRef(false);
   // Always-fresh ref for PayPal callbacks (prevents stale closure bug)
   const paypalDataRef = useRef({ form, items, grandTotal: 0, shipping: 0, couponApplied, discount: 0 });
   // Track if error originated from form validation (not from PayPal itself)
   const paypalFormErrorRef = useRef(false);
-
-  // Scroll listener removed — stepper is now sticky and always visible
 
   // Fetch EcoClub tier to apply automatic loyalty discount
   useEffect(() => {
@@ -350,8 +371,18 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f7f8]">
-      {/* ── Stepper bar ── sticky, always visible, sticks below the site header ── */}
-      <div className="sticky top-0 z-20" style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: "1px solid #f3f4f6" }}>
+      {/* ── Stepper bar ── sticky on desktop, hides on mobile when scrolling down ── */}
+      {/* On desktop (lg+) transform is always 0 via inline override; on mobile it follows scroll */}
+      <div
+        className="sticky top-0 z-20"
+        style={{
+          background: "rgba(255,255,255,0.97)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid #f3f4f6",
+          transform: stepperVisible ? "translateY(0)" : "translateY(-100%)",
+          transition: "transform 0.3s ease",
+        }}
+      >
         {/* Breadcrumb row */}
         <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
           <Link href="/panier" className="flex items-center gap-1.5 text-[12px] font-semibold text-neutral-400 hover:text-black transition-colors">
