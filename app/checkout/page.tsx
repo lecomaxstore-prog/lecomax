@@ -95,18 +95,10 @@ export default function CheckoutPage() {
   const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const THRESHOLD = 8;
     const handleScroll = () => {
       const currentY = window.pageYOffset ?? window.scrollY;
-      if (currentY < 10) {
-        setHeaderVisible(true);
-      } else if (currentY > lastScrollY.current + THRESHOLD) {
-        setHeaderVisible(false);
-        lastScrollY.current = currentY;
-      } else if (currentY < lastScrollY.current - THRESHOLD) {
-        setHeaderVisible(true);
-        lastScrollY.current = currentY;
-      }
+      setHeaderVisible(currentY < 10);
+      lastScrollY.current = currentY;
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
