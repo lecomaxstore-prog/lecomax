@@ -20,11 +20,11 @@ const COLOR_MAP: Record<string, string> = {
 };
 const getColor = (name: string) => COLOR_MAP[name.split("/")[0].trim()] ?? "#e5e7eb";
 
-function ratingFor(slug: string) {
+export function ratingFor(slug: string) {
   let h = 0;
   for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
   const rating = 4.3 + (h % 7) / 10;
-  const count = 40 + (h % 380);
+  const count = 2 + (h % 5);
   return { rating: Math.round(rating * 10) / 10, count };
 }
 

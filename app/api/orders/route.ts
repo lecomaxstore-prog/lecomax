@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
   }
 
   const order_number = generateOrderNumber();
+  const isPayPal = typeof payment_method === "string" && payment_method.toLowerCase().startsWith("paypal");
 
   const { data, error } = await supabase.from("orders").insert({
     order_number,
@@ -90,7 +91,7 @@ export async function POST(req: NextRequest) {
     items,
     total,
     payment_method: payment_method || "Paiement à la livraison",
-    status: "pending",
+    status: isPayPal ? "confirmed" : "pending",
     tracking_number: null,
     notes: notes ?? null,
     created_at: new Date().toISOString(),

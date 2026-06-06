@@ -262,6 +262,7 @@ export default function OrdersPage() {
                     <th className="text-left px-2 py-3">Client</th>
                     <th className="text-left px-3 py-3">Commande</th>
                     <th className="text-right px-3 py-3">Total</th>
+                    <th className="text-center px-3 py-3">Paiement</th>
                     <th className="text-center px-3 py-3">Statut</th>
                     <th className="text-right px-3 py-3">Date</th>
                   </tr>
@@ -282,6 +283,15 @@ export default function OrdersPage() {
                       </td>
                       <td className={`px-3 py-3 text-xs font-mono ${detailId === o.id ? "text-white/70" : "text-neutral-400"}`}>#{o.order_number}</td>
                       <td className={`px-3 py-3 text-right font-bold text-sm ${detailId === o.id ? "text-white" : ""}`}>{o.total} MAD</td>
+                      <td className="px-3 py-3 text-center">
+                        {(o.payment_method ?? "").toLowerCase().startsWith("paypal")
+                          ? <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap ${detailId === o.id ? "bg-blue-400/20 text-blue-200" : "bg-blue-50 text-blue-700"}`}>
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 46" width="10" height="12"><path fill="currentColor" d="M9.12 40.43l.72-4.56-1.6-.04H1.46L6.79 1.77A.43.43 0 0 1 7.22 1.4h12.9c4.28 0 7.23.89 8.77 2.65.72.82 1.18 1.68 1.4 2.63.23.99.24 2.18.01 3.63l-.02.1v.93l.72.41c.6.33 1.09.72 1.47 1.11.62.7 1.02 1.6 1.19 2.66.17 1.09.12 2.39-.17 3.86-.33 1.69-.86 3.16-1.58 4.37a8.98 8.98 0 0 1-2.51 2.83c-.95.7-2.09 1.22-3.37 1.57-1.25.34-2.67.51-4.23.51H21.3a3.03 3.03 0 0 0-2.99 2.56l-.07.41-1.46 9.27-.07.34a.43.43 0 0 1-.43.37H9.12z"/></svg>
+                              PayPal
+                            </span>
+                          : <span className={`text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap ${detailId === o.id ? "bg-white/20 text-white" : "bg-neutral-100 text-neutral-500"}`}>COD</span>
+                        }
+                      </td>
                       <td className="px-3 py-3 text-center">
                         {detailId === o.id
                           ? <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-white/20 text-white whitespace-nowrap">{statusLabel(o.status)}</span>
@@ -493,7 +503,30 @@ export default function OrdersPage() {
 
             {/* Payment */}
             <Section title="Paiement">
-              <p className="text-sm font-medium capitalize">{detail.payment_method}</p>
+              {(detail.payment_method ?? "").toLowerCase().startsWith("paypal") ? (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-[11px] font-black px-3 py-1.5 rounded-full border border-blue-100">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 46" width="10" height="13"><path fill="#253B80" d="M9.12 40.43l.72-4.56-1.6-.04H1.46L6.79 1.77A.43.43 0 0 1 7.22 1.4h12.9c4.28 0 7.23.89 8.77 2.65.72.82 1.18 1.68 1.4 2.63.23.99.24 2.18.01 3.63l-.02.1v.93l.72.41c.6.33 1.09.72 1.47 1.11.62.7 1.02 1.6 1.19 2.66.17 1.09.12 2.39-.17 3.86-.33 1.69-.86 3.16-1.58 4.37a8.98 8.98 0 0 1-2.51 2.83c-.95.7-2.09 1.22-3.37 1.57-1.25.34-2.67.51-4.23.51H21.3a3.03 3.03 0 0 0-2.99 2.56l-.07.41-1.46 9.27-.07.34a.43.43 0 0 1-.43.37H9.12z"/><path fill="#179BD7" d="M31.68 10.54a12.35 12.35 0 0 0-.13.76c-1.7 8.72-7.51 11.74-14.93 11.74H12.8c-.9 0-1.67.66-1.81 1.55L8.89 36.88l-.55 3.48a.97.97 0 0 0 .96 1.12h6.7c.79 0 1.47-.58 1.59-1.36l.07-.34 1.26-8.01.08-.44c.13-.78.8-1.36 1.59-1.36h1c6.5 0 11.59-2.64 13.07-10.27.62-3.19.3-5.85-1.8-7.73a6.44 6.44 0 0 0-1.18-.43z"/><path fill="#222D65" d="M29.95 9.82a16.93 16.93 0 0 0-1.65-.37 21.03 21.03 0 0 0-3.33-.25H14.63a1.61 1.61 0 0 0-1.59 1.36L11 22.55l-.06.4a1.84 1.84 0 0 1 1.81-1.55h3.79c7.42 0 13.23-3.02 14.93-11.74.05-.25.09-.5.13-.76a9.16 9.16 0 0 0-1.65-.08z"/></svg>
+                      Payé via PayPal
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100">
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      Confirmé
+                    </span>
+                  </div>
+                  {detail.payment_method.includes("(") && (
+                    <p className="text-[11px] text-neutral-400 font-mono bg-neutral-50 px-3 py-2 rounded-lg border border-neutral-100">
+                      ID transaction : {detail.payment_method.match(/\(([^)]+)\)/)?.[1] ?? ""}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/><path d="M6 15h2M10 15h4"/></svg>
+                  <p className="text-sm font-semibold">Paiement à la livraison (espèces)</p>
+                </div>
+              )}
             </Section>
 
             {/* Notes */}

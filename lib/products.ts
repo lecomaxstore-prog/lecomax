@@ -71,7 +71,7 @@ const accessoires: Product[] = [
     subCategory: "Sacs",
     price: 99,
     badge: "Nouveau",
-    colors: ["Noir"],
+    colors: ["Noir / Doré"],
     sizes: ["Taille unique"],
     image: "/images/products/Sac%20bandouli%C3%A8re/1.avif",
     gallery: [

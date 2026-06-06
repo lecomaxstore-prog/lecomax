@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "./CartContext";
 import { useProductColor } from "./ProductColorContext";
@@ -18,10 +18,19 @@ const colorMap: Record<string, string> = {
   "Vert militaire": "#4a5c3a", "Vert sauge": "#7c9a6f", "Kaki": "#8b7355",
   "Caramel": "#d4a574", "Beige": "#f5f0e8", "Champagne": "#f7e7ce",
   "Lilas": "#c4b5fd", "Mauve": "#a78bfa", "Violet": "#8b5cf6",
-  "Marine": "#1e3a5f", "Jaune": "#facc15",
+  "Marine": "#1e3a5f", "Jaune": "#facc15", "Doré": "#c9a84c",
 };
 const getColorHex = (name: string) =>
   colorMap[name.split("/")[0].trim()] ?? "#e5e7eb";
+const getSwatchStyle = (name: string): React.CSSProperties => {
+  const parts = name.split("/").map((p) => p.trim());
+  if (parts.length >= 2) {
+    const c1 = colorMap[parts[0]] ?? "#e5e7eb";
+    const c2 = colorMap[parts[1]] ?? "#e5e7eb";
+    return { background: `linear-gradient(135deg, ${c1} 50%, ${c2} 50%)` };
+  }
+  return { backgroundColor: colorMap[parts[0]] ?? "#e5e7eb" };
+};
 
 function getSizeLabel(subCategory: string): string {
   const sub = subCategory.toLowerCase();
@@ -103,7 +112,7 @@ export default function ProductActions({ product }: { product: Product }) {
                         ? "ring-2 ring-offset-2 ring-[#3ecf4c] shadow-md"
                         : "ring-1 ring-neutral-200 hover:ring-neutral-400 hover:ring-offset-1"
                     }`}
-                    style={{ backgroundColor: hex, border: isLight ? "1px solid #d4d4d4" : "none" }}
+                    style={{ ...getSwatchStyle(c), border: isLight ? "1px solid #d4d4d4" : "none" }}
                   >
                     {/* Checkmark for selected */}
                     {isSelected && (

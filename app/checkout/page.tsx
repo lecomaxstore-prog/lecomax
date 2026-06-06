@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 
@@ -83,7 +84,7 @@ export default function CheckoutPage() {
   const { items, total, clear } = useCart();
   const [form, setForm] = useState<Field>(empty);
   const [errors, setErrors] = useState<Partial<Field>>({});
-  const [payment, setPayment] = useState<"livraison" | "carte">("livraison");
+  const [payment, setPayment] = useState<"livraison" | "paypal">("livraison");
   const [loading, setLoading] = useState(false);
 
   const isSidiBennour = form.ville.trim().toLowerCase().replace(/-/g, " ") === "sidi bennour";
@@ -109,6 +110,7 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (payment === "paypal") return; // PayPal uses its own button flow
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
@@ -137,7 +139,7 @@ export default function CheckoutPage() {
           })),
           total: grandTotal,
           shipping,
-          payment_method: payment === "livraison" ? "Paiement à la livraison" : "Carte bancaire",
+          payment_method: "Paiement à la livraison",
         }),
       });
 
@@ -166,7 +168,7 @@ export default function CheckoutPage() {
             order_items: items.map((i) => `• ${i.name} x${i.quantity}${i.size ? " (" + i.size + ")" : ""}${i.color ? " — " + i.color : ""}`).join("\n"),
             order_total: grandTotal,
             shipping: shipping,
-            payment_method: payment === "livraison" ? "Paiement à la livraison" : "Carte bancaire",
+            payment_method: "Paiement à la livraison",
             delivery_city: form.ville,
           }),
         }).catch(() => {}); // fire and forget — don't block redirect
@@ -355,20 +357,114 @@ export default function CheckoutPage() {
                   </div>
                 </button>
 
-                {/* Card — coming soon */}
-                <div className="flex items-center gap-4 p-5 rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-50 opacity-40 cursor-not-allowed select-none">
-                  <div className="w-14 h-14 rounded-2xl bg-white border border-neutral-200 flex items-center justify-center shrink-0">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round">
-                      <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-                      <line x1="5" y1="15" x2="8" y2="15"/><line x1="11" y1="15" x2="14" y2="15"/>
+                {/* PayPal */}
+                <button
+                  type="button"
+                  onClick={() => setPayment("paypal")}
+                  className={`group relative flex items-center gap-4 p-5 rounded-2xl border-2 text-left transition-all duration-200 ${
+                    payment === "paypal"
+                      ? "border-[#0070ba] shadow-[0_8px_24px_rgba(0,112,186,0.2)]"
+                      : "border-neutral-200 bg-white hover:border-[#0070ba]/50 hover:shadow-md"
+                  }`}
+                  style={payment === "paypal" ? { background: "#f0f7ff" } : {}}
+                >
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${payment === "paypal" ? "bg-[#0070ba]/10" : "bg-neutral-100"}`}>
+                    {/* Official PayPal PP mark + wordmark */}
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 46" width="26" height="32">
+                      <path fill="#253B80" d="M9.12 40.43l.72-4.56-1.6-.04H1.46L6.79 1.77A.43.43 0 0 1 7.22 1.4h12.9c4.28 0 7.23.89 8.77 2.65.72.82 1.18 1.68 1.4 2.63.23.99.24 2.18.01 3.63l-.02.1v.93l.72.41c.6.33 1.09.72 1.47 1.11.62.7 1.02 1.6 1.19 2.66.17 1.09.12 2.39-.17 3.86-.33 1.69-.86 3.16-1.58 4.37a8.98 8.98 0 0 1-2.51 2.83c-.95.7-2.09 1.22-3.37 1.57-1.25.34-2.67.51-4.23.51H21.3a3.03 3.03 0 0 0-2.99 2.56l-.07.41-1.46 9.27-.07.34a.43.43 0 0 1-.43.37H9.12z"/>
+                      <path fill="#179BD7" d="M31.68 10.54a12.35 12.35 0 0 0-.13.76c-1.7 8.72-7.51 11.74-14.93 11.74H12.8c-.9 0-1.67.66-1.81 1.55L8.89 36.88l-.55 3.48a.97.97 0 0 0 .96 1.12h6.7c.79 0 1.47-.58 1.59-1.36l.07-.34 1.26-8.01.08-.44c.13-.78.8-1.36 1.59-1.36h1c6.5 0 11.59-2.64 13.07-10.27.62-3.19.3-5.85-1.8-7.73a6.44 6.44 0 0 0-1.18-.43z"/>
+                      <path fill="#222D65" d="M29.95 9.82a16.93 16.93 0 0 0-1.65-.37 21.03 21.03 0 0 0-3.33-.25H14.63a1.61 1.61 0 0 0-1.59 1.36L11 22.55l-.06.4a1.84 1.84 0 0 1 1.81-1.55h3.79c7.42 0 13.23-3.02 14.93-11.74.05-.25.09-.5.13-.76a9.16 9.16 0 0 0-1.65-.08z"/>
                     </svg>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-black text-[14px] text-neutral-400">Carte bancaire</p>
-                    <p className="text-[12px] text-neutral-400 mt-1">Disponible très bientôt</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-black text-[14px] text-black">PayPal</p>
+                    <p className={`text-[12px] mt-1 leading-relaxed ${payment === "paypal" ? "text-neutral-500" : "text-neutral-400"}`}>Payer en ligne via votre compte PayPal</p>
+                    {payment === "paypal" && (
+                      <span className="inline-flex items-center gap-1.5 mt-2 text-[11px] font-bold text-[#0070ba]">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Sélectionné
+                      </span>
+                    )}
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 bg-neutral-200 px-3 py-1.5 rounded-full">Bientôt</span>
-                </div>
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${payment === "paypal" ? "border-[#0070ba]" : "border-neutral-300"}`}>
+                    {payment === "paypal" && <span className="w-2.5 h-2.5 rounded-full bg-[#0070ba]" />}
+                  </div>
+                </button>
+
+                {/* PayPal Buttons — shown when PayPal is selected and form is filled */}
+                {payment === "paypal" && (
+                  <div className="rounded-2xl border-2 border-[#0070ba]/20 bg-[#f0f7ff] p-4">
+                    <p className="text-[11px] text-neutral-500 mb-3 text-center font-semibold uppercase tracking-wider">Remplissez le formulaire puis cliquez sur PayPal</p>
+                    <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!, currency: "USD" }}>
+                      <PayPalButtons
+                        style={{ layout: "vertical", color: "blue", shape: "rect", label: "pay", height: 48 }}
+                        forceReRender={[grandTotal]}
+                        createOrder={(_data, actions) => {
+                          const errs = validate();
+                          if (Object.keys(errs).length) {
+                            setErrors(errs);
+                            throw new Error("Form invalid");
+                          }
+                          // Convert MAD to USD (1 USD ≈ 10 MAD)
+                          const usdAmount = (grandTotal / 10).toFixed(2);
+                          return actions.order.create({
+                            intent: "CAPTURE",
+                            purchase_units: [{
+                              amount: { currency_code: "USD", value: usdAmount },
+                              description: `L'ecomax — ${items.map(i => i.name.slice(0,30)).join(", ").slice(0, 127)}`,
+                            }],
+                          });
+                        }}
+                        onApprove={async (_data, actions) => {
+                          setLoading(true);
+                          const details = await actions.order!.capture();
+                          const transactionId = details.id;
+                          // Save order to DB
+                          const res = await fetch("/api/orders", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              customer: {
+                                name: `${form.prenom} ${form.nom}`,
+                                phone: form.telephone,
+                                email: form.email,
+                                city: form.ville,
+                                address: `${form.adresse}${form.codePostal ? ", " + form.codePostal : ""}`,
+                              },
+                              items: items.map((i) => ({ slug: i.slug, name: i.name, price: i.price, qty: i.quantity, image: i.image ?? "", size: i.size ?? "", color: i.color ?? "" })),
+                              total: grandTotal,
+                              shipping,
+                              payment_method: `PayPal (${transactionId})`,
+                            }),
+                          });
+                          const data = await res.json();
+                          if (form.email) {
+                            fetch("/api/send-confirmation", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                to_email: form.email,
+                                to_name: `${form.prenom} ${form.nom}`,
+                                order_number: data.order_number,
+                                order_items: items.map((i) => `• ${i.name} x${i.quantity}`).join("\n"),
+                                order_total: grandTotal,
+                                shipping,
+                                payment_method: "PayPal",
+                                delivery_city: form.ville,
+                              }),
+                            }).catch(() => {});
+                          }
+                          clear();
+                          router.push("/merci");
+                        }}
+                        onError={() => {
+                          setLoading(false);
+                          alert("Paiement PayPal échoué. Veuillez réessayer ou choisir le paiement à la livraison.");
+                        }}
+                      />
+                    </PayPalScriptProvider>
+                  </div>
+                )}
 
                 {/* Trust banner */}
                 <div className="mt-1 rounded-2xl overflow-hidden border border-neutral-100">
@@ -392,7 +488,8 @@ export default function CheckoutPage() {
               </div>
             </Section>
 
-            {/* Submit (mobile) */}
+            {/* Submit (mobile) — only for COD */}
+            {payment === "livraison" && (
             <button
               type="submit"
               disabled={loading}
@@ -405,6 +502,7 @@ export default function CheckoutPage() {
                 <>Confirmer ma commande <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></>
               )}
             </button>
+            )}
           </div>
 
           {/* ── Right: Order summary ── */}
@@ -467,8 +565,10 @@ export default function CheckoutPage() {
               <div className="px-5 pb-5 pt-3">
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="hidden lg:flex w-full py-4 rounded-xl font-black uppercase text-sm tracking-[0.1em] hover:opacity-90 transition-all duration-200 active:scale-[0.99] disabled:opacity-60 items-center justify-center gap-2.5"
+                  disabled={loading || payment === "paypal"}
+                  className={`hidden lg:flex w-full py-4 rounded-xl font-black uppercase text-sm tracking-[0.1em] hover:opacity-90 transition-all duration-200 active:scale-[0.99] disabled:opacity-60 items-center justify-center gap-2.5 ${
+                    payment === "paypal" ? "opacity-0 pointer-events-none" : ""
+                  }`}
                   style={{ background: "#000", color: "#fff", boxShadow: "0 4px 18px rgba(0,0,0,0.18)" }}
                 >
                   {loading ? (

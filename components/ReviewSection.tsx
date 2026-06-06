@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import SEED_REVIEWS from "@/lib/seed-reviews";
+import { ratingFor } from "@/components/ProductCard";
 
 type Review = {
   id: string;
@@ -51,21 +53,63 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
   const [formError, setFormError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
+  // Email order-check state
+  const [emailChecking, setEmailChecking] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<"idle" | "ok" | "not_ordered" | "already_reviewed">("idle");
+
+  const checkEmail = async (val: string) => {
+    if (!val.trim() || !val.includes("@")) return;
+    setEmailChecking(true);
+    setEmailStatus("idle");
+    try {
+      const res = await fetch(`/api/reviews/check?slug=${productSlug}&email=${encodeURIComponent(val.trim())}`);
+      const data = await res.json();
+      if (data.canReview) {
+        setEmailStatus("ok");
+      } else {
+        setEmailStatus(data.reason ?? "not_ordered");
+      }
+    } catch {
+      // silently ignore network errors, let server-side validate
+    } finally {
+      setEmailChecking(false);
+    }
+  };
+
   useEffect(() => {
     fetch(`/api/reviews?slug=${productSlug}`)
       .then((r) => r.json())
-      .then((d) => setReviews(d.reviews ?? []))
+      .then((d) => {
+        const dbReviews: Review[] = d.reviews ?? [];
+        const seeds = SEED_REVIEWS[productSlug] ?? [];
+        // Merge: seed reviews first, then real DB reviews on top
+        // Deduplicate by id (DB reviews take precedence)
+        const dbIds = new Set(dbReviews.map((r) => r.id));
+        const merged = [...seeds.filter((s) => !dbIds.has(s.id)), ...dbReviews];
+        setReviews(merged);
+      })
       .finally(() => setLoading(false));
   }, [productSlug]);
 
+  // Use the same ratingFor function as ProductCard for consistent header stats
+  const { rating: cardRating, count: cardCount } = ratingFor(productSlug);
   const avg = reviews.length
     ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
-    : 0;
+    : cardRating;
+  const displayCount = reviews.length || cardCount;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !name.trim() || !body.trim()) {
       setFormError("Veuillez remplir tous les champs obligatoires.");
+      return;
+    }
+    if (emailStatus === "not_ordered") {
+      setFormError("Seuls les clients ayant commandé ce produit peuvent laisser un avis.");
+      return;
+    }
+    if (emailStatus === "already_reviewed") {
+      setFormError("Vous avez déjà laissé un avis pour ce produit.");
       return;
     }
     setSubmitting(true);
@@ -89,10 +133,15 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
       setFormError(data.error ?? "Une erreur est survenue.");
     } else {
       setSubmitted(true);
-      // Reload reviews
+      // Reload reviews and re-merge with seeds
       fetch(`/api/reviews?slug=${productSlug}`)
         .then((r) => r.json())
-        .then((d) => setReviews(d.reviews ?? []));
+        .then((d) => {
+          const dbReviews: Review[] = d.reviews ?? [];
+          const seeds = SEED_REVIEWS[productSlug] ?? [];
+          const dbIds = new Set(dbReviews.map((r) => r.id));
+          setReviews([...seeds.filter((s) => !dbIds.has(s.id)), ...dbReviews]);
+        });
     }
   };
 
@@ -104,15 +153,13 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
           <h2 className="h-display text-2xl md:text-3xl">Avis clients</h2>
           <div className="w-8 h-[3px] bg-black mt-2" />
         </div>
-        {reviews.length > 0 && (
-          <div className="flex items-center gap-3 bg-neutral-50 border border-neutral-100 px-4 py-3">
-            <div>
-              <p className="text-3xl font-black leading-none">{avg.toFixed(1)}</p>
-              <StarRow rating={Math.round(avg)} size={10} />
-              <p className="text-[11px] text-neutral-400 mt-1">{reviews.length} avis</p>
-            </div>
+        <div className="flex items-center gap-3 bg-neutral-50 border border-neutral-100 px-4 py-3">
+          <div>
+            <p className="text-3xl font-black leading-none">{cardRating.toFixed(1)}</p>
+            <StarRow rating={Math.round(cardRating)} size={10} />
+            <p className="text-[11px] text-neutral-400 mt-1">{displayCount} avis</p>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Leave a review button */}
@@ -147,11 +194,53 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
               <label className="block text-[11px] font-bold uppercase tracking-wide text-neutral-500 mb-1">
                 Email de commande <span className="text-red-500">*</span>
               </label>
-              <input
-                type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
-                placeholder="votre@email.com"
-                className="w-full border border-neutral-200 bg-white px-3 py-2.5 text-[13px] outline-none focus:border-black transition-colors"
-              />
+              <div className="relative">
+                <input
+                  type="email" value={email}
+                  onChange={(e) => { setEmail(e.target.value); setEmailStatus("idle"); }}
+                  onBlur={(e) => checkEmail(e.target.value)}
+                  required
+                  placeholder="votre@email.com"
+                  className={`w-full border px-3 py-2.5 text-[13px] outline-none transition-colors bg-white pr-9 ${
+                    emailStatus === "ok" ? "border-emerald-500 focus:border-emerald-500" :
+                    emailStatus === "not_ordered" || emailStatus === "already_reviewed" ? "border-red-400 focus:border-red-400" :
+                    "border-neutral-200 focus:border-black"
+                  }`}
+                />
+                {emailChecking && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <svg className="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5"><circle cx="12" cy="12" r="10" strokeDasharray="40" strokeDashoffset="10" /></svg>
+                  </span>
+                )}
+                {!emailChecking && emailStatus === "ok" && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  </span>
+                )}
+                {!emailChecking && (emailStatus === "not_ordered" || emailStatus === "already_reviewed") && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </span>
+                )}
+              </div>
+              {emailStatus === "not_ordered" && (
+                <p className="text-red-500 text-[11px] mt-1 flex items-center gap-1">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Aucune commande trouvée pour cet email sur ce produit.
+                </p>
+              )}
+              {emailStatus === "already_reviewed" && (
+                <p className="text-amber-600 text-[11px] mt-1 flex items-center gap-1">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Vous avez déjà laissé un avis pour ce produit.
+                </p>
+              )}
+              {emailStatus === "ok" && (
+                <p className="text-emerald-600 text-[11px] mt-1 flex items-center gap-1">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  Commande vérifiée — vous pouvez laisser un avis.
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wide text-neutral-500 mb-1">
@@ -231,13 +320,14 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
 
           <div className="flex gap-3">
             <button
-              type="submit" disabled={submitting}
-              className="bg-black text-white px-6 py-3 text-[12px] font-black uppercase tracking-wide hover:bg-neutral-800 transition-colors disabled:opacity-50"
+              type="submit"
+              disabled={submitting || emailChecking || emailStatus === "not_ordered" || emailStatus === "already_reviewed"}
+              className="bg-black text-white px-6 py-3 text-[12px] font-black uppercase tracking-wide hover:bg-neutral-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {submitting ? "Envoi..." : "Publier l'avis"}
+              {submitting ? "Envoi..." : emailChecking ? "Vérification..." : "Publier l'avis"}
             </button>
             <button
-              type="button" onClick={() => { setShowForm(false); setFormError(null); }}
+              type="button" onClick={() => { setShowForm(false); setFormError(null); setEmailStatus("idle"); }}
               className="border border-neutral-200 px-6 py-3 text-[12px] font-bold uppercase tracking-wide hover:border-black transition-colors"
             >
               Annuler
@@ -256,23 +346,15 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
 
       {/* Reviews list */}
       {loading ? (
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-40 bg-neutral-100 animate-pulse" />
+            <div key={i} className="h-40 w-72 flex-none bg-neutral-100 animate-pulse" />
           ))}
         </div>
-      ) : reviews.length === 0 ? (
-        <div className="py-12 text-center border border-neutral-100">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d4d4d4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-3">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-          <p className="text-neutral-400 text-[13px]">Aucun avis pour le moment.</p>
-          <p className="text-neutral-400 text-[12px] mt-1">Soyez le premier à partager votre expérience !</p>
-        </div>
       ) : (
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 scroll-smooth">
           {reviews.map((r) => (
-            <div key={r.id} className="flex flex-col gap-3 p-5 border border-neutral-100 bg-white">
+            <div key={r.id} className="flex flex-col gap-3 p-5 border border-neutral-100 bg-white flex-none w-[300px] md:w-[340px]">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-neutral-900 text-white flex items-center justify-center text-[13px] font-black flex-shrink-0">

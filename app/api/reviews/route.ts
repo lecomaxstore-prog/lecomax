@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getProduct } from "@/lib/products";
 
 // Use service role for admin operations; anon for public reads is fine but service role covers all
 const supabase = createClient(
@@ -41,8 +42,11 @@ export async function POST(req: NextRequest) {
 
   const normalizedEmail = email.trim().toLowerCase();
 
+  // Look up product name for fallback matching (old orders stored name not slug)
+  const product = getProduct(product_slug);
+  const productName = product?.name?.toLowerCase() ?? "";
+
   // Check if the customer has ordered this product
-  // Match by slug (new orders) OR by checking items contain the product name
   const { data: orders, error: ordersError } = await supabase
     .from("orders")
     .select("id, items")
@@ -55,10 +59,15 @@ export async function POST(req: NextRequest) {
   const hasOrdered = orders?.some((order) => {
     if (!Array.isArray(order.items)) return false;
     return order.items.some(
-      (item: { slug?: string; name?: string }) =>
-        item.slug === product_slug ||
-        // Fallback: check by slug fragment in name (for orders before slug was stored)
-        (item.slug == null && typeof item.name === "string")
+      (item: { slug?: string; name?: string }) => {
+        // New orders: match by slug
+        if (item.slug) return item.slug === product_slug;
+        // Old orders: match by product name
+        if (typeof item.name === "string" && productName) {
+          return item.name.toLowerCase().includes(productName.slice(0, 20));
+        }
+        return false;
+      }
     );
   });
 
