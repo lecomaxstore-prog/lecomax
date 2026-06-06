@@ -91,13 +91,17 @@ export default function CheckoutPage() {
   const [couponError, setCouponError] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
 
-  const [headerVisible, setHeaderVisible] = useState(true);
+  const [headerVisible, setHeaderVisible] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
+    // Check initial scroll position
+    setHeaderVisible(window.pageYOffset === 0);
+
     const handleScroll = () => {
       const currentY = window.pageYOffset ?? window.scrollY;
-      setHeaderVisible(currentY === 0);
+      // Only show when truly at the top and scroll has stopped (not bouncing)
+      setHeaderVisible(currentY <= 0);
       lastScrollY.current = currentY;
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
