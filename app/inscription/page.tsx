@@ -35,6 +35,7 @@ export default function RegisterPage() {
       password,
       options: {
         data: { full_name: `${prenom} ${nom}`.trim(), prenom, nom },
+        emailRedirectTo: `${window.location.origin}/compte`,
       },
     });
     setLoading(false);
@@ -51,7 +52,7 @@ export default function RegisterPage() {
     setGoogleLoading(true);
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/` },
+      options: { redirectTo: `${window.location.origin}/compte` },
     });
   };
 
@@ -81,6 +82,9 @@ export default function RegisterPage() {
         {success && (
           <div className="mb-4 px-4 py-3 border border-green-200 bg-green-50 text-green-700 text-sm">
             {success}
+            <Link href="/connexion" className="block mt-3 text-center font-bold text-sm text-black underline underline-offset-2 hover:text-neutral-700 transition-colors">
+              Aller à la page de connexion →
+            </Link>
           </div>
         )}
 

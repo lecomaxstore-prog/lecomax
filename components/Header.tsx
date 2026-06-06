@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useCart } from "./CartContext";
 import { categories } from "@/lib/products";
 import Logo from "./Logo";
+import { supabase } from "@/lib/supabase";
 
 const utilLinks = [
   { label: "Aide", href: "/aide", icon: <HelpIcon /> },
@@ -18,11 +19,24 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+    // Keep in sync
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
@@ -160,10 +174,10 @@ export default function Header() {
             <SearchIcon />
           </button>
 
-          <IconBtn href="/connexion" label="Mon compte">
+          <IconBtn href={isLoggedIn ? "/compte" : "/connexion"} label="Mon compte">
             <UserIcon />
           </IconBtn>
-          <IconBtn href="/connexion" label="Mes favoris">
+          <IconBtn href={isLoggedIn ? "/compte" : "/connexion"} label="Mes favoris">
             <HeartIcon />
           </IconBtn>
           <IconBtn href="/panier" label="Panier">

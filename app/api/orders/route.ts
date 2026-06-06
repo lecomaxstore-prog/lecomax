@@ -18,6 +18,7 @@ function generateOrderNumber(): string {
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const order_number = searchParams.get("order_number");
+  const email = searchParams.get("email");
   const status = searchParams.get("status");
   const limit = searchParams.get("limit");
 
@@ -32,8 +33,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ order: data });
   }
 
-  // List all orders
-  let query = supabase.from("orders").select("*").order("created_at", { ascending: false });
+  // List orders filtered by customer email (for client dashboard)
+  let query = supabase.from("orders").select("id, order_number, status, total, created_at, customer, items").order("created_at", { ascending: false });
+  if (email) query = query.eq("customer->>email", email);
   if (status && status !== "all") query = query.eq("status", status);
   if (limit) query = query.limit(parseInt(limit));
 

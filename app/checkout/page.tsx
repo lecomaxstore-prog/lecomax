@@ -50,7 +50,7 @@ function Input({
             ${error ? "border-b-red-400 bg-red-50/50" : "border-b-neutral-200 hover:border-b-[#3ecf4c] focus:border-b-[#3ecf4c]"}`}
         />
         {error && (
-          <p className="mt-1 text-[10px] text-red-500 font-medium flex items-center gap-1">
+          <p className="mt-1 text-[10px] text-red-500 font-medium flex items-center gap-1" data-field-error="true">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
             {error}
           </p>
@@ -95,6 +95,10 @@ export default function CheckoutPage() {
   const lastScrollY = useRef(0);
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const paypalRendered = useRef(false);
+  // Always-fresh ref for PayPal callbacks (prevents stale closure bug)
+  const paypalDataRef = useRef({ form, items, grandTotal: 0, shipping: 0, couponApplied, discount: 0 });
+  // Track if error originated from form validation (not from PayPal itself)
+  const paypalFormErrorRef = useRef(false);
 
   useEffect(() => {
     // Check initial scroll position
@@ -115,6 +119,9 @@ export default function CheckoutPage() {
   const discount = couponApplied?.discount ?? 0;
   const grandTotal = total + shipping - discount;
 
+  // Keep paypalDataRef in sync with latest state so PayPal callbacks are never stale
+  paypalDataRef.current = { form, items, grandTotal, shipping, couponApplied, discount };
+
   // Load vanilla PayPal SDK and render buttons when PayPal selected
   useEffect(() => {
     if (payment !== "paypal") return;
@@ -129,40 +136,64 @@ export default function CheckoutPage() {
       (window as any).paypal.Buttons({
         style: { layout: "vertical", color: "blue", shape: "rect", label: "pay", height: 48 },
         createOrder: (_data: unknown, actions: any) => {
-          const errs = validate();
-          if (Object.keys(errs).length) { setErrors(errs); return Promise.reject(new Error("Form invalid")); }
-          const usdAmount = (grandTotal / 10).toFixed(2);
+          // Use ref to get latest form data (avoids stale closure)
+          const { form: f, grandTotal: gt, items: its } = paypalDataRef.current;
+          const errs = validate(f);
+          if (Object.keys(errs).length) {
+            setErrors(errs);
+            // Scroll to first error
+            setTimeout(() => {
+              const firstErr = document.querySelector("[data-field-error]") as HTMLElement;
+              if (firstErr) firstErr.scrollIntoView({ behavior: "smooth", block: "center" });
+            }, 50);
+            paypalFormErrorRef.current = true;
+            return Promise.reject(new Error("Form invalid"));
+          }
+          paypalFormErrorRef.current = false;
+          const usdAmount = (gt / 10).toFixed(2);
           return actions.order.create({
             intent: "CAPTURE",
-            purchase_units: [{ amount: { currency_code: "USD", value: usdAmount }, description: `L'ecomax — ${items.map((i: any) => i.name.slice(0,30)).join(", ").slice(0, 127)}` }],
+            purchase_units: [{ amount: { currency_code: "USD", value: usdAmount }, description: `L'ecomax — ${its.map((i: any) => i.name.slice(0,30)).join(", ").slice(0, 127)}` }],
           });
         },
         onApprove: async (_data: unknown, actions: any) => {
           setLoading(true);
           const details = await actions.order.capture();
           const transactionId = details.id;
+          // Use ref to get latest values at the moment of capture
+          const { form: f, items: its, grandTotal: gt, shipping: sh, couponApplied: ca, discount: disc } = paypalDataRef.current;
           const res = await fetch("/api/orders", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              customer: { name: `${form.prenom} ${form.nom}`, phone: form.telephone, email: form.email, city: form.ville, address: `${form.adresse}${form.codePostal ? ", " + form.codePostal : ""}` },
-              items: items.map((i: any) => ({ slug: i.slug, name: i.name, price: i.price, qty: i.quantity, image: i.image ?? "", size: i.size ?? "", color: i.color ?? "" })),
-              total: grandTotal, shipping, coupon_id: couponApplied?.id ?? null, discount,
+              customer: { name: `${f.prenom} ${f.nom}`, phone: f.telephone, email: f.email, city: f.ville, address: `${f.adresse}${f.codePostal ? ", " + f.codePostal : ""}` },
+              items: its.map((i: any) => ({ slug: i.slug, name: i.name, price: i.price, qty: i.quantity, image: i.image ?? "", size: i.size ?? "", color: i.color ?? "" })),
+              total: gt, shipping: sh, coupon_id: ca?.id ?? null, discount: disc,
               payment_method: `PayPal (${transactionId})`,
             }),
           });
           const data = await res.json();
-          if (form.email) {
+          if (f.email) {
             fetch("/api/send-confirmation", { method: "POST", headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ to_email: form.email, to_name: `${form.prenom} ${form.nom}`, order_number: data.order_number, order_items: items.map((i: any) => `• ${i.name} x${i.quantity}`).join("\n"), order_total: grandTotal, shipping, payment_method: "PayPal", delivery_city: form.ville }),
+              body: JSON.stringify({ to_email: f.email, to_name: `${f.prenom} ${f.nom}`, order_number: data.order_number, order_items: its.map((i: any) => `• ${i.name} x${i.quantity}`).join("\n"), order_total: gt, shipping: sh, payment_method: "PayPal", delivery_city: f.ville }),
             }).catch(() => {});
           }
           clear();
           router.push("/merci");
         },
-        onError: () => {
+        onError: (err: unknown) => {
+          console.error("PayPal error:", err);
           setLoading(false);
+          // If this was triggered by our own form validation rejection, don't show PayPal error
+          if (paypalFormErrorRef.current) {
+            paypalFormErrorRef.current = false;
+            return;
+          }
           alert("Paiement PayPal échoué. Veuillez réessayer ou choisir le paiement à la livraison.");
+        },
+        onCancel: () => {
+          // User closed the PayPal popup — silent, no error message
+          setLoading(false);
         },
       }).render(container);
     };
@@ -175,7 +206,7 @@ export default function CheckoutPage() {
     if (existing) { existing.addEventListener("load", renderButtons); return; }
     const script = document.createElement("script");
     script.id = "paypal-sdk";
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD`;
+    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=capture`;
     script.onload = renderButtons;
     script.onerror = () => console.error("Failed to load PayPal SDK");
     document.head.appendChild(script);
@@ -210,15 +241,15 @@ export default function CheckoutPage() {
     setErrors((e) => ({ ...e, [k]: undefined }));
   };
 
-  const validate = (): Partial<Field> => {
+  const validate = (f: Field = form): Partial<Field> => {
     const e: Partial<Field> = {};
-    if (!form.prenom.trim()) e.prenom = "Requis";
-    if (!form.nom.trim()) e.nom = "Requis";
-    if (!form.email.trim()) e.email = "Requis";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Email invalide";
-    if (!/^[0-9+\s\-()]{8,15}$/.test(form.telephone)) e.telephone = "Numéro invalide";
-    if (!form.adresse.trim()) e.adresse = "Requis";
-    if (!form.ville.trim()) e.ville = "Requis";
+    if (!f.prenom.trim()) e.prenom = "Requis";
+    if (!f.nom.trim()) e.nom = "Requis";
+    if (!f.email.trim()) e.email = "Requis";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) e.email = "Email invalide";
+    if (!/^[0-9+\s\-()]{8,15}$/.test(f.telephone)) e.telephone = "Numéro invalide";
+    if (!f.adresse.trim()) e.adresse = "Requis";
+    if (!f.ville.trim()) e.ville = "Requis";
     return e;
   };
 
