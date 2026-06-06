@@ -217,6 +217,7 @@ export default function CheckoutPage() {
   }
 
   return (
+    <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!, currency: "USD" }}>
     <div className="min-h-screen bg-[#f7f7f8]">
       {/* ── Top bar ── */}
       <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-neutral-100">
@@ -414,15 +415,14 @@ export default function CheckoutPage() {
                   </div>
                 </button>
 
-                {/* PayPal Buttons — shown when PayPal is selected and form is filled */}
+                {/* PayPal Buttons — shown when PayPal is selected */}
                 {payment === "paypal" && (
                   <div className="rounded-2xl border-2 border-[#0070ba]/20 bg-[#f0f7ff] p-4">
                     <p className="text-[11px] text-neutral-500 mb-3 text-center font-semibold uppercase tracking-wider">Remplissez le formulaire puis cliquez sur PayPal</p>
-                    <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!, currency: "USD" }}>
-                      <PayPalButtons
-                        style={{ layout: "vertical", color: "blue", shape: "rect", label: "pay", height: 48 }}
-                        forceReRender={[grandTotal]}
-                        createOrder={(_data, actions) => {
+                    <PayPalButtons
+                      style={{ layout: "vertical", color: "blue", shape: "rect", label: "pay", height: 48 }}
+                      forceReRender={[grandTotal]}
+                      createOrder={(_data, actions) => {
                           const errs = validate();
                           if (Object.keys(errs).length) {
                             setErrors(errs);
@@ -438,7 +438,7 @@ export default function CheckoutPage() {
                             }],
                           });
                         }}
-                        onApprove={async (_data, actions) => {
+                      onApprove={async (_data, actions) => {
                           setLoading(true);
                           const details = await actions.order!.capture();
                           const transactionId = details.id;
@@ -487,7 +487,6 @@ export default function CheckoutPage() {
                           alert("Paiement PayPal échoué. Veuillez réessayer ou choisir le paiement à la livraison.");
                         }}
                       />
-                    </PayPalScriptProvider>
                   </div>
                 )}
 
@@ -662,5 +661,6 @@ export default function CheckoutPage() {
         </div>
       </form>
     </div>
+    </PayPalScriptProvider>
   );
 }
