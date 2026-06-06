@@ -30,9 +30,9 @@ export default function IntroAnimation() {
         transform: phase === "exit" ? "scale(1.04)" : "scale(1)",
       }}
     >
-      {/* Green sweep background */}
+      {/* Black sweep background */}
       <div
-        className="absolute inset-0 bg-[#3ecf4c]"
+        className="absolute inset-0 bg-black"
         style={{
           clipPath: "circle(0% at 50% 50%)",
           transition: phase === "hold" || phase === "exit" ? "clip-path 0.9s cubic-bezier(0.76,0,0.24,1)" : "none",
@@ -67,7 +67,7 @@ export default function IntroAnimation() {
             fontWeight="900"
             fontSize="42"
             letterSpacing="-1"
-            style={{ transition: "fill 0.4s ease", fill: phase === "hold" || phase === "exit" ? "#000000" : "#000000" }}
+            style={{ transition: "fill 0.4s ease", fill: phase === "hold" || phase === "exit" ? "#ffffff" : "#000000" }}
           >
             L&apos;eco
           </text>
@@ -83,11 +83,10 @@ export default function IntroAnimation() {
           </text>
           <path
             d="M 115 50 Q 165 60 215 50"
-            stroke={phase === "hold" || phase === "exit" ? "#fff" : "#3ecf4c"}
+            stroke="#3ecf4c"
             strokeWidth="3.5"
             strokeLinecap="round"
             fill="none"
-            style={{ transition: "stroke 0.5s ease 0.2s" }}
           />
         </svg>
 
@@ -95,8 +94,8 @@ export default function IntroAnimation() {
         <p
           className="text-[11px] uppercase tracking-[0.5em] font-bold"
           style={{
-            color: phase === "hold" || phase === "exit" ? "#fff" : "#000",
-            transition: "color 0.5s ease 0.15s, opacity 0.5s ease",
+            color: "#fff",
+            transition: "opacity 0.5s ease",
             opacity: phase === "hold" ? 1 : 0,
           }}
         >
@@ -114,7 +113,7 @@ export default function IntroAnimation() {
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="w-1.5 h-1.5 rounded-full bg-white"
+              className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c]"
               style={{
                 animation: phase === "hold" ? `bounce 0.9s ease-in-out ${i * 0.15}s infinite` : "none",
               }}

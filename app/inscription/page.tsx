@@ -30,21 +30,22 @@ export default function RegisterPage() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: `${prenom} ${nom}`.trim(), prenom, nom },
-        emailRedirectTo: `${window.location.origin}/compte`,
-      },
-    });
-    setLoading(false);
-    if (error) {
-      setError(error.message === "User already registered"
-        ? "Un compte existe déjà avec cet email."
-        : error.message);
-    } else {
-      setSuccess("Compte créé ! Vérifiez votre email pour confirmer votre inscription.");
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, prenom, nom }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setError(json.error || "Une erreur est survenue.");
+      } else {
+        setSuccess("Compte créé ! Vérifiez votre email pour confirmer votre inscription.");
+      }
+    } catch {
+      setError("Une erreur réseau est survenue.");
+    } finally {
+      setLoading(false);
     }
   };
 

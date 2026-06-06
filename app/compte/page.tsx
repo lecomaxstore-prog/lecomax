@@ -113,11 +113,11 @@ export default function ComptePage() {
           </div>
           <div className="flex flex-col gap-2 self-start sm:self-auto">
             <Link href="/nouveautes" className="inline-flex items-center gap-2.5 bg-white text-black font-black text-[11px] uppercase tracking-[0.2em] px-7 py-4 hover:bg-neutral-100 active:bg-neutral-200 transition-colors whitespace-nowrap group">
-              Nos nouveautÃ©s
+              Nos nouveautés
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="group-hover:translate-x-0.5 transition-transform"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
             <button onClick={handleSignOut} className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 hover:text-white transition-colors text-center py-1">
-              Se dÃ©connecter
+              Se déconnecter
             </button>
           </div>
         </div>
@@ -129,12 +129,12 @@ export default function ComptePage() {
           <div className="flex items-center gap-3">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-600 shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             <div>
-              <p className="font-black text-[12px] uppercase tracking-widest text-amber-800">ComplÃ©tez votre profil</p>
-              <p className="text-[11px] text-amber-700 mt-0.5">Ajoutez votre nom pour personnaliser votre expÃ©rience.</p>
+              <p className="font-black text-[12px] uppercase tracking-widest text-amber-800">Complétez votre profil</p>
+              <p className="text-[11px] text-amber-700 mt-0.5">Ajoutez votre nom pour personnaliser votre expérience.</p>
             </div>
           </div>
           <Link href="/compte/profil" className="shrink-0 text-[10px] font-black uppercase tracking-widest border border-amber-400 text-amber-800 px-4 py-2 hover:bg-amber-400 hover:text-white transition-colors whitespace-nowrap">
-            ComplÃ©ter â†’
+            Compléter →
           </Link>
         </div>
       )}
@@ -142,8 +142,8 @@ export default function ComptePage() {
       {/* â”€â”€â”€ Stats row â”€â”€â”€ */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Commandes", value: ordersLoading ? "â€¦" : String(orders.length > 0 ? orders.length : "0"), sub: "Total passÃ©es", href: "/compte/commandes", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /></svg>, accent: "#3ecf4c" },
-          { label: "Adresses", value: "â€”", sub: "SauvegardÃ©es", href: "/compte/adresses", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>, accent: "#000" },
+          { label: "Commandes", value: ordersLoading ? "…" : String(orders.length > 0 ? orders.length : "0"), sub: "Total passées", href: "/compte/commandes", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /></svg>, accent: "#3ecf4c" },
+          { label: "Adresses", value: "–", sub: "Sauvegardées", href: "/compte/adresses", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>, accent: "#000" },
           { label: "EcoClub", value: tierName, sub: `${points.toLocaleString("fr-MA")} pts`, href: "/ecoclub", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>, accent: tierName === "Gold" ? "#fbbf24" : tierName === "Silver" ? "#a8a9ad" : "#f59e0b" },
         ].map((s) => (
           <Link key={s.label} href={s.href} className="group bg-white border border-neutral-100 hover:border-neutral-300 hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 p-4 sm:p-5">
@@ -159,15 +159,15 @@ export default function ComptePage() {
         <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
           <div className="flex items-center gap-2.5">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /></svg>
-            <p className="font-black text-[13px] uppercase tracking-wide">Commandes rÃ©centes</p>
+            <p className="font-black text-[13px] uppercase tracking-wide">Commandes récentes</p>
           </div>
-          <Link href="/compte/commandes" className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors">Tout voir â†’</Link>
+          <Link href="/compte/commandes" className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors">Tout voir →</Link>
         </div>
 
         {ordersLoading ? (
           <div className="px-6 py-10 flex items-center justify-center gap-2 text-neutral-400">
             <span className="w-4 h-4 border-2 border-neutral-200 border-t-neutral-400 rounded-full animate-spin" />
-            <span className="text-[12px] font-bold uppercase tracking-widest">Chargementâ€¦</span>
+            <span className="text-[12px] font-bold uppercase tracking-widest">Chargement…</span>
           </div>
         ) : orders.length === 0 ? (
           <div className="px-6 py-12 flex flex-col items-center text-center">
@@ -175,7 +175,7 @@ export default function ComptePage() {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-300"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
             </div>
             <p className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-300 mb-2">Aucune commande</p>
-            <p className="text-[12px] text-neutral-400 leading-relaxed max-w-[200px] mb-5">Vos commandes apparaÃ®tront ici aprÃ¨s votre premier achat.</p>
+            <p className="text-[12px] text-neutral-400 leading-relaxed max-w-[200px] mb-5">Vos commandes apparaîtront ici après votre premier achat.</p>
             <Link href="/" className="inline-flex items-center gap-2 bg-black text-white font-black text-[10px] uppercase tracking-[0.2em] px-6 py-3 hover:bg-neutral-800 transition-colors">
               Explorer la boutique
             </Link>
@@ -206,7 +206,7 @@ export default function ComptePage() {
                       <p className="font-black text-[13px] tracking-wide">{order.order_number}</p>
                       <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 border ${st.color}`}>{st.label}</span>
                     </div>
-                    <p className="text-[11px] text-neutral-400">{date} Â· {order.items.length} article{order.items.length > 1 ? "s" : ""}</p>
+                    <p className="text-[11px] text-neutral-400">{date} · {order.items.length} article{order.items.length > 1 ? "s" : ""}</p>
                   </div>
                   <div className="text-right shrink-0">
                     <p className="font-black text-[14px]">{formatMAD(order.total)}</p>
@@ -221,13 +221,13 @@ export default function ComptePage() {
 
       {/* â”€â”€â”€ Quick actions â”€â”€â”€ */}
       <div>
-        <p className="font-black text-[13px] uppercase tracking-widest mb-3">AccÃ¨s rapide</p>
+        <p className="font-black text-[13px] uppercase tracking-widest mb-3">Accès rapide</p>
         <div className="grid grid-cols-2 gap-2">
           {[
             { href: "/compte/profil", label: "Mon profil", sub: "Informations personnelles", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> },
             { href: "/compte/adresses", label: "Mes adresses", sub: "Adresses de livraison", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> },
             { href: "/suivre-commande", label: "Suivre un colis", sub: "Localiser ma commande", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
-            { href: "/retours", label: "Retours & Ã©changes", sub: "Initier un retour", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> },
+            { href: "/retours", label: "Retours & échanges", sub: "Initier un retour", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> },
           ].map((action) => (
             <Link key={action.href} href={action.href} className="group bg-white border border-neutral-100 hover:border-black hover:shadow-[0_4px_20px_rgba(0,0,0,0.07)] transition-all duration-200 p-5 flex flex-col gap-4">
               <div className="flex items-start justify-between">
@@ -246,8 +246,8 @@ export default function ComptePage() {
       {/* â”€â”€â”€ Recommended products â”€â”€â”€ */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <p className="font-black text-[13px] uppercase tracking-widest">SÃ©lection pour vous</p>
-          <Link href="/nouveautes" className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors">Voir tout â†’</Link>
+          <p className="font-black text-[13px] uppercase tracking-widest">Sélection pour vous</p>
+          <Link href="/nouveautes" className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors">Voir tout →</Link>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {recommended.map((p) => (
