@@ -18,7 +18,12 @@ export async function GET(req: NextRequest) {
 
   if (category) query = query.eq("category", category);
   if (active === "true") query = query.eq("active", true);
-  if (search) query = query.ilike("name", `%${search}%`);
+  if (search) {
+    const term = `%${search}%`;
+    query = query.or(
+      `name.ilike.${term},description.ilike.${term},category.ilike.${term},brand.ilike.${term}`
+    );
+  }
   if (limit) query = query.limit(parseInt(limit));
 
   const { data, error } = await query;

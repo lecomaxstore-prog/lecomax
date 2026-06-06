@@ -6,6 +6,7 @@ import { useCart } from "./CartContext";
 import { categories } from "@/lib/products";
 import Logo from "./Logo";
 import { supabase } from "@/lib/supabase";
+import SearchOverlay from "./SearchOverlay";
 
 const utilLinks = [
   { label: "Aide", href: "/aide", icon: <HelpIcon /> },
@@ -134,42 +135,11 @@ export default function Header() {
 
         {/* Right: search + icons */}
         <div className="flex items-center gap-1">
-          {/* Expandable search */}
-          <div className="hidden md:flex items-center">
-            {searchOpen ? (
-              <div className="flex items-center border border-black bg-white overflow-hidden">
-                <span className="pl-3 text-muted"><SearchIcon /></span>
-                <input
-                  autoFocus
-                  type="search"
-                  placeholder="Rechercher des produits..."
-                  className="w-56 px-3 py-2 text-sm outline-none placeholder-neutral-400"
-                  onBlur={() => setSearchOpen(false)}
-                />
-                <button
-                  aria-label="Fermer la recherche"
-                  className="pr-3 text-muted hover:text-black"
-                  onClick={() => setSearchOpen(false)}
-                >
-                  <CloseIcon />
-                </button>
-              </div>
-            ) : (
-              <button
-                aria-label="Recherche"
-                onClick={() => setSearchOpen(true)}
-                className="p-2 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-black"
-              >
-                <SearchIcon />
-              </button>
-            )}
-          </div>
-
-          {/* Mobile search */}
+          {/* Search button — desktop + mobile */}
           <button
             aria-label="Recherche"
-            onClick={() => setOpen((o) => { if (!o) setTimeout(() => document.querySelector<HTMLInputElement>('[placeholder="Rechercher un produit..."]')?.focus(), 50); return !o; })}
-            className="md:hidden p-2 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-black"
+            onClick={() => setSearchOpen(true)}
+            className="p-2 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-black"
           >
             <SearchIcon />
           </button>
@@ -283,6 +253,8 @@ export default function Header() {
           <p className="text-[10px] text-neutral-300 text-center mt-5 tracking-widest uppercase">L&apos;ecomax © 2026</p>
         </div>
       </div>
+      {/* Search overlay */}
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }
