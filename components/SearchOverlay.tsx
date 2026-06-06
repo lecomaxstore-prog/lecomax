@@ -22,16 +22,16 @@ interface Props {
 }
 
 const POPULAR = [
-  "Baskets Running",
-  "Manette Xbox",
-  "Écouteurs Bluetooth",
-  "Lenovo GM2 Pro",
-  "Sac à dos",
-  "Montre connectée",
-  "Veste homme",
-  "Robe femme",
-  "Casque gaming",
-  "Sneakers blanches",
+  "Baskets",
+  "Manette",
+  "Écouteurs",
+  "Sac",
+  "Lenovo",
+  "Montre",
+  "Veste",
+  "Casque",
+  "Sneakers",
+  "Chaussures",
 ];
 
 const FEATURED_SLUGS: string[] = []; // populated from recent or bestseller products
@@ -127,7 +127,20 @@ export default function SearchOverlay({ open, onClose }: Props) {
       .catch(() => {});
   }, []);
 
-  // Debounced live search
+  // Instant fetch (no debounce) — used when clicking a suggestion
+  const fetchNow = useCallback(async (term: string) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (term.trim().length < 2) { setResults([]); setLoading(false); return; }
+    setLoading(true);
+    try {
+      const res  = await fetch(`/api/products?search=${encodeURIComponent(term.trim())}&active=true&limit=8`);
+      const data = await res.json();
+      setResults(Array.isArray(data) ? data : []);
+    } catch { setResults([]); }
+    finally  { setLoading(false); }
+  }, []);
+
+  // Debounced live search — used while typing
   const doSearch = useCallback((q: string) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     if (q.trim().length < 2) { setResults([]); setLoading(false); return; }
@@ -139,7 +152,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
         setResults(Array.isArray(data) ? data : []);
       } catch { setResults([]); }
       finally  { setLoading(false); }
-    }, 280);
+    }, 300);
   }, []);
 
   useEffect(() => {
@@ -157,8 +170,10 @@ export default function SearchOverlay({ open, onClose }: Props) {
     window.location.href = `/produit/${slug}`;
   };
 
+  // Click a suggestion: set query + immediately fire search (no debounce wait)
   const pickSuggestion = (term: string) => {
     setQuery(term);
+    fetchNow(term);
     inputRef.current?.focus();
   };
 
@@ -166,7 +181,8 @@ export default function SearchOverlay({ open, onClose }: Props) {
 
   const q          = query.trim();
   const hasResults = results.length > 0;
-  const showHint   = q.length === 1;
+  // Only show "type more" hint when typing (not when a suggestion was clicked)
+  const showHint   = q.length === 1 && !loading;
   const showEmpty  = q.length >= 2 && !loading && !hasResults;
   const isActive   = open;
 
@@ -323,12 +339,16 @@ export default function SearchOverlay({ open, onClose }: Props) {
           }}>
             <p style={{ fontSize: 10, fontWeight: 900, letterSpacing: "0.2em",
               textTransform: "uppercase", color: "#aaa", margin: "0 0 14px" }}>
-              {q ? "Suggestions" : "Recherches populaires"}
+              {q && hasResults ? "Suggestions" : q && !hasResults ? "Populaire" : "Tendances"}
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {(q && hasResults
                 ? results.slice(0, 8).map(p => p.name)
-                : POPULAR
+                : q && !hasResults && !loading
+                  ? POPULAR  // keep popular visible when no results
+                  : featured.length > 0
+                    ? featured.slice(0, 10).map(p => p.name)  // real product names from DB
+                    : POPULAR
               ).map(term => (
                 <button key={term} onClick={() => pickSuggestion(typeof term === "string" ? term : term)}
                   style={{
@@ -362,9 +382,11 @@ export default function SearchOverlay({ open, onClose }: Props) {
             }}>
               <p style={{ fontSize: 10, fontWeight: 900, letterSpacing: "0.2em",
                 textTransform: "uppercase", color: "#aaa", margin: 0 }}>
-                {q && hasResults
-                  ? `${results.length} résultat${results.length > 1 ? "s" : ""} pour «\u00a0${q}\u00a0»`
-                  : "Produits recommandés"}
+                {loading && q
+                  ? "Recherche en cours…"
+                  : q && hasResults
+                    ? `${results.length} résultat${results.length > 1 ? "s" : ""} pour «\u00a0${q}\u00a0»`
+                    : "Produits recommandés"}
               </p>
               {q && hasResults && (
                 <Link href={`/boutique?search=${encodeURIComponent(q)}`} onClick={() => { addRecent(q); onClose(); }}
@@ -391,9 +413,22 @@ export default function SearchOverlay({ open, onClose }: Props) {
               </div>
             )}
 
-            {/* Carousel wrapper */}
+            {/* Carousel wrapper — show when not in hint/empty state, including during loading */}
             {(!showHint && !showEmpty) && (
               <div style={{ position: "relative", flex: 1, overflow: "hidden" }}>
+                {/* Loading overlay on carousel */}
+                {loading && q && (
+                  <div style={{
+                    position: "absolute", inset: 0, zIndex: 20,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    background: "rgba(255,255,255,0.7)",
+                  }}>
+                    <svg style={{ animation: "__spin 0.7s linear infinite", color: "#3ecf4c" }}
+                      width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/>
+                    </svg>
+                  </div>
+                )}
                 {/* Left arrow */}
                 <button onClick={() => scrollRail("left")}
                   style={{
