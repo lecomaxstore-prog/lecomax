@@ -90,6 +90,9 @@ export default function CheckoutPage() {
   const [couponApplied, setCouponApplied] = useState<{ id: string; code: string; type: string; value: number; discount: number } | null>(null);
   const [couponError, setCouponError] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
+  // EcoClub loyalty discount
+  const [loyaltyTier, setLoyaltyTier] = useState<"Bronze" | "Silver" | "Gold">("Bronze");
+  const [loyaltyDiscountPct, setLoyaltyDiscountPct] = useState(0); // 0, 30, or 50
 
   const [headerVisible, setHeaderVisible] = useState(false);
   const lastScrollY = useRef(0);
@@ -106,7 +109,6 @@ export default function CheckoutPage() {
 
     const handleScroll = () => {
       const currentY = window.pageYOffset ?? window.scrollY;
-      // Only show when truly at the top and scroll has stopped (not bouncing)
       setHeaderVisible(currentY <= 0);
       lastScrollY.current = currentY;
     };
@@ -114,10 +116,30 @@ export default function CheckoutPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Fetch EcoClub tier to apply automatic loyalty discount
+  useEffect(() => {
+    import("@/lib/supabase").then(({ supabase }) => {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        const email = session?.user?.email;
+        if (!email) return;
+        fetch(`/api/points?email=${encodeURIComponent(email)}`)
+          .then(r => r.json())
+          .then(d => {
+            if (d.tier === "Silver") { setLoyaltyTier("Silver"); setLoyaltyDiscountPct(30); }
+            else if (d.tier === "Gold") { setLoyaltyTier("Gold"); setLoyaltyDiscountPct(50); }
+          })
+          .catch(() => {});
+      });
+    });
+  }, []);
+
   const isSidiBennour = form.ville.trim().toLowerCase().replace(/-/g, " ") === "sidi bennour";
   const shipping = total === 0 || isSidiBennour ? 0 : 35;
-  const discount = couponApplied?.discount ?? 0;
-  const grandTotal = total + shipping - discount;
+  const couponDiscount = couponApplied?.discount ?? 0;
+  // Loyalty discount applies on subtotal (after coupon); Silver 30%, Gold 50%
+  const loyaltyDiscountAmount = loyaltyDiscountPct > 0 ? Math.round(((total - couponDiscount) * loyaltyDiscountPct) / 100) : 0;
+  const discount = couponDiscount + loyaltyDiscountAmount;
+  const grandTotal = Math.max(0, total + shipping - discount);
 
   // Keep paypalDataRef in sync with latest state so PayPal callbacks are never stale
   paypalDataRef.current = { form, items, grandTotal, shipping, couponApplied, discount };
@@ -675,6 +697,15 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-sm text-emerald-600">
                     <span className="font-semibold">Réduction ({couponApplied.code})</span>
                     <span className="font-black">− {formatMAD(couponApplied.discount)}</span>
+                  </div>
+                )}
+                {loyaltyDiscountPct > 0 && loyaltyDiscountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-emerald-600">
+                    <span className="font-semibold flex items-center gap-1.5">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      EcoClub {loyaltyTier} ({loyaltyDiscountPct}%)
+                    </span>
+                    <span className="font-black">− {formatMAD(loyaltyDiscountAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-black text-[16px] pt-2 border-t border-neutral-200">

@@ -113,21 +113,8 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Award EcoClub points: 50 pts per order (non-blocking)
-  if (customer.email) {
-    supabase
-      .from("user_points")
-      .select("points")
-      .eq("email", customer.email)
-      .single()
-      .then(({ data: existing }) => {
-        const newPoints = (existing?.points ?? 0) + 50;
-        supabase
-          .from("user_points")
-          .upsert({ email: customer.email, points: newPoints, updated_at: new Date().toISOString() }, { onConflict: "email" })
-          .then(() => {});
-      });
-  }
+  // NOTE: EcoClub points (50 pts) are awarded when the order is marked as "delivered".
+  // See /api/orders/[id]/route.ts PUT handler.
 
   if (resend && customer.email) {
     const itemsHtml = items
