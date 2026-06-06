@@ -113,7 +113,22 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Send confirmation email (non-blocking)
+  // Award EcoClub points: 50 pts per order (non-blocking)
+  if (customer.email) {
+    supabase
+      .from("user_points")
+      .select("points")
+      .eq("email", customer.email)
+      .single()
+      .then(({ data: existing }) => {
+        const newPoints = (existing?.points ?? 0) + 50;
+        supabase
+          .from("user_points")
+          .upsert({ email: customer.email, points: newPoints, updated_at: new Date().toISOString() }, { onConflict: "email" })
+          .then(() => {});
+      });
+  }
+
   if (resend && customer.email) {
     const itemsHtml = items
       .map((i) => `<li style="padding:4px 0;color:#374151;">• ${i.name}${i.color ? ` — ${i.color}` : ""}${i.size ? ` (${i.size})` : ""} × ${i.qty} = ${(i.price * i.qty).toFixed(2)} MAD</li>`)

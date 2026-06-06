@@ -54,11 +54,21 @@ function isActive(href: string, exact: boolean, pathname: string) {
   return exact ? clean === target : clean.startsWith(target);
 }
 
+const TIER_COLORS: Record<string, string> = {
+  Bronze: "#cd7f32",
+  Silver: "#a8a9ad",
+  Gold:   "#fbbf24",
+};
+
 export default function CompteLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<{ email?: string; full_name?: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [points, setPoints] = useState(0);
+  const [tierName, setTierName] = useState("Bronze");
+  const [tierNext, setTierNext] = useState<number | null>(500);
+  const [tierNextLabel, setTierNextLabel] = useState<string | null>("Silver");
 
   useEffect(() => {
     // Read the persisted session immediately
@@ -67,11 +77,26 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
         router.replace("/connexion");
         return;
       }
+      const email = session.user.email ?? "";
       setUser({
-        email: session.user.email,
+        email,
         full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || "",
       });
       setLoading(false);
+      // Fetch points
+      if (email) {
+        fetch(`/api/points?email=${encodeURIComponent(email)}`)
+          .then(r => r.json())
+          .then(d => {
+            if (typeof d.points === "number") {
+              setPoints(d.points);
+              setTierName(d.tier ?? "Bronze");
+              setTierNext(d.next ?? null);
+              setTierNextLabel(d.nextLabel ?? null);
+            }
+          })
+          .catch(() => {});
+      }
     });
 
     // Keep session in sync across tabs and on token refresh
@@ -156,15 +181,26 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
             <div className="bg-white/10 px-4 py-3 mb-5">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                  <span className="text-[10px] font-black uppercase tracking-[0.25em]">EcoClub Bronze</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ color: TIER_COLORS[tierName] ?? "currentColor" }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  <span className="text-[10px] font-black uppercase tracking-[0.25em]">EcoClub {tierName}</span>
                 </div>
-                <span className="text-[10px] font-bold text-neutral-400">0 / 500 pts</span>
+                <span className="text-[10px] font-bold text-neutral-400">
+                  {points.toLocaleString("fr-MA")} {tierNext ? `/ ${tierNext.toLocaleString("fr-MA")}` : ""} pts
+                </span>
               </div>
               <div className="w-full h-1 bg-white/20">
-                <div className="h-full bg-white w-0 transition-all duration-700" />
+                <div
+                  className="h-full bg-white transition-all duration-700"
+                  style={{ width: tierNext ? `${Math.min(100, Math.round((points / tierNext) * 100))}%` : "100%" }}
+                />
               </div>
-              <p className="text-[10px] text-neutral-400 mt-1.5">500 pts pour atteindre Silver</p>
+              {tierNext && tierNextLabel ? (
+                <p className="text-[10px] text-neutral-400 mt-1.5">
+                  {(tierNext - points).toLocaleString("fr-MA")} pts pour atteindre {tierNextLabel}
+                </p>
+              ) : (
+                <p className="text-[10px] text-neutral-400 mt-1.5">Niveau maximum atteint 🏆</p>
+              )}
             </div>
             <div className="h-px bg-white/10 mb-4" />
             <nav className="flex flex-col gap-0.5">

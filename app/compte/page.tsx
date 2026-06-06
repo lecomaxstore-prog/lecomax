@@ -24,10 +24,10 @@ type RecentOrder = {
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
   pending:   { label: "En attente",   color: "bg-amber-50 text-amber-700 border-amber-200" },
-  confirmed: { label: "ConfirmÃ©e",    color: "bg-blue-50 text-blue-700 border-blue-200" },
-  shipped:   { label: "ExpÃ©diÃ©e",     color: "bg-purple-50 text-purple-700 border-purple-200" },
-  delivered: { label: "LivrÃ©e",       color: "bg-green-50 text-green-700 border-green-200" },
-  cancelled: { label: "AnnulÃ©e",      color: "bg-red-50 text-red-700 border-red-200" },
+  confirmed: { label: "Confirmée",    color: "bg-blue-50 text-blue-700 border-blue-200" },
+  shipped:   { label: "Expédiée",     color: "bg-purple-50 text-purple-700 border-purple-200" },
+  delivered: { label: "Livrée",       color: "bg-green-50 text-green-700 border-green-200" },
+  cancelled: { label: "Annulée",      color: "bg-red-50 text-red-700 border-red-200" },
 };
 
 const recommended = products.filter(p => p.active !== false).slice(0, 2);
@@ -36,25 +36,37 @@ export default function ComptePage() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [orders, setOrders] = useState<RecentOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [points, setPoints] = useState(0);
+  const [tierName, setTierName] = useState("Bronze");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) return;
       const u = session.user;
+      const email = u.email ?? "";
       setUser({
-        email: u.email ?? "",
+        email,
         full_name: u.user_metadata?.full_name || u.user_metadata?.name || "",
         created_at: u.created_at,
         prenom: u.user_metadata?.prenom,
       });
       // Fetch recent orders by email
-      fetch(`/api/orders?email=${encodeURIComponent(u.email ?? "")}&limit=3`)
+      fetch(`/api/orders?email=${encodeURIComponent(email)}&limit=3`)
         .then(r => r.json())
         .then((data: RecentOrder[]) => {
           setOrders(Array.isArray(data) ? data : []);
           setOrdersLoading(false);
         })
         .catch(() => setOrdersLoading(false));
+      // Fetch EcoClub points
+      if (email) {
+        fetch(`/api/points?email=${encodeURIComponent(email)}`)
+          .then(r => r.json())
+          .then(d => {
+            if (typeof d.points === "number") { setPoints(d.points); setTierName(d.tier ?? "Bronze"); }
+          })
+          .catch(() => {});
+      }
     });
   }, []);
 
@@ -132,7 +144,7 @@ export default function ComptePage() {
         {[
           { label: "Commandes", value: ordersLoading ? "â€¦" : String(orders.length > 0 ? orders.length : "0"), sub: "Total passÃ©es", href: "/compte/commandes", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /></svg>, accent: "#3ecf4c" },
           { label: "Adresses", value: "â€”", sub: "SauvegardÃ©es", href: "/compte/adresses", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>, accent: "#000" },
-          { label: "EcoClub", value: "Bronze", sub: "Niveau actuel", href: "/ecoclub", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>, accent: "#f59e0b" },
+          { label: "EcoClub", value: tierName, sub: `${points.toLocaleString("fr-MA")} pts`, href: "/ecoclub", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>, accent: tierName === "Gold" ? "#fbbf24" : tierName === "Silver" ? "#a8a9ad" : "#f59e0b" },
         ].map((s) => (
           <Link key={s.label} href={s.href} className="group bg-white border border-neutral-100 hover:border-neutral-300 hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 p-4 sm:p-5">
             <div className="text-neutral-300 group-hover:text-black transition-colors mb-3">{s.icon}</div>
