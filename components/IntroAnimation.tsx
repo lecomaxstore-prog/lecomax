@@ -65,7 +65,11 @@ export default function IntroAnimation() {
   const [smileDraw, setSmileDraw] = useState(false);
 
   useEffect(() => {
-    if (sessionStorage.getItem("intro_shown")) { setPhase("done"); return; }
+    if (sessionStorage.getItem("intro_shown")) {
+      sessionStorage.setItem("intro_done", "1");
+      setPhase("done");
+      return;
+    }
     sessionStorage.setItem("intro_shown", "1");
     setPhase("init");
     const ts = [
@@ -77,7 +81,11 @@ export default function IntroAnimation() {
       setTimeout(() => setPhase("hold"),      2050),
       setTimeout(() => setFlash(true),        3750),
       setTimeout(() => setPhase("exit"),      3850),
-      setTimeout(() => setPhase("done"),      4750),
+      setTimeout(() => {
+        sessionStorage.setItem("intro_done", "1");
+        window.dispatchEvent(new Event("introDone"));
+        setPhase("done");
+      }, 4750),
     ];
     return () => ts.forEach(clearTimeout);
   }, []);

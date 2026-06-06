@@ -14,7 +14,17 @@ export default function CookieBanner() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem("lecomax_cookie_consent");
-      if (!saved) setVisible(true);
+      if (!saved) {
+        // If intro already done (return visit), show after short delay
+        if (sessionStorage.getItem("intro_done")) {
+          const t = setTimeout(() => setVisible(true), 400);
+          return () => clearTimeout(t);
+        }
+        // First visit — wait for intro animation to signal completion
+        const onIntroDone = () => setTimeout(() => setVisible(true), 300);
+        window.addEventListener("introDone", onIntroDone, { once: true });
+        return () => window.removeEventListener("introDone", onIntroDone);
+      }
     } catch {
       // localStorage unavailable
     }
