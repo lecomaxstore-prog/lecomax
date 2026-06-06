@@ -240,8 +240,8 @@ export default function CheckoutPage() {
   return (
     <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!, currency: "USD" }}>
     <div className="min-h-screen bg-[#f7f7f8]">
-      {/* ── Top bar ── */}
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-neutral-100" style={{ transform: headerVisible ? "translateY(0)" : "translateY(-100%)", transition: "transform 0.3s ease" }}>
+      {/* ── Top bar ── fixed so transform works on iOS ── */}
+      <div style={{ position: "fixed", top: headerVisible ? "0px" : "-130px", left: 0, right: 0, zIndex: 20, transition: "top 0.3s ease", background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: "1px solid #f3f4f6" }}>
         {/* Breadcrumb row */}
         <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
           <Link href="/panier" className="flex items-center gap-1.5 text-[12px] font-semibold text-neutral-400 hover:text-black transition-colors">
@@ -319,6 +319,9 @@ export default function CheckoutPage() {
           ))}
         </div>
       </div>
+
+      {/* Spacer so content isn't hidden behind fixed header (≈130px tall) */}
+      <div style={{ height: "130px" }} />
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="max-w-5xl mx-auto px-4 py-8 grid lg:grid-cols-[1fr_360px] gap-6 items-start">
