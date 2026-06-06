@@ -1,74 +1,55 @@
 "use client";
 
-const badges = [
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="1" y="3" width="22" height="18" rx="2" />
-        <path d="M1 9h22" />
-      </svg>
-    ),
-    label: "Paiement à la livraison",
-    sub: "100% sécurisé",
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3" />
-        <rect x="9" y="11" width="14" height="10" rx="1" />
-        <circle cx="12" cy="16" r="1" fill="currentColor" stroke="none" />
-      </svg>
-    ),
-    label: "Livraison 35 MAD",
-    sub: "Partout au Maroc",
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="1 4 1 10 7 10" />
-        <path d="M3.51 15a9 9 0 102.13-9.36L1 10" />
-      </svg>
-    ),
-    label: "Retours 30 jours",
-    sub: "Échanges gratuits",
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      </svg>
-    ),
-    label: "Achats sécurisés",
-    sub: "Données protégées",
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-      </svg>
-    ),
-    label: "Support 7j/7",
-    sub: "Via WhatsApp",
-  },
-];
-
 export default function TrustBar() {
   return (
     <div className="bg-neutral-950 border-b border-neutral-800">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-neutral-800">
-          {badges.map((b) => (
-            <div
-              key={b.label}
-              className="flex items-center gap-3 px-4 py-4 sm:py-5 group"
-            >
-              <div className="text-[#3ecf4c] shrink-0">{b.icon}</div>
-              <div className="min-w-0">
-                <p className="font-black text-[11px] uppercase tracking-widest text-white leading-tight">{b.label}</p>
-                <p className="text-[10px] text-neutral-500 leading-tight mt-0.5">{b.sub}</p>
+        <div className="flex items-center justify-center gap-0 sm:gap-0">
+
+          {/* Paiement à la livraison */}
+          <div className="flex items-center gap-3 px-6 sm:px-10 py-4 sm:py-5 flex-1 justify-center group">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 bg-[#3ecf4c]/20 rounded-full blur-md group-hover:bg-[#3ecf4c]/30 transition-all" />
+              <div className="relative w-9 h-9 rounded-full bg-[#3ecf4c]/10 border border-[#3ecf4c]/20 flex items-center justify-center text-[#3ecf4c] group-hover:border-[#3ecf4c]/50 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="1" y="3" width="22" height="18" rx="2" />
+                  <path d="M1 9h22" />
+                </svg>
               </div>
             </div>
-          ))}
+            <div className="min-w-0">
+              <p className="font-black text-[11px] sm:text-[12px] uppercase tracking-widest text-white leading-tight">
+                Paiement à la livraison
+              </p>
+              <p className="text-[10px] text-[#3ecf4c]/70 leading-tight mt-0.5 font-semibold">
+                100% sécurisé
+              </p>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-8 bg-neutral-800 shrink-0" />
+
+          {/* Support 7j/7 */}
+          <div className="flex items-center gap-3 px-6 sm:px-10 py-4 sm:py-5 flex-1 justify-center group">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 bg-[#3ecf4c]/20 rounded-full blur-md group-hover:bg-[#3ecf4c]/30 transition-all" />
+              <div className="relative w-9 h-9 rounded-full bg-[#3ecf4c]/10 border border-[#3ecf4c]/20 flex items-center justify-center text-[#3ecf4c] group-hover:border-[#3ecf4c]/50 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                </svg>
+              </div>
+            </div>
+            <div className="min-w-0">
+              <p className="font-black text-[11px] sm:text-[12px] uppercase tracking-widest text-white leading-tight">
+                Support 7j/7
+              </p>
+              <p className="text-[10px] text-[#3ecf4c]/70 leading-tight mt-0.5 font-semibold">
+                Via WhatsApp
+              </p>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

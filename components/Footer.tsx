@@ -23,6 +23,7 @@ const cols = [
     title: "Support",
     links: [
       { label: "Aide & FAQ", href: "/aide/" },
+      { label: "Nous contacter", href: "/nous-contacter/" },
       { label: "Suivi de commande", href: "/suivre-commande/" },
       { label: "Retours", href: "/retours/" },
       { label: "Guide des tailles", href: "/guide-des-tailles/" },
