@@ -18,7 +18,7 @@ const PROMO_CODES: Record<string, { type: "percent" | "fixed"; value: number; la
 
 export default function CartPage() {
   const { items, total, count, setQty, remove, clear } = useCart();
-  const shipping = total === 0 ? 0 : 35;
+  const shipping = total >= 500 ? 0 : 35;
 
   const [promoInput, setPromoInput] = useState("");
   const [promoApplied, setPromoApplied] = useState<null | { code: string; type: "percent" | "fixed"; value: number; label: string }>(null);
@@ -181,7 +181,7 @@ export default function CartPage() {
               {/* Shipping info */}
               <div className="px-6 py-3 bg-[#f0fdf4] border-b border-[#3ecf4c]/20 flex items-center gap-2 text-[11px] font-black text-[#16a34a] uppercase tracking-wider">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                  Livraison 35 MAD partout au Maroc
+                  {total >= 500 ? "Livraison gratuite 🎉" : `Livraison 35 MAD — gratuite dès 500 MAD`}
               </div>
 
               {/* Column headers */}
@@ -361,7 +361,7 @@ export default function CartPage() {
 
                   <p className="text-center text-[11px] text-neutral-400 mt-3 flex items-center justify-center gap-1.5">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#3ecf4c]"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    Paiement sécurisé · Livraison offerte au Maroc
+                    Paiement sécurisé · Livraison gratuite dès 500 MAD
                   </p>
                 </div>
               </div>

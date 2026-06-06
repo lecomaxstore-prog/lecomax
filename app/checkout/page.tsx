@@ -133,8 +133,7 @@ export default function CheckoutPage() {
     });
   }, []);
 
-  const isSidiBennour = form.ville.trim().toLowerCase().replace(/-/g, " ") === "sidi bennour";
-  const shipping = total === 0 || isSidiBennour ? 0 : 35;
+  const shipping = total >= 500 ? 0 : 35;
   const couponDiscount = couponApplied?.discount ?? 0;
   // Loyalty discount applies on subtotal (after coupon); Silver 30%, Gold 50%
   const loyaltyDiscountAmount = loyaltyDiscountPct > 0 ? Math.round(((total - couponDiscount) * loyaltyDiscountPct) / 100) : 0;
@@ -690,7 +689,7 @@ export default function CheckoutPage() {
                 </div>
                 {shipping > 0 && (
                   <p className="text-[10px] text-neutral-400 bg-neutral-100 rounded-lg px-3 py-2">
-                    Livraison <strong>gratuite</strong> pour Sidi Bennour
+                    Livraison <strong>gratuite</strong> dès <strong>500 MAD</strong> d'achats
                   </p>
                 )}
                 {couponApplied && (
