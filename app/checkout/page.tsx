@@ -220,7 +220,7 @@ export default function CheckoutPage() {
     <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!, currency: "USD" }}>
     <div className="min-h-screen bg-[#f7f7f8]">
       {/* ── Top bar ── */}
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-neutral-100">
+      <div className="sticky top-[60px] z-20 bg-white/95 backdrop-blur-md border-b border-neutral-100">
         {/* Breadcrumb row */}
         <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
           <Link href="/panier" className="flex items-center gap-1.5 text-[12px] font-semibold text-neutral-400 hover:text-black transition-colors">
