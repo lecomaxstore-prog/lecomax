@@ -30,7 +30,7 @@ const STATUS_LABEL: Record<string, { label: string; color: string }> = {
   cancelled: { label: "Annulée",      color: "bg-red-50 text-red-700 border-red-200" },
 };
 
-const recommended = products.filter(p => p.active !== false).slice(0, 2);
+const recommended = products.slice(0, 2);
 
 export default function ComptePage() {
   const [user, setUser] = useState<UserInfo | null>(null);
