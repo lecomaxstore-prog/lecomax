@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -90,6 +90,27 @@ export default function CheckoutPage() {
   const [couponApplied, setCouponApplied] = useState<{ id: string; code: string; type: string; value: number; discount: number } | null>(null);
   const [couponError, setCouponError] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
+
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const THRESHOLD = 8;
+    const handleScroll = () => {
+      const currentY = window.pageYOffset ?? window.scrollY;
+      if (currentY < 10) {
+        setHeaderVisible(true);
+      } else if (currentY > lastScrollY.current + THRESHOLD) {
+        setHeaderVisible(false);
+        lastScrollY.current = currentY;
+      } else if (currentY < lastScrollY.current - THRESHOLD) {
+        setHeaderVisible(true);
+        lastScrollY.current = currentY;
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const isSidiBennour = form.ville.trim().toLowerCase().replace(/-/g, " ") === "sidi bennour";
   const shipping = total === 0 || isSidiBennour ? 0 : 35;
@@ -219,8 +240,8 @@ export default function CheckoutPage() {
   return (
     <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!, currency: "USD" }}>
     <div className="min-h-screen bg-[#f7f7f8]">
-      {/* ── Top bar ── */}
-      <div className="sticky top-[60px] z-20 bg-white/95 backdrop-blur-md border-b border-neutral-100">
+      {/* ── Stepper bar ── fixed below 60px nav, hides on scroll down ── */}
+      <div style={{ position: "fixed", top: headerVisible ? "60px" : "-200px", left: 0, right: 0, zIndex: 20, transition: "top 0.35s ease", background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: "1px solid #f3f4f6" }}>
         {/* Breadcrumb row */}
         <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
           <Link href="/panier" className="flex items-center gap-1.5 text-[12px] font-semibold text-neutral-400 hover:text-black transition-colors">
@@ -298,6 +319,9 @@ export default function CheckoutPage() {
           ))}
         </div>
       </div>
+
+      {/* Spacer: nav(60) + stepper(~120) = 180px */}
+      <div style={{ height: "180px" }} />
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="max-w-5xl mx-auto px-4 py-8 grid lg:grid-cols-[1fr_360px] gap-6 items-start">
