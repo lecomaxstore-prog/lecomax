@@ -170,8 +170,8 @@ export default function ConditionsUtilisationPage() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                 Retour à l&apos;accueil
               </Link>
-              <Link href="/politique-confidentialite" className="text-[12px] font-bold text-neutral-400 hover:text-black transition-colors">Confidentialité →</Link>
-              <Link href="/retours" className="text-[12px] font-bold text-neutral-400 hover:text-black transition-colors">Politique de retours →</Link>
+              <Link href="/politique-confidentialite/" className="text-[12px] font-bold text-neutral-400 hover:text-black transition-colors">Confidentialité →</Link>
+              <Link href="/retours/" className="text-[12px] font-bold text-neutral-400 hover:text-black transition-colors">Politique de retours →</Link>
             </div>
           </div>
         </div>

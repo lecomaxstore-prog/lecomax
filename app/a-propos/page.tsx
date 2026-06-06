@@ -67,7 +67,7 @@ export default function AProposPage() {
               Chaque produit est soigneusement sélectionné pour sa durabilité, son confort et son style.
             </p>
             <Link
-              href="/boutiques"
+              href="/boutiques/"
               className="inline-flex items-center gap-2 bg-black text-white font-black text-[12px] uppercase tracking-widest px-6 py-3 rounded-full hover:bg-neutral-800 transition-colors"
             >
               Voir notre boutique →
@@ -162,7 +162,7 @@ export default function AProposPage() {
               contact@lecomax.com
             </a>
             <Link
-              href="/carrieres"
+              href="/carrieres/"
               className="inline-flex items-center justify-center gap-2 bg-[#3ecf4c] text-black font-black text-[12px] uppercase tracking-widest px-7 py-3.5 rounded-full hover:bg-[#32b83d] transition-colors"
             >
               Rejoindre l&apos;équipe →

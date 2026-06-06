@@ -675,7 +675,7 @@ export default function CheckoutPage() {
 
             {/* Reassurance note */}
             <p className="mt-3 text-center text-[11px] text-neutral-400 leading-relaxed px-2">
-              En confirmant, vous acceptez nos <span className="underline cursor-pointer hover:text-black">conditions générales</span>. Paiement à la livraison — aucune carte requise.
+              En confirmant, vous acceptez nos <Link href="/conditions-utilisation" target="_blank" className="underline hover:text-black transition-colors">conditions générales</Link>. Paiement à la livraison — aucune carte requise.
             </p>
           </aside>
         </div>
