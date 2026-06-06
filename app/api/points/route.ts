@@ -24,7 +24,7 @@ const TIERS = [
   { name: "Bronze", min: 0,    next: 500,   nextLabel: "Silver" },
 ];
 
-export function getTier(points: number) {
+function getTier(points: number) {
   return TIERS.find((t) => points >= t.min) ?? TIERS[TIERS.length - 1];
 }
 
