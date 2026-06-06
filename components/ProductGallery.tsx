@@ -71,7 +71,7 @@ export default function ProductGallery({
   }, [selectedColor]);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 min-w-0">
       {/* Main view */}
       <div className="relative aspect-square bg-neutral-100 overflow-hidden group">
         {active === "video" && video ? (

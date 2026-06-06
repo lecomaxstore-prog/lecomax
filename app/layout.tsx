@@ -32,6 +32,7 @@ const SITE_URL = "https://lecomax.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  manifest: "/manifest.json",
   title: {
     default: "L'ecomax | Chaussures, Vêtements & Accessoires Tech au Maroc",
     template: "%s | L'ecomax Maroc",
@@ -64,13 +65,17 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   icons: {
     icon: [
-      { url: "/fav icon.png", sizes: "32x32", type: "image/png" },
-      { url: "/fav icon.png", sizes: "64x64", type: "image/png" },
-      { url: "/fav icon.png", sizes: "192x192", type: "image/png" },
-      { url: "/fav icon.png", sizes: "512x512", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any", type: "image/x-icon" },
+      { url: "/favicon.png", sizes: "192x192", type: "image/png" },
+      { url: "/favicon.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: { url: "/fav icon.png", sizes: "180x180", type: "image/png" },
-    shortcut: "/fav icon.png",
+    apple: [
+      { url: "/favicon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    other: [
+      { rel: "mask-icon", url: "/favicon.png" },
+    ],
   },
   openGraph: {
     type: "website",

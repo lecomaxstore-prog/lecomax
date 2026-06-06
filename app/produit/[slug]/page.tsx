@@ -210,7 +210,7 @@ export default async function ProductPage({
         />
 
         {/* ── Info panel ── */}
-        <div className="lg:sticky lg:top-24 self-start">
+        <div className="lg:sticky lg:top-24 self-start min-w-0">
 
           <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-400 mb-2">
             {product.subCategory}
