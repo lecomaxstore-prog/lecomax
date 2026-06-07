@@ -126,8 +126,8 @@ export default function AidePage() {
             <span className="text-white/60">Centre d&apos;aide</span>
           </nav>
 
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.35em] bg-[#3ecf4c]/10 text-[#3ecf4c] border border-[#3ecf4c]/20 px-3 py-1.5 rounded-full w-fit mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] inline-block" />
+          <span className="inline-flex items-center gap-2 text-[11px] font-semibold bg-white/[0.07] border border-white/15 text-white/70 px-4 py-2 rounded-full w-fit mb-8">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#3ecf4c]"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
             Centre d&apos;aide
           </span>
 
@@ -168,77 +168,106 @@ export default function AidePage() {
       </div>
 
       {/* ── FAQ ── */}
-      <div id="faq-section" className="max-w-5xl mx-auto px-6 pt-14 pb-16">
+      <div id="faq-section" className="max-w-5xl mx-auto px-6 pt-16 pb-20">
 
-        {/* Active topic header */}
-        <div className="flex items-center gap-4 mb-6">
-          {(() => {
-            const t = topics.find((t) => t.id === activeGroup)!;
-            return (
-              <>
-                <div className="w-10 h-10 rounded-xl bg-[#3ecf4c]/10 flex items-center justify-center text-[#3ecf4c]">
-                  {t.icon}
-                </div>
-                <div>
-                  <p className="font-black text-[11px] uppercase tracking-widest text-[#3ecf4c]">{t.label}</p>
-                  <p className="text-neutral-400 text-[12px]">{t.desc}</p>
-                </div>
-              </>
-            );
-          })()}
-        </div>
+        {/* Section label */}
+        <p className="text-[10px] font-black uppercase tracking-[0.35em] text-neutral-400 mb-8">Questions fréquentes</p>
 
-        {/* Tab bar */}
-        <div className="flex overflow-x-auto gap-1 mb-6 pb-1">
-          {faqGroups.map((g) => (
-            <button
-              key={g.id}
-              onClick={() => { setActiveGroup(g.id); setOpenFaq(null); }}
-              className={`px-4 py-2 text-[11px] font-black uppercase tracking-widest whitespace-nowrap rounded-full transition-all ${
-                activeGroup === g.id
-                  ? "bg-neutral-950 text-white"
-                  : "text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100"
-              }`}
-            >
-              {g.label}
-            </button>
-          ))}
-        </div>
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
 
-        {/* FAQ accordion */}
-        <div className="border border-neutral-100 rounded-2xl overflow-hidden divide-y divide-neutral-50">
-          {current.faqs.map((faq) => (
-            <div key={faq.q}>
-              <button
-                onClick={() => setOpenFaq(openFaq === faq.q ? null : faq.q)}
-                className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-neutral-50/70 transition-colors"
-              >
-                <span className="font-bold text-[15px] pr-6 leading-snug">{faq.q}</span>
-                <span className={`shrink-0 w-7 h-7 rounded-full border flex items-center justify-center font-black text-[16px] transition-all ${
-                  openFaq === faq.q ? "bg-[#3ecf4c] border-[#3ecf4c] text-black" : "border-neutral-200 text-neutral-400"
-                }`}>
-                  {openFaq === faq.q ? "−" : "+"}
-                </span>
-              </button>
-              {openFaq === faq.q && (
-                <div className="px-6 pb-5 bg-neutral-50/50">
-                  <p className="text-[14px] text-neutral-500 leading-relaxed max-w-2xl">{faq.a}</p>
-                </div>
-              )}
+          {/* Left: topic sidebar */}
+          <div className="lg:w-56 shrink-0">
+            <div className="flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-1 pb-1 lg:pb-0">
+              {topics.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => { setActiveGroup(t.id); setOpenFaq(null); }}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left whitespace-nowrap lg:whitespace-normal transition-all ${
+                    activeGroup === t.id
+                      ? "bg-[#3ecf4c]/8 text-neutral-900"
+                      : "text-neutral-400 hover:text-neutral-700 hover:bg-neutral-50"
+                  }`}
+                >
+                  <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                    activeGroup === t.id ? "bg-[#3ecf4c]/15 text-[#3ecf4c]" : "bg-neutral-100 text-neutral-400"
+                  }`}>
+                    {t.icon}
+                  </div>
+                  <div className="text-left hidden lg:block">
+                    <p className={`font-black text-[12px] uppercase tracking-wider leading-none mb-0.5 ${
+                      activeGroup === t.id ? "text-neutral-900" : "text-neutral-500"
+                    }`}>{t.label}</p>
+                    <p className="text-neutral-400 text-[11px]">{t.desc}</p>
+                  </div>
+                  <span className="lg:hidden font-black text-[11px] uppercase tracking-wide">{t.label}</span>
+                </button>
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* Right: accordion */}
+          <div className="flex-1">
+            {/* Active topic label */}
+            {(() => {
+              const t = topics.find((t) => t.id === activeGroup)!;
+              return (
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-neutral-100">
+                  <div className="w-9 h-9 rounded-xl bg-[#3ecf4c]/10 flex items-center justify-center text-[#3ecf4c] shrink-0">{t.icon}</div>
+                  <div>
+                    <p className="font-black text-base uppercase tracking-wide text-neutral-900 leading-none mb-0.5">{t.label}</p>
+                    <p className="text-neutral-400 text-[12px]">{t.desc}</p>
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div className="divide-y divide-neutral-100">
+              {current.faqs.map((faq, i) => (
+                <div key={faq.q}>
+                  <button
+                    onClick={() => setOpenFaq(openFaq === faq.q ? null : faq.q)}
+                    className="w-full flex items-center justify-between py-5 text-left group"
+                  >
+                    <div className="flex items-start gap-4 pr-6">
+                      <span className="text-[11px] font-black text-neutral-300 tabular-nums mt-0.5 shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                      <span className={`font-semibold text-[15px] leading-snug transition-colors ${
+                        openFaq === faq.q ? "text-[#3ecf4c]" : "text-neutral-800 group-hover:text-neutral-950"
+                      }`}>{faq.q}</span>
+                    </div>
+                    <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                      openFaq === faq.q
+                        ? "bg-[#3ecf4c] text-black"
+                        : "bg-neutral-100 text-neutral-400 group-hover:bg-neutral-200"
+                    }`}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`transition-transform duration-200 ${
+                        openFaq === faq.q ? "rotate-45" : ""
+                      }`}><path d="M12 5v14M5 12h14"/></svg>
+                    </div>
+                  </button>
+                  {openFaq === faq.q && (
+                    <div className="pb-6 pl-8">
+                      <p className="text-[14px] text-neutral-500 leading-relaxed">{faq.a}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* ── Contact CTA ── */}
       <div className="bg-neutral-950 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-14 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+        <div className="max-w-5xl mx-auto px-6 py-16 flex flex-col md:flex-row md:items-center md:justify-between gap-10">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-[#3ecf4c] mb-2">Contact direct</p>
-            <h2 className="font-black text-2xl sm:text-3xl uppercase tracking-tight mb-2">
+            <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.35em] text-[#3ecf4c] mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] inline-block" />
+              Contact direct
+            </span>
+            <h2 className="font-black text-2xl sm:text-3xl uppercase tracking-tight mb-3 leading-tight">
               Vous n&apos;avez pas trouvé<br />votre réponse ?
             </h2>
-            <p className="text-white/40 text-sm max-w-md">
+            <p className="text-white/40 text-sm max-w-sm leading-relaxed">
               Notre équipe répond en moins de 2h. Choisissez votre canal préféré.
             </p>
           </div>
