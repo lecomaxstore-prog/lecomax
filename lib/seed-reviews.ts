@@ -349,7 +349,7 @@ const SEED_REVIEWS: Record<string, SeedReview[]> = {
       rating: 5,
       title: "Parfait école + voyage",
       body: "Je l'utilise d'abord comme sac à dos école avec mon laptop 15 pouces qui rentre parfaitement. Pour les déplacements j'active la poche sous vide et j'optimise l'espace. Les bretelles rembourrées sont vraiment confortables même portées longtemps.",
-      color: "Gris",
+      color: "Noir",
       created_at: "2026-05-28T15:30:00.000Z",
     },
     {
@@ -359,7 +359,7 @@ const SEED_REVIEWS: Record<string, SeedReview[]> = {
       rating: 5,
       title: "Grande capacité, petit encombrement",
       body: "43 cm de hauteur et pourtant il rentre en cabine avion sans problème. J'ai voyagé Tanger-Paris avec lui, pas de soute, tout dans le sac. La poche de compression tient bien fermée même avec beaucoup d'affaires dedans.",
-      color: "Gris",
+      color: "Noir",
       created_at: "2026-05-18T08:45:00.000Z",
     },
     {
@@ -379,7 +379,7 @@ const SEED_REVIEWS: Record<string, SeedReview[]> = {
       rating: 5,
       title: "Idéal pour les déplacements business",
       body: "En déplacement professionnel chaque semaine, ce sac est devenu mon compagnon indispensable. Il accueille mon laptop, mes dossiers, et mes vêtements pour 2 jours grâce à la compression. Look professionnel et fonctionnalité au top.",
-      color: "Gris",
+      color: "Noir",
       created_at: "2026-04-25T09:00:00.000Z",
     },
     {

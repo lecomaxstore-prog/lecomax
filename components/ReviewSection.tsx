@@ -40,6 +40,7 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [colorFilter, setColorFilter] = useState<string>("Tous");
 
   // Form state
   const [email, setEmail] = useState("");
@@ -352,8 +353,40 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
           ))}
         </div>
       ) : (
-        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 scroll-smooth">
-          {reviews.map((r) => (
+        <>
+          {/* Color filter buttons */}
+          {(() => {
+            const colors = Array.from(new Set(reviews.map(r => r.color).filter(Boolean))) as string[];
+            if (colors.length < 2) return null;
+            const all = ["Tous", ...colors];
+            return (
+              <div className="flex flex-wrap gap-2 mb-5">
+                {all.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setColorFilter(c)}
+                    className={`px-3.5 py-1.5 text-[12px] font-bold border transition-colors ${
+                      colorFilter === c
+                        ? "bg-black text-white border-black"
+                        : "bg-white text-neutral-600 border-neutral-200 hover:border-black hover:text-black"
+                    }`}
+                  >
+                    {c}
+                    {c !== "Tous" && (
+                      <span className="ml-1.5 text-[11px] opacity-60">
+                        ({reviews.filter(r => r.color === c).length})
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
+
+          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 scroll-smooth">
+            {reviews
+              .filter(r => colorFilter === "Tous" || r.color === colorFilter)
+              .map((r) => (
             <div key={r.id} className="flex flex-col gap-3 p-5 border border-neutral-100 bg-white flex-none w-[300px] md:w-[340px]">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
@@ -387,6 +420,7 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
             </div>
           ))}
         </div>
+        </>
       )}
     </section>
   );
