@@ -59,55 +59,62 @@ export default function CarrieresPage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Hero — split layout */}
-      <div className="bg-neutral-950 text-white overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row min-h-[520px]">
+      {/* Hero — split layout, image bleeds to right edge */}
+      <div className="relative bg-neutral-950 text-white overflow-hidden min-h-[520px] flex flex-col lg:flex-row">
 
-          {/* Left: text */}
-          <div className="lg:w-[46%] shrink-0 px-6 sm:px-10 lg:px-14 py-14 flex flex-col justify-center">
-            <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-8">
-              <Link href="/" className="hover:text-white/60 transition-colors">Accueil</Link>
-              <span>/</span>
-              <span className="text-white/70">Carrières</span>
-            </nav>
-            <span className="inline-flex w-fit text-[10px] font-black uppercase tracking-[0.4em] bg-[#3ecf4c] text-black px-3 py-1 rounded-full mb-5">
-              Rejoignez-nous
-            </span>
-            <h1 className="font-black text-4xl sm:text-5xl md:text-6xl uppercase tracking-tighter leading-none mb-5">
-              Construisez<br />
-              <span className="text-[#3ecf4c]">l&apos;avenir</span><br />
-              avec nous
-            </h1>
-            <p className="text-white/50 text-sm max-w-xl leading-relaxed mb-8">
-              Nous bâtissons l&apos;avenir du retail au Maroc depuis Sidi Bennour.
-              Rejoignez une équipe passionnée, ambitieuse et soudée.
-            </p>
-            <a
-              href="#postes"
-              className="inline-flex items-center gap-2.5 w-fit bg-[#3ecf4c] text-black font-black text-[12px] uppercase tracking-widest px-7 py-4 rounded-full hover:bg-[#32b83d] transition-colors"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-              Découvrir nos opportunités
-            </a>
-          </div>
-
-          {/* Right: image */}
-          <div className="relative flex-1 min-h-[320px] lg:min-h-0 overflow-hidden">
-            <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
-            <Image
-              src="/images/pages/carrieres.png"
-              alt="Boutique L'ecomax"
-              fill
-              sizes="(max-width: 1024px) 100vw, 52vw"
-              className="object-cover object-center"
-              priority
-            />
-          </div>
-
+        {/* Left: text — constrained to left half */}
+        <div className="relative z-10 w-full lg:w-[46%] shrink-0 px-6 sm:px-10 lg:px-14 py-14 flex flex-col justify-center">
+          <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-8">
+            <Link href="/" className="hover:text-white/60 transition-colors">Accueil</Link>
+            <span>/</span>
+            <span className="text-white/70">Carrières</span>
+          </nav>
+          <span className="inline-flex w-fit text-[10px] font-black uppercase tracking-[0.4em] bg-[#3ecf4c] text-black px-3 py-1 rounded-full mb-5">
+            Rejoignez-nous
+          </span>
+          <h1 className="font-black text-4xl sm:text-5xl md:text-6xl uppercase tracking-tighter leading-none mb-5">
+            Construisez<br />
+            <span className="text-[#3ecf4c]">l&apos;avenir</span><br />
+            avec nous
+          </h1>
+          <p className="text-white/50 text-sm max-w-xl leading-relaxed mb-8">
+            Nous bâtissons l&apos;avenir du retail au Maroc depuis Sidi Bennour.
+            Rejoignez une équipe passionnée, ambitieuse et soudée.
+          </p>
+          <a
+            href="#postes"
+            className="inline-flex items-center gap-2.5 w-fit bg-[#3ecf4c] text-black font-black text-[12px] uppercase tracking-widest px-7 py-4 rounded-full hover:bg-[#32b83d] transition-colors"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Découvrir nos opportunités
+          </a>
         </div>
+
+        {/* Right: image — from 46% to right edge */}
+        <div className="relative flex-1 min-h-[320px] lg:min-h-0 overflow-hidden">
+          {/* Fade blend on left edge into dark bg */}
+          <div className="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
+          {/* Badge */}
+          <div className="absolute top-8 right-8 z-20 bg-[#3ecf4c] text-black text-center rounded-2xl p-4 w-28 shadow-xl">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-1">
+              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
+              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+            </svg>
+            <p className="font-black text-[9px] uppercase tracking-wider leading-tight">Ensemble<br/>pour un<br/>avenir<br/>durable</p>
+          </div>
+          <Image
+            src="/images/pages/carrieres.png"
+            alt="Boutique L'ecomax"
+            fill
+            sizes="(max-width: 1024px) 100vw, 54vw"
+            className="object-cover object-center"
+            priority
+          />
+        </div>
+
       </div>
 
       {/* Stats bar */}
