@@ -28,8 +28,6 @@ export async function POST(req: NextRequest) {
     title: title || null,
     body: review_body,
     color: color || null,
-    verified: true,
-    approved: true,
   }).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
