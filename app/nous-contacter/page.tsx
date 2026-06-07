@@ -12,10 +12,33 @@ const WHATSAPP_ICON = (
 export default function NousContacterPage() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const MSG_MAX = 500;
 
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
   }
+
+  const focusStyle = {
+    borderColor: "rgba(62,207,76,0.6)",
+    background: "rgba(62,207,76,0.05)",
+    boxShadow: "0 0 0 3px rgba(62,207,76,0.1)",
+  };
+  const blurStyle = (filled: boolean) => ({
+    borderColor: filled ? "rgba(62,207,76,0.4)" : "rgba(255,255,255,0.09)",
+    background: filled ? "rgba(62,207,76,0.04)" : "rgba(255,255,255,0.04)",
+    boxShadow: "none",
+  });
+  const baseInputStyle = (filled: boolean): React.CSSProperties => ({
+    background: filled ? "rgba(62,207,76,0.04)" : "rgba(255,255,255,0.04)",
+    border: `1px solid ${filled ? "rgba(62,207,76,0.4)" : "rgba(255,255,255,0.09)"}`,
+    transition: "border-color 0.2s, background 0.2s, box-shadow 0.2s",
+  });
+
+  const Check = ({ show }: { show: boolean }) => show ? (
+    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#3ecf4c] pointer-events-none">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </span>
+  ) : null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -42,104 +65,175 @@ export default function NousContacterPage() {
   const formCard = (
     <>
       {status === "success" ? (
-        <div className="rounded-3xl border border-[#3ecf4c]/20 p-8 text-center" style={{ background: "rgba(18,18,18,0.98)" }}>
-          <div className="w-14 h-14 rounded-full bg-[#3ecf4c]/15 border border-[#3ecf4c]/30 flex items-center justify-center mx-auto mb-4">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
+        /* ── SUCCESS STATE ─────────────────────────── */
+        <div className="rounded-3xl overflow-hidden text-center"
+          style={{ background: "linear-gradient(160deg,rgba(22,22,22,0.99) 0%,rgba(10,10,10,1) 100%)", boxShadow: "0 0 0 1px rgba(62,207,76,0.25), 0 0 60px rgba(62,207,76,0.06), 0 32px 80px rgba(0,0,0,0.9)" }}>
+          <div className="h-[2px]" style={{ background: "linear-gradient(to right,transparent 5%,#3ecf4c 45%,#2db83a 55%,transparent 95%)" }} />
+          <div className="px-8 py-12">
+            <div className="relative w-20 h-20 mx-auto mb-6">
+              <div className="absolute inset-0 rounded-full bg-[#3ecf4c]/15 animate-ping" style={{ animationDuration: "2.5s" }} />
+              <div className="relative w-20 h-20 rounded-full bg-[#3ecf4c]/15 border border-[#3ecf4c]/35 flex items-center justify-center">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+            </div>
+            <h2 className="font-black text-xl uppercase tracking-tight text-white mb-2">Message envoyé !</h2>
+            <p className="text-white/40 text-sm leading-relaxed max-w-xs mx-auto mb-8">
+              On vous répond dans les plus brefs délais.<br />Merci de nous faire confiance.
+            </p>
+            <button onClick={() => setStatus("idle")}
+              className="bg-[#3ecf4c] text-black font-black text-[11px] uppercase tracking-widest px-8 py-3.5 rounded-full hover:bg-[#2db83a] hover:scale-105 transition-all">
+              Nouveau message
+            </button>
           </div>
-          <h2 className="font-black text-lg uppercase tracking-tighter text-white mb-2">Message envoyé !</h2>
-          <p className="text-white/40 text-[13px] mb-6">On vous répond dans les plus brefs délais.</p>
-          <button onClick={() => setStatus("idle")} className="bg-[#3ecf4c] text-black font-black text-[11px] uppercase tracking-widest px-6 py-3 rounded-full hover:bg-[#2db83a] transition-colors">
-            Nouveau message
-          </button>
         </div>
       ) : (
+        /* ── FORM ──────────────────────────────────── */
         <form onSubmit={handleSubmit} className="rounded-3xl overflow-hidden"
-          style={{ background: "linear-gradient(160deg, rgba(22,22,22,0.98) 0%, rgba(10,10,10,0.99) 100%)", boxShadow: "0 0 0 1px rgba(62,207,76,0.18), 0 24px 60px rgba(0,0,0,0.8)" }}>
-          {/* Green shimmer top bar */}
-          <div className="h-[2px]" style={{ background: "linear-gradient(to right, transparent 0%, #3ecf4c 50%, transparent 100%)" }} />
+          style={{ background: "linear-gradient(160deg,rgba(22,22,22,0.99) 0%,rgba(10,10,10,1) 100%)", boxShadow: "0 0 0 1px rgba(62,207,76,0.2), 0 0 50px rgba(62,207,76,0.05), 0 32px 80px rgba(0,0,0,0.9)" }}>
+
+          {/* Top shimmer bar */}
+          <div className="h-[2px]" style={{ background: "linear-gradient(to right,transparent 5%,#3ecf4c 45%,#2db83a 55%,transparent 95%)" }} />
+
           {/* Header */}
-          <div className="py-5 px-6 text-center" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-            <h2 className="font-black text-[17px] sm:text-[18px] uppercase tracking-tight text-white">
-              Formulaire de <span className="text-[#3ecf4c]">Contact</span>
-            </h2>
-            <p className="text-white/25 text-[10px] mt-0.5 tracking-wide">Tous les champs sont obligatoires</p>
+          <div className="pt-6 pb-5 px-6 sm:px-7 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <div>
+              <h2 className="font-black text-[17px] sm:text-[18px] uppercase tracking-tight text-white leading-tight">
+                Formulaire de <span className="text-[#3ecf4c]">Contact</span>
+              </h2>
+              <p className="text-white/25 text-[10px] mt-0.5 tracking-wider font-medium">Tous les champs sont obligatoires</p>
+            </div>
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-[#3ecf4c] shrink-0"
+              style={{ background: "rgba(62,207,76,0.08)", border: "1px solid rgba(62,207,76,0.2)" }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+              </svg>
+            </div>
           </div>
+
           {/* Fields */}
-          <div className="p-4 sm:p-6 space-y-3">
-            <div>
-              <label className="block text-[9px] font-black uppercase tracking-[0.15em] text-white/35 mb-1.5">Votre Nom</label>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </span>
-                <input type="text" value={form.name} onChange={(e) => set("name", e.target.value)}
-                  placeholder="Youssef Alami" required
-                  className="w-full rounded-xl pl-9 pr-4 py-3 text-white text-[14px] placeholder-white/20 focus:outline-none transition-all"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(62,207,76,0.5)"; e.currentTarget.style.background = "rgba(62,207,76,0.04)"; }}
-                  onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-                />
+          <div className="px-6 sm:px-7 pt-5 pb-6 space-y-3.5">
+
+            {/* Row 1: Name + Email side by side */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Name */}
+              <div>
+                <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-white/35 mb-1.5">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Nom
+                </label>
+                <div className="relative">
+                  <input type="text" value={form.name} onChange={(e) => set("name", e.target.value)}
+                    placeholder="Youssef Alami" required
+                    className="w-full rounded-xl pl-3.5 pr-8 py-3 text-white text-[13px] placeholder-white/20 focus:outline-none"
+                    style={baseInputStyle(!!form.name)}
+                    onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
+                    onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle(!!form.name))}
+                  />
+                  <Check show={!!form.name} />
+                </div>
+              </div>
+              {/* Email */}
+              <div>
+                <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-white/35 mb-1.5">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  Email
+                </label>
+                <div className="relative">
+                  <input type="email" value={form.email} onChange={(e) => set("email", e.target.value)}
+                    placeholder="vous@email.com" required
+                    className="w-full rounded-xl pl-3.5 pr-8 py-3 text-white text-[13px] placeholder-white/20 focus:outline-none"
+                    style={baseInputStyle(!!form.email)}
+                    onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
+                    onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle(!!form.email))}
+                  />
+                  <Check show={!!form.email} />
+                </div>
               </div>
             </div>
+
+            {/* Subject */}
             <div>
-              <label className="block text-[9px] font-black uppercase tracking-[0.15em] text-white/35 mb-1.5">Votre Email</label>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                </span>
-                <input type="email" value={form.email} onChange={(e) => set("email", e.target.value)}
-                  placeholder="vous@exemple.com" required
-                  className="w-full rounded-xl pl-9 pr-4 py-3 text-white text-[14px] placeholder-white/20 focus:outline-none transition-all"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(62,207,76,0.5)"; e.currentTarget.style.background = "rgba(62,207,76,0.04)"; }}
-                  onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-[9px] font-black uppercase tracking-[0.15em] text-white/35 mb-1.5">Sujet</label>
+              <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-white/35 mb-1.5">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+                Sujet
+              </label>
               <div className="relative">
                 <select value={form.subject} onChange={(e) => set("subject", e.target.value)} required
-                  className="w-full rounded-xl px-4 py-3 text-[14px] focus:outline-none transition-all appearance-none cursor-pointer"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: form.subject ? "white" : "rgba(255,255,255,0.25)" }}>
-                  <option value="" disabled style={{ color: "#666", background: "#111" }}>Choisir un sujet…</option>
-                  <option value="Question sur une commande" style={{ color: "white", background: "#111" }}>Question sur une commande</option>
-                  <option value="Question sur un produit" style={{ color: "white", background: "#111" }}>Question sur un produit</option>
-                  <option value="Retour / Remboursement" style={{ color: "white", background: "#111" }}>Retour / Remboursement</option>
-                  <option value="Partenariat" style={{ color: "white", background: "#111" }}>Partenariat</option>
-                  <option value="Autre" style={{ color: "white", background: "#111" }}>Autre</option>
+                  className="w-full rounded-xl px-4 py-3 text-[13px] focus:outline-none appearance-none cursor-pointer"
+                  style={{ ...baseInputStyle(!!form.subject), color: form.subject ? "white" : "rgba(255,255,255,0.22)" }}
+                  onFocus={(e) => Object.assign(e.currentTarget.style, { ...focusStyle, color: form.subject ? "white" : "rgba(255,255,255,0.22)" })}
+                  onBlur={(e) => Object.assign(e.currentTarget.style, { ...blurStyle(!!form.subject), color: form.subject ? "white" : "rgba(255,255,255,0.22)" })}>
+                  <option value="" disabled style={{ color: "#555", background: "#111" }}>Choisir un sujet…</option>
+                  {["Question sur une commande","Question sur un produit","Retour / Remboursement","Partenariat","Autre"].map((s) => (
+                    <option key={s} value={s} style={{ color: "white", background: "#111" }}>{s}</option>
+                  ))}
                 </select>
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#3ecf4c]/60 pointer-events-none">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: form.subject ? "#3ecf4c" : "rgba(255,255,255,0.3)" }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </span>
               </div>
             </div>
+
+            {/* Message */}
             <div>
-              <label className="block text-[9px] font-black uppercase tracking-[0.15em] text-white/35 mb-1.5">Votre Message</label>
-              <textarea value={form.message} onChange={(e) => set("message", e.target.value)}
-                placeholder="Décrivez votre demande en détail…" required rows={4}
-                className="w-full rounded-xl px-4 py-3 text-white text-[14px] placeholder-white/20 focus:outline-none transition-all resize-none"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(62,207,76,0.5)"; e.currentTarget.style.background = "rgba(62,207,76,0.04)"; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-              />
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-white/35">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  Message
+                </label>
+                <span className={`text-[9px] font-bold tabular-nums transition-colors ${form.message.length > MSG_MAX * 0.85 ? "text-[#3ecf4c]" : "text-white/20"}`}>
+                  {form.message.length}/{MSG_MAX}
+                </span>
+              </div>
+              <div className="relative">
+                <textarea value={form.message} onChange={(e) => set("message", e.target.value.slice(0, MSG_MAX))}
+                  placeholder="Décrivez votre demande en détail…" required rows={5}
+                  className="w-full rounded-xl px-4 py-3 text-white text-[13px] placeholder-white/20 focus:outline-none resize-none"
+                  style={baseInputStyle(!!form.message)}
+                  onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
+                  onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle(!!form.message))}
+                />
+                {form.message && (
+                  <span className="absolute right-3.5 top-3.5 text-[#3ecf4c] pointer-events-none">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                )}
+              </div>
             </div>
+
+            {/* Error */}
             {status === "error" && (
-              <p className="text-red-400 text-[11px] font-semibold">Erreur. Réessayez ou contactez-nous sur WhatsApp.</p>
+              <div className="flex items-center gap-2 rounded-xl px-4 py-2.5" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <p className="text-red-400 text-[11px] font-bold">Erreur. Réessayez ou contactez-nous sur WhatsApp.</p>
+              </div>
             )}
+
+            {/* Submit */}
             <button type="submit" disabled={status === "loading"}
-              className="w-full text-black font-black text-[13px] uppercase tracking-widest py-3.5 rounded-xl disabled:opacity-60 transition-all flex items-center justify-center gap-2"
-              style={{ background: "linear-gradient(135deg, #3ecf4c 0%, #2db83a 100%)", boxShadow: "0 4px 20px rgba(62,207,76,0.3)" }}>
+              className="relative w-full text-black font-black text-[12px] uppercase tracking-widest py-4 rounded-xl disabled:opacity-60 transition-all flex items-center justify-center gap-2 overflow-hidden group hover:scale-[1.01] active:scale-[0.99]"
+              style={{ background: "linear-gradient(135deg,#3ecf4c 0%,#2db83a 100%)", boxShadow: "0 4px 24px rgba(62,207,76,0.35), 0 1px 0 rgba(255,255,255,0.15) inset" }}>
+              {/* Shimmer overlay */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.18) 50%,transparent 60%)" }} />
               {status === "loading" ? (
-                <><svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>Envoi en cours…</>
+                <>
+                  <svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+                  Envoi en cours…
+                </>
               ) : (
-                <>Envoyer le message <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></>
+                <>
+                  Envoyer le message
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                </>
               )}
             </button>
-            <p className="text-center text-white/20 text-[10px] flex items-center justify-center gap-1.5 pb-1">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+
+            {/* Trust note */}
+            <p className="text-center text-white/20 text-[10px] flex items-center justify-center gap-1.5 pt-0.5">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
               Vos données sont protégées et ne seront jamais partagées
             </p>
           </div>

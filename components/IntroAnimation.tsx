@@ -2,67 +2,22 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 
-// ─── Deterministic PRNG ───────────────────────────────────────────────────────
-const R = (n: number) => {
-  const a = 1664525, c = 1013904223, m = 0x100000000;
-  return ((a * n + c) % m) / m;
-};
+type Phase = "black" | "aurora" | "welcome" | "reveal" | "flare" | "hold" | "exit" | "done";
 
-// ─── 60 particles ────────────────────────────────────────────────────────────
-const PARTICLES = Array.from({ length: 60 }, (_, i) => ({
-  id:    i,
-  x:     R(i * 17 +  1) * 100,
-  y:     R(i * 23 +  2) * 100,
-  size:  R(i * 11 +  3) * 3.2 + 0.6,
-  dur:   R(i *  7 +  4) * 3.8 + 1.6,
-  del:   R(i * 13 +  5) * 4.4,
-  op:    R(i * 19 +  6) * 0.45 + 0.08,
-  shape: i % 4,
-  col:   (["#fff","#fff","#3ecf4c","#9dfca7","#c8ffd0","#fff"] as const)[i % 6],
-}));
-
-// ─── Bokeh blobs ──────────────────────────────────────────────────────────────
-const BOKEH = [
-  { x: 12, y: 24, r: 200, op: 0.055, dx:  18, dy:  14 },
-  { x: 80, y: 64, r: 140, op: 0.045, dx: -13, dy:  20 },
-  { x: 48, y:  3, r: 220, op: 0.032, dx:   9, dy:  26 },
-  { x: 18, y: 78, r: 120, op: 0.052, dx:  22, dy: -11 },
-  { x: 75, y: 14, r: 110, op: 0.062, dx: -18, dy:  15 },
-  { x: 55, y: 89, r:  96, op: 0.042, dx:  11, dy: -20 },
+// Only 4 bokeh specks – fewer composited layers, better perf
+const SPECKS = [
+  { x: 22, y: 40, size: 5,   blur: 10, dur: 9,  del: 0.0, op: 0.10, green: false },
+  { x: 76, y: 52, size: 4,   blur: 7,  dur: 11, del: 0.5, op: 0.09, green: true  },
+  { x: 50, y: 28, size: 3.5, blur: 6,  dur: 10, del: 0.8, op: 0.08, green: true  },
+  { x: 80, y: 44, size: 4.5, blur: 8,  dur: 12, del: 0.2, op: 0.08, green: false },
 ];
 
-// ─── Radial rays ──────────────────────────────────────────────────────────────
-const RAYS = Array.from({ length: 36 }, (_, i) => ({
-  id:    i,
-  angle: i * (360 / 36),
-  len:   R(i * 31 + 7) * 34 + 18,
-  op:    R(i * 41 + 9) * 0.15 + 0.05,
-}));
-
-// ─── Corner brackets ──────────────────────────────────────────────────────────
-const CORNERS: Array<{
-  pos: { top?: number; bottom?: number; left?: number; right?: number };
-  bt?: boolean; bb?: boolean; bl?: boolean; br?: boolean;
-}> = [
-  { pos: { top: 22, left: 22 },     bt: true,  bl: true  },
-  { pos: { top: 22, right: 22 },    bt: true,  br: true  },
-  { pos: { bottom: 44, left: 22 },  bb: true,  bl: true  },
-  { pos: { bottom: 44, right: 22 }, bb: true,  br: true  },
-];
-
-// ─── Types & constants ────────────────────────────────────────────────────────
-type Phase = "init" | "scan" | "letters" | "glow" | "hold" | "exit" | "done";
-const CIRC      = 2 * Math.PI * 16;
-const SMILE_LEN = 115;
-const PROG: Record<Phase, number> = {
-  init: 0.02, scan: 0.18, letters: 0.48, glow: 0.74, hold: 1, exit: 1, done: 1,
-};
+const SMILE_DASHARRAY = 108;
 
 export default function IntroAnimation() {
-  const [phase, setPhase]         = useState<Phase | null>(null);
-  const [shimmer, setShimmer]     = useState(false);
-  const [flash, setFlash]         = useState(false);
-  const [smileDraw, setSmileDraw] = useState(false);
+  const [phase, setPhase]       = useState<Phase | null>(null);
+  const [flare, setFlare]       = useState(false);
+  const [smileDraw, setSmile]   = useState(false);
 
   useEffect(() => {
     if (sessionStorage.getItem("intro_shown")) {
@@ -71,359 +26,275 @@ export default function IntroAnimation() {
       return;
     }
     sessionStorage.setItem("intro_shown", "1");
-    setPhase("init");
+    setPhase("black");
+
     const ts = [
-      setTimeout(() => setPhase("scan"),      150),
-      setTimeout(() => setPhase("letters"),   650),
-      setTimeout(() => setSmileDraw(true),    1050),
-      setTimeout(() => setPhase("glow"),      1380),
-      setTimeout(() => setShimmer(true),      1600),
-      setTimeout(() => setPhase("hold"),      2050),
-      setTimeout(() => setFlash(true),        3750),
-      setTimeout(() => setPhase("exit"),      3850),
+      setTimeout(() => setPhase("aurora"),                          80),
+      setTimeout(() => setPhase("welcome"),                        850),
+      setTimeout(() => setPhase("reveal"),                        1550),
+      setTimeout(() => setSmile(true),                            1980),
+      setTimeout(() => { setFlare(true); setPhase("flare"); },    2200),
+      setTimeout(() => setPhase("hold"),                          2650),
+      setTimeout(() => setPhase("exit"),                          4300),
       setTimeout(() => {
         sessionStorage.setItem("intro_done", "1");
         window.dispatchEvent(new Event("introDone"));
         setPhase("done");
-      }, 4750),
+      }, 5400),
     ];
     return () => ts.forEach(clearTimeout);
   }, []);
 
   if (!phase || phase === "done") return null;
 
-  const lit      = phase !== "init";
-  const letVis   = phase === "letters" || phase === "glow" || phase === "hold" || phase === "exit";
-  const glow     = phase === "glow"    || phase === "hold" || phase === "exit";
-  const tagline  = phase === "hold"    || phase === "exit";
-  const corners  = phase === "glow"    || phase === "hold" || phase === "exit";
-  const progress = PROG[phase] ?? 0;
-
-  const base: CSSProperties = { position: "absolute" };
+  const abs: CSSProperties = { position: "absolute" };
+  const isExit     = phase === "exit";
+  const auroraOn   = phase !== "black";
+  const welcomeVis = ["welcome", "reveal", "flare", "hold", "exit"].includes(phase);
+  const textVis    = ["reveal", "flare", "hold", "exit"].includes(phase);
+  const specksVis  = ["flare", "hold", "exit"].includes(phase);
+  const taglineVis = ["hold", "exit"].includes(phase);
 
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 9999,
       overflow: "hidden",
-      background: "#030303",
+      background: "#060606",
       pointerEvents: "none", userSelect: "none",
-      opacity:   phase === "exit" ? 0 : 1,
-      transform: phase === "exit" ? "scale(1.06)" : "scale(1)",
-      transition: phase === "exit"
-        ? "opacity 0.72s cubic-bezier(0.4,0,1,1) 0.08s, transform 0.95s cubic-bezier(0.4,0,1,1)"
-        : "none",
       willChange: "opacity, transform",
+      opacity:    isExit ? 0 : 1,
+      transform:  isExit ? "scale(1.035)" : "scale(1)",
+      transition: isExit
+        ? "opacity 1.1s cubic-bezier(0.4,0,1,1), transform 1.2s cubic-bezier(0.4,0,1,1)"
+        : "none",
     }}>
 
-      {/* ── Radial green atmosphere ── */}
+      {/* Vignette — single composited layer */}
       <div style={{
-        ...base, inset: 0,
-        background: "radial-gradient(ellipse 72% 58% at 50% 50%, rgba(62,207,76,0.22) 0%, rgba(0,18,5,0.36) 44%, transparent 72%)",
-        opacity: lit ? 1 : 0, transition: "opacity 1.6s ease",
+        ...abs, inset: 0, zIndex: 1,
+        background: "radial-gradient(ellipse 115% 95% at 50% 50%, transparent 18%, rgba(0,0,0,0.7) 58%, rgba(0,0,0,0.97) 100%)",
       }} />
 
-      {/* ── Vignette ── */}
+      {/* Aurora bloom — one layer, GPU promoted */}
       <div style={{
-        ...base, inset: 0,
-        background: "radial-gradient(ellipse 140% 120% at 50% 50%, transparent 30%, rgba(0,0,0,0.9) 100%)",
+        ...abs, zIndex: 2,
+        left: "50%", top: "50%",
+        width: "min(1100px, 150vw)", height: "min(600px, 82vh)",
+        transform: "translate(-50%, -50%) translateZ(0)",
+        background: "radial-gradient(ellipse 50% 42% at 50% 50%, rgba(62,207,76,0.13) 0%, rgba(28,130,38,0.05) 46%, transparent 70%)",
+        willChange: "opacity",
+        opacity: auroraOn ? 1 : 0,
+        transition: "opacity 2.6s cubic-bezier(0.16,1,0.3,1)",
       }} />
 
-      {/* ── Tech grid ── */}
-      <div style={{
-        ...base, inset: 0,
-        backgroundImage: [
-          "linear-gradient(rgba(62,207,76,0.026) 1px, transparent 1px)",
-          "linear-gradient(90deg, rgba(62,207,76,0.026) 1px, transparent 1px)",
-        ].join(", "),
-        backgroundSize: "56px 56px",
-        opacity: lit ? 1 : 0, transition: "opacity 1.5s ease 0.2s",
-      }} />
+      {/* Cinematic letterbox bars */}
+      <div style={{ ...abs, top: 0,    left: 0, right: 0, height: "10vh", background: "#000", zIndex: 8 }} />
+      <div style={{ ...abs, bottom: 0, left: 0, right: 0, height: "10vh", background: "#000", zIndex: 8 }} />
 
-      {/* ── Bokeh ── */}
-      {BOKEH.map((b, i) => (
+      {/* Bokeh specks — GPU layers via translateZ */}
+      {SPECKS.map((s, i) => (
         <div key={i} style={{
-          ...base, left: `${b.x}%`, top: `${b.y}%`,
-          width: b.r, height: b.r, borderRadius: "50%",
-          background: "#3ecf4c",
-          filter: `blur(${Math.round(b.r * 0.44)}px)`,
-          opacity: lit ? b.op : 0,
-          transition: `opacity 1.8s ease ${i * 0.12}s`,
-          animation: lit ? `__bk${i} ${7.5 + i * 1.1}s ease-in-out ${i * 0.33}s infinite alternate` : "none",
-        }} />
-      ))}
-
-      {/* ── Particles ── */}
-      {PARTICLES.map((p) => (
-        <div key={p.id} style={{
-          ...base, left: `${p.x}%`, top: `${p.y}%`,
-          width: p.size, height: p.size,
-          borderRadius: p.shape === 3 ? "0" : "50%",
-          background: p.col,
-          transform: p.shape === 3 ? "rotate(45deg)" : "none",
-          opacity: lit ? p.op : 0,
-          transition: `opacity 0.9s ease ${(p.del * 0.2).toFixed(2)}s`,
-          animation: lit ? `__sp${p.id % 4} ${p.dur.toFixed(2)}s ease-in-out ${p.del.toFixed(2)}s infinite` : "none",
-        }} />
-      ))}
-
-      {/* ── Pulse rings ── */}
-      {[0, 1, 2].map((i) => (
-        <div key={i} style={{
-          ...base, left: "50%", top: "50%",
-          transform: "translate(-50%, -50%)",
+          ...abs, zIndex: 3,
+          left: `${s.x}%`, top: `${s.y}%`,
+          width: s.size, height: s.size,
           borderRadius: "50%",
-          border: `1px solid rgba(62,207,76,${0.55 - i * 0.14})`,
-          boxShadow: `0 0 ${20 + i * 16}px rgba(62,207,76,${0.18 - i * 0.04}),
-                      inset 0 0 ${12 + i * 8}px rgba(62,207,76,${0.07 - i * 0.015})`,
-          animation: lit ? `__ring${i} ${2.6 + i * 0.75}s cubic-bezier(0.1,0,0.9,1) ${i * 0.38}s infinite` : "none",
-          opacity: lit ? 1 : 0,
+          background: s.green ? "#3ecf4c" : "#ffffff",
+          filter: `blur(${s.blur}px)`,
+          willChange: "opacity, transform",
+          opacity: specksVis ? s.op : 0,
+          transition: `opacity 1.8s ease ${s.del + 0.2}s`,
+          animation: specksVis
+            ? `__speck${i} ${s.dur}s ease-in-out ${s.del}s infinite alternate`
+            : "none",
         }} />
       ))}
 
-      {/* ── Radial rays (glow phase) ── */}
-      {glow && (
-        <div style={{ ...base, left: "50%", top: "50%", transform: "translate(-50%,-50%)", width: "220vmax", height: "220vmax" }}>
-          {RAYS.map((ray) => (
-            <div key={ray.id} style={{
-              ...base, left: "50%", top: "50%",
-              height: 1, width: `${ray.len}%`,
-              transformOrigin: "left center",
-              transform: `rotate(${ray.angle}deg)`,
-              background: `linear-gradient(90deg, rgba(62,207,76,${ray.op}) 0%, transparent 100%)`,
-            }} />
-          ))}
-        </div>
-      )}
+      {/* Anamorphic lens flare — 2 lines in one GPU layer */}
+      <svg style={{
+        ...abs, zIndex: 6,
+        inset: 0, width: "100%", height: "100%",
+        overflow: "visible",
+        animation: flare ? "__flareSvg 0.85s cubic-bezier(0.4,0,0.2,1) forwards" : "none",
+        opacity: 0,
+      }}>
+        <line x1="0%" y1="50%" x2="100%" y2="50%"
+          stroke="url(#fg1)" strokeWidth="1.5" />
+        <line x1="0%" y1="calc(50% + 5px)" x2="100%" y2="calc(50% + 5px)"
+          stroke="url(#fg2)" strokeWidth="0.5" />
+        <defs>
+          <linearGradient id="fg1" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%"   stopColor="transparent" />
+            <stop offset="14%"  stopColor="rgba(62,207,76,0.3)" />
+            <stop offset="50%"  stopColor="rgba(255,255,255,0.95)" />
+            <stop offset="86%"  stopColor="rgba(62,207,76,0.3)" />
+            <stop offset="100%" stopColor="transparent" />
+          </linearGradient>
+          <linearGradient id="fg2" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%"   stopColor="transparent" />
+            <stop offset="22%"  stopColor="rgba(62,207,76,0.35)" />
+            <stop offset="50%"  stopColor="rgba(255,255,255,0.6)" />
+            <stop offset="78%"  stopColor="rgba(62,207,76,0.35)" />
+            <stop offset="100%" stopColor="transparent" />
+          </linearGradient>
+        </defs>
+      </svg>
 
-      {/* ── Scan line ── */}
+      {/* Center content */}
       <div style={{
-        ...base, left: 0, right: 0, height: 3,
-        background: "linear-gradient(90deg, transparent 0%, rgba(62,207,76,0.35) 18%, rgba(62,207,76,1) 50%, rgba(62,207,76,0.35) 82%, transparent 100%)",
-        boxShadow: "0 0 24px 6px rgba(62,207,76,0.44), 0 0 64px 16px rgba(62,207,76,0.14)",
-        animation: phase === "scan" ? "__scan 1.2s cubic-bezier(0.22,0.08,0.28,1) forwards" : "none",
-        opacity: phase === "scan" ? 1 : 0,
-      }} />
-
-      {/* ══════════════════ CENTER ══════════════════ */}
-      <div style={{
-        ...base, inset: 0,
+        ...abs, inset: 0, zIndex: 5,
         display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
       }}>
 
-        {/* ── Wordmark ── */}
-        <div style={{ position: "relative" }}>
-
-          {/* Outer glow halo */}
-          <div style={{
-            ...base, inset: "-56px -44px",
-            borderRadius: 18,
-            background: "radial-gradient(ellipse 95% 72% at 50% 52%, rgba(62,207,76,0.3) 0%, transparent 70%)",
-            opacity: glow ? 1 : 0, transition: "opacity 1.1s ease",
-          }} />
-
-          {/* SVG wordmark — text slides from opposite sides */}
-          <div style={{ position: "relative", zIndex: 1, overflow: "hidden", paddingBottom: 18 }}>
-            <svg
-              viewBox="0 0 180 48"
-              width="clamp(270px, 52vw, 480px)"
-              height="auto"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              style={{ display: "block", overflow: "visible" }}
-            >
-              <defs>
-                <style>{`
-                  @keyframes __eco_in {
-                    from { opacity:0; transform:translateX(-48px); filter:blur(8px); }
-                    to   { opacity:1; transform:translateX(0);     filter:blur(0px); }
-                  }
-                  @keyframes __max_in {
-                    from { opacity:0; transform:translateX(48px);  filter:blur(8px); }
-                    to   { opacity:1; transform:translateX(0);     filter:blur(0px); }
-                  }
-                  @keyframes smileWiggle {
-                    0%,100% { transform:scaleX(1)    translateY(0px);  }
-                    30%     { transform:scaleX(1.07) translateY(1px);  }
-                    65%     { transform:scaleX(0.94) translateY(-1px); }
-                  }
-                  .intro-eco       { opacity:0; }
-                  .intro-eco.vis   { animation:__eco_in 0.55s cubic-bezier(0.34,1.3,0.64,1) forwards; }
-                  .intro-max       { opacity:0; }
-                  .intro-max.vis   { animation:__max_in 0.55s cubic-bezier(0.34,1.3,0.64,1) 0.07s forwards; }
-                  .intro-smile     {
-                    animation:smileWiggle 2.8s ease-in-out 0.8s infinite;
-                    transform-box:fill-box;
-                    transform-origin:center center;
-                  }
-                `}</style>
-              </defs>
-
-              <text
-                className={`intro-eco${letVis ? " vis" : ""}`}
-                x="0" y="36"
-                fontFamily="Inter, Helvetica Neue, Arial, sans-serif"
-                fontWeight="900" fontSize="34" fill="#ffffff" letterSpacing="-1"
-                style={{
-                  filter: glow ? "drop-shadow(0 0 14px rgba(255,255,255,0.55))" : "none",
-                  transition: "filter 0.65s ease",
-                }}
-              >L&apos;eco</text>
-
-              <text
-                className={`intro-max${letVis ? " vis" : ""}`}
-                x="93" y="36"
-                fontFamily="Inter, Helvetica Neue, Arial, sans-serif"
-                fontWeight="900" fontSize="34" fill="#3ecf4c" letterSpacing="-1"
-                style={{
-                  filter: glow
-                    ? "drop-shadow(0 0 22px rgba(62,207,76,0.9)) drop-shadow(0 0 44px rgba(62,207,76,0.45))"
-                    : "none",
-                  transition: "filter 0.65s ease",
-                }}
-              >max</text>
-
-              <path
-                className="intro-smile"
-                d="M 93 41 Q 135 50 177 41"
-                stroke="#3ecf4c" strokeWidth="3" strokeLinecap="round" fill="none"
-                strokeDasharray={SMILE_LEN}
-                strokeDashoffset={smileDraw ? 0 : SMILE_LEN}
-                style={{
-                  transition: smileDraw ? "stroke-dashoffset 0.58s cubic-bezier(0.4,0,0.2,1)" : "none",
-                  filter: glow ? "drop-shadow(0 0 7px rgba(62,207,76,0.95))" : "none",
-                }}
-              />
-            </svg>
-
-            {/* Shimmer sweep */}
-            <div style={{
-              ...base, inset: 0,
-              background: "linear-gradient(110deg, transparent 8%, rgba(255,255,255,0.68) 40%, rgba(255,255,255,0.16) 55%, transparent 82%)",
-              transform: shimmer ? "translateX(260%)" : "translateX(-260%)",
-              transition: shimmer ? "transform 0.56s cubic-bezier(0.4,0,0.2,1)" : "none",
-              pointerEvents: "none", zIndex: 3,
-            }} />
-          </div>
-
-          {/* Underline glow bar */}
-          <div style={{
-            position: "absolute", bottom: 0, left: "10%", right: "10%", height: 1,
-            background: "linear-gradient(90deg, transparent, rgba(62,207,76,0.5) 30%, rgba(62,207,76,0.5) 70%, transparent)",
-            opacity: glow ? 1 : 0, transition: "opacity 0.8s ease 0.3s",
-          }} />
+        {/* Welcome greeting */}
+        <div style={{ overflow: "hidden", marginBottom: "clamp(8px, 2vh, 20px)" }}>
+          <p style={{
+            margin: 0,
+            fontFamily: "Inter, 'Helvetica Neue', Arial, sans-serif",
+            fontWeight: 300,
+            fontSize: "clamp(9px, 1.2vw, 12px)",
+            letterSpacing: welcomeVis ? "0.45em" : "0.06em",
+            color: "rgba(255,255,255,0.30)",
+            textTransform: "uppercase",
+            paddingLeft: "0.45em",
+            willChange: "opacity, transform",
+            opacity:    welcomeVis ? 1 : 0,
+            transform:  welcomeVis ? "translateY(0)" : "translateY(22px)",
+            transition: "opacity 0.9s ease, transform 0.9s cubic-bezier(0.16,1,0.3,1), letter-spacing 1.8s cubic-bezier(0.4,0,0.2,1)",
+          }}>Bienvenue chez</p>
         </div>
 
-        {/* ── Tagline ── */}
+        {/* Wordmark — overflow hidden clips the upward reveal */}
+        {/* padding-bottom gives room for the smile arc inside */}
+        <div style={{ overflow: "hidden", paddingBottom: "26px" }}>
+          <div style={{
+            willChange: "transform, opacity",
+            transform:  textVis ? "translateY(0%)" : "translateY(110%)",
+            opacity:    textVis ? 1 : 0,
+            transition: "transform 1.1s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease",
+          }}>
+            {/* L'eco */}
+            <span style={{
+              fontFamily: "Inter, 'Helvetica Neue', Arial, sans-serif",
+              fontWeight: 900,
+              fontSize: "clamp(52px, 9.5vw, 94px)",
+              letterSpacing: "-0.04em",
+              color: "#ffffff",
+              lineHeight: 1,
+            }}>L&apos;eco</span>
+
+            {/* max + smile directly underneath */}
+            <span style={{ position: "relative", display: "inline-block" }}>
+              <span style={{
+                fontFamily: "Inter, 'Helvetica Neue', Arial, sans-serif",
+                fontWeight: 900,
+                fontSize: "clamp(52px, 9.5vw, 94px)",
+                letterSpacing: "-0.04em",
+                color: "#3ecf4c",
+                lineHeight: 1,
+                willChange: "filter",
+                filter: specksVis
+                  ? "drop-shadow(0 0 22px rgba(62,207,76,0.55))"
+                  : "none",
+                transition: "filter 1.6s ease 0.35s",
+              }}>max</span>
+
+              {/* Smile arc — absolutely under "max" only */}
+              <svg
+                viewBox="0 0 100 14"
+                preserveAspectRatio="none"
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 2px)",
+                  left: 0,
+                  width: "100%",
+                  height: 14,
+                  overflow: "visible",
+                  opacity: smileDraw ? 1 : 0,
+                  transition: "opacity 0.25s ease",
+                }}
+                fill="none"
+              >
+                <path
+                  d="M 2 5 Q 50 14 98 5"
+                  stroke="#3ecf4c"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  fill="none"
+                  strokeDasharray={SMILE_DASHARRAY}
+                  strokeDashoffset={smileDraw ? 0 : SMILE_DASHARRAY}
+                  style={{
+                    filter: specksVis
+                      ? "drop-shadow(0 0 5px rgba(62,207,76,1)) drop-shadow(0 0 12px rgba(62,207,76,0.55))"
+                      : "drop-shadow(0 0 3px rgba(62,207,76,0.65))",
+                    transition: smileDraw
+                      ? "stroke-dashoffset 0.68s cubic-bezier(0.4,0,0.2,1), filter 1.5s ease 0.5s"
+                      : "none",
+                  }}
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        {/* Tagline */}
         <p style={{
-          margin: "20px 0 0",
-          fontFamily: "'Inter','Helvetica Neue',Arial,sans-serif",
-          fontWeight: 700,
-          fontSize: "clamp(8px, 1.4vw, 10px)",
-          letterSpacing: tagline ? "0.65em" : "0.06em",
-          color: "rgba(255,255,255,0.3)",
+          margin: "clamp(10px, 1.6vh, 16px) 0 0",
+          fontFamily: "Inter, 'Helvetica Neue', Arial, sans-serif",
+          fontWeight: 300,
+          fontSize: "clamp(6px, 0.82vw, 9px)",
+          letterSpacing: taglineVis ? "0.58em" : "0.10em",
+          color: "rgba(255,255,255,0.16)",
           textTransform: "uppercase",
-          opacity: tagline ? 1 : 0,
-          transition: "opacity 0.7s ease 0.22s, letter-spacing 1.05s ease 0.15s",
+          paddingLeft: "0.58em",
+          willChange: "opacity",
+          opacity:    taglineVis ? 1 : 0,
+          transition: "opacity 1.2s ease 0.25s, letter-spacing 2s cubic-bezier(0.4,0,0.2,1) 0.1s",
         }}>
           Performance &amp; Style
         </p>
 
       </div>
 
-      {/* ── Progress ring ── */}
+      {/* Progress line inside bottom bar */}
       <div style={{
-        ...base, bottom: 28, left: "50%",
-        transform: "translateX(-50%)",
-        opacity: lit ? 1 : 0, transition: "opacity 0.5s ease",
+        ...abs, bottom: 0, left: 0, right: 0, height: "10vh",
+        zIndex: 9,
+        display: "flex", alignItems: "flex-end",
+        paddingBottom: "1.5vh",
       }}>
-        <svg width="44" height="44" viewBox="0 0 44 44"
-          style={{ transform: "rotate(-90deg)", display: "block" }}>
-          <circle cx="22" cy="22" r="16" fill="none"
-            stroke="rgba(255,255,255,0.045)" strokeWidth="1.5" />
-          <circle cx="22" cy="22" r="16" fill="none"
-            stroke="#3ecf4c" strokeWidth="1.5" strokeLinecap="round"
-            strokeDasharray={CIRC.toFixed(2)}
-            strokeDashoffset={(CIRC * (1 - progress)).toFixed(2)}
-            style={{
-              transition: "stroke-dashoffset 0.92s cubic-bezier(0.4,0,0.2,1)",
-              filter: "drop-shadow(0 0 5px rgba(62,207,76,0.78))",
-            }}
-          />
-          <circle cx="22" cy="22" r="2.5" fill="rgba(62,207,76,0.55)"
-            style={{ transform: "rotate(90deg)", transformOrigin: "22px 22px" }} />
-        </svg>
+        <div style={{ width: "100%", height: "0.5px", background: "rgba(255,255,255,0.04)" }}>
+          <div style={{
+            height: "100%",
+            background: "linear-gradient(90deg, transparent, rgba(62,207,76,0.45) 50%, #3ecf4c)",
+            boxShadow: "0 0 6px rgba(62,207,76,0.4)",
+            animation: auroraOn ? "__prog 4s linear forwards" : "none",
+          }} />
+        </div>
       </div>
 
-      {/* ── Corner brackets ── */}
-      {CORNERS.map((c, i) => (
-        <div key={i} style={{
-          ...base,
-          top: c.pos.top, bottom: c.pos.bottom,
-          left: c.pos.left, right: c.pos.right,
-          width: 28, height: 28,
-          borderTop:    c.bt ? "1.5px solid rgba(62,207,76,0.52)" : "none",
-          borderBottom: c.bb ? "1.5px solid rgba(62,207,76,0.52)" : "none",
-          borderLeft:   c.bl ? "1.5px solid rgba(62,207,76,0.52)" : "none",
-          borderRight:  c.br ? "1.5px solid rgba(62,207,76,0.52)" : "none",
-          opacity:   corners ? 1 : 0,
-          transform: corners ? "scale(1)" : "scale(0.1)",
-          transition: `opacity 0.42s ease ${0.08 + i * 0.08}s,
-                       transform 0.55s cubic-bezier(0.34,1.56,0.64,1) ${0.08 + i * 0.08}s`,
-        }} />
-      ))}
-
-      {/* ── White flash ── */}
-      <div style={{
-        ...base, inset: 0,
-        background: "#fff",
-        opacity: flash ? 0.18 : 0,
-        transition: flash ? "opacity 0.12s ease" : "none",
-      }} />
-
-      {/* ══════════════════ KEYFRAMES ══════════════════ */}
+      {/* Keyframes */}
       <style>{`
-        @keyframes __scan {
-          from { top: -4px; opacity: 1; }
-          to   { top: calc(100% + 4px); opacity: 0.05; }
+        @keyframes __flareSvg {
+          0%   { opacity: 0;   transform: scaleX(0.04); }
+          9%   { opacity: 1;   transform: scaleX(1); }
+          55%  { opacity: 0.85; }
+          100% { opacity: 0; }
         }
-        @keyframes __ring0 {
-          0%   { width: 6px;    height: 6px;    opacity: 0.85; }
-          100% { width: 820px;  height: 820px;  opacity: 0; }
+        @keyframes __prog {
+          from { width: 0%; }
+          to   { width: 100%; }
         }
-        @keyframes __ring1 {
-          0%   { width: 6px;    height: 6px;    opacity: 0.65; }
-          100% { width: 1020px; height: 1020px; opacity: 0; }
-        }
-        @keyframes __ring2 {
-          0%   { width: 6px;    height: 6px;    opacity: 0.45; }
-          100% { width: 1220px; height: 1220px; opacity: 0; }
-        }
-        @keyframes __sp0 {
-          0%,100% { opacity:.13; transform:scale(.78); }
-          50%     { opacity:1;   transform:scale(2.1); }
-        }
-        @keyframes __sp1 {
-          0%,100% { opacity:.26; transform:scale(1); }
-          32%     { opacity:.92; transform:scale(1.7); }
-          68%     { opacity:.04; transform:scale(.52); }
-        }
-        @keyframes __sp2 {
-          0%,100% { opacity:.07; transform:scale(.82) rotate(0deg); }
-          50%     { opacity:1;   transform:scale(2.4) rotate(45deg); }
-        }
-        @keyframes __sp3 {
-          0%,100% { opacity:.36; transform:scale(1.12); }
-          20%     { opacity:.04; transform:scale(.48); }
-          80%     { opacity:1;   transform:scale(1.8); }
-        }
-        ${BOKEH.map((b, i) => `
-          @keyframes __bk${i} {
-            from { transform: translate(0,0) scale(1); }
-            to   { transform: translate(${b.dx}px,${b.dy}px) scale(1.22); }
-          }
-        `).join("")}
+        ${SPECKS.map((s, i) => {
+          const dx = (i % 2 === 0 ? 1 : -1) * (4 + i * 2);
+          const dy = -(3 + i * 0.8);
+          return `@keyframes __speck${i} {
+            from { transform: translate3d(0,0,0) scale(0.85); }
+            to   { transform: translate3d(${dx}px,${dy}px,0) scale(1.25); }
+          }`;
+        }).join("\n")}
       `}</style>
     </div>
   );
 }
+

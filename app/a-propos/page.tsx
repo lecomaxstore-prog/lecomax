@@ -52,10 +52,10 @@ export default function AProposPage() {
                 className="inline-flex items-center gap-2 bg-[#3ecf4c] text-black font-black text-[11px] uppercase tracking-widest px-6 py-3 rounded-full hover:bg-[#2db83a] transition-colors">
                 Découvrir la boutique →
               </Link>
-              <a href="https://wa.me/212699289568" target="_blank" rel="noopener noreferrer"
+              <Link href="/nous-contacter"
                 className="inline-flex items-center gap-2 border border-white/25 text-white font-black text-[11px] uppercase tracking-widest px-6 py-3 rounded-full hover:bg-white/10 transition-colors">
                 Nous contacter
-              </a>
+              </Link>
             </div>
           </div>
         </div>
