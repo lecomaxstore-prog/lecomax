@@ -110,51 +110,60 @@ export default function AidePage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* ── Hero – single-column dark ── */}
-      <div className="bg-neutral-950 w-full">
-        <div className="max-w-5xl mx-auto px-8 sm:px-12 lg:px-16 py-20 lg:py-28">
+      {/* ── Hero – gradient dark with green glow + wave bottom ── */}
+      <div className="relative w-full overflow-hidden" style={{ background: "linear-gradient(135deg, #0a0a0a 0%, #0d1a0e 50%, #0a0a0a 100%)" }}>
+        {/* Green radial glow */}
+        <div className="absolute right-0 top-0 w-[60%] h-full pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 80% 40%, rgba(62,207,76,0.13) 0%, rgba(62,207,76,0.04) 40%, transparent 70%)" }} />
+        {/* Subtle dot grid */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.04]"
+          style={{ backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+
+        <div className="relative max-w-5xl mx-auto px-8 sm:px-12 lg:px-16 pt-20 pb-32 lg:pt-28 lg:pb-40">
           <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/25 mb-10">
             <Link href="/" className="hover:text-white/50 transition-colors">Accueil</Link>
             <span className="text-white/15">/</span>
             <span className="text-white/60">Centre d&apos;aide</span>
           </nav>
 
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.35em] bg-[#3ecf4c]/15 text-[#3ecf4c] border border-[#3ecf4c]/20 px-3 py-1.5 rounded-full w-fit mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] inline-block" />
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.35em] bg-[#3ecf4c]/10 text-[#3ecf4c] border border-[#3ecf4c]/25 px-3 py-1.5 rounded-full w-fit mb-7">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] inline-block animate-pulse" />
             Support 7j/7
           </span>
 
-          <h1 className="font-black text-[clamp(3.8rem,7vw,6.5rem)] uppercase tracking-tighter leading-none mb-6 text-white">
-            Centre<br />
-            <span className="text-[#3ecf4c]">d&apos;aide</span>
+          <h1 className="font-black text-[clamp(3.2rem,6vw,5.5rem)] leading-none mb-6 text-white" style={{ letterSpacing: "-0.03em" }}>
+            Trouvez des réponses<br />
+            <span className="text-[#3ecf4c]">rapidement.</span>
           </h1>
 
-          <p className="text-white/40 text-sm sm:text-base max-w-lg leading-relaxed mb-10">
-            Trouvez rapidement des réponses à vos questions.
-            Notre équipe est aussi disponible 7j/7.
+          <p className="text-white/45 text-base max-w-md leading-relaxed mb-10">
+            Notre centre d&apos;aide couvre toutes vos questions — commandes, livraison, retours et plus encore. Notre équipe est disponible 7j/7.
           </p>
 
-          {/* Topic pills */}
-          <div className="flex flex-wrap gap-2">
-            {topics.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => {
-                  setActiveGroup(t.id);
-                  setOpenFaq(null);
-                  document.getElementById("faq-section")?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full border text-[12px] font-black uppercase tracking-widest transition-all ${
-                  activeGroup === t.id
-                    ? "bg-[#3ecf4c]/15 border-[#3ecf4c]/40 text-[#3ecf4c]"
-                    : "bg-white/[0.05] border-white/10 text-white/50 hover:border-white/25 hover:text-white"
-                }`}
-              >
-                <span className={activeGroup === t.id ? "text-[#3ecf4c]" : "text-white/40"}>{t.icon}</span>
-                {t.label}
-              </button>
-            ))}
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => document.getElementById("faq-section")?.scrollIntoView({ behavior: "smooth" })}
+              className="inline-flex items-center gap-2 bg-[#3ecf4c] text-black font-black text-[13px] uppercase tracking-widest px-7 py-3.5 rounded-full hover:bg-[#32b83d] transition-colors"
+            >
+              Consulter la FAQ
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <a
+              href="https://wa.me/212699289568"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white/[0.07] border border-white/15 text-white font-black text-[13px] uppercase tracking-widest px-7 py-3.5 rounded-full hover:bg-white/10 transition-colors"
+            >
+              Nous contacter
+            </a>
           </div>
+        </div>
+
+        {/* Wave SVG */}
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+          <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-12 sm:h-16 lg:h-20 block">
+            <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#ffffff"/>
+          </svg>
         </div>
       </div>
 
