@@ -40,8 +40,8 @@ export async function POST(req: NextRequest) {
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;max-width:600px;width:100%">
         <tr>
-          <td style="background:#0a0a0a;padding:24px 32px;text-align:center">
-            <span style="color:#3ecf4c;font-weight:900;font-size:20px;letter-spacing:-0.5px">L'ECOMAX</span>
+          <td style="background:#0a0a0a;padding:20px 32px;text-align:center">
+            <img src="https://lecomax.com/images/lecomax%20logo.png" alt="L'ecomax" width="120" height="auto" style="display:inline-block;max-height:48px;object-fit:contain" />
           </td>
         </tr>
         <tr>
