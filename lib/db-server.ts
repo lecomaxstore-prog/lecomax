@@ -29,6 +29,8 @@ type ApiProduct = {
   active: boolean;
   created_at: string;
   tags: string[] | null;
+  video: string | null;
+  description_images: string[] | null;
 };
 
 export async function getDbProducts(options?: {
