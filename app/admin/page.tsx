@@ -31,10 +31,13 @@ export default function AdminLoginPage() {
     } else {
       if (rememberMe) {
         localStorage.setItem(SAVED_EMAIL_KEY, email);
+        // 30 days
+        document.cookie = "admin_session=1; path=/; max-age=2592000; SameSite=Strict";
       } else {
         localStorage.removeItem(SAVED_EMAIL_KEY);
+        // Session cookie (expires when browser closes)
+        document.cookie = "admin_session=1; path=/; SameSite=Strict";
       }
-      document.cookie = "admin_session=1; path=/; max-age=86400; SameSite=Strict";
       router.replace("/admin/dashboard");
     }
   }
