@@ -46,6 +46,7 @@ function ProductCard({ product, index }: { product: CardProduct; index: number }
 
   return (
     <div
+      className="h-full"
       style={{
         animation: `cardFadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both`,
         animationDelay: `${index * 55}ms`,
@@ -53,7 +54,7 @@ function ProductCard({ product, index }: { product: CardProduct; index: number }
     >
       <Link
         href={`/produit/${product.slug}`}
-        className="group block bg-white border border-neutral-100 hover:border-[#3ecf4c]/40 hover:shadow-[0_8px_32px_rgba(62,207,76,0.10)] transition-all duration-300 overflow-hidden"
+        className="group flex flex-col bg-white border border-neutral-100 hover:border-[#3ecf4c]/40 hover:shadow-[0_8px_32px_rgba(62,207,76,0.10)] transition-all duration-300 overflow-hidden h-full"
       >
         {/* Image */}
         <div className="relative aspect-[4/5] bg-neutral-50 overflow-hidden">
@@ -92,7 +93,7 @@ function ProductCard({ product, index }: { product: CardProduct; index: number }
         </div>
 
         {/* Info */}
-        <div className="px-3 pt-3 pb-4">
+        <div className="px-3 pt-3 pb-4 flex flex-col flex-1">
           {product.colors && product.colors.length > 0 && (
             <div className="flex items-center gap-[5px] mb-2">
               {product.colors.slice(0, 4).map((c) => (
@@ -105,7 +106,7 @@ function ProductCard({ product, index }: { product: CardProduct; index: number }
               ))}
             </div>
           )}
-          <h3 className="font-bold text-[13px] leading-snug line-clamp-2 text-black group-hover:text-neutral-600 transition-colors duration-200">
+          <h3 className="font-bold text-[13px] leading-snug line-clamp-2 text-black group-hover:text-neutral-600 transition-colors duration-200 flex-1">
             {product.name}
           </h3>
           <p className="text-neutral-400 text-[10.5px] mt-0.5 uppercase tracking-wider font-semibold">

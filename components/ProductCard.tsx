@@ -37,7 +37,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
   return (
     <Link
       href={`/produit/${product.slug}`}
-      className="group block bg-white rounded-xl border border-neutral-100 hover:border-neutral-200 hover:shadow-[0_12px_40px_rgba(0,0,0,0.10)] transition-all duration-300 overflow-hidden"
+      className="group flex flex-col bg-white rounded-xl border border-neutral-100 hover:border-neutral-200 hover:shadow-[0_12px_40px_rgba(0,0,0,0.10)] transition-all duration-300 overflow-hidden h-full"
     >
       {/* Image */}
       <div className="relative aspect-[4/5] bg-neutral-50 overflow-hidden">
@@ -94,7 +94,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
       </div>
 
       {/* Info */}
-      <div className="px-4 pt-3.5 pb-4">
+      <div className="px-4 pt-3.5 pb-4 flex flex-col flex-1">
         {/* Colors */}
         {product.colors.length > 0 && (
           <div className="flex items-center gap-1.5 mb-2.5">
@@ -113,7 +113,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
         )}
 
         {/* Title */}
-        <h3 className="font-semibold text-[13.5px] leading-snug line-clamp-2 text-neutral-800 group-hover:text-neutral-600 transition-colors duration-200">
+        <h3 className="font-semibold text-[13.5px] leading-snug line-clamp-2 text-neutral-800 group-hover:text-neutral-600 transition-colors duration-200 flex-1">
           {product.name}
         </h3>
 
