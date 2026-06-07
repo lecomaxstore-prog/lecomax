@@ -77,16 +77,6 @@ export default function ProductsPage() {
     if (editId) {
       const p = products.find((x) => x.id === editId) as ExtendedProduct | undefined;
       if (p) {
-        setForm({
-          slug: p.slug, name: p.name, brand: p.brand ?? "",
-          category: p.category,
-          price: String(p.price), original_price: p.original_price ? String(p.original_price) : "",
-          description: p.description ?? "",
-          stock: String(p.stock), active: p.active,
-          featured: p.featured ?? false,
-          tags: (p.tags ?? []).join(", "),
-          weight: p.weight ? String(p.weight) : "",
-        });
         const tags = p.tags ?? [];
         const guideTag = tags.find((t) => t.startsWith("__guide:"));
         setSizeGuideType(guideTag === "__guide:shoes" ? "shoes" : guideTag === "__guide:clothing" ? "clothing" : "none");
