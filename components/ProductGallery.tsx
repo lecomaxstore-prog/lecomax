@@ -20,6 +20,19 @@ const colorMap: Record<string, string> = {
 const getColorHex = (name: string) =>
   colorMap[name.split("/")[0].trim()] ?? "#e5e7eb";
 
+/** Extract YouTube video ID from any YouTube URL format */
+function getYouTubeId(url: string): string | null {
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+  );
+  return match?.[1] ?? null;
+}
+
+/** Returns true if the URL is a YouTube link */
+function isYouTube(url: string): boolean {
+  return /youtube\.com|youtu\.be/.test(url);
+}
+
 export default function ProductGallery({
   images,
   name,
@@ -75,6 +88,15 @@ export default function ProductGallery({
       {/* Main view */}
       <div className="relative aspect-square bg-neutral-100 overflow-hidden group">
         {active === "video" && video ? (
+          isYouTube(video) ? (
+            <iframe
+              key={video}
+              src={`https://www.youtube.com/embed/${getYouTubeId(video)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeId(video)}&controls=1&rel=0&modestbranding=1`}
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full border-0"
+            />
+          ) : (
           <video
             key={video}
             src={video}
@@ -85,6 +107,7 @@ export default function ProductGallery({
             poster={images[0]}
             className="absolute inset-0 w-full h-full object-cover"
           />
+          )
         ) : (
           <Image
             src={images[active as number]}
@@ -124,13 +147,11 @@ export default function ProductGallery({
                 : "border-transparent hover:border-neutral-300"
             }`}
           >
-            <Image
-              src={images[0]}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={isYouTube(video) ? `https://img.youtube.com/vi/${getYouTubeId(video)}/mqdefault.jpg` : images[0]}
               alt="Vidéo"
-              fill
-              sizes="72px"
-              className="object-cover opacity-40"
-              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover opacity-50"
             />
             <span className="relative z-10 text-white text-2xl leading-none">▶</span>
           </button>

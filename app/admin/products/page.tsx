@@ -22,7 +22,7 @@ const SHOE_SIZES = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", 
 const emptyForm = {
   slug: "", name: "", brand: "", category: "homme", price: "", original_price: "",
   description: "", stock: "0", active: true, featured: false,
-  tags: "", weight: "",
+  tags: "", weight: "", video: "",
 };
 
 type ExtendedProduct = Product & {
@@ -33,6 +33,7 @@ type ExtendedProduct = Product & {
   sizes?: string[];
   weight?: number;
   desc_images?: string[];
+  video?: string | null;
 };
 
 export default function ProductsPage() {
@@ -98,6 +99,7 @@ export default function ProductsPage() {
           featured: p.featured ?? false,
           tags: tags.filter((t) => !t.startsWith("__guide:")).join(", "),
           weight: p.weight ? String(p.weight) : "",
+          video: (p as ExtendedProduct).video ?? "",
         });
         setImages(p.images?.length ? p.images : []);
         setDescImages((p as ExtendedProduct).desc_images?.length ? (p as ExtendedProduct).desc_images! : []);
@@ -180,6 +182,7 @@ export default function ProductsPage() {
       sizes: selectedSizes,
       weight: form.weight ? parseFloat(form.weight) : null,
       desc_images: descImages.filter(Boolean),
+      video: form.video.trim() || null,
     };
     const url = editId ? `/api/products/${editId}` : "/api/products";
     const method = editId ? "PUT" : "POST";
@@ -531,6 +534,44 @@ export default function ProductsPage() {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Video URL */}
+            <div className="bg-white border border-neutral-100 rounded-2xl p-6 space-y-3">
+              <div className="flex items-center gap-2 mb-1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-400"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Vidéo produit</h2>
+              </div>
+              <div>
+                <input
+                  type="url"
+                  value={form.video}
+                  onChange={(e) => setForm({ ...form, video: e.target.value })}
+                  placeholder="https://youtube.com/watch?v=… ou URL .mp4"
+                  className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all"
+                />
+                <p className="text-[10px] text-neutral-400 mt-1.5">YouTube, Shorts, ou lien direct vers un fichier vidéo</p>
+              </div>
+              {form.video.trim() && (() => {
+                const ytMatch = form.video.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+                const ytId = ytMatch?.[1];
+                if (ytId) return (
+                  <div className="rounded-xl overflow-hidden border border-neutral-200 aspect-video">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${ytId}?controls=1&rel=0&modestbranding=1`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full border-0"
+                    />
+                  </div>
+                );
+                return (
+                  <div className="rounded-xl overflow-hidden border border-neutral-200 aspect-video bg-black">
+                    {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                    <video src={form.video} controls className="w-full h-full" />
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Status & Options */}
