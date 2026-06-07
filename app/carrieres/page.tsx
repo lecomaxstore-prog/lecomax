@@ -64,7 +64,7 @@ export default function CarrieresPage() {
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row min-h-[520px]">
 
           {/* Left: text */}
-          <div className="flex-1 px-6 sm:px-10 lg:px-14 py-14 flex flex-col justify-center">
+          <div className="lg:w-[46%] shrink-0 px-6 sm:px-10 lg:px-14 py-14 flex flex-col justify-center">
             <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-8">
               <Link href="/" className="hover:text-white/60 transition-colors">Accueil</Link>
               <span>/</span>
@@ -95,7 +95,7 @@ export default function CarrieresPage() {
           </div>
 
           {/* Right: image */}
-          <div className="relative lg:w-[52%] min-h-[320px] lg:min-h-0 overflow-hidden">
+          <div className="relative flex-1 min-h-[320px] lg:min-h-0 overflow-hidden">
             <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
             <Image
               src="/images/pages/carrieres.png"
