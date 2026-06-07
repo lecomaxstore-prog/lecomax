@@ -58,10 +58,10 @@ export default function ProductAccordion({
         <div className="w-8 h-[2px] bg-black mb-4" />
         <p className="text-[15px] text-neutral-700 leading-[1.8] tracking-wide max-w-2xl mb-8">{description}</p>
         {hasImages && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 max-w-2xl mx-auto w-full">
             {descriptionImages!.map((src, i) => (
-              <div key={i} className="w-full overflow-hidden border border-neutral-100">
-                <img src={src} alt={`description ${i + 1}`} className="w-full h-auto" loading={i === 0 ? "eager" : "lazy"} />
+              <div key={i} className="w-full overflow-hidden rounded-sm border border-neutral-100">
+                <img src={src} alt={`description ${i + 1}`} className="w-full h-auto block" loading={i === 0 ? "eager" : "lazy"} />
               </div>
             ))}
           </div>

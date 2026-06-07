@@ -43,6 +43,7 @@ export default function ProductActions({ product }: { product: Product }) {
   const { color, setColor } = useProductColor();
   const hasColors = product.colors.length > 0 && product.colors[0] !== "Taille unique";
   const hasColorImages = !!(product.colorImages);
+  const outOfStockColors = product.outOfStockColors ?? [];
   const availableSizes = ((product.colorSizes && color && product.colorSizes[color])
     ? product.colorSizes[color]
     : product.sizes) ?? [];
@@ -65,6 +66,7 @@ export default function ProductActions({ product }: { product: Product }) {
 
   const isSingleSize = availableSizes.length === 1 && availableSizes[0] === "Taille unique";
   const sizeLabel = getSizeLabel(product.subCategory);
+  const isCurrentColorOOS = outOfStockColors.includes(color);
 
   const handleAdd = (goToCart = false) => {
     if (!size) {
@@ -95,35 +97,45 @@ export default function ProductActions({ product }: { product: Product }) {
           <div className="flex flex-wrap gap-2.5">
             {product.colors.map((c) => {
               const isSelected = color === c;
+              const isOOS = outOfStockColors.includes(c);
               const hex = getColorHex(c);
               const isLight = ["#f5f5f5","#fafaf5","#d1d5db","#fcd5ce","#f9a8d4","#f5f0e8","#f7e7ce","#fef08a","#c4b5fd","#7dd3fc"].includes(hex);
               return (
                 <button
                   key={c}
-                  title={c}
+                  title={isOOS ? `${c} — Rupture de stock` : c}
                   onClick={() => setColor(c)}
                   className="relative group flex-shrink-0 transition-transform duration-150"
-                  style={{ transform: isSelected ? "scale(1.08)" : "scale(1)" }}
+                  style={{ transform: isSelected ? "scale(1.08)" : "scale(1)", cursor: "pointer" }}
                 >
                   {/* Swatch */}
                   <span
                     className={`flex w-10 h-10 rounded-full transition-all duration-200 ${
-                      isSelected
+                      isOOS
+                        ? "ring-1 ring-neutral-200 opacity-40"
+                        : isSelected
                         ? "ring-2 ring-offset-2 ring-[#3ecf4c] shadow-md"
                         : "ring-1 ring-neutral-200 hover:ring-neutral-400 hover:ring-offset-1"
                     }`}
                     style={{ ...getSwatchStyle(c), border: isLight ? "1px solid #d4d4d4" : "none" }}
                   >
                     {/* Checkmark for selected */}
-                    {isSelected && (
+                    {isSelected && !isOOS && (
                       <svg className="m-auto" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={isLight ? "#000" : "#fff"} strokeWidth="3" strokeLinecap="round">
                         <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    )}
+                    {/* Cross for OOS */}
+                    {isOOS && (
+                      <svg className="m-auto" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
                       </svg>
                     )}
                   </span>
                   {/* Tooltip */}
                   <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none">
-                    {c}
+                    {isOOS ? `${c} — Rupture` : c}
                   </span>
                 </button>
               );
@@ -183,13 +195,21 @@ export default function ProductActions({ product }: { product: Product }) {
 
       <button
         onClick={() => handleAdd(false)}
+        disabled={isCurrentColorOOS}
         className={`mt-5 w-full py-4 font-black uppercase text-[13px] tracking-wider inline-flex items-center justify-center gap-2 transition-all ${
-          added
+          isCurrentColorOOS
+            ? "border-2 border-dashed border-neutral-300 text-neutral-400 cursor-not-allowed bg-white"
+            : added
             ? "bg-neutral-800 text-white"
             : "bg-black text-white hover:bg-neutral-800 active:scale-[0.99]"
         }`}
       >
-        {added ? (
+        {isCurrentColorOOS ? (
+          <>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Couleur indisponible
+          </>
+        ) : added ? (
           <>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             Ajouté au panier
@@ -201,9 +221,19 @@ export default function ProductActions({ product }: { product: Product }) {
           </>
         )}
       </button>
+      {isCurrentColorOOS && (
+        <p className="text-center text-[11px] text-neutral-400 mt-2">
+          Choisissez une autre couleur disponible
+        </p>
+      )}
       <button
         onClick={() => handleAdd(true)}
-        className="mt-2 w-full border border-black py-4 font-black uppercase text-[13px] tracking-wider hover:bg-black hover:text-white transition-colors active:scale-[0.99]"
+        disabled={isCurrentColorOOS}
+        className={`mt-2 w-full border py-4 font-black uppercase text-[13px] tracking-wider transition-colors active:scale-[0.99] ${
+          isCurrentColorOOS
+            ? "hidden"
+            : "border-black hover:bg-black hover:text-white"
+        }`}
       >
         Acheter maintenant
       </button>

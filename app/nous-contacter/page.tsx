@@ -19,18 +19,18 @@ export default function NousContacterPage() {
   }
 
   const focusStyle = {
-    borderColor: "rgba(62,207,76,0.6)",
-    background: "rgba(62,207,76,0.05)",
-    boxShadow: "0 0 0 3px rgba(62,207,76,0.1)",
+    borderColor: "rgba(62,207,76,0.7)",
+    background: "#ffffff",
+    boxShadow: "0 0 0 3px rgba(62,207,76,0.12)",
   };
   const blurStyle = (filled: boolean) => ({
-    borderColor: filled ? "rgba(62,207,76,0.4)" : "rgba(255,255,255,0.09)",
-    background: filled ? "rgba(62,207,76,0.04)" : "rgba(255,255,255,0.04)",
+    borderColor: filled ? "rgba(62,207,76,0.5)" : "#e5e7eb",
+    background: "#ffffff",
     boxShadow: "none",
   });
   const baseInputStyle = (filled: boolean): React.CSSProperties => ({
-    background: filled ? "rgba(62,207,76,0.04)" : "rgba(255,255,255,0.04)",
-    border: `1px solid ${filled ? "rgba(62,207,76,0.4)" : "rgba(255,255,255,0.09)"}`,
+    background: "#ffffff",
+    border: `1px solid ${filled ? "rgba(62,207,76,0.5)" : "#e5e7eb"}`,
     transition: "border-color 0.2s, background 0.2s, box-shadow 0.2s",
   });
 
@@ -67,7 +67,7 @@ export default function NousContacterPage() {
       {status === "success" ? (
         /* ── SUCCESS STATE ─────────────────────────── */
         <div className="rounded-3xl overflow-hidden text-center"
-          style={{ background: "linear-gradient(160deg,rgba(22,22,22,0.99) 0%,rgba(10,10,10,1) 100%)", boxShadow: "0 0 0 1px rgba(62,207,76,0.25), 0 0 60px rgba(62,207,76,0.06), 0 32px 80px rgba(0,0,0,0.9)" }}>
+          style={{ background: "#ffffff", boxShadow: "0 0 0 1px rgba(0,0,0,0.07), 0 8px 32px rgba(0,0,0,0.12)" }}>
           <div className="h-[2px]" style={{ background: "linear-gradient(to right,transparent 5%,#3ecf4c 45%,#2db83a 55%,transparent 95%)" }} />
           <div className="px-8 py-12">
             <div className="relative w-20 h-20 mx-auto mb-6">
@@ -78,8 +78,8 @@ export default function NousContacterPage() {
                 </svg>
               </div>
             </div>
-            <h2 className="font-black text-xl uppercase tracking-tight text-white mb-2">Message envoyé !</h2>
-            <p className="text-white/40 text-sm leading-relaxed max-w-xs mx-auto mb-8">
+            <h2 className="font-black text-xl uppercase tracking-tight text-neutral-900 mb-2">Message envoyé !</h2>
+            <p className="text-neutral-500 text-sm leading-relaxed max-w-xs mx-auto mb-8">
               On vous répond dans les plus brefs délais.<br />Merci de nous faire confiance.
             </p>
             <button onClick={() => setStatus("idle")}
@@ -91,18 +91,18 @@ export default function NousContacterPage() {
       ) : (
         /* ── FORM ──────────────────────────────────── */
         <form onSubmit={handleSubmit} className="rounded-3xl overflow-hidden"
-          style={{ background: "linear-gradient(160deg,rgba(22,22,22,0.99) 0%,rgba(10,10,10,1) 100%)", boxShadow: "0 0 0 1px rgba(62,207,76,0.2), 0 0 50px rgba(62,207,76,0.05), 0 32px 80px rgba(0,0,0,0.9)" }}>
+          style={{ background: "#ffffff", boxShadow: "0 0 0 1px rgba(0,0,0,0.07), 0 8px 32px rgba(0,0,0,0.12)" }}>
 
           {/* Top shimmer bar */}
           <div className="h-[2px]" style={{ background: "linear-gradient(to right,transparent 5%,#3ecf4c 45%,#2db83a 55%,transparent 95%)" }} />
 
           {/* Header */}
-          <div className="pt-6 pb-5 px-6 sm:px-7 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="pt-6 pb-5 px-6 sm:px-7 flex items-center justify-between" style={{ borderBottom: "1px solid #f0f0f0" }}>
             <div>
-              <h2 className="font-black text-[17px] sm:text-[18px] uppercase tracking-tight text-white leading-tight">
+              <h2 className="font-black text-[17px] sm:text-[18px] uppercase tracking-tight text-neutral-900 leading-tight">
                 Formulaire de <span className="text-[#3ecf4c]">Contact</span>
               </h2>
-              <p className="text-white/25 text-[10px] mt-0.5 tracking-wider font-medium">Tous les champs sont obligatoires</p>
+              <p className="text-neutral-400 text-[10px] mt-0.5 tracking-wider font-medium">Tous les champs sont obligatoires</p>
             </div>
             <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-[#3ecf4c] shrink-0"
               style={{ background: "rgba(62,207,76,0.08)", border: "1px solid rgba(62,207,76,0.2)" }}>
@@ -119,14 +119,14 @@ export default function NousContacterPage() {
             <div className="grid grid-cols-2 gap-3">
               {/* Name */}
               <div>
-                <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-white/35 mb-1.5">
+                <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-neutral-500 mb-1.5">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   Nom
                 </label>
                 <div className="relative">
                   <input type="text" value={form.name} onChange={(e) => set("name", e.target.value)}
                     placeholder="Youssef Alami" required
-                    className="w-full rounded-xl pl-3.5 pr-8 py-3 text-white text-[13px] placeholder-white/20 focus:outline-none"
+                    className="w-full rounded-xl pl-3.5 pr-8 py-3 text-neutral-900 text-[13px] placeholder-neutral-300 focus:outline-none"
                     style={baseInputStyle(!!form.name)}
                     onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                     onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle(!!form.name))}
@@ -136,14 +136,14 @@ export default function NousContacterPage() {
               </div>
               {/* Email */}
               <div>
-                <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-white/35 mb-1.5">
+                <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-neutral-500 mb-1.5">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                   Email
                 </label>
                 <div className="relative">
                   <input type="email" value={form.email} onChange={(e) => set("email", e.target.value)}
                     placeholder="vous@email.com" required
-                    className="w-full rounded-xl pl-3.5 pr-8 py-3 text-white text-[13px] placeholder-white/20 focus:outline-none"
+                    className="w-full rounded-xl pl-3.5 pr-8 py-3 text-neutral-900 text-[13px] placeholder-neutral-300 focus:outline-none"
                     style={baseInputStyle(!!form.email)}
                     onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                     onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle(!!form.email))}
@@ -155,19 +155,19 @@ export default function NousContacterPage() {
 
             {/* Subject */}
             <div>
-              <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-white/35 mb-1.5">
+              <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-neutral-500 mb-1.5">
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
                 Sujet
               </label>
               <div className="relative">
                 <select value={form.subject} onChange={(e) => set("subject", e.target.value)} required
                   className="w-full rounded-xl px-4 py-3 text-[13px] focus:outline-none appearance-none cursor-pointer"
-                  style={{ ...baseInputStyle(!!form.subject), color: form.subject ? "white" : "rgba(255,255,255,0.22)" }}
-                  onFocus={(e) => Object.assign(e.currentTarget.style, { ...focusStyle, color: form.subject ? "white" : "rgba(255,255,255,0.22)" })}
-                  onBlur={(e) => Object.assign(e.currentTarget.style, { ...blurStyle(!!form.subject), color: form.subject ? "white" : "rgba(255,255,255,0.22)" })}>
-                  <option value="" disabled style={{ color: "#555", background: "#111" }}>Choisir un sujet…</option>
-                  {["Question sur une commande","Question sur un produit","Retour / Remboursement","Partenariat","Autre"].map((s) => (
-                    <option key={s} value={s} style={{ color: "white", background: "#111" }}>{s}</option>
+                  style={{ ...baseInputStyle(!!form.subject), color: form.subject ? "#111827" : "#9ca3af" }}
+                  onFocus={(e) => Object.assign(e.currentTarget.style, { ...focusStyle, color: form.subject ? "#111827" : "#9ca3af" })}
+                  onBlur={(e) => Object.assign(e.currentTarget.style, { ...blurStyle(!!form.subject), color: form.subject ? "#111827" : "#9ca3af" })}>
+                  <option value="" disabled>Choisir un sujet…</option>
+                  {["Question sur une commande","Question sur un produit","Retour / Remboursement","Partenariat","E-mail","Autre"].map((s) => (
+                    <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
                 <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: form.subject ? "#3ecf4c" : "rgba(255,255,255,0.3)" }}>
@@ -179,18 +179,18 @@ export default function NousContacterPage() {
             {/* Message */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-white/35">
+                <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-neutral-500">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                   Message
                 </label>
-                <span className={`text-[9px] font-bold tabular-nums transition-colors ${form.message.length > MSG_MAX * 0.85 ? "text-[#3ecf4c]" : "text-white/20"}`}>
+                <span className={`text-[9px] font-bold tabular-nums transition-colors ${form.message.length > MSG_MAX * 0.85 ? "text-[#3ecf4c]" : "text-neutral-400"}`}>
                   {form.message.length}/{MSG_MAX}
                 </span>
               </div>
               <div className="relative">
                 <textarea value={form.message} onChange={(e) => set("message", e.target.value.slice(0, MSG_MAX))}
                   placeholder="Décrivez votre demande en détail…" required rows={5}
-                  className="w-full rounded-xl px-4 py-3 text-white text-[13px] placeholder-white/20 focus:outline-none resize-none"
+                  className="w-full rounded-xl px-4 py-3 text-neutral-900 text-[13px] placeholder-neutral-300 focus:outline-none resize-none"
                   style={baseInputStyle(!!form.message)}
                   onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                   onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle(!!form.message))}
@@ -232,7 +232,7 @@ export default function NousContacterPage() {
             </button>
 
             {/* Trust note */}
-            <p className="text-center text-white/20 text-[10px] flex items-center justify-center gap-1.5 pt-0.5">
+            <p className="text-center text-neutral-400 text-[10px] flex items-center justify-center gap-1.5 pt-0.5">
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
               Vos données sont protégées et ne seront jamais partagées
             </p>

@@ -17,6 +17,7 @@
   descriptionImages?: string[];
   colorImages?: Record<string, string>;
   colorSizes?: Record<string, string[]>;
+  outOfStockColors?: string[];
   video?: string;
   sizeGuideType?: "clothing" | "shoes" | "none";
 };

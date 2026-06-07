@@ -23,13 +23,10 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { name, email, subject, message } = body;
 
-  const { data, error } = await supabase
+  // Try DB insert — if table doesn't exist yet, continue anyway (email still sent)
+  const { error: dbError } = await supabase
     .from("contact_messages")
-    .insert({ name, email, subject, message, read: false })
-    .select()
-    .single();
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    .insert({ name, email, subject, message, read: false });
 
   // Send email notification to admin
   const adminEmail = process.env.ADMIN_EMAIL || "contact@lecomax.com";
@@ -99,5 +96,10 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json(data, { status: 201 });
+  // If DB failed AND email also not configured, return error
+  if (dbError && !resend) {
+    return NextResponse.json({ error: dbError.message }, { status: 400 });
+  }
+
+  return NextResponse.json({ ok: true }, { status: 201 });
 }
