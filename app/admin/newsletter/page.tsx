@@ -12,6 +12,12 @@ export default function NewsletterPage() {
   const [search, setSearch] = useState("");
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
+  // Campaign state
+  const [campaignSubject, setCampaignSubject] = useState("");
+  const [campaignBody, setCampaignBody] = useState("");
+  const [sending, setSending] = useState(false);
+  const [campaignMsg, setCampaignMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
   const load = useCallback(async () => {
     setLoading(true);
     const res = await fetch("/api/newsletter");
@@ -50,6 +56,25 @@ export default function NewsletterPage() {
     if (!confirm("Supprimer cet abonné ?")) return;
     await fetch(`/api/newsletter/${id}`, { method: "DELETE" });
     load();
+  }
+
+  async function handleSendCampaign(e: React.FormEvent) {
+    e.preventDefault();
+    const activeList = subscribers.filter((s) => s.active);
+    if (activeList.length === 0) { setCampaignMsg({ type: "err", text: "Aucun abonné actif." }); return; }
+    if (!confirm(`Envoyer à ${activeList.length} abonné(s) actif(s) ?`)) return;
+    setSending(true);
+    setCampaignMsg(null);
+    const res = await fetch("/api/newsletter/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subject: campaignSubject, body: campaignBody }),
+    });
+    const data = await res.json();
+    setSending(false);
+    if (!res.ok) setCampaignMsg({ type: "err", text: data.error ?? "Erreur lors de l'envoi." });
+    else { setCampaignMsg({ type: "ok", text: `✓ Envoyé à ${data.sent} abonné(s)` }); setCampaignSubject(""); setCampaignBody(""); }
+    setTimeout(() => setCampaignMsg(null), 5000);
   }
 
   function exportCSV() {
@@ -104,6 +129,55 @@ export default function NewsletterPage() {
           </button>
         </form>
         {msg && <p className={`mt-2 text-xs font-semibold ${msg.type === "ok" ? "text-green-600" : "text-red-600"}`}>{msg.text}</p>}
+      </div>
+
+      {/* Send campaign */}
+      <div className="bg-white border border-neutral-100 rounded-2xl p-6 mb-5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Envoyer un email à tous les abonnés</h2>
+          <span className="text-xs font-semibold text-neutral-500 bg-neutral-100 rounded-full px-2.5 py-1">
+            {subscribers.filter((s) => s.active).length} actifs
+          </span>
+        </div>
+        <form onSubmit={handleSendCampaign} className="space-y-3">
+          <input
+            value={campaignSubject}
+            onChange={(e) => setCampaignSubject(e.target.value)}
+            required
+            placeholder="Objet de l'email (ex: Nouveautés L'ecomax 🎉)"
+            className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all"
+          />
+          <textarea
+            value={campaignBody}
+            onChange={(e) => setCampaignBody(e.target.value)}
+            required
+            rows={5}
+            placeholder="Contenu de l'email…"
+            className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all resize-none"
+          />
+          <div className="flex items-center justify-between">
+            {campaignMsg ? (
+              <p className={`text-xs font-semibold ${campaignMsg.type === "ok" ? "text-green-600" : "text-red-600"}`}>{campaignMsg.text}</p>
+            ) : <span />}
+            <button
+              type="submit"
+              disabled={sending || subscribers.filter((s) => s.active).length === 0}
+              className="bg-black text-white px-6 py-2.5 rounded-xl text-sm font-bold disabled:opacity-40 hover:bg-neutral-800 transition-colors flex items-center gap-2"
+            >
+              {sending ? (
+                <>
+                  <svg className="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" strokeDasharray="40" strokeDashoffset="10" /></svg>
+                  Envoi…
+                </>
+              ) : (
+                <>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  Envoyer à tous
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* List */}
