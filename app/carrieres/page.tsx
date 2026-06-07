@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import Image from "next/image";
 
 export const metadata = {
   title: "Carrières | L'ecomax",
@@ -58,41 +59,91 @@ export default function CarrieresPage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Hero */}
-      <div className="bg-neutral-950 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-16 sm:py-20">
-          <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-8">
-            <Link href="/" className="hover:text-white/60 transition-colors">Accueil</Link>
-            <span>/</span>
-            <span className="text-white/70">Carrières</span>
-          </nav>
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] bg-[#3ecf4c] text-black px-3 py-1 rounded-full">
-            Rejoignez-nous
-          </span>
-          <h1 className="font-black text-4xl sm:text-5xl md:text-6xl uppercase tracking-tighter leading-none mt-5 mb-5">
-            Construisez<br />
-            <span className="text-[#3ecf4c]">l&apos;avenir</span><br />
-            avec nous
-          </h1>
-          <p className="text-white/50 text-sm max-w-xl leading-relaxed">
-            Nous bâtissons l&apos;avenir du retail au Maroc depuis Sidi Bennour.
-            Rejoignez une équipe passionnée, ambitieuse et soudée.
-          </p>
+      {/* Hero — split layout */}
+      <div className="bg-neutral-950 text-white overflow-hidden">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row min-h-[520px]">
+
+          {/* Left: text */}
+          <div className="flex-1 px-6 sm:px-10 lg:px-14 py-14 flex flex-col justify-center">
+            <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-8">
+              <Link href="/" className="hover:text-white/60 transition-colors">Accueil</Link>
+              <span>/</span>
+              <span className="text-white/70">Carrières</span>
+            </nav>
+            <span className="inline-flex w-fit text-[10px] font-black uppercase tracking-[0.4em] bg-[#3ecf4c] text-black px-3 py-1 rounded-full mb-5">
+              Rejoignez-nous
+            </span>
+            <h1 className="font-black text-4xl sm:text-5xl md:text-6xl uppercase tracking-tighter leading-none mb-5">
+              Construisez<br />
+              <span className="text-[#3ecf4c]">l&apos;avenir</span><br />
+              avec nous
+            </h1>
+            <p className="text-white/50 text-sm max-w-xl leading-relaxed mb-8">
+              Nous bâtissons l&apos;avenir du retail au Maroc depuis Sidi Bennour.
+              Rejoignez une équipe passionnée, ambitieuse et soudée.
+            </p>
+            <a
+              href="#postes"
+              className="inline-flex items-center gap-2.5 w-fit bg-[#3ecf4c] text-black font-black text-[12px] uppercase tracking-widest px-7 py-4 rounded-full hover:bg-[#32b83d] transition-colors"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              Découvrir nos opportunités
+            </a>
+          </div>
+
+          {/* Right: image */}
+          <div className="relative lg:w-[52%] min-h-[320px] lg:min-h-0 overflow-hidden">
+            <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
+            <div className="absolute top-8 right-8 z-20 bg-[#3ecf4c] text-black text-center rounded-2xl p-4 w-28 shadow-xl">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-1">
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
+                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+              </svg>
+              <p className="font-black text-[9px] uppercase tracking-wider leading-tight">Ensemble<br/>pour un<br/>avenir<br/>durable</p>
+            </div>
+            <Image
+              src="/images/pages images/notre boutique image.png"
+              alt="Équipe L'ecomax"
+              fill
+              sizes="(max-width: 1024px) 100vw, 52vw"
+              className="object-cover object-center"
+              priority
+            />
+          </div>
+
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats bar */}
       <div className="bg-[#3ecf4c]">
-        <div className="max-w-5xl mx-auto px-6 py-5 flex flex-wrap gap-8 items-center justify-center sm:justify-start">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-5 flex flex-wrap gap-x-0 gap-y-4 items-center justify-center sm:justify-start divide-x divide-black/10">
           {[
-            { value: "2026", label: "Fondée" },
-            { value: "Sidi Bennour", label: "Siège" },
-            { value: "4 postes", label: "Ouverts maintenant" },
-            { value: "100%", label: "Made in Morocco" },
-          ].map((s) => (
-            <div key={s.label} className="text-center sm:text-left">
-              <p className="font-black text-black text-[15px]">{s.value}</p>
-              <p className="text-black/60 text-[11px] uppercase tracking-widest">{s.label}</p>
+            {
+              value: "2026", label: "Fondée",
+              icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            },
+            {
+              value: "Sidi Bennour", label: "Siège",
+              icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            },
+            {
+              value: "4 postes", label: "Ouverts maintenant",
+              icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            },
+            {
+              value: "100%", label: "Made in Morocco",
+              icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+            },
+          ].map((s, i) => (
+            <div key={s.label} className={`flex items-center gap-3 px-8 ${i === 0 ? "pl-0" : ""}`}>
+              <span className="opacity-60">{s.icon}</span>
+              <div>
+                <p className="font-black text-black text-[15px] leading-tight">{s.value}</p>
+                <p className="text-black/60 text-[10px] uppercase tracking-widest">{s.label}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -116,7 +167,7 @@ export default function CarrieresPage() {
         </section>
 
         {/* Jobs */}
-        <section>
+        <section id="postes">
           <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Postes ouverts</p>
           <h2 className="font-black text-2xl sm:text-3xl uppercase tracking-tight mb-8">Rejoignez l&apos;équipe</h2>
           <div className="space-y-4">
