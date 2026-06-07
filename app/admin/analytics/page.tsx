@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect, useState, useCallback } from "react";
 
 type ViewRow = { path: string; referrer: string | null; user_agent: string | null; created_at: string };
@@ -6,6 +6,16 @@ type OrderRow = { total: number; status: string; customer: { city: string } | nu
 type DayStat = { date: string; views: number; orders: number; revenue: number };
 type PageStat = { path: string; count: number };
 type CityStat = { city: string; count: number };
+type SessionPage = { path: string; created_at: string };
+type SessionData = {
+  session_id: string;
+  pages: SessionPage[];
+  user_agent: string | null;
+  referrer: string | null;
+  started_at: string;
+  ended_at: string;
+  page_count: number;
+};
 
 // â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function isMobile(ua: string | null) {
@@ -49,7 +59,7 @@ function Trend({ pct }: { pct: number | null }) {
   const up = pct >= 0;
   return (
     <span className={`inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${up ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"}`}>
-      {up ? "â†‘" : "â†“"} {Math.abs(pct).toFixed(0)}%
+      {up ? "↑" : "↓"} {Math.abs(pct).toFixed(0)}%
     </span>
   );
 }
@@ -132,6 +142,8 @@ export default function AnalyticsPage() {
   const [uniqueToday, setUniqueToday] = useState(0);
   const [prevTotals, setPrevTotals] = useState({ views: 0, orders: 0, revenue: 0 });
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [sessions, setSessions] = useState<SessionData[]>([]);
+  const [expandedSession, setExpandedSession] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [res, prevRes] = await Promise.all([
@@ -145,6 +157,7 @@ export default function AnalyticsPage() {
     setRecentViews(raw.recent_views ?? []);
     setVisitorsToday(raw.visitors_today ?? 0);
     setUniqueToday(raw.unique_today ?? 0);
+    setSessions(raw.sessions ?? []);
 
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - period);
     const cutoffStr = cutoff.toISOString().split("T")[0];
@@ -296,7 +309,7 @@ export default function AnalyticsPage() {
           <div className="grid md:grid-cols-3 gap-4 mb-4">
             <div className="md:col-span-2 bg-white rounded-2xl border border-neutral-100 p-5">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Vues & Visiteurs uniques â€” {period}j</p>
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Vues & Visiteurs uniques — {period}j</p>
                 <Trend pct={trendPct(views.length, prevTotals.views)} />
               </div>
               <p className="text-2xl font-black mb-0.5">{views.length.toLocaleString("fr-FR")}</p>
@@ -317,7 +330,7 @@ export default function AnalyticsPage() {
             </div>
             <div className="bg-white rounded-2xl border border-neutral-100 p-5">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Revenus â€” {period}j</p>
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Revenus — {period}j</p>
                 <Trend pct={trendPct(totalRevenue, prevTotals.revenue)} />
               </div>
               <p className="text-2xl font-black mb-4">{totalRevenue.toLocaleString("fr-MA")} MAD</p>
@@ -365,7 +378,7 @@ export default function AnalyticsPage() {
             <div className="bg-white rounded-2xl border border-neutral-100 p-5">
               <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide mb-4">Appareils</p>
               {views.length === 0 ? (
-                <p className="text-sm text-neutral-400 py-8 text-center">Pas de donnÃ©es</p>
+                <p className="text-sm text-neutral-400 py-8 text-center">Pas de données</p>
               ) : (
                 <>
                   <DonutChart slices={deviceSlices.filter((s) => s.value > 0)} />
@@ -387,7 +400,7 @@ export default function AnalyticsPage() {
                 <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Sources de trafic</p>
               </div>
               {topSources.length === 0 ? (
-                <div className="px-5 py-10 text-center text-neutral-400 text-sm">Pas encore de donnÃ©es.</div>
+                <div className="px-5 py-10 text-center text-neutral-400 text-sm">Pas encore de données.</div>
               ) : (
                 <div className="divide-y divide-neutral-50">
                   {topSources.map(({ source, count }, i) => (
@@ -411,11 +424,11 @@ export default function AnalyticsPage() {
           <div className="grid md:grid-cols-2 gap-4 mb-4">
             <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
               <div className="px-5 py-3.5 border-b border-neutral-50 flex items-center justify-between">
-                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Pages les plus visitÃ©es</p>
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Pages les plus visitées</p>
                 <span className="text-[10px] text-neutral-400 bg-neutral-50 px-2 py-0.5 rounded-full">{topPages.length} pages</span>
               </div>
               {topPages.length === 0 ? (
-                <div className="px-5 py-10 text-center text-neutral-400 text-sm">Pas encore de donnÃ©es.</div>
+                <div className="px-5 py-10 text-center text-neutral-400 text-sm">Pas encore de données.</div>
               ) : (
                 <div className="divide-y divide-neutral-50">
                   {topPages.map((p, i) => (
@@ -464,7 +477,7 @@ export default function AnalyticsPage() {
           <div className="grid md:grid-cols-3 gap-4 mb-4">
             <div className="md:col-span-2 bg-white rounded-2xl border border-neutral-100 p-5">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Commandes par jour â€” {period}j</p>
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Commandes par jour — {period}j</p>
                 <Trend pct={trendPct(orders.length, prevTotals.orders)} />
               </div>
               <p className="text-2xl font-black mb-4">{orders.length} commande{orders.length !== 1 ? "s" : ""}</p>
@@ -501,14 +514,14 @@ export default function AnalyticsPage() {
           <div className="grid md:grid-cols-2 gap-4 mb-4">
             <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
               <div className="px-5 py-3.5 border-b border-neutral-50 flex items-center justify-between">
-                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">ActivitÃ© rÃ©cente</p>
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Activité récente</p>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-[10px] text-emerald-600 font-semibold">30 derniÃ¨res min</span>
+                  <span className="text-[10px] text-emerald-600 font-semibold">30 dernières min</span>
                 </div>
               </div>
               {recentViews.length === 0 ? (
-                <div className="px-5 py-10 text-center text-neutral-400 text-sm">Aucune activitÃ© rÃ©cente.</div>
+                <div className="px-5 py-10 text-center text-neutral-400 text-sm">Aucune activité récente.</div>
               ) : (
                 <div className="divide-y divide-neutral-50 max-h-72 overflow-y-auto">
                   {recentViews.slice(0, 20).map((v, i) => {
@@ -525,7 +538,7 @@ export default function AnalyticsPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[13px] font-medium truncate">{v.path || "/"}</p>
-                          <p className="text-[10px] text-neutral-400 truncate">{source} Â· {device}</p>
+                          <p className="text-[10px] text-neutral-400 truncate">{source} · {device}</p>
                         </div>
                         <span className="text-[10px] text-neutral-300 shrink-0">{timeAgo(v.created_at)}</span>
                       </div>
@@ -537,7 +550,7 @@ export default function AnalyticsPage() {
 
             <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
               <div className="px-5 py-3.5 border-b border-neutral-50">
-                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">DÃ©tail journalier</p>
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Détail journalier</p>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -561,8 +574,8 @@ export default function AnalyticsPage() {
                             {s.views}
                           </span>
                         </td>
-                        <td className="px-4 py-2.5 text-right font-medium text-[13px]">{s.orders > 0 ? s.orders : <span className="text-neutral-300">â€”</span>}</td>
-                        <td className="px-4 py-2.5 text-right font-bold text-[13px]">{s.revenue > 0 ? `${s.revenue.toFixed(0)} MAD` : <span className="text-neutral-300">â€”</span>}</td>
+                        <td className="px-4 py-2.5 text-right font-medium text-[13px]">{s.orders > 0 ? s.orders : <span className="text-neutral-300">—</span>}</td>
+                        <td className="px-4 py-2.5 text-right font-bold text-[13px]">{s.revenue > 0 ? `${s.revenue.toFixed(0)} MAD` : <span className="text-neutral-300">—</span>}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -574,7 +587,7 @@ export default function AnalyticsPage() {
           {/* Comparison */}
           {prevTotals.views > 0 && (
             <div className="bg-white rounded-2xl border border-neutral-100 p-5">
-              <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide mb-4">Comparaison vs pÃ©riode prÃ©cÃ©dente</p>
+              <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide mb-4">Comparaison vs période précédente</p>
               <div className="grid grid-cols-3 gap-4 text-center">
                 {[
                   { label: "Vues", cur: views.length, prev: prevTotals.views, fmt: (v: number) => v.toLocaleString("fr-FR") },
@@ -591,6 +604,99 @@ export default function AnalyticsPage() {
               </div>
             </div>
           )}
+
+          {/* Visitor Journeys */}
+          <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden mt-4">
+            <div className="px-5 py-3.5 border-b border-neutral-50 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Parcours visiteurs</p>
+                <span className="text-[10px] text-neutral-400 bg-neutral-50 px-2 py-0.5 rounded-full">{sessions.length} session{sessions.length !== 1 ? "s" : ""}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                <span className="text-[10px] text-indigo-600 font-semibold">{period}j</span>
+              </div>
+            </div>
+            {sessions.length === 0 ? (
+              <div className="px-5 py-10 text-center text-neutral-400 text-sm">
+                <p className="font-medium mb-1">Aucun parcours enregistré</p>
+                <p className="text-[12px]">Les parcours s&apos;afficheront dès que des visiteurs naviguent sur le site.</p>
+                <p className="text-[11px] mt-2 text-neutral-300">Si c&apos;est la première activation, exécutez dans Supabase SQL :</p>
+                <code className="text-[11px] bg-neutral-100 px-2 py-1 rounded mt-1 inline-block text-neutral-500">ALTER TABLE page_views ADD COLUMN IF NOT EXISTS session_id text;</code>
+              </div>
+            ) : (
+              <div className="divide-y divide-neutral-50">
+                {sessions.slice(0, 50).map((s) => {
+                  const device = isTablet(s.user_agent) ? "Tablette" : isMobile(s.user_agent) ? "Mobile" : "Desktop";
+                  const source = parseSource(s.referrer);
+                  const durationSec = Math.max(0, Math.floor((new Date(s.ended_at).getTime() - new Date(s.started_at).getTime()) / 1000));
+                  const duration = durationSec < 60 ? `${durationSec}s` : `${Math.floor(durationSec / 60)}min ${durationSec % 60}s`;
+                  const isExpanded = expandedSession === s.session_id;
+                  return (
+                    <div key={s.session_id}>
+                      <button
+                        onClick={() => setExpandedSession(isExpanded ? null : s.session_id)}
+                        className="w-full flex items-center gap-3 px-5 py-3 hover:bg-neutral-50 transition-colors text-left"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-neutral-50 flex items-center justify-center shrink-0">
+                          {device === "Mobile" ? (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                          ) : device === "Tablette" ? (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                          ) : (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-[13px] font-semibold truncate">{s.pages[0]?.path || "/"}</p>
+                            <span className="text-[10px] bg-neutral-100 text-neutral-500 px-1.5 py-0.5 rounded-full shrink-0">{s.page_count} page{s.page_count !== 1 ? "s" : ""}</span>
+                          </div>
+                          <p className="text-[10px] text-neutral-400 mt-0.5 truncate">{source} · {device} · {duration}</p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-[10px] text-neutral-300">{timeAgo(s.started_at)}</span>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }} className="text-neutral-300"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                      </button>
+                      {isExpanded && (
+                        <div className="px-5 pb-4 bg-neutral-50/70">
+                          <div className="pt-3 space-y-0">
+                            {s.pages.map((page, idx) => (
+                              <div key={idx} className="flex items-start gap-3">
+                                <div className="flex flex-col items-center shrink-0 mt-1.5">
+                                  <div className={`w-2 h-2 rounded-full ${idx === 0 ? "bg-emerald-500" : idx === s.pages.length - 1 ? "bg-red-400" : "bg-neutral-300"}`} />
+                                  {idx < s.pages.length - 1 && <div className="w-px h-6 bg-neutral-200 mt-0.5" />}
+                                </div>
+                                <div className="flex-1 min-w-0 pb-1.5">
+                                  <p className="text-[12px] font-medium text-neutral-700 truncate">{page.path || "/"}</p>
+                                  <p className="text-[10px] text-neutral-400">{new Date(page.created_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-3 pt-3 border-t border-neutral-100 grid grid-cols-3 gap-2 text-center">
+                            <div>
+                              <p className="text-[10px] text-neutral-400">Entrée</p>
+                              <p className="text-[11px] font-semibold text-neutral-600 truncate">{s.pages[0]?.path || "/"}</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] text-neutral-400">Durée</p>
+                              <p className="text-[11px] font-semibold">{duration}</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] text-neutral-400">Sortie</p>
+                              <p className="text-[11px] font-semibold text-neutral-600 truncate">{s.pages[s.pages.length - 1]?.path || "/"}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>

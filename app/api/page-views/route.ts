@@ -8,11 +8,23 @@ const supabase = createClient(
 
 // POST /api/page-views  — track a page view (anon-friendly)
 export async function POST(req: NextRequest) {
-  let body: unknown;
+  let body: Record<string, unknown>;
   try { body = await req.json(); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
-  // Ignore errors silently — tracking should never break the UX
-  await supabase.from("page_views").insert(body as object);
+
+  // Only insert known safe columns
+  const { path, referrer, user_agent, session_id } = body as Record<string, string | null>;
+  const payload: Record<string, string | null> = { path, referrer, user_agent, session_id };
+
+  const { error } = await supabase.from("page_views").insert(payload);
+
+  if (error?.code === "42703") {
+    // session_id column does not exist yet — insert without it
+    // Run: ALTER TABLE page_views ADD COLUMN IF NOT EXISTS session_id text;
+    const { path: p, referrer: r, user_agent: ua } = payload;
+    await supabase.from("page_views").insert({ path: p, referrer: r, user_agent: ua });
+  }
+
   return NextResponse.json({ ok: true });
 }
