@@ -409,6 +409,9 @@ export default function ProductsPage() {
                   );
                 })}
               </div>
+              {sizeGuideType === "none" ? (
+                <p className="text-xs text-neutral-400 italic">Sélectionnez un guide de tailles pour afficher les tailles disponibles.</p>
+              ) : (
               <div className="flex flex-wrap gap-2">
                 {sizeSet.map((s) => {
                   const active = selectedSizes.includes(s);
@@ -420,6 +423,7 @@ export default function ProductsPage() {
                   );
                 })}
               </div>
+              )}
             </div>
 
             {/* Description Images */}
