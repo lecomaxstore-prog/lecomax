@@ -171,29 +171,29 @@ function ImageLightbox({
           draggable={false}
         />
 
-        {/* Top bar — inside image container, hugging top of photo area */}
-        <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
+        {/* Top bar — solid dark strip above the image */}
+        <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between">
           {/* Zoom controls */}
-          <div className="flex items-center gap-1 bg-black/50 rounded-full px-2 py-1 pointer-events-auto" style={{ backdropFilter: "blur(6px)" }}>
-            <span className="text-white/60 text-[11px] font-medium select-none mr-1">{current + 1}/{images.length}</span>
+          <div className="flex items-center gap-1 bg-black rounded-full px-3 py-1.5 shadow-lg">
+            <span className="text-white/70 text-[11px] font-semibold select-none mr-1">{current + 1}/{images.length}</span>
             <button
               onClick={(e) => { e.stopPropagation(); adjustZoom(-0.5); }}
               disabled={zoom <= MIN_ZOOM}
-              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/15 text-white disabled:opacity-30 transition-all"
+              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/20 text-white disabled:opacity-30 transition-all"
               aria-label="Dézoomer"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); isZoomed ? resetZoom() : setZoom(2.5); }}
-              className="text-white/80 text-[11px] font-bold w-8 text-center hover:text-white transition-colors"
+              className="text-white text-[11px] font-bold w-8 text-center hover:text-white/70 transition-colors"
             >
               {Math.round(zoom * 100)}%
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); adjustZoom(0.5); }}
               disabled={zoom >= MAX_ZOOM}
-              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/15 text-white disabled:opacity-30 transition-all"
+              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/20 text-white disabled:opacity-30 transition-all"
               aria-label="Zoomer"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
@@ -203,8 +203,7 @@ function ImageLightbox({
           {/* Close button */}
           <button
             onClick={(e) => { e.stopPropagation(); onClose(); }}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/80 text-white transition-all pointer-events-auto"
-            style={{ backdropFilter: "blur(6px)" }}
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-black hover:bg-neutral-800 text-white transition-all shadow-lg"
             aria-label="Fermer"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
