@@ -139,28 +139,35 @@ function ImageLightbox({
         className="flex-shrink-0 flex items-center justify-between px-4 py-3 bg-black"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Left: page counter + zoom controls */}
+        {/* Left: page counter, zoom controls only when zoomed */}
         <div className="flex items-center gap-3">
           <span className="text-white text-[13px] font-semibold">{current + 1} / {images.length}</span>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={(e) => { e.stopPropagation(); adjustZoom(-0.5); }}
-              disabled={zoom <= MIN_ZOOM}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 text-white disabled:opacity-30 transition-all"
-              aria-label="Dézoomer"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-            </button>
-            <span className="text-white text-[12px] font-bold w-10 text-center">{Math.round(zoom * 100)}%</span>
-            <button
-              onClick={(e) => { e.stopPropagation(); adjustZoom(0.5); }}
-              disabled={zoom >= MAX_ZOOM}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 text-white disabled:opacity-30 transition-all"
-              aria-label="Zoomer"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-            </button>
-          </div>
+          {isZoomed && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={(e) => { e.stopPropagation(); adjustZoom(-0.5); }}
+                disabled={zoom <= MIN_ZOOM}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 text-white disabled:opacity-30 transition-all"
+                aria-label="Dézoomer"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); resetZoom(); }}
+                className="text-white text-[12px] font-bold w-10 text-center hover:text-white/70 transition-colors"
+              >
+                {Math.round(zoom * 100)}%
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); adjustZoom(0.5); }}
+                disabled={zoom >= MAX_ZOOM}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 text-white disabled:opacity-30 transition-all"
+                aria-label="Zoomer"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right: close button */}
