@@ -134,23 +134,33 @@ function ImageLightbox({
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/92"
       onClick={() => { if (!isZoomed) onClose(); }}
     >
-      {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
-        <span className="text-white/60 text-[12px] font-medium select-none">{current + 1} / {images.length}</span>
-        <div className="flex items-center gap-2 pointer-events-auto">
+      {/* Close button — always visible, top-right, solid bg */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-all shadow-lg"
+        style={{ backdropFilter: "blur(4px)" }}
+        aria-label="Fermer"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      {/* Top bar — zoom controls only */}
+      <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+        <span className="text-white/60 text-[12px] font-medium select-none bg-black/30 px-2 py-1 rounded-full" style={{ backdropFilter: "blur(4px)" }}>{current + 1} / {images.length}</span>
+        <div className="flex items-center gap-1 bg-black/30 rounded-full px-2 py-1" style={{ backdropFilter: "blur(4px)" }}>
           {/* Zoom out */}
           <button
             onClick={(e) => { e.stopPropagation(); adjustZoom(-0.5); }}
             disabled={zoom <= MIN_ZOOM}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white disabled:opacity-30 transition-all"
+            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 text-white disabled:opacity-30 transition-all"
             aria-label="Dézoomer"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
           </button>
           {/* Zoom level */}
           <button
             onClick={(e) => { e.stopPropagation(); isZoomed ? resetZoom() : setZoom(2.5); }}
-            className="text-white/70 text-[11px] font-bold w-10 text-center hover:text-white transition-colors"
+            className="text-white/80 text-[11px] font-bold w-9 text-center hover:text-white transition-colors"
           >
             {Math.round(zoom * 100)}%
           </button>
@@ -158,20 +168,10 @@ function ImageLightbox({
           <button
             onClick={(e) => { e.stopPropagation(); adjustZoom(0.5); }}
             disabled={zoom >= MAX_ZOOM}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white disabled:opacity-30 transition-all"
+            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 text-white disabled:opacity-30 transition-all"
             aria-label="Zoomer"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-          </button>
-          {/* Divider */}
-          <div className="w-px h-4 bg-white/20" />
-          {/* Close */}
-          <button
-            onClick={(e) => { e.stopPropagation(); onClose(); }}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
-            aria-label="Fermer"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
           </button>
         </div>
       </div>
