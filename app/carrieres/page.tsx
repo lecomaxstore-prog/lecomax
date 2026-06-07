@@ -1,5 +1,6 @@
 ﻿import Link from "next/link";
 import Image from "next/image";
+import JobApplyButton from "@/components/JobApplyButton";
 
 export const metadata = {
   title: "Carrières | L'ecomax",
@@ -188,28 +189,34 @@ export default function CarrieresPage() {
           <h2 className="font-black text-2xl sm:text-3xl uppercase tracking-tight mb-8">Rejoignez l&apos;équipe</h2>
           <div className="space-y-4">
             {jobs.map((job) => (
-              <div key={job.title} className="border border-neutral-100 rounded-2xl p-7 hover:border-neutral-200 transition-colors">
-                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${deptColors[job.dept] || "bg-neutral-100 text-neutral-500"}`}>
-                        {job.dept}
-                      </span>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 border border-neutral-100 px-2.5 py-1 rounded-full">
-                        {job.type}
-                      </span>
-                    </div>
-                    <h3 className="font-black text-xl">{job.title}</h3>
-                    <p className="text-neutral-500 text-sm mt-1">📍 {job.location}</p>
+              <div key={job.title} className="group border border-neutral-100 rounded-2xl p-6 sm:p-7 hover:border-neutral-200 hover:shadow-sm transition-all bg-white">
+
+                {/* Top row: badges + button */}
+                <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${deptColors[job.dept] || "bg-neutral-100 text-neutral-500"}`}>
+                      {job.dept}
+                    </span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 border border-neutral-100 px-2.5 py-1 rounded-full">
+                      {job.type}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-neutral-400">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                      </svg>
+                      {job.location}
+                    </span>
                   </div>
-                  <a
-                    href={`mailto:contact@lecomax.com?subject=Candidature – ${encodeURIComponent(job.title)}`}
-                    className="w-full sm:w-auto shrink-0 bg-black text-white font-black text-[11px] uppercase tracking-widest px-5 py-3 rounded-full hover:bg-neutral-800 transition-colors text-center"
-                  >
-                    Postuler →
-                  </a>
+                  <JobApplyButton title={job.title} />
                 </div>
-                <p className="text-[14px] text-neutral-600 leading-relaxed mb-4">{job.desc}</p>
+
+                {/* Title */}
+                <h3 className="font-black text-lg sm:text-xl mb-2">{job.title}</h3>
+
+                {/* Description */}
+                <p className="text-[13px] sm:text-[14px] text-neutral-500 leading-relaxed mb-5">{job.desc}</p>
+
+                {/* Skills */}
                 <div className="flex flex-wrap gap-2">
                   {job.skills.map((s) => (
                     <span key={s} className="text-[11px] font-semibold bg-neutral-50 border border-neutral-100 text-neutral-500 px-3 py-1 rounded-full">
