@@ -597,10 +597,6 @@ export default function AnalyticsPage() {
   );
 }
 
-
-  useEffect(() => {
-    setLoading(true);
-    async function load() {
       const [res, prevRes] = await Promise.all([
         fetch(`/api/analytics?days=${period}`),
         fetch(`/api/analytics?days=${period * 2}`),
