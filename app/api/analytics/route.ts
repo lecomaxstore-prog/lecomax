@@ -18,15 +18,20 @@ export async function GET(req: NextRequest) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [{ data: views }, { data: orders }, { data: todayViews }] = await Promise.all([
-    supabase.from("page_views").select("path, created_at").gte("created_at", sinceISO).order("created_at"),
+  const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+
+  const [{ data: views }, { data: orders }, { data: todayViews }, { data: recentViews }] = await Promise.all([
+    supabase.from("page_views").select("path, referrer, user_agent, created_at").gte("created_at", sinceISO).order("created_at"),
     supabase.from("orders").select("total, status, customer, created_at").gte("created_at", sinceISO),
-    supabase.from("page_views").select("id").gte("created_at", today.toISOString()),
+    supabase.from("page_views").select("user_agent, created_at").gte("created_at", today.toISOString()),
+    supabase.from("page_views").select("path, referrer, user_agent, created_at").gte("created_at", thirtyMinAgo).order("created_at", { ascending: false }).limit(30),
   ]);
 
   return NextResponse.json({
     views: views ?? [],
     orders: orders ?? [],
     visitors_today: todayViews?.length ?? 0,
+    unique_today: new Set((todayViews ?? []).map((v: { user_agent: string | null }) => v.user_agent ?? "anon")).size,
+    recent_views: recentViews ?? [],
   });
 }
