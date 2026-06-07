@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import ReviewSection from "./ReviewSection";
 
 function ChevronIcon({ open }: { open: boolean }) {
@@ -49,83 +49,207 @@ function ImageLightbox({
   onClose: () => void;
 }) {
   const [current, setCurrent] = useState(index);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const dragStart = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  const prev = useCallback(() => setCurrent((i) => (i - 1 + images.length) % images.length), [images.length]);
-  const next = useCallback(() => setCurrent((i) => (i + 1) % images.length), [images.length]);
+  const MIN_ZOOM = 1;
+  const MAX_ZOOM = 5;
 
+  const resetZoom = useCallback(() => { setZoom(1); setPan({ x: 0, y: 0 }); }, []);
+
+  const prev = useCallback(() => { resetZoom(); setCurrent((i) => (i - 1 + images.length) % images.length); }, [images.length, resetZoom]);
+  const next = useCallback(() => { resetZoom(); setCurrent((i) => (i + 1) % images.length); }, [images.length, resetZoom]);
+
+  const clampPan = useCallback((x: number, y: number, z: number) => {
+    if (!imgRef.current) return { x, y };
+    const el = imgRef.current;
+    const maxX = (el.offsetWidth * (z - 1)) / 2;
+    const maxY = (el.offsetHeight * (z - 1)) / 2;
+    return { x: Math.max(-maxX, Math.min(maxX, x)), y: Math.max(-maxY, Math.min(maxY, y)) };
+  }, []);
+
+  const adjustZoom = useCallback((delta: number, cx?: number, cy?: number) => {
+    setZoom((prev) => {
+      const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, prev + delta));
+      if (next === MIN_ZOOM) setPan({ x: 0, y: 0 });
+      return next;
+    });
+    void cx; void cy;
+  }, []);
+
+  // Mouse wheel zoom
+  useEffect(() => {
+    const el = imgRef.current?.parentElement;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      adjustZoom(e.deltaY < 0 ? 0.3 : -0.3);
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [adjustZoom]);
+
+  // Keyboard
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft") prev();
-      if (e.key === "ArrowRight") next();
+      if (e.key === "Escape") { if (zoom > 1) resetZoom(); else onClose(); }
+      if (e.key === "ArrowLeft" && zoom === 1) prev();
+      if (e.key === "ArrowRight" && zoom === 1) next();
+      if (e.key === "+" || e.key === "=") adjustZoom(0.5);
+      if (e.key === "-") adjustZoom(-0.5);
     };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [onClose, prev, next]);
+    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
+  }, [onClose, prev, next, zoom, resetZoom, adjustZoom]);
+
+  // Mouse drag to pan
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (zoom <= 1) return;
+    e.preventDefault();
+    setDragging(true);
+    dragStart.current = { x: e.clientX, y: e.clientY, px: pan.x, py: pan.y };
+  };
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!dragging || !dragStart.current) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    setPan(clampPan(dragStart.current.px + dx, dragStart.current.py + dy, zoom));
+  };
+  const onMouseUp = () => { setDragging(false); dragStart.current = null; };
+
+  // Double-click to zoom in/reset
+  const onDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (zoom > 1) { resetZoom(); } else { setZoom(2.5); }
+  };
+
+  const isZoomed = zoom > 1;
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90"
-      onClick={onClose}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/92"
+      onClick={() => { if (!isZoomed) onClose(); }}
     >
-      {/* Close */}
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
-        aria-label="Fermer"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      {/* Top bar */}
+      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
+        <span className="text-white/60 text-[12px] font-medium select-none">{current + 1} / {images.length}</span>
+        <div className="flex items-center gap-2 pointer-events-auto">
+          {/* Zoom out */}
+          <button
+            onClick={(e) => { e.stopPropagation(); adjustZoom(-0.5); }}
+            disabled={zoom <= MIN_ZOOM}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white disabled:opacity-30 transition-all"
+            aria-label="Dézoomer"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </button>
+          {/* Zoom level */}
+          <button
+            onClick={(e) => { e.stopPropagation(); isZoomed ? resetZoom() : setZoom(2.5); }}
+            className="text-white/70 text-[11px] font-bold w-10 text-center hover:text-white transition-colors"
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+          {/* Zoom in */}
+          <button
+            onClick={(e) => { e.stopPropagation(); adjustZoom(0.5); }}
+            disabled={zoom >= MAX_ZOOM}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white disabled:opacity-30 transition-all"
+            aria-label="Zoomer"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </button>
+          {/* Divider */}
+          <div className="w-px h-4 bg-white/20" />
+          {/* Close */}
+          <button
+            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+            aria-label="Fermer"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
 
       {/* Prev */}
-      {images.length > 1 && (
+      {images.length > 1 && !isZoomed && (
         <button
           onClick={(e) => { e.stopPropagation(); prev(); }}
-          className="absolute left-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
+          className="absolute left-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 transition-colors text-white"
           aria-label="Précédent"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
       )}
 
-      {/* Image */}
+      {/* Image container */}
       <div
-        className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center"
+        className="relative overflow-hidden"
+        style={{ width: "90vw", height: "90vh" }}
         onClick={(e) => e.stopPropagation()}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          ref={imgRef}
           src={images[current]}
           alt={`description ${current + 1}`}
-          className="max-w-[90vw] max-h-[90vh] object-contain rounded-sm shadow-2xl"
+          onDoubleClick={onDoubleClick}
+          className="absolute inset-0 m-auto max-w-full max-h-full object-contain rounded-sm shadow-2xl select-none"
+          style={{
+            transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+            transition: dragging ? "none" : "transform 0.2s ease",
+            cursor: isZoomed ? (dragging ? "grabbing" : "grab") : "zoom-in",
+            top: 0, bottom: 0, left: 0, right: 0,
+          }}
           draggable={false}
         />
-        {images.length > 1 && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {images.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                className={`w-1.5 h-1.5 rounded-full transition-colors ${i === current ? "bg-white" : "bg-white/40"}`}
-              />
-            ))}
+
+        {/* Hint: double-click to zoom */}
+        {!isZoomed && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
+            <span className="text-white/40 text-[11px] select-none">Double-clic pour zoomer · Molette pour zoomer</span>
+          </div>
+        )}
+
+        {/* Reset zoom hint when zoomed */}
+        {isZoomed && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
+            <span className="text-white/40 text-[11px] select-none">Double-clic ou Échap pour réinitialiser</span>
           </div>
         )}
       </div>
 
       {/* Next */}
-      {images.length > 1 && (
+      {images.length > 1 && !isZoomed && (
         <button
           onClick={(e) => { e.stopPropagation(); next(); }}
-          className="absolute right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
+          className="absolute right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 transition-colors text-white"
           aria-label="Suivant"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
+      )}
+
+      {/* Dot navigation */}
+      {images.length > 1 && !isZoomed && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              onClick={(e) => { e.stopPropagation(); resetZoom(); setCurrent(i); }}
+              className={`rounded-full transition-all ${i === current ? "w-4 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/40 hover:bg-white/60"}`}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
