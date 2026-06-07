@@ -1,39 +1,38 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 
 const CartIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
   </svg>
 );
 const TruckIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
     <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
   </svg>
 );
 const ReturnIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>
   </svg>
 );
 const CardIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
     <line x1="1" y1="10" x2="23" y2="10"/>
   </svg>
 );
 const UserIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
     <circle cx="12" cy="7" r="4"/>
   </svg>
 );
 const StarIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
   </svg>
 );
@@ -111,156 +110,157 @@ export default function AidePage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* ── Hero – split layout ── */}
-      <div className="relative flex flex-col lg:flex-row w-full" style={{ minHeight: "78vh" }}>
+      {/* ── Hero – two-column dark, no images ── */}
+      <div className="bg-neutral-950 w-full">
+        <div className="flex flex-col lg:flex-row w-full max-w-[1600px] mx-auto">
 
-        {/* Mobile: full-bleed background photo */}
-        <div className="absolute inset-0 lg:hidden">
-          <Image
-            src="/images/pages/carrieres.png"
-            alt="Centre d'aide L'ecomax"
-            fill
-            className="object-cover object-center"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/70 via-neutral-950/65 to-neutral-950/85" />
-        </div>
+          {/* Left – title */}
+          <div className="w-full lg:w-[44%] shrink-0 flex flex-col justify-center px-8 sm:px-12 lg:px-16 xl:px-24 py-20 lg:py-28 border-b lg:border-b-0 lg:border-r border-white/[0.06]">
+            <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/25 mb-10">
+              <Link href="/" className="hover:text-white/50 transition-colors">Accueil</Link>
+              <span className="text-white/15">/</span>
+              <span className="text-white/60">Centre d&apos;aide</span>
+            </nav>
 
-        {/* Left – dark text panel */}
-        <div className="relative z-10 w-full lg:w-[46%] shrink-0 bg-transparent lg:bg-neutral-950 flex flex-col justify-center px-8 sm:px-12 lg:px-16 xl:px-20 py-24 lg:py-28">
-          <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-10">
-            <Link href="/" className="hover:text-white/60 transition-colors">Accueil</Link>
-            <span>/</span>
-            <span className="text-white/70">Centre d&apos;aide</span>
-          </nav>
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.35em] bg-[#3ecf4c]/15 text-[#3ecf4c] border border-[#3ecf4c]/20 px-3 py-1.5 rounded-full w-fit mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] inline-block" />
+              Support 7j/7
+            </span>
 
-          <h1 className="font-black text-[clamp(3.5rem,8vw,7rem)] uppercase tracking-tighter leading-none mb-6 drop-shadow-lg text-white">
-            Centre<br />
-            <span className="text-[#3ecf4c]">d&apos;aide</span>
-          </h1>
+            <h1 className="font-black text-[clamp(3.8rem,7vw,6.5rem)] uppercase tracking-tighter leading-none mb-6 text-white">
+              Centre<br />
+              <span className="text-[#3ecf4c]">d&apos;aide</span>
+            </h1>
 
-          <p className="text-white/50 text-sm sm:text-base max-w-xs leading-relaxed mb-10">
-            Trouvez rapidement des réponses à vos questions.<br />
-            Notre équipe est aussi disponible 7j/7.
-          </p>
+            <p className="text-white/40 text-sm sm:text-base max-w-sm leading-relaxed mb-10">
+              Trouvez rapidement des réponses à vos questions.<br className="hidden sm:block" />
+              Notre équipe est aussi disponible 7j/7.
+            </p>
 
-          {/* Mobile: compact topic list */}
-          <div className="flex flex-col gap-3 lg:hidden">
-            {topics.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setActiveGroup(t.id)}
-                className={`flex items-center gap-4 px-4 py-3 rounded-xl border transition-all ${
-                  activeGroup === t.id
-                    ? "border-[#3ecf4c] bg-[#3ecf4c]/10"
-                    : "border-white/10 bg-white/5"
-                }`}
-              >
-                <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                  {t.icon}
-                </div>
-                <div className="text-left">
-                  <p className="font-black text-[11px] uppercase tracking-widest text-white leading-none mb-0.5">{t.label}</p>
-                  <p className="text-white/40 text-[11px]">{t.desc}</p>
-                </div>
-                <svg className="ml-auto text-white/20" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6"/></svg>
-              </button>
-            ))}
+            {/* Search hint */}
+            <div className="flex items-center gap-3 bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 max-w-xs">
+              <svg className="text-white/30 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <span className="text-white/25 text-[13px]">Choisissez un sujet ci-contre…</span>
+            </div>
           </div>
-        </div>
 
-        {/* Right – store photo with categories overlay */}
-        <div className="hidden lg:block relative flex-1">
-          <Image
-            src="/images/pages/carrieres.png"
-            alt="Boutique L'ecomax"
-            fill
-            className="object-cover object-center"
-            priority
-          />
-          {/* Dark overlay */}
-          <div className="absolute inset-0 bg-neutral-950/55" />
-          {/* Vertical divider light */}
-          <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+          {/* Right – category list */}
+          <div className="flex-1 flex flex-col justify-center px-8 sm:px-12 lg:px-14 xl:px-16 py-12 lg:py-28">
+            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/25 mb-6">Sujets d&apos;aide</p>
+            <div className="flex flex-col">
+              {topics.map((t, i) => (
+                <button
+                  key={t.id}
+                  onClick={() => {
+                    setActiveGroup(t.id);
+                    setOpenFaq(null);
+                    document.getElementById("faq-section")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className={`group flex items-center gap-5 py-5 border-b border-white/[0.07] last:border-none hover:pl-1.5 transition-all duration-200 ${
+                    activeGroup === t.id ? "pl-1.5" : ""
+                  }`}
+                >
+                  {/* Number */}
+                  <span className="text-[11px] font-black text-white/15 w-5 shrink-0 text-right tabular-nums">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
 
-          {/* Category list */}
-          <div className="absolute inset-0 flex flex-col justify-center px-10 xl:px-16">
-            {topics.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => {
-                  setActiveGroup(t.id);
-                  document.getElementById("faq-section")?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="group flex items-center gap-5 py-5 border-b border-white/10 last:border-none hover:pl-2 transition-all duration-200"
-              >
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  activeGroup === t.id ? "bg-[#3ecf4c]/25" : "bg-white/10 group-hover:bg-white/15"
-                }`}>
-                  {t.icon}
-                </div>
-                <div className="text-left">
-                  <p className={`font-black text-[13px] uppercase tracking-widest leading-none mb-0.5 transition-colors ${
-                    activeGroup === t.id ? "text-[#3ecf4c]" : "text-white"
-                  }`}>{t.label}</p>
-                  <p className="text-white/45 text-[12px]">{t.desc}</p>
-                </div>
-                <svg className={`ml-auto shrink-0 transition-colors ${
-                  activeGroup === t.id ? "text-[#3ecf4c]" : "text-white/20 group-hover:text-white/50"
-                }`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6"/></svg>
-              </button>
-            ))}
+                  {/* Icon */}
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
+                    activeGroup === t.id
+                      ? "bg-[#3ecf4c]/20 text-[#3ecf4c]"
+                      : "bg-white/[0.07] text-white/50 group-hover:bg-white/10 group-hover:text-white"
+                  }`}>
+                    {t.icon}
+                  </div>
+
+                  {/* Label */}
+                  <div className="text-left">
+                    <p className={`font-black text-[13px] uppercase tracking-widest leading-none mb-0.5 transition-colors ${
+                      activeGroup === t.id ? "text-[#3ecf4c]" : "text-white group-hover:text-white"
+                    }`}>{t.label}</p>
+                    <p className="text-white/35 text-[12px]">{t.desc}</p>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className={`ml-auto shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                    activeGroup === t.id
+                      ? "bg-[#3ecf4c]/20 text-[#3ecf4c]"
+                      : "text-white/15 group-hover:text-white/40"
+                  }`}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6"/></svg>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       {/* ── FAQ ── */}
-      <div id="faq-section" className="max-w-5xl mx-auto px-6 pt-12 pb-16">
-        <div className="border border-neutral-100 rounded-2xl overflow-hidden">
-          {/* Tab header */}
-          <div className="flex overflow-x-auto border-b border-neutral-100 bg-neutral-50">
-            {faqGroups.map((g) => (
-              <button
-                key={g.id}
-                onClick={() => { setActiveGroup(g.id); setOpenFaq(null); }}
-                className={`px-5 py-3.5 text-[12px] font-black uppercase tracking-widest whitespace-nowrap border-b-2 transition-colors ${
-                  activeGroup === g.id
-                    ? "border-[#3ecf4c] text-black"
-                    : "border-transparent text-neutral-400 hover:text-black"
-                }`}
-              >
-                {g.label}
-              </button>
-            ))}
-          </div>
+      <div id="faq-section" className="max-w-5xl mx-auto px-6 pt-14 pb-16">
 
-          {/* FAQ list */}
-          <div className="divide-y divide-neutral-50">
-            {current.faqs.map((faq) => (
-              <div key={faq.q}>
-                <button
-                  onClick={() => setOpenFaq(openFaq === faq.q ? null : faq.q)}
-                  className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-neutral-50 transition-colors"
-                >
-                  <span className="font-bold text-[15px] pr-6">{faq.q}</span>
-                  <span className={`shrink-0 w-7 h-7 rounded-full border flex items-center justify-center text-lg font-black transition-all ${
-                    openFaq === faq.q ? "bg-[#3ecf4c] border-[#3ecf4c] text-black" : "border-neutral-200 text-neutral-400"
-                  }`}>
-                    {openFaq === faq.q ? "−" : "+"}
-                  </span>
-                </button>
-                {openFaq === faq.q && (
-                  <div className="px-6 pb-5">
-                    <p className="text-[14px] text-neutral-500 leading-relaxed max-w-2xl">{faq.a}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+        {/* Active topic header */}
+        <div className="flex items-center gap-4 mb-6">
+          {(() => {
+            const t = topics.find((t) => t.id === activeGroup)!;
+            return (
+              <>
+                <div className="w-10 h-10 rounded-xl bg-[#3ecf4c]/10 flex items-center justify-center text-[#3ecf4c]">
+                  {t.icon}
+                </div>
+                <div>
+                  <p className="font-black text-[11px] uppercase tracking-widest text-[#3ecf4c]">{t.label}</p>
+                  <p className="text-neutral-400 text-[12px]">{t.desc}</p>
+                </div>
+              </>
+            );
+          })()}
+        </div>
+
+        {/* Tab bar */}
+        <div className="flex overflow-x-auto gap-1 mb-6 pb-1">
+          {faqGroups.map((g) => (
+            <button
+              key={g.id}
+              onClick={() => { setActiveGroup(g.id); setOpenFaq(null); }}
+              className={`px-4 py-2 text-[11px] font-black uppercase tracking-widest whitespace-nowrap rounded-full transition-all ${
+                activeGroup === g.id
+                  ? "bg-neutral-950 text-white"
+                  : "text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              {g.label}
+            </button>
+          ))}
+        </div>
+
+        {/* FAQ accordion */}
+        <div className="border border-neutral-100 rounded-2xl overflow-hidden divide-y divide-neutral-50">
+          {current.faqs.map((faq) => (
+            <div key={faq.q}>
+              <button
+                onClick={() => setOpenFaq(openFaq === faq.q ? null : faq.q)}
+                className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-neutral-50/70 transition-colors"
+              >
+                <span className="font-bold text-[15px] pr-6 leading-snug">{faq.q}</span>
+                <span className={`shrink-0 w-7 h-7 rounded-full border flex items-center justify-center font-black text-[16px] transition-all ${
+                  openFaq === faq.q ? "bg-[#3ecf4c] border-[#3ecf4c] text-black" : "border-neutral-200 text-neutral-400"
+                }`}>
+                  {openFaq === faq.q ? "−" : "+"}
+                </span>
+              </button>
+              {openFaq === faq.q && (
+                <div className="px-6 pb-5 bg-neutral-50/50">
+                  <p className="text-[14px] text-neutral-500 leading-relaxed max-w-2xl">{faq.a}</p>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Contact CTA */}
+      {/* ── Contact CTA ── */}
       <div className="bg-neutral-950 text-white">
         <div className="max-w-5xl mx-auto px-6 py-14 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
           <div>
@@ -268,7 +268,7 @@ export default function AidePage() {
             <h2 className="font-black text-2xl sm:text-3xl uppercase tracking-tight mb-2">
               Vous n&apos;avez pas trouvé<br />votre réponse ?
             </h2>
-            <p className="text-white/50 text-sm max-w-md">
+            <p className="text-white/40 text-sm max-w-md">
               Notre équipe répond en moins de 2h. Choisissez votre canal préféré.
             </p>
           </div>
