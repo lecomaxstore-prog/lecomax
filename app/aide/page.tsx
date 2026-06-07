@@ -110,89 +110,50 @@ export default function AidePage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* ── Hero – two-column dark, no images ── */}
+      {/* ── Hero – single-column dark ── */}
       <div className="bg-neutral-950 w-full">
-        <div className="flex flex-col lg:flex-row w-full max-w-[1600px] mx-auto">
+        <div className="max-w-5xl mx-auto px-8 sm:px-12 lg:px-16 py-20 lg:py-28">
+          <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/25 mb-10">
+            <Link href="/" className="hover:text-white/50 transition-colors">Accueil</Link>
+            <span className="text-white/15">/</span>
+            <span className="text-white/60">Centre d&apos;aide</span>
+          </nav>
 
-          {/* Left – title */}
-          <div className="w-full lg:w-[44%] shrink-0 flex flex-col justify-center px-8 sm:px-12 lg:px-16 xl:px-24 py-20 lg:py-28 border-b lg:border-b-0 lg:border-r border-white/[0.06]">
-            <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/25 mb-10">
-              <Link href="/" className="hover:text-white/50 transition-colors">Accueil</Link>
-              <span className="text-white/15">/</span>
-              <span className="text-white/60">Centre d&apos;aide</span>
-            </nav>
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.35em] bg-[#3ecf4c]/15 text-[#3ecf4c] border border-[#3ecf4c]/20 px-3 py-1.5 rounded-full w-fit mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] inline-block" />
+            Support 7j/7
+          </span>
 
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.35em] bg-[#3ecf4c]/15 text-[#3ecf4c] border border-[#3ecf4c]/20 px-3 py-1.5 rounded-full w-fit mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] inline-block" />
-              Support 7j/7
-            </span>
+          <h1 className="font-black text-[clamp(3.8rem,7vw,6.5rem)] uppercase tracking-tighter leading-none mb-6 text-white">
+            Centre<br />
+            <span className="text-[#3ecf4c]">d&apos;aide</span>
+          </h1>
 
-            <h1 className="font-black text-[clamp(3.8rem,7vw,6.5rem)] uppercase tracking-tighter leading-none mb-6 text-white">
-              Centre<br />
-              <span className="text-[#3ecf4c]">d&apos;aide</span>
-            </h1>
+          <p className="text-white/40 text-sm sm:text-base max-w-lg leading-relaxed mb-10">
+            Trouvez rapidement des réponses à vos questions.
+            Notre équipe est aussi disponible 7j/7.
+          </p>
 
-            <p className="text-white/40 text-sm sm:text-base max-w-sm leading-relaxed mb-10">
-              Trouvez rapidement des réponses à vos questions.<br className="hidden sm:block" />
-              Notre équipe est aussi disponible 7j/7.
-            </p>
-
-            {/* Search hint */}
-            <div className="flex items-center gap-3 bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 max-w-xs">
-              <svg className="text-white/30 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <span className="text-white/25 text-[13px]">Choisissez un sujet ci-contre…</span>
-            </div>
-          </div>
-
-          {/* Right – category list */}
-          <div className="flex-1 flex flex-col justify-center px-8 sm:px-12 lg:px-14 xl:px-16 py-12 lg:py-28">
-            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/25 mb-6">Sujets d&apos;aide</p>
-            <div className="flex flex-col">
-              {topics.map((t, i) => (
-                <button
-                  key={t.id}
-                  onClick={() => {
-                    setActiveGroup(t.id);
-                    setOpenFaq(null);
-                    document.getElementById("faq-section")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className={`group flex items-center gap-5 py-5 border-b border-white/[0.07] last:border-none hover:pl-1.5 transition-all duration-200 ${
-                    activeGroup === t.id ? "pl-1.5" : ""
-                  }`}
-                >
-                  {/* Number */}
-                  <span className="text-[11px] font-black text-white/15 w-5 shrink-0 text-right tabular-nums">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-
-                  {/* Icon */}
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
-                    activeGroup === t.id
-                      ? "bg-[#3ecf4c]/20 text-[#3ecf4c]"
-                      : "bg-white/[0.07] text-white/50 group-hover:bg-white/10 group-hover:text-white"
-                  }`}>
-                    {t.icon}
-                  </div>
-
-                  {/* Label */}
-                  <div className="text-left">
-                    <p className={`font-black text-[13px] uppercase tracking-widest leading-none mb-0.5 transition-colors ${
-                      activeGroup === t.id ? "text-[#3ecf4c]" : "text-white group-hover:text-white"
-                    }`}>{t.label}</p>
-                    <p className="text-white/35 text-[12px]">{t.desc}</p>
-                  </div>
-
-                  {/* Arrow */}
-                  <div className={`ml-auto shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
-                    activeGroup === t.id
-                      ? "bg-[#3ecf4c]/20 text-[#3ecf4c]"
-                      : "text-white/15 group-hover:text-white/40"
-                  }`}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6"/></svg>
-                  </div>
-                </button>
-              ))}
-            </div>
+          {/* Topic pills */}
+          <div className="flex flex-wrap gap-2">
+            {topics.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => {
+                  setActiveGroup(t.id);
+                  setOpenFaq(null);
+                  document.getElementById("faq-section")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full border text-[12px] font-black uppercase tracking-widest transition-all ${
+                  activeGroup === t.id
+                    ? "bg-[#3ecf4c]/15 border-[#3ecf4c]/40 text-[#3ecf4c]"
+                    : "bg-white/[0.05] border-white/10 text-white/50 hover:border-white/25 hover:text-white"
+                }`}
+              >
+                <span className={activeGroup === t.id ? "text-[#3ecf4c]" : "text-white/40"}>{t.icon}</span>
+                {t.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
