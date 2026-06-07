@@ -1,14 +1,50 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+
+const CartIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+    <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+  </svg>
+);
+const TruckIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+    <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+    <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+  </svg>
+);
+const ReturnIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+    <path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>
+  </svg>
+);
+const CardIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+    <line x1="1" y1="10" x2="23" y2="10"/>
+  </svg>
+);
+const UserIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+);
+const StarIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+  </svg>
+);
 
 const topics = [
-  { icon: "🛒", label: "Commandes", desc: "Passer, modifier, annuler", href: "#commandes" },
-  { icon: "🚚", label: "Livraison", desc: "Délais, frais, zones", href: "#livraison" },
-  { icon: "↩️", label: "Retours", desc: "Politique, procédure", href: "#retours" },
-  { icon: "💳", label: "Paiement", desc: "Modes, sécurité", href: "#paiement" },
-  { icon: "👤", label: "Mon compte", desc: "Inscription, connexion", href: "#compte" },
-  { icon: "⭐", label: "ecoClub", desc: "Points, avantages", href: "#ecoclub" },
+  { id: "commandes", icon: <CartIcon />, label: "Commandes", desc: "Passer, modifier, annuler" },
+  { id: "livraison", icon: <TruckIcon />, label: "Livraison", desc: "Délais, frais, zones" },
+  { id: "retours",   icon: <ReturnIcon />, label: "Retours", desc: "Politique, procédure" },
+  { id: "paiement",  icon: <CardIcon />, label: "Paiement", desc: "Modes, sécurité" },
+  { id: "compte",    icon: <UserIcon />, label: "Mon compte", desc: "Inscription, connexion" },
+  { id: "ecoclub",   icon: <StarIcon />, label: "ecoClub", desc: "Points, avantages" },
 ];
 
 const faqGroups = [
@@ -75,50 +111,111 @@ export default function AidePage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Hero */}
-      <div className="bg-neutral-950 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-16 sm:py-20">
-          <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-8">
+      {/* ── Hero – split layout ── */}
+      <div className="relative flex flex-col lg:flex-row w-full" style={{ minHeight: "78vh" }}>
+
+        {/* Mobile: full-bleed background photo */}
+        <div className="absolute inset-0 lg:hidden">
+          <Image
+            src="/images/pages/carrieres.png"
+            alt="Centre d'aide L'ecomax"
+            fill
+            className="object-cover object-center"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/70 via-neutral-950/65 to-neutral-950/85" />
+        </div>
+
+        {/* Left – dark text panel */}
+        <div className="relative z-10 w-full lg:w-[46%] shrink-0 bg-transparent lg:bg-neutral-950 flex flex-col justify-center px-8 sm:px-12 lg:px-16 xl:px-20 py-24 lg:py-28">
+          <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-10">
             <Link href="/" className="hover:text-white/60 transition-colors">Accueil</Link>
             <span>/</span>
             <span className="text-white/70">Centre d&apos;aide</span>
           </nav>
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] bg-[#3ecf4c] text-black px-3 py-1 rounded-full">
-            Support
-          </span>
-          <h1 className="font-black text-4xl sm:text-5xl md:text-6xl uppercase tracking-tighter leading-none mt-5 mb-5">
+
+          <h1 className="font-black text-[clamp(3.5rem,8vw,7rem)] uppercase tracking-tighter leading-none mb-6 drop-shadow-lg text-white">
             Centre<br />
             <span className="text-[#3ecf4c]">d&apos;aide</span>
           </h1>
-          <p className="text-white/50 text-sm max-w-xl">
-            Trouvez rapidement des réponses à vos questions. Notre équipe est aussi disponible 7j/7.
+
+          <p className="text-white/50 text-sm sm:text-base max-w-xs leading-relaxed mb-10">
+            Trouvez rapidement des réponses à vos questions.<br />
+            Notre équipe est aussi disponible 7j/7.
           </p>
+
+          {/* Mobile: compact topic list */}
+          <div className="flex flex-col gap-3 lg:hidden">
+            {topics.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setActiveGroup(t.id)}
+                className={`flex items-center gap-4 px-4 py-3 rounded-xl border transition-all ${
+                  activeGroup === t.id
+                    ? "border-[#3ecf4c] bg-[#3ecf4c]/10"
+                    : "border-white/10 bg-white/5"
+                }`}
+              >
+                <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                  {t.icon}
+                </div>
+                <div className="text-left">
+                  <p className="font-black text-[11px] uppercase tracking-widest text-white leading-none mb-0.5">{t.label}</p>
+                  <p className="text-white/40 text-[11px]">{t.desc}</p>
+                </div>
+                <svg className="ml-auto text-white/20" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Right – store photo with categories overlay */}
+        <div className="hidden lg:block relative flex-1">
+          <Image
+            src="/images/pages/carrieres.png"
+            alt="Boutique L'ecomax"
+            fill
+            className="object-cover object-center"
+            priority
+          />
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-neutral-950/55" />
+          {/* Vertical divider light */}
+          <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+
+          {/* Category list */}
+          <div className="absolute inset-0 flex flex-col justify-center px-10 xl:px-16">
+            {topics.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => {
+                  setActiveGroup(t.id);
+                  document.getElementById("faq-section")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="group flex items-center gap-5 py-5 border-b border-white/10 last:border-none hover:pl-2 transition-all duration-200"
+              >
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                  activeGroup === t.id ? "bg-[#3ecf4c]/25" : "bg-white/10 group-hover:bg-white/15"
+                }`}>
+                  {t.icon}
+                </div>
+                <div className="text-left">
+                  <p className={`font-black text-[13px] uppercase tracking-widest leading-none mb-0.5 transition-colors ${
+                    activeGroup === t.id ? "text-[#3ecf4c]" : "text-white"
+                  }`}>{t.label}</p>
+                  <p className="text-white/45 text-[12px]">{t.desc}</p>
+                </div>
+                <svg className={`ml-auto shrink-0 transition-colors ${
+                  activeGroup === t.id ? "text-[#3ecf4c]" : "text-white/20 group-hover:text-white/50"
+                }`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Topic cards */}
-      <div className="max-w-5xl mx-auto px-6 py-10">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {topics.map((t) => (
-            <button
-              key={t.label}
-              onClick={() => setActiveGroup(t.href.replace("#", ""))}
-              className={`group border rounded-2xl p-4 text-left hover:border-[#3ecf4c] transition-all ${
-                activeGroup === t.href.replace("#", "")
-                  ? "border-[#3ecf4c] bg-[#3ecf4c]/5"
-                  : "border-neutral-100"
-              }`}
-            >
-              <span className="text-2xl">{t.icon}</span>
-              <p className="font-black text-[13px] uppercase tracking-wide mt-3 mb-0.5">{t.label}</p>
-              <p className="text-neutral-400 text-[11px] leading-tight">{t.desc}</p>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* FAQ */}
-      <div className="max-w-5xl mx-auto px-6 pb-16">
+      {/* ── FAQ ── */}
+      <div id="faq-section" className="max-w-5xl mx-auto px-6 pt-12 pb-16">
         <div className="border border-neutral-100 rounded-2xl overflow-hidden">
           {/* Tab header */}
           <div className="flex overflow-x-auto border-b border-neutral-100 bg-neutral-50">
