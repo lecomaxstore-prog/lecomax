@@ -38,6 +38,34 @@ export default function ReviewsPage() {
   const [replyText, setReplyText] = useState("");
   const [savingReply, setSavingReply] = useState(false);
 
+  // Add review form
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addForm, setAddForm] = useState({
+    product_slug: "", author_name: "", city: "", rating: 5,
+    title: "", review_body: "", color: "",
+  });
+  const [addingReview, setAddingReview] = useState(false);
+
+  async function handleAddReview(e: React.FormEvent) {
+    e.preventDefault();
+    setAddingReview(true);
+    const res = await fetch("/api/reviews/admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(addForm),
+    });
+    setAddingReview(false);
+    if (res.ok) {
+      showToast("Avis ajouté ✓");
+      setShowAddForm(false);
+      setAddForm({ product_slug: "", author_name: "", city: "", rating: 5, title: "", review_body: "", color: "" });
+      await load();
+    } else {
+      const json = await res.json();
+      showToast("Erreur : " + (json.error ?? "inconnue"), false);
+    }
+  }
+
   async function saveReply(id: string) {
     setSavingReply(true);
     const res = await fetch(`/api/reviews/${id}`, {
@@ -105,6 +133,13 @@ export default function ReviewsPage() {
             {reviews.length} avis · Note moyenne : {avgRating}/5
           </p>
         </div>
+        <button
+          onClick={() => setShowAddForm((v) => !v)}
+          className="bg-black text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-neutral-800 flex items-center gap-2"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Ajouter un avis
+        </button>
       </div>
 
       {toast && (
@@ -113,6 +148,73 @@ export default function ReviewsPage() {
         }`}>
           {toast.msg}
         </div>
+      )}
+
+      {/* Add review form */}
+      {showAddForm && (
+        <form onSubmit={handleAddReview} className="bg-white border border-neutral-200 rounded-2xl p-6 mb-6 space-y-4">
+          <h2 className="text-sm font-black">Nouvel avis manuel</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Slug produit *</label>
+              <input required value={addForm.product_slug} onChange={(e) => setAddForm({ ...addForm, product_slug: e.target.value })}
+                placeholder="ex: a-sac-dos-voyage-…"
+                className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Nom du client *</label>
+              <input required value={addForm.author_name} onChange={(e) => setAddForm({ ...addForm, author_name: e.target.value })}
+                placeholder="ex: Ahmed B."
+                className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Ville</label>
+              <input value={addForm.city} onChange={(e) => setAddForm({ ...addForm, city: e.target.value })}
+                placeholder="ex: Casablanca"
+                className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Note *</label>
+              <div className="flex gap-1 mt-1">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <button key={s} type="button" onClick={() => setAddForm({ ...addForm, rating: s })}
+                    className={`w-10 h-10 rounded-xl border text-base font-bold transition-all ${addForm.rating >= s ? "bg-black text-white border-black" : "border-neutral-200 text-neutral-400 hover:border-neutral-400"}`}>
+                    ★
+                  </button>
+                ))}
+                <span className="ml-2 self-center text-sm font-bold">{addForm.rating}/5</span>
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Titre de l&apos;avis</label>
+              <input value={addForm.title} onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+                placeholder="ex: Très satisfait !"
+                className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Couleur achetée</label>
+              <input value={addForm.color} onChange={(e) => setAddForm({ ...addForm, color: e.target.value })}
+                placeholder="ex: Noir"
+                className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Commentaire *</label>
+            <textarea required value={addForm.review_body} onChange={(e) => setAddForm({ ...addForm, review_body: e.target.value })}
+              rows={4} placeholder="Écrivez le commentaire du client…"
+              className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all resize-none" />
+          </div>
+          <div className="flex gap-3">
+            <button type="submit" disabled={addingReview}
+              className="bg-black text-white text-sm font-bold px-6 py-2.5 rounded-xl hover:bg-neutral-800 disabled:opacity-50 flex items-center gap-2">
+              {addingReview ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Ajout…</> : "Publier l'avis →"}
+            </button>
+            <button type="button" onClick={() => setShowAddForm(false)}
+              className="text-sm text-neutral-500 hover:text-black transition-colors px-4 py-2.5">
+              Annuler
+            </button>
+          </div>
+        </form>
       )}
 
       {/* Stats */}
