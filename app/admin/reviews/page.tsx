@@ -15,6 +15,8 @@ type Review = {
   admin_reply?: string | null;
 };
 
+type ProductOption = { id: string; slug: string; name: string; };
+
 function StarRow({ rating }: { rating: number }) {
   return (
     <div className="flex gap-0.5">
@@ -37,6 +39,7 @@ export default function ReviewsPage() {
   const [replyingId, setReplyingId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [savingReply, setSavingReply] = useState(false);
+  const [products, setProducts] = useState<ProductOption[]>([]);
 
   // Add review form
   const [showAddForm, setShowAddForm] = useState(false);
@@ -97,7 +100,12 @@ export default function ReviewsPage() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    fetch("/api/products").then((r) => r.json()).then((data) => {
+      if (Array.isArray(data)) setProducts(data.map((p: { id: string; slug: string; name: string }) => ({ id: p.id, slug: p.slug, name: p.name })));
+    });
+  }, []);
 
   async function deleteReview(id: string) {
     if (!confirm("Supprimer cet avis définitivement ?")) return;
@@ -156,10 +164,14 @@ export default function ReviewsPage() {
           <h2 className="text-sm font-black">Nouvel avis manuel</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Slug produit *</label>
-              <input required value={addForm.product_slug} onChange={(e) => setAddForm({ ...addForm, product_slug: e.target.value })}
-                placeholder="ex: a-sac-dos-voyage-…"
-                className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Produit *</label>
+              <select required value={addForm.product_slug} onChange={(e) => setAddForm({ ...addForm, product_slug: e.target.value })}
+                className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all appearance-none">
+                <option value="">— Choisir un produit —</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.slug}>{p.name}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Nom du client *</label>
