@@ -54,6 +54,7 @@ export default function ProductActions({ product }: { product: Product }) {
   const [error, setError] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [colorModalOpen, setColorModalOpen] = useState(false);
   const { add } = useCart();
   const router = useRouter();
 
@@ -85,14 +86,96 @@ export default function ProductActions({ product }: { product: Product }) {
 
   return (
     <div>
-      {/* Color picker — above size selector */}
+      {/* Color image selection modal */}
+      {colorModalOpen && hasColors && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setColorModalOpen(false)}
+        >
+          <div
+            className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-100">
+              <div>
+                <p className="font-black text-[15px]">Sélection de couleur</p>
+                <p className="text-[12px] text-neutral-400 mt-0.5">{color}</p>
+              </div>
+              <button
+                onClick={() => setColorModalOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            {/* Color grid */}
+            <div className="p-4 grid grid-cols-3 gap-3 max-h-[60vh] overflow-y-auto">
+              {product.colors.map((c) => {
+                const isSelected = color === c;
+                const isOOS = outOfStockColors.includes(c);
+                const img = product.colorImages?.[c] ?? product.image;
+                return (
+                  <button
+                    key={c}
+                    onClick={() => { if (!isOOS) { setColor(c); setColorModalOpen(false); } }}
+                    className={`relative rounded-xl overflow-hidden border-2 transition-all ${
+                      isSelected ? "border-black shadow-md" : "border-transparent hover:border-neutral-300"
+                    } ${isOOS ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={img}
+                      alt={c}
+                      className="w-full aspect-square object-cover bg-neutral-50"
+                      draggable={false}
+                    />
+                    {/* Selected checkmark */}
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 w-5 h-5 bg-black rounded-full flex items-center justify-center">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                    )}
+                    {/* OOS badge */}
+                    {isOOS && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-white/60">
+                        <span className="text-[10px] font-bold text-neutral-500 bg-white px-2 py-0.5 rounded-full">Épuisé</span>
+                      </div>
+                    )}
+                    <div className="px-2 py-1.5 text-center">
+                      <p className={`text-[11px] font-semibold leading-tight truncate ${isSelected ? "text-black" : "text-neutral-600"}`}>{c}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Confirm button */}
+            <div className="px-4 pb-5 pt-2">
+              <button
+                onClick={() => setColorModalOpen(false)}
+                className="w-full bg-black text-white font-bold text-[13px] py-3 rounded-xl hover:bg-neutral-800 transition-colors"
+              >
+                Confirmer — {color}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Color picker */}
       {hasColors && (
         <div className="mb-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[12px] font-black uppercase tracking-wide">
-              Couleur
-            </p>
-            <span className="text-[12px] text-neutral-500 font-medium">{color}</span>
+            <p className="text-[12px] font-black uppercase tracking-wide">Couleur</p>
+            <button
+              onClick={() => setColorModalOpen(true)}
+              className="flex items-center gap-1 text-[12px] text-neutral-500 hover:text-black transition-colors font-medium"
+            >
+              <span>{color}</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
           </div>
           <div className="flex flex-wrap gap-2.5">
             {product.colors.map((c) => {
@@ -100,6 +183,30 @@ export default function ProductActions({ product }: { product: Product }) {
               const isOOS = outOfStockColors.includes(c);
               const hex = getColorHex(c);
               const isLight = ["#f5f5f5","#fafaf5","#d1d5db","#fcd5ce","#f9a8d4","#f5f0e8","#f7e7ce","#fef08a","#c4b5fd","#7dd3fc"].includes(hex);
+
+              // If product has color images, show small image swatches instead of color dots
+              if (hasColorImages && product.colorImages?.[c]) {
+                return (
+                  <button
+                    key={c}
+                    title={isOOS ? `${c} — Rupture de stock` : c}
+                    onClick={() => { if (!isOOS) setColor(c); }}
+                    className={`relative flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden border-2 transition-all ${
+                      isOOS ? "opacity-40 cursor-not-allowed" :
+                      isSelected ? "border-black shadow-sm" : "border-neutral-200 hover:border-neutral-400"
+                    }`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={product.colorImages![c]} alt={c} className="w-full h-full object-cover" draggable={false} />
+                    {isSelected && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                    )}
+                  </button>
+                );
+              }
+
               return (
                 <button
                   key={c}
@@ -108,32 +215,21 @@ export default function ProductActions({ product }: { product: Product }) {
                   className="relative group flex-shrink-0 transition-transform duration-150"
                   style={{ transform: isSelected ? "scale(1.08)" : "scale(1)", cursor: "pointer" }}
                 >
-                  {/* Swatch */}
                   <span
                     className={`flex w-10 h-10 rounded-full transition-all duration-200 ${
-                      isOOS
-                        ? "ring-1 ring-neutral-200 opacity-40"
-                        : isSelected
-                        ? "ring-2 ring-offset-2 ring-[#3ecf4c] shadow-md"
-                        : "ring-1 ring-neutral-200 hover:ring-neutral-400 hover:ring-offset-1"
+                      isOOS ? "ring-1 ring-neutral-200 opacity-40" :
+                      isSelected ? "ring-2 ring-offset-2 ring-[#3ecf4c] shadow-md" :
+                      "ring-1 ring-neutral-200 hover:ring-neutral-400 hover:ring-offset-1"
                     }`}
                     style={{ ...getSwatchStyle(c), border: isLight ? "1px solid #d4d4d4" : "none" }}
                   >
-                    {/* Checkmark for selected */}
                     {isSelected && !isOOS && (
-                      <svg className="m-auto" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={isLight ? "#000" : "#fff"} strokeWidth="3" strokeLinecap="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
+                      <svg className="m-auto" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={isLight ? "#000" : "#fff"} strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
                     )}
-                    {/* Cross for OOS */}
                     {isOOS && (
-                      <svg className="m-auto" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                      </svg>
+                      <svg className="m-auto" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     )}
                   </span>
-                  {/* Tooltip */}
                   <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none">
                     {isOOS ? `${c} — Rupture` : c}
                   </span>
@@ -141,6 +237,17 @@ export default function ProductActions({ product }: { product: Product }) {
               );
             })}
           </div>
+
+          {/* "See all colors" button when there are many colors or color images */}
+          {(product.colors.length > 4 || hasColorImages) && (
+            <button
+              onClick={() => setColorModalOpen(true)}
+              className="mt-3 flex items-center gap-1.5 text-[12px] text-neutral-500 hover:text-black transition-colors font-medium group"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>
+              <span className="group-hover:underline underline-offset-2">Voir tous les coloris</span>
+            </button>
+          )}
         </div>
       )}
 
