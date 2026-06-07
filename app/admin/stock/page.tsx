@@ -170,6 +170,74 @@ export default function StockPage() {
           Gérer tous les produits →
         </Link>
       </div>
+
+      {/* All products stock table */}
+      <div className="mt-8">
+        <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">Tous les produits</h2>
+        <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-neutral-100 text-xs text-neutral-400 uppercase tracking-wide">
+                <th className="text-left px-5 py-3">Produit</th>
+                <th className="text-center px-4 py-3">Stock actuel</th>
+                <th className="text-left px-4 py-3 hidden md:table-cell">Catégorie</th>
+                <th className="text-left px-4 py-3">Nouveau stock</th>
+                <th className="px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-50">
+              {products.map((p) => (
+                <tr key={p.id} className={`${p.stock === 0 ? "bg-red-50/40" : p.stock <= threshold ? "bg-orange-50/40" : "hover:bg-neutral-50"} transition-colors`}>
+                  <td className="px-5 py-3">
+                    <div className="flex items-center gap-3">
+                      {p.images?.[0] && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.images[0]} alt={p.name} className="w-9 h-9 object-cover rounded-lg bg-neutral-100 flex-shrink-0" />
+                      )}
+                      <div>
+                        <p className="font-semibold">{p.name}</p>
+                        <p className="text-neutral-400 text-xs">{p.price} MAD</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className={`text-xs font-black px-2.5 py-1 rounded-full ${
+                      p.stock === 0
+                        ? "bg-red-100 text-red-600"
+                        : p.stock <= threshold
+                        ? "bg-orange-100 text-orange-600"
+                        : "bg-emerald-100 text-emerald-700"
+                    }`}>
+                      {p.stock === 0 ? "Épuisé" : `${p.stock}`}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 hidden md:table-cell text-neutral-500 text-xs capitalize">{p.category}</td>
+                  <td className="px-4 py-3">
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder={String(p.stock)}
+                      value={stockInputs[p.id] ?? ""}
+                      onChange={(e) => setStockInputs((prev) => ({ ...prev, [p.id]: e.target.value }))}
+                      onKeyDown={(e) => e.key === "Enter" && stockInputs[p.id] && updateStock(p.id)}
+                      className="w-24 border border-neutral-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-black"
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => updateStock(p.id)}
+                      disabled={updating === p.id || !stockInputs[p.id]}
+                      className="px-3 py-1.5 bg-black text-white text-xs font-bold rounded-xl hover:bg-neutral-800 transition-colors disabled:opacity-40"
+                    >
+                      {updating === p.id ? "…" : "Enregistrer"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
