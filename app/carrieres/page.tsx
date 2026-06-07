@@ -72,8 +72,8 @@ export default function CarrieresPage() {
             className="object-cover object-center"
             priority
           />
-          {/* Dark overlay so text stays readable */}
-          <div className="absolute inset-0 bg-neutral-950/80" />
+          {/* Dark overlay — lighter so photo shows through */}
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/60 via-neutral-950/50 to-neutral-950/75" />
           {/* Bottom fade */}
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-neutral-950 to-transparent" />
         </div>
@@ -88,7 +88,7 @@ export default function CarrieresPage() {
           <span className="inline-flex w-fit text-[10px] font-black uppercase tracking-[0.4em] bg-[#3ecf4c] text-black px-3 py-1 rounded-full mb-5">
             Rejoignez-nous
           </span>
-          <h1 className="font-black text-4xl sm:text-5xl md:text-6xl uppercase tracking-tighter leading-none mb-5">
+          <h1 className="font-black text-4xl sm:text-5xl md:text-6xl uppercase tracking-tighter leading-none mb-5 drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
             Construisez<br />
             <span className="text-[#3ecf4c]">l&apos;avenir</span><br />
             avec nous
