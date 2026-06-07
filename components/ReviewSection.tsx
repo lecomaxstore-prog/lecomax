@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import SEED_REVIEWS from "@/lib/seed-reviews";
 import { ratingFor } from "@/components/ProductCard";
 
@@ -41,6 +41,13 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [colorFilter, setColorFilter] = useState<string>("Tous");
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (dir: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir === "right" ? 360 : -360, behavior: "smooth" });
+  };
 
   // Form state
   const [email, setEmail] = useState("");
@@ -354,39 +361,64 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
         </div>
       ) : (
         <>
-          {/* Color filter buttons */}
+          {/* Color filter + nav buttons row */}
           {(() => {
             const colors = Array.from(new Set(reviews.map(r => r.color).filter(Boolean))) as string[];
-            if (colors.length < 2) return null;
-            const all = ["Tous", ...colors];
+            const all = colors.length >= 2 ? ["Tous", ...colors] : null;
+            const filtered = reviews.filter(r => colorFilter === "Tous" || r.color === colorFilter);
             return (
-              <div className="flex flex-wrap gap-2 mb-5">
-                {all.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setColorFilter(c)}
-                    className={`px-3.5 py-1.5 text-[12px] font-bold border transition-colors ${
-                      colorFilter === c
-                        ? "bg-black text-white border-black"
-                        : "bg-white text-neutral-600 border-neutral-200 hover:border-black hover:text-black"
-                    }`}
-                  >
-                    {c}
-                    {c !== "Tous" && (
-                      <span className="ml-1.5 text-[11px] opacity-60">
-                        ({reviews.filter(r => r.color === c).length})
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            );
-          })()}
+              <>
+                <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
+                  {all ? (
+                    <div className="flex flex-wrap gap-2">
+                      {all.map((c) => (
+                        <button
+                          key={c}
+                          onClick={() => setColorFilter(c)}
+                          className={`px-3.5 py-1.5 text-[12px] font-bold border transition-colors ${
+                            colorFilter === c
+                              ? "bg-black text-white border-black"
+                              : "bg-white text-neutral-600 border-neutral-200 hover:border-black hover:text-black"
+                          }`}
+                        >
+                          {c}
+                          {c !== "Tous" && (
+                            <span className="ml-1.5 text-[11px] opacity-60">
+                              ({reviews.filter(r => r.color === c).length})
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  ) : <div />}
 
-          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 scroll-smooth">
-            {reviews
-              .filter(r => colorFilter === "Tous" || r.color === colorFilter)
-              .map((r) => (
+                  {/* Prev / Next — desktop only */}
+                  {filtered.length > 2 && (
+                    <div className="hidden md:flex items-center gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => scroll("left")}
+                        aria-label="Précédent"
+                        className="w-9 h-9 flex items-center justify-center border border-neutral-200 hover:border-black hover:bg-black hover:text-white transition-colors"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => scroll("right")}
+                        aria-label="Suivant"
+                        className="w-9 h-9 flex items-center justify-center border border-neutral-200 hover:border-black hover:bg-black hover:text-white transition-colors"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div ref={scrollRef} className="flex gap-4 overflow-x-auto no-scrollbar pb-2 scroll-smooth">
+                  {filtered.map((r) => (
             <div key={r.id} className="flex flex-col gap-3 p-5 border border-neutral-100 bg-white flex-none w-[300px] md:w-[340px]">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
@@ -419,7 +451,10 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
               </div>
             </div>
           ))}
-        </div>
+            </div>
+              </>
+            );
+          })()}
         </>
       )}
     </section>
