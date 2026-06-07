@@ -110,30 +110,33 @@ export default function AidePage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* ── Hero – gradient dark with green glow + wave bottom ── */}
-      <div className="relative w-full overflow-hidden" style={{ background: "linear-gradient(135deg, #0a0a0a 0%, #0d1a0e 50%, #0a0a0a 100%)" }}>
-        {/* Green radial glow */}
-        <div className="absolute right-0 top-0 w-[60%] h-full pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 80% 40%, rgba(62,207,76,0.13) 0%, rgba(62,207,76,0.04) 40%, transparent 70%)" }} />
+      {/* ── Hero – navy gradient with green glow + wave bottom ── */}
+      <div className="relative w-full overflow-hidden" style={{ background: "linear-gradient(120deg, #0b0f1a 0%, #0d1f10 45%, #0b1018 100%)" }}>
+        {/* Green radial glow — right side */}
+        <div className="absolute right-0 top-0 w-[65%] h-full pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 75% 50%, rgba(62,207,76,0.18) 0%, rgba(62,207,76,0.06) 35%, transparent 65%)" }} />
+        {/* Blue ambient — left corner */}
+        <div className="absolute left-0 bottom-0 w-[40%] h-[60%] pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 20% 80%, rgba(30,80,180,0.12) 0%, transparent 60%)" }} />
         {/* Subtle dot grid */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.04]"
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
           style={{ backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
 
-        <div className="relative max-w-5xl mx-auto px-8 sm:px-12 lg:px-16 pt-20 pb-32 lg:pt-28 lg:pb-40">
+        <div className="relative max-w-5xl mx-auto px-8 sm:px-12 lg:px-16 pt-20 pb-36 lg:pt-28 lg:pb-44">
           <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/25 mb-10">
             <Link href="/" className="hover:text-white/50 transition-colors">Accueil</Link>
             <span className="text-white/15">/</span>
             <span className="text-white/60">Centre d&apos;aide</span>
           </nav>
 
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.35em] bg-[#3ecf4c]/10 text-[#3ecf4c] border border-[#3ecf4c]/25 px-3 py-1.5 rounded-full w-fit mb-7">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] inline-block animate-pulse" />
-            Support 7j/7
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.35em] bg-[#3ecf4c]/10 text-[#3ecf4c] border border-[#3ecf4c]/20 px-3 py-1.5 rounded-full w-fit mb-8">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] inline-block" />
+            Centre d&apos;aide
           </span>
 
-          <h1 className="font-black text-[clamp(3.2rem,6vw,5.5rem)] leading-none mb-6 text-white" style={{ letterSpacing: "-0.03em" }}>
-            Trouvez des réponses<br />
-            <span className="text-[#3ecf4c]">rapidement.</span>
+          <h1 className="font-black leading-[1.05] mb-6 text-white" style={{ fontSize: "clamp(2.8rem,5.5vw,5rem)", letterSpacing: "-0.03em" }}>
+            Trouvez l&apos;aide dont<br />
+            vous avez <span className="text-[#3ecf4c]">besoin.</span>
           </h1>
 
           <p className="text-white/45 text-base max-w-md leading-relaxed mb-10">
@@ -152,7 +155,7 @@ export default function AidePage() {
               href="https://wa.me/212699289568"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-white/[0.07] border border-white/15 text-white font-black text-[13px] uppercase tracking-widest px-7 py-3.5 rounded-full hover:bg-white/10 transition-colors"
+              className="inline-flex items-center gap-2 bg-white/[0.08] border border-white/20 text-white font-black text-[13px] uppercase tracking-widest px-7 py-3.5 rounded-full hover:bg-white/14 transition-colors"
             >
               Nous contacter
             </a>
@@ -161,8 +164,8 @@ export default function AidePage() {
 
         {/* Wave SVG */}
         <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-12 sm:h-16 lg:h-20 block">
-            <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#ffffff"/>
+          <svg viewBox="0 0 1440 90" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-14 sm:h-18 lg:h-24 block">
+            <path d="M0,45 C200,90 400,10 720,50 C1000,85 1250,15 1440,45 L1440,90 L0,90 Z" fill="#ffffff"/>
           </svg>
         </div>
       </div>
