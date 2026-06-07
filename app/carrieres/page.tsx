@@ -56,6 +56,13 @@ const deptColors: Record<string, string> = {
   Tech: "bg-[#3ecf4c]/10 text-[#1a7d24] border-[#3ecf4c]/20",
 };
 
+const deptAccent: Record<string, string> = {
+  Marketing: "border-l-purple-400",
+  Support: "border-l-blue-400",
+  Logistique: "border-l-orange-400",
+  Tech: "border-l-[#3ecf4c]",
+};
+
 export default function CarrieresPage() {
   return (
     <div className="min-h-screen bg-white">
@@ -187,42 +194,55 @@ export default function CarrieresPage() {
         <section id="postes">
           <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Postes ouverts</p>
           <h2 className="font-black text-2xl sm:text-3xl uppercase tracking-tight mb-8">Rejoignez l&apos;équipe</h2>
-          <div className="space-y-4">
-            {jobs.map((job) => (
-              <div key={job.title} className="group border border-neutral-100 rounded-2xl p-6 sm:p-7 hover:border-neutral-200 hover:shadow-sm transition-all bg-white">
-
-                {/* Top row: badges + button */}
-                <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${deptColors[job.dept] || "bg-neutral-100 text-neutral-500"}`}>
-                      {job.dept}
-                    </span>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 border border-neutral-100 px-2.5 py-1 rounded-full">
-                      {job.type}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-neutral-400">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-                      </svg>
-                      {job.location}
-                    </span>
+          <div className="space-y-3">
+            {jobs.map((job, idx) => (
+              <div
+                key={job.title}
+                className={`border-l-[3px] border border-neutral-100 rounded-2xl bg-white hover:shadow-md transition-all duration-200 overflow-hidden ${deptAccent[job.dept] || "border-l-neutral-300"}`}
+              >
+                <div className="p-6 sm:p-8">
+                  {/* Top: number + badges + button */}
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[11px] font-black text-neutral-300 tabular-nums w-5">
+                        {String(idx + 1).padStart(2, "0")}
+                      </span>
+                      <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${deptColors[job.dept] || "bg-neutral-100 text-neutral-500"}`}>
+                        {job.dept}
+                      </span>
+                      <span className="text-[10px] font-semibold text-neutral-400 border border-neutral-100 px-2.5 py-1 rounded-full">
+                        {job.type}
+                      </span>
+                      <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-neutral-400">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        {job.location}
+                      </span>
+                    </div>
+                    <JobApplyButton title={job.title} />
                   </div>
-                  <JobApplyButton title={job.title} />
-                </div>
 
-                {/* Title */}
-                <h3 className="font-black text-lg sm:text-xl mb-2">{job.title}</h3>
+                  {/* Title + location on mobile */}
+                  <h3 className="font-black text-xl sm:text-2xl tracking-tight mb-1">{job.title}</h3>
+                  <p className="sm:hidden inline-flex items-center gap-1 text-[11px] text-neutral-400 mb-3">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    {job.location}
+                  </p>
 
-                {/* Description */}
-                <p className="text-[13px] sm:text-[14px] text-neutral-500 leading-relaxed mb-5">{job.desc}</p>
+                  {/* Desc */}
+                  <p className="text-[13px] sm:text-[14px] text-neutral-500 leading-relaxed mb-5 max-w-2xl">{job.desc}</p>
 
-                {/* Skills */}
-                <div className="flex flex-wrap gap-2">
-                  {job.skills.map((s) => (
-                    <span key={s} className="text-[11px] font-semibold bg-neutral-50 border border-neutral-100 text-neutral-500 px-3 py-1 rounded-full">
-                      {s}
-                    </span>
-                  ))}
+                  {/* Skills */}
+                  <div className="flex flex-wrap gap-2">
+                    {job.skills.map((s) => (
+                      <span key={s} className="text-[11px] font-medium bg-neutral-50 border border-neutral-100 text-neutral-500 px-3 py-1 rounded-full">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}

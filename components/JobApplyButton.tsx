@@ -6,24 +6,25 @@ export default function JobApplyButton({ title }: { title: string }) {
 
   if (clicked) {
     return (
-      <div className="w-full sm:w-auto flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 text-amber-700 animate-fade-in">
-        <svg className="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-3 py-2 rounded-full">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
-        <div>
-          <p className="font-black text-[11px] uppercase tracking-wider leading-tight">Poste non disponible</p>
-          <p className="text-[11px] mt-0.5 leading-snug opacity-80">Ce poste n&apos;est pas disponible pour l&apos;instant. Revenez bientôt !</p>
-        </div>
-      </div>
+        Non disponible pour l&apos;instant
+      </span>
     );
   }
 
   return (
     <button
       onClick={() => setClicked(true)}
-      className="w-full sm:w-auto shrink-0 bg-black text-white font-black text-[11px] uppercase tracking-widest px-5 py-3 rounded-full hover:bg-neutral-800 active:scale-95 transition-all text-center"
+      className="inline-flex items-center gap-2 shrink-0 bg-neutral-950 text-white font-black text-[11px] uppercase tracking-widest px-5 py-2.5 rounded-full hover:bg-neutral-700 active:scale-95 transition-all"
     >
-      Postuler →
+      Postuler
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+      </svg>
     </button>
   );
 }
+
