@@ -245,8 +245,6 @@ function ImageLightbox({
       </div>
     </div>
   );
-    </div>
-  );
 }
 
 export default function ProductAccordion({
