@@ -657,15 +657,15 @@ export default function ProductsPage() {
           <button onClick={() => router.push("/admin/products?new=1")} className="mt-3 text-sm font-bold text-black underline underline-offset-2">Créer le premier produit</button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-2xl border border-neutral-100 overflow-x-auto">
+          <table className="w-full text-sm min-w-[700px]">
             <thead>
               <tr className="border-b border-neutral-100 text-left">
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Produit</th>
-                <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider hidden md:table-cell">Catégorie</th>
+                <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Catégorie</th>
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Prix</th>
-                <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider hidden sm:table-cell">Stock</th>
-                <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider hidden lg:table-cell">Tailles</th>
+                <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Stock</th>
+                <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Tailles</th>
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Statut</th>
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider text-right">Actions</th>
               </tr>
@@ -688,19 +688,19 @@ export default function ProductsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 hidden md:table-cell">
+                  <td className="px-4 py-3">
                     <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-neutral-100 text-neutral-600 capitalize">{p.category}</span>
                   </td>
                   <td className="px-4 py-3">
                     <p className="font-bold text-sm">{p.price} MAD</p>
                     {p.original_price && <p className="text-[11px] text-neutral-400 line-through">{p.original_price} MAD</p>}
                   </td>
-                  <td className="px-4 py-3 hidden sm:table-cell">
+                  <td className="px-4 py-3">
                     <span className={`text-xs font-bold ${p.stock === 0 ? "text-red-500" : p.stock <= 5 ? "text-yellow-600" : "text-emerald-600"}`}>
                       {p.stock === 0 ? "Épuisé" : `${p.stock}`}
                     </span>
                   </td>
-                  <td className="px-4 py-3 hidden lg:table-cell">
+                  <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1 max-w-[140px]">
                       {p.sizes?.slice(0, 4).map((s) => <span key={s} className="text-[10px] font-bold px-1.5 py-0.5 bg-neutral-100 rounded text-neutral-600">{s}</span>)}
                       {(p.sizes?.length ?? 0) > 4 && <span className="text-[10px] text-neutral-400">+{(p.sizes?.length ?? 0) - 4}</span>}
