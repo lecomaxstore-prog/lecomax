@@ -89,22 +89,17 @@ export default function ProductActions({ product }: { product: Product }) {
       {/* Color selection modal — bottom sheet */}
       {colorModalOpen && hasColors && (
         <div
-          className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/50"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4"
           style={{ backdropFilter: "blur(2px)" }}
           onClick={() => setColorModalOpen(false)}
         >
           <div
-            className="bg-white w-full max-w-xl rounded-t-2xl shadow-2xl overflow-hidden"
+            className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden"
             style={{ maxHeight: "85vh" }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Drag handle */}
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 bg-neutral-200 rounded-full" />
-            </div>
-
             {/* Header */}
-            <div className="flex items-center justify-between px-5 pt-2 pb-3">
+            <div className="flex items-center justify-between px-5 pt-4 pb-3">
               <div className="flex items-center gap-2">
                 <p className="font-bold text-[16px] tracking-tight">Couleur</p>
                 <span className="text-[13px] text-neutral-400">· {product.colors.length} options</span>
