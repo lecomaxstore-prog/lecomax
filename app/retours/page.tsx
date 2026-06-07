@@ -33,23 +33,30 @@ export default function RetoursPage() {
     <div className="min-h-screen bg-white">
 
       {/* Hero */}
-      <div className="bg-neutral-950 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-16 sm:py-20">
-          <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-8">
-            <Link href="/" className="hover:text-white/60 transition-colors">Accueil</Link>
-            <span>/</span>
-            <span className="text-white/70">Retours & Échanges</span>
+      <div className="relative w-full overflow-hidden" style={{ background: "linear-gradient(135deg, #0a1128 0%, #0c1a2e 40%, #081420 100%)" }}>
+        <div className="absolute right-0 top-0 w-[55%] h-full pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 45%, rgba(62,207,76,0.07) 0%, transparent 55%)" }} />
+        <div className="absolute left-[-10%] bottom-[-10%] w-[60%] h-[70%] pointer-events-none" style={{ background: "radial-gradient(ellipse at 30% 70%, rgba(20,60,160,0.18) 0%, transparent 60%)" }} />
+        <div className="relative max-w-5xl mx-auto px-8 sm:px-12 lg:px-16 pt-20 pb-36 lg:pt-24 lg:pb-44">
+          <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/25 mb-10">
+            <Link href="/" className="hover:text-white/50 transition-colors">Accueil</Link>
+            <span className="text-white/15">/</span>
+            <span className="text-white/60">Retours &amp; Échanges</span>
           </nav>
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] bg-[#3ecf4c] text-black px-3 py-1 rounded-full">
+          <span className="inline-flex items-center gap-2 text-[11px] font-semibold bg-white/[0.07] border border-white/15 text-white/70 px-4 py-2 rounded-full w-fit mb-8">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#3ecf4c]"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
             Politique de retour
           </span>
-          <h1 className="font-black text-4xl sm:text-5xl md:text-6xl uppercase tracking-tighter leading-none mt-5 mb-5">
-            Retours &amp;<br />
-            <span className="text-[#3ecf4c]">Échanges</span>
+          <h1 className="font-black leading-[1.05] mb-6 text-white" style={{ fontSize: "clamp(2.6rem,5vw,4.5rem)", letterSpacing: "-0.03em" }}>
+            Retours &amp;<br /><span className="text-[#3ecf4c]">Échanges</span>
           </h1>
-          <p className="text-white/50 text-sm max-w-xl leading-relaxed">
+          <p className="text-white/45 text-base max-w-md leading-relaxed">
             Votre satisfaction est notre priorité. Si un article ne vous convient pas, retournez-le facilement.
           </p>
+        </div>
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+          <svg viewBox="0 0 1440 90" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-14 sm:h-18 lg:h-24 block">
+            <path d="M0,45 C200,90 400,10 720,50 C1000,85 1250,15 1440,45 L1440,90 L0,90 Z" fill="#ffffff"/>
+          </svg>
         </div>
       </div>
 

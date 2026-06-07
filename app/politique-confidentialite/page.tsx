@@ -63,27 +63,33 @@ export default function PolitiqueConfidentialitePage() {
     <div className="min-h-screen bg-white">
 
       {/* Hero */}
-      <div className="bg-neutral-950 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-16 sm:py-20">
-          <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-8">
-            <Link href="/" className="hover:text-white/60 transition-colors">Accueil</Link>
-            <span>/</span>
-            <span className="text-white/50">Légal</span>
-            <span>/</span>
-            <span className="text-white/70">Confidentialité</span>
+      <div className="relative w-full overflow-hidden" style={{ background: "linear-gradient(135deg, #0a1128 0%, #0c1a2e 40%, #081420 100%)" }}>
+        <div className="absolute right-0 top-0 w-[55%] h-full pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 45%, rgba(62,207,76,0.07) 0%, transparent 55%)" }} />
+        <div className="absolute left-[-10%] bottom-[-10%] w-[60%] h-[70%] pointer-events-none" style={{ background: "radial-gradient(ellipse at 30% 70%, rgba(20,60,160,0.18) 0%, transparent 60%)" }} />
+        <div className="relative max-w-5xl mx-auto px-8 sm:px-12 lg:px-16 pt-20 pb-36 lg:pt-24 lg:pb-44">
+          <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/25 mb-10">
+            <Link href="/" className="hover:text-white/50 transition-colors">Accueil</Link>
+            <span className="text-white/15">/</span>
+            <span className="text-white/40">Légal</span>
+            <span className="text-white/15">/</span>
+            <span className="text-white/60">Confidentialité</span>
           </nav>
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] bg-[#3ecf4c] text-black px-3 py-1 rounded-full">
-            Légal
+          <span className="inline-flex items-center gap-2 text-[11px] font-semibold bg-white/[0.07] border border-white/15 text-white/70 px-4 py-2 rounded-full w-fit mb-8">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#3ecf4c]"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Légal &amp; Confidentialité
           </span>
-          <h1 className="font-black text-4xl sm:text-5xl md:text-6xl uppercase tracking-tighter leading-none mt-5 mb-5">
-            Politique de<br />
-            <span className="text-[#3ecf4c]">confidentialité</span>
+          <h1 className="font-black leading-[1.05] mb-6 text-white" style={{ fontSize: "clamp(2.6rem,5vw,4.5rem)", letterSpacing: "-0.03em" }}>
+            Politique de<br /><span className="text-[#3ecf4c]">confidentialité</span>
           </h1>
-          <p className="text-white/50 text-sm max-w-xl leading-relaxed">
+          <p className="text-white/45 text-base max-w-md leading-relaxed mb-3">
             La protection de vos données personnelles est une priorité absolue pour L&apos;ecomax.
-            Découvrez comment nous collectons, utilisons et protégeons vos informations.
           </p>
-          <p className="text-white/30 text-xs mt-5 font-mono">Dernière mise à jour : 28 avril 2026</p>
+          <p className="text-white/25 text-xs font-mono">Dernière mise à jour : 28 avril 2026</p>
+        </div>
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+          <svg viewBox="0 0 1440 90" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-14 sm:h-18 lg:h-24 block">
+            <path d="M0,45 C200,90 400,10 720,50 C1000,85 1250,15 1440,45 L1440,90 L0,90 Z" fill="#ffffff"/>
+          </svg>
         </div>
       </div>
 
