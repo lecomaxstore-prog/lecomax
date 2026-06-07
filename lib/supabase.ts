@@ -22,6 +22,7 @@ export type Product = {
   original_price: number | null;
   description: string | null;
   images: string[];
+  desc_images?: string[];
   stock: number;
   active: boolean;
   created_at: string;

@@ -32,6 +32,7 @@ type ExtendedProduct = Product & {
   colors?: string[];
   sizes?: string[];
   weight?: number;
+  desc_images?: string[];
 };
 
 export default function ProductsPage() {
@@ -50,7 +51,10 @@ export default function ProductsPage() {
   const [sizeGuideType, setSizeGuideType] = useState<"none" | "clothing" | "shoes">("none");
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);  const [descImages, setDescImages] = useState<string[]>([]);
+  const [uploadingDesc, setUploadingDesc] = useState(false);
+  const [dragOverDesc, setDragOverDesc] = useState(false);
+  const descFileInputRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
@@ -96,12 +100,14 @@ export default function ProductsPage() {
           weight: p.weight ? String(p.weight) : "",
         });
         setImages(p.images?.length ? p.images : []);
+        setDescImages((p as ExtendedProduct).desc_images?.length ? (p as ExtendedProduct).desc_images! : []);
         setSelectedColors(p.colors ?? []);
         setSelectedSizes(p.sizes ?? []);
       }
     } else if (isNew) {
       setForm({ ...emptyForm });
       setImages([]);
+      setDescImages([]);
       setSelectedColors([]);
       setSelectedSizes([]);
       setSizeGuideType("none");
@@ -129,6 +135,27 @@ export default function ProductsPage() {
     setUploading(false);
   }
 
+  async function uploadDescFiles(files: FileList | File[]) {
+    const list = Array.from(files);
+    if (!list.length) return;
+    setUploadingDesc(true);
+    const urls: string[] = [];
+    for (const file of list) {
+      const fd = new FormData();
+      fd.append("file", file);
+      try {
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const data = await res.json();
+        if (data.url) urls.push(data.url);
+        else setMsg({ type: "err", text: data.error ?? "Erreur upload" });
+      } catch {
+        setMsg({ type: "err", text: "Erreur réseau lors de l'upload" });
+      }
+    }
+    setDescImages((prev) => [...prev, ...urls]);
+    setUploadingDesc(false);
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -152,6 +179,7 @@ export default function ProductsPage() {
       colors: selectedColors,
       sizes: selectedSizes,
       weight: form.weight ? parseFloat(form.weight) : null,
+      desc_images: descImages.filter(Boolean),
     };
     const url = editId ? `/api/products/${editId}` : "/api/products";
     const method = editId ? "PUT" : "POST";
@@ -392,6 +420,56 @@ export default function ProductsPage() {
                   );
                 })}
               </div>
+            </div>
+
+            {/* Description Images */}
+            <div className="bg-white border border-neutral-100 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-1">
+                <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Images de description</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 bg-neutral-100 rounded-full text-neutral-500">{descImages.length} photo{descImages.length !== 1 ? "s" : ""}</span>
+              </div>
+              <p className="text-[11px] text-neutral-400 mb-4">Photos affichées dans la section description du produit (détails, matières, lifestyle…)</p>
+              <input ref={descFileInputRef} type="file" accept="image/*" multiple className="hidden"
+                onChange={(e) => e.target.files && uploadDescFiles(e.target.files)} />
+              <div
+                onClick={() => !uploadingDesc && descFileInputRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setDragOverDesc(true); }}
+                onDragLeave={() => setDragOverDesc(false)}
+                onDrop={(e) => { e.preventDefault(); setDragOverDesc(false); uploadDescFiles(e.dataTransfer.files); }}
+                className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all mb-3 ${dragOverDesc ? "border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${uploadingDesc ? "pointer-events-none opacity-70" : ""}`}>
+                {uploadingDesc ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    <p className="text-xs text-neutral-500">Upload en cours…</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-9 h-9 bg-neutral-100 rounded-xl flex items-center justify-center mb-1">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-500">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                    </div>
+                    <p className="text-xs font-semibold text-neutral-700">Cliquer ou glisser des images</p>
+                    <p className="text-[10px] text-neutral-400">JPG, PNG, WEBP, AVIF — max 5 MB</p>
+                  </div>
+                )}
+              </div>
+              {descImages.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {descImages.map((url, i) => (
+                    <div key={i} className="relative group rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200" style={{ aspectRatio: "4/3" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button type="button" onClick={() => setDescImages((prev) => prev.filter((_, j) => j !== i))}
+                          className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-white">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
