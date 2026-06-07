@@ -131,123 +131,120 @@ function ImageLightbox({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/92"
+      className="fixed inset-0 z-[9999] flex flex-col bg-black/95"
       onClick={() => { if (!isZoomed) onClose(); }}
     >
-      {/* Prev */}
-      {images.length > 1 && !isZoomed && (
-        <button
-          onClick={(e) => { e.stopPropagation(); prev(); }}
-          className="absolute left-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 transition-colors text-white"
-          aria-label="Précédent"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-      )}
-
-      {/* Image container */}
+      {/* ── Top bar — always on pure black, never over image ── */}
       <div
-        className="relative overflow-hidden"
-        style={{ width: "90vw", height: "90vh" }}
+        className="flex-shrink-0 flex items-center justify-between px-4 py-3 bg-black"
         onClick={(e) => e.stopPropagation()}
-        onMouseDown={onMouseDown}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseUp}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          ref={imgRef}
-          src={images[current]}
-          alt={`description ${current + 1}`}
-          onDoubleClick={onDoubleClick}
-          className="absolute inset-0 m-auto max-w-full max-h-full object-contain rounded-sm shadow-2xl select-none"
-          style={{
-            transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
-            transition: dragging ? "none" : "transform 0.2s ease",
-            cursor: isZoomed ? (dragging ? "grabbing" : "grab") : "zoom-in",
-            top: 0, bottom: 0, left: 0, right: 0,
-          }}
-          draggable={false}
-        />
-
-        {/* Top bar — solid dark strip above the image */}
-        <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between">
-          {/* Zoom controls */}
-          <div className="flex items-center gap-1 bg-black rounded-full px-3 py-1.5 shadow-lg">
-            <span className="text-white/70 text-[11px] font-semibold select-none mr-1">{current + 1}/{images.length}</span>
+        {/* Left: page counter + zoom controls */}
+        <div className="flex items-center gap-3">
+          <span className="text-white text-[13px] font-semibold">{current + 1} / {images.length}</span>
+          <div className="flex items-center gap-1">
             <button
               onClick={(e) => { e.stopPropagation(); adjustZoom(-0.5); }}
               disabled={zoom <= MIN_ZOOM}
-              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/20 text-white disabled:opacity-30 transition-all"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 text-white disabled:opacity-30 transition-all"
               aria-label="Dézoomer"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
             </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); isZoomed ? resetZoom() : setZoom(2.5); }}
-              className="text-white text-[11px] font-bold w-8 text-center hover:text-white/70 transition-colors"
-            >
-              {Math.round(zoom * 100)}%
-            </button>
+            <span className="text-white text-[12px] font-bold w-10 text-center">{Math.round(zoom * 100)}%</span>
             <button
               onClick={(e) => { e.stopPropagation(); adjustZoom(0.5); }}
               disabled={zoom >= MAX_ZOOM}
-              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/20 text-white disabled:opacity-30 transition-all"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 text-white disabled:opacity-30 transition-all"
               aria-label="Zoomer"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
             </button>
           </div>
-
-          {/* Close button */}
-          <button
-            onClick={(e) => { e.stopPropagation(); onClose(); }}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-black hover:bg-neutral-800 text-white transition-all shadow-lg"
-            aria-label="Fermer"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
         </div>
 
-        {/* Hint: double-click to zoom */}
-        {!isZoomed && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none">
-            <span className="text-white/40 text-[11px] select-none">Double-clic pour zoomer · Molette pour zoomer</span>
-          </div>
+        {/* Right: close button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onClose(); }}
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-600 text-white transition-all"
+          aria-label="Fermer"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      {/* ── Image area ── */}
+      <div className="relative flex-1 flex items-center justify-center">
+        {/* Prev */}
+        {images.length > 1 && !isZoomed && (
+          <button
+            onClick={(e) => { e.stopPropagation(); prev(); }}
+            className="absolute left-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 transition-colors text-white"
+            aria-label="Précédent"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
         )}
 
-        {/* Reset zoom hint when zoomed */}
-        {isZoomed && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none">
-            <span className="text-white/40 text-[11px] select-none">Double-clic ou Échap pour réinitialiser</span>
+        {/* Image container */}
+        <div
+          className="relative overflow-hidden w-full h-full"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            ref={imgRef}
+            src={images[current]}
+            alt={`description ${current + 1}`}
+            onDoubleClick={onDoubleClick}
+            className="absolute inset-0 m-auto max-w-full max-h-full object-contain select-none"
+            style={{
+              transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+              transition: dragging ? "none" : "transform 0.2s ease",
+              cursor: isZoomed ? (dragging ? "grabbing" : "grab") : "zoom-in",
+              top: 0, bottom: 0, left: 0, right: 0,
+            }}
+            draggable={false}
+          />
+
+          {/* Hint */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
+            <span className="text-white/40 text-[11px] select-none">
+              {isZoomed ? "Double-clic ou Échap pour réinitialiser" : "Double-clic pour zoomer · Molette pour zoomer"}
+            </span>
+          </div>
+        </div>
+
+        {/* Next */}
+        {images.length > 1 && !isZoomed && (
+          <button
+            onClick={(e) => { e.stopPropagation(); next(); }}
+            className="absolute right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 transition-colors text-white"
+            aria-label="Suivant"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        )}
+
+        {/* Dot navigation */}
+        {images.length > 1 && !isZoomed && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => { e.stopPropagation(); resetZoom(); setCurrent(i); }}
+                className={`rounded-full transition-all ${i === current ? "w-4 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/40 hover:bg-white/60"}`}
+              />
+            ))}
           </div>
         )}
       </div>
-
-      {/* Next */}
-      {images.length > 1 && !isZoomed && (
-        <button
-          onClick={(e) => { e.stopPropagation(); next(); }}
-          className="absolute right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 transition-colors text-white"
-          aria-label="Suivant"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-      )}
-
-      {/* Dot navigation */}
-      {images.length > 1 && !isZoomed && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-          {images.map((_, i) => (
-            <button
-              key={i}
-              onClick={(e) => { e.stopPropagation(); resetZoom(); setCurrent(i); }}
-              className={`rounded-full transition-all ${i === current ? "w-4 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/40 hover:bg-white/60"}`}
-            />
-          ))}
-        </div>
-      )}
+    </div>
+  );
     </div>
   );
 }
