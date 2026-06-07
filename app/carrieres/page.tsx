@@ -97,16 +97,9 @@ export default function CarrieresPage() {
           {/* Right: image */}
           <div className="relative lg:w-[52%] min-h-[320px] lg:min-h-0 overflow-hidden">
             <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
-            <div className="absolute top-8 right-8 z-20 bg-[#3ecf4c] text-black text-center rounded-2xl p-4 w-28 shadow-xl">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-1">
-                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
-                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
-              </svg>
-              <p className="font-black text-[9px] uppercase tracking-wider leading-tight">Ensemble<br/>pour un<br/>avenir<br/>durable</p>
-            </div>
             <Image
-              src="/images/pages images/notre boutique image.png"
-              alt="Équipe L'ecomax"
+              src="/images/pages/carrieres.png"
+              alt="Boutique L'ecomax"
               fill
               sizes="(max-width: 1024px) 100vw, 52vw"
               className="object-cover object-center"
