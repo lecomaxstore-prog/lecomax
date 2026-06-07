@@ -13,6 +13,7 @@ type Review = {
   body: string;
   color: string | null;
   created_at: string;
+  admin_reply?: string | null;
 };
 
 function StarRow({ rating, size = 12 }: { rating: number; size?: number }) {
@@ -439,6 +440,16 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
               </div>
 
               <p className="text-[13px] text-neutral-600 leading-relaxed flex-1">{r.body}</p>
+
+              {r.admin_reply && (
+                <div className="bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2.5 mt-1">
+                  <p className="text-[10px] font-black text-neutral-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Réponse de L&apos;ecomax
+                  </p>
+                  <p className="text-[12px] text-neutral-700 leading-relaxed">{r.admin_reply}</p>
+                </div>
+              )}
 
               <div className="flex items-center justify-between pt-3 border-t border-neutral-100">
                 {r.color ? (

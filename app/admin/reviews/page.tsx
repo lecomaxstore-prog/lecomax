@@ -12,6 +12,7 @@ type Review = {
   color: string | null;
   created_at: string;
   approved?: boolean;
+  admin_reply?: string | null;
 };
 
 function StarRow({ rating }: { rating: number }) {
@@ -33,6 +34,27 @@ export default function ReviewsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [filterRating, setFilterRating] = useState(0);
   const [search, setSearch] = useState("");
+  const [replyingId, setReplyingId] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [savingReply, setSavingReply] = useState(false);
+
+  async function saveReply(id: string) {
+    setSavingReply(true);
+    const res = await fetch(`/api/reviews/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ admin_reply: replyText.trim() || null }),
+    });
+    setSavingReply(false);
+    if (res.ok) {
+      showToast("Réponse enregistrée ✓");
+      setReplyingId(null);
+      setReplyText("");
+      await load();
+    } else {
+      showToast("Erreur lors de l'enregistrement", false);
+    }
+  }
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -158,15 +180,66 @@ export default function ReviewsPage() {
                       year: "numeric",
                     })}
                   </p>
+                  {r.admin_reply && replyingId !== r.id && (
+                    <div className="mt-3 bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3">
+                      <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Votre réponse</p>
+                      <p className="text-sm text-neutral-700">{r.admin_reply}</p>
+                    </div>
+                  )}
+                  {replyingId === r.id && (
+                    <div className="mt-3 space-y-2">
+                      <textarea
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        rows={3}
+                        autoFocus
+                        placeholder="Votre réponse publique à cet avis…"
+                        className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all resize-none"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => saveReply(r.id)}
+                          disabled={savingReply}
+                          className="px-4 py-2 bg-black text-white text-xs font-bold rounded-xl hover:bg-neutral-800 transition-colors disabled:opacity-50"
+                        >
+                          {savingReply ? "Enregistrement…" : "Publier la réponse"}
+                        </button>
+                        {r.admin_reply && (
+                          <button
+                            disabled={savingReply}
+                            className="px-4 py-2 text-xs font-bold text-red-500 border border-red-200 rounded-xl hover:bg-red-50 transition-colors disabled:opacity-40"
+                            onClick={() => { setReplyText(""); setTimeout(() => saveReply(r.id), 0); }}
+                          >
+                            Supprimer la réponse
+                          </button>
+                        )}
+                        <button
+                          onClick={() => { setReplyingId(null); setReplyText(""); }}
+                          className="px-4 py-2 text-xs font-bold text-neutral-400 hover:text-black transition-colors"
+                        >
+                          Annuler
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <button
-                  onClick={() => deleteReview(r.id)}
-                  disabled={deletingId === r.id}
-                  className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-500 border border-red-200 rounded-xl hover:bg-red-50 transition-colors disabled:opacity-40"
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-                  {deletingId === r.id ? "…" : "Supprimer"}
-                </button>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={() => { setReplyingId(replyingId === r.id ? null : r.id); setReplyText(r.admin_reply ?? ""); }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold border rounded-xl transition-colors border-neutral-200 hover:border-black text-neutral-500 hover:text-black"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    {r.admin_reply ? "Modifier réponse" : "Répondre"}
+                  </button>
+                  <button
+                    onClick={() => deleteReview(r.id)}
+                    disabled={deletingId === r.id}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-500 border border-red-200 rounded-xl hover:bg-red-50 transition-colors disabled:opacity-40"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                    {deletingId === r.id ? "…" : "Supprimer"}
+                  </button>
+                </div>
               </div>
             </div>
           ))}
