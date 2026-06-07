@@ -291,11 +291,7 @@ export default function ProductAccordion({
                 onClick={() => setLightboxIndex(i)}
               >
                 <img src={src} alt={`description ${i + 1}`} className="w-full h-auto block transition-transform duration-300 group-hover:scale-[1.02]" loading={i === 0 ? "eager" : "lazy"} />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/50 rounded-full p-2">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-                  </div>
-                </div>
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200" />
               </div>
             ))}
           </div>
