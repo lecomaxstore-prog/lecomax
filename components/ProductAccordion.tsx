@@ -134,48 +134,6 @@ function ImageLightbox({
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/92"
       onClick={() => { if (!isZoomed) onClose(); }}
     >
-      {/* Close button — always visible, top-right, solid bg */}
-      <button
-        onClick={(e) => { e.stopPropagation(); onClose(); }}
-        className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-all shadow-lg"
-        style={{ backdropFilter: "blur(4px)" }}
-        aria-label="Fermer"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-
-      {/* Top bar — zoom controls only */}
-      <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-        <span className="text-white/60 text-[12px] font-medium select-none bg-black/30 px-2 py-1 rounded-full" style={{ backdropFilter: "blur(4px)" }}>{current + 1} / {images.length}</span>
-        <div className="flex items-center gap-1 bg-black/30 rounded-full px-2 py-1" style={{ backdropFilter: "blur(4px)" }}>
-          {/* Zoom out */}
-          <button
-            onClick={(e) => { e.stopPropagation(); adjustZoom(-0.5); }}
-            disabled={zoom <= MIN_ZOOM}
-            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 text-white disabled:opacity-30 transition-all"
-            aria-label="Dézoomer"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-          </button>
-          {/* Zoom level */}
-          <button
-            onClick={(e) => { e.stopPropagation(); isZoomed ? resetZoom() : setZoom(2.5); }}
-            className="text-white/80 text-[11px] font-bold w-9 text-center hover:text-white transition-colors"
-          >
-            {Math.round(zoom * 100)}%
-          </button>
-          {/* Zoom in */}
-          <button
-            onClick={(e) => { e.stopPropagation(); adjustZoom(0.5); }}
-            disabled={zoom >= MAX_ZOOM}
-            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 text-white disabled:opacity-30 transition-all"
-            aria-label="Zoomer"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-          </button>
-        </div>
-      </div>
-
       {/* Prev */}
       {images.length > 1 && !isZoomed && (
         <button
@@ -213,16 +171,56 @@ function ImageLightbox({
           draggable={false}
         />
 
+        {/* Top bar — inside image container, hugging top of photo area */}
+        <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
+          {/* Zoom controls */}
+          <div className="flex items-center gap-1 bg-black/50 rounded-full px-2 py-1 pointer-events-auto" style={{ backdropFilter: "blur(6px)" }}>
+            <span className="text-white/60 text-[11px] font-medium select-none mr-1">{current + 1}/{images.length}</span>
+            <button
+              onClick={(e) => { e.stopPropagation(); adjustZoom(-0.5); }}
+              disabled={zoom <= MIN_ZOOM}
+              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/15 text-white disabled:opacity-30 transition-all"
+              aria-label="Dézoomer"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); isZoomed ? resetZoom() : setZoom(2.5); }}
+              className="text-white/80 text-[11px] font-bold w-8 text-center hover:text-white transition-colors"
+            >
+              {Math.round(zoom * 100)}%
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); adjustZoom(0.5); }}
+              disabled={zoom >= MAX_ZOOM}
+              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/15 text-white disabled:opacity-30 transition-all"
+              aria-label="Zoomer"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </button>
+          </div>
+
+          {/* Close button */}
+          <button
+            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/80 text-white transition-all pointer-events-auto"
+            style={{ backdropFilter: "blur(6px)" }}
+            aria-label="Fermer"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
         {/* Hint: double-click to zoom */}
         {!isZoomed && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none">
             <span className="text-white/40 text-[11px] select-none">Double-clic pour zoomer · Molette pour zoomer</span>
           </div>
         )}
 
         {/* Reset zoom hint when zoomed */}
         {isZoomed && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none">
             <span className="text-white/40 text-[11px] select-none">Double-clic ou Échap pour réinitialiser</span>
           </div>
         )}
