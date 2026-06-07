@@ -110,17 +110,14 @@ export default function AidePage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* ── Hero – navy gradient with green glow + wave bottom ── */}
-      <div className="relative w-full overflow-hidden" style={{ background: "linear-gradient(120deg, #0b0f1a 0%, #0d1f10 45%, #0b1018 100%)" }}>
-        {/* Green radial glow — right side */}
-        <div className="absolute right-0 top-0 w-[65%] h-full pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 75% 50%, rgba(62,207,76,0.18) 0%, rgba(62,207,76,0.06) 35%, transparent 65%)" }} />
-        {/* Blue ambient — left corner */}
-        <div className="absolute left-0 bottom-0 w-[40%] h-[60%] pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 20% 80%, rgba(30,80,180,0.12) 0%, transparent 60%)" }} />
-        {/* Subtle dot grid */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
-          style={{ backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+      {/* ── Hero – deep navy gradient with wave bottom ── */}
+      <div className="relative w-full overflow-hidden" style={{ background: "linear-gradient(135deg, #0a1128 0%, #0c1a2e 40%, #081420 100%)" }}>
+        {/* Very subtle green tint right */}
+        <div className="absolute right-0 top-0 w-[55%] h-full pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 80% 45%, rgba(62,207,76,0.07) 0%, transparent 55%)" }} />
+        {/* Blue depth — bottom left */}
+        <div className="absolute left-[-10%] bottom-[-10%] w-[60%] h-[70%] pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 30% 70%, rgba(20,60,160,0.18) 0%, transparent 60%)" }} />
 
         <div className="relative max-w-5xl mx-auto px-8 sm:px-12 lg:px-16 pt-20 pb-36 lg:pt-28 lg:pb-44">
           <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/25 mb-10">
