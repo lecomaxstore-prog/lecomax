@@ -59,12 +59,28 @@ export default function CarrieresPage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Hero — split layout, image bleeds to right edge */}
+      {/* Hero — full-bleed bg on mobile, split on desktop */}
       <div className="relative bg-neutral-950 text-white overflow-hidden min-h-[520px] flex flex-col lg:flex-row">
 
-        {/* Left: text — constrained to left half */}
-        <div className="relative z-10 w-full lg:w-[46%] shrink-0 px-6 sm:px-10 lg:px-14 py-14 flex flex-col justify-center">
-          <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-8">
+        {/* Mobile: image as full background with dark overlay */}
+        <div className="absolute inset-0 lg:hidden">
+          <Image
+            src="/images/pages/carrieres.png"
+            alt="Boutique L'ecomax"
+            fill
+            sizes="100vw"
+            className="object-cover object-center"
+            priority
+          />
+          {/* Dark overlay so text stays readable */}
+          <div className="absolute inset-0 bg-neutral-950/80" />
+          {/* Bottom fade */}
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-neutral-950 to-transparent" />
+        </div>
+
+        {/* Left: text */}
+        <div className="relative z-10 w-full lg:w-[46%] shrink-0 px-6 sm:px-10 lg:px-14 py-16 flex flex-col justify-center">
+          <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-6">
             <Link href="/" className="hover:text-white/60 transition-colors">Accueil</Link>
             <span>/</span>
             <span className="text-white/70">Carrières</span>
@@ -77,13 +93,13 @@ export default function CarrieresPage() {
             <span className="text-[#3ecf4c]">l&apos;avenir</span><br />
             avec nous
           </h1>
-          <p className="text-white/50 text-sm max-w-xl leading-relaxed mb-8">
+          <p className="text-white/50 text-sm max-w-md leading-relaxed mb-8">
             Nous bâtissons l&apos;avenir du retail au Maroc depuis Sidi Bennour.
             Rejoignez une équipe passionnée, ambitieuse et soudée.
           </p>
           <a
             href="#postes"
-            className="inline-flex items-center gap-2.5 w-fit bg-[#3ecf4c] text-black font-black text-[12px] uppercase tracking-widest px-7 py-4 rounded-full hover:bg-[#32b83d] transition-colors"
+            className="inline-flex items-center gap-2.5 w-fit bg-[#3ecf4c] text-black font-black text-[12px] uppercase tracking-widest px-6 py-3.5 rounded-full hover:bg-[#32b83d] transition-colors"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
@@ -93,11 +109,9 @@ export default function CarrieresPage() {
           </a>
         </div>
 
-        {/* Right: image — from 46% to right edge */}
-        <div className="relative flex-1 min-h-[320px] lg:min-h-0 overflow-hidden">
-          {/* Fade blend on left edge into dark bg */}
+        {/* Right: image — desktop only, bleeds to right edge */}
+        <div className="hidden lg:block relative flex-1 overflow-hidden">
           <div className="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
-          {/* Badge */}
           <div className="absolute top-8 right-8 z-20 bg-[#3ecf4c] text-black text-center rounded-2xl p-4 w-28 shadow-xl">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-1">
               <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
@@ -109,7 +123,7 @@ export default function CarrieresPage() {
             src="/images/pages/carrieres.png"
             alt="Boutique L'ecomax"
             fill
-            sizes="(max-width: 1024px) 100vw, 54vw"
+            sizes="54vw"
             className="object-cover object-center"
             priority
           />
@@ -119,7 +133,8 @@ export default function CarrieresPage() {
 
       {/* Stats bar */}
       <div className="bg-[#3ecf4c]">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-5 flex flex-wrap gap-x-0 gap-y-4 items-center justify-center sm:justify-start divide-x divide-black/10">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-5 gap-x-4 sm:gap-x-0 sm:divide-x sm:divide-black/10">
           {[
             {
               value: "2026", label: "Fondée",
@@ -138,14 +153,15 @@ export default function CarrieresPage() {
               icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
             },
           ].map((s, i) => (
-            <div key={s.label} className={`flex items-center gap-3 px-8 ${i === 0 ? "pl-0" : ""}`}>
-              <span className="opacity-60">{s.icon}</span>
+            <div key={s.label} className={`flex items-center gap-3 sm:px-8 ${i === 0 ? "sm:pl-0" : ""}`}>
+              <span className="opacity-60 shrink-0">{s.icon}</span>
               <div>
-                <p className="font-black text-black text-[15px] leading-tight">{s.value}</p>
+                <p className="font-black text-black text-[14px] leading-tight">{s.value}</p>
                 <p className="text-black/60 text-[10px] uppercase tracking-widest">{s.label}</p>
               </div>
             </div>
           ))}
+          </div>
         </div>
       </div>
 
@@ -188,7 +204,7 @@ export default function CarrieresPage() {
                   </div>
                   <a
                     href={`mailto:contact@lecomax.com?subject=Candidature – ${encodeURIComponent(job.title)}`}
-                    className="shrink-0 bg-black text-white font-black text-[11px] uppercase tracking-widest px-5 py-2.5 rounded-full hover:bg-neutral-800 transition-colors"
+                    className="w-full sm:w-auto shrink-0 bg-black text-white font-black text-[11px] uppercase tracking-widest px-5 py-3 rounded-full hover:bg-neutral-800 transition-colors text-center"
                   >
                     Postuler →
                   </a>
