@@ -40,13 +40,13 @@ export default function ProductCard({ product }: { product: CardProduct }) {
       className="group block bg-white rounded-xl border border-neutral-100 hover:border-neutral-200 hover:shadow-[0_12px_40px_rgba(0,0,0,0.10)] transition-all duration-300 overflow-hidden"
     >
       {/* Image */}
-      <div className="relative aspect-[4/5] bg-neutral-50 overflow-hidden">
+      <div className="relative aspect-[4/5] bg-white overflow-hidden">
         <Image
           src={product.image}
           alt={product.name}
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-          className="object-cover group-hover:scale-[1.06] transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
+          className="object-contain p-3 group-hover:scale-[1.06] transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
         />
         <div className="shimmer-on-hover" />
 
