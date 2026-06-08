@@ -8,42 +8,47 @@ import Link from "next/link";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 
-// ── Demo promo codes ──────────────────────────────────────────────
-const PROMO_CODES: Record<string, { type: "percent" | "fixed"; value: number; label: string }> = {
-  ECOMAX10:  { type: "percent", value: 10,  label: "-10%" },
-  SOLDES20:  { type: "percent", value: 20,  label: "-20%" },
-  BIENVENUE: { type: "fixed",   value: 50,  label: "-50 MAD" },
-  ECO30:     { type: "percent", value: 30,  label: "-30%" },
-};
 
 export default function CartPage() {
   const { items, total, count, setQty, remove, clear } = useCart();
   const shipping = total >= 500 ? 0 : 35;
 
   const [promoInput, setPromoInput] = useState("");
-  const [promoApplied, setPromoApplied] = useState<null | { code: string; type: "percent" | "fixed"; value: number; label: string }>(null);
+  const [promoApplied, setPromoApplied] = useState<null | { code: string; type: "percent" | "fixed"; value: number; label: string; discount: number }>(null);
   const [promoError, setPromoError] = useState("");
   const [promoOpen, setPromoOpen] = useState(false);
+  const [promoLoading, setPromoLoading] = useState(false);
 
-  const discount = promoApplied
-    ? promoApplied.type === "percent"
-      ? Math.round((total * promoApplied.value) / 100)
-      : Math.min(promoApplied.value, total)
-    : 0;
+  const discount = promoApplied?.discount ?? 0;
 
   const grandTotal = total + shipping - discount;
 
-  function applyPromo() {
+  async function applyPromo() {
     const code = promoInput.trim().toUpperCase();
-    const found = PROMO_CODES[code];
-    if (!found) {
-      setPromoError("Code invalide. Essayez ECOMAX10 ou BIENVENUE.");
-      setPromoApplied(null);
-      return;
-    }
-    setPromoApplied({ code, ...found });
+    if (!code) return;
+    setPromoLoading(true);
     setPromoError("");
-    setPromoInput("");
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, order_total: total }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPromoError(data.error || "Code invalide ou inactif");
+        setPromoApplied(null);
+      } else {
+        const label = data.type === "percent" ? `-${data.value}%` : `-${data.value} MAD`;
+        setPromoApplied({ code: data.code, type: data.type, value: data.value, label, discount: data.discount });
+        setPromoError("");
+        setPromoInput("");
+      }
+    } catch {
+      setPromoError("Une erreur est survenue, veuillez réessayer.");
+    } finally {
+      setPromoLoading(false);
+    }
   }
 
   function removePromo() {
@@ -309,10 +314,11 @@ export default function CartPage() {
                             />
                             <button
                               onClick={applyPromo}
-                              className="px-4 py-2.5 text-[12px] font-black uppercase tracking-wide rounded-lg transition-colors"
+                              disabled={promoLoading}
+                              className="px-4 py-2.5 text-[12px] font-black uppercase tracking-wide rounded-lg transition-colors disabled:opacity-60"
                               style={{ background: "#000", color: "#fff" }}
                             >
-                              OK
+                              {promoLoading ? "..." : "OK"}
                             </button>
                           </div>
                         )}

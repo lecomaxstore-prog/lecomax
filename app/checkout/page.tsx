@@ -105,7 +105,7 @@ export default function CheckoutPage() {
       if (window.innerWidth >= 1024) {
         setStepperVisible(true);
       } else {
-        setStepperVisible(y <= 10 || y < lastScrollY.current);
+        setStepperVisible(y < 2);
       }
       lastScrollY.current = y;
     };
@@ -378,9 +378,10 @@ export default function CheckoutPage() {
         style={{
           background: "rgba(255,255,255,0.97)",
           backdropFilter: "blur(12px)",
-          borderBottom: "1px solid #f3f4f6",
-          transform: stepperVisible ? "translateY(0)" : "translateY(-100%)",
-          transition: "transform 0.3s ease",
+          borderBottom: stepperVisible ? "1px solid #f3f4f6" : "none",
+          maxHeight: stepperVisible ? "200px" : "0",
+          overflow: "hidden",
+          transition: "max-height 0.3s ease",
         }}
       >
         {/* Breadcrumb row */}
@@ -642,9 +643,11 @@ export default function CheckoutPage() {
               <ul className="divide-y divide-neutral-50 max-h-60 overflow-y-auto">
                 {items.map((item) => (
                   <li key={item.slug + item.size} className="flex items-center gap-3 px-5 py-3.5">
-                    <div className="relative w-14 h-16 rounded-xl overflow-hidden bg-neutral-100 shrink-0 border border-neutral-100">
-                      <Image src={item.image} alt={item.name} fill sizes="56px" className="object-cover" />
-                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-black text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-sm">
+                    <div className="relative w-14 h-16 rounded-xl overflow-visible bg-neutral-100 shrink-0 border border-neutral-100">
+                      <div className="w-full h-full rounded-xl overflow-hidden">
+                        <Image src={item.image} alt={item.name} fill sizes="56px" className="object-cover" />
+                      </div>
+                      <span className="absolute -top-2 -right-2 w-5 h-5 bg-neutral-800 text-white text-[9px] font-black rounded-full flex items-center justify-center ring-2 ring-white shadow">
                         {item.quantity}
                       </span>
                     </div>
