@@ -151,7 +151,7 @@ export default function CheckoutPage() {
   // Load vanilla PayPal SDK and render buttons when PayPal selected
   useEffect(() => {
     if (payment !== "paypal") return;
-    const PAYPAL_CLIENT_ID = "BAA_LM04femxzGuKaHnfkjbfDUo0kMPz1pkuuEkmVPjEnbtDQY_yuNtk4_iq1VgVFszSiVOOOnkXbpfkhQ";
+    const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "";
 
     const renderButtons = () => {
       const container = paypalContainerRef.current;

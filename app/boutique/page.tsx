@@ -1,5 +1,6 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "@/components/ProductCard";
@@ -24,9 +25,34 @@ type CategoryId = (typeof CATEGORIES)[number]["id"];
 type SortId = (typeof SORTS)[number]["id"];
 
 export default function BoutiquePage() {
-  const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
-  const [activeSort, setActiveSort] = useState<SortId>("default");
+  return (
+    <Suspense fallback={null}>
+      <BoutiqueContent />
+    </Suspense>
+  );
+}
+
+function BoutiqueContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [activeCategory, setActiveCategory] = useState<CategoryId>(
+    (searchParams.get("cat") as CategoryId) ?? "all"
+  );
+  const [activeSort, setActiveSort] = useState<SortId>(
+    (searchParams.get("sort") as SortId) ?? "default"
+  );
   const [dbProducts, setDbProducts] = useState<CardProduct[]>([]);
+
+  const updateURL = (cat: CategoryId, sort: SortId) => {
+    const params = new URLSearchParams();
+    if (cat !== "all") params.set("cat", cat);
+    if (sort !== "default") params.set("sort", sort);
+    const qs = params.toString();
+    router.replace(`/boutique${qs ? `?${qs}` : ""}`, { scroll: false });
+  };
+
+  const setCategory = (cat: CategoryId) => { setActiveCategory(cat); updateURL(cat, activeSort); };
+  const setSort = (sort: SortId) => { setActiveSort(sort); updateURL(activeCategory, sort); };
 
   useEffect(() => {
     fetch("/api/products?active=true")
@@ -124,7 +150,7 @@ export default function BoutiquePage() {
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
+                  onClick={() => setCategory(cat.id)}
                   className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-wide transition-all duration-150 whitespace-nowrap ${
                     activeCategory === cat.id
                       ? "bg-black text-white"
@@ -141,7 +167,7 @@ export default function BoutiquePage() {
               <span className="text-[11px] text-neutral-400 font-semibold uppercase tracking-wider hidden sm:block">Trier</span>
               <select
                 value={activeSort}
-                onChange={(e) => setActiveSort(e.target.value as SortId)}
+                onChange={(e) => setSort(e.target.value as SortId)}
                 className="text-[12px] font-bold border border-neutral-200 rounded-xl px-3 py-2 bg-white outline-none cursor-pointer focus:border-neutral-400 transition-colors"
               >
                 {SORTS.map((s) => (
@@ -165,7 +191,7 @@ export default function BoutiquePage() {
             <h3 className="font-black text-xl uppercase tracking-wide mb-2">Aucun article trouvé</h3>
             <p className="text-neutral-400 text-sm mb-6">Essayez une autre catégorie ou un autre filtre.</p>
             <button
-              onClick={() => { setActiveCategory("all"); setActiveSort("default"); }}
+              onClick={() => { setCategory("all"); setSort("default"); }}
               className="px-6 py-3 bg-black text-white font-black uppercase text-[11px] tracking-[0.12em] rounded-xl hover:opacity-80 transition-opacity"
             >
               Réinitialiser les filtres

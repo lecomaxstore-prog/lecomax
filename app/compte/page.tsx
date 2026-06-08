@@ -38,6 +38,7 @@ export default function ComptePage() {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [points, setPoints] = useState(0);
   const [tierName, setTierName] = useState("Bronze");
+  const [addressCount, setAddressCount] = useState<number | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -50,6 +51,9 @@ export default function ComptePage() {
         created_at: u.created_at,
         prenom: u.user_metadata?.prenom,
       });
+      // Load address count from user metadata
+      const saved = u.user_metadata?.addresses;
+      setAddressCount(Array.isArray(saved) ? saved.length : 0);
       // Fetch recent orders by email
       fetch(`/api/orders?email=${encodeURIComponent(email)}&limit=3`)
         .then(r => r.json())
@@ -143,7 +147,7 @@ export default function ComptePage() {
       <div className="grid grid-cols-3 gap-3">
         {[
           { label: "Commandes", value: ordersLoading ? "…" : String(orders.length > 0 ? orders.length : "0"), sub: "Total passées", href: "/compte/commandes", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /></svg>, accent: "#3ecf4c" },
-          { label: "Adresses", value: "–", sub: "Sauvegardées", href: "/compte/adresses", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>, accent: "#000" },
+          { label: "Adresses", value: addressCount === null ? "…" : String(addressCount), sub: "Sauvegardées", href: "/compte/adresses", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>, accent: "#000" },
           { label: "EcoClub", value: tierName, sub: `${points.toLocaleString("fr-MA")} pts`, href: "/ecoclub", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>, accent: tierName === "Gold" ? "#fbbf24" : tierName === "Silver" ? "#a8a9ad" : "#f59e0b" },
         ].map((s) => (
           <Link key={s.label} href={s.href} className="group bg-white border border-neutral-100 hover:border-neutral-300 hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 p-4 sm:p-5">

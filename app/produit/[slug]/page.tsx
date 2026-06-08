@@ -13,6 +13,40 @@ import NewsletterSection from "@/components/NewsletterSection";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const product = getProduct(slug);
+  if (product) {
+    return {
+      title: `${product.displayName ?? product.name} | L'ecomax`,
+      description: product.description?.slice(0, 155) ?? `Achetez ${product.name} sur L'ecomax.`,
+      openGraph: {
+        title: product.displayName ?? product.name,
+        description: product.description?.slice(0, 155),
+        images: product.image ? [{ url: product.image }] : [],
+      },
+    };
+  }
+  // Try DB product
+  try {
+    const { getDbProductRaw: getDb } = await import("@/lib/db-server");
+    const dbProd = await getDb(slug);
+    if (dbProd) {
+      const img = (dbProd.images ?? [])[0];
+      return {
+        title: `${dbProd.name} | L'ecomax`,
+        description: dbProd.description?.slice(0, 155) ?? `Achetez ${dbProd.name} sur L'ecomax.`,
+        openGraph: {
+          title: dbProd.name,
+          description: dbProd.description?.slice(0, 155),
+          images: img ? [{ url: img }] : [],
+        },
+      };
+    }
+  } catch { /* */ }
+  return { title: "Produit | L'ecomax" };
+}
+
 export function generateStaticParams() {
   return products.map((p) => ({ slug: p.slug }));
 }
@@ -51,12 +85,12 @@ const colorMap: Record<string, string> = {
 const getColorHex = (name: string) =>
   colorMap[name.split("/")[0].trim()] ?? "#e5e7eb";
 
-/* ── Deterministic star rating (matches ProductCard) ── */
+/* ── Deterministic star rating fallback (used only if no DB reviews) ── */
 function ratingFor(slug: string) {
   let h = 0;
   for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
   const rating = 4.3 + (h % 7) / 10;
-  const count = 2 + (h % 5);
+  const count = 0; // no fake count — show 0 if no real reviews
   return { rating: Math.round(rating * 10) / 10, count };
 }
 
@@ -185,6 +219,28 @@ export default async function ProductPage({
 
   if (!product) notFound();
 
+  // Fetch real review stats from DB
+  let reviewRating = 0;
+  let reviewCount = 0;
+  try {
+    const { createClient } = await import("@supabase/supabase-js");
+    const supa = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const { data: revData } = await supa
+      .from("reviews")
+      .select("rating")
+      .eq("product_slug", slug);
+    if (revData && revData.length > 0) {
+      reviewCount = revData.length;
+      reviewRating = Math.round((revData.reduce((s: number, r: { rating: number }) => s + r.rating, 0) / revData.length) * 10) / 10;
+    }
+  } catch { /* use fallback */ }
+
+  const displayRating = reviewCount > 0 ? reviewRating : ratingFor(slug).rating;
+  const displayReviewCount = reviewCount;
+
   const onSale = !!(product.oldPrice && product.oldPrice > product.price);
   const discount = onSale
     ? Math.round((1 - product.price / product.oldPrice!) * 100)
@@ -249,7 +305,8 @@ export default async function ProductPage({
 
           {/* Rating + stock */}
           {(() => {
-            const { rating, count } = ratingFor(product.slug);
+            const rating = displayRating;
+            const count = displayReviewCount;
             const full = Math.round(rating);
             return (
               <div className="flex items-center gap-2 mt-3 flex-wrap">

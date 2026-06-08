@@ -14,9 +14,9 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Restore saved email on mount
+// Restore saved email on mount (sessionStorage only — not persisted across sessions)
   useEffect(() => {
-    const saved = localStorage.getItem(SAVED_EMAIL_KEY);
+    const saved = sessionStorage.getItem(SAVED_EMAIL_KEY);
     if (saved) { setEmail(saved); setRememberMe(true); }
   }, []);
 
@@ -30,14 +30,12 @@ export default function AdminLoginPage() {
       setError("Email ou mot de passe incorrect.");
     } else {
       if (rememberMe) {
-        localStorage.setItem(SAVED_EMAIL_KEY, email);
-        // 30 days
-        document.cookie = "admin_session=authenticated; path=/; max-age=2592000; SameSite=Strict";
+        sessionStorage.setItem(SAVED_EMAIL_KEY, email);
       } else {
-        localStorage.removeItem(SAVED_EMAIL_KEY);
-        // Session cookie (expires when browser closes)
-        document.cookie = "admin_session=authenticated; path=/; SameSite=Strict";
+        sessionStorage.removeItem(SAVED_EMAIL_KEY);
       }
+      // Session cookie (1 day)
+      document.cookie = "admin_session=authenticated; path=/; max-age=86400; SameSite=Strict";
       router.replace("/admin/dashboard");
     }
   }

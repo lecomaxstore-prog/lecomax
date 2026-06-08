@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Logo from "./Logo";
 
@@ -49,10 +52,11 @@ const cols = [
   },
 ];
 
-const socials = [
+const DEFAULT_SOCIALS = [
   {
     label: "Instagram",
-    href: "https://www.instagram.com/lecomax.com",
+    key: "social_instagram",
+    defaultHref: "https://www.instagram.com/lecomax.com",
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <rect x="2" y="2" width="20" height="20" rx="5"/>
@@ -63,7 +67,8 @@ const socials = [
   },
   {
     label: "TikTok",
-    href: "https://www.tiktok.com/@lecomax.com",
+    key: "social_tiktok",
+    defaultHref: "https://www.tiktok.com/@lecomax.com",
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
         <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.95a8.16 8.16 0 004.79 1.53V7.03a4.85 4.85 0 01-1.02-.34z"/>
@@ -72,7 +77,8 @@ const socials = [
   },
   {
     label: "Facebook",
-    href: "https://www.facebook.com/lecomax.com",
+    key: "social_facebook",
+    defaultHref: "https://www.facebook.com/lecomax.com",
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
@@ -89,6 +95,45 @@ const trustBadges = [
 ];
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
+
+  // Load social links from settings DB
+  useEffect(() => {
+    fetch("/api/settings")
+      .then(r => r.json())
+      .then((rows: { key: string; value: string }[]) => {
+        if (!Array.isArray(rows)) return;
+        const map: Record<string, string> = {};
+        for (const row of rows) map[row.key] = row.value;
+        setSocialLinks(map);
+      })
+      .catch(() => {});
+  }, []);
+
+  const socials = DEFAULT_SOCIALS.map(s => ({ ...s, href: socialLinks[s.key] || s.defaultHref }));
+
+  const handleNewsletter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setNewsletterStatus("loading");
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      if (res.ok) {
+        setNewsletterStatus("success");
+        setEmail("");
+      } else {
+        setNewsletterStatus("error");
+      }
+    } catch {
+      setNewsletterStatus("error");
+    }
+  };
   return (
     <footer className="bg-neutral-950 text-white mt-20">
       {/* Green accent bar */}
@@ -172,19 +217,30 @@ export default function Footer() {
             <p className="text-white/55 text-[13px] mb-5 leading-relaxed">
               Nouveautés, offres exclusives et invitations en avant-première.
             </p>
-            <form className="flex flex-col gap-2">
+            <form className="flex flex-col gap-2" onSubmit={handleNewsletter}>
               <input
                 type="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Votre adresse email"
-                className="w-full bg-white/5 border border-white/15 px-4 py-3 text-[13px] text-white placeholder-white/25 focus:outline-none focus:border-white/40 transition-colors"
+                disabled={newsletterStatus === "loading" || newsletterStatus === "success"}
+                className="w-full bg-white/5 border border-white/15 px-4 py-3 text-[13px] text-white placeholder-white/25 focus:outline-none focus:border-white/40 transition-colors disabled:opacity-50"
               />
-              <button
-                type="submit"
-                className="w-full py-3 font-black uppercase text-[11px] tracking-widest border border-white/30 text-white bg-white/8 hover:bg-white hover:text-black transition-all duration-200"
-              >
-                S&apos;inscrire gratuitement
-              </button>
+              {newsletterStatus === "success" ? (
+                <p className="text-[12px] text-[#3ecf4c] font-bold py-2">✓ Vous êtes inscrit(e) !</p>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={newsletterStatus === "loading"}
+                  className="w-full py-3 font-black uppercase text-[11px] tracking-widest border border-white/30 text-white bg-white/8 hover:bg-white hover:text-black transition-all duration-200 disabled:opacity-50"
+                >
+                  {newsletterStatus === "loading" ? "..." : "S\u2019inscrire gratuitement"}
+                </button>
+              )}
+              {newsletterStatus === "error" && (
+                <p className="text-[11px] text-red-400">Erreur. Réessayez.</p>
+              )}
             </form>
             <p className="text-[10px] text-white/25 mt-2">Pas de spam. Désinscription en 1 clic.</p>
           </div>

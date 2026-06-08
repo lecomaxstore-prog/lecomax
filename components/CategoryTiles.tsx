@@ -28,9 +28,26 @@ function useInView(threshold = 0.1) {
 }
 
 export default function CategoryTiles() {
+  const [counts, setCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    fetch("/api/products?active=true&fields=category")
+      .then(r => r.json())
+      .then((data: { category: string }[]) => {
+        if (!Array.isArray(data)) return;
+        const c: Record<string, number> = {};
+        for (const p of data) {
+          const cat = p.category?.toLowerCase();
+          if (cat) c[cat] = (c[cat] || 0) + 1;
+        }
+        setCounts(c);
+      })
+      .catch(() => {});
+  }, []);
+
   const cats = categories.map((c) => ({
     ...c,
-    count: productsByCategory(c.slug).length,
+    count: counts[c.slug] ?? productsByCategory(c.slug).length,
     image: categoryImages[c.slug],
   }));
 
