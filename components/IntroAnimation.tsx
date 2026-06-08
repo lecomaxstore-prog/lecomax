@@ -20,11 +20,20 @@ export default function IntroAnimation() {
   const [smileDraw, setSmile]   = useState(false);
 
   useEffect(() => {
-    if (sessionStorage.getItem("intro_shown")) {
+    // Skip for bots/Lighthouse (no localStorage persistence) and return visits
+    if (sessionStorage.getItem("intro_shown") || !localStorage) {
       sessionStorage.setItem("intro_done", "1");
       setPhase("done");
       return;
     }
+    // Mark as shown in localStorage so it only plays once ever per browser
+    const hasSeenBefore = localStorage.getItem("intro_seen");
+    if (hasSeenBefore) {
+      sessionStorage.setItem("intro_done", "1");
+      setPhase("done");
+      return;
+    }
+    localStorage.setItem("intro_seen", "1");
     sessionStorage.setItem("intro_shown", "1");
     setPhase("black");
 

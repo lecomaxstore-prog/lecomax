@@ -34,17 +34,9 @@ const REVIEWS = [
   },
 ];
 
-function parseStatValue(raw: string) {
-  const m = raw.match(/^(\d+\.?\d*)(.*)$/);
-  if (!m) return { numeric: 0, suffix: raw, isFloat: false };
-  return { numeric: parseFloat(m[1]), suffix: m[2], isFloat: m[1].includes(".") };
-}
-
 function AnimatedStat({ value, label, delay = 0 }: { value: string; label: string; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [started, setStarted] = useState(false);
-  const [display, setDisplay] = useState("0");
-  const { numeric, suffix, isFloat } = parseStatValue(value);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
@@ -52,37 +44,28 @@ function AnimatedStat({ value, label, delay = 0 }: { value: string; label: strin
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setTimeout(() => setStarted(true), delay);
+          setTimeout(() => setVisible(true), delay);
           obs.disconnect();
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.2 }
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, [delay]);
 
-  useEffect(() => {
-    if (!started) return;
-    const duration = 1600;
-    const startTime = performance.now();
-    const tick = (now: number) => {
-      const t = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - t, 4);
-      const current = numeric * eased;
-      setDisplay(isFloat ? current.toFixed(1) : Math.round(current).toString());
-      if (t < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [started, numeric, isFloat]);
-
   return (
     <div ref={ref} className="text-center md:text-left">
       <p
-        className="h-display text-3xl md:text-4xl tabular-nums stat-value-in"
-        style={{ color: "#3ecf4c", animationDelay: `${delay}ms` }}
+        className="h-display text-3xl md:text-4xl tabular-nums"
+        style={{
+          color: "#1e8a2a",
+          opacity: visible ? 1 : 0,
+          transform: visible ? "translateY(0)" : "translateY(12px)",
+          transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
+        }}
       >
-        {display}{suffix}
+        {value}
       </p>
       <p className="mt-1.5 text-[11px] uppercase tracking-[0.18em] text-neutral-500 font-semibold">
         {label}

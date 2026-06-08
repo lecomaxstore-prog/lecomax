@@ -1,15 +1,18 @@
+import dynamic from "next/dynamic";
 import HeroBanner from "@/components/HeroBanner";
 import CategoryTiles from "@/components/CategoryTiles";
 import ProductRail from "@/components/ProductRail";
-import OurProductsGrid from "@/components/OurProductsGrid";
-import ScrollReveal from "@/components/ScrollReveal";
-import Testimonials from "@/components/Testimonials";
 import Image from "next/image";
 import Link from "next/link";
+
+// Lazy-load heavy below-fold components — keeps initial JS bundle small
+const OurProductsGrid = dynamic(() => import("@/components/OurProductsGrid"));
+const ScrollReveal = dynamic(() => import("@/components/ScrollReveal"));
+const Testimonials = dynamic(() => import("@/components/Testimonials"));
 import { products as staticProducts, type CardProduct } from "@/lib/products";
 import { getDbProducts } from "@/lib/db-server";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60; // ISR — revalidate every 60 seconds
 
 export default async function HomePage() {
   // Merge DB products with static, DB products appear first
@@ -39,52 +42,6 @@ export default async function HomePage() {
       <CategoryTiles />
 
       <OurProductsGrid products={allProducts} />
-
-      {/* ── Homme / Femme banners ───────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 pt-4 pb-12">
-        <div className="grid grid-cols-2 gap-2 md:gap-3">
-          <ScrollReveal direction="up">
-            <Link href="/homme" className="relative block aspect-[2/3] overflow-hidden bg-neutral-900 group">
-              <Image
-                src="/images/pages%20images/homme.png"
-                alt="Collection Homme"
-                fill
-                sizes="(min-width: 768px) 50vw, 50vw"
-                className="object-cover object-top group-hover:scale-[1.04] transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-5 md:p-8 text-white">
-                <p className="text-[9px] md:text-[10px] uppercase tracking-[0.35em] text-white/60 font-bold mb-1.5">Collection</p>
-                <h3 className="h-display text-2xl md:text-4xl">Homme</h3>
-                <span className="inline-flex items-center gap-2 mt-3 md:mt-5 bg-[#3ecf4c] text-black px-4 md:px-5 py-2 md:py-2.5 font-black uppercase text-[10px] md:text-[11px] tracking-[0.15em] group-hover:bg-[#34b841] transition-colors">
-                  Explorer
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </span>
-              </div>
-            </Link>
-          </ScrollReveal>
-          <ScrollReveal direction="up" delay={100}>
-            <Link href="/femme" className="relative block aspect-[2/3] overflow-hidden bg-neutral-900 group">
-              <Image
-                src="/images/pages%20images/femme.png"
-                alt="Collection Femme"
-                fill
-                sizes="(min-width: 768px) 50vw, 50vw"
-                className="object-cover object-top group-hover:scale-[1.04] transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-5 md:p-8 text-white">
-                <p className="text-[9px] md:text-[10px] uppercase tracking-[0.35em] text-white/60 font-bold mb-1.5">Collection</p>
-                <h3 className="h-display text-2xl md:text-4xl">Femme</h3>
-                <span className="inline-flex items-center gap-2 mt-3 md:mt-5 bg-[#3ecf4c] text-black px-4 md:px-5 py-2 md:py-2.5 font-black uppercase text-[10px] md:text-[11px] tracking-[0.15em] group-hover:bg-[#34b841] transition-colors">
-                  Explorer
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </span>
-              </div>
-            </Link>
-          </ScrollReveal>
-        </div>
-      </section>
 
       <ProductRail
         title="Bestsellers"

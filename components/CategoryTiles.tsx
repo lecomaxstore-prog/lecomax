@@ -49,10 +49,13 @@ export default function CategoryTiles() {
     ...c,
     count: counts[c.slug] ?? productsByCategory(c.slug).length,
     image: categoryImages[c.slug],
-  }));
+  })).filter((c) => c.count > 0);
 
   const { ref, visible } = useInView(0.08);
   const total = cats.reduce((s, c) => s + c.count, 0);
+
+  // Don't render the section if no categories have products yet
+  if (cats.length === 0) return null;
 
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-6 py-16" ref={ref}>
@@ -71,15 +74,72 @@ export default function CategoryTiles() {
         </span>
       </div>
 
-      {/* Grid — 2×2 */}
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
+      {/* ── Homme / Femme portrait banners ── */}
+      <div
+        className="grid grid-cols-2 gap-2 md:gap-3 mb-3"
+        style={{
+          opacity: visible ? 1 : 0,
+          clipPath: visible ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)",
+          transition: "opacity 0.05s, clip-path 0.85s cubic-bezier(0.76,0,0.24,1) 0.1s",
+        }}
+      >
+        <Link href="/homme" className="relative block aspect-[3/4] md:aspect-[4/3] overflow-hidden bg-neutral-900 group">
+          <Image
+            src="/images/pages images/homme.png"
+            alt="Collection Homme"
+            fill
+            priority
+            quality={90}
+            sizes="(min-width: 1280px) 620px, (min-width: 768px) 50vw, 100vw"
+            className="object-cover object-center group-hover:scale-[1.04] transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
+          />
+          {/* Mobile gradient for text legibility */}
+          <div className="absolute bottom-0 left-0 right-0 h-[45%] bg-gradient-to-t from-black/80 to-transparent md:hidden" />
+          {/* Green left accent line */}
+          <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-[#3ecf4c] scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-500 ease-out" />
+          <div className="absolute bottom-0 left-0 right-0 md:right-auto p-5 md:p-8 text-white" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.8)" }}>
+            <p className="text-[9px] md:text-[10px] uppercase tracking-[0.35em] text-white/80 font-bold mb-1.5">Collection</p>
+            <h3 className="h-display text-2xl md:text-4xl">Homme</h3>
+            <span className="mt-3 md:mt-5 flex md:inline-flex items-center justify-between md:justify-start gap-3 bg-[#3ecf4c] text-black px-5 md:px-5 py-3 md:py-2.5 font-black uppercase text-[12px] md:text-[11px] tracking-[0.18em] group-hover:bg-[#34b841] transition-colors rounded-sm md:rounded-none">
+              Explorer
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+          </div>
+        </Link>
+        <Link href="/femme" className="relative block aspect-[3/4] md:aspect-[4/3] overflow-hidden bg-neutral-900 group">
+          <Image
+            src="/images/pages images/femme.png"
+            alt="Collection Femme"
+            fill
+            priority
+            quality={90}
+            sizes="(min-width: 1280px) 620px, (min-width: 768px) 50vw, 100vw"
+            className="object-cover object-[65%_center] md:object-center group-hover:scale-[1.04] transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
+          />
+          {/* Mobile gradient for text legibility */}
+          <div className="absolute bottom-0 left-0 right-0 h-[45%] bg-gradient-to-t from-black/80 to-transparent md:hidden" />
+          {/* Green left accent line */}
+          <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-[#3ecf4c] scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-500 ease-out" />
+          <div className="absolute bottom-0 left-0 right-0 md:right-auto p-5 md:p-8 text-white" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.8)" }}>
+            <p className="text-[9px] md:text-[10px] uppercase tracking-[0.35em] text-white/80 font-bold mb-1.5">Collection</p>
+            <h3 className="h-display text-2xl md:text-4xl">Femme</h3>
+            <span className="mt-3 md:mt-5 flex md:inline-flex items-center justify-between md:justify-start gap-3 bg-[#3ecf4c] text-black px-5 md:px-5 py-3 md:py-2.5 font-black uppercase text-[12px] md:text-[11px] tracking-[0.18em] group-hover:bg-[#34b841] transition-colors rounded-sm md:rounded-none">
+              Explorer
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+          </div>
+        </Link>
+      </div>
+
+      {/* Grid — Chaussures / Accessoires */}
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-3 mt-3">
         {cats.map((c, i) => (
           <div
             key={c.slug}
             style={{
               opacity: visible ? 1 : 0,
               clipPath: visible ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)",
-              transition: `opacity 0.05s, clip-path 0.85s cubic-bezier(0.76,0,0.24,1) ${0.1 + i * 0.12}s`,
+              transition: `opacity 0.05s, clip-path 0.85s cubic-bezier(0.76,0,0.24,1) ${0.58 + i * 0.12}s`,
             }}
           >
             <SmallTile {...c} sizes="(min-width: 768px) 40vw, 50vw" />
@@ -99,6 +159,8 @@ function SmallTile({ slug, label, count, image, sizes }: {
         src={image}
         alt={label}
         fill
+        priority
+        quality={85}
         sizes={sizes}
         className="object-cover group-hover:scale-[1.08] group-hover:brightness-110 transition-all duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
       />

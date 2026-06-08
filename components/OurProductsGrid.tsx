@@ -10,7 +10,7 @@ const COLOR_MAP: Record<string, string> = {
   "Bleu": "#3b82f6", "Rouge": "#dc2626", "Vert": "#22c55e",
   "Jaune": "#facc15", "Rose": "#f9a8d4", "Beige": "#f5f0e8",
   "Caramel": "#d4a574", "Marine": "#1e3a5f", "Kaki": "#8b7355",
-  "Ã‰dition Standard": "#1a1a2e",
+  "Édition Standard": "#1a1a2e",
 };
 const getHex = (name: string) => COLOR_MAP[name.split("/")[0].trim()] ?? "#e5e7eb";
 
@@ -79,7 +79,7 @@ function ProductCard({ product, index }: { product: CardProduct; index: number }
             )}
             {discount && (
               <span className="bg-red-600 text-white text-[10px] font-black px-2.5 py-[5px] tracking-[0.12em] leading-none">
-                âˆ’{discount}%
+                -{discount}%
               </span>
             )}
           </div>

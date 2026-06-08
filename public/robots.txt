@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /checkout
+Disallow: /panier
+Disallow: /compte/
+Disallow: /merci
+
+Sitemap: https://lecomax.com/sitemap.xml
+Host: https://lecomax.com

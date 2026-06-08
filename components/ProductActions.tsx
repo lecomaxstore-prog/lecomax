@@ -39,10 +39,11 @@ function getSizeLabel(subCategory: string): string {
   return "Taille";
 }
 
-export default function ProductActions({ product }: { product: Product }) {
+export default function ProductActions({ product, colorImages: colorImagesProp }: { product: Product; colorImages?: Record<string, string> }) {
   const { color, setColor } = useProductColor();
   const hasColors = product.colors.length > 0 && product.colors[0] !== "Taille unique";
-  const hasColorImages = !!(product.colorImages);
+  const effectiveColorImages = colorImagesProp ?? product.colorImages;
+  const hasColorImages = !!(effectiveColorImages);
   const outOfStockColors = product.outOfStockColors ?? [];
   const availableSizes = ((product.colorSizes && color && product.colorSizes[color])
     ? product.colorSizes[color]
@@ -118,7 +119,7 @@ export default function ProductActions({ product }: { product: Product }) {
                 {product.colors.map((c) => {
                   const isSelected = color === c;
                   const isOOS = outOfStockColors.includes(c);
-                  const img = product.colorImages?.[c] ?? product.image;
+                  const img = effectiveColorImages?.[c] ?? product.image;
                   return (
                     <button
                       key={c}
@@ -199,7 +200,7 @@ export default function ProductActions({ product }: { product: Product }) {
               const isLight = ["#f5f5f5","#fafaf5","#d1d5db","#fcd5ce","#f9a8d4","#f5f0e8","#f7e7ce","#fef08a","#c4b5fd","#7dd3fc"].includes(hex);
 
               // If product has color images, show small image swatches instead of color dots
-              if (hasColorImages && product.colorImages?.[c]) {
+              if (hasColorImages && effectiveColorImages?.[c]) {
                 return (
                   <button
                     key={c}
@@ -211,7 +212,7 @@ export default function ProductActions({ product }: { product: Product }) {
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={product.colorImages![c]} alt={c} className="w-full h-full object-cover" draggable={false} />
+                    <img src={effectiveColorImages![c]} alt={c} className="w-full h-full object-cover" draggable={false} />
                     {isSelected && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
@@ -265,19 +266,21 @@ export default function ProductActions({ product }: { product: Product }) {
         </div>
       )}
 
-      {/* Size selector — hidden for single-size items */}
+      {/* Size selector — hidden for single-size items and accessory-only products */}
       {!isSingleSize && (
         <>
           <div className="flex items-center justify-between mb-3">
             <span className="font-black text-[12px] uppercase tracking-wide">
               {sizeLabel || "Taille"}
             </span>
-            <button
-              onClick={() => setSizeGuideOpen(true)}
-              className="text-[12px] text-neutral-500 underline underline-offset-4 hover:text-black transition-colors"
-            >
-              Guide des tailles
-            </button>
+            {(product.category === "homme" || product.category === "femme" || product.category === "chaussures") && (
+              <button
+                onClick={() => setSizeGuideOpen(true)}
+                className="text-[12px] text-neutral-500 underline underline-offset-4 hover:text-black transition-colors"
+              >
+                Guide des tailles
+              </button>
+            )}
           </div>
           <div className="grid grid-cols-4 gap-2">
             {product.sizes.map((s) => {
@@ -358,6 +361,30 @@ export default function ProductActions({ product }: { product: Product }) {
       >
         Acheter maintenant
       </button>
+
+      {/* Payment methods */}
+      <div className="mt-4 pt-4 border-t border-neutral-100">
+        <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-3 text-center">Paiement sécurisé</p>
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          {/* Cash on delivery */}
+          <span className="inline-flex items-center gap-1 border border-neutral-200 px-2.5 py-1.5 text-[10px] font-bold text-neutral-600 rounded-md">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            À la livraison
+          </span>
+          {/* PayPal */}
+          <span className="inline-flex items-center gap-1 border border-neutral-200 px-2.5 py-1.5 text-[10px] font-bold rounded-md" style={{ color: "#003087" }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 0 0 .554.647h3.882c.46 0 .85-.334.922-.788l.038-.19.734-4.653.047-.257a.933.933 0 0 1 .92-.788h.58c3.76 0 6.705-1.528 7.565-5.946.36-1.847.174-3.388-.78-4.461z"/></svg>
+            PayPal
+          </span>
+          {/* Visa */}
+          <span className="inline-flex items-center border border-neutral-200 px-2.5 py-1.5 text-[10px] font-black rounded-md" style={{ color: "#1A1F71" }}>VISA</span>
+          {/* Mastercard */}
+          <span className="inline-flex items-center gap-0.5 border border-neutral-200 px-2.5 py-1.5 rounded-md">
+            <span className="w-4 h-4 rounded-full opacity-90" style={{ background: "#EB001B" }} />
+            <span className="w-4 h-4 rounded-full opacity-90 -ml-2" style={{ background: "#F79E1B" }} />
+          </span>
+        </div>
+      </div>
 
       <SizeGuideModal
         open={sizeGuideOpen}

@@ -11,7 +11,6 @@ import PageTracker from "@/components/PageTracker";
 import AdminLayoutWrapper from "@/components/AdminLayoutWrapper";
 import SiteProtection from "@/components/SiteProtection";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import IntroAnimation from "@/components/IntroAnimation";
 import CookieBanner from "@/components/CookieBanner";
 import BackToTop from "@/components/BackToTop";
 import TrustBar from "@/components/TrustBar";
@@ -126,6 +125,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className={`${inter.variable} ${sora.variable}`}>
+      <head>
+        {/* Preconnect to external origins for faster resource loading */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+      </head>
       {/* Google Analytics GA4 */}
       <Script src="https://www.googletagmanager.com/gtag/js?id=G-9N1CPZQ1HG" strategy="afterInteractive" />
       <Script id="ga-init" strategy="afterInteractive">{`
@@ -198,7 +204,6 @@ export default function RootLayout({
         }
       `}</Script>
       <body className="min-h-screen flex flex-col font-sans">
-        <IntroAnimation />
         <CartProvider>
           <SiteProtection />
           <PageTracker />

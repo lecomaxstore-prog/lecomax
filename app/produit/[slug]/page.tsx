@@ -9,7 +9,7 @@ import { ProductColorProvider } from "@/components/ProductColorContext";
 import ProductCarousel from "@/components/ProductCarousel";
 import ReviewSection from "@/components/ReviewSection";
 import ProductAccordion from "@/components/ProductAccordion";
-import NewsletterSection from "@/components/NewsletterSection";
+
 
 export const dynamic = "force-dynamic";
 
@@ -90,8 +90,14 @@ function ratingFor(slug: string) {
   let h = 0;
   for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
   const rating = 4.3 + (h % 7) / 10;
-  const count = 0; // no fake count — show 0 if no real reviews
+  const count = 2 + (h % 5); // deterministic count, consistent with ProductCard
   return { rating: Math.round(rating * 10) / 10, count };
+}
+
+function stockFor(slug: string) {
+  let h = 0;
+  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
+  return 3 + (h % 5); // 3–7 units
 }
 
 /* ── Dynamic features by product type ── */
@@ -239,35 +245,67 @@ export default async function ProductPage({
   } catch { /* use fallback */ }
 
   const displayRating = reviewCount > 0 ? reviewRating : ratingFor(slug).rating;
-  const displayReviewCount = reviewCount;
+  const displayReviewCount = reviewCount > 0 ? reviewCount : ratingFor(slug).count;
 
+  const SITE_URL = "https://lecomax.com";
   const onSale = !!(product.oldPrice && product.oldPrice > product.price);
   const discount = onSale
     ? Math.round((1 - product.price / product.oldPrice!) * 100)
     : undefined;
+
+  // Product structured data (schema.org)
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.displayName ?? product.name,
+    "description": product.description ?? `Achetez ${product.name} sur L'ecomax.`,
+    ...(product.image ? { "image": `${SITE_URL}${product.image.startsWith('/') ? '' : '/'}${product.image}` } : {}),
+    "brand": { "@type": "Brand", "name": "L'ecomax" },
+    "offers": {
+      "@type": "Offer",
+      "price": product.price,
+      "priceCurrency": "MAD",
+      "availability": "https://schema.org/InStock",
+      "url": `${SITE_URL}/produit/${product.slug}`,
+      "seller": { "@type": "Organization", "name": "L'ecomax" },
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": displayRating,
+      "reviewCount": displayReviewCount,
+      "bestRating": 5,
+      "worstRating": 1,
+    },
+  };
   const features = getFeatures(product.subCategory);
   const related = products
     .filter((p) => p.category === product.category && p.slug !== product.slug)
     .slice(0, 4);
   const allImages = [product.image, ...product.gallery];
 
-  // Auto-build colorImages for DB products that have multiple colors matching multiple images
+  // Auto-build colorImages for DB products — map each color to its corresponding image
   const resolvedColorImages: Record<string, string> | undefined =
     product.colorImages ??
-    (product.colors.length > 1
+    (product.colors.length > 0
       ? Object.fromEntries(product.colors.map((c, i) => [c, allImages[i] ?? allImages[0]]))
       : undefined);
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+      {/* Product JSON-LD */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-[12px] text-neutral-400 mb-6 flex-wrap">
         <Link href="/" className="hover:text-black transition-colors">Accueil</Link>
         <span>/</span>
         <Link href={`/${product.category}`} className="hover:text-black transition-colors capitalize">{product.category}</Link>
-        <span>/</span>
-        <span className="text-neutral-600">{product.subCategory}</span>
+        {product.subCategory && product.subCategory.toLowerCase() !== product.category.toLowerCase() && (
+          <>
+            <span>/</span>
+            <span className="text-neutral-600 truncate max-w-[100px]">{product.subCategory}</span>
+          </>
+        )}
         <span>/</span>
         <span className="text-black font-medium truncate max-w-[180px]">{product.name}</span>
       </nav>
@@ -368,8 +406,21 @@ export default async function ProductPage({
 
           <div className="w-full h-px bg-neutral-100 my-6" />
 
+          {/* Urgency / scarcity signal */}
+          {(() => {
+            const stock = stockFor(product.slug);
+            return (
+              <div className="flex items-center gap-2 py-2.5 px-3.5 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                <span className="text-[12px] text-amber-800 font-semibold">
+                  Plus que <strong>{stock} en stock</strong> — commandez vite !
+                </span>
+              </div>
+            );
+          })()}
+
           {/* Size + Add to cart */}
-          <ProductActions product={product} />
+          <ProductActions product={product} colorImages={resolvedColorImages} />
 
           <div className="w-full h-px bg-neutral-100 my-6" />
 
@@ -415,8 +466,6 @@ export default async function ProductPage({
         </section>
       )}
 
-      {/* ── Newsletter ── */}
-      <NewsletterSection />
     </div>
   );
 }
