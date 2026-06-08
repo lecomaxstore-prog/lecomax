@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import WhatsAppLink from "@/components/WhatsAppLink";
 
 export const metadata = {
   title: "Notre Boutique — Sidi Bennour | L'ecomax",
@@ -120,9 +121,8 @@ export default function BoutiquesPage() {
                 </div>
                 <div>
                   <p className="font-black text-[13px] uppercase tracking-wide">WhatsApp / Téléphone</p>
-                  <a href="https://wa.me/212699289568" target="_blank" rel="noopener noreferrer" className="text-[14px] text-[#25D366] hover:underline font-semibold">
-                    +212 699 289 568
-                  </a>
+                  <WhatsAppLink className="text-[14px] text-[#25D366] hover:underline font-semibold" showNumber>
+                  </WhatsAppLink>
                 </div>
               </div>
 

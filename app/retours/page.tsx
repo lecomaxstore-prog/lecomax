@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import WhatsAppLink from "@/components/WhatsAppLink";
 
 export const metadata = {
   title: "Retours & Échanges | L'ecomax",
@@ -155,10 +156,9 @@ export default function RetoursPage() {
             <p className="text-white/50 text-sm mt-1">Notre équipe répond en moins de 2h, 7j/7.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
-            <a href="https://wa.me/212699289568" target="_blank" rel="noopener noreferrer"
-              className="bg-[#25D366] text-white font-black text-[12px] uppercase tracking-widest px-6 py-3 rounded-full hover:opacity-90 transition-opacity text-center">
+            <WhatsAppLink className="bg-[#25D366] text-white font-black text-[12px] uppercase tracking-widest px-6 py-3 rounded-full hover:opacity-90 transition-opacity text-center">
               WhatsApp
-            </a>
+            </WhatsAppLink>
             <a href="mailto:support@lecomax.com"
               className="bg-[#3ecf4c] text-black font-black text-[12px] uppercase tracking-widest px-6 py-3 rounded-full hover:bg-[#32b83d] transition-colors text-center">
               Email

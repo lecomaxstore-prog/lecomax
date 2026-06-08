@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useSettings, getWhatsAppHref } from "@/lib/use-settings";
 
 const STEPS = [
   { key: "pending",   label: "Commande reÃ§ue",  sub: "Votre commande a bien Ã©tÃ© enregistrÃ©e.", icon: "âœ“", color: "#10B981" },
@@ -34,6 +35,7 @@ export default function SuivreCommandePage() {
 }
 
 function SuivreCommandeInner() {
+  const siteSettings = useSettings();
   const searchParams = useSearchParams();
   const [orderNum, setOrderNum] = useState("");
   const [email, setEmail] = useState("");
@@ -311,7 +313,7 @@ function SuivreCommandeInner() {
 
         {/* WhatsApp help card */}
         <a
-          href="https://wa.me/212699289568"
+          href={getWhatsAppHref(siteSettings)}
           target="_blank"
           rel="noopener noreferrer"
           className="rounded-2xl flex items-center gap-4 px-5 py-4 transition-all duration-200 active:scale-[0.98] group block"

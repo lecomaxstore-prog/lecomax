@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { CartItem } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
+import { useSettings, getWhatsAppHref } from "@/lib/use-settings";
 
 type Order = {
   number: string;
@@ -38,6 +39,7 @@ const STEPS = [
 ];
 
 export default function MerciPage() {
+  const siteSettings = useSettings();
   const [order, setOrder] = useState<Order | null>(null);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [stage, setStage] = useState(0);
@@ -83,7 +85,7 @@ export default function MerciPage() {
           const msg = encodeURIComponent(
             `Bonjour L'ECOMAX,\n\nJe viens de passer la commande *${parsed.number}*.\n\nNom : ${name}\nVille : ${parsed.customer.ville}\nTotal : ${parsed.total} MAD\nPaiement : ${parsed.payment === "livraison" ? "A la livraison" : "Carte bancaire"}\n\nMerci de confirmer ma commande.`
           );
-          window.location.href = `https://wa.me/212699289568?text=${msg}`;
+          window.location.href = getWhatsAppHref(siteSettings, `Bonjour L'ECOMAX,\n\nJe viens de passer la commande *${parsed.number}*.\n\nNom : ${name}\nVille : ${parsed.customer.ville}\nTotal : ${parsed.total} MAD\nPaiement : ${parsed.payment === "livraison" ? "A la livraison" : "Carte bancaire"}\n\nMerci de confirmer ma commande.`);
           setWaOpened(true);
         }
       }, 2500),
@@ -500,9 +502,7 @@ export default function MerciPage() {
             {/* Secondary: WhatsApp */}
             {order && (
               <a
-                href={`https://wa.me/212699289568?text=${encodeURIComponent(
-                  `Bonjour L'ECOMAX,\n\nJe viens de passer la commande *${order.number}*.\n\nNom : ${order.customer.prenom} ${order.customer.nom}\nVille : ${order.customer.ville}\nTotal : ${order.total} MAD\nPaiement : ${order.payment === "livraison" ? "A la livraison" : "Carte bancaire"}\n\nMerci de confirmer ma commande.`
-                )}`}
+                href={getWhatsAppHref(siteSettings, `Bonjour L'ECOMAX,\n\nJe viens de passer la commande *${order.number}*.\n\nNom : ${order.customer.prenom} ${order.customer.nom}\nVille : ${order.customer.ville}\nTotal : ${order.total} MAD\nPaiement : ${order.payment === "livraison" ? "A la livraison" : "Carte bancaire"}\n\nMerci de confirmer ma commande.`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setWaOpened(true)}

@@ -1,10 +1,13 @@
 "use client";
 import Link from "next/link";
+import { useSettings, getWhatsAppHref } from "@/lib/use-settings";
 
 export default function WhatsAppButton() {
+  const settings = useSettings();
+  const href = getWhatsAppHref(settings);
   return (
     <Link
-      href="https://wa.me/212699289568?text=Bonjour%2C%20je%20voudrais%20plus%20d%27informations%20sur%20vos%20produits."
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Contacter sur WhatsApp"

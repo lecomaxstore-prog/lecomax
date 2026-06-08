@@ -218,7 +218,7 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <Section title="Images de la boutique" icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>}>
             <p className="text-[12px] text-neutral-400 mb-5">Cliquez sur une image ou le bouton pour remplacer. Les images sont automatiquement sauvegardées.</p>
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {IMAGE_FIELDS.map(f => (
                 <div key={f.key} className={f.small ? "max-w-[200px]" : ""}>
                 <ImageUploadField

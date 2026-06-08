@@ -7,6 +7,7 @@ import Image from "next/image";
 // PayPal loaded via vanilla SDK (see useEffect below)
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
+import { useSettings } from "@/lib/use-settings";
 
 type Field = {
   prenom: string; nom: string; email: string; telephone: string;
@@ -95,6 +96,7 @@ export default function CheckoutPage() {
   const [loyaltyDiscountPct, setLoyaltyDiscountPct] = useState(0); // 0, 30, or 50
   // Shipping rate from DB (fallback: free ≥500, else 35 MAD)
   const [shippingRate, setShippingRate] = useState<number | null>(null);
+  const siteSettings = useSettings();
 
   // Desktop only: sticky stepper
   const [stepperVisible] = useState(true);
@@ -138,7 +140,9 @@ export default function CheckoutPage() {
     });
   }, []);
 
-  const shipping = shippingRate !== null ? shippingRate : (total >= 500 ? 0 : 35);
+  const defaultShippingCost = Number(siteSettings.shipping_cost ?? 35);
+  const defaultFreeAbove = Number(siteSettings.free_shipping_threshold ?? 500);
+  const shipping = shippingRate !== null ? shippingRate : (total >= defaultFreeAbove ? 0 : defaultShippingCost);
   const couponDiscount = couponApplied?.discount ?? 0;
   // Loyalty discount applies on subtotal (after coupon); Silver 30%, Gold 50%
   const loyaltyDiscountAmount = loyaltyDiscountPct > 0 ? Math.round(((total - couponDiscount) * loyaltyDiscountPct) / 100) : 0;

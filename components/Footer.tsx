@@ -55,8 +55,8 @@ const cols = [
 const DEFAULT_SOCIALS = [
   {
     label: "Instagram",
-    key: "social_instagram",
-    defaultHref: "https://www.instagram.com/lecomax.com",
+    key: "instagram_url",
+    defaultHref: "https://www.instagram.com/lecomaxstore",
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <rect x="2" y="2" width="20" height="20" rx="5"/>
@@ -67,8 +67,8 @@ const DEFAULT_SOCIALS = [
   },
   {
     label: "TikTok",
-    key: "social_tiktok",
-    defaultHref: "https://www.tiktok.com/@lecomax.com",
+    key: "tiktok_url",
+    defaultHref: "https://www.tiktok.com/@lecomaxstore",
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
         <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.95a8.16 8.16 0 004.79 1.53V7.03a4.85 4.85 0 01-1.02-.34z"/>
@@ -77,8 +77,8 @@ const DEFAULT_SOCIALS = [
   },
   {
     label: "Facebook",
-    key: "social_facebook",
-    defaultHref: "https://www.facebook.com/lecomax.com",
+    key: "facebook_url",
+    defaultHref: "https://www.facebook.com/lecomaxstore",
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
@@ -88,7 +88,7 @@ const DEFAULT_SOCIALS = [
 ];
 
 const trustBadges = [
-  { label: "Livraison 35 MAD", sub: "Partout au Maroc", path: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM18.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" },
+  { label: "", sub: "Partout au Maroc", path: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM18.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z", dynamicLabel: "shipping" },
   { label: "Retours gratuits", sub: "Sous 30 jours", path: "M3 2v6h6M3 8C4.5 4.5 8 2 12 2a10 10 0 0110 10 10 10 0 01-10 10c-4.1 0-7.6-2.5-9.2-6" },
   { label: "Paiement sécurisé", sub: "100% protégé", path: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" },
   { label: "Service client", sub: "7j/7 disponible", path: "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" },
@@ -97,9 +97,9 @@ const trustBadges = [
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
+  const [siteSettings, setSiteSettings] = useState<Record<string, string>>({});
 
-  // Load social links from settings DB
+  // Load settings from DB
   useEffect(() => {
     fetch("/api/settings")
       .then(r => r.json())
@@ -107,12 +107,15 @@ export default function Footer() {
         if (!Array.isArray(rows)) return;
         const map: Record<string, string> = {};
         for (const row of rows) map[row.key] = row.value;
-        setSocialLinks(map);
+        setSiteSettings(map);
       })
       .catch(() => {});
   }, []);
 
-  const socials = DEFAULT_SOCIALS.map(s => ({ ...s, href: socialLinks[s.key] || s.defaultHref }));
+  const socials = DEFAULT_SOCIALS.map(s => ({ ...s, href: siteSettings[s.key] || s.defaultHref }));
+  const whatsappNumber = siteSettings.whatsapp_number || "212699289568";
+  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}`;
+  const shippingFee = siteSettings.free_shipping_threshold ? `Livraison 35 MAD` : "Livraison 35 MAD";
 
   const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,14 +146,18 @@ export default function Footer() {
       <div className="border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 md:divide-x divide-white/10">
           {trustBadges.map((b) => (
-            <div key={b.label} className="flex items-center gap-3 md:px-6 first:pl-0 last:pr-0">
+            <div key={b.sub} className="flex items-center gap-3 md:px-6 first:pl-0 last:pr-0">
               <div className="w-9 h-9 rounded-full bg-[#3ecf4c]/10 border border-[#3ecf4c]/20 flex items-center justify-center shrink-0">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="1.8" strokeLinecap="round">
                   <path d={b.path}/>
                 </svg>
               </div>
               <div>
-                <p className="text-[12px] font-black uppercase tracking-wide text-white/90 leading-tight">{b.label}</p>
+                <p className="text-[12px] font-black uppercase tracking-wide text-white/90 leading-tight">
+                  {b.dynamicLabel === "shipping"
+                    ? `Livraison ${siteSettings.shipping_cost || "35"} MAD`
+                    : b.label}
+                </p>
                 <p className="text-[11px] text-white/40 mt-0.5">{(b as any).sub}</p>
               </div>
             </div>
@@ -191,7 +198,7 @@ export default function Footer() {
                 <svg className="mt-0.5 shrink-0" style={{color:'#3ecf4c'}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
                 <div>
                   <p className="text-[11px] text-white/40 uppercase tracking-wide mb-0.5">WhatsApp</p>
-                  <a href="https://wa.me/212699289568" className="text-[13px] text-white/80 hover:text-white transition-colors">+212 699 289 568</a>
+                  <a href={whatsappUrl} className="text-[13px] text-white/80 hover:text-white transition-colors">{whatsappNumber ? `+${whatsappNumber.replace(/[^0-9]/g, "")}` : "+212 699 289 568"}</a>
                 </div>
               </li>
               <li className="flex items-start gap-3">

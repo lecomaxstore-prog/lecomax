@@ -1,6 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useSettings, getWhatsAppHref } from "@/lib/use-settings";
 
 const CartIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -102,6 +103,7 @@ const faqGroups = [
 ];
 
 export default function AidePage() {
+  const siteSettings = useSettings();
   const [activeGroup, setActiveGroup] = useState("commandes");
   const [openFaq, setOpenFaq] = useState<string | null>(null);
 
@@ -149,7 +151,7 @@ export default function AidePage() {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
             <a
-              href="https://wa.me/212699289568"
+              href={getWhatsAppHref(siteSettings)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-white/[0.08] border border-white/20 text-white font-black text-[13px] uppercase tracking-widest px-7 py-3.5 rounded-full hover:bg-white/14 transition-colors"
@@ -273,7 +275,7 @@ export default function AidePage() {
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <a
-              href="https://wa.me/212699289568"
+              href={getWhatsAppHref(siteSettings)}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 bg-[#25D366] text-white font-black text-[12px] uppercase tracking-widest px-6 py-3.5 rounded-full hover:opacity-90 transition-opacity"
