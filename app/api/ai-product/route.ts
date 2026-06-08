@@ -1,6 +1,32 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
+// Extract product info directly from URL for sites with bot protection (Temu, AliExpress)
+function extractFromUrl(url: string): { title: string; images: string[] } {
+  try {
+    const u = new URL(url);
+    const images: string[] = [];
+
+    // Temu: extract top_gallery_url param
+    const galleryUrl = u.searchParams.get("top_gallery_url");
+    if (galleryUrl) images.push(decodeURIComponent(galleryUrl));
+
+    // Extract title from URL path slug (works for Temu, AliExpress, Amazon)
+    const pathParts = u.pathname.split("/").filter(Boolean);
+    const slug = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2] || "";
+    const title = decodeURIComponent(slug)
+      .replace(/[-_]/g, " ")
+      .replace(/\.(html|htm)$/i, "")
+      .replace(/g-\d+$/, "") // Remove Temu product ID suffix
+      .trim()
+      .substring(0, 200);
+
+    return { title, images };
+  } catch {
+    return { title: "", images: [] };
+  }
+}
+
 // Extract useful text from a product page HTML
 function extractPageText(html: string): string {
   let text = html
@@ -92,26 +118,32 @@ export async function POST(req: Request) {
 
   // Fetch the product page
   let html = "";
+  let fetchFailed = false;
   try {
     const res = await fetch(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
       signal: AbortSignal.timeout(10000),
     });
     html = await res.text();
   } catch {
-    return NextResponse.json({ error: "Impossible de charger cette page. Vérifiez l'URL ou copiez manuellement le texte du produit." }, { status: 422 });
+    fetchFailed = true;
   }
 
-  const pageText = extractPageText(html);
-  if (!pageText || pageText.length < 50) {
-    return NextResponse.json({ error: "Page vide ou inaccessible." }, { status: 422 });
-  }
+  let pageText = extractPageText(html);
+  const urlInfo = extractFromUrl(url);
 
-  // Extract images from HTML
-  const images = extractProductImages(html, url);
+  // If page fetch failed or returned empty, use URL-extracted info
+  if (fetchFailed || pageText.length < 50) {
+    if (!urlInfo.title) {
+      return NextResponse.json({ error: "Impossible de charger cette page. Temu et AliExpress bloquent parfois les requêtes — essayez de copier le titre du produit dans le champ Nom manuellement." }, { status: 422 });
+    }
+    // Use just the URL title as context for the AI
+    pageText = `Produit: ${urlInfo.title}`;
+  }
 
   try {
     const completion = await openai.chat.completions.create({
@@ -147,12 +179,14 @@ Génère une fiche produit en JSON avec exactement ces champs :
     });
 
     const raw = completion.choices[0]?.message?.content ?? "{}";
-    // Clean potential markdown fences
     const jsonStr = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const result = JSON.parse(jsonStr);
 
-    // Merge extracted images into the result
-    return NextResponse.json({ ...result, images });
+    // Merge images: HTML-extracted + URL-extracted (URL ones first for Temu/AliExpress)
+    const htmlImages = html ? extractProductImages(html, url) : [];
+    const allImages = [...new Set([...urlInfo.images, ...htmlImages])].slice(0, 8);
+
+    return NextResponse.json({ ...result, images: allImages });
   } catch (err) {
     return NextResponse.json({ error: "Erreur IA. Vérifiez votre clé OpenAI." }, { status: 500 });
   }

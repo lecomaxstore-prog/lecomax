@@ -277,18 +277,17 @@ export default function ProductsPage() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </button>
         <div>
-          <h1 className="text-xl font-black">{editId ? "Modifier le produit" : "Nouveau produit"}</h1>
+          <h1 className="text-xl font-black">{editId ? "Modifier le produit" : "Nouveau produit 🤖"}</h1>
           <p className="text-xs text-neutral-400 mt-0.5">{editId ? "Mettez à jour les informations" : "Remplissez les champs pour créer un produit"}</p>
         </div>
       </div>
 
       <form onSubmit={handleSave}>
         {/* ── AI IMPORT BANNER ── */}
-        {!editId && (
-          <div className="mb-5 bg-gradient-to-r from-violet-50 to-blue-50 border border-violet-200 rounded-2xl p-5">
+        <div className="mb-5 bg-gradient-to-r from-violet-50 to-blue-50 border border-violet-200 rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-7 h-7 bg-violet-600 rounded-lg flex items-center justify-center shrink-0">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
               </div>
               <div>
                 <p className="text-sm font-black text-violet-900">Import IA depuis AliExpress / Temu / Amazon</p>
@@ -313,7 +312,7 @@ export default function ProductsPage() {
                 {aiLoading ? (
                   <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Génération…</>
                 ) : (
-                  <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>Générer avec IA</>
+                  <>✨ Générer avec IA</>
                 )}
               </button>
             </div>
@@ -321,7 +320,6 @@ export default function ProductsPage() {
               <p className={`mt-2 text-xs font-semibold ${aiMsg.type === "ok" ? "text-green-700" : "text-red-600"}`}>{aiMsg.text}</p>
             )}
           </div>
-        )}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
           {/* ── LEFT ── */}
           <div className="space-y-4">
