@@ -256,7 +256,12 @@ export default function ProductsPage() {
           AVAILABLE_COLORS.find(ac => ac.label.toLowerCase() === c.toLowerCase())?.label ?? c
         ));
       }
-      setAiMsg({ type: "ok", text: "✓ Fiche produit générée ! Vérifiez et complétez les champs." });
+      // Auto-fill images extracted from the product page
+      if (Array.isArray(data.images) && data.images.length > 0) {
+        setImages(data.images);
+      }
+      const imgCount = Array.isArray(data.images) ? data.images.length : 0;
+      setAiMsg({ type: "ok", text: `✓ Fiche générée${imgCount > 0 ? ` + ${imgCount} image${imgCount > 1 ? "s" : ""} importée${imgCount > 1 ? "s" : ""}` : ""} ! Vérifiez et complétez les champs.` });
       setAiUrl("");
     } catch {
       setAiMsg({ type: "err", text: "Erreur de connexion" });
@@ -287,7 +292,7 @@ export default function ProductsPage() {
               </div>
               <div>
                 <p className="text-sm font-black text-violet-900">Import IA depuis AliExpress / Temu / Amazon</p>
-                <p className="text-[11px] text-violet-600">Collez un lien produit — l'IA génère automatiquement nom, description, catégorie et tags</p>
+                <p className="text-[11px] text-violet-600">Collez un lien produit — l'IA génère automatiquement nom, description, catégorie, tags <strong>et importe les images</strong></p>
               </div>
             </div>
             <div className="flex gap-2">
