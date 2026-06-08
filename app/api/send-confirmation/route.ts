@@ -1,7 +1,28 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { createClient } from "@supabase/supabase-js";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://lecomax.com";
+
+async function getEmailBannerUrl(): Promise<string> {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const { data } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "email_banner_image")
+      .single();
+    const val = data?.value;
+    if (val) {
+      return val.startsWith("http") ? val : `${SITE_URL}${val}`;
+    }
+  } catch {}
+  return `${SITE_URL}/images/email%20image/email%20image.png`;
+}
 
 export async function POST(req: Request) {
   if (!process.env.RESEND_API_KEY) {
@@ -14,6 +35,8 @@ export async function POST(req: Request) {
   if (!to_email || !order_number) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
+
+  const emailBannerUrl = await getEmailBannerUrl();
 
   const itemsHtml = (order_items as string)
     .split("\n")
@@ -32,7 +55,7 @@ export async function POST(req: Request) {
         <!-- Header -->
         <tr>
           <td style="background:linear-gradient(135deg,#111111 0%,#333333 100%);padding:0;text-align:center;">
-            <img src="https://lecomax.com/images/email%20image/email%20image.png" alt="L'ecomax" width="560" style="display:block;width:100%;max-width:560px;height:auto;" />
+            <img src="${emailBannerUrl}" alt="L'ecomax" width="560" style="display:block;width:100%;max-width:560px;height:auto;" />
           </td>
         </tr>
 
