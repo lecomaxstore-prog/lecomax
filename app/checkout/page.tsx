@@ -94,28 +94,8 @@ export default function CheckoutPage() {
   const [loyaltyTier, setLoyaltyTier] = useState<"Bronze" | "Silver" | "Gold">("Bronze");
   const [loyaltyDiscountPct, setLoyaltyDiscountPct] = useState(0); // 0, 30, or 50
 
-  // Mobile (<1024px): hide stepper when scrolling down, show when at top or scrolling up
-  // Desktop (≥1024px): always visible
-  const [stepperVisible, setStepperVisible] = useState(true);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const y = window.scrollY;
-      if (window.innerWidth >= 1024) {
-        setStepperVisible(true);
-      } else {
-        setStepperVisible(y < 2);
-      }
-      lastScrollY.current = y;
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-    };
-  }, []);
+  // Desktop only: sticky stepper
+  const [stepperVisible] = useState(true);
 
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const paypalRendered = useRef(false);
@@ -371,17 +351,13 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f7f8]">
-      {/* ── Stepper bar ── sticky on desktop, hides on mobile when scrolling down ── */}
-      {/* On desktop (lg+) transform is always 0 via inline override; on mobile it follows scroll */}
+      {/* ── Stepper bar ── sticky on desktop only ── */}
       <div
-        className="sticky top-0 z-20"
+        className="top-0 z-20 lg:sticky"
         style={{
           background: "rgba(255,255,255,0.97)",
           backdropFilter: "blur(12px)",
-          borderBottom: stepperVisible ? "1px solid #f3f4f6" : "none",
-          maxHeight: stepperVisible ? "200px" : "0",
-          overflow: "hidden",
-          transition: "max-height 0.3s ease",
+          borderBottom: "1px solid #f3f4f6",
         }}
       >
         {/* Breadcrumb row */}
