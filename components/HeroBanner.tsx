@@ -1,18 +1,28 @@
 ﻿import Image from "next/image";
 import Link from "next/link";
 
-export default function HeroBanner() {
+export default function HeroBanner({
+  heroImage,
+  heroImageMobile,
+}: {
+  heroImage?: string;
+  heroImageMobile?: string;
+}) {
+  const desktopSrc = heroImage || "/images/hero secrtion/hero section web version.png";
+  const mobileSrc = heroImageMobile || "/images/hero secrtion/hero section mobile version.png";
+
   return (
     <>
       {/* Desktop hero */}
       <section className="hidden md:block w-full overflow-hidden relative">
         <Image
-          src="/images/hero secrtion/hero section web version.png"
+          src={desktopSrc}
           alt="L'ecomax — Hero"
           width={1920}
           height={900}
           priority
           className="w-full h-auto object-cover"
+          unoptimized={desktopSrc.startsWith("http")}
         />
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent flex items-center">
@@ -53,12 +63,13 @@ export default function HeroBanner() {
       {/* Mobile hero */}
       <section className="md:hidden w-full overflow-hidden relative">
         <Image
-          src="/images/hero secrtion/hero section mobile version.png"
+          src={mobileSrc}
           alt="L'ecomax — Hero"
           width={1080}
           height={1350}
           priority
           className="w-full h-auto object-cover"
+          unoptimized={mobileSrc.startsWith("http")}
         />
 
       </section>

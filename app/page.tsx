@@ -14,9 +14,32 @@ import { getDbProducts } from "@/lib/db-server";
 
 export const revalidate = 60; // ISR — revalidate every 60 seconds
 
+async function getHeroImages() {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/settings?key=in.(hero_image,hero_image_mobile)&select=key,value`,
+      {
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        },
+        next: { revalidate: 60 },
+      }
+    );
+    if (!res.ok) return {};
+    const rows: { key: string; value: string }[] = await res.json();
+    return Object.fromEntries(rows.filter(r => r.value).map(r => [r.key, r.value]));
+  } catch {
+    return {};
+  }
+}
+
 export default async function HomePage() {
   // Merge DB products with static, DB products appear first
-  const dbProducts = await getDbProducts({ activeOnly: true });
+  const [dbProducts, heroImages] = await Promise.all([
+    getDbProducts({ activeOnly: true }),
+    getHeroImages(),
+  ]);
   const dbSlugs = new Set(dbProducts.map((p) => p.slug));
   const allProducts: CardProduct[] = [
     ...dbProducts,
@@ -31,7 +54,10 @@ export default async function HomePage() {
 
   return (
     <>
-      <HeroBanner />
+      <HeroBanner
+        heroImage={heroImages.hero_image}
+        heroImageMobile={heroImages.hero_image_mobile}
+      />
 
       <ProductRail
         title="Nouveautés"

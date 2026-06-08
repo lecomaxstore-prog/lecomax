@@ -18,6 +18,7 @@ const DEFAULT_SETTINGS: SettingsMap = {
   free_shipping_threshold: "500",
   maintenance_mode: "false",
   // image settings
+  favicon_image: "",
   logo_image: "",
   hero_image: "",
   hero_image_mobile: "",
@@ -26,6 +27,13 @@ const DEFAULT_SETTINGS: SettingsMap = {
 };
 
 const IMAGE_FIELDS = [
+  {
+    key: "favicon_image",
+    label: "Favicon (icône du site)",
+    hint: "Icône affichée dans l'onglet du navigateur. Recommandé : PNG carré 512×512px.",
+    aspect: "aspect-square",
+    small: true,
+  },
   {
     key: "logo_image",
     label: "Logo de la boutique",
@@ -212,11 +220,12 @@ export default function SettingsPage() {
             <p className="text-[12px] text-neutral-400 mb-5">Cliquez sur une image ou le bouton pour remplacer. Les images sont automatiquement sauvegardées.</p>
             <div className="space-y-6">
               {IMAGE_FIELDS.map(f => (
+                <div key={f.key} className={f.small ? "max-w-[200px]" : ""}>
                 <ImageUploadField
-                  key={f.key}
                   label={f.label}
                   hint={f.hint}
                   aspect={f.aspect}
+                  small={f.small}
                   value={settings[f.key] || ""}
                   uploading={uploadingKey === f.key}
                   onFile={file => handleImageUpload(f.key, file)}
@@ -225,6 +234,7 @@ export default function SettingsPage() {
                     setSettings(updated);
                   }}
                 />
+                </div>
               ))}
             </div>
           </Section>
@@ -425,9 +435,9 @@ function Field({
 }
 
 function ImageUploadField({
-  label, hint, aspect, value, uploading, onFile, onClear,
+  label, hint, aspect, value, uploading, onFile, onClear, small,
 }: {
-  label: string; hint: string; aspect: string; value: string;
+  label: string; hint: string; aspect: string; value: string; small?: boolean;
   uploading: boolean; onFile: (f: File) => void; onClear: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
