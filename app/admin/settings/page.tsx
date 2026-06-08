@@ -19,11 +19,11 @@ const DEFAULT_SETTINGS: SettingsMap = {
   maintenance_mode: "false",
   // image settings — pre-filled with current site defaults
   favicon_image: "/favicon.png",
-  logo_image: "",
+  logo_image: "/images/lecomax logo.png",
   hero_image: "/images/hero secrtion/hero section web version.png",
   hero_image_mobile: "/images/hero secrtion/hero section mobile version.png",
-  email_banner_image: "",
-  og_image: "",
+  email_banner_image: "/images/email image/email image.png",
+  og_image: "/images/lecomax logo.png",
 };
 
 const IMAGE_FIELDS = [
