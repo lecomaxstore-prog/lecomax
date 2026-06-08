@@ -218,6 +218,53 @@ export default function ProductsPage() {
     return matchSearch && matchCat;
   });
 
+  const [aiUrl, setAiUrl] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiMsg, setAiMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  async function handleAiImport() {
+    if (!aiUrl.startsWith("http")) return;
+    setAiLoading(true);
+    setAiMsg(null);
+    try {
+      const res = await fetch("/api/ai-product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: aiUrl }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setAiMsg({ type: "err", text: data.error ?? "Erreur" }); return; }
+
+      // Fill form fields
+      if (data.name) {
+        const slug = data.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+        setForm(f => ({ ...f,
+          name: data.name ?? f.name,
+          description: data.description ?? f.description,
+          brand: data.brand ?? f.brand,
+          price: data.price ? String(data.price) : f.price,
+          category: ["homme","femme","chaussures","accessoires"].includes(data.category) ? data.category : f.category,
+          tags: data.tags ?? f.tags,
+          slug: slug || f.slug,
+        }));
+      }
+      if (data.colors) {
+        const cols = data.colors.split(",").map((c: string) => c.trim()).filter((c: string) =>
+          AVAILABLE_COLORS.some(ac => ac.label.toLowerCase() === c.toLowerCase())
+        );
+        if (cols.length) setSelectedColors(cols.map((c: string) =>
+          AVAILABLE_COLORS.find(ac => ac.label.toLowerCase() === c.toLowerCase())?.label ?? c
+        ));
+      }
+      setAiMsg({ type: "ok", text: "✓ Fiche produit générée ! Vérifiez et complétez les champs." });
+      setAiUrl("");
+    } catch {
+      setAiMsg({ type: "err", text: "Erreur de connexion" });
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   if (showForm) return (
     <div className="max-w-5xl">
       <div className="flex items-center gap-3 mb-6">
@@ -231,6 +278,45 @@ export default function ProductsPage() {
       </div>
 
       <form onSubmit={handleSave}>
+        {/* ── AI IMPORT BANNER ── */}
+        {!editId && (
+          <div className="mb-5 bg-gradient-to-r from-violet-50 to-blue-50 border border-violet-200 rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-7 h-7 bg-violet-600 rounded-lg flex items-center justify-center shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>
+              </div>
+              <div>
+                <p className="text-sm font-black text-violet-900">Import IA depuis AliExpress / Temu / Amazon</p>
+                <p className="text-[11px] text-violet-600">Collez un lien produit — l'IA génère automatiquement nom, description, catégorie et tags</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={aiUrl}
+                onChange={e => setAiUrl(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleAiImport())}
+                placeholder="https://www.aliexpress.com/item/... ou https://www.temu.com/..."
+                className="flex-1 border border-violet-200 bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-violet-500 transition-colors"
+              />
+              <button
+                type="button"
+                onClick={handleAiImport}
+                disabled={aiLoading || !aiUrl.startsWith("http")}
+                className="flex items-center gap-2 bg-violet-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-violet-700 disabled:opacity-50 transition-colors whitespace-nowrap"
+              >
+                {aiLoading ? (
+                  <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Génération…</>
+                ) : (
+                  <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>Générer avec IA</>
+                )}
+              </button>
+            </div>
+            {aiMsg && (
+              <p className={`mt-2 text-xs font-semibold ${aiMsg.type === "ok" ? "text-green-700" : "text-red-600"}`}>{aiMsg.text}</p>
+            )}
+          </div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
           {/* ── LEFT ── */}
           <div className="space-y-4">
