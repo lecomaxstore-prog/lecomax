@@ -106,11 +106,6 @@ function extractProductImages(html: string, baseUrl: string): string[] {
 }
 
 export async function POST(req: Request) {
-  if (!process.env.OPENAI_API_KEY) {
-    return NextResponse.json({ error: "OpenAI API key not configured. Add OPENAI_API_KEY to your environment variables." }, { status: 503 });
-  }
-
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   const { url } = await req.json();
   if (!url || !url.startsWith("http")) {
     return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
@@ -135,29 +130,33 @@ export async function POST(req: Request) {
 
   let pageText = extractPageText(html);
   const urlInfo = extractFromUrl(url);
+  const htmlImages = html ? extractProductImages(html, url) : [];
+  const allImages = [...new Set([...urlInfo.images, ...htmlImages])].slice(0, 8);
 
-  // If page fetch failed or returned empty, use URL-extracted info
+  // If page fetch failed or returned empty, use URL-extracted title
   if (fetchFailed || pageText.length < 50) {
     if (!urlInfo.title) {
-      return NextResponse.json({ error: "Impossible de charger cette page. Temu et AliExpress bloquent parfois les requêtes — essayez de copier le titre du produit dans le champ Nom manuellement." }, { status: 422 });
+      return NextResponse.json({ error: "Impossible de charger cette page. Copiez le titre du produit manuellement." }, { status: 422 });
     }
-    // Use just the URL title as context for the AI
     pageText = `Produit: ${urlInfo.title}`;
   }
 
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `Tu es un expert en e-commerce spécialisé dans la création de fiches produits en français pour une boutique marocaine de sport, tech et mode (L'ecomax). 
+  // --- Try OpenAI if key is available ---
+  if (process.env.OPENAI_API_KEY) {
+    try {
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `Tu es un expert en e-commerce spécialisé dans la création de fiches produits en français pour une boutique marocaine de sport, tech et mode (L'ecomax). 
 Analyse le texte d'une page produit et génère une fiche produit structurée en JSON.
 Réponds UNIQUEMENT avec du JSON valide, sans markdown, sans explication.`,
-        },
-        {
-          role: "user",
-          content: `Voici le texte extrait d'une page produit : 
+          },
+          {
+            role: "user",
+            content: `Voici le texte extrait d'une page produit : 
 
 ${pageText}
 
@@ -172,22 +171,40 @@ Génère une fiche produit en JSON avec exactement ces champs :
   "colors": "couleurs disponibles séparées par virgules (ex: Noir, Blanc, Rouge)",
   "sizes": "tailles disponibles séparées par virgules si applicable (ex: S, M, L, XL ou 38, 39, 40)"
 }`,
-        },
-      ],
-      max_tokens: 600,
-      temperature: 0.4,
-    });
+          },
+        ],
+        max_tokens: 600,
+        temperature: 0.4,
+      });
 
-    const raw = completion.choices[0]?.message?.content ?? "{}";
-    const jsonStr = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const result = JSON.parse(jsonStr);
-
-    // Merge images: HTML-extracted + URL-extracted (URL ones first for Temu/AliExpress)
-    const htmlImages = html ? extractProductImages(html, url) : [];
-    const allImages = [...new Set([...urlInfo.images, ...htmlImages])].slice(0, 8);
-
-    return NextResponse.json({ ...result, images: allImages });
-  } catch (err) {
-    return NextResponse.json({ error: "Erreur IA. Vérifiez votre clé OpenAI." }, { status: 500 });
+      const raw = completion.choices[0]?.message?.content ?? "{}";
+      const jsonStr = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      const result = JSON.parse(jsonStr);
+      return NextResponse.json({ ...result, images: allImages });
+    } catch {
+      // OpenAI failed — fall through to basic extraction
+    }
   }
+
+  // --- Fallback: return URL-extracted info without AI ---
+  // Clean up the title from the URL slug
+  const cleanTitle = urlInfo.title
+    .replace(/\s+g-\d+$/, "")
+    .split(" ")
+    .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ")
+    .substring(0, 80);
+
+  return NextResponse.json({
+    name: cleanTitle || "",
+    description: "",
+    brand: "",
+    price: "",
+    category: "accessoires",
+    tags: "",
+    colors: "",
+    sizes: "",
+    images: allImages,
+    _noAi: true,
+  });
 }

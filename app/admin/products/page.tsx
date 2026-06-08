@@ -261,7 +261,11 @@ export default function ProductsPage() {
         setImages(data.images);
       }
       const imgCount = Array.isArray(data.images) ? data.images.length : 0;
-      setAiMsg({ type: "ok", text: `✓ Fiche générée${imgCount > 0 ? ` + ${imgCount} image${imgCount > 1 ? "s" : ""} importée${imgCount > 1 ? "s" : ""}` : ""} ! Vérifiez et complétez les champs.` });
+      const noAi = data._noAi === true;
+      setAiMsg({ type: "ok", text: noAi
+        ? `✓ Titre et ${imgCount} image${imgCount !== 1 ? "s" : ""} importés ! (IA non disponible — ajoutez une clé OpenAI pour la description auto)`
+        : `✓ Fiche générée${imgCount > 0 ? ` + ${imgCount} image${imgCount > 1 ? "s" : ""} importée${imgCount > 1 ? "s" : ""}` : ""} ! Vérifiez et complétez les champs.`
+      });
       setAiUrl("");
     } catch {
       setAiMsg({ type: "err", text: "Erreur de connexion" });
