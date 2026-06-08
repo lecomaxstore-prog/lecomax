@@ -1,15 +1,7 @@
 import { MetadataRoute } from "next";
+import { createClient } from "@supabase/supabase-js";
 
 const SITE_URL = "https://lecomax.com";
-
-const productSlugs = [
-  "c-baasploa-course-homme",
-  "a-sac-bandouliere-antivol-code",
-  "a-sac-banane-pu-polyvalent",
-  "a-lenovo-k3-pro-enceinte",
-  "a-manette-sans-fil-rgb-v2",
-  "a-genai-tws-hd",
-];
 
 const categorySlugs = ["homme", "femme", "chaussures", "accessoires"];
 
@@ -29,7 +21,7 @@ const staticPages = [
   { path: "/cookies", priority: 0.3, changeFreq: "yearly" as const },
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const statics = staticPages.map((p) => ({
@@ -45,6 +37,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
+
+  // Fetch all active product slugs from database
+  let productSlugs: string[] = [];
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const { data } = await supabase
+      .from("products")
+      .select("slug, updated_at")
+      .eq("active", true)
+      .order("created_at", { ascending: false });
+    if (data) {
+      productSlugs = data.map((p: { slug: string }) => p.slug).filter(Boolean);
+    }
+  } catch {
+    // Fallback to empty — don't crash the build
+  }
 
   const products = productSlugs.map((slug) => ({
     url: `${SITE_URL}/produit/${slug}`,

@@ -106,6 +106,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Decrement stock for each ordered item (non-blocking, best-effort)
+  for (const item of items) {
+    if (item.slug) {
+      supabase
+        .from("products")
+        .select("stock, slug")
+        .eq("slug", item.slug)
+        .single()
+        .then(({ data: prod }) => {
+          if (prod && typeof prod.stock === "number") {
+            const newStock = Math.max(0, prod.stock - item.qty);
+            supabase.from("products").update({ stock: newStock }).eq("slug", item.slug).then(() => {});
+          }
+        });
+    }
+  }
+
   // Increment coupon used_count (non-blocking)
   if (coupon_id) {
     supabase.from("coupons").select("used_count").eq("id", coupon_id).single().then(({ data: c }) => {

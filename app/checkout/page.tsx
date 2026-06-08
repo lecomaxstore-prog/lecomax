@@ -93,6 +93,8 @@ export default function CheckoutPage() {
   // EcoClub loyalty discount
   const [loyaltyTier, setLoyaltyTier] = useState<"Bronze" | "Silver" | "Gold">("Bronze");
   const [loyaltyDiscountPct, setLoyaltyDiscountPct] = useState(0); // 0, 30, or 50
+  // Shipping rate from DB (fallback: free ≥500, else 35 MAD)
+  const [shippingRate, setShippingRate] = useState<number | null>(null);
 
   // Desktop only: sticky stepper
   const [stepperVisible] = useState(true);
@@ -103,6 +105,21 @@ export default function CheckoutPage() {
   const paypalDataRef = useRef({ form, items, grandTotal: 0, shipping: 0, couponApplied, discount: 0 });
   // Track if error originated from form validation (not from PayPal itself)
   const paypalFormErrorRef = useRef(false);
+
+  // Fetch shipping rates from DB
+  useEffect(() => {
+    fetch("/api/shipping")
+      .then(r => r.json())
+      .then((zones: { min_order?: number; free_above?: number; rate?: number; base_rate?: number }[]) => {
+        if (!Array.isArray(zones) || zones.length === 0) return;
+        // Use the first zone's free_above threshold and base rate
+        const zone = zones[0];
+        const freeAbove = zone.free_above ?? zone.min_order ?? 500;
+        const baseRate = zone.base_rate ?? zone.rate ?? 35;
+        setShippingRate(total >= freeAbove ? 0 : baseRate);
+      })
+      .catch(() => {});
+  }, [total]);
 
   // Fetch EcoClub tier to apply automatic loyalty discount
   useEffect(() => {
@@ -121,7 +138,7 @@ export default function CheckoutPage() {
     });
   }, []);
 
-  const shipping = total >= 500 ? 0 : 35;
+  const shipping = shippingRate !== null ? shippingRate : (total >= 500 ? 0 : 35);
   const couponDiscount = couponApplied?.discount ?? 0;
   // Loyalty discount applies on subtotal (after coupon); Silver 30%, Gold 50%
   const loyaltyDiscountAmount = loyaltyDiscountPct > 0 ? Math.round(((total - couponDiscount) * loyaltyDiscountPct) / 100) : 0;
