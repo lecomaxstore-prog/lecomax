@@ -17,11 +17,11 @@ const DEFAULT_SETTINGS: SettingsMap = {
   tiktok_url: "",
   free_shipping_threshold: "500",
   maintenance_mode: "false",
-  // image settings
-  favicon_image: "",
+  // image settings — pre-filled with current site defaults
+  favicon_image: "/favicon.png",
   logo_image: "",
-  hero_image: "",
-  hero_image_mobile: "",
+  hero_image: "/images/hero secrtion/hero section web version.png",
+  hero_image_mobile: "/images/hero secrtion/hero section mobile version.png",
   email_banner_image: "",
   og_image: "",
 };
@@ -80,7 +80,11 @@ export default function SettingsPage() {
       .then(data => {
         if (Array.isArray(data)) {
           const map: SettingsMap = { ...DEFAULT_SETTINGS };
-          data.forEach((row: { key: string; value: string }) => { map[row.key] = String(row.value ?? ""); });
+          // Only override default if DB value is non-empty
+          data.forEach((row: { key: string; value: string }) => {
+            const v = String(row.value ?? "");
+            if (v) map[row.key] = v;
+          });
           setSettings(map);
         }
         setLoading(false);
@@ -229,6 +233,9 @@ export default function SettingsPage() {
                   value={settings[f.key] || ""}
                   uploading={uploadingKey === f.key}
                   onFile={file => handleImageUpload(f.key, file)}
+                  onUrlChange={url => {
+                    setSettings(s => ({ ...s, [f.key]: url }));
+                  }}
                   onClear={() => {
                     const updated = { ...settings, [f.key]: "" };
                     setSettings(updated);
@@ -435,10 +442,10 @@ function Field({
 }
 
 function ImageUploadField({
-  label, hint, aspect, value, uploading, onFile, onClear, small,
+  label, hint, aspect, value, uploading, onFile, onClear, onUrlChange, small,
 }: {
   label: string; hint: string; aspect: string; value: string; small?: boolean;
-  uploading: boolean; onFile: (f: File) => void; onClear: () => void;
+  uploading: boolean; onFile: (f: File) => void; onClear: () => void; onUrlChange: (url: string) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -488,7 +495,7 @@ function ImageUploadField({
       >
         {value ? (
           <>
-            <Image src={value} alt={label} fill className="object-cover" sizes="700px" />
+            <Image src={value} alt={label} fill className="object-cover" sizes="700px" unoptimized={value.startsWith("/") || value.startsWith("http")} />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
               <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white font-bold text-sm flex items-center gap-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -516,11 +523,13 @@ function ImageUploadField({
         <input
           type="url"
           value={value}
-          onChange={e => onClear()}
+          onChange={e => onUrlChange(e.target.value)}
           placeholder="https://..."
-          className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-black transition-colors text-neutral-500"
-          readOnly
+          className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-black transition-colors text-neutral-700"
         />
+        {value && (
+          <p className="text-[10px] text-neutral-400 mt-1 truncate">{value}</p>
+        )}
       </div>
 
       <input
