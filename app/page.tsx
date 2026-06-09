@@ -9,6 +9,7 @@ import Link from "next/link";
 const OurProductsGrid = dynamic(() => import("@/components/OurProductsGrid"));
 const ScrollReveal = dynamic(() => import("@/components/ScrollReveal"));
 const Testimonials = dynamic(() => import("@/components/Testimonials"));
+const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
 import { products as staticProducts, type CardProduct } from "@/lib/products";
 import { getDbProducts } from "@/lib/db-server";
 
@@ -167,6 +168,77 @@ export default async function HomePage() {
         </div>
       </section>
       </ScrollReveal>
+
+      {/* ── Newsletter ───────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-neutral-950 border-t border-white/5">
+        {/* Glow blob */}
+        <div className="pointer-events-none absolute top-0 right-0 w-[600px] h-[600px] rounded-full opacity-[0.06] blur-[120px] -translate-y-1/2 translate-x-1/4" style={{ background: "#3ecf4c" }} />
+
+        <div className="relative grid md:grid-cols-2 gap-0 items-stretch">
+
+          {/* ── Left: photo ─────────────────────────── */}
+          <div className="relative h-full min-h-[340px] overflow-hidden">
+            <Image
+              src="/images/newsletter.png"
+              alt="Newsletter L'ecomax"
+              fill
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="object-cover"
+            />
+            {/* Bottom gradient overlay for readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent" />
+            {/* Stats bar pinned to bottom */}
+            <div className="absolute bottom-0 left-0 right-0 flex items-center gap-6 px-8 pb-6">
+              {[
+                { num: "117", label: "Abonnés" },
+                { num: "100%", label: "Sans spam" },
+                { num: "1 clic", label: "Résiliation" },
+              ].map(({ num, label }) => (
+                <div key={label}>
+                  <p className="text-white font-black text-[17px] h-display leading-none">{num}</p>
+                  <p className="text-neutral-400 text-[10px] uppercase tracking-[0.12em] mt-1">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Right: copy + form ────────────────────────── */}
+          <div className="flex flex-col justify-center border-t border-white/5 pt-10 md:border-t-0 md:pt-0 md:border-l md:border-white/5 px-8 md:px-16 lg:px-24 py-16 md:py-24">
+            <div className="inline-flex items-center gap-2 mb-5 self-start px-3 py-1.5 border border-[#3ecf4c]/30" style={{ background: "rgba(62,207,76,0.06)" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] animate-pulse" />
+              <p className="text-[#3ecf4c] text-[10px] font-black uppercase tracking-[0.4em]">Newsletter exclusive</p>
+            </div>
+
+            <h2 className="h-display text-[2.6rem] md:text-[3.2rem] text-white leading-[0.9] mb-5">
+              Soyez<br />
+              <span className="text-[#3ecf4c]">les premiers</span><br />
+              informés.
+            </h2>
+
+            <p className="text-neutral-400 text-[13px] leading-relaxed max-w-[340px] mb-8">
+              Offres exclusives, nouveautés et ventes privées — directement dans votre boîte mail, avant tout le monde.
+            </p>
+
+            <NewsletterForm />
+
+            <ul className="space-y-2 mt-6 pt-6 border-t border-white/5">
+              {[
+                "Offres exclusives membres",
+                "Alertes nouveautés en avant-première",
+                "Accès aux ventes privées",
+              ].map((label) => (
+                <li key={label} className="flex items-center gap-2.5">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span className="text-[12px] text-neutral-500">{label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+        </div>
+      </section>
     </>
   );
 }

@@ -7,26 +7,26 @@ export const metadata = {
 
 const cookieTypes = [
   {
-    icon: "⚙️",
+    num: "01",
     name: "Cookies essentiels",
     tag: "Toujours actifs",
-    tagColor: "bg-[#3ecf4c] text-black",
+    essential: true,
     desc: "Indispensables au fonctionnement du site. Ils permettent de conserver votre panier, votre session de connexion et vos préférences de base. Ces cookies ne peuvent pas être désactivés.",
     examples: ["Panier d'achat", "Session utilisateur", "Sécurité (CSRF)", "Paramètres de langue"],
   },
   {
-    icon: "📊",
+    num: "02",
     name: "Cookies de performance",
     tag: "Opt-in",
-    tagColor: "bg-neutral-100 text-neutral-600",
-    desc: "Nous aident à comprendre comment les visiteurs interagissent avec notre site. Les données sont collectées de façon anonyme et nous permettent d'améliorer continuellement le site.",
+    essential: false,
+    desc: "Nous aident à comprendre comment les visiteurs interagissent avec notre site. Les données sont collectées de façon anonyme et nous permettent d'améliorer continuellement nos services.",
     examples: ["Pages vues", "Temps de visite", "Sources de trafic", "Taux de rebond"],
   },
   {
-    icon: "🎯",
+    num: "03",
     name: "Cookies de préférences",
     tag: "Opt-in",
-    tagColor: "bg-neutral-100 text-neutral-600",
+    essential: false,
     desc: "Permettent au site de mémoriser vos choix pour vous offrir une expérience personnalisée lors de vos prochaines visites.",
     examples: ["Taille favorite", "Couleur préférée", "Historique récent", "Newsletter"],
   },
@@ -36,11 +36,11 @@ export default function CookiesPage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Hero */}
-      <div className="relative w-full overflow-hidden" style={{ background: "linear-gradient(135deg, #0a1128 0%, #0c1a2e 40%, #081420 100%)" }}>
-        <div className="absolute right-0 top-0 w-[55%] h-full pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 45%, rgba(62,207,76,0.07) 0%, transparent 55%)" }} />
-        <div className="absolute left-[-10%] bottom-[-10%] w-[60%] h-[70%] pointer-events-none" style={{ background: "radial-gradient(ellipse at 30% 70%, rgba(20,60,160,0.18) 0%, transparent 60%)" }} />
-        <div className="relative max-w-5xl mx-auto px-8 sm:px-12 lg:px-16 pt-20 pb-36 lg:pt-24 lg:pb-44">
+      {/* ── Hero ── */}
+      <div className="relative w-full bg-neutral-950 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 80% at 100% 0%, rgba(62,207,76,0.06) 0%, transparent 60%)" }} />
+
+        <div className="relative max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 pt-16 pb-16 lg:pt-20 lg:pb-28">
           <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/25 mb-10">
             <Link href="/" className="hover:text-white/50 transition-colors">Accueil</Link>
             <span className="text-white/15">/</span>
@@ -48,64 +48,90 @@ export default function CookiesPage() {
             <span className="text-white/15">/</span>
             <span className="text-white/60">Cookies</span>
           </nav>
-          <span className="inline-flex items-center gap-2 text-[11px] font-semibold bg-white/[0.07] border border-white/15 text-white/70 px-4 py-2 rounded-full w-fit mb-8">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#3ecf4c]"><circle cx="12" cy="12" r="10"/><circle cx="8" cy="9" r="1" fill="currentColor"/><circle cx="14" cy="15" r="1" fill="currentColor"/><circle cx="16" cy="9" r="1" fill="currentColor"/></svg>
-            Légal &amp; Cookies
-          </span>
-          <h1 className="font-black leading-[1.05] mb-6 text-white" style={{ fontSize: "clamp(2.6rem,5vw,4.5rem)", letterSpacing: "-0.03em" }}>
-            Politique de<br /><span className="text-[#3ecf4c]">cookies</span>
-          </h1>
-          <p className="text-white/45 text-base max-w-md leading-relaxed mb-3">
-            Nous utilisons des cookies pour vous offrir la meilleure expérience possible. Voici comment et pourquoi.
-          </p>
-          <p className="text-white/25 text-xs font-mono">Dernière mise à jour : avril 2026</p>
+
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10">
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-px h-8 bg-[#3ecf4c]" />
+                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#3ecf4c]">Document légal</span>
+              </div>
+              <h1 className="font-black text-white leading-[1.02] mb-4" style={{ fontSize: "clamp(2.4rem, 4.5vw, 4rem)", letterSpacing: "-0.03em" }}>
+                Politique de<br />cookies
+              </h1>
+              <p className="text-white/45 text-[15px] max-w-sm leading-relaxed">
+                Nous utilisons des cookies pour vous offrir la meilleure expérience possible. Voici comment et pourquoi.
+              </p>
+            </div>
+
+            <div className="shrink-0 border border-white/10 bg-white/[0.04] px-6 py-5 lg:min-w-[220px]">
+              <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-3">Informations</p>
+              <div className="space-y-2.5">
+                <div className="flex justify-between gap-8 text-[12px]">
+                  <span className="text-white/40">Mise à jour</span>
+                  <span className="text-white font-bold">Avr. 2026</span>
+                </div>
+                <div className="flex justify-between gap-8 text-[12px]">
+                  <span className="text-white/40">Types</span>
+                  <span className="text-white font-bold">{cookieTypes.length} catégories</span>
+                </div>
+                <div className="flex justify-between gap-8 text-[12px]">
+                  <span className="text-white/40">Durée max.</span>
+                  <span className="text-white font-bold">13 mois</span>
+                </div>
+                <div className="flex justify-between gap-8 text-[12px]">
+                  <span className="text-white/40">Données vendues</span>
+                  <span className="text-[#3ecf4c] font-bold">Jamais</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 90" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-14 sm:h-18 lg:h-24 block">
+
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/10" />
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none pointer-events-none">
+          <svg viewBox="0 0 1440 90" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-14 sm:h-20 lg:h-24 block">
             <path d="M0,45 C200,90 400,10 720,50 C1000,85 1250,15 1440,45 L1440,90 L0,90 Z" fill="#ffffff"/>
           </svg>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-14 sm:py-20 space-y-14">
+      {/* ── Content ── */}
+      <div className="max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 py-14 sm:py-20">
 
         {/* What is a cookie */}
-        <section>
-          <div className="border border-neutral-100 rounded-2xl p-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-[#3ecf4c]/10 rounded-xl flex items-center justify-center text-xl">🍪</div>
-              <h2 className="font-black text-xl uppercase tracking-tight">Qu&apos;est-ce qu&apos;un cookie ?</h2>
-            </div>
-            <p className="text-[14px] text-neutral-600 leading-relaxed max-w-3xl">
-              Un cookie est un petit fichier texte déposé sur votre appareil (ordinateur, tablette ou mobile) lors de votre visite sur notre site.
-              Il permet de mémoriser vos préférences, d&apos;analyser notre trafic et d&apos;améliorer votre expérience d&apos;achat.
-              Les cookies ne contiennent aucune information personnelle sensible et ne peuvent pas lancer de programmes.
-            </p>
+        <div className="pb-12 mb-12 border-b border-neutral-100">
+          <div className="flex items-baseline gap-4 mb-5">
+            <span className="text-[11px] font-black text-[#3ecf4c] tabular-nums shrink-0">§ 01</span>
+            <h2 className="font-black text-[17px] text-black leading-tight tracking-tight">Qu&apos;est-ce qu&apos;un cookie ?</h2>
           </div>
-        </section>
+          <p className="text-[14px] text-neutral-500 leading-[1.8] pl-[calc(2.75rem)] max-w-3xl">
+            Un cookie est un petit fichier texte déposé sur votre appareil (ordinateur, tablette ou mobile) lors de votre visite sur notre site.
+            Il permet de mémoriser vos préférences, d&apos;analyser notre trafic et d&apos;améliorer votre expérience d&apos;achat.
+            Les cookies ne contiennent aucune information personnelle sensible et ne peuvent pas exécuter de programmes.
+          </p>
+        </div>
 
         {/* Cookie types */}
-        <section>
-          <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Types</p>
-          <h2 className="font-black text-2xl sm:text-3xl uppercase tracking-tight mb-8">Cookies que nous utilisons</h2>
-          <div className="space-y-5">
+        <div className="mb-14">
+          <div className="flex items-baseline gap-4 mb-8">
+            <span className="text-[11px] font-black text-[#3ecf4c] tabular-nums shrink-0">§ 02</span>
+            <h2 className="font-black text-[17px] text-black leading-tight tracking-tight">Cookies que nous utilisons</h2>
+          </div>
+
+          <div className="pl-[calc(2.75rem)] divide-y divide-neutral-100 border border-neutral-100">
             {cookieTypes.map((c) => (
-              <div key={c.name} className="border border-neutral-100 rounded-2xl p-7 hover:border-neutral-200 transition-colors">
-                <div className="flex flex-wrap items-start gap-3 mb-4">
-                  <div className="w-10 h-10 bg-neutral-100 rounded-xl flex items-center justify-center text-xl shrink-0">{c.icon}</div>
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <h3 className="font-black text-[16px]">{c.name}</h3>
-                      <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full ${c.tagColor}`}>
-                        {c.tag}
-                      </span>
-                    </div>
-                    <p className="text-[14px] text-neutral-600 leading-relaxed">{c.desc}</p>
-                  </div>
+              <div key={c.name} className="p-7">
+                <div className="flex flex-wrap items-center gap-3 mb-3">
+                  <span className="text-[11px] font-black tabular-nums text-neutral-300">{c.num}</span>
+                  <h3 className="font-black text-[15px] text-black">{c.name}</h3>
+                  <span className={`text-[10px] font-black uppercase tracking-[0.15em] px-2.5 py-0.5 ${c.essential ? "bg-[#3ecf4c] text-black" : "bg-neutral-100 text-neutral-500"}`}>
+                    {c.tag}
+                  </span>
                 </div>
-                <div className="flex flex-wrap gap-2 mt-2">
+                <p className="text-[14px] text-neutral-500 leading-relaxed mb-4">{c.desc}</p>
+                <div className="flex flex-wrap gap-2">
                   {c.examples.map((ex) => (
-                    <span key={ex} className="text-[11px] font-semibold bg-neutral-50 border border-neutral-100 text-neutral-500 px-3 py-1 rounded-full">
+                    <span key={ex} className="text-[11px] font-semibold border border-neutral-200 text-neutral-400 px-3 py-1">
                       {ex}
                     </span>
                   ))}
@@ -113,66 +139,75 @@ export default function CookiesPage() {
               </div>
             ))}
           </div>
-        </section>
+        </div>
 
         {/* Duration */}
-        <section className="bg-neutral-50 rounded-2xl p-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#3ecf4c]/10 rounded-xl flex items-center justify-center text-xl">⏱️</div>
-            <h2 className="font-black text-xl uppercase tracking-tight">Durée de conservation</h2>
+        <div className="mb-14">
+          <div className="flex items-baseline gap-4 mb-8">
+            <span className="text-[11px] font-black text-[#3ecf4c] tabular-nums shrink-0">§ 03</span>
+            <h2 className="font-black text-[17px] text-black leading-tight tracking-tight">Durée de conservation</h2>
           </div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="bg-white rounded-xl p-5 border border-neutral-100">
-              <p className="font-black text-[13px] uppercase tracking-wide mb-1">Cookies de session</p>
-              <p className="text-[14px] text-neutral-600">Supprimés automatiquement à la fermeture de votre navigateur.</p>
+          <div className="pl-[calc(2.75rem)] grid sm:grid-cols-2 gap-px bg-neutral-200">
+            <div className="bg-white p-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-neutral-400 mb-2">Cookies de session</p>
+              <p className="font-black text-[15px] text-black mb-2">Temporaires</p>
+              <p className="text-[13px] text-neutral-500 leading-relaxed">Supprimés automatiquement à la fermeture de votre navigateur.</p>
             </div>
-            <div className="bg-white rounded-xl p-5 border border-neutral-100">
-              <p className="font-black text-[13px] uppercase tracking-wide mb-1">Cookies persistants</p>
-              <p className="text-[14px] text-neutral-600">Conservés sur votre appareil pour une durée maximale de <strong>13 mois</strong>.</p>
+            <div className="bg-white p-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-neutral-400 mb-2">Cookies persistants</p>
+              <p className="font-black text-[15px] text-black mb-2">Jusqu&apos;à <span className="text-[#3ecf4c]">13 mois</span></p>
+              <p className="text-[13px] text-neutral-500 leading-relaxed">Conservés sur votre appareil pour une durée maximale définie par chaque cookie.</p>
             </div>
           </div>
-        </section>
+        </div>
 
         {/* Manage */}
-        <section className="border border-neutral-100 rounded-2xl p-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#3ecf4c]/10 rounded-xl flex items-center justify-center text-xl">⚙️</div>
-            <h2 className="font-black text-xl uppercase tracking-tight">Gérer vos cookies</h2>
+        <div className="mb-14">
+          <div className="flex items-baseline gap-4 mb-8">
+            <span className="text-[11px] font-black text-[#3ecf4c] tabular-nums shrink-0">§ 04</span>
+            <h2 className="font-black text-[17px] text-black leading-tight tracking-tight">Gérer vos cookies</h2>
           </div>
-          <p className="text-[14px] text-neutral-600 leading-relaxed mb-5">
-            Vous pouvez à tout moment modifier vos préférences cookies via les paramètres de votre navigateur.
-            Notez que la désactivation de certains cookies peut affecter le fonctionnement du site.
-          </p>
-          <div className="grid sm:grid-cols-4 gap-3">
-            {["Chrome", "Firefox", "Safari", "Edge"].map((browser) => (
-              <div key={browser} className="bg-neutral-50 rounded-xl p-4 text-center border border-neutral-100">
-                <p className="font-black text-[13px]">{browser}</p>
-                <p className="text-[11px] text-neutral-400 mt-1">Paramètres → Confidentialité</p>
-              </div>
-            ))}
+          <div className="pl-[calc(2.75rem)]">
+            <p className="text-[14px] text-neutral-500 leading-[1.8] mb-6 max-w-2xl">
+              Vous pouvez à tout moment modifier vos préférences cookies via les paramètres de votre navigateur.
+              La désactivation de certains cookies peut affecter le fonctionnement du site.
+            </p>
+            <div className="grid sm:grid-cols-4 gap-px bg-neutral-200">
+              {["Chrome", "Firefox", "Safari", "Edge"].map((browser) => (
+                <div key={browser} className="bg-white p-5">
+                  <p className="font-black text-[13px] text-black mb-1">{browser}</p>
+                  <p className="text-[11px] text-neutral-400 leading-relaxed">Paramètres<br />→ Confidentialité</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </section>
+        </div>
 
         {/* CTA */}
-        <div className="rounded-2xl bg-neutral-950 text-white p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-[#3ecf4c] mb-1">Questions ?</p>
-            <p className="font-black text-[18px]">Contactez-nous</p>
-            <p className="text-white/50 text-sm mt-1">On répond sous 48h ouvrées.</p>
+        <div className="border-t-2 border-neutral-950 pt-10">
+          <div className="bg-neutral-950 p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3ecf4c] mb-2">Contact</p>
+              <p className="font-black text-white text-[20px] leading-tight mb-1">Des questions sur nos cookies ?</p>
+              <p className="text-white/40 text-[13px]">Notre équipe répond sous 48h ouvrées.</p>
+            </div>
+            <a
+              href="mailto:contact@lecomax.com"
+              className="shrink-0 bg-[#3ecf4c] text-black font-black text-[11px] uppercase tracking-[0.18em] px-7 py-3.5 hover:bg-[#32b83d] transition-colors"
+            >
+              contact@lecomax.com
+            </a>
           </div>
-          <a href="mailto:contact@lecomax.com" className="shrink-0 bg-[#3ecf4c] text-black font-black text-[12px] uppercase tracking-widest px-6 py-3 rounded-full hover:bg-[#32b83d] transition-colors">
-            contact@lecomax.com
-          </a>
         </div>
 
         {/* Footer links */}
-        <div className="flex flex-wrap gap-4 pt-4 border-t border-neutral-100">
+        <div className="mt-8 flex flex-wrap items-center gap-6 pt-6 border-t border-neutral-100">
           <Link href="/" className="inline-flex items-center gap-2 text-[12px] font-bold text-neutral-400 hover:text-black transition-colors">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
             Retour à l&apos;accueil
           </Link>
-          <Link href="/politique-confidentialite/" className="text-[12px] font-bold text-neutral-400 hover:text-black transition-colors">Confidentialité →</Link>
-          <Link href="/conditions-utilisation/" className="text-[12px] font-bold text-neutral-400 hover:text-black transition-colors">Conditions →</Link>
+          <Link href="/politique-confidentialite" className="text-[12px] font-bold text-neutral-400 hover:text-black transition-colors">Confidentialité →</Link>
+          <Link href="/conditions-utilisation" className="text-[12px] font-bold text-neutral-400 hover:text-black transition-colors">Conditions →</Link>
         </div>
 
       </div>

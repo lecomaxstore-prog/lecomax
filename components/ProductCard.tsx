@@ -97,17 +97,23 @@ export default function ProductCard({ product }: { product: CardProduct }) {
       <div className="px-4 pt-3.5 pb-4 flex flex-col flex-1">
         {/* Colors */}
         {product.colors.length > 0 && (
-          <div className="flex items-center gap-1.5 mb-2.5">
-            {product.colors.slice(0, 6).map((c, i) => (
+          <div className="flex items-center gap-1 mb-2.5">
+            {product.colors.slice(0, 5).map((c, i) => (
               <span
                 key={i}
-                className="w-3 h-3 rounded-full ring-1 ring-black/10 ring-offset-1 shrink-0"
+                className="group/swatch relative w-[14px] h-[14px] rounded-full ring-1 ring-black/10 shrink-0 cursor-default transition-transform duration-150 hover:scale-125 hover:ring-2 hover:ring-black/20 hover:z-10"
                 style={{ backgroundColor: getColor(c) }}
-                title={c}
-              />
+              >
+                {/* Tooltip */}
+                <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap bg-neutral-900 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md opacity-0 group-hover/swatch:opacity-100 transition-opacity duration-150 shadow-lg">
+                  {c}
+                </span>
+              </span>
             ))}
-            {product.colors.length > 6 && (
-              <span className="text-[10px] text-neutral-400 font-semibold">+{product.colors.length - 6}</span>
+            {product.colors.length > 5 && (
+              <span className="flex items-center justify-center w-[14px] h-[14px] rounded-full bg-neutral-100 text-[8px] font-black text-neutral-500 ring-1 ring-black/10 shrink-0">
+                +{product.colors.length - 5}
+              </span>
             )}
           </div>
         )}

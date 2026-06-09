@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 type Product = {
   slug: string;
@@ -225,9 +226,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
           {/* Logo / brand */}
           <Link href="/" onClick={onClose}
             style={{ textDecoration: "none", marginRight: 24, flexShrink: 0 }}>
-            <span style={{ fontWeight: 900, fontSize: 20, color: "#000", letterSpacing: "-0.02em" }}>
-              L&apos;<span style={{ color: "#3ecf4c" }}>eco</span>max
-            </span>
+            <Logo />
           </Link>
 
           {/* Search icon */}

@@ -56,7 +56,7 @@ const DEFAULT_SOCIALS = [
   {
     label: "Instagram",
     key: "instagram_url",
-    defaultHref: "https://www.instagram.com/lecomaxstore",
+    defaultHref: "https://www.instagram.com/lecomaxcom",
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <rect x="2" y="2" width="20" height="20" rx="5"/>
@@ -68,7 +68,7 @@ const DEFAULT_SOCIALS = [
   {
     label: "TikTok",
     key: "tiktok_url",
-    defaultHref: "https://www.tiktok.com/@lecomaxstore",
+    defaultHref: "https://www.tiktok.com/@lecomaxcom",
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
         <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.95a8.16 8.16 0 004.79 1.53V7.03a4.85 4.85 0 01-1.02-.34z"/>
@@ -78,7 +78,7 @@ const DEFAULT_SOCIALS = [
   {
     label: "Facebook",
     key: "facebook_url",
-    defaultHref: "https://www.facebook.com/lecomaxstore",
+    defaultHref: "https://www.facebook.com/lecomaxcom",
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
@@ -280,12 +280,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 text-[11px] text-white/35">
           <div>© {new Date().getFullYear()} L&apos;ecomax. Tous droits réservés. — Fait avec ♥ au Maroc</div>
-          <div className="flex items-center gap-1.5">
-            {["VISA", "MC", "AMEX", "PayPal"].map((p) => (
-              <span key={p} className="px-2.5 py-1.5 rounded bg-white/8 text-white/60 text-[9px] font-black tracking-wider leading-none border border-white/10">{p}</span>
-            ))}
-            <span className="px-2.5 py-1.5 rounded text-[9px] font-black tracking-wider leading-none border whitespace-nowrap" style={{backgroundColor:'rgba(62,207,76,0.1)',color:'#3ecf4c',borderColor:'rgba(62,207,76,0.2)'}}>À la livraison</span>
-          </div>
+
           <div className="flex flex-wrap justify-center gap-5">
             <Link href="/conditions-utilisation/" className="hover:text-white/60 transition-colors">Conditions</Link>
             <Link href="/politique-confidentialite/" className="hover:text-white/60 transition-colors">Confidentialité</Link>

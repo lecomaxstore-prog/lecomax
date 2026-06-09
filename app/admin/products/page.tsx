@@ -49,13 +49,17 @@ export default function ProductsPage() {
   const [images, setImages] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [sizeGuideType, setSizeGuideType] = useState<"none" | "clothing" | "shoes">("none");
+  const [sizeGuideType, setSizeGuideType] = useState<"none" | "clothing" | "shoes" | "custom">("none");
+  const [customSizes, setCustomSizes] = useState<string[]>([]);
+  const [customSizeInput, setCustomSizeInput] = useState("");
+  const [sizeStocks, setSizeStocks] = useState<Record<string, number>>({});
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);  const [descImages, setDescImages] = useState<string[]>([]);
   const [uploadingDesc, setUploadingDesc] = useState(false);
   const [dragOverDesc, setDragOverDesc] = useState(false);
   const descFileInputRef = useRef<HTMLInputElement>(null);
+  const [productDetails, setProductDetails] = useState<{ key: string; value: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
@@ -79,7 +83,7 @@ export default function ProductsPage() {
       if (p) {
         const tags = p.tags ?? [];
         const guideTag = tags.find((t) => t.startsWith("__guide:"));
-        setSizeGuideType(guideTag === "__guide:shoes" ? "shoes" : guideTag === "__guide:clothing" ? "clothing" : "none");
+        setSizeGuideType(guideTag === "__guide:shoes" ? "shoes" : guideTag === "__guide:clothing" ? "clothing" : guideTag === "__guide:custom" ? "custom" : "none");
         setForm({
           slug: p.slug, name: p.name, brand: p.brand ?? "",
           category: p.category,
@@ -87,14 +91,32 @@ export default function ProductsPage() {
           description: p.description ?? "",
           stock: String(p.stock), active: p.active,
           featured: p.featured ?? false,
-          tags: tags.filter((t) => !t.startsWith("__guide:")).join(", "),
+          tags: tags.filter((t) => !t.startsWith("__guide:") && !t.startsWith("__sstock:") && !t.startsWith("__detail:")).join(", "),
           weight: p.weight ? String(p.weight) : "",
           video: (p as ExtendedProduct).video ?? "",
         });
         setImages(p.images?.length ? p.images : []);
         setDescImages((p as ExtendedProduct).desc_images?.length ? (p as ExtendedProduct).desc_images! : []);
         setSelectedColors(p.colors ?? []);
-        setSelectedSizes(p.sizes ?? []);
+        // Restore product details from tags like "__detail:Matière:100% coton"
+        const detailTags = tags.filter((t) => t.startsWith("__detail:"));
+        setProductDetails(detailTags.map((t) => {
+          const parts = t.slice("__detail:".length).split(":");
+          return { key: parts[0] ?? "", value: parts.slice(1).join(":") };
+        }));
+        const savedSizes = p.sizes ?? [];
+        setSelectedSizes(savedSizes);
+        // Restore size stocks from tags like "__sstock:XS:5"
+        const sstocks: Record<string, number> = {};
+        tags.filter((t) => t.startsWith("__sstock:")).forEach((t) => {
+          const [, size, qty] = t.split(":");
+          if (size && qty) sstocks[size] = parseInt(qty) || 0;
+        });
+        setSizeStocks(sstocks);
+        // Restore custom sizes
+        const guideT = guideTag === "__guide:shoes" ? "shoes" : guideTag === "__guide:clothing" ? "clothing" : guideTag === "__guide:custom" ? "custom" : "none";
+        if (guideT === "custom") setCustomSizes(savedSizes);
+        else setCustomSizes([]);
       }
     } else if (isNew) {
       setForm({ ...emptyForm });
@@ -103,6 +125,9 @@ export default function ProductsPage() {
       setSelectedColors([]);
       setSelectedSizes([]);
       setSizeGuideType("none");
+      setCustomSizes([]);
+      setSizeStocks({});
+      setProductDetails([]);
     }
   }, [editId, isNew, products]);
 
@@ -167,6 +192,8 @@ export default function ProductsPage() {
       tags: [
         ...form.tags.split(",").map((s) => s.trim()).filter(Boolean),
         ...(sizeGuideType !== "none" ? [`__guide:${sizeGuideType}`] : []),
+        ...Object.entries(sizeStocks).filter(([, qty]) => qty > 0).map(([s, qty]) => `__sstock:${s}:${qty}`),
+        ...productDetails.filter((d) => d.key.trim()).map((d) => `__detail:${d.key.trim()}:${d.value.trim()}`),
       ],
       colors: selectedColors,
       sizes: selectedSizes,
@@ -209,8 +236,23 @@ export default function ProductsPage() {
   const sizeSet =
     sizeGuideType === "shoes" ? SHOE_SIZES
     : sizeGuideType === "clothing" ? CLOTHING_SIZES
+    : sizeGuideType === "custom" ? customSizes
     : form.category === "chaussures" ? SHOE_SIZES
     : CLOTHING_SIZES;
+
+  function addCustomSize() {
+    const val = customSizeInput.trim().toUpperCase();
+    if (!val || customSizes.includes(val)) { setCustomSizeInput(""); return; }
+    setCustomSizes((prev) => [...prev, val]);
+    setSelectedSizes((prev) => [...prev, val]);
+    setCustomSizeInput("");
+  }
+
+  function removeCustomSize(s: string) {
+    setCustomSizes((prev) => prev.filter((x) => x !== s));
+    setSelectedSizes((prev) => prev.filter((x) => x !== s));
+    setSizeStocks((prev) => { const n = { ...prev }; delete n[s]; return n; });
+  }
 
   const filtered = products.filter((p) => {
     const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.slug.includes(search.toLowerCase());
@@ -376,6 +418,52 @@ export default function ProductsPage() {
               </div>
             </div>
 
+            {/* Product Details */}
+            <div className="bg-white border border-neutral-100 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Détails du produit</h2>
+                  <p className="text-[11px] text-neutral-400 mt-0.5">Ex: Matière, Coupe, Entretien, Origine…</p>
+                </div>
+                <button type="button"
+                  onClick={() => setProductDetails((p) => [...p, { key: "", value: "" }])}
+                  className="flex items-center gap-1.5 text-[11px] font-bold text-black border border-neutral-200 rounded-lg px-3 py-1.5 hover:bg-neutral-50 transition-colors">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Ajouter
+                </button>
+              </div>
+              {productDetails.length === 0 ? (
+                <p className="text-[12px] text-neutral-300 italic text-center py-4">Aucun détail ajouté</p>
+              ) : (
+                <div className="space-y-2">
+                  {productDetails.map((detail, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={detail.key}
+                        onChange={(e) => setProductDetails((p) => p.map((d, j) => j === i ? { ...d, key: e.target.value } : d))}
+                        placeholder="Ex: Matière"
+                        className="w-32 shrink-0 border border-neutral-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all"
+                      />
+                      <span className="text-neutral-300 text-xs shrink-0">:</span>
+                      <input
+                        type="text"
+                        value={detail.value}
+                        onChange={(e) => setProductDetails((p) => p.map((d, j) => j === i ? { ...d, value: e.target.value } : d))}
+                        placeholder="Ex: 100% coton biologique"
+                        className="flex-1 border border-neutral-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all"
+                      />
+                      <button type="button"
+                        onClick={() => setProductDetails((p) => p.filter((_, j) => j !== i))}
+                        className="shrink-0 w-7 h-7 flex items-center justify-center text-neutral-300 hover:text-red-500 transition-colors">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Category */}
             <div className="bg-white border border-neutral-100 rounded-2xl p-6">
               <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">Catégorie</h2>
@@ -481,12 +569,12 @@ export default function ProductsPage() {
                 </Link>
               </div>
               {/* Size guide type selector */}
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex flex-wrap items-center gap-2 mb-4">
                 <span className="text-[11px] text-neutral-500 font-semibold uppercase tracking-wider">Guide de tailles :</span>
-                {(["none", "clothing", "shoes"] as const).map((opt) => {
-                  const labels = { none: "Aucun", clothing: "Vêtements", shoes: "Chaussures" };
+                {(["none", "clothing", "shoes", "custom"] as const).map((opt) => {
+                  const labels = { none: "Aucun", clothing: "Vêtements", shoes: "Chaussures", custom: "Personnalisé" };
                   return (
-                    <button key={opt} type="button" onClick={() => { setSizeGuideType(opt); setSelectedSizes([]); }}
+                    <button key={opt} type="button" onClick={() => { setSizeGuideType(opt); setSelectedSizes([]); if (opt !== "custom") setCustomSizes([]); }}
                       className={`px-3 py-1 rounded-lg border text-[11px] font-bold transition-all ${
                         sizeGuideType === opt ? "border-black bg-black text-white" : "border-neutral-200 text-neutral-500 hover:border-neutral-400"
                       }`}>
@@ -495,20 +583,99 @@ export default function ProductsPage() {
                   );
                 })}
               </div>
+
               {sizeGuideType === "none" ? (
                 <p className="text-xs text-neutral-400 italic">Sélectionnez un guide de tailles pour afficher les tailles disponibles.</p>
               ) : (
-              <div className="flex flex-wrap gap-2">
-                {sizeSet.map((s) => {
-                  const active = selectedSizes.includes(s);
-                  return (
-                    <button key={s} type="button" onClick={() => toggleSize(s)}
-                      className={`w-12 h-10 rounded-xl border text-xs font-bold transition-all ${active ? "border-black bg-black text-white" : "border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}>
-                      {s}
-                    </button>
-                  );
-                })}
-              </div>
+                <>
+                  {/* Custom size input (shown for "custom" guide type) */}
+                  {sizeGuideType === "custom" && (
+                    <div className="flex gap-2 mb-4">
+                      <input
+                        type="text"
+                        value={customSizeInput}
+                        onChange={(e) => setCustomSizeInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustomSize())}
+                        placeholder="Ex: XS, 42, 6 mois, Unique…"
+                        className="flex-1 border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all"
+                      />
+                      <button type="button" onClick={addCustomSize}
+                        className="px-4 py-2 bg-black text-white text-xs font-bold rounded-xl hover:bg-neutral-800 transition-colors whitespace-nowrap">
+                        + Ajouter
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Select all / clear all */}
+                  {sizeSet.length > 0 && (
+                    <div className="flex items-center gap-2 mb-3">
+                      <button type="button" onClick={() => setSelectedSizes([...sizeSet])}
+                        className="text-[11px] font-semibold text-neutral-500 hover:text-black underline underline-offset-2 transition-colors">
+                        Tout sélectionner
+                      </button>
+                      <span className="text-neutral-300">·</span>
+                      <button type="button" onClick={() => setSelectedSizes([])}
+                        className="text-[11px] font-semibold text-neutral-500 hover:text-black underline underline-offset-2 transition-colors">
+                        Tout désélectionner
+                      </button>
+                      {selectedSizes.length > 0 && (
+                        <span className="ml-auto text-[11px] font-bold text-neutral-400">{selectedSizes.length} / {sizeSet.length} sélectionnée{selectedSizes.length > 1 ? "s" : ""}</span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Size buttons */}
+                  <div className="flex flex-wrap gap-2">
+                    {sizeSet.map((s) => {
+                      const active = selectedSizes.includes(s);
+                      return (
+                        <div key={s} className="flex flex-col items-center gap-1">
+                          <button type="button" onClick={() => toggleSize(s)}
+                            className={`min-w-[3rem] px-3 h-10 rounded-xl border text-xs font-bold transition-all ${
+                              active ? "border-black bg-black text-white" : "border-neutral-200 text-neutral-600 hover:border-neutral-400"
+                            }`}>
+                            {s}
+                          </button>
+                          {sizeGuideType === "custom" && (
+                            <button type="button" onClick={() => removeCustomSize(s)}
+                              className="text-[9px] text-red-400 hover:text-red-600 transition-colors leading-none">
+                              ✕ retirer
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {sizeGuideType === "custom" && customSizes.length === 0 && (
+                      <p className="text-xs text-neutral-400 italic">Ajoutez des tailles via le champ ci-dessus.</p>
+                    )}
+                  </div>
+
+                  {/* Per-size stock */}
+                  {selectedSizes.length > 0 && (
+                    <div className="mt-5 border-t border-neutral-100 pt-4">
+                      <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-3">Stock par taille <span className="normal-case font-normal text-neutral-300">(optionnel)</span></p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {selectedSizes.map((s) => (
+                          <div key={s} className="flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2">
+                            <span className="text-xs font-black text-neutral-700 w-8 shrink-0">{s}</span>
+                            <button type="button" onClick={() => setSizeStocks((p) => ({ ...p, [s]: Math.max(0, (p[s] ?? 0) - 1) }))}
+                              className="text-neutral-400 hover:text-black transition-colors">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </button>
+                            <input type="number" min="0" value={sizeStocks[s] ?? ""}
+                              onChange={(e) => setSizeStocks((p) => ({ ...p, [s]: parseInt(e.target.value) || 0 }))}
+                              placeholder="0"
+                              className="flex-1 w-0 text-center text-xs font-semibold focus:outline-none bg-transparent" />
+                            <button type="button" onClick={() => setSizeStocks((p) => ({ ...p, [s]: (p[s] ?? 0) + 1 }))}
+                              className="text-neutral-400 hover:text-black transition-colors">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

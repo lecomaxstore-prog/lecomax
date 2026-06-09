@@ -13,7 +13,7 @@ import SiteProtection from "@/components/SiteProtection";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CookieBanner from "@/components/CookieBanner";
 import BackToTop from "@/components/BackToTop";
-import TrustBar from "@/components/TrustBar";
+
 
 const inter = Inter({
   subsets: ["latin"],
@@ -213,7 +213,7 @@ export default function RootLayout({
           </AdminLayoutWrapper>
           <main className="flex-1">{children}</main>
           <AdminLayoutWrapper>
-            <TrustBar />
+
             <Footer />
           </AdminLayoutWrapper>
           <AdminLayoutWrapper>
