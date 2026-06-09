@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import ScrollReveal from "@/components/ScrollReveal";
 
 const STATS = [
@@ -17,6 +18,7 @@ const REVIEWS = [
     rating: 5,
     text: "Commande reçue en 2 jours, emballage soigné et qualité au rendez-vous. Les écouteurs sont incroyables pour le prix. Je recommande à 100 %.",
     product: "Écouteurs GENAI TWS",
+    image: "/images/clients images/Yassine B..jpg",
   },
   {
     name: "Salma E.",
@@ -24,6 +26,7 @@ const REVIEWS = [
     rating: 5,
     text: "Service client très réactif et livraison rapide. Les baskets sont confortables et exactement comme sur les photos. Bravo L'ecomax !",
     product: "BAASPLOA Running",
+    image: "/images/clients images/Salma E..jpg",
   },
   {
     name: "Mehdi A.",
@@ -122,12 +125,18 @@ function ReviewCard({ r }: { r: typeof REVIEWS[0] }) {
 
       {/* author */}
       <figcaption className="flex items-center gap-3 pt-4">
-        <span
-          className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-black text-[15px] shadow-sm"
-          style={{ background: "#3ecf4c", color: "#000" }}
-        >
-          {r.name.charAt(0)}
-        </span>
+        {r.image ? (
+          <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden shadow-sm border border-neutral-100">
+            <Image src={r.image} alt={r.name} width={40} height={40} className="object-cover w-full h-full" />
+          </div>
+        ) : (
+          <span
+            className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-black text-[15px] shadow-sm"
+            style={{ background: "#3ecf4c", color: "#000" }}
+          >
+            {r.name.charAt(0)}
+          </span>
+        )}
         <div className="min-w-0">
           <p className="text-[13px] font-black text-black leading-tight">{r.name}</p>
           <p className="text-[11px] text-neutral-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
