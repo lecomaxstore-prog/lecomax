@@ -54,6 +54,7 @@ export default function MerciPage() {
   }, []);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
     let parsed: Order | null = null;
     try {
       const raw = localStorage.getItem("lecomax_last_order");
