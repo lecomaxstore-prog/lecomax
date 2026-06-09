@@ -199,46 +199,11 @@ export default function Testimonials() {
           </div>
         </ScrollReveal>
 
-        {/* Desktop grid */}
-        <div className="hidden md:grid md:grid-cols-3 gap-5">
+        {/* Desktop + Mobile grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {REVIEWS.map((r) => (
             <ReviewCard key={r.name} r={r} />
           ))}
-        </div>
-
-        {/* Mobile carousel */}
-        <div className="md:hidden">
-          <div
-            ref={scrollRef}
-            onScroll={handleScroll}
-            className="flex gap-4 overflow-x-auto -mx-6 px-6 snap-x snap-mandatory no-scrollbar pb-2"
-          >
-            {REVIEWS.map((r) => (
-              <div key={r.name} className="w-[85vw] shrink-0 snap-start snap-always">
-                <ReviewCard r={r} />
-              </div>
-            ))}
-          </div>
-
-          {/* dot nav */}
-          <div className="flex items-center justify-center gap-3 mt-5">
-            {REVIEWS.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => scrollTo(i)}
-                aria-label={`Avis ${i + 1}`}
-                className="rounded-full transition-all duration-300"
-                style={{
-                  width: i === activeIdx ? "24px" : "8px",
-                  height: "8px",
-                  background: i === activeIdx ? "#3ecf4c" : "#d4d4d4",
-                }}
-              />
-            ))}
-          </div>
-          <p className="text-center text-[11px] text-neutral-400 mt-2 font-semibold tracking-wide">
-            {activeIdx + 1} / {REVIEWS.length}
-          </p>
         </div>
 
         {/* Bottom trust bar */}
