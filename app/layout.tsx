@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 import { Inter, Sora } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -221,6 +223,8 @@ export default function RootLayout({
           </AdminLayoutWrapper>
           <CookieBanner />
           <BackToTop />
+          <SpeedInsights />
+          <Analytics />
         </CartProvider>
       </body>
     </html>
