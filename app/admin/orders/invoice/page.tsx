@@ -74,6 +74,7 @@ export default function InvoicePage() {
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
         .invoice-doc { animation: fadeUp 0.4s ease; }
+        @keyframes shimmer { 0%,100% { opacity:0.5; } 50% { opacity:1; } }
         @media print {
           .no-print { display: none !important; }
           body { background: #fff !important; }
@@ -111,6 +112,8 @@ export default function InvoicePage() {
 
       <div className="print-page" style={{ padding: "80px 24px 60px", minHeight: "100vh" }}>
         <div className="invoice-doc" style={{ maxWidth: 820, margin: "0 auto", background: "#fff", borderRadius: 16, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 48px rgba(0,0,0,0.10)", overflow: "hidden" }}>
+          {/* Premium top accent bar */}
+          <div style={{ height: 4, background: "linear-gradient(90deg, #166534 0%, #16a34a 25%, #3ecf4c 50%, #4ade80 75%, #86efac 100%)", borderRadius: "0" }} />
 
           <div style={{ background: "#0c1a12", padding: "44px 52px 40px", position: "relative", overflow: "hidden" }}>
             <div style={{ position: "absolute", inset: 0, opacity: 0.04, backgroundImage: "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
@@ -145,8 +148,11 @@ export default function InvoicePage() {
                   <div>Commande: <span style={{ color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>#{order.order_number}</span></div>
                 </div>
                 {isDelivered && (
-                  <div style={{ marginTop: 18, display: "inline-block", padding: "6px 18px", border: "2.5px solid #4ade80", borderRadius: 6, color: "#4ade80", fontWeight: 800, fontSize: 13, letterSpacing: 3, textTransform: "uppercase", transform: "rotate(-4deg)", boxShadow: "0 0 20px rgba(74,222,128,0.2)" }}>
-                    ✓ PAYÉE
+                  <div style={{ marginTop: 20, display: "inline-block", transform: "rotate(-6deg)", filter: "drop-shadow(0 0 12px rgba(74,222,128,0.35))" }}>
+                    <div style={{ padding: "8px 24px", border: "3px solid #4ade80", borderRadius: 50, color: "#4ade80", fontWeight: 900, fontSize: 14, letterSpacing: 4, textTransform: "uppercase", fontFamily: "Inter, sans-serif", position: "relative" }}>
+                      <div style={{ position: "absolute", inset: 3, border: "1.5px dashed rgba(74,222,128,0.4)", borderRadius: 50 }} />
+                      ✓ PAYÉE
+                    </div>
                   </div>
                 )}
               </div>
@@ -155,7 +161,7 @@ export default function InvoicePage() {
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
-            <div style={{ padding: "28px 52px", borderRight: "1px solid #f3f4f6", borderBottom: "1px solid #f3f4f6" }}>
+            <div style={{ padding: "28px 52px", borderRight: "1px solid #f3f4f6", borderBottom: "1px solid #f3f4f6", borderLeft: "3px solid #3ecf4c" }}>
               <div style={{ fontSize: 9, fontWeight: 700, color: "#9ca3af", letterSpacing: 2.5, textTransform: "uppercase", marginBottom: 14 }}>DE</div>
               <div style={{ marginBottom: 8 }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 0, lineHeight: 1 }}>
@@ -202,11 +208,14 @@ export default function InvoicePage() {
           </div>
 
           <div style={{ padding: "32px 52px 0" }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: "#9ca3af", letterSpacing: 2.5, textTransform: "uppercase", marginBottom: 16 }}>ARTICLES COMMANDÉS</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: "#9ca3af", letterSpacing: 2.5, textTransform: "uppercase" }}>ARTICLES COMMANDÉS</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#fff", background: "#3ecf4c", borderRadius: 99, padding: "1px 8px", lineHeight: 1.8 }}>{order.items.length}</div>
+            </div>
             <table>
               <thead>
                 <tr style={{ background: "#f9fafb" }}>
-                  {[["#","left","4%"],["Produit","left",""],["Qte","right","9%"],["Prix unitaire","right","17%"],["Total","right","17%"]].map(([h,a,w]) => (
+                  {[["#","left","4%"],["Produit","left",""],["Qté","right","9%"],["Prix unitaire","right","17%"],["Total","right","17%"]].map(([h,a,w]) => (
                     <th key={h as string} style={{ padding: "11px 14px", textAlign: a as "left"|"right", fontSize: 10, fontWeight: 700, color: "#9ca3af", letterSpacing: 1.5, textTransform: "uppercase", borderTop: "1px solid #f3f4f6", borderBottom: "1px solid #f3f4f6", width: w as string || undefined }}>
                       {h}
                     </th>
@@ -215,7 +224,7 @@ export default function InvoicePage() {
               </thead>
               <tbody>
                 {order.items.map((item: { id: string; name: string; price: number; qty: number; image: string; size?: string; color?: string }, idx: number) => (
-                  <tr key={idx} style={{ borderBottom: "1px solid #f9fafb" }}>
+                  <tr key={idx} style={{ borderBottom: "1px solid #f3f4f6", background: idx % 2 === 0 ? "#fff" : "#fafafa" }}>
                     <td style={{ padding: "18px 14px", color: "#d1d5db", fontWeight: 700, fontSize: 11 }}>{String(idx + 1).padStart(2, "0")}</td>
                     <td style={{ padding: "18px 14px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -260,13 +269,17 @@ export default function InvoicePage() {
                   }
                 </div>
               </div>
-              <div style={{ marginTop: 12, padding: "18px 22px", background: "#0c1a12", borderRadius: 12, display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", right: -20, top: -20, width: 80, height: 80, borderRadius: "50%", background: "rgba(74,222,128,0.12)" }} />
-                <div>
-                  <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, marginBottom: 3 }}>TOTAL À PAYER</div>
-                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>TTC</div>
+              <div style={{ marginTop: 12, padding: "20px 24px", background: "linear-gradient(135deg, #0c1a12 0%, #0f2618 100%)", borderRadius: 12, display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", overflow: "hidden", border: "1px solid rgba(74,222,128,0.15)" }}>
+                <div style={{ position: "absolute", right: -20, top: -20, width: 100, height: 100, borderRadius: "50%", background: "rgba(74,222,128,0.1)" }} />
+                <div style={{ position: "absolute", left: -10, bottom: -10, width: 60, height: 60, borderRadius: "50%", background: "rgba(74,222,128,0.05)" }} />
+                <div style={{ position: "relative" }}>
+                  <div style={{ fontSize: 8, color: "rgba(255,255,255,0.35)", letterSpacing: 2.5, textTransform: "uppercase", fontWeight: 700, marginBottom: 4 }}>TOTAL À PAYER</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>Toutes taxes comprises</div>
                 </div>
-                <div style={{ fontWeight: 900, fontSize: 22, color: "#4ade80", letterSpacing: "-0.5px" }}>{fmt(orderTotal)}</div>
+                <div style={{ textAlign: "right", position: "relative" }}>
+                  <div style={{ fontWeight: 900, fontSize: 26, color: "#4ade80", letterSpacing: "-1px", lineHeight: 1 }}>{fmt(orderTotal)}</div>
+                  <div style={{ fontSize: 9, color: "rgba(74,222,128,0.5)", marginTop: 3, letterSpacing: 1 }}>MAD · MAROC</div>
+                </div>
               </div>
             </div>
           </div>
@@ -278,7 +291,7 @@ export default function InvoicePage() {
             </div>
           )}
 
-          <div style={{ background: "#f9fafb", borderTop: "1px solid #f3f4f6", padding: "24px 52px" }}>
+          <div style={{ background: "linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%)", borderTop: "1px solid #e5e7eb", padding: "24px 52px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <div>
                 <div>
@@ -294,7 +307,7 @@ export default function InvoicePage() {
                 <div style={{ display: "flex", gap: 5, justifyContent: "center", marginBottom: 6 }}>
                   {["#4ade80","#86efac","#d1fae5"].map((c,i) => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: c }} />)}
                 </div>
-                <div style={{ fontSize: 11, color: "#9ca3af" }}>Merci pour votre confiance !</div>
+                <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 600 }}>Merci pour votre confiance !</div>
               </div>
               <div style={{ textAlign: "right" }}>
                 <div style={{ fontSize: 11, color: "#9ca3af" }}>Émise le {dateStr}</div>
