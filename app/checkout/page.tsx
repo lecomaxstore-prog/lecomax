@@ -31,8 +31,8 @@ function Input({
   onChange: (k: keyof Field, v: string) => void;
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-[11px] font-bold uppercase tracking-[0.1em] text-neutral-400">
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[10px] font-black uppercase tracking-[0.12em] text-neutral-400">
         {label}
       </label>
       <div className="relative">
@@ -46,12 +46,14 @@ function Input({
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(name, e.target.value)}
-          className={`w-full ${icon ? "pl-10" : "pl-4"} pr-4 py-3 text-sm border-0 border-b-2 bg-neutral-50 rounded-xl outline-none transition-all duration-200
-            focus:bg-white focus:shadow-[0_0_0_2px_rgba(0,0,0,0.08)] focus:border-b-black
-            ${error ? "border-b-red-400 bg-red-50/50" : "border-b-neutral-200 hover:border-b-[#3ecf4c] focus:border-b-[#3ecf4c]"}`}
+          className={`w-full ${icon ? "pl-10" : "pl-3.5"} pr-4 h-11 text-[13px] border outline-none transition-all duration-150
+            ${error
+              ? "border-red-300 bg-red-50/40 focus:border-red-400"
+              : "border-neutral-200 bg-white hover:border-neutral-300 focus:border-[#3ecf4c] focus:ring-2 focus:ring-[#3ecf4c]/10"
+            }`}
         />
         {error && (
-          <p className="mt-1 text-[10px] text-red-500 font-medium flex items-center gap-1" data-field-error="true">
+          <p className="mt-1 text-[10px] text-red-500 font-semibold flex items-center gap-1" data-field-error="true">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
             {error}
           </p>
@@ -63,19 +65,15 @@ function Input({
 
 function Section({ step, title, icon, children }: { step: number; title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "0 1px_4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)" }}>
-      {/* Green top accent per section */}
-      <div className="h-[3px]" style={{ background: "linear-gradient(90deg, #3ecf4c, #6bdd6b)" }} />
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-neutral-100">
-        <div className="w-9 h-9 rounded-full text-white flex items-center justify-center shrink-0 font-black text-[14px] shadow-sm" style={{ background: "#3ecf4c", color: "#000" }}>
+    <div className="bg-white border border-neutral-200" style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+      <div className="flex items-center gap-3.5 px-5 py-4 border-b border-neutral-100" style={{ borderLeft: "3px solid #3ecf4c" }}>
+        <div className="w-6 h-6 flex items-center justify-center shrink-0 font-black text-[11px]" style={{ background: "#3ecf4c", color: "#000" }}>
           {step}
         </div>
-        <div>
-          <h2 className="font-black text-[14px] uppercase tracking-[0.06em]">{title}</h2>
-        </div>
+        <h2 className="font-black text-[13px] uppercase tracking-[0.1em] text-neutral-800">{title}</h2>
         <div className="ml-auto text-neutral-300">{icon}</div>
       </div>
-      <div className="p-6">{children}</div>
+      <div className="p-5 sm:p-6">{children}</div>
     </div>
   );
 }
@@ -98,8 +96,7 @@ export default function CheckoutPage() {
   const [shippingRate, setShippingRate] = useState<number | null>(null);
   const siteSettings = useSettings();
 
-  // Desktop only: sticky stepper
-  const [stepperVisible] = useState(true);
+  // (stepper is static, no scroll logic needed)
 
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const paypalRendered = useRef(false);
@@ -142,7 +139,8 @@ export default function CheckoutPage() {
 
   const defaultShippingCost = Number(siteSettings.shipping_cost ?? 35);
   const defaultFreeAbove = Number(siteSettings.free_shipping_threshold ?? 500);
-  const shipping = shippingRate !== null ? shippingRate : (total >= defaultFreeAbove ? 0 : defaultShippingCost);
+  const isSidiBennour = form.ville.trim().toLowerCase().replace(/[-\s]/g, "") === "sidibennour";
+  const shipping = isSidiBennour ? 0 : (shippingRate !== null ? shippingRate : (total >= defaultFreeAbove ? 0 : defaultShippingCost));
   const couponDiscount = couponApplied?.discount ?? 0;
   // Loyalty discount applies on subtotal (after coupon); Silver 30%, Gold 50%
   const loyaltyDiscountAmount = loyaltyDiscountPct > 0 ? Math.round(((total - couponDiscount) * loyaltyDiscountPct) / 100) : 0;
@@ -372,9 +370,8 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f7f8]">
-      {/* ── Stepper bar ── sticky on desktop only ── */}
+      {/* ── Stepper bar ── */}
       <div
-        className="top-0 z-20 lg:sticky"
         style={{
           background: "rgba(255,255,255,0.97)",
           backdropFilter: "blur(12px)",
@@ -496,10 +493,10 @@ export default function CheckoutPage() {
                 {/* Country */}
                 <div>
                   <label className="text-[11px] font-bold uppercase tracking-[0.1em] text-neutral-400 block mb-1">Pays</label>
-                  <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 rounded-xl border-b-2 border-neutral-200">
+                  <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 border border-neutral-200">
                     <span className="text-base">🇲🇦</span>
-                    <span className="text-sm font-semibold text-neutral-600">Maroc</span>
-                    <span className="ml-auto text-[10px] text-neutral-400 uppercase tracking-wider font-bold bg-neutral-200 px-2 py-0.5 rounded-full">Uniquement</span>
+                    <span className="text-[13px] font-semibold text-neutral-600">Maroc</span>
+                    <span className="ml-auto text-[10px] text-neutral-400 uppercase tracking-wider font-bold">Uniquement</span>
                   </div>
                 </div>
               </div>
@@ -514,30 +511,36 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPayment("livraison")}
-                  className={`group relative flex items-center gap-4 p-5 rounded-2xl border-2 text-left transition-all duration-200 ${
+                  className={`group relative flex items-center gap-4 p-4 border-2 text-left transition-all duration-150 ${
                     payment === "livraison"
-                      ? "border-[#3ecf4c] text-black shadow-[0_8px_24px_rgba(62,207,76,0.25)]"
-                      : "border-neutral-200 bg-white hover:border-[#3ecf4c]/50 hover:shadow-md"
+                      ? "border-[#3ecf4c] text-black"
+                      : "border-neutral-200 bg-white hover:border-neutral-300"
                   }`}
                   style={payment === "livraison" ? { background: "#f0fdf4" } : {}}
                 >
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${payment === "livraison" ? "bg-[#3ecf4c]/20" : "bg-neutral-100"}`}>
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={payment === "livraison" ? "#16a34a" : "#111"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <div className={`w-11 h-11 flex items-center justify-center shrink-0 transition-colors ${
+                    payment === "livraison" ? "bg-[#3ecf4c]/15" : "bg-neutral-100"
+                  }`}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={payment === "livraison" ? "#16a34a" : "#555"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M17 9V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2m2 4h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm7-5a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-black text-[14px] text-black">Paiement à la livraison</p>
-                    <p className={`text-[12px] mt-1 leading-relaxed ${payment === "livraison" ? "text-neutral-500" : "text-neutral-400"}`}>Payez en espèces à la réception</p>
+                    <p className="font-black text-[13px] text-black">Paiement à la livraison</p>
+                    <p className={`text-[12px] mt-0.5 ${
+                      payment === "livraison" ? "text-neutral-500" : "text-neutral-400"
+                    }`}>Payez en espèces à la réception</p>
                     {payment === "livraison" && (
-                      <span className="inline-flex items-center gap-1.5 mt-2 text-[11px] font-bold" style={{ color: "#16a34a" }}>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold" style={{ color: "#16a34a" }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
                         Sélectionné
                       </span>
                     )}
                   </div>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${payment === "livraison" ? "border-[#3ecf4c]" : "border-neutral-300"}`}>
-                    {payment === "livraison" && <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#3ecf4c" }} />}
+                  <div className={`w-5 h-5 border-2 flex items-center justify-center shrink-0 rounded-full transition-all ${
+                    payment === "livraison" ? "border-[#3ecf4c]" : "border-neutral-300"
+                  }`}>
+                    {payment === "livraison" && <span className="w-2 h-2 rounded-full" style={{ background: "#3ecf4c" }} />}
                   </div>
                 </button>
 
@@ -545,49 +548,50 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPayment("paypal")}
-                  className={`group relative flex items-center gap-4 p-5 rounded-2xl border-2 text-left transition-all duration-200 ${
+                  className={`group relative flex items-center gap-4 p-4 border-2 text-left transition-all duration-150 ${
                     payment === "paypal"
-                      ? "border-[#0070ba] shadow-[0_8px_24px_rgba(0,112,186,0.2)]"
-                      : "border-neutral-200 bg-white hover:border-[#0070ba]/50 hover:shadow-md"
+                      ? "border-[#0070ba]"
+                      : "border-neutral-200 bg-white hover:border-neutral-300"
                   }`}
                   style={payment === "paypal" ? { background: "#f0f7ff" } : {}}
                 >
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${payment === "paypal" ? "bg-[#0070ba]/10" : "bg-neutral-100"}`}>
-                    {/* Official PayPal PP mark + wordmark */}
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 46" width="26" height="32">
+                  <div className={`w-11 h-11 flex items-center justify-center shrink-0 transition-colors ${
+                    payment === "paypal" ? "bg-[#0070ba]/10" : "bg-neutral-100"
+                  }`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 46" width="22" height="28">
                       <path fill="#253B80" d="M9.12 40.43l.72-4.56-1.6-.04H1.46L6.79 1.77A.43.43 0 0 1 7.22 1.4h12.9c4.28 0 7.23.89 8.77 2.65.72.82 1.18 1.68 1.4 2.63.23.99.24 2.18.01 3.63l-.02.1v.93l.72.41c.6.33 1.09.72 1.47 1.11.62.7 1.02 1.6 1.19 2.66.17 1.09.12 2.39-.17 3.86-.33 1.69-.86 3.16-1.58 4.37a8.98 8.98 0 0 1-2.51 2.83c-.95.7-2.09 1.22-3.37 1.57-1.25.34-2.67.51-4.23.51H21.3a3.03 3.03 0 0 0-2.99 2.56l-.07.41-1.46 9.27-.07.34a.43.43 0 0 1-.43.37H9.12z"/>
                       <path fill="#179BD7" d="M31.68 10.54a12.35 12.35 0 0 0-.13.76c-1.7 8.72-7.51 11.74-14.93 11.74H12.8c-.9 0-1.67.66-1.81 1.55L8.89 36.88l-.55 3.48a.97.97 0 0 0 .96 1.12h6.7c.79 0 1.47-.58 1.59-1.36l.07-.34 1.26-8.01.08-.44c.13-.78.8-1.36 1.59-1.36h1c6.5 0 11.59-2.64 13.07-10.27.62-3.19.3-5.85-1.8-7.73a6.44 6.44 0 0 0-1.18-.43z"/>
                       <path fill="#222D65" d="M29.95 9.82a16.93 16.93 0 0 0-1.65-.37 21.03 21.03 0 0 0-3.33-.25H14.63a1.61 1.61 0 0 0-1.59 1.36L11 22.55l-.06.4a1.84 1.84 0 0 1 1.81-1.55h3.79c7.42 0 13.23-3.02 14.93-11.74.05-.25.09-.5.13-.76a9.16 9.16 0 0 0-1.65-.08z"/>
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-black text-[14px] text-black">PayPal</p>
-                    <p className={`text-[12px] mt-1 leading-relaxed ${payment === "paypal" ? "text-neutral-500" : "text-neutral-400"}`}>Payer en ligne via votre compte PayPal</p>
+                    <p className="font-black text-[13px] text-black">PayPal</p>
+                    <p className={`text-[12px] mt-0.5 ${payment === "paypal" ? "text-neutral-500" : "text-neutral-400"}`}>Payer en ligne via votre compte PayPal</p>
                     {payment === "paypal" && (
-                      <span className="inline-flex items-center gap-1.5 mt-2 text-[11px] font-bold text-[#0070ba]">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-[#0070ba]">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
                         Sélectionné
                       </span>
                     )}
                   </div>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${payment === "paypal" ? "border-[#0070ba]" : "border-neutral-300"}`}>
-                    {payment === "paypal" && <span className="w-2.5 h-2.5 rounded-full bg-[#0070ba]" />}
+                  <div className={`w-5 h-5 border-2 flex items-center justify-center shrink-0 rounded-full transition-all ${payment === "paypal" ? "border-[#0070ba]" : "border-neutral-300"}`}>
+                    {payment === "paypal" && <span className="w-2 h-2 rounded-full bg-[#0070ba]" />}
                   </div>
                 </button>
 
                 {/* PayPal Buttons — shown when PayPal is selected */}
                 {payment === "paypal" && (
-                  <div className="rounded-2xl border-2 border-[#0070ba]/20 bg-[#f0f7ff] p-4">
+                  <div className="border border-[#0070ba]/20 bg-[#f0f7ff] p-4">
                     <p className="text-[11px] text-neutral-500 mb-3 text-center font-semibold uppercase tracking-wider">Remplissez le formulaire puis cliquez sur PayPal</p>
                     <div ref={paypalContainerRef} id="paypal-button-container" />
                   </div>
                 )}
 
                 {/* Trust banner */}
-                <div className="mt-1 rounded-2xl overflow-hidden border border-neutral-100">
-                  <div className="bg-neutral-50 px-4 py-3 flex items-center justify-center gap-1 border-b border-neutral-100">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    <span className="text-[11px] font-black uppercase tracking-widest text-green-700">Commande 100% sécurisée</span>
+                <div className="mt-1 border border-neutral-100 overflow-hidden">
+                  <div className="bg-neutral-50 px-4 py-2.5 flex items-center justify-center gap-1.5 border-b border-neutral-100">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-green-700">Commande 100% sécurisée</span>
                   </div>
                   <div className="grid grid-cols-3 divide-x divide-neutral-100">
                     {[
@@ -610,7 +614,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={loading}
-              className="lg:hidden w-full py-4 rounded-2xl font-black uppercase text-sm tracking-[0.1em] hover:opacity-90 transition-all duration-200 active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-3"
+              className="lg:hidden w-full py-4 font-black uppercase text-sm tracking-[0.1em] hover:opacity-90 transition-all duration-200 active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-3"
               style={{ background: "#000", color: "#fff", boxShadow: "0 4px 18px rgba(0,0,0,0.18)" }}
             >
               {loading ? (
@@ -624,13 +628,13 @@ export default function CheckoutPage() {
 
           {/* ── Right: Order summary ── */}
           <aside className="lg:sticky lg:top-[88px]">
-            <div className="bg-white rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.04)]">
+            <div className="bg-white border border-neutral-200" style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
 
               {/* Header */}
               <div className="px-5 pt-5 pb-4 border-b border-neutral-100">
                 <div className="flex items-center justify-between">
                   <h3 className="font-black text-[13px] uppercase tracking-[0.1em]">Votre commande</h3>
-                  <span className="text-[11px] font-bold text-neutral-400 bg-neutral-100 px-2.5 py-1 rounded-full">
+                  <span className="text-[10px] font-black text-neutral-500 bg-neutral-100 px-2.5 py-1">
                     {items.reduce((s, i) => s + i.quantity, 0)} article{items.reduce((s, i) => s + i.quantity, 0) !== 1 ? "s" : ""}
                   </span>
                 </div>
@@ -640,8 +644,8 @@ export default function CheckoutPage() {
               <ul className="divide-y divide-neutral-50 max-h-60 overflow-y-auto">
                 {items.map((item) => (
                   <li key={item.slug + item.size} className="flex items-center gap-3 px-5 py-3.5">
-                    <div className="relative w-14 h-16 rounded-xl overflow-visible bg-neutral-100 shrink-0 border border-neutral-100">
-                      <div className="w-full h-full rounded-xl overflow-hidden">
+                    <div className="relative w-14 h-16 overflow-visible bg-neutral-100 shrink-0 border border-neutral-100">
+                      <div className="w-full h-full overflow-hidden">
                         <Image src={item.image} alt={item.name} fill sizes="56px" className="object-cover" />
                       </div>
                       <span className="absolute -top-2 -right-2 w-5 h-5 bg-neutral-800 text-white text-[9px] font-black rounded-full flex items-center justify-center ring-2 ring-white shadow">
@@ -672,7 +676,7 @@ export default function CheckoutPage() {
                   </span>
                 </div>
                 {shipping > 0 && (
-                  <p className="text-[10px] text-neutral-400 bg-neutral-100 rounded-lg px-3 py-2">
+                  <p className="text-[10px] text-neutral-400 bg-neutral-100 px-3 py-2">
                     Livraison <strong>gratuite</strong> dès <strong>500 MAD</strong> d'achats
                   </p>
                 )}
@@ -697,7 +701,7 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={loading || payment === "paypal"}
-                  className={`hidden lg:flex w-full py-4 rounded-xl font-black uppercase text-sm tracking-[0.1em] hover:opacity-90 transition-all duration-200 active:scale-[0.99] disabled:opacity-60 items-center justify-center gap-2.5 ${
+                  className={`hidden lg:flex w-full py-4 font-black uppercase text-sm tracking-[0.1em] hover:opacity-90 transition-all duration-200 active:scale-[0.99] disabled:opacity-60 items-center justify-center gap-2.5 ${
                     payment === "paypal" ? "opacity-0 pointer-events-none" : ""
                   }`}
                   style={{ background: "#000", color: "#fff", boxShadow: "0 4px 18px rgba(0,0,0,0.18)" }}
