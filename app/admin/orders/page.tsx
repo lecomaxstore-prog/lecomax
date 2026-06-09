@@ -118,7 +118,7 @@ export default function OrdersPage() {
     const msgs: Record<string, string> = {
       confirmed: `Bonjour ${name},\n\nVotre commande *#${num}* chez L'ECOMAX a bien été *confirmée* !\n\nNous préparons votre colis et vous tiendrons informé(e) de l'expédition.\n\nMerci pour votre confiance !\nL'équipe L'ECOMAX`,
       shipped:   `Bonjour ${name},\n\nVotre commande *#${num}* a été *expédiée* !${tracking ? `\n\nNuméro de suivi : *${tracking}*` : ""}\n\nElle sera livrée dans les prochains jours.\n\nMerci !\nL'équipe L'ECOMAX`,
-      delivered: `Bonjour ${name},\n\nNous espérons que vous avez bien reçu votre commande *#${num}*. 🎉\n\nN'hésitez pas à nous laisser un avis !\n\nMerci et à bientôt !\nL'équipe L'ECOMAX`,
+      delivered: `Bonjour ${name} ! 🎉\n\nVotre commande a bien été livrée. Merci pour votre confiance !\n\n━━━━━━━━━━━━━━━━━━━━\n🧾 *FACTURE FAC-${num}*\n━━━━━━━━━━━━━━━━━━━━\n${(order.items ?? []).map((i: {name: string; price: number; qty: number; size?: string; color?: string}) => `• ${i.name}${i.color ? ` — ${i.color}` : ""}${i.size ? ` (${i.size})` : ""} × ${i.qty}  →  ${(i.price * i.qty).toFixed(2)} MAD`).join("\n")}\n━━━━━━━━━━━━━━━━━━━━\n💰 *Total payé : ${order.total?.toFixed ? order.total.toFixed(2) : order.total} MAD*${order.tracking_number ? `\n📦 Suivi : ${order.tracking_number}` : ""}\n━━━━━━━━━━━━━━━━━━━━\n\n🌟 Laissez-nous un avis sur lecomax.com\n\nL'équipe *L'ecomax* 🛍`,
       cancelled: `Bonjour ${name},\n\nNous vous informons que votre commande *#${num}* a été *annulée*.\n\nPour toute question, contactez-nous.\n\nL'équipe L'ECOMAX`,
     };
     return `https://wa.me/${wa}?text=${encodeURIComponent(msgs[type] ?? "")}`;
@@ -332,6 +332,11 @@ export default function OrdersPage() {
               <button onClick={() => window.open(`/admin/orders/vat-invoice?id=${detail.id}`, "_blank")}
                 className="p-2 border border-neutral-200 rounded-xl hover:border-black transition-colors" title="Facture TVA">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+              </button>
+              <button onClick={() => window.open(`/admin/orders/invoice?id=${detail.id}`, "_blank")}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-xl hover:bg-emerald-700 transition-colors" title="Facture Pro">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="8" y1="9" x2="10" y2="9"/></svg>
+                Facture Pro
               </button>
               <button onClick={() => router.replace("/admin/orders")}
                 className="p-2 border border-neutral-200 rounded-xl hover:border-black transition-colors" title="Fermer">
