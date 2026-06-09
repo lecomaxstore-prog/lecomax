@@ -209,10 +209,17 @@ export default function CartPage() {
                     <div className="min-w-0">
                       <Link href={`/produit/${i.slug}`} className="font-bold text-[13px] leading-snug hover:text-neutral-600 transition-colors line-clamp-2">{i.name}</Link>
                       <p className="text-[11px] text-neutral-400 mt-0.5 uppercase tracking-wide">Pointure : {i.size}</p>
-                      {/* Mobile: price + remove */}
-                      <div className="flex items-center gap-3 mt-2 md:hidden">
-                        <span className="text-[13px] font-black">{formatMAD(i.price)}</span>
-                        <button onClick={() => remove(i.slug, i.size)} className="text-[10px] text-neutral-400 hover:text-red-500 transition-colors font-bold uppercase tracking-wider">Retirer</button>
+                      {/* Mobile: qty stepper + price + remove */}
+                      <div className="flex items-center gap-3 mt-2.5 md:hidden">
+                        <div className="inline-flex border border-neutral-200 rounded-lg overflow-hidden">
+                          <button onClick={() => setQty(i.slug, i.size, i.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">−</button>
+                          <span className="w-9 h-8 flex items-center justify-center text-[13px] font-black border-x border-neutral-200">{i.quantity}</span>
+                          <button onClick={() => setQty(i.slug, i.size, i.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">+</button>
+                        </div>
+                        <span className="text-[13px] font-black">{formatMAD(i.price * i.quantity)}</span>
+                        <button onClick={() => remove(i.slug, i.size)} className="ml-auto text-neutral-300 hover:text-red-400 transition-colors" aria-label="Retirer">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
                       </div>
                     </div>
                     {/* Unit price (desktop) */}
