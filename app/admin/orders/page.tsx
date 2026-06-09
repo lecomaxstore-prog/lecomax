@@ -118,7 +118,7 @@ export default function OrdersPage() {
     const msgs: Record<string, string> = {
       confirmed: `Bonjour ${name},\n\nVotre commande *#${num}* chez L'ECOMAX a bien été *confirmée* !\n\nNous préparons votre colis et vous tiendrons informé(e) de l'expédition.\n\nMerci pour votre confiance !\nL'équipe L'ECOMAX`,
       shipped:   `Bonjour ${name},\n\nVotre commande *#${num}* a été *expédiée* !${tracking ? `\n\nNuméro de suivi : *${tracking}*` : ""}\n\nElle sera livrée dans les prochains jours.\n\nMerci !\nL'équipe L'ECOMAX`,
-      delivered: `Bonjour ${name} ! 🎉\n\nVotre commande a bien été livrée. Merci pour votre confiance !\n\n━━━━━━━━━━━━━━━━━━━━\n🧾 *FACTURE FAC-${num}*\n━━━━━━━━━━━━━━━━━━━━\n${(order.items ?? []).map((i: {name: string; price: number; qty: number; size?: string; color?: string}) => `• ${i.name}${i.color ? ` — ${i.color}` : ""}${i.size ? ` (${i.size})` : ""} × ${i.qty}  →  ${(i.price * i.qty).toFixed(2)} MAD`).join("\n")}\n━━━━━━━━━━━━━━━━━━━━\n💰 *Total payé : ${order.total?.toFixed ? order.total.toFixed(2) : order.total} MAD*${order.tracking_number ? `\n📦 Suivi : ${order.tracking_number}` : ""}\n━━━━━━━━━━━━━━━━━━━━\n\n🌟 Laissez-nous un avis sur lecomax.com\n\nL'équipe *L'ecomax* 🛍`,
+      delivered: `Bonjour ${name} ! 🎉\n\nVotre commande *#${num}* a bien été livrée !\n\n🧾 *Voir votre facture :*\nhttps://lecomax.com/facture/${order.id}\n\n(Enregistrez-la ou faites une capture d'écran)\n\nMerci pour votre confiance !\nL'équipe *L'ecomax* 🛍`,
       cancelled: `Bonjour ${name},\n\nNous vous informons que votre commande *#${num}* a été *annulée*.\n\nPour toute question, contactez-nous.\n\nL'équipe L'ECOMAX`,
     };
     return `https://wa.me/${wa}?text=${encodeURIComponent(msgs[type] ?? "")}`;
