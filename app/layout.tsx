@@ -36,8 +36,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   manifest: "/manifest.json",
   title: {
-    default: "L'ecomax | Chaussures, Vêtements & Accessoires Tech au Maroc",
-    template: "%s | L'ecomax Maroc",
+    default: "L'ecomax — Mode, Tech & Sport · Livraison partout au Maroc",
+    template: "%s · L'ecomax",
   },
   description:
     "L'ecomax — boutique en ligne au Maroc. Chaussures de sport, vêtements tendance, écouteurs sans fil, enceintes et accessoires gaming. Livraison partout au Maroc 35 MAD. Retours gratuits sous 30 jours. Paiement à la livraison.",
