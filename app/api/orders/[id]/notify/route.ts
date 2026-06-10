@@ -162,6 +162,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         : buildEmailHtml(body.type, name, orderNumber, items, total, tracking);
       const { error: emailError } = await resend.emails.send({
         from: "L'ecomax <noreply@lecomax.com>",
+        replyTo: "lecomaxstore@gmail.com",
         to: [email],
         subject: SUBJECTS[body.type],
         html,

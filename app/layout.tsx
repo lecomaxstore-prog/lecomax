@@ -223,8 +223,8 @@ export default function RootLayout({
           </AdminLayoutWrapper>
           <CookieBanner />
           <BackToTop />
-          <SpeedInsights />
-          <Analytics />
+          {process.env.NODE_ENV === "production" && <SpeedInsights />}
+          {process.env.NODE_ENV === "production" && <Analytics />}
         </CartProvider>
       </body>
     </html>

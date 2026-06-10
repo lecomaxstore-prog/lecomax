@@ -143,6 +143,7 @@ export async function POST(req: Request) {
   try {
     const { data, error } = await resend.emails.send({
       from: "LECOMAX <noreply@lecomax.com>",
+      replyTo: "lecomaxstore@gmail.com",
       to: [to_email],
       subject: `Votre commande ${order_number} est confirmee - LECOMAX`,
       html,

@@ -168,6 +168,7 @@ export async function POST(req: NextRequest) {
 
     resend.emails.send({
       from: "L'ecomax <noreply@lecomax.com>",
+      replyTo: "lecomaxstore@gmail.com",
       to: customer.email,
       subject: `🧾 Votre facture ${invoiceNumber} — L'ecomax`,
       html: `<!DOCTYPE html>
@@ -339,6 +340,7 @@ export async function POST(req: NextRequest) {
 
     resend.emails.send({
       from: "LECOMAX <noreply@lecomax.com>",
+      replyTo: "lecomaxstore@gmail.com",
       to: "lecomaxstore@gmail.com",
       subject: `🛒 Nouvelle commande ${order_number} — ${total.toFixed(0)} MAD`,
       html: `<!DOCTYPE html>
