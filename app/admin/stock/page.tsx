@@ -10,6 +10,7 @@ export default function StockPage() {
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
   const [stockInputs, setStockInputs] = useState<Record<string, string>>({});
+  const [colorInputs, setColorInputs] = useState<Record<string, Record<string, string>>>({});
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -37,7 +38,32 @@ export default function StockPage() {
       body: JSON.stringify({ stock: val }),
     });
     if (!res.ok) { const j = await res.json(); showToast("Erreur : " + (j.error ?? "inconnue"), false); }
-    else { showToast("Stock mis à jour ✓"); await load(); }
+    else { showToast("Stock total mis à jour ✓"); await load(); }
+    setUpdating(null);
+  }
+
+  async function updateColorStock(id: string, product: Product) {
+    const inputs = colorInputs[id] ?? {};
+    const existing: Record<string, number> = product.color_stock ?? {};
+    const merged: Record<string, number> = { ...existing };
+    let changed = false;
+    for (const [color, val] of Object.entries(inputs)) {
+      const n = parseInt(val);
+      if (!isNaN(n) && n >= 0) { merged[color] = n; changed = true; }
+    }
+    if (!changed) return;
+    setUpdating(id + "_color");
+    const res = await fetch(`/api/products/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ color_stock: merged }),
+    });
+    if (!res.ok) { const j = await res.json(); showToast("Erreur : " + (j.error ?? "inconnue"), false); }
+    else {
+      showToast("Stock couleurs mis à jour ✓");
+      setColorInputs((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      await load();
+    }
     setUpdating(null);
   }
 
@@ -75,7 +101,7 @@ export default function StockPage() {
       )}
 
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
         <div className="bg-red-50 border border-red-100 rounded-2xl px-5 py-4">
           <p className="text-xs text-red-400 uppercase tracking-wide font-semibold mb-1">Rupture de stock</p>
           <p className="text-3xl font-black text-red-600">{outOfStock.length}</p>
@@ -84,7 +110,7 @@ export default function StockPage() {
           <p className="text-xs text-orange-400 uppercase tracking-wide font-semibold mb-1">Stock faible (≤ {threshold})</p>
           <p className="text-3xl font-black text-orange-600">{lowStock.length}</p>
         </div>
-        <div className="bg-white border border-neutral-100 rounded-2xl px-5 py-4">
+        <div className="col-span-2 sm:col-span-1 bg-white border border-neutral-100 rounded-2xl px-5 py-4">
           <p className="text-xs text-neutral-400 uppercase tracking-wide font-semibold mb-1">Total produits actifs</p>
           <p className="text-3xl font-black">{products.filter((p) => p.active).length}</p>
         </div>
@@ -101,67 +127,10 @@ export default function StockPage() {
           <p className="text-sm text-emerald-500 mt-1">Aucun produit en dessous du seuil de {threshold} unités.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-neutral-100 text-xs text-neutral-400 uppercase tracking-wide">
-                <th className="text-left px-5 py-3">Produit</th>
-                <th className="text-center px-4 py-3">Stock actuel</th>
-                <th className="text-left px-4 py-3 hidden md:table-cell">Catégorie</th>
-                <th className="text-left px-4 py-3">Nouveau stock</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-50">
-              {allLow.map((p) => (
-                <tr key={p.id} className={p.stock === 0 ? "bg-red-50/50" : "hover:bg-neutral-50"}>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      {p.images?.[0] && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.images[0]} alt={p.name} className="w-9 h-9 object-cover rounded-lg bg-neutral-100 flex-shrink-0" />
-                      )}
-                      <div>
-                        <p className="font-semibold">{p.name}</p>
-                        <p className="text-neutral-400 text-xs">{p.price} MAD</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`text-xs font-black px-2.5 py-1 rounded-full ${
-                      p.stock === 0
-                        ? "bg-red-100 text-red-600"
-                        : p.stock <= 3
-                        ? "bg-orange-100 text-orange-600"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}>
-                      {p.stock === 0 ? "Épuisé" : `${p.stock} unités`}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 hidden md:table-cell text-neutral-500 text-xs capitalize">{p.category}</td>
-                  <td className="px-4 py-3">
-                    <input
-                      type="number"
-                      min={0}
-                      placeholder={String(p.stock)}
-                      value={stockInputs[p.id] ?? ""}
-                      onChange={(e) => setStockInputs((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                      className="w-24 border border-neutral-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-black"
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => updateStock(p.id)}
-                      disabled={updating === p.id || !stockInputs[p.id]}
-                      className="px-3 py-1.5 bg-black text-white text-xs font-bold rounded-xl hover:bg-neutral-800 transition-colors disabled:opacity-40"
-                    >
-                      {updating === p.id ? "…" : "Mettre à jour"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden divide-y divide-neutral-50">
+          {allLow.map((p) => (
+            <StockRow key={p.id} p={p} stockInputs={stockInputs} setStockInputs={setStockInputs} colorInputs={colorInputs} setColorInputs={setColorInputs} updating={updating} updateStock={updateStock} updateColorStock={updateColorStock} threshold={threshold} />
+          ))}
         </div>
       )}
 
@@ -171,72 +140,119 @@ export default function StockPage() {
         </Link>
       </div>
 
-      {/* All products stock table */}
+      {/* All products stock */}
       <div className="mt-8">
         <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">Tous les produits</h2>
-        <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-neutral-100 text-xs text-neutral-400 uppercase tracking-wide">
-                <th className="text-left px-5 py-3">Produit</th>
-                <th className="text-center px-4 py-3">Stock actuel</th>
-                <th className="text-left px-4 py-3 hidden md:table-cell">Catégorie</th>
-                <th className="text-left px-4 py-3">Nouveau stock</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-50">
-              {products.map((p) => (
-                <tr key={p.id} className={`${p.stock === 0 ? "bg-red-50/40" : p.stock <= threshold ? "bg-orange-50/40" : "hover:bg-neutral-50"} transition-colors`}>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      {p.images?.[0] && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.images[0]} alt={p.name} className="w-9 h-9 object-cover rounded-lg bg-neutral-100 flex-shrink-0" />
-                      )}
-                      <div>
-                        <p className="font-semibold">{p.name}</p>
-                        <p className="text-neutral-400 text-xs">{p.price} MAD</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`text-xs font-black px-2.5 py-1 rounded-full ${
-                      p.stock === 0
-                        ? "bg-red-100 text-red-600"
-                        : p.stock <= threshold
-                        ? "bg-orange-100 text-orange-600"
-                        : "bg-emerald-100 text-emerald-700"
-                    }`}>
-                      {p.stock === 0 ? "Épuisé" : `${p.stock}`}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 hidden md:table-cell text-neutral-500 text-xs capitalize">{p.category}</td>
-                  <td className="px-4 py-3">
-                    <input
-                      type="number"
-                      min={0}
-                      placeholder={String(p.stock)}
-                      value={stockInputs[p.id] ?? ""}
-                      onChange={(e) => setStockInputs((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                      onKeyDown={(e) => e.key === "Enter" && stockInputs[p.id] && updateStock(p.id)}
-                      className="w-24 border border-neutral-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-black"
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => updateStock(p.id)}
-                      disabled={updating === p.id || !stockInputs[p.id]}
-                      className="px-3 py-1.5 bg-black text-white text-xs font-bold rounded-xl hover:bg-neutral-800 transition-colors disabled:opacity-40"
-                    >
-                      {updating === p.id ? "…" : "Enregistrer"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden divide-y divide-neutral-50">
+          {products.map((p) => (
+            <StockRow key={p.id} p={p} stockInputs={stockInputs} setStockInputs={setStockInputs} colorInputs={colorInputs} setColorInputs={setColorInputs} updating={updating} updateStock={updateStock} updateColorStock={updateColorStock} threshold={threshold} />
+          ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function StockRow({
+  p, stockInputs, setStockInputs, colorInputs, setColorInputs, updating, updateStock, updateColorStock, threshold,
+}: {
+  p: Product;
+  stockInputs: Record<string, string>;
+  setStockInputs: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  colorInputs: Record<string, Record<string, string>>;
+  setColorInputs: React.Dispatch<React.SetStateAction<Record<string, Record<string, string>>>>;
+  updating: string | null;
+  updateStock: (id: string) => void;
+  updateColorStock: (id: string, product: Product) => void;
+  threshold: number;
+}) {
+  const stockBadgeCls =
+    p.stock === 0
+      ? "bg-red-100 text-red-600"
+      : p.stock <= threshold
+      ? "bg-orange-100 text-orange-600"
+      : "bg-emerald-100 text-emerald-700";
+
+  return (
+    <div className={`px-4 py-3.5 ${
+      p.stock === 0 ? "bg-red-50/40" : p.stock <= threshold ? "bg-orange-50/30" : ""
+    }`}>
+      {/* Top row: image + name + badge */}
+      <div className="flex items-center gap-3 mb-3">
+        {p.images?.[0] && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={p.images[0]} alt={p.name}
+            className="w-10 h-10 object-cover rounded-xl bg-neutral-100 flex-shrink-0" />
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-sm leading-snug line-clamp-2">{p.name}</p>
+          <p className="text-neutral-400 text-xs mt-0.5 capitalize">{p.price} MAD · {p.category}</p>
+        </div>
+        <span className={`text-[11px] font-black px-2.5 py-1 rounded-full whitespace-nowrap shrink-0 ${stockBadgeCls}`}>
+          {p.stock === 0 ? "Épuisé" : `${p.stock}`}
+        </span>
+      </div>
+      {/* Per-color stock inputs */}
+      {p.colors && p.colors.length > 0 && (
+        <div className="mb-3 space-y-2">
+          <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Stock par couleur</p>
+          {p.colors.map((color) => {
+            const saved = p.color_stock?.[color] ?? null;
+            const inputVal = colorInputs[p.id]?.[color] ?? "";
+            return (
+              <div key={color} className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-neutral-600 w-20 shrink-0 truncate">{color}</span>
+                <input
+                  type="number"
+                  min={0}
+                  placeholder={saved !== null ? `Actuel: ${saved}` : "Non défini"}
+                  value={inputVal}
+                  onChange={(e) =>
+                    setColorInputs((prev) => ({
+                      ...prev,
+                      [p.id]: { ...prev[p.id], [color]: e.target.value },
+                    }))
+                  }
+                  className="flex-1 border border-neutral-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-black"
+                />
+                {saved !== null && (
+                  <span className="text-[11px] text-neutral-400 shrink-0">= {saved}</span>
+                )}
+              </div>
+            );
+          })}
+          <button
+            onClick={() => updateColorStock(p.id, p)}
+            disabled={updating === p.id + "_color" || !colorInputs[p.id] || Object.values(colorInputs[p.id] ?? {}).every((v) => v === "")}
+            className="w-full mt-1 px-4 py-2 bg-neutral-800 text-white text-xs font-bold rounded-xl hover:bg-black transition-colors disabled:opacity-40"
+          >
+            {updating === p.id + "_color"
+              ? <svg className="animate-spin mx-auto" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 11-18 0"/></svg>
+              : "Enregistrer les stocks couleurs"}
+          </button>
+        </div>
+      )}
+
+      {/* Bottom row: total stock input + button */}
+      <div className="flex items-center gap-2">
+        <input
+          type="number"
+          min={0}
+          placeholder={`Stock total (actuel: ${p.stock})`}
+          value={stockInputs[p.id] ?? ""}
+          onChange={(e) => setStockInputs((prev) => ({ ...prev, [p.id]: e.target.value }))}
+          onKeyDown={(e) => e.key === "Enter" && stockInputs[p.id] && updateStock(p.id)}
+          className="flex-1 border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black"
+        />
+        <button
+          onClick={() => updateStock(p.id)}
+          disabled={updating === p.id || !stockInputs[p.id]}
+          className="px-4 py-2 bg-black text-white text-xs font-bold rounded-xl hover:bg-neutral-800 transition-colors disabled:opacity-40 whitespace-nowrap shrink-0"
+        >
+          {updating === p.id
+            ? <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 11-18 0"/></svg>
+            : "Stock total"}
+        </button>
       </div>
     </div>
   );

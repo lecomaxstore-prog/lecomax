@@ -111,13 +111,24 @@ export async function POST(req: NextRequest) {
     if (item.slug) {
       supabase
         .from("products")
-        .select("stock, slug")
+        .select("stock, color_stock, slug")
         .eq("slug", item.slug)
         .single()
         .then(({ data: prod }) => {
           if (prod && typeof prod.stock === "number") {
             const newStock = Math.max(0, prod.stock - item.qty);
-            supabase.from("products").update({ stock: newStock }).eq("slug", item.slug).then(() => {});
+            const updates: Record<string, unknown> = { stock: newStock };
+
+            // Also decrement color-specific stock if applicable
+            if (item.color && prod.color_stock && typeof prod.color_stock === "object") {
+              const cs = prod.color_stock as Record<string, number>;
+              if (typeof cs[item.color] === "number") {
+                const newColorStock = { ...cs, [item.color]: Math.max(0, cs[item.color] - item.qty) };
+                updates.color_stock = newColorStock;
+              }
+            }
+
+            supabase.from("products").update(updates).eq("slug", item.slug).then(() => {});
           }
         });
     }

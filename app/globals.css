@@ -28,6 +28,32 @@ body {
   line-height: 0.92;
 }
 
+/* Mobile drawer scroll — hide scrollbar */
+.drawer-scroll::-webkit-scrollbar { display: none; }
+
+/* Search overlay responsive visibility */
+@media (min-width: 768px) { .so-mobile  { display: none !important; } }
+@media (max-width: 767px)  { .so-desktop { display: none !important; } }
+@keyframes _spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Mobile drawer stagger animations */
+@keyframes drawerFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes drawerFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.drawer-item {
+  opacity: 0;
+  animation: drawerFadeUp 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.drawer-bg {
+  opacity: 0;
+  animation: drawerFadeIn 0.25s ease forwards;
+}
+
 /* Section label — small eyebrow text used across pages */
 .label-eyebrow {
   font-size: 11px;

@@ -26,6 +26,8 @@ export type Product = {
   stock: number;
   active: boolean;
   created_at: string;
+  colors?: string[];
+  color_stock?: Record<string, number> | null;
 };
 
 export type Order = {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useCart } from "./CartContext";
 import { categories } from "@/lib/products";
 import Logo from "./Logo";
@@ -167,90 +167,162 @@ export default function Header() {
       {/* ── Mobile full-screen menu ───────────────────────────────── */}
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] md:hidden transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className={`fixed inset-0 z-[9998] md:hidden transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
         onClick={() => setOpen(false)}
       />
 
       {/* Slide-in panel */}
       <div
-        className={`fixed top-0 left-0 h-full w-[85vw] max-w-[340px] z-[9999] md:hidden flex flex-col transition-transform duration-300 ease-in-out ${open ? "translate-x-0" : "-translate-x-full"}`}
-        style={{ background: "#ffffff" }}
+        className={`fixed top-0 left-0 h-full w-[88vw] max-w-[360px] z-[9999] md:hidden flex flex-col ${open ? "translate-x-0" : "-translate-x-full"}`}
+        style={{ background: "#fff", transition: "transform 0.38s cubic-bezier(0.22, 1, 0.36, 1)" }}
       >
-        {/* Panel header */}
-        <div className="flex items-center justify-between px-5 h-[64px] border-b border-neutral-100">
+        {/* ── Header ── */}
+        <div className={`flex items-center justify-between px-5 h-[60px] shrink-0 ${open ? "drawer-item" : ""}`}
+          style={{ borderBottom: "1.5px solid #f0f0f0", animationDelay: "20ms" }}>
           <Link href="/" onClick={() => setOpen(false)}>
             <Logo />
           </Link>
           <button
             aria-label="Fermer"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-1.5 text-neutral-400 hover:text-black transition-colors"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 active:bg-neutral-100 transition-colors"
           >
-            <span className="text-[11px] font-bold uppercase tracking-wider">Fermer</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <path d="M18 6 6 18M6 6l12 12"/>
             </svg>
           </button>
         </div>
 
-        {/* Nav links */}
-        <nav className="flex flex-col flex-1 overflow-y-auto px-5 pt-6 pb-4">
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-300 mb-4">Catégories</p>
-          {categories.map((c, i) => (
-            <Link
-              key={c.slug}
-              href={`/${c.slug}`}
-              onClick={() => setOpen(false)}
-              className="group flex items-center justify-between py-3.5 border-b border-neutral-100 last:border-0"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] font-black text-neutral-300 w-4 tabular-nums">0{i + 1}</span>
-                <span className="text-[20px] font-black uppercase tracking-tight text-black group-hover:text-[#3ecf4c] transition-colors duration-200">{c.label}</span>
-              </div>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-neutral-300 group-hover:text-[#3ecf4c] group-hover:translate-x-1 transition-all duration-200">
-                <path d="M9 18l6-6-6-6"/>
-              </svg>
-            </Link>
-          ))}
+        {/* ── Scrollable body wrapper (fade mask at bottom) ── */}
+        <div className="flex-1 relative min-h-0">
+          {/* Bottom fade-out hint */}
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10" style={{ height: 48, background: "linear-gradient(to top, #fff 0%, transparent 100%)" }} />
 
-          {/* Promotions */}
-          <Link
-            href="/promotions"
-            onClick={() => setOpen(false)}
-            className="group flex items-center justify-between py-4 mt-4 rounded-xl px-4 bg-red-600 border border-red-600 active:bg-red-700 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <span className="relative flex h-2 w-2 shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-60" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
-              </span>
-              <span className="text-[20px] font-black uppercase tracking-tight text-white">Promotions</span>
-            </div>
-            <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center group-active:bg-white/30 transition-colors">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M9 18l6-6-6-6"/>
+        {/* Scrollable body */}
+        <div className="h-full overflow-y-auto drawer-scroll" key={open ? "open" : "closed"}
+          style={{
+            WebkitOverflowScrolling: "touch",
+            overscrollBehaviorY: "contain",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          } as React.CSSProperties}>
+
+          {/* Account quick-access */}
+          <Link href={isLoggedIn ? "/compte" : "/connexion"} onClick={() => setOpen(false)}
+            className={`flex items-center gap-3 mx-4 mt-4 px-4 py-3.5 rounded-2xl active:opacity-80 transition-opacity ${open ? "drawer-item" : ""}`}
+            style={{ background: "linear-gradient(135deg,#3ecf4c15,#3ecf4c08)", border: "1.5px solid #3ecf4c30", animationDelay: "60ms" }}>
+            <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: "#3ecf4c20" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>
               </svg>
             </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-bold text-black">{isLoggedIn ? "Mon compte" : "Se connecter"}</p>
+              <p className="text-[11px] text-neutral-400">{isLoggedIn ? "Commandes & profil" : "Créer un compte gratuit"}</p>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
           </Link>
-        </nav>
 
-        {/* Bottom section */}
-        <div className="px-5 pb-8 pt-4 border-t border-neutral-100">
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-300 mb-3">Liens utiles</p>
-          <div className="grid grid-cols-2 gap-2">
-            {utilLinks.map((u) => (
-              <Link
-                key={u.label}
-                href={u.href}
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 px-3 py-3 rounded-xl border border-neutral-100 hover:border-[#3ecf4c]/50 hover:bg-[#3ecf4c]/5 transition-all"
-              >
-                <span className="text-neutral-400 shrink-0">{u.icon}</span>
-                <span className="text-[11px] font-bold uppercase tracking-wide leading-tight text-neutral-600">{u.label}</span>
+          {/* ── Nav rows ── */}
+          <div className={`mt-4 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "110ms" }}>
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-neutral-300 mb-1 px-5">Catégories</p>
+            {([
+              { slug: "homme",       label: "Homme",       sub: "Vestes, Pulls & Sport",     img: "/images/menu%20category/homme.png" },
+              { slug: "femme",       label: "Femme",        sub: "Mode, Robes & Lifestyle",  img: "/images/menu%20category/femme.png" },
+              { slug: "chaussures",  label: "Chaussures",   sub: "Running, Sneakers & Style", img: "/images/menu%20category/chaussures.png" },
+              { slug: "accessoires", label: "Accessoires",  sub: "Tech, Audio & Sacs",        img: "/images/menu%20category/accessoires.png" },
+            ] as { slug:string; label:string; sub:string; img:string }[]).map((c, i, arr) => (
+              <Link key={c.slug} href={`/${c.slug}`} onClick={() => setOpen(false)}
+                className={`flex items-center gap-4 px-5 py-2.5 active:bg-neutral-50 transition-colors ${open ? "drawer-item" : ""}`}
+                style={{ borderBottom: i < arr.length - 1 ? "1px solid #f3f3f3" : "none", animationDelay: `${140 + i * 55}ms` }}>
+                {/* Category photo */}
+                <div className="w-14 h-14 rounded-2xl overflow-hidden shrink-0 bg-neutral-100">
+                  <img src={c.img} alt={c.label}
+                    className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[16px] font-black text-black leading-snug">{c.label}</p>
+                  <p className="text-[11px] text-neutral-400 leading-snug">{c.sub}</p>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
               </Link>
             ))}
           </div>
-          <p className="text-[10px] text-neutral-300 text-center mt-5 tracking-widest uppercase">L&apos;ecomax © 2026</p>
+
+          {/* ── Promotions + Nouveautés photo banners ── */}
+          <div className={`px-4 mt-3 grid grid-cols-2 gap-2.5 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "380ms" }}>
+            {/* Nouveautés */}
+            <Link href="/nouveautes" onClick={() => setOpen(false)}
+              className="relative overflow-hidden rounded-2xl active:opacity-90 transition-opacity"
+              style={{ height: 130 }}>
+              <img src="/images/menu%20category/nouveautes.png"
+                alt="Nouveautés" className="absolute inset-0 w-full h-full object-cover object-top" />
+              {/* gradient overlay */}
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%)" }} />
+              <div className="absolute bottom-0 left-0 right-0 p-3">
+                <p className="text-[13px] font-black text-white leading-tight">Nouveautés</p>
+                <p className="text-[10px] text-white/70 leading-tight mt-0.5">Voir tout →</p>
+              </div>
+            </Link>
+
+            {/* Promotions */}
+            <Link href="/promotions" onClick={() => setOpen(false)}
+              className="relative overflow-hidden rounded-2xl active:opacity-90 transition-opacity"
+              style={{ height: 130 }}>
+              <img src="/images/menu%20category/promotions.png"
+                alt="Promotions" className="absolute inset-0 w-full h-full object-cover object-center" />
+              {/* gradient overlay */}
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.1) 60%)" }} />
+              {/* live badge */}
+              <div className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"/>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"/>
+                </span>
+                <span className="text-[9px] font-black text-white uppercase tracking-wide">Live</span>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-3">
+                <p className="text-[13px] font-black text-white leading-tight">Promotions</p>
+                <p className="text-[10px] text-white/70 leading-tight mt-0.5">Offres en cours →</p>
+              </div>
+            </Link>
+          </div>
+
+          {/* ── Useful links ── */}
+          <div className={`px-4 mt-4 mb-6 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "440ms" }}>
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-neutral-300 mb-2 px-1">Aide & Services</p>
+            <div className="grid grid-cols-2 gap-2">
+              {utilLinks.map((u) => (
+                <Link key={u.label} href={u.href} onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl active:bg-neutral-50 transition-colors"
+                  style={{ border: "1.5px solid #f0f0f0" }}>
+                  <span className="text-neutral-400 shrink-0">{u.icon}</span>
+                  <span className="text-[12px] font-bold text-neutral-600 leading-tight">{u.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+        </div>
+
+        {/* ── Footer ── */}
+        <div className="shrink-0 px-5 py-3.5 flex items-center justify-between" style={{ borderTop: "1.5px solid #f0f0f0" }}>
+          <p className="text-[10px] text-neutral-300 tracking-widest uppercase">L&apos;ecomax &copy; 2026</p>
+          <div className="flex items-center gap-3">
+            <Link href="/nous-contacter" onClick={() => setOpen(false)}
+              className="text-[10px] font-bold text-neutral-400 active:text-black transition-colors uppercase tracking-wide">
+              Contact
+            </Link>
+            <Link href="/aide" onClick={() => setOpen(false)}
+              className="text-[10px] font-bold text-neutral-400 active:text-black transition-colors uppercase tracking-wide">
+              Aide
+            </Link>
+          </div>
         </div>
       </div>
       {/* Search overlay */}

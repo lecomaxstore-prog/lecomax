@@ -13,17 +13,39 @@ import ProductAccordion from "@/components/ProductAccordion";
 
 export const dynamic = "force-dynamic";
 
+const PRODUCT_SITE_URL = "https://lecomax.com";
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const product = getProduct(slug);
   if (product) {
+    const name = product.displayName ?? product.name;
+    const desc = product.description
+      ? product.description.slice(0, 155) + (product.description.length > 155 ? "…" : "")
+      : `Achetez ${name} sur L'ecomax. Livraison 35 MAD partout au Maroc.`;
+    const imgUrl = product.image
+      ? product.image.startsWith("http")
+        ? product.image
+        : `${PRODUCT_SITE_URL}${product.image}`
+      : `${PRODUCT_SITE_URL}/ecomax-hero-banner.jpg.png`;
     return {
-      title: `${product.displayName ?? product.name} | L'ecomax`,
-      description: product.description?.slice(0, 155) ?? `Achetez ${product.name} sur L'ecomax.`,
+      title: `${name} | L'ecomax`,
+      description: desc,
+      keywords: [name, product.category, "L'ecomax", "acheter Maroc", "livraison Maroc"],
+      alternates: { canonical: `/produit/${slug}` },
       openGraph: {
-        title: product.displayName ?? product.name,
-        description: product.description?.slice(0, 155),
-        images: product.image ? [{ url: product.image }] : [],
+        type: "website",
+        locale: "fr_MA",
+        url: `${PRODUCT_SITE_URL}/produit/${slug}`,
+        title: name,
+        description: desc,
+        images: [{ url: imgUrl, width: 800, height: 800, alt: name }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${name} | L'ecomax`,
+        description: desc,
+        images: [imgUrl],
       },
     };
   }
@@ -33,13 +55,30 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const dbProd = await getDb(slug);
     if (dbProd) {
       const img = (dbProd.images ?? [])[0];
+      const imgUrl = img
+        ? img.startsWith("http") ? img : `${PRODUCT_SITE_URL}${img}`
+        : `${PRODUCT_SITE_URL}/ecomax-hero-banner.jpg.png`;
+      const desc = dbProd.description
+        ? dbProd.description.slice(0, 155) + (dbProd.description.length > 155 ? "…" : "")
+        : `Achetez ${dbProd.name} sur L'ecomax. Livraison 35 MAD partout au Maroc.`;
       return {
         title: `${dbProd.name} | L'ecomax`,
-        description: dbProd.description?.slice(0, 155) ?? `Achetez ${dbProd.name} sur L'ecomax.`,
+        description: desc,
+        keywords: [dbProd.name, dbProd.category, "L'ecomax", "acheter Maroc", "livraison Maroc"],
+        alternates: { canonical: `/produit/${slug}` },
         openGraph: {
+          type: "website",
+          locale: "fr_MA",
+          url: `${PRODUCT_SITE_URL}/produit/${slug}`,
           title: dbProd.name,
-          description: dbProd.description?.slice(0, 155),
-          images: img ? [{ url: img }] : [],
+          description: desc,
+          images: [{ url: imgUrl, width: 800, height: 800, alt: dbProd.name }],
+        },
+        twitter: {
+          card: "summary_large_image",
+          title: `${dbProd.name} | L'ecomax`,
+          description: desc,
+          images: [imgUrl],
         },
       };
     }
@@ -247,6 +286,28 @@ export default async function ProductPage({
   const displayRating = reviewCount > 0 ? reviewRating : ratingFor(slug).rating;
   const displayReviewCount = reviewCount > 0 ? reviewCount : ratingFor(slug).count;
 
+  // Fetch color_stock from DB and compute out-of-stock colors
+  try {
+    const { createClient: createClient2 } = await import("@supabase/supabase-js");
+    const supa2 = createClient2(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const { data: stockData } = await supa2
+      .from("products")
+      .select("color_stock")
+      .eq("slug", slug)
+      .single();
+    if (stockData?.color_stock && typeof stockData.color_stock === "object") {
+      const cs = stockData.color_stock as Record<string, number>;
+      const dbOos = Object.entries(cs).filter(([, qty]) => qty === 0).map(([color]) => color);
+      if (dbOos.length > 0) {
+        const existing = product.outOfStockColors ?? [];
+        product = { ...product, outOfStockColors: [...new Set([...existing, ...dbOos])] };
+      }
+    }
+  } catch { /* non-critical */ }
+
   const SITE_URL = "https://lecomax.com";
   const onSale = !!(product.oldPrice && product.oldPrice > product.price);
   const discount = onSale
@@ -254,12 +315,17 @@ export default async function ProductPage({
     : undefined;
 
   // Product structured data (schema.org)
+  const productImgUrl = product.image
+    ? product.image.startsWith("http") ? product.image : `${SITE_URL}${product.image.startsWith("/") ? "" : "/"}${product.image}`
+    : undefined;
+
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.displayName ?? product.name,
     "description": product.description ?? `Achetez ${product.name} sur L'ecomax.`,
-    ...(product.image ? { "image": `${SITE_URL}${product.image.startsWith('/') ? '' : '/'}${product.image}` } : {}),
+    ...(productImgUrl ? { "image": productImgUrl } : {}),
+    "sku": product.slug,
     "brand": { "@type": "Brand", "name": "L'ecomax" },
     "offers": {
       "@type": "Offer",
@@ -267,7 +333,8 @@ export default async function ProductPage({
       "priceCurrency": "MAD",
       "availability": "https://schema.org/InStock",
       "url": `${SITE_URL}/produit/${product.slug}`,
-      "seller": { "@type": "Organization", "name": "L'ecomax" },
+      "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split("T")[0],
+      "seller": { "@type": "Organization", "name": "L'ecomax", "url": SITE_URL },
     },
     "aggregateRating": {
       "@type": "AggregateRating",
@@ -276,6 +343,16 @@ export default async function ProductPage({
       "bestRating": 5,
       "worstRating": 1,
     },
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Accueil", "item": SITE_URL },
+      { "@type": "ListItem", "position": 2, "name": product.category.charAt(0).toUpperCase() + product.category.slice(1), "item": `${SITE_URL}/${product.category}` },
+      { "@type": "ListItem", "position": 3, "name": product.displayName ?? product.name, "item": `${SITE_URL}/produit/${product.slug}` },
+    ],
   };
   const features = getFeatures(product.subCategory);
   const related = products
@@ -294,6 +371,8 @@ export default async function ProductPage({
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
       {/* Product JSON-LD */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
+      {/* BreadcrumbList JSON-LD */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-[12px] text-neutral-400 mb-6 flex-wrap">

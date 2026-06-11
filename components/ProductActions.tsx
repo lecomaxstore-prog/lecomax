@@ -6,6 +6,7 @@ import { useCart } from "./CartContext";
 import { useProductColor } from "./ProductColorContext";
 import SizeGuideModal from "./SizeGuideModal";
 import type { Product } from "@/lib/products";
+import { trackAddToCart } from "@/lib/analytics";
 
 const colorMap: Record<string, string> = {
   "Noir": "#0a0a0a", "Blanc": "#f5f5f5", "Blanc casse": "#fafaf5",
@@ -52,6 +53,19 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const [size, setSize] = useState<string | null>(
     (product.sizes ?? []).length === 1 && product.sizes[0] === "Taille unique" ? "Taille unique" : null
   );
+
+  // Fire view_item once when product page mounts
+  useEffect(() => {
+    import("@/lib/analytics").then(({ trackViewItem }) => {
+      trackViewItem({
+        item_id: product.slug,
+        item_name: product.name,
+        item_category: product.category,
+        price: product.price,
+      });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.slug]);
   const [error, setError] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
@@ -77,6 +91,14 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
     }
     setError(null);
     add(product, size, 1, color);
+    trackAddToCart({
+      item_id: product.slug,
+      item_name: product.name,
+      item_category: product.category,
+      price: product.price,
+      quantity: 1,
+      item_variant: [color, size].filter(Boolean).join(" / ") || undefined,
+    });
     if (goToCart) {
       router.push("/checkout");
     } else {

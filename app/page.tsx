@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import HeroBanner from "@/components/HeroBanner";
 import CategoryTiles from "@/components/CategoryTiles";
@@ -12,6 +13,10 @@ const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
 import { products as staticProducts, type CardProduct } from "@/lib/products";
 import { getDbProducts } from "@/lib/db-server";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export const revalidate = 60; // ISR — revalidate every 60 seconds
 

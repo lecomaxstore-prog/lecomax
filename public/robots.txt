@@ -6,6 +6,13 @@ Disallow: /checkout
 Disallow: /panier
 Disallow: /compte/
 Disallow: /merci
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /facture
+Disallow: /maintenance
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
 
 Sitemap: https://lecomax.com/sitemap.xml
 Host: https://lecomax.com

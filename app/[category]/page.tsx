@@ -1,4 +1,5 @@
 ﻿import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -11,6 +12,65 @@ import { getDbProducts } from "@/lib/db-server";
 import CategoryFilters from "@/components/CategoryFilters";
 
 const valid = new Set(categories.map((c) => c.slug));
+
+const SITE_URL = "https://lecomax.com";
+
+const categoryMeta: Record<string, { title: string; description: string; keywords: string[] }> = {
+  homme: {
+    title: "Vêtements Homme | L'ecomax — Maroc",
+    description: "Collection vêtements homme au Maroc : vestes, bombers, sweats et hoodies tendance. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
+    keywords: ["vêtements homme Maroc", "veste homme Maroc", "bomber homme Maroc", "sweat hoodie homme", "mode homme Maroc"],
+  },
+  femme: {
+    title: "Vêtements Femme | L'ecomax — Maroc",
+    description: "Collection vêtements femme au Maroc : vestes, bombers et hoodies tendance. Style et confort au quotidien. Livraison 35 MAD. Paiement à la livraison.",
+    keywords: ["vêtements femme Maroc", "veste femme Maroc", "bomber femme Maroc", "mode femme Maroc", "sweat femme Maroc"],
+  },
+  chaussures: {
+    title: "Chaussures Sport & Lifestyle | L'ecomax — Maroc",
+    description: "Chaussures running, trail et lifestyle au Maroc. Nike, Adidas et marques premium. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
+    keywords: ["chaussures sport Maroc", "chaussures running Maroc", "baskets Maroc", "chaussures lifestyle Maroc", "sneakers Maroc"],
+  },
+  accessoires: {
+    title: "Accessoires Tech & Gaming | L'ecomax — Maroc",
+    description: "Accessoires tech au Maroc : manettes gaming, écouteurs sans fil, sacs à dos et plus. Livraison 35 MAD. Paiement à la livraison.",
+    keywords: ["accessoires tech Maroc", "manette gaming Maroc", "écouteurs sans fil Maroc", "sac à dos Maroc", "enceinte bluetooth Maroc"],
+  },
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}): Promise<Metadata> {
+  const { category } = await params;
+  const cat = categories.find((c) => c.slug === category);
+  if (!cat) return {};
+  const meta = categoryMeta[category] ?? {
+    title: `${cat.label} | L'ecomax`,
+    description: cat.description,
+    keywords: [],
+  };
+  return {
+    title: meta.title,
+    description: meta.description,
+    keywords: meta.keywords,
+    alternates: { canonical: `/${category}` },
+    openGraph: {
+      type: "website",
+      locale: "fr_MA",
+      url: `${SITE_URL}/${category}`,
+      title: meta.title,
+      description: meta.description,
+      images: [{ url: `${SITE_URL}${cat.hero}`, width: 1200, height: 630, alt: cat.label }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: meta.title,
+      description: meta.description,
+    },
+  };
+}
 
 export function generateStaticParams() {
   return categories.map((c) => ({ category: c.slug }));

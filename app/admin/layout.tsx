@@ -25,6 +25,15 @@ const nav = [
     ),
   },
   {
+    label: "Enregistrements",
+    href: "/admin/recordings",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
+      </svg>
+    ),
+  },
+  {
     label: "Produits",
     href: "/admin/products",
     icon: (
@@ -173,7 +182,7 @@ const nav = [
 ];
 
 const navSections: { title: string; hrefs: string[] }[] = [
-  { title: "VENTES",     hrefs: ["/admin/dashboard", "/admin/analytics", "/admin/orders", "/admin/customers"] },
+  { title: "VENTES",     hrefs: ["/admin/dashboard", "/admin/analytics", "/admin/recordings", "/admin/orders", "/admin/customers"] },
   { title: "CATALOGUE",  hrefs: ["/admin/products", "/admin/categories", "/admin/stock"] },
   { title: "MARKETING",  hrefs: ["/admin/promotions", "/admin/newsletter", "/admin/coupons", "/admin/announcement"] },
   { title: "SAV",        hrefs: ["/admin/messages", "/admin/reviews", "/admin/returns"] },
@@ -183,7 +192,7 @@ const navSections: { title: string; hrefs: string[] }[] = [
 
 // Page label map
 const pageLabels: Record<string, string> = {
-  dashboard: "Tableau de bord", analytics: "Analytiques", orders: "Commandes",
+  dashboard: "Tableau de bord", analytics: "Analytiques", recordings: "Enregistrements", orders: "Commandes",
   customers: "Clients", products: "Produits", categories: "Catégories",
   stock: "Stock", promotions: "Promotions", newsletter: "Newsletter",
   coupons: "Codes promo", announcement: "Annonce", messages: "Messages",

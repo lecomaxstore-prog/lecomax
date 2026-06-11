@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 import { useSettings } from "@/lib/use-settings";
+import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
 
 type Field = {
   prenom: string; nom: string; email: string; telephone: string;
@@ -192,6 +193,23 @@ export default function CheckoutPage() {
       })
       .catch(() => {});
   }, [total]);
+
+  // Fire begin_checkout once when user lands on checkout with items
+  useEffect(() => {
+    if (items.length === 0) return;
+    trackBeginCheckout(
+      items.map((i) => ({
+        item_id: i.slug,
+        item_name: i.name,
+        item_category: "",
+        price: i.price,
+        quantity: i.quantity,
+        item_variant: [i.color, i.size].filter(Boolean).join(" / ") || undefined,
+      })),
+      total
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fetch EcoClub tier to apply automatic loyalty discount
   useEffect(() => {
@@ -403,6 +421,20 @@ export default function CheckoutPage() {
         "lecomax_last_order",
         JSON.stringify({ number, items, total: grandTotal, shipping, customer: form, payment, date: new Date().toISOString() })
       );
+
+      // Fire GA4 purchase conversion event
+      trackPurchase({
+        transactionId: number,
+        value: grandTotal,
+        shipping,
+        items: items.map((i) => ({
+          item_id: i.slug,
+          item_name: i.name,
+          price: i.price,
+          quantity: i.quantity,
+          item_variant: [i.color, i.size].filter(Boolean).join(" / ") || undefined,
+        })),
+      });
 
       // Auto-send confirmation email if client provided an email
       if (form.email) {

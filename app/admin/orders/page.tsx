@@ -206,10 +206,10 @@ export default function OrdersPage() {
   });
 
   return (
-    <div className="flex gap-5 h-full">
+    <div className="flex flex-col lg:flex-row gap-5 h-full">
 
       {/* LEFT: List */}
-      <div className={`flex flex-col min-w-0 transition-all ${detail ? "w-[52%] flex-shrink-0" : "flex-1"}`}>
+      <div className={`flex flex-col min-w-0 transition-all ${detail ? "hidden lg:flex lg:w-[52%] lg:flex-shrink-0" : "flex-1"}`}>
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-xl font-black">Commandes</h1>
@@ -251,7 +251,34 @@ export default function OrdersPage() {
             {filtered.length === 0 ? (
               <div className="p-12 text-center text-neutral-400 text-sm">Aucune commande trouvée.</div>
             ) : (
-              <table className="w-full text-sm">
+              <>
+                {/* Mobile card list */}
+                <div className="lg:hidden divide-y divide-neutral-50">
+                  {filtered.map((o) => (
+                    <div key={o.id}
+                      onClick={() => router.replace(detailId === o.id ? "/admin/orders" : `/admin/orders?id=${o.id}`)}
+                      className={`flex items-center gap-3 px-4 py-3.5 cursor-pointer active:bg-neutral-50 transition-colors ${selected.has(o.id) ? "bg-blue-50/50" : ""}`}>
+                      <input type="checkbox" checked={selected.has(o.id)}
+                        onChange={(e) => { e.stopPropagation(); toggleSelect(o.id); }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="rounded border-neutral-300 cursor-pointer shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2 mb-0.5">
+                          <p className="font-bold text-sm truncate">{o.customer?.name}</p>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 ${statusColor(o.status)}`}>{statusLabel(o.status)}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs text-neutral-400 font-mono">#{o.order_number}</p>
+                          <p className="text-xs font-bold shrink-0">{o.total} MAD</p>
+                        </div>
+                        <p className="text-[11px] text-neutral-400 mt-0.5">{o.customer?.phone} · {new Date(o.created_at).toLocaleDateString("fr-FR")}</p>
+                      </div>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="2.5" strokeLinecap="round" className="shrink-0"><path d="M9 18l6-6-6-6"/></svg>
+                    </div>
+                  ))}
+                </div>
+                {/* Desktop table */}
+                <table className="hidden lg:table w-full text-sm">
                 <thead>
                   <tr className="border-b border-neutral-100 text-[11px] text-neutral-400 uppercase tracking-wide">
                     <th className="px-4 py-3 w-8">
@@ -305,6 +332,7 @@ export default function OrdersPage() {
                   ))}
                 </tbody>
               </table>
+              </>
             )}
           </div>
         )}
@@ -312,7 +340,18 @@ export default function OrdersPage() {
 
       {/* RIGHT: Detail panel */}
       {detail && (
-        <div className="flex-1 min-w-0 overflow-y-auto" style={{maxHeight:"calc(100vh - 7rem)"}}>
+        <div className="fixed inset-0 z-50 bg-white overflow-y-auto pb-20 lg:relative lg:inset-auto lg:z-auto lg:flex-1 lg:min-w-0 lg:pb-0" style={{maxHeight: "calc(100vh - 7rem)"}}>
+          {/* Mobile back header */}
+          <div className="lg:hidden sticky top-0 bg-white border-b border-neutral-100 px-4 py-3 flex items-center gap-3 z-10 mb-4">
+            <button onClick={() => router.replace("/admin/orders")}
+              className="p-2 -ml-1 rounded-xl text-neutral-600 hover:bg-neutral-100 active:bg-neutral-100 transition-colors">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-sm">#{detail.order_number}</p>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColor(detail.status)}`}>{statusLabel(detail.status)}</span>
+            </div>
+          </div>
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div>
