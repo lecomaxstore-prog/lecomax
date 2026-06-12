@@ -60,6 +60,11 @@ export default function MessagesPage() {
   const [replyText, setReplyText] = useState("");
   const [replying, setReplying] = useState(false);
   const [replySent, setReplySent] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [contactAiLoading, setContactAiLoading] = useState(false);
+  const [contactReplyText, setContactReplyText] = useState("");
+  const [contactReplySent, setContactReplySent] = useState(false);
+  const [contactReplying, setContactReplying] = useState(false);
 
   const loadInbox = useCallback(async () => {
     setInboxLoading(true);
@@ -84,6 +89,7 @@ export default function MessagesPage() {
     setEmailLoading(true);
     setReplyText("");
     setReplySent(false);
+    setAiLoading(false);
     try {
       const res = await fetch(`/api/inbox/${email.uid}`);
       const data = await res.json();
@@ -133,6 +139,66 @@ export default function MessagesPage() {
       setReplyText("");
     } finally {
       setReplying(false);
+    }
+  }
+
+  async function generateAIReply() {
+    if (!selectedEmail) return;
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/ai-reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: selectedEmail.from || selectedEmail.fromAddress,
+          subject: selectedEmail.subject,
+          message: selectedEmail.text,
+        }),
+      });
+      const data = await res.json();
+      if (data.reply) setReplyText(data.reply);
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
+  async function generateContactAIReply() {
+    if (!selected) return;
+    setContactAiLoading(true);
+    try {
+      const res = await fetch("/api/ai-reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: selected.name + " <" + selected.email + ">",
+          subject: selected.subject,
+          message: selected.message,
+        }),
+      });
+      const data = await res.json();
+      if (data.reply) setContactReplyText(data.reply);
+    } finally {
+      setContactAiLoading(false);
+    }
+  }
+
+  async function sendContactReply() {
+    if (!selected || !contactReplyText.trim()) return;
+    setContactReplying(true);
+    try {
+      await fetch("/api/inbox/reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: selected.email,
+          subject: `Re: ${selected.subject}`,
+          text: contactReplyText,
+        }),
+      });
+      setContactReplySent(true);
+      setContactReplyText("");
+    } finally {
+      setContactReplying(false);
     }
   }
 
@@ -199,7 +265,7 @@ export default function MessagesPage() {
             ) : (
               <div className="divide-y divide-neutral-50">
                 {filtered.map((m) => (
-                  <button key={m.id} onClick={() => { setSelected(m); if (!m.read) markRead(m, true); }}
+                  <button key={m.id} onClick={() => { setSelected(m); setContactReplyText(""); setContactReplySent(false); if (!m.read) markRead(m, true); }}
                     className={`w-full text-left px-5 py-4 hover:bg-neutral-50 transition-colors ${selected?.id === m.id ? "bg-neutral-50" : ""}`}>
                     <div className="flex items-start gap-3">
                       <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${m.read ? "bg-transparent" : "bg-blue-500"}`} />
@@ -237,12 +303,31 @@ export default function MessagesPage() {
               <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1">Message</p>
               <p className="text-sm text-neutral-600 leading-relaxed whitespace-pre-wrap">{selected.message}</p>
               <div className="mt-5 pt-4 border-t border-neutral-100 flex flex-col gap-2">
-                <a href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}`}
-                  className="w-full bg-black text-white text-xs font-bold py-2.5 rounded-xl text-center hover:bg-neutral-800 transition-colors">
-                  Répondre par email
-                </a>
+                {/* AI Reply */}
+                <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1">Répondre</p>
+                <button onClick={generateContactAIReply} disabled={contactAiLoading}
+                  className="w-full flex items-center justify-center gap-1.5 border border-violet-200 bg-violet-50 text-violet-700 text-xs font-bold py-2.5 rounded-xl hover:bg-violet-100 transition-colors disabled:opacity-50">
+                  {contactAiLoading ? (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="animate-spin"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                  ) : "✨"}
+                  {contactAiLoading ? "Génération…" : "Générer une réponse IA"}
+                </button>
+                {contactReplySent ? (
+                  <div className="text-xs text-green-600 font-semibold bg-green-50 rounded-xl p-3 text-center">✓ Réponse envoyée</div>
+                ) : (
+                  <>
+                    <textarea value={contactReplyText} onChange={(e) => { setContactReplyText(e.target.value); setContactReplySent(false); }}
+                      placeholder="Réponse (ou cliquez IA pour générer)…"
+                      rows={4}
+                      className="w-full border border-neutral-200 rounded-xl p-3 text-xs focus:outline-none focus:border-black resize-none" />
+                    <button onClick={sendContactReply} disabled={contactReplying || !contactReplyText.trim()}
+                      className="w-full bg-black text-white text-xs font-bold py-2.5 rounded-xl hover:bg-neutral-800 transition-colors disabled:opacity-40">
+                      {contactReplying ? "Envoi…" : "Envoyer la réponse"}
+                    </button>
+                  </>
+                )}
                 <button onClick={() => markRead(selected, !selected.read)}
-                  className="w-full border border-neutral-200 text-xs font-semibold py-2.5 rounded-xl hover:bg-neutral-50 transition-colors">
+                  className="w-full border border-neutral-200 text-xs font-semibold py-2 rounded-xl hover:bg-neutral-50 transition-colors mt-1">
                   Marquer comme {selected.read ? "non lu" : "lu"}
                 </button>
                 <button onClick={() => handleDelete(selected.id)}
@@ -351,12 +436,19 @@ export default function MessagesPage() {
 
                     {/* Reply */}
                     <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">Répondre</p>
+                    <button onClick={generateAIReply} disabled={aiLoading}
+                      className="w-full flex items-center justify-center gap-1.5 border border-violet-200 bg-violet-50 text-violet-700 text-xs font-bold py-2 rounded-xl hover:bg-violet-100 transition-colors disabled:opacity-50 mb-2">
+                      {aiLoading ? (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="animate-spin"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                      ) : "✨"}
+                      {aiLoading ? "Génération…" : "Générer une réponse IA"}
+                    </button>
                     {replySent ? (
                       <div className="text-xs text-green-600 font-semibold bg-green-50 rounded-xl p-3 text-center">✓ Réponse envoyée</div>
                     ) : (
                       <>
-                        <textarea value={replyText} onChange={(e) => setReplyText(e.target.value)}
-                          placeholder="Votre réponse…"
+                        <textarea value={replyText} onChange={(e) => { setReplyText(e.target.value); setReplySent(false); }}
+                          placeholder="Réponse (ou cliquez IA pour générer)…"
                           rows={4}
                           className="w-full border border-neutral-200 rounded-xl p-3 text-xs focus:outline-none focus:border-black resize-none mb-2" />
                         <button onClick={sendReply} disabled={replying || !replyText.trim()}
