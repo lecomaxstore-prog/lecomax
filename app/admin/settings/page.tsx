@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 type SettingsMap = Record<string, string>;
 
@@ -72,7 +74,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"general" | "images" | "shipping" | "social" | "advanced">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "images" | "shipping" | "social" | "advanced" | "security">("general");
 
   useEffect(() => {
     fetch("/api/settings")
@@ -146,8 +148,7 @@ export default function SettingsPage() {
     { id: "images", label: "Images", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> },
     { id: "shipping", label: "Livraison", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> },
     { id: "social", label: "R\u00e9seaux sociaux", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> },
-    { id: "advanced", label: "Avanc\u00e9", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg> },
-  ];
+    { id: "advanced", label: "Avanc\u00e9", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg> },    { id: "security", label: "Sécurité", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> },  ];
 
   return (
     <div className="max-w-3xl">
@@ -403,11 +404,116 @@ export default function SettingsPage() {
         </form>
       )}
 
+      {/* ── SECURITY ── */}
+      {activeTab === "security" && (
+        <SecurityTab />
+      )}
+
     </div>
   );
 }
 
 /* â”€â”€â”€ Sub-components â”€â”€â”€ */
+
+function SecurityTab() {
+  const [currentPw, setCurrentPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPw !== confirmPw) { setMsg({ type: "err", text: "Les nouveaux mots de passe ne correspondent pas." }); return; }
+    if (newPw.length < 8) { setMsg({ type: "err", text: "Le nouveau mot de passe doit contenir au moins 8 caractères." }); return; }
+    setSaving(true); setMsg(null);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.email) { setMsg({ type: "err", text: "Session expirée. Reconnectez-vous." }); setSaving(false); return; }
+    const { error: signInErr } = await supabase.auth.signInWithPassword({ email: user.email, password: currentPw });
+    if (signInErr) { setMsg({ type: "err", text: "Mot de passe actuel incorrect." }); setSaving(false); return; }
+    const { error } = await supabase.auth.updateUser({ password: newPw });
+    setSaving(false);
+    if (error) { setMsg({ type: "err", text: error.message }); }
+    else { setMsg({ type: "ok", text: "Mot de passe mis à jour avec succès ✓" }); setCurrentPw(""); setNewPw(""); setConfirmPw(""); }
+    setTimeout(() => setMsg(null), 5000);
+  }
+
+  const inputCls = "w-full border border-neutral-200 rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:border-black focus:ring-2 focus:ring-black/5 transition-all bg-neutral-50 focus:bg-white";
+  const EyeIcon = ({ open }: { open: boolean }) => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      {open ? <><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></>
+        : <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>}
+    </svg>
+  );
+
+  return (
+    <form onSubmit={handleChangePassword} className="space-y-4">
+      <Section title="Changer le mot de passe" icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>}>
+        <div>
+          <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-1.5">Mot de passe actuel</label>
+          <div className="relative">
+            <input type={showCurrent ? "text" : "password"} value={currentPw} onChange={e => setCurrentPw(e.target.value)}
+              required className={inputCls} placeholder="••••••••" autoComplete="current-password" />
+            <button type="button" onClick={() => setShowCurrent(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-300 hover:text-neutral-600 transition-colors">
+              <EyeIcon open={showCurrent} />
+            </button>
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-1.5">Nouveau mot de passe</label>
+          <div className="relative">
+            <input type={showNew ? "text" : "password"} value={newPw} onChange={e => setNewPw(e.target.value)}
+              required minLength={8} className={inputCls} placeholder="Min. 8 caractères" autoComplete="new-password" />
+            <button type="button" onClick={() => setShowNew(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-300 hover:text-neutral-600 transition-colors">
+              <EyeIcon open={showNew} />
+            </button>
+          </div>
+          {newPw && (
+            <div className="mt-1.5 flex items-center gap-1">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${
+                  newPw.length < 8 ? (i < 1 ? "bg-red-400" : "bg-neutral-200") :
+                  newPw.length < 12 ? (i < 2 ? "bg-yellow-400" : "bg-neutral-200") :
+                  newPw.length < 16 ? (i < 3 ? "bg-blue-400" : "bg-neutral-200") : "bg-[#3ecf4c]"
+                }`} />
+              ))}
+              <span className="text-[10px] text-neutral-400 ml-1 shrink-0">
+                {newPw.length < 8 ? "Trop court" : newPw.length < 12 ? "Faible" : newPw.length < 16 ? "Moyen" : "Fort"}
+              </span>
+            </div>
+          )}
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-1.5">Confirmer le nouveau mot de passe</label>
+          <input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
+            required className={`${inputCls} pr-4 ${
+              confirmPw && confirmPw !== newPw ? "border-red-300 focus:border-red-400" :
+              confirmPw && confirmPw === newPw ? "border-green-300 focus:border-green-400" : ""
+            }`} placeholder="Répétez le nouveau mot de passe" autoComplete="new-password" />
+          {confirmPw && confirmPw !== newPw && (
+            <p className="text-[11px] text-red-500 mt-1">Les mots de passe ne correspondent pas</p>
+          )}
+        </div>
+        {msg && (
+          <div className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium ${
+            msg.type === "ok" ? "bg-green-50 border border-green-200 text-green-700" : "bg-red-50 border border-red-200 text-red-700"
+          }`}>
+            <span>{msg.type === "ok" ? "✓" : "✕"}</span>
+            {msg.text}
+          </div>
+        )}
+        <div className="flex justify-end pt-1">
+          <button type="submit" disabled={saving || (!!confirmPw && confirmPw !== newPw)}
+            className="flex items-center gap-2 bg-black text-white font-bold text-sm px-6 py-2.5 rounded-xl hover:bg-neutral-800 disabled:opacity-50 transition-colors">
+            {saving ? "Mise à jour…" : "Mettre à jour le mot de passe"}
+          </button>
+        </div>
+      </Section>
+    </form>
+  );
+}
 
 function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (

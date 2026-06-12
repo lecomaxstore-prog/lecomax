@@ -14,10 +14,12 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-// Restore saved email on mount (sessionStorage only — not persisted across sessions)
+  // Restore saved email on mount (localStorage — persists across sessions)
   useEffect(() => {
-    const saved = sessionStorage.getItem(SAVED_EMAIL_KEY);
-    if (saved) { setEmail(saved); setRememberMe(true); }
+    try {
+      const saved = localStorage.getItem(SAVED_EMAIL_KEY);
+      if (saved) { setEmail(saved); setRememberMe(true); }
+    } catch {}
   }, []);
 
   async function handleLogin(e: React.FormEvent) {
@@ -30,12 +32,14 @@ export default function AdminLoginPage() {
       setError("Email ou mot de passe incorrect.");
     } else {
       if (rememberMe) {
-        sessionStorage.setItem(SAVED_EMAIL_KEY, email);
+        try { localStorage.setItem(SAVED_EMAIL_KEY, email); } catch {}
+        // 30-day cookie when "remember me" is checked
+        document.cookie = "admin_session=authenticated; path=/; max-age=2592000; SameSite=Strict";
       } else {
-        sessionStorage.removeItem(SAVED_EMAIL_KEY);
+        try { localStorage.removeItem(SAVED_EMAIL_KEY); } catch {}
+        // 1-day cookie otherwise
+        document.cookie = "admin_session=authenticated; path=/; max-age=86400; SameSite=Strict";
       }
-      // Session cookie (1 day)
-      document.cookie = "admin_session=authenticated; path=/; max-age=86400; SameSite=Strict";
       router.replace("/admin/dashboard");
     }
   }
