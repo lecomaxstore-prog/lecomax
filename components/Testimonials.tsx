@@ -11,7 +11,18 @@ const STATS = [
   { value: "30 j", label: "Retours gratuits" },
 ];
 
-const REVIEWS = [
+type ReviewEntry = {
+  name: string;
+  city?: string;
+  rating: number;
+  text: string;
+  product?: string;
+  image?: string;
+  url?: string;
+  source?: "trustpilot" | "local";
+};
+
+const FALLBACK_REVIEWS: ReviewEntry[] = [
   {
     name: "Yassine B.",
     city: "Casablanca",
@@ -19,6 +30,7 @@ const REVIEWS = [
     text: "Commande reçue en 2 jours, emballage soigné et qualité au rendez-vous. Les écouteurs sont incroyables pour le prix. Je recommande à 100 %.",
     product: "Écouteurs GENAI TWS",
     image: "/images/clients images/Yassine B..jpg",
+    source: "local",
   },
   {
     name: "Salma E.",
@@ -27,6 +39,7 @@ const REVIEWS = [
     text: "Service client très réactif et livraison rapide. Les baskets sont confortables et exactement comme sur les photos. Bravo L'ecomax !",
     product: "BAASPLOA Running",
     image: "/images/clients images/Salma E..jpg",
+    source: "local",
   },
   {
     name: "Mehdi A.",
@@ -34,6 +47,7 @@ const REVIEWS = [
     rating: 4,
     text: "Site clair, paiement simple et suivi de commande au top. J'ai été agréablement surpris par la qualité. Je reviendrai sans hésiter.",
     product: "Accessoires Tech",
+    source: "local",
   },
 ];
 
@@ -97,7 +111,7 @@ function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
   );
 }
 
-function ReviewCard({ r }: { r: typeof REVIEWS[0] }) {
+function ReviewCard({ r }: { r: ReviewEntry }) {
   return (
     <figure className="relative flex flex-col bg-white rounded-2xl border border-neutral-100 p-6 shadow-[0_4px_24px_rgba(0,0,0,0.07)] transition-all duration-300 md:hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)] md:hover:-translate-y-1 md:hover:border-neutral-200 overflow-hidden">
       {/* brand accent bar */}
@@ -106,12 +120,25 @@ function ReviewCard({ r }: { r: typeof REVIEWS[0] }) {
       {/* top row: stars + badge */}
       <div className="flex items-center justify-between mb-4 pt-1">
         <Stars rating={r.rating} size={17} />
-        <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wide text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-          Achat vérifié
-        </span>
+        {r.source === "trustpilot" ? (
+          <a
+            href="https://www.trustpilot.com/review/lecomax.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wide text-[#00b67a] border border-[#00b67a]/30 bg-[#00b67a]/8 px-2.5 py-1 rounded-full hover:bg-[#00b67a]/15 transition-colors"
+            style={{ background: "rgba(0,182,122,0.07)" }}
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="#00b67a"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+            Trustpilot
+          </a>
+        ) : (
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wide text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Achat vérifié
+          </span>
+        )}
       </div>
 
       {/* review text */}
@@ -140,15 +167,17 @@ function ReviewCard({ r }: { r: typeof REVIEWS[0] }) {
         <div className="min-w-0">
           <p className="text-[13px] font-black text-black leading-tight">{r.name}</p>
           <p className="text-[11px] text-neutral-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
-            <span className="flex items-center gap-1">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
-              {r.city}
-            </span>
-            <span className="text-neutral-200">·</span>
-            <span className="truncate">{r.product}</span>
+            {r.city && (
+              <span className="flex items-center gap-1">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                {r.city}
+              </span>
+            )}
+            {r.city && r.product && <span className="text-neutral-200">·</span>}
+            {r.product && <span className="truncate">{r.product}</span>}
           </p>
         </div>
       </figcaption>
@@ -159,21 +188,51 @@ function ReviewCard({ r }: { r: typeof REVIEWS[0] }) {
 export default function Testimonials() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [reviews, setReviews] = useState<ReviewEntry[]>(FALLBACK_REVIEWS);
+  const [totalReviews, setTotalReviews] = useState(47);
+  const [avgScore, setAvgScore] = useState(4.8);
+  const [fromTrustpilot, setFromTrustpilot] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/trustpilot-reviews")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.source === "trustpilot" && data.reviews?.length >= 3) {
+          const mapped: ReviewEntry[] = data.reviews.slice(0, 9).map((r: {
+            id: string; name: string; text: string; rating: number; url?: string;
+          }) => ({
+            name: r.name,
+            rating: r.rating,
+            text: r.text,
+            url: r.url,
+            source: "trustpilot" as const,
+          }));
+          setReviews(mapped);
+          setFromTrustpilot(true);
+          if (data.total) setTotalReviews(data.total);
+          if (data.score) setAvgScore(Number(data.score.toFixed(1)));
+        }
+      })
+      .catch(() => {/* keep fallback */});
+  }, []);
 
   const handleScroll = () => {
     const el = scrollRef.current;
     if (!el) return;
-    const cardWidth = el.scrollWidth / REVIEWS.length;
-    const idx = Math.min(REVIEWS.length - 1, Math.round(el.scrollLeft / cardWidth));
+    const cardWidth = el.scrollWidth / reviews.length;
+    const idx = Math.min(reviews.length - 1, Math.round(el.scrollLeft / cardWidth));
     setActiveIdx(idx);
   };
 
   const scrollTo = (i: number) => {
     const el = scrollRef.current;
     if (!el) return;
-    const cardWidth = el.scrollWidth / REVIEWS.length;
+    const cardWidth = el.scrollWidth / reviews.length;
     el.scrollTo({ left: cardWidth * i, behavior: "smooth" });
   };
+
+  // Slice to max 3 for desktop grid (or 6 if there are many)
+  const displayReviews = reviews.slice(0, reviews.length >= 6 ? 6 : 3);
 
   return (
     <section className="border-t border-line bg-neutral-50/60">
@@ -194,15 +253,27 @@ export default function Testimonials() {
             </div>
             <div className="hidden md:flex flex-col items-end gap-1">
               <Stars rating={5} size={16} />
-              <span className="text-[12px] text-neutral-500 font-semibold">4.8 / 5 · 47 avis</span>
+              <span className="text-[12px] text-neutral-500 font-semibold">
+                {avgScore} / 5 · {totalReviews} avis
+              </span>
+              {fromTrustpilot && (
+                <a
+                  href="https://www.trustpilot.com/review/lecomax.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] font-bold text-[#00b67a] hover:underline"
+                >
+                  Voir sur Trustpilot →
+                </a>
+              )}
             </div>
           </div>
         </ScrollReveal>
 
         {/* Desktop grid */}
-        <div className="hidden md:grid md:grid-cols-3 gap-5">
-          {REVIEWS.map((r) => (
-            <ReviewCard key={r.name} r={r} />
+        <div className={`hidden md:grid gap-5 ${displayReviews.length >= 4 ? "md:grid-cols-3" : "md:grid-cols-3"}`}>
+          {displayReviews.map((r, i) => (
+            <ReviewCard key={r.url ?? r.name + i} r={r} />
           ))}
         </div>
 
@@ -213,15 +284,15 @@ export default function Testimonials() {
             onScroll={handleScroll}
             className="flex gap-4 overflow-x-auto -mx-6 px-6 snap-x snap-mandatory no-scrollbar pb-2"
           >
-            {REVIEWS.map((r) => (
-              <div key={r.name} className="w-[85vw] shrink-0 snap-start snap-always">
+            {displayReviews.map((r, i) => (
+              <div key={r.url ?? r.name + i} className="w-[85vw] shrink-0 snap-start snap-always">
                 <ReviewCard r={r} />
               </div>
             ))}
           </div>
           {/* Dot nav */}
           <div className="flex items-center justify-center gap-3 mt-5">
-            {REVIEWS.map((_, i) => (
+            {displayReviews.map((_, i) => (
               <button
                 key={i}
                 onClick={() => scrollTo(i)}
@@ -231,11 +302,11 @@ export default function Testimonials() {
               />
             ))}
           </div>
-          <p className="text-center text-[11px] text-neutral-400 mt-2 font-semibold tracking-wide">{activeIdx + 1} / {REVIEWS.length}</p>
+          <p className="text-center text-[11px] text-neutral-400 mt-2 font-semibold tracking-wide">{activeIdx + 1} / {displayReviews.length}</p>
         </div>
 
         {/* Bottom trust bar */}
-        <div className="mt-10 flex items-center justify-center gap-x-8 gap-y-3 text-[12px] text-neutral-500 font-semibold border-t border-neutral-100 pt-8">
+        <div className="mt-10 flex items-center justify-center gap-x-8 gap-y-3 text-[12px] text-neutral-500 font-semibold border-t border-neutral-100 pt-8 flex-wrap">
           <span className="flex items-center gap-1.5">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -248,8 +319,22 @@ export default function Testimonials() {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="#f59e0b" stroke="none">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
             </svg>
-            Note moyenne 4.8 / 5
+            Note moyenne {avgScore} / 5
           </span>
+          {fromTrustpilot && (
+            <>
+              <span className="w-1 h-1 rounded-full bg-neutral-300" />
+              <a
+                href="https://www.trustpilot.com/review/lecomax.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 hover:text-[#00b67a] transition-colors"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#00b67a"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+                Avis Trustpilot vérifiés
+              </a>
+            </>
+          )}
         </div>
       </div>
     </section>
