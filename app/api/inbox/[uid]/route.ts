@@ -31,10 +31,10 @@ export async function GET(
 
     try {
       // Mark as read
-      await client.messageFlagsAdd({ uid: parseInt(uid) }, ["\\Seen"], { uid: true });
+      await client.messageFlagsAdd(uid, ["\\Seen"], { uid: true });
 
       // Download full message
-      const download = await client.download({ uid: parseInt(uid) }, undefined, { uid: true });
+      const download = await client.download(uid, undefined, { uid: true });
       if (!download) return NextResponse.json({ error: "Message not found" }, { status: 404 });
 
       const parsed = await simpleParser(download.content);
@@ -82,7 +82,7 @@ export async function DELETE(
     const lock = await client.getMailboxLock("INBOX");
 
     try {
-      await client.messageDelete({ uid: parseInt(uid) }, { uid: true });
+      await client.messageDelete(uid, { uid: true });
       return NextResponse.json({ success: true });
     } finally {
       lock.release();
@@ -114,9 +114,9 @@ export async function PATCH(
 
     try {
       if (body.read === false) {
-        await client.messageFlagsRemove({ uid: parseInt(uid) }, ["\\Seen"], { uid: true });
+        await client.messageFlagsRemove(uid, ["\\Seen"], { uid: true });
       } else {
-        await client.messageFlagsAdd({ uid: parseInt(uid) }, ["\\Seen"], { uid: true });
+        await client.messageFlagsAdd(uid, ["\\Seen"], { uid: true });
       }
       return NextResponse.json({ success: true });
     } finally {

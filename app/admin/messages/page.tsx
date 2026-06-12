@@ -87,6 +87,10 @@ export default function MessagesPage() {
     try {
       const res = await fetch(`/api/inbox/${email.uid}`);
       const data = await res.json();
+      if (data.error || !data.from) {
+        setInboxError(data.error || "Impossible de charger cet email");
+        return;
+      }
       setSelectedEmail(data);
       setInboxEmails((prev) => prev.map((e) => e.uid === email.uid ? { ...e, read: true } : e));
     } finally {
@@ -298,7 +302,7 @@ export default function MessagesPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
                             <p className={`text-sm truncate ${email.read ? "font-medium text-neutral-600" : "font-bold text-black"}`}>
-                              {email.from.replace(/<.*>/, "").trim() || email.fromAddress}
+                              {(email.from?.replace(/<.*>/, "").trim()) || email.fromAddress || "Inconnu"}
                             </p>
                             <p className="text-[10px] text-neutral-400 flex-shrink-0">
                               {new Date(email.date).toLocaleDateString("fr-FR")}
@@ -330,7 +334,7 @@ export default function MessagesPage() {
                   <>
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1 min-w-0 pr-2">
-                        <p className="font-bold text-sm truncate">{selectedEmail.from.replace(/<.*>/, "").trim() || selectedEmail.fromAddress}</p>
+                        <p className="font-bold text-sm truncate">{(selectedEmail.from?.replace(/<.*>/, "").trim()) || selectedEmail.fromAddress || "Inconnu"}</p>
                         <p className="text-xs text-neutral-400 truncate">{selectedEmail.fromAddress}</p>
                         <p className="text-[10px] text-neutral-400 mt-0.5">{new Date(selectedEmail.date).toLocaleString("fr-FR")}</p>
                       </div>
