@@ -163,6 +163,18 @@ export default function OrdersPage() {
     showToast("Statut mis à jour · WhatsApp ouvert ✓");
   }
 
+  async function handleTrustpilotInvite(id: string) {
+    setSending("trustpilot");
+    try {
+      const res = await fetch(`/api/orders/${id}/trustpilot`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) showToast("Invitation Trustpilot envoyée ✓");
+      else showToast(`Échec : ${data.error ?? "erreur inconnue"}`, false);
+    } catch {
+      showToast("Erreur réseau", false);
+    }
+    setSending(null);
+  }
 
   function exportCSV() {
     const cols = ["Commande","Date","Nom","Téléphone","Email","Ville","Adresse","Produits","Total","Statut","Paiement","Suivi","Notes"];
@@ -485,6 +497,32 @@ export default function OrdersPage() {
                     {detail.customer?.phone && <span>📱 {detail.customer.phone}</span>}
                   </div>
                 </>
+              )}
+            </Section>
+
+            {/* Trustpilot */}
+            <Section title="Trustpilot">
+              {detail.customer?.email ? (
+                <div>
+                  <p className="text-[11px] text-neutral-400 mb-3">
+                    Envoyez une invitation par email pour demander un avis sur Trustpilot.
+                  </p>
+                  <button
+                    onClick={() => handleTrustpilotInvite(detail.id)}
+                    disabled={!!sending}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#00b67a] hover:bg-[#00a36c] text-white text-xs font-bold transition-all disabled:opacity-50">
+                    {sending === "trustpilot"
+                      ? <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 11-18 0"/></svg>
+                      : <span>⭐</span>}
+                    Demander un avis Trustpilot
+                  </button>
+                  <p className="text-[10px] text-neutral-400 mt-1.5 text-center">→ {detail.customer.email}</p>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-[11px] text-neutral-400">
+                  <span>⭐</span>
+                  <span>Aucun email client — invitation impossible.</span>
+                </div>
               )}
             </Section>
 
