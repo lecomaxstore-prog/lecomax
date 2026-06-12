@@ -8,36 +8,50 @@ import SizeGuideModal from "./SizeGuideModal";
 import type { Product } from "@/lib/products";
 import { trackAddToCart } from "@/lib/analytics";
 
-/* ── Cart fly animation (pure DOM, no React overhead) ── */
-function flyImageToCart(imgSrc: string, fromEl: HTMLElement) {
-  const cartEl = document.querySelector("[data-cart-icon]") as HTMLElement | null;
-  const from = fromEl.getBoundingClientRect();
-  const tx = cartEl
-    ? cartEl.getBoundingClientRect().left + cartEl.getBoundingClientRect().width / 2
-    : window.innerWidth - 48;
-  const ty = cartEl
-    ? cartEl.getBoundingClientRect().top + cartEl.getBoundingClientRect().height / 2
-    : 30;
-  const dx = tx - (from.left + from.width / 2);
-  const dy = ty - (from.top + from.height / 2);
+/* ── Cart fly animation (pure DOM, Web Animations API) ── */
+function flyImageToCart(imgSrc: string, btnEl: HTMLElement) {
+  // Pick the visible cart icon (header on desktop, bottom nav on mobile)
+  const allCartEls = document.querySelectorAll("[data-cart-icon]");
+  const cartEl = Array.from(allCartEls).find((el) => {
+    const r = (el as HTMLElement).getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  }) as HTMLElement | null;
 
-  // Flying image clone
+  const from = btnEl.getBoundingClientRect();
+  const isMobile = window.innerWidth < 768;
+
+  // Bubble starts centered on the button, already small
+  const size = isMobile ? 54 : 64;
+  const startX = from.left + from.width / 2 - size / 2;
+  const startY = from.top  + from.height / 2 - size / 2;
+
+  const cartRect = cartEl?.getBoundingClientRect();
+  const endCX = cartRect ? cartRect.left + cartRect.width / 2  : (isMobile ? window.innerWidth / 2 : window.innerWidth - 48);
+  const endCY = cartRect ? cartRect.top  + cartRect.height / 2 : (isMobile ? window.innerHeight - 40 : 30);
+
+  // delta from bubble center to cart center
+  const dx = endCX - (startX + size / 2);
+  const dy = endCY - (startY + size / 2);
+
+  // Arc midpoint: halfway along path, pulled upward
+  const arcLift = Math.min(Math.abs(dx) * 0.18 + 60, 140);
+  const midX = dx * 0.45;
+  const midY = dy * 0.35 - arcLift;
+
+  // Flying image bubble
   const fly = document.createElement("div");
   fly.style.cssText = [
     "position:fixed",
-    "left:" + from.left + "px",
-    "top:" + from.top + "px",
-    "width:" + from.width + "px",
-    "height:" + from.height + "px",
+    "left:" + startX + "px",
+    "top:" + startY + "px",
+    "width:" + size + "px",
+    "height:" + size + "px",
     "z-index:99999",
     "pointer-events:none",
-    "border-radius:12px",
+    "border-radius:14px",
     "overflow:hidden",
-    "box-shadow:0 12px 40px rgba(0,0,0,0.25)",
+    "box-shadow:0 8px 28px rgba(0,0,0,0.28)",
     "will-change:transform,opacity",
-    "transform-origin:center center",
-    "transform:translate(0,0) scale(1)",
-    "opacity:1",
   ].join(";");
   const img = document.createElement("img");
   img.src = imgSrc;
@@ -46,26 +60,24 @@ function flyImageToCart(imgSrc: string, fromEl: HTMLElement) {
   fly.appendChild(img);
   document.body.appendChild(fly);
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      fly.style.transition =
-        "transform 0.7s cubic-bezier(0.22,1,0.36,1),opacity 0.55s ease-in 0.15s";
-      fly.style.transform = "translate(" + dx + "px," + dy + "px) scale(0.12)";
-      fly.style.opacity = "0";
-      fly.addEventListener(
-        "transitionend",
-        () => {
-          fly.remove();
-          if (cartEl) {
-            cartEl.classList.add("cart-pulse");
-            setTimeout(() => cartEl.classList.remove("cart-pulse"), 700);
-          }
-          showCartToast();
-        },
-        { once: true }
-      );
-    });
-  });
+  // Web Animations API — curved arc path
+  const anim = fly.animate(
+    [
+      { transform: "translate(0,0) scale(1)",                                             opacity: "1",   offset: 0 },
+      { transform: `translate(${midX}px,${midY}px) scale(0.85)`,                          opacity: "1",   offset: 0.42 },
+      { transform: `translate(${dx}px,${dy}px) scale(0.18)`,                              opacity: "0",   offset: 1 },
+    ],
+    { duration: isMobile ? 620 : 720, easing: "cubic-bezier(0.25,0.46,0.45,0.94)", fill: "forwards" }
+  );
+
+  anim.onfinish = () => {
+    fly.remove();
+    if (cartEl) {
+      cartEl.classList.add("cart-pulse");
+      setTimeout(() => cartEl.classList.remove("cart-pulse"), 700);
+    }
+    showCartToast();
+  };
 }
 
 function showCartToast() {
@@ -75,9 +87,11 @@ function showCartToast() {
   toast.id = "__cart_toast__";
   toast.setAttribute("role", "status");
   toast.setAttribute("aria-live", "polite");
+  const isMobileToast = window.innerWidth < 768;
+  const toastBottom = isMobileToast ? "calc(66px + env(safe-area-inset-bottom, 0px) + 10px)" : "28px";
   toast.style.cssText = [
     "position:fixed",
-    "bottom:28px",
+    "bottom:" + toastBottom,
     "left:50%",
     "transform:translateX(-50%) translateY(16px)",
     "opacity:0",
@@ -193,7 +207,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const sizeLabel = getSizeLabel(product.subCategory);
   const isCurrentColorOOS = outOfStockColors.includes(color);
 
-  const handleAdd = (goToCart = false) => {
+  const handleAdd = (goToCart = false, btnEl?: HTMLElement) => {
     if (!size) {
       setError("Veuillez sélectionner une taille.");
       return;
@@ -211,10 +225,8 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
     if (goToCart) {
       router.push("/checkout");
     } else {
-      // Fly animation: find main gallery image container
-      const fromEl = document.querySelector("[data-main-gallery-img]") as HTMLElement | null;
       const imgSrc = effectiveColorImages?.[color] ?? product.image;
-      if (fromEl) flyImageToCart(imgSrc, fromEl);
+      if (btnEl) flyImageToCart(imgSrc, btnEl);
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
     }
@@ -453,7 +465,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
       )}
 
       <button
-        onClick={() => handleAdd(false)}
+        onClick={(e) => handleAdd(false, e.currentTarget)}
         disabled={isCurrentColorOOS}
         className={`mt-5 w-full py-4 font-black uppercase text-[13px] tracking-wider inline-flex items-center justify-center gap-2 transition-all ${
           isCurrentColorOOS

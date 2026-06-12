@@ -110,7 +110,7 @@ export default function MobileNav() {
     if (tab.id === "recherche")  return <IconSearch />;
     if (tab.id === "compte")     return <IconUser />;
     if (tab.id === "panier") return (
-      <span className="relative inline-flex">
+      <span data-cart-icon className="relative inline-flex">
         <IconBag active={active} />
         {count > 0 && (
           <span className="absolute -top-1 -right-1.5 bg-red-500 text-white text-[8px] font-black rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-[3px] leading-none">
