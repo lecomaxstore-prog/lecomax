@@ -9,8 +9,7 @@ const IMAP_CONFIG = {
     user: process.env.PRIVATE_EMAIL_USER || "contact@lecomax.com",
     pass: process.env.PRIVATE_EMAIL_PASS || "",
   },
-  logger: false,
-};
+} as const;
 
 export async function GET(req: NextRequest) {
   if (!process.env.PRIVATE_EMAIL_PASS) {
@@ -29,7 +28,8 @@ export async function GET(req: NextRequest) {
     const lock = await client.getMailboxLock(folder);
 
     try {
-      const total = client.mailbox?.exists || 0;
+      const mailbox = client.mailbox;
+      const total = (mailbox && typeof mailbox === "object") ? mailbox.exists : 0;
 
       // Fetch most recent emails (reverse order)
       const from = Math.max(1, total - (page * limit) + 1);

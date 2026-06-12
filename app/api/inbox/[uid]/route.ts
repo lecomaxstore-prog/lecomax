@@ -10,8 +10,7 @@ const IMAP_CONFIG = {
     user: process.env.PRIVATE_EMAIL_USER || "contact@lecomax.com",
     pass: process.env.PRIVATE_EMAIL_PASS || "",
   },
-  logger: false,
-};
+} as const;
 
 // GET /api/inbox/[uid] - fetch full email body
 export async function GET(
@@ -44,7 +43,7 @@ export async function GET(
         subject: parsed.subject || "(no subject)",
         from: parsed.from?.text || "Unknown",
         fromAddress: parsed.from?.value?.[0]?.address || "",
-        to: parsed.to?.text || "",
+        to: (Array.isArray(parsed.to) ? parsed.to[0]?.text : parsed.to?.text) || "",
         date: parsed.date?.toISOString() || new Date().toISOString(),
         text: parsed.text || "",
         html: parsed.html || "",
