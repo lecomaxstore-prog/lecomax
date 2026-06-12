@@ -37,7 +37,7 @@ export async function middleware(req: NextRequest) {
   }
 
   // ── Protect /admin sub-routes (not the login page itself) ──
-  if (pathname.startsWith("/admin") && pathname !== "/admin") {
+  if (pathname.startsWith("/admin") && pathname !== "/admin" && pathname !== "/admin/") {
     const session = req.cookies.get("admin_session")?.value;
     if (!session || session !== "authenticated") {
       const loginUrl = new URL("/admin", req.url);
