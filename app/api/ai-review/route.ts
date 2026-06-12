@@ -15,9 +15,9 @@ Rules:
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, rating, hint } = await req.json() as { name: string; rating: number; hint?: string };
+    const { name, rating, hint } = await req.json() as { name?: string; rating: number; hint?: string };
 
-    const userPrompt = `Write a ${rating}-star review from a customer named "${name.split(" ")[0]}".${hint ? ` Context: ${hint}` : ""}`;
+    const userPrompt = `Write a ${rating}-star review from a customer${name?.trim() ? ` named "${name.trim().split(" ")[0]}"` : ""}.${hint ? ` Context: ${hint}` : ""}`;
 
     const res = await fetch(GROQ_URL, {
       method: "POST",
