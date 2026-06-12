@@ -19,3 +19,11 @@ export const metadata: Metadata = {
     url: "https://lecomax.com/ecoclub",
   },
 };
+
+export default function EcoclubLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <>{children}</>;
+}

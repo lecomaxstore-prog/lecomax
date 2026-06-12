@@ -19,3 +19,11 @@ export const metadata: Metadata = {
     url: "https://lecomax.com/guide-des-tailles",
   },
 };
+
+export default function GuideTaillesLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <>{children}</>;
+}
