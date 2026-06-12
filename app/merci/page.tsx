@@ -80,9 +80,11 @@ export default function MerciPage() {
       setTimeout(() => setStage(3), 950),
       setTimeout(() => setStage(4), 1350),
       setTimeout(() => setStage(5), 1750),
-      // Start 15-second countdown after animations settle, then open WhatsApp
+      // Start 15-second countdown on mobile/tablet only (devices with WhatsApp installed)
       setTimeout(() => {
-        if (parsed) setCountdown(15);
+        if (parsed && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+          setCountdown(15);
+        }
       }, 2000),
     ];
     return () => timers.forEach(clearTimeout);
