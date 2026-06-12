@@ -3,6 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
 
+type FeaturedReview = {
+  id: string;
+  name: string;
+  title: string;
+  text: string;
+  rating: number;
+  date: string;
+};
+
 const STATS = [
   { value: "500+", label: "Clients satisfaits" },
   { value: "4.8/5", label: "Note moyenne" },
@@ -107,7 +116,28 @@ function TrustBoxMini() {
   );
 }
 
+function FeaturedStars({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <svg key={s} width="14" height="14" viewBox="0 0 24 24"
+          fill={s <= rating ? "#00b67a" : "#e5e7eb"} stroke="none">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
 export default function Testimonials() {
+  const [featured, setFeatured] = useState<FeaturedReview[]>([]);
+
+  useEffect(() => {
+    fetch("/api/trustpilot-featured")
+      .then((r) => r.json())
+      .then((d) => setFeatured(d.reviews ?? []));
+  }, []);
+
   return (
     <section className="border-t border-line bg-neutral-50/60">
       <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-4 border-b border-line">
@@ -138,6 +168,40 @@ export default function Testimonials() {
         </ScrollReveal>
 
         <TrustBoxCarousel />
+
+        {/* Featured reviews from admin (shown below TrustBox when available) */}
+        {featured.length > 0 && (
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {featured.map((r) => (
+              <div key={r.id}
+                className="bg-white rounded-2xl border border-neutral-100 p-5 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-bold text-sm text-neutral-900">{r.name}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <FeaturedStars rating={r.rating} />
+                      <span className="text-[10px] text-neutral-400">
+                        {new Date(r.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                      </span>
+                    </div>
+                  </div>
+                  {/* Trustpilot logo */}
+                  <svg width="18" height="18" viewBox="0 0 127.1 117.5" className="shrink-0 opacity-50 mt-0.5">
+                    <polygon fill="#00b67a" points="63.6 0 82.9 55.7 141.4 55.7 96 90.1 113.5 143.8 68.1 109.4 22.7 143.8 40.2 90.1 -5.2 55.7 53.3 55.7" transform="scale(0.9)"/>
+                  </svg>
+                </div>
+                {r.title && (
+                  <p className="text-sm font-semibold text-neutral-900 leading-tight">{r.title}</p>
+                )}
+                <p className="text-sm text-neutral-600 leading-relaxed flex-1">{r.text}</p>
+                <a href="https://www.trustpilot.com/review/lecomax.com" target="_blank" rel="noopener noreferrer"
+                  className="text-[10px] text-[#00b67a] font-bold hover:underline">
+                  Voir sur Trustpilot ↗
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="mt-10 flex items-center justify-center gap-x-8 gap-y-3 text-[12px] text-neutral-500 font-semibold border-t border-neutral-100 pt-8 flex-wrap">
           <span className="flex items-center gap-1.5">

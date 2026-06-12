@@ -74,6 +74,15 @@ const nav = [
     ),
   },
   {
+    label: "Trustpilot",
+    href: "/admin/trustpilot",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 127.1 117.5">
+        <polygon fill="currentColor" points="63.6 0 82.9 55.7 141.4 55.7 96 90.1 113.5 143.8 68.1 109.4 22.7 143.8 40.2 90.1 -5.2 55.7 53.3 55.7" transform="scale(0.9)"/>
+      </svg>
+    ),
+  },
+  {
     label: "Avis",
     href: "/admin/reviews",
     icon: (
@@ -185,7 +194,7 @@ const navSections: { title: string; hrefs: string[] }[] = [
   { title: "VENTES",     hrefs: ["/admin/dashboard", "/admin/analytics", "/admin/recordings", "/admin/orders", "/admin/customers"] },
   { title: "CATALOGUE",  hrefs: ["/admin/products", "/admin/categories", "/admin/stock"] },
   { title: "MARKETING",  hrefs: ["/admin/promotions", "/admin/newsletter", "/admin/coupons", "/admin/announcement"] },
-  { title: "SAV",        hrefs: ["/admin/messages", "/admin/reviews", "/admin/returns"] },
+  { title: "SAV",        hrefs: ["/admin/messages", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
   { title: "LOGISTIQUE", hrefs: ["/admin/shipping", "/admin/size-guide"] },
   { title: "CONFIG",     hrefs: ["/admin/settings"] },
 ];
@@ -196,7 +205,7 @@ const pageLabels: Record<string, string> = {
   customers: "Clients", products: "Produits", categories: "Catégories",
   stock: "Stock", promotions: "Promotions", newsletter: "Newsletter",
   coupons: "Codes promo", announcement: "Annonce", messages: "Messages",
-  reviews: "Avis", returns: "Retours", shipping: "Livraison",
+  reviews: "Avis", returns: "Retours", trustpilot: "Trustpilot", shipping: "Livraison",
   "size-guide": "Guide tailles", settings: "Paramètres",
 };
 
