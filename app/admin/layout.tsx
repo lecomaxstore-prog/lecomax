@@ -219,21 +219,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, []);
 
   useEffect(() => {
+    const isLoginPage = pathname === "/admin" || pathname === "/admin/";
     supabase.auth.getSession().then(({ data }) => {
-      if (!data.session && pathname !== "/admin") {
+      if (!data.session && !isLoginPage) {
         router.replace("/admin");
       }
       setChecking(false);
     });
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session && pathname !== "/admin") router.replace("/admin");
+      if (!session && !isLoginPage) router.replace("/admin");
     });
     return () => listener.subscription.unsubscribe();
   }, [pathname, router]);
 
   // Load badge counts (pending orders + low stock)
   useEffect(() => {
-    if (pathname === "/admin") return;
+    if (pathname === "/admin" || pathname === "/admin/") return;
     Promise.all([fetch("/api/orders"), fetch("/api/products"), fetch("/api/messages?unread=true")]).then(async ([oRes, pRes, mRes]) => {
       const orders = oRes.ok ? await oRes.json() : [];
       const products = pRes.ok ? await pRes.json() : [];
@@ -245,8 +246,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }).catch(() => {});
   }, [pathname]);
 
-  // login page — no shell
-  if (pathname === "/admin") return <>{children}</>;
+  // login page — no shell (strip trailing slash before comparing)
+  const isLoginPage = pathname.replace(/\/+$/, "") === "/admin" || pathname === "/admin";
+  if (isLoginPage) return <>{children}</>;
   if (checking) return (
     <div className="min-h-screen flex items-center justify-center bg-[#f6f6f4]">
       <div className="flex flex-col items-center gap-3">
