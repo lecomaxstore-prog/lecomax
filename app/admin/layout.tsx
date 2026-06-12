@@ -74,6 +74,35 @@ const nav = [
     ),
   },
   {
+    label: "Paniers abandonnés",
+    href: "/admin/abandoned-carts",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+        <path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.98-1.61L23 6H6"/>
+        <line x1="17" y1="11" x2="17" y2="17"/><line x1="14" y1="14" x2="20" y2="14"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Fidélité",
+    href: "/admin/loyalty",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Broadcast",
+    href: "/admin/broadcast",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11.5 19.79 19.79 0 01.12 2.82 2 2 0 012.11 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.09a16 16 0 006 6l.46-.46a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+      </svg>
+    ),
+  },
+  {
     label: "Trustpilot",
     href: "/admin/trustpilot",
     icon: (
@@ -191,9 +220,10 @@ const nav = [
 ];
 
 const navSections: { title: string; hrefs: string[] }[] = [
-  { title: "VENTES",     hrefs: ["/admin/dashboard", "/admin/analytics", "/admin/recordings", "/admin/orders", "/admin/customers"] },
+  { title: "VENTES",     hrefs: ["/admin/dashboard", "/admin/analytics", "/admin/recordings", "/admin/orders"] },
   { title: "CATALOGUE",  hrefs: ["/admin/products", "/admin/categories", "/admin/stock"] },
-  { title: "MARKETING",  hrefs: ["/admin/promotions", "/admin/newsletter", "/admin/coupons", "/admin/announcement"] },
+  { title: "CLIENTS",    hrefs: ["/admin/customers", "/admin/loyalty", "/admin/abandoned-carts"] },
+  { title: "MARKETING",  hrefs: ["/admin/promotions", "/admin/newsletter", "/admin/coupons", "/admin/announcement", "/admin/broadcast"] },
   { title: "SAV",        hrefs: ["/admin/messages", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
   { title: "LOGISTIQUE", hrefs: ["/admin/shipping", "/admin/size-guide"] },
   { title: "CONFIG",     hrefs: ["/admin/settings"] },
@@ -207,6 +237,7 @@ const pageLabels: Record<string, string> = {
   coupons: "Codes promo", announcement: "Annonce", messages: "Messages",
   reviews: "Avis", returns: "Retours", trustpilot: "Trustpilot", shipping: "Livraison",
   "size-guide": "Guide tailles", settings: "Paramètres",
+  "abandoned-carts": "Paniers abandonnés", loyalty: "Fidélité", broadcast: "Broadcast",
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
