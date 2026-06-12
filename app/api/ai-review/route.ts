@@ -4,20 +4,22 @@ export const runtime = "edge";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-const SYSTEM = `You are a satisfied customer writing a product review in French for L'ecomax, a Moroccan e-commerce store selling fashion, tech, and sports products.
-Write a short, natural, authentic-sounding customer review.
-Rules:
-- 2-3 sentences maximum
-- Casual and genuine tone, not marketing-speak
-- Match the star rating (5 = very happy, 4 = happy, 3 = okay, etc.)
-- Mention the product/order experience naturally
-- Reply with ONLY the review text, no quotes, no labels, no explanations`;
+const SYSTEM = `You are generating realistic fake customer reviews in French for L'ecomax, a Moroccan e-commerce store selling fashion, tech, and sports products.
+Generate a complete review as a JSON object with these fields:
+- name: a realistic Moroccan/French customer full name (e.g. "Karim Alaoui", "Sara Benali", "Mohamed Raji")
+- title: a short punchy review title (5-8 words)
+- text: 2-3 sentences, casual and genuine, not marketing-speak
+
+Match the star rating (5 = very happy, 4 = happy, 3 = okay).
+Reply with ONLY valid JSON, no markdown fences, no explanations.
+Example: {"name":"Yasmine Tazi","title":"Super rapide et bien emballé","text":"Commande reçue en 2 jours, vraiment impressionnée par la rapidité. Le produit correspond exactement aux photos. Je recommande sans hésiter !"}`;
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, rating, hint } = await req.json() as { name?: string; rating: number; hint?: string };
+    const { rating, hint } = await req.json() as { rating?: number; hint?: string };
+    const stars = rating ?? 5;
 
-    const userPrompt = `Write a ${rating}-star review from a customer${name?.trim() ? ` named "${name.trim().split(" ")[0]}"` : ""}.${hint ? ` Context: ${hint}` : ""}`;
+    const userPrompt = `Generate a ${stars}-star review.${hint ? ` The customer bought: ${hint}.` : ""}`;
 
     const res = await fetch(GROQ_URL, {
       method: "POST",
@@ -31,7 +33,7 @@ export async function POST(req: NextRequest) {
           { role: "system", content: SYSTEM },
           { role: "user", content: userPrompt },
         ],
-        max_tokens: 120,
+        max_tokens: 200,
         temperature: 0.9,
       }),
     });
@@ -42,8 +44,10 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await res.json() as { choices: Array<{ message: { content: string } }> };
-    const text = data.choices?.[0]?.message?.content?.trim() ?? "";
-    return NextResponse.json({ text });
+    const raw = data.choices?.[0]?.message?.content?.trim() ?? "{}";
+    let parsed: { name?: string; title?: string; text?: string } = {};
+    try { parsed = JSON.parse(raw); } catch { parsed = { text: raw }; }
+    return NextResponse.json(parsed);
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }

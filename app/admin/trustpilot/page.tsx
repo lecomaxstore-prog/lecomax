@@ -41,16 +41,21 @@ function ManualForm({ onAdd }: { onAdd: (r: TpReview) => void }) {
   }
 
   async function generateText() {
-    if (!form.name.trim()) return;
     setAiLoading(true);
     try {
       const res = await fetch("/api/ai-review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name, rating: form.rating, hint: aiHint }),
+        body: JSON.stringify({ rating: form.rating, hint: aiHint }),
       });
       const data = await res.json();
-      if (data.text) { set("text", data.text); setAiOpen(false); }
+      setForm((f) => ({
+        ...f,
+        name: data.name?.trim() || f.name,
+        title: data.title?.trim() || f.title,
+        text: data.text?.trim() || f.text,
+      }));
+      setAiOpen(false);
     } finally {
       setAiLoading(false);
     }
@@ -141,7 +146,7 @@ function ManualForm({ onAdd }: { onAdd: (r: TpReview) => void }) {
         {aiOpen && (
           <div className="mb-2 bg-violet-50 border border-violet-200 rounded-xl p-3 space-y-2">
             <p className="text-[10px] font-bold text-violet-600 uppercase tracking-wider">✨ Générer avec l&apos;IA</p>
-            <p className="text-[10px] text-violet-500">Décrivez le produit acheté pour personnaliser l&apos;avis (optionnel).</p>
+            <p className="text-[10px] text-violet-500">L&apos;IA va générer le nom, le titre et le commentaire. Décrivez le produit pour personnaliser (optionnel).</p>
             <input value={aiHint} onChange={(e) => setAiHint(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && generateText()}
               placeholder="Ex: sneakers Nike, livraison rapide…"
@@ -150,7 +155,7 @@ function ManualForm({ onAdd }: { onAdd: (r: TpReview) => void }) {
               className="w-full py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-xs font-bold transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5">
               {aiLoading
                 ? <><span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" /> Génération…</>
-                : <>✨ Générer le commentaire</>}
+                : <>✨ Générer l&apos;avis complet</>}
             </button>
           </div>
         )}
