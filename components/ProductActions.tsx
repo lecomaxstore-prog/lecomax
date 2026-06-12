@@ -8,6 +8,115 @@ import SizeGuideModal from "./SizeGuideModal";
 import type { Product } from "@/lib/products";
 import { trackAddToCart } from "@/lib/analytics";
 
+/* ── Cart fly animation (pure DOM, no React overhead) ── */
+function flyImageToCart(imgSrc: string, fromEl: HTMLElement) {
+  const cartEl = document.querySelector("[data-cart-icon]") as HTMLElement | null;
+  const from = fromEl.getBoundingClientRect();
+  const tx = cartEl
+    ? cartEl.getBoundingClientRect().left + cartEl.getBoundingClientRect().width / 2
+    : window.innerWidth - 48;
+  const ty = cartEl
+    ? cartEl.getBoundingClientRect().top + cartEl.getBoundingClientRect().height / 2
+    : 30;
+  const dx = tx - (from.left + from.width / 2);
+  const dy = ty - (from.top + from.height / 2);
+
+  // Flying image clone
+  const fly = document.createElement("div");
+  fly.style.cssText = [
+    "position:fixed",
+    "left:" + from.left + "px",
+    "top:" + from.top + "px",
+    "width:" + from.width + "px",
+    "height:" + from.height + "px",
+    "z-index:99999",
+    "pointer-events:none",
+    "border-radius:12px",
+    "overflow:hidden",
+    "box-shadow:0 12px 40px rgba(0,0,0,0.25)",
+    "will-change:transform,opacity",
+    "transform-origin:center center",
+    "transform:translate(0,0) scale(1)",
+    "opacity:1",
+  ].join(";");
+  const img = document.createElement("img");
+  img.src = imgSrc;
+  img.style.cssText = "width:100%;height:100%;object-fit:cover;display:block;";
+  img.draggable = false;
+  fly.appendChild(img);
+  document.body.appendChild(fly);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      fly.style.transition =
+        "transform 0.7s cubic-bezier(0.22,1,0.36,1),opacity 0.55s ease-in 0.15s";
+      fly.style.transform = "translate(" + dx + "px," + dy + "px) scale(0.12)";
+      fly.style.opacity = "0";
+      fly.addEventListener(
+        "transitionend",
+        () => {
+          fly.remove();
+          if (cartEl) {
+            cartEl.classList.add("cart-pulse");
+            setTimeout(() => cartEl.classList.remove("cart-pulse"), 700);
+          }
+          showCartToast();
+        },
+        { once: true }
+      );
+    });
+  });
+}
+
+function showCartToast() {
+  const existing = document.getElementById("__cart_toast__");
+  if (existing) existing.remove();
+  const toast = document.createElement("div");
+  toast.id = "__cart_toast__";
+  toast.setAttribute("role", "status");
+  toast.setAttribute("aria-live", "polite");
+  toast.style.cssText = [
+    "position:fixed",
+    "bottom:28px",
+    "left:50%",
+    "transform:translateX(-50%) translateY(16px)",
+    "opacity:0",
+    "transition:transform 0.4s cubic-bezier(0.22,1,0.36,1),opacity 0.4s ease",
+    "z-index:99998",
+    "pointer-events:none",
+    "background:#111",
+    "color:#fff",
+    "border-radius:14px",
+    "padding:11px 18px",
+    "display:flex",
+    "align-items:center",
+    "gap:9px",
+    "font-size:13px",
+    "font-weight:700",
+    "letter-spacing:0.01em",
+    "box-shadow:0 8px 32px rgba(0,0,0,0.22)",
+    "white-space:nowrap",
+    "font-family:inherit",
+  ].join(";");
+  toast.innerHTML =
+    '<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#3ecf4c;flex-shrink:0">' +
+    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+    "</span>" +
+    "Produit ajout\u00e9 au panier";
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      toast.style.opacity = "1";
+      toast.style.transform = "translateX(-50%) translateY(0)";
+    });
+  });
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateX(-50%) translateY(16px)";
+    setTimeout(() => toast.remove(), 400);
+  }, 2600);
+}
+
 const colorMap: Record<string, string> = {
   "Noir": "#0a0a0a", "Blanc": "#f5f5f5", "Blanc casse": "#fafaf5",
   "Édition Standard": "#1a1a2e",
@@ -102,6 +211,10 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
     if (goToCart) {
       router.push("/checkout");
     } else {
+      // Fly animation: find main gallery image container
+      const fromEl = document.querySelector("[data-main-gallery-img]") as HTMLElement | null;
+      const imgSrc = effectiveColorImages?.[color] ?? product.image;
+      if (fromEl) flyImageToCart(imgSrc, fromEl);
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
     }

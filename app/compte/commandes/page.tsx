@@ -1,26 +1,27 @@
 ﻿"use client";
 
 import Link from "next/link";
+
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 
-const TABS = ["Toutes", "En cours", "LivrÃ©es", "AnnulÃ©es"] as const;
+const TABS = ["Toutes", "En cours", "Livrées", "Annulées"] as const;
 type Tab = typeof TABS[number];
 
 const TAB_STATUS: Record<Tab, string | null> = {
   "Toutes": null,
   "En cours": "pending",
-  "LivrÃ©es": "delivered",
-  "AnnulÃ©es": "cancelled",
+  "Livrées": "delivered",
+  "Annulées": "cancelled",
 };
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
   pending:   { label: "En attente",   color: "bg-amber-50 text-amber-700 border-amber-200" },
-  confirmed: { label: "ConfirmÃ©e",    color: "bg-blue-50 text-blue-700 border-blue-200" },
-  shipped:   { label: "ExpÃ©diÃ©e",     color: "bg-purple-50 text-purple-700 border-purple-200" },
-  delivered: { label: "LivrÃ©e",       color: "bg-green-50 text-green-700 border-green-200" },
-  cancelled: { label: "AnnulÃ©e",      color: "bg-red-50 text-red-700 border-red-200" },
+  confirmed: { label: "Confirmée",    color: "bg-blue-50 text-blue-700 border-blue-200" },
+  shipped:   { label: "Expédiée",     color: "bg-purple-50 text-purple-700 border-purple-200" },
+  delivered: { label: "Livrée",       color: "bg-green-50 text-green-700 border-green-200" },
+  cancelled: { label: "Annulée",      color: "bg-red-50 text-red-700 border-red-200" },
 };
 
 type Order = {
@@ -81,7 +82,7 @@ export default function CommandesPage() {
           href="/suivre-commande"
           className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest border border-neutral-200 px-4 py-2.5 hover:border-black hover:bg-black hover:text-white transition-colors mb-1"
         >
-          Suivre un colis â†’
+          Suivre un colis →
         </Link>
       </div>
 
@@ -114,7 +115,7 @@ export default function CommandesPage() {
       {loading ? (
         <div className="bg-white border border-neutral-100 px-8 py-16 flex flex-col items-center gap-3">
           <span className="w-6 h-6 border-2 border-neutral-200 border-t-black rounded-full animate-spin" />
-          <p className="text-[11px] font-black uppercase tracking-widest text-neutral-400">Chargementâ€¦</p>
+          <p className="text-[11px] font-black uppercase tracking-widest text-neutral-400">Chargement…</p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white border border-neutral-100 px-8 py-20 flex flex-col items-center justify-center text-center">
@@ -128,15 +129,15 @@ export default function CommandesPage() {
           <p className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-300 mb-2">Aucune commande</p>
           <p className="text-[12px] text-neutral-400 max-w-[240px] leading-relaxed mb-7">
             {activeTab === "Toutes"
-              ? "Vous n'avez passÃ© aucune commande pour l'instant."
-              : `Aucune commande dans la catÃ©gorie Â« ${activeTab} Â».`}
+              ? "Vous n'avez passé aucune commande pour l'instant."
+              : `Aucune commande dans la catégorie « ${activeTab} ».`}
           </p>
           {activeTab === "Toutes" && (
             <a
               href="/"
               className="inline-flex items-center gap-2 bg-black text-white font-black text-[11px] uppercase tracking-widest px-6 py-3.5 hover:bg-neutral-800 transition-colors"
             >
-              DÃ©couvrir la boutique
+              Découvrir la boutique
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </a>
           )}
@@ -167,7 +168,7 @@ export default function CommandesPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-[12px] leading-snug line-clamp-1">{item.name}</p>
-                        <p className="text-[11px] text-neutral-400 mt-0.5">QtÃ© : {item.qty}</p>
+                        <p className="text-[11px] text-neutral-400 mt-0.5">Qté : {item.qty}</p>
                       </div>
                       <p className="font-black text-[13px] shrink-0">{item.price ? `${item.price} DH` : ""}</p>
                     </div>
@@ -177,13 +178,13 @@ export default function CommandesPage() {
                 {/* Footer */}
                 <div className="flex items-center justify-between px-5 py-3.5 border-t border-neutral-100">
                   <p className="text-[11px] text-neutral-500">
-                    {order.items.length} article{order.items.length > 1 ? "s" : ""} Â· Total <span className="font-black text-black">{total}</span>
+                    {order.items.length} article{order.items.length > 1 ? "s" : ""} · Total <span className="font-black text-black">{total}</span>
                   </p>
                   <Link
                     href={`/suivre-commande?order_number=${order.order_number}`}
                     className="text-[10px] font-black uppercase tracking-widest border border-neutral-200 px-4 py-2 hover:border-black hover:bg-black hover:text-white transition-colors flex items-center gap-1.5"
                   >
-                    Suivre â†’
+                    Suivre →
                   </Link>
                 </div>
               </div>
@@ -198,8 +199,8 @@ export default function CommandesPage() {
           <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
         <p className="text-[12px] text-neutral-500 leading-relaxed">
-          Les commandes passÃ©es avant la crÃ©ation de votre compte ne sont pas affichÃ©es ici.
-          Pour les retrouver, utilisez votre numÃ©ro de commande dans le{" "}
+          Les commandes passées avant la création de votre compte ne sont pas affichées ici.
+          Pour les retrouver, utilisez votre numéro de commande dans le{" "}
           <a href="/suivre-commande" className="font-bold text-black underline underline-offset-2 hover:no-underline">
             suivi de commande
           </a>.

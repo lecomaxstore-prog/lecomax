@@ -151,7 +151,10 @@ export default function Header() {
             <HeartIcon />
           </IconBtn>
           <IconBtn href="/panier" label="Panier">
-            <span className="relative">
+            <span
+              data-cart-icon
+              className="relative inline-flex"
+            >
               <BagIcon />
               {count > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-black text-white text-[9px] font-bold rounded-full w-[16px] h-[16px] flex items-center justify-center leading-none">

@@ -9,6 +9,7 @@ import { ProductColorProvider } from "@/components/ProductColorContext";
 import ProductCarousel from "@/components/ProductCarousel";
 import ReviewSection from "@/components/ReviewSection";
 import ProductAccordion from "@/components/ProductAccordion";
+import ShareButtons from "@/components/ShareButtons";
 
 
 export const dynamic = "force-dynamic";
@@ -454,9 +455,11 @@ export default async function ProductPage({
               {product.specs.map((s) => (
                 <span
                   key={s}
-                  className="inline-flex items-center gap-1.5 text-[10.5px] font-black uppercase tracking-[0.08em] px-3 py-1.5 bg-white border border-neutral-200 text-neutral-700 hover:border-[#3ecf4c] hover:text-black hover:bg-[#3ecf4c]/5 transition-colors duration-200"
+                  className="inline-flex items-center gap-2 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-neutral-50 border border-neutral-200 text-neutral-800 hover:bg-black hover:text-white hover:border-black transition-all duration-200 cursor-default"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] shrink-0" />
+                  <svg width="7" height="7" viewBox="0 0 8 8" className="shrink-0">
+                    <circle cx="4" cy="4" r="4" fill="#3ecf4c" />
+                  </svg>
                   {s}
                 </span>
               ))}
@@ -524,6 +527,12 @@ export default async function ProductPage({
               </div>
             </div>
           </div>
+
+          {/* Share buttons */}
+          <ShareButtons
+            url={`${SITE_URL}/produit/${product.slug}`}
+            title={product.displayName ?? product.name}
+          />
         </div>
       </div>
       </ProductColorProvider>

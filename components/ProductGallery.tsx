@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useProductColor } from "./ProductColorContext";
 
@@ -54,6 +54,42 @@ export default function ProductGallery({
   const [active, setActive] = useState<number | "video">(video ? "video" : 0);
   const { color: selectedColor, setColor: setSelectedColor } = useProductColor();
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const thumbsRef = useRef<HTMLDivElement>(null);
+
+  // Build the full list of "slides": video first (if any), then images
+  const slides: Array<"video" | number> = [
+    ...(video ? (["video"] as const) : []),
+    ...images.map((_, i) => i as number),
+  ];
+  const activeIndex = slides.indexOf(active);
+
+  const goTo = useCallback(
+    (idx: number) => {
+      const clamped = (idx + slides.length) % slides.length;
+      setActive(slides[clamped]);
+    },
+    [slides]
+  );
+
+  const goPrev = () => goTo(activeIndex - 1);
+  const goNext = () => goTo(activeIndex + 1);
+
+  // Auto-scroll thumbs strip to keep active thumb visible
+  useEffect(() => {
+    const strip = thumbsRef.current;
+    if (!strip) return;
+    const activeThumb = strip.children[activeIndex] as HTMLElement | undefined;
+    if (!activeThumb) return;
+    const stripLeft = strip.scrollLeft;
+    const stripRight = stripLeft + strip.clientWidth;
+    const thumbLeft = activeThumb.offsetLeft;
+    const thumbRight = thumbLeft + activeThumb.offsetWidth;
+    if (thumbLeft < stripLeft) {
+      strip.scrollTo({ left: thumbLeft - 8, behavior: "smooth" });
+    } else if (thumbRight > stripRight) {
+      strip.scrollTo({ left: thumbRight - strip.clientWidth + 8, behavior: "smooth" });
+    }
+  }, [activeIndex]);
 
   // When viewing a photo and video exists, return to video after 30s of inactivity
   useEffect(() => {
@@ -86,7 +122,7 @@ export default function ProductGallery({
   return (
     <div className="flex flex-col gap-3 min-w-0">
       {/* Main view */}
-      <div className="relative aspect-square bg-neutral-100 overflow-hidden group">
+      <div data-main-gallery-img className="relative aspect-square bg-neutral-100 overflow-hidden group">
         {active === "video" && video ? (
           isYouTube(video) ? (
             <iframe
@@ -133,49 +169,101 @@ export default function ProductGallery({
             )}
           </div>
         )}
+        {/* Main image prev/next arrows */}
+        {slides.length > 1 && (
+          <>
+            <button
+              onClick={goPrev}
+              aria-label="Image précédente"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white/90 border border-neutral-200 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-black hover:text-white hover:border-black transition-all duration-200 shadow-sm"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <button
+              onClick={goNext}
+              aria-label="Image suivante"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white/90 border border-neutral-200 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-black hover:text-white hover:border-black transition-all duration-200 shadow-sm"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </>
+        )}
       </div>
 
-      {/* Thumbnail strip */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {/* Video thumbnail — shown first when video exists */}
-        {video && (
-          <button
-            onClick={() => setActive("video")}
-            className={`relative flex-shrink-0 w-[72px] h-[72px] bg-neutral-900 border-2 transition-colors overflow-hidden flex items-center justify-center ${
-              active === "video"
-                ? "border-black"
-                : "border-transparent hover:border-neutral-300"
-            }`}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={isYouTube(video) ? `https://img.youtube.com/vi/${getYouTubeId(video)}/mqdefault.jpg` : images[0]}
-              alt="Vidéo"
-              className="absolute inset-0 w-full h-full object-cover opacity-50"
-            />
-            <span className="relative z-10 text-white text-2xl leading-none">▶</span>
-          </button>
-        )}
-        {images.map((src, i) => (
-          <button
-            key={i}
-            onClick={() => setActive(i)}
-            className={`relative flex-shrink-0 w-[72px] h-[72px] bg-neutral-100 border-2 transition-colors overflow-hidden ${
-              active === i
-                ? "border-black"
-                : "border-transparent hover:border-neutral-300"
-            }`}
-          >
-            <Image
-              src={src}
-              alt={`${name} vue ${i + 1}`}
-              fill
-              sizes="72px"
-              className="object-cover"
-              loading="lazy"
-            />
-          </button>
-        ))}
+      {/* Thumbnail strip with prev/next arrows */}
+      <div className="relative flex items-center gap-2">
+        {/* Prev arrow */}
+        <button
+          onClick={goPrev}
+          aria-label="Image précédente"
+          className={`flex-shrink-0 w-8 h-8 flex items-center justify-center border border-neutral-200 bg-white hover:bg-black hover:text-white hover:border-black transition-all duration-200 ${
+            slides.length <= 1 ? "opacity-0 pointer-events-none" : ""
+          }`}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+
+        {/* Thumbnails */}
+        <div ref={thumbsRef} className="flex gap-2 overflow-x-auto flex-1" style={{ scrollbarWidth: "none" }}>
+          {/* Video thumbnail */}
+          {video && (
+            <button
+              onClick={() => setActive("video")}
+              className={`relative flex-shrink-0 w-[72px] h-[72px] bg-neutral-900 border-2 transition-colors overflow-hidden flex items-center justify-center ${
+                active === "video"
+                  ? "border-black"
+                  : "border-transparent hover:border-neutral-300"
+              }`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={isYouTube(video) ? `https://img.youtube.com/vi/${getYouTubeId(video)}/mqdefault.jpg` : images[0]}
+                alt="Vidéo"
+                className="absolute inset-0 w-full h-full object-cover opacity-50"
+              />
+              <span className="relative z-10 text-white text-2xl leading-none">▶</span>
+            </button>
+          )}
+          {images.map((src, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              className={`relative flex-shrink-0 w-[72px] h-[72px] bg-neutral-100 border-2 transition-colors overflow-hidden ${
+                active === i
+                  ? "border-black"
+                  : "border-transparent hover:border-neutral-300"
+              }`}
+            >
+              <Image
+                src={src}
+                alt={`${name} vue ${i + 1}`}
+                fill
+                sizes="72px"
+                className="object-cover"
+                loading="lazy"
+              />
+            </button>
+          ))}
+        </div>
+
+        {/* Next arrow */}
+        <button
+          onClick={goNext}
+          aria-label="Image suivante"
+          className={`flex-shrink-0 w-8 h-8 flex items-center justify-center border border-neutral-200 bg-white hover:bg-black hover:text-white hover:border-black transition-all duration-200 ${
+            slides.length <= 1 ? "opacity-0 pointer-events-none" : ""
+          }`}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
       </div>
     </div>
   );
