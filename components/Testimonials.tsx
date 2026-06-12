@@ -10,6 +10,7 @@ type FeaturedReview = {
   text: string;
   rating: number;
   date: string;
+  photo?: string;
 };
 
 const STATS = [
@@ -176,13 +177,23 @@ export default function Testimonials() {
               <div key={r.id}
                 className="bg-white rounded-2xl border border-neutral-100 p-5 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-bold text-sm text-neutral-900">{r.name}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <FeaturedStars rating={r.rating} />
-                      <span className="text-[10px] text-neutral-400">
-                        {new Date(r.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
-                      </span>
+                  <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                    {r.photo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={r.photo} alt={r.name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-neutral-100" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-[#e8f8f0] flex items-center justify-center shrink-0 text-[#00b67a] font-black text-sm">
+                        {r.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm text-neutral-900 truncate">{r.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <FeaturedStars rating={r.rating} />
+                        <span className="text-[10px] text-neutral-400">
+                          {new Date(r.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   {/* Trustpilot logo */}

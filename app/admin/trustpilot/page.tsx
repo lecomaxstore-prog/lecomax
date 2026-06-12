@@ -9,6 +9,7 @@ type TpReview = {
   rating: number;
   date: string;
   url?: string;
+  photo?: string; // base64 or URL
 };
 
 function Stars({ rating }: { rating: number }) {
@@ -25,8 +26,35 @@ function Stars({ rating }: { rating: number }) {
 }
 
 function ManualForm({ onAdd }: { onAdd: (r: TpReview) => void }) {
-  const [form, setForm] = useState({ name: "", title: "", text: "", rating: 5, date: "" });
+  const [form, setForm] = useState({ name: "", title: "", text: "", rating: 5, date: "", photo: "" });
+  const [aiHint, setAiHint] = useState("");
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const set = (k: string, v: string | number) => setForm((f) => ({ ...f, [k]: v }));
+
+  function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => set("photo", ev.target?.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  async function generateText() {
+    if (!form.name.trim()) return;
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/ai-review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: form.name, rating: form.rating, hint: aiHint }),
+      });
+      const data = await res.json();
+      if (data.text) { set("text", data.text); setAiOpen(false); }
+    } finally {
+      setAiLoading(false);
+    }
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -38,13 +66,17 @@ function ManualForm({ onAdd }: { onAdd: (r: TpReview) => void }) {
       text: form.text.trim(),
       rating: form.rating,
       date: form.date || new Date().toISOString(),
+      photo: form.photo || undefined,
     });
-    setForm({ name: "", title: "", text: "", rating: 5, date: "" });
+    setForm({ name: "", title: "", text: "", rating: 5, date: "", photo: "" });
+    setAiHint("");
   }
 
   return (
     <form onSubmit={submit} className="bg-neutral-50 border border-neutral-200 rounded-2xl p-5 space-y-3">
       <p className="text-xs font-black uppercase tracking-widest text-neutral-400 mb-1">Ajouter manuellement</p>
+
+      {/* Name + Rating */}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-[11px] text-neutral-500 font-semibold">Nom du client *</label>
@@ -59,16 +91,73 @@ function ManualForm({ onAdd }: { onAdd: (r: TpReview) => void }) {
           </select>
         </div>
       </div>
+
+      {/* Photo upload */}
+      <div>
+        <label className="text-[11px] text-neutral-500 font-semibold">Photo du client</label>
+        <div className="mt-1 flex items-center gap-3">
+          {form.photo ? (
+            <div className="relative shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={form.photo} alt="preview" className="w-12 h-12 rounded-full object-cover border-2 border-[#00b67a]" />
+              <button type="button" onClick={() => set("photo", "")}
+                className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white">
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-400 shrink-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+          )}
+          <label className="flex-1 cursor-pointer">
+            <div className="border border-dashed border-neutral-300 rounded-xl px-3 py-2 text-[11px] text-neutral-500 hover:border-neutral-500 transition-colors text-center">
+              {form.photo ? "Changer la photo" : "📷 Choisir une photo (JPG, PNG)"}
+            </div>
+            <input type="file" accept="image/*" onChange={handlePhoto} className="hidden" />
+          </label>
+        </div>
+      </div>
+
+      {/* Title */}
       <div>
         <label className="text-[11px] text-neutral-500 font-semibold">Titre</label>
         <input value={form.title} onChange={(e) => set("title", e.target.value)}
           className="mt-1 w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black" />
       </div>
+
+      {/* Comment + AI */}
       <div>
-        <label className="text-[11px] text-neutral-500 font-semibold">Commentaire *</label>
+        <div className="flex items-center justify-between mb-1">
+          <label className="text-[11px] text-neutral-500 font-semibold">Commentaire *</label>
+          <button type="button" onClick={() => setAiOpen((o) => !o)}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border ${
+              aiOpen ? "bg-violet-600 text-white border-violet-600" : "border-neutral-200 text-neutral-500 hover:border-violet-400 hover:text-violet-600"
+            }`}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>
+            IA
+          </button>
+        </div>
+        {aiOpen && (
+          <div className="mb-2 bg-violet-50 border border-violet-200 rounded-xl p-3 space-y-2">
+            <p className="text-[10px] font-bold text-violet-600 uppercase tracking-wider">✨ Générer avec l&apos;IA</p>
+            <p className="text-[10px] text-violet-500">Remplissez le nom et la note, puis décrivez le produit (optionnel).</p>
+            <input value={aiHint} onChange={(e) => setAiHint(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && generateText()}
+              placeholder="Ex: sneakers Nike, livraison rapide…"
+              className="w-full border border-violet-200 bg-white rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-violet-500" />
+            <button type="button" onClick={generateText} disabled={!form.name.trim() || aiLoading}
+              className="w-full py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-xs font-bold transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5">
+              {aiLoading
+                ? <><span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" /> Génération…</>
+                : <>✨ Générer le commentaire</>}
+            </button>
+          </div>
+        )}
         <textarea rows={3} value={form.text} onChange={(e) => set("text", e.target.value)} required
-          className="mt-1 w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black resize-none" />
+          className="mt-0.5 w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black resize-none" />
       </div>
+
       <button type="submit"
         className="w-full py-2.5 bg-black text-white text-xs font-bold rounded-xl hover:bg-neutral-800 transition-colors">
         + Ajouter et afficher sur le site
@@ -273,17 +362,27 @@ export default function TrustpilotAdminPage() {
               {featured.map((r) => (
                 <div key={r.id} className="bg-white rounded-2xl border border-[#00b67a] ring-1 ring-[#00b67a]/20 p-4 flex flex-col gap-3">
                   <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-bold text-sm text-neutral-900">{r.name}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Stars rating={r.rating} />
-                        <span className="text-[10px] text-neutral-400">
-                          {new Date(r.date).toLocaleDateString("fr-FR")}
-                        </span>
+                    <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                      {r.photo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={r.photo} alt={r.name} className="w-9 h-9 rounded-full object-cover shrink-0 border border-neutral-100" />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-neutral-100 flex items-center justify-center shrink-0 text-neutral-400 font-bold text-sm">
+                          {r.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm text-neutral-900 truncate">{r.name}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Stars rating={r.rating} />
+                          <span className="text-[10px] text-neutral-400">
+                            {new Date(r.date).toLocaleDateString("fr-FR")}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <button onClick={() => remove(r.id)} disabled={saving}
-                      className="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors">
+                      className="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors shrink-0">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <path d="M18 6L6 18M6 6l12 12"/>
                       </svg>
