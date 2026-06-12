@@ -58,8 +58,28 @@ export default async function HomePage() {
   const featuredForRail = (newArrivals.length > 0 ? newArrivals : dbProducts).slice(0, 8);
   const bestSellersForRail = bestSellers.length > 0 ? bestSellers : dbProducts.slice(0, 8);
 
+  const SITE_URL = "https://lecomax.com";
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Produits L'ecomax",
+    "url": SITE_URL,
+    "numberOfItems": allProducts.length,
+    "itemListElement": allProducts.slice(0, 20).map((p, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${SITE_URL}/produit/${p.slug}/`,
+      "name": p.name,
+      ...(p.price ? { "offers": { "@type": "Offer", "price": p.price, "priceCurrency": "MAD", "availability": "https://schema.org/InStock" } } : {}),
+    })),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
       <HeroBanner
         heroImage={heroImages.hero_image}
         heroImageMobile={heroImages.hero_image_mobile}

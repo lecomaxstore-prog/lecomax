@@ -15,5 +15,38 @@
     { "src": "/favicon.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
     { "src": "/favicon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "/favicon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/hero secrtion/hero section web version.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "L'ecomax — Boutique en ligne Maroc"
+    },
+    {
+      "src": "/images/hero secrtion/hero section mobile version.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "L'ecomax — Mode, Tech & Sport"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouveautés",
+      "url": "/nouveautes",
+      "description": "Dernières arrivées"
+    },
+    {
+      "name": "Promotions",
+      "url": "/promotions",
+      "description": "Meilleures offres"
+    },
+    {
+      "name": "Mon panier",
+      "url": "/panier",
+      "description": "Voir mon panier"
+    }
   ]
 }

@@ -1,7 +1,7 @@
 # L'ecomax — Boutique en ligne au Maroc
 
 ## À propos
-L'ecomax est une boutique en ligne marocaine proposant des chaussures de sport, des vêtements tendance, des écouteurs sans fil, des enceintes bluetooth et des accessoires gaming. Livraison partout au Maroc pour 35 MAD. Paiement à la livraison disponible. Retours gratuits sous 14 jours.
+L'ecomax est une boutique en ligne marocaine proposant des chaussures de sport, des vêtements tendance, des écouteurs sans fil, des enceintes bluetooth et des accessoires gaming. Livraison partout au Maroc pour 35 MAD. Paiement à la livraison disponible. Retours gratuits sous 30 jours.
 
 - Site web : https://lecomax.com
 - Pays : Maroc
@@ -22,7 +22,7 @@ L'ecomax est une boutique en ligne marocaine proposant des chaussures de sport, 
 - **Prix** : 69 MAD à 499 MAD
 - **Livraison** : 35 MAD partout au Maroc (2–5 jours ouvrables)
 - **Paiement** : À la livraison (cash), carte bancaire
-- **Retours** : Gratuits sous 14 jours
+- **Retours** : Gratuits sous 30 jours
 - **Écoclub** : Programme de fidélité avec points de récompense — https://lecomax.com/ecoclub
 
 ## Pages utiles
