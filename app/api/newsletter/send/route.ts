@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
   // Send to all in batches (Resend allows up to 100 per request)
   const emails = subscribers.map((s) => ({
     from: "L'ecomax <noreply@lecomax.com>",
-    replyTo: "lecomaxstore@gmail.com",
+    replyTo: "contact@lecomax.com",
     to: s.email,
     subject,
     html: htmlContent,

@@ -148,7 +148,7 @@ export async function POST(req: Request) {
   try {
     await resend.emails.send({
       from: "L'ECOMAX <noreply@lecomax.com>",
-      replyTo: "lecomaxstore@gmail.com",
+      replyTo: "contact@lecomax.com",
       to: [email],
       subject: "Confirmez votre email — L'ECOMAX",
       html,

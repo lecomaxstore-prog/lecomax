@@ -6,7 +6,7 @@ type SettingsMap = Record<string, string>;
 
 const DEFAULT_SETTINGS: SettingsMap = {
   store_name: "L'ECOMAX",
-  store_email: "lecomaxstore@gmail.com",
+  store_email: "contact@lecomax.com",
   store_phone: "",
   store_address: "",
   store_city: "Casablanca",

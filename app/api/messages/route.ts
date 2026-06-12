@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     .insert({ name, email, subject, message, read: false });
 
   // Send email notification to admin
-  const adminEmail = process.env.ADMIN_EMAIL || "lecomaxstore@gmail.com";
+  const adminEmail = process.env.ADMIN_EMAIL || "contact@lecomax.com";
   if (resend) {
     try {
       await resend.emails.send({

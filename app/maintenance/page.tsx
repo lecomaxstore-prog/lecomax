@@ -23,8 +23,8 @@ export default function MaintenancePage() {
         {/* Contact */}
         <div className="border border-white/10 rounded-2xl px-5 py-4 text-left">
           <p className="text-white/25 text-[11px] uppercase tracking-widest font-bold mb-2">Une question urgente ?</p>
-          <a href="mailto:lecomaxstore@gmail.com" className="text-[#3ecf4c] text-sm font-semibold hover:underline">
-            lecomaxstore@gmail.com
+          <a href="mailto:contact@lecomax.com" className="text-[#3ecf4c] text-sm font-semibold hover:underline">
+            contact@lecomax.com
           </a>
         </div>
 
