@@ -35,6 +35,28 @@ export default function BroadcastPage() {
   const [currentIdx, setCurrentIdx] = useState<number | null>(null);
   const [sent, setSent] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiSubject, setAiSubject] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  async function generateWithAI() {
+    if (!aiSubject.trim()) return;
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/ai-broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject: aiSubject, template }),
+      });
+      const data = await res.json();
+      if (data.message) {
+        setMessage(data.message);
+        setAiOpen(false);
+      }
+    } finally {
+      setAiLoading(false);
+    }
+  }
 
   useEffect(() => {
     fetch("/api/orders")
@@ -216,9 +238,44 @@ export default function BroadcastPage() {
 
             {/* Message body */}
             <div>
-              <p className="text-xs font-semibold text-neutral-600 mb-1.5">
-                {template === "custom" ? "Votre message" : "Contenu principal"}
-              </p>
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="text-xs font-semibold text-neutral-600">
+                  {template === "custom" ? "Votre message" : "Contenu principal"}
+                </p>
+                <button
+                  onClick={() => setAiOpen((o) => !o)}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border ${
+                    aiOpen ? "bg-violet-600 text-white border-violet-600" : "border-neutral-200 text-neutral-500 hover:border-violet-400 hover:text-violet-600"
+                  }`}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>
+                  IA
+                </button>
+              </div>
+
+              {/* AI panel */}
+              {aiOpen && (
+                <div className="mb-2 bg-violet-50 border border-violet-200 rounded-xl p-3 space-y-2">
+                  <p className="text-[10px] font-bold text-violet-600 uppercase tracking-wider">✨ Générer avec l&apos;IA</p>
+                  <input
+                    value={aiSubject}
+                    onChange={(e) => setAiSubject(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && generateWithAI()}
+                    placeholder="Ex: -20% sur tous les sneakers ce weekend…"
+                    className="w-full border border-violet-200 bg-white rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-violet-500"
+                  />
+                  <button
+                    onClick={generateWithAI}
+                    disabled={!aiSubject.trim() || aiLoading}
+                    className="w-full py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-xs font-bold transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5">
+                    {aiLoading ? (
+                      <><span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" /> Génération…</>
+                    ) : (
+                      <>✨ Générer le message</>
+                    )}
+                  </button>
+                </div>
+              )}
+
               <textarea
                 rows={5}
                 value={message}
