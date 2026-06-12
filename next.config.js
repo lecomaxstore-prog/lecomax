@@ -2,6 +2,7 @@
 const nextConfig = {
   compress: true,
   poweredByHeader: false,
+  trailingSlash: true,
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [75, 85, 90, 100],
@@ -14,6 +15,43 @@ const nextConfig = {
     ],
   },
   devIndicators: false,
+  async redirects() {
+    return [
+      // Fix 404: old .html pages that Googlebot crawled
+      {
+        source: "/index.html",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/authentication.html",
+        destination: "/connexion",
+        permanent: true,
+      },
+      // Fix 404: deleted/renamed products — redirect to closest category
+      {
+        source: "/produit/a-mini-sac",
+        destination: "/accessoires",
+        permanent: true,
+      },
+      {
+        source: "/produit/a-mini-sac/",
+        destination: "/accessoires",
+        permanent: true,
+      },
+      {
+        source: "/produit/a-ecouteurs-sport",
+        destination: "/accessoires",
+        permanent: true,
+      },
+      {
+        source: "/produit/a-ecouteurs-sport/",
+        destination: "/accessoires",
+        permanent: true,
+      },
+
+    ];
+  },
   async headers() {
     return [
       {
@@ -26,6 +64,13 @@ const nextConfig = {
         source: "/images/(.*)",
         headers: [
           { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
+        ],
+      },
+      {
+        // Tell Google not to index raw image files as web pages
+        source: "/images/:path*.(avif|webp|png|jpg|jpeg|gif|svg)",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
         ],
       },
       {

@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     template: "%s · L'ecomax",
   },
   description:
-    "L'ecomax — boutique en ligne au Maroc. Chaussures de sport, vêtements tendance, écouteurs sans fil, enceintes et accessoires gaming. Livraison partout au Maroc 35 MAD. Retours gratuits sous 30 jours. Paiement à la livraison.",
+    "L'ecomax est la boutique en ligne au Maroc pour acheter des chaussures de sport, vêtements tendance, écouteurs sans fil TWS, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc, paiement à la livraison, retours gratuits sous 14 jours. Commandez sur lecomax.com.",
   keywords: [
     "L'ecomax",
     "lecomax",

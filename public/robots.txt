@@ -8,6 +8,33 @@ Disallow: /compte/
 Disallow: /merci
 Disallow: /connexion
 Disallow: /inscription
+
+# Allow AI crawlers explicitly
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# Prevent image files from being indexed as web pages
+User-agent: *
+Disallow: /*.avif$
+Disallow: /*.webp$
 Disallow: /facture
 Disallow: /maintenance
 

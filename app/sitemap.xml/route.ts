@@ -6,25 +6,25 @@ const SITE_URL = "https://lecomax.com";
 const categorySlugs = ["homme", "femme", "chaussures", "accessoires"];
 
 const staticPages = [
-  { path: "", priority: 1.0, changeFreq: "daily" },
-  { path: "/boutique", priority: 0.9, changeFreq: "daily" },
-  { path: "/nouveautes", priority: 0.8, changeFreq: "weekly" },
-  { path: "/bestsellers", priority: 0.8, changeFreq: "weekly" },
-  { path: "/promotions", priority: 0.8, changeFreq: "daily" },
-  { path: "/guide-des-tailles", priority: 0.6, changeFreq: "monthly" },
-  { path: "/a-propos", priority: 0.6, changeFreq: "monthly" },
-  { path: "/aide", priority: 0.6, changeFreq: "monthly" },
-  { path: "/nous-contacter", priority: 0.6, changeFreq: "monthly" },
-  { path: "/suivre-commande", priority: 0.5, changeFreq: "monthly" },
-  { path: "/retours", priority: 0.5, changeFreq: "monthly" },
-  { path: "/ecoclub", priority: 0.5, changeFreq: "monthly" },
-  { path: "/carrieres", priority: 0.4, changeFreq: "monthly" },
-  { path: "/boutiques", priority: 0.4, changeFreq: "monthly" },
-  { path: "/conditions", priority: 0.3, changeFreq: "yearly" },
-  { path: "/conditions-utilisation", priority: 0.3, changeFreq: "yearly" },
-  { path: "/confidentialite", priority: 0.3, changeFreq: "yearly" },
-  { path: "/politique-confidentialite", priority: 0.3, changeFreq: "yearly" },
-  { path: "/cookies", priority: 0.3, changeFreq: "yearly" },
+  { path: "/", priority: 1.0, changeFreq: "daily" },
+  { path: "/boutique/", priority: 0.9, changeFreq: "daily" },
+  { path: "/nouveautes/", priority: 0.8, changeFreq: "weekly" },
+  { path: "/bestsellers/", priority: 0.8, changeFreq: "weekly" },
+  { path: "/promotions/", priority: 0.8, changeFreq: "daily" },
+  { path: "/guide-des-tailles/", priority: 0.6, changeFreq: "monthly" },
+  { path: "/a-propos/", priority: 0.6, changeFreq: "monthly" },
+  { path: "/aide/", priority: 0.6, changeFreq: "monthly" },
+  { path: "/nous-contacter/", priority: 0.6, changeFreq: "monthly" },
+  { path: "/suivre-commande/", priority: 0.5, changeFreq: "monthly" },
+  { path: "/retours/", priority: 0.5, changeFreq: "monthly" },
+  { path: "/ecoclub/", priority: 0.5, changeFreq: "monthly" },
+  { path: "/carrieres/", priority: 0.4, changeFreq: "monthly" },
+  { path: "/boutiques/", priority: 0.4, changeFreq: "monthly" },
+  { path: "/conditions/", priority: 0.3, changeFreq: "yearly" },
+  { path: "/conditions-utilisation/", priority: 0.3, changeFreq: "yearly" },
+  { path: "/confidentialite/", priority: 0.3, changeFreq: "yearly" },
+  { path: "/politique-confidentialite/", priority: 0.3, changeFreq: "yearly" },
+  { path: "/cookies/", priority: 0.3, changeFreq: "yearly" },
 ];
 
 export const revalidate = 3600; // revalidate every hour
@@ -47,7 +47,7 @@ export async function GET() {
   // Category pages
   for (const slug of categorySlugs) {
     entries.push(`  <url>
-    <loc>${SITE_URL}/${slug}</loc>
+    <loc>${SITE_URL}/${slug}/</loc>
     <lastmod>${now}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -70,7 +70,7 @@ export async function GET() {
       for (const p of data) {
         if (p.slug) {
           entries.push(`  <url>
-    <loc>${SITE_URL}/produit/${p.slug}</loc>
+    <loc>${SITE_URL}/produit/${p.slug}/</loc>
     <lastmod>${p.updated_at ?? now}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
