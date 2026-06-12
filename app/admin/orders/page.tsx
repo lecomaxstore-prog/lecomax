@@ -116,10 +116,11 @@ export default function OrdersPage() {
     const num  = order.order_number;
     const tracking = order.tracking_number ?? "";
     const msgs: Record<string, string> = {
-      confirmed: `Bonjour ${name},\n\nVotre commande *#${num}* chez L'ECOMAX a bien été *confirmée* !\n\nNous préparons votre colis et vous tiendrons informé(e) de l'expédition.\n\nMerci pour votre confiance !\nL'équipe L'ECOMAX`,
-      shipped:   `Bonjour ${name},\n\nVotre commande *#${num}* a été *expédiée* !${tracking ? `\n\nNuméro de suivi : *${tracking}*` : ""}\n\nElle sera livrée dans les prochains jours.\n\nMerci !\nL'équipe L'ECOMAX`,
-      delivered: `Bonjour ${name} ! 🎉\n\nVotre commande *#${num}* a bien été livrée !\n\n🧾 *Voir votre facture :*\nhttps://lecomax.com/facture/${order.id}\n\n(Enregistrez-la ou faites une capture d'écran)\n\nMerci pour votre confiance !\nL'équipe *L'ecomax* 🛍`,
-      cancelled: `Bonjour ${name},\n\nNous vous informons que votre commande *#${num}* a été *annulée*.\n\nPour toute question, contactez-nous.\n\nL'équipe L'ECOMAX`,
+      confirmed:   `Bonjour ${name},\n\nVotre commande *#${num}* chez L'ECOMAX a bien été *confirmée* !\n\nNous préparons votre colis et vous tiendrons informé(e) de l'expédition.\n\nMerci pour votre confiance !\nL'équipe L'ECOMAX`,
+      shipped:     `Bonjour ${name},\n\nVotre commande *#${num}* a été *expédiée* !${tracking ? `\n\nNuméro de suivi : *${tracking}*` : ""}\n\nElle sera livrée dans les prochains jours.\n\nMerci !\nL'équipe L'ECOMAX`,
+      delivered:   `Bonjour ${name} ! 🎉\n\nVotre commande *#${num}* a bien été livrée !\n\n🧾 *Voir votre facture :*\nhttps://lecomax.com/facture/${order.id}\n\n(Enregistrez-la ou faites une capture d'écran)\n\nMerci pour votre confiance !\nL'équipe *L'ecomax* 🛍`,
+      cancelled:   `Bonjour ${name},\n\nNous vous informons que votre commande *#${num}* a été *annulée*.\n\nPour toute question, contactez-nous.\n\nL'équipe L'ECOMAX`,
+      trustpilot:  `Bonjour ${name} ! ⭐\n\nMerci pour votre commande *#${num}* chez L'ECOMAX !\n\nVotre satisfaction est notre priorité. Si vous êtes satisfait(e), votre avis nous aiderait énormément 🙏\n\n👉 Laisser un avis (2 min) :\nhttps://www.trustpilot.com/evaluate/lecomax.com\n\nMerci infiniment !\nL'équipe *L'ecomax* 🛍`,
     };
     return `https://wa.me/${wa}?text=${encodeURIComponent(msgs[type] ?? "")}`;
   }
@@ -174,6 +175,11 @@ export default function OrdersPage() {
       showToast("Erreur réseau", false);
     }
     setSending(null);
+  }
+
+  function handleTrustpilotWhatsApp(id: string) {
+    const order = orders.find((o) => o.id === id);
+    if (order) window.open(buildWaUrl(order, "trustpilot"), "_blank");
   }
 
   function exportCSV() {
@@ -502,28 +508,49 @@ export default function OrdersPage() {
 
             {/* Trustpilot */}
             <Section title="Trustpilot">
-              {detail.customer?.email ? (
-                <div>
-                  <p className="text-[11px] text-neutral-400 mb-3">
-                    Envoyez une invitation par email pour demander un avis sur Trustpilot.
-                  </p>
+              <p className="text-[11px] text-neutral-400 mb-3">
+                Demandez un avis Trustpilot par email ou WhatsApp. L&apos;email est aussi envoyé automatiquement à chaque livraison.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {/* Email */}
+                {detail.customer?.email ? (
                   <button
                     onClick={() => handleTrustpilotInvite(detail.id)}
                     disabled={!!sending}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#00b67a] hover:bg-[#00a36c] text-white text-xs font-bold transition-all disabled:opacity-50">
+                    className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-[#00b67a] hover:bg-[#00a36c] text-white text-xs font-bold transition-all disabled:opacity-50">
                     {sending === "trustpilot"
-                      ? <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 11-18 0"/></svg>
-                      : <span>⭐</span>}
-                    Demander un avis Trustpilot
+                      ? <svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 11-18 0"/></svg>
+                      : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>}
+                    <span>Email ⭐</span>
+                    <span className="text-[10px] opacity-70">Automatique</span>
                   </button>
-                  <p className="text-[10px] text-neutral-400 mt-1.5 text-center">→ {detail.customer.email}</p>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-[11px] text-neutral-400">
-                  <span>⭐</span>
-                  <span>Aucun email client — invitation impossible.</span>
-                </div>
-              )}
+                ) : (
+                  <div className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-xl border border-dashed border-neutral-200 text-neutral-300">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/></svg>
+                    <span className="text-[10px]">Pas d&apos;email</span>
+                  </div>
+                )}
+                {/* WhatsApp */}
+                {detail.customer?.phone ? (
+                  <button
+                    onClick={() => handleTrustpilotWhatsApp(detail.id)}
+                    disabled={!!sending}
+                    className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border-2 border-[#25D366] bg-[#25D366] text-white hover:bg-[#1db954] transition-all disabled:opacity-50">
+                    <WaIcon />
+                    <span className="text-xs font-bold">WhatsApp ⭐</span>
+                    <span className="text-[10px] opacity-70">Manuel</span>
+                  </button>
+                ) : (
+                  <div className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-xl border border-dashed border-neutral-200 text-neutral-300">
+                    <WaIcon />
+                    <span className="text-[10px]">Pas de tél.</span>
+                  </div>
+                )}
+              </div>
+              <div className="mt-2 text-[10px] text-neutral-400 space-y-0.5">
+                {detail.customer?.email && <p>✉ {detail.customer.email}</p>}
+                {detail.customer?.phone && <p>📱 {detail.customer.phone}</p>}
+              </div>
             </Section>
 
             {/* Tracking */}
