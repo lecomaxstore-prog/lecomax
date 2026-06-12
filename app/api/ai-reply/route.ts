@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Groq — free tier, no billing required. Models: llama-3.3-70b-versatile, llama-3.1-8b-instant
+const groq = new OpenAI({
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1",
+});
 
 export async function POST(req: Request) {
   try {
     const { subject, message, from } = await req.json();
     if (!message) return NextResponse.json({ error: "No message" }, { status: 400 });
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
       messages: [
         {
           role: "system",
@@ -42,3 +46,4 @@ Message: ${message}`,
     return NextResponse.json({ error: "Erreur IA" }, { status: 500 });
   }
 }
+
