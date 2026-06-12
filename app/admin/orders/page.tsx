@@ -40,6 +40,8 @@ export default function OrdersPage() {
   const [bulkUpdating, setBulkUpdating] = useState(false);
   const [sending, setSending] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<"confirmed" | "shipped" | "delivered" | "cancelled" | null>(null);
+  const [reviewModal, setReviewModal] = useState<Order | null>(null);
+  const [reviewSending, setReviewSending] = useState<"email" | "whatsapp" | null>(null);
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -177,6 +179,24 @@ export default function OrdersPage() {
     setSending(null);
   }
 
+  async function handleReviewEmail(order: Order) {
+    setReviewSending("email");
+    try {
+      const res = await fetch(`/api/orders/${order.id}/trustpilot`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) { showToast("Email d'avis envoyé ✓"); setReviewModal(null); }
+      else showToast(`Échec : ${data.error ?? "erreur inconnue"}`, false);
+    } catch {
+      showToast("Erreur réseau", false);
+    }
+    setReviewSending(null);
+  }
+
+  function handleReviewWhatsApp(order: Order) {
+    window.open(buildWaUrl(order, "trustpilot"), "_blank");
+    setReviewModal(null);
+  }
+
   function handleTrustpilotWhatsApp(id: string) {
     const order = orders.find((o) => o.id === id);
     if (order) window.open(buildWaUrl(order, "trustpilot"), "_blank");
@@ -291,6 +311,14 @@ export default function OrdersPage() {
                         </div>
                         <p className="text-[11px] text-neutral-400 mt-0.5">{o.customer?.phone} · {new Date(o.created_at).toLocaleDateString("fr-FR")}</p>
                       </div>
+                      {o.status === "delivered" && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setReviewModal(o); }}
+                          title="Demander un avis"
+                          className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-500 transition-colors text-base">
+                          ⭐
+                        </button>
+                      )}
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="2.5" strokeLinecap="round" className="shrink-0"><path d="M9 18l6-6-6-6"/></svg>
                     </div>
                   ))}
@@ -309,6 +337,7 @@ export default function OrdersPage() {
                     <th className="text-right px-3 py-3">Total</th>
                     <th className="text-center px-3 py-3">Paiement</th>
                     <th className="text-center px-3 py-3">Statut</th>
+                    <th className="text-center px-2 py-3">Avis</th>
                     <th className="text-right px-3 py-3">Date</th>
                   </tr>
                 </thead>
@@ -342,6 +371,16 @@ export default function OrdersPage() {
                           ? <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-white/20 text-white whitespace-nowrap">{statusLabel(o.status)}</span>
                           : <span className={`text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap ${statusColor(o.status)}`}>{statusLabel(o.status)}</span>
                         }
+                      </td>
+                      <td className="px-2 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                        {o.status === "delivered" ? (
+                          <button
+                            onClick={() => setReviewModal(o)}
+                            title="Demander un avis Trustpilot"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 text-[10px] font-bold transition-colors whitespace-nowrap">
+                            ⭐ Avis
+                          </button>
+                        ) : <span className="text-neutral-200">—</span>}
                       </td>
                       <td className={`px-3 py-3 text-right text-xs ${detailId === o.id ? "text-white/60" : "text-neutral-400"}`}>
                         {new Date(o.created_at).toLocaleDateString("fr-FR")}
@@ -649,6 +688,66 @@ export default function OrdersPage() {
               </button>
             </Section>
 
+          </div>
+        </div>
+      )}
+
+      {/* Review Request Modal */}
+      {reviewModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          onClick={() => setReviewModal(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5"
+            onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <p className="font-black text-base">Demander un avis ⭐</p>
+                <p className="text-xs text-neutral-500 mt-0.5">{reviewModal.customer?.name} · #{reviewModal.order_number}</p>
+              </div>
+              <button onClick={() => setReviewModal(null)} className="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-400 transition-colors">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <p className="text-xs text-neutral-500 mb-4 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 leading-relaxed">
+              Envoyez au client le lien pour laisser un avis sur{" "}
+              <span className="font-bold text-amber-700">Trustpilot</span> :{" "}
+              <span className="font-mono text-[10px] text-amber-800">trustpilot.com/evaluate/lecomax.com</span>
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {/* WhatsApp */}
+              {reviewModal.customer?.phone ? (
+                <button
+                  onClick={() => handleReviewWhatsApp(reviewModal)}
+                  disabled={!!reviewSending}
+                  className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl bg-[#25D366] hover:bg-[#1db954] text-white font-bold text-sm transition-all disabled:opacity-50">
+                  <WaIcon />
+                  <span className="text-xs font-bold">WhatsApp</span>
+                  <span className="text-[10px] opacity-70">{reviewModal.customer.phone}</span>
+                </button>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-1 py-4 px-3 rounded-xl border border-dashed border-neutral-200 text-neutral-300">
+                  <WaIcon />
+                  <span className="text-[10px]">Pas de tél.</span>
+                </div>
+              )}
+              {/* Email */}
+              {reviewModal.customer?.email ? (
+                <button
+                  onClick={() => handleReviewEmail(reviewModal)}
+                  disabled={!!reviewSending}
+                  className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl bg-[#00b67a] hover:bg-[#00a36c] text-white font-bold text-sm transition-all disabled:opacity-50">
+                  {reviewSending === "email"
+                    ? <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 11-18 0"/></svg>
+                    : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>}
+                  <span className="text-xs font-bold">Email</span>
+                  <span className="text-[10px] opacity-70 truncate max-w-full px-1">{reviewModal.customer.email}</span>
+                </button>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-1 py-4 px-3 rounded-xl border border-dashed border-neutral-200 text-neutral-300">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/></svg>
+                  <span className="text-[10px]">Pas d&apos;email</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
