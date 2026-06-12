@@ -84,7 +84,7 @@ export default function TrustpilotAdminPage() {
   const [saving, setSaving] = useState(false);
   const [noApiKey, setNoApiKey] = useState(false);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
-  const [tab, setTab] = useState<"live" | "featured">("live");
+  const [tab, setTab] = useState<"featured" | "live">("featured");
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -97,7 +97,7 @@ export default function TrustpilotAdminPage() {
       .then((r) => r.json())
       .then((d) => setFeatured(d.reviews ?? []));
 
-    // Load live from Trustpilot API
+    // Load live from Trustpilot API (only if API key is configured)
     setLoadingLive(true);
     fetch("/api/trustpilot-reviews")
       .then((r) => r.json())
@@ -222,18 +222,13 @@ export default function TrustpilotAdminPage() {
 
       {/* No API key warning */}
       {noApiKey && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm">
-          <p className="font-bold text-amber-800 mb-1">⚠️ Clé API Trustpilot non configurée</p>
-          <p className="text-amber-700 text-xs leading-relaxed mb-3">
-            Pour récupérer vos avis automatiquement depuis Trustpilot, ajoutez votre clé API dans les variables d&apos;environnement Vercel :
-          </p>
-          <div className="space-y-1.5 text-xs text-amber-800">
-            <p>1. Allez sur <strong>developers.trustpilot.com</strong> → créez une application gratuite</p>
-            <p>2. Copiez votre <strong>API Key</strong></p>
-            <p>3. Ajoutez <code className="bg-amber-100 px-1.5 py-0.5 rounded font-mono">TRUSTPILOT_API_KEY=votre_cle</code> dans Vercel</p>
-          </div>
-          <p className="text-amber-700 text-xs mt-3 font-semibold">
-            En attendant, vous pouvez ajouter des avis manuellement ci-dessous.
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-sm">
+          <p className="font-bold text-blue-800 mb-1">ℹ️ Import automatique non disponible</p>
+          <p className="text-blue-700 text-xs leading-relaxed">
+            L&apos;import automatique des avis Trustpilot nécessite un abonnement payant &quot;API module&quot;. 
+            En attendant, <strong>ajoutez vos avis manuellement</strong> dans l&apos;onglet ci-dessous — 
+            ils apparaîtront directement sur votre site. Le widget Trustpilot sur la page d&apos;accueil 
+            affiche déjà vos vrais avis automatiquement et gratuitement.
           </p>
         </div>
       )}
@@ -241,8 +236,8 @@ export default function TrustpilotAdminPage() {
       {/* Tabs */}
       <div className="flex gap-1 bg-neutral-100 p-1 rounded-xl w-fit">
         {([
+          { id: "featured", label: `Avis sur le site (${featured.length})` },
           { id: "live", label: `Avis Trustpilot (${liveReviews.length})` },
-          { id: "featured", label: `Sur le site (${featured.length})` },
         ] as const).map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${tab === t.id ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
