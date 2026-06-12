@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import ScrollReveal from "@/components/ScrollReveal";
 
 const STATS = [
@@ -11,45 +10,7 @@ const STATS = [
   { value: "30 j", label: "Retours gratuits" },
 ];
 
-type ReviewEntry = {
-  name: string;
-  city?: string;
-  rating: number;
-  text: string;
-  product?: string;
-  image?: string;
-  url?: string;
-  source?: "trustpilot" | "local";
-};
-
-const FALLBACK_REVIEWS: ReviewEntry[] = [
-  {
-    name: "Yassine B.",
-    city: "Casablanca",
-    rating: 5,
-    text: "Commande reçue en 2 jours, emballage soigné et qualité au rendez-vous. Les écouteurs sont incroyables pour le prix. Je recommande à 100 %.",
-    product: "Écouteurs GENAI TWS",
-    image: "/images/clients images/Yassine B..jpg",
-    source: "local",
-  },
-  {
-    name: "Salma E.",
-    city: "Rabat",
-    rating: 5,
-    text: "Service client très réactif et livraison rapide. Les baskets sont confortables et exactement comme sur les photos. Bravo L'ecomax !",
-    product: "BAASPLOA Running",
-    image: "/images/clients images/Salma E..jpg",
-    source: "local",
-  },
-  {
-    name: "Mehdi A.",
-    city: "Marrakech",
-    rating: 4,
-    text: "Site clair, paiement simple et suivi de commande au top. J'ai été agréablement surpris par la qualité. Je reviendrai sans hésiter.",
-    product: "Accessoires Tech",
-    source: "local",
-  },
-];
+const BUSINESS_UNIT_ID = "6a2c5605a30ac9aadd7fc293";
 
 function AnimatedStat({ value, label, delay = 0 }: { value: string; label: string; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -91,7 +52,137 @@ function AnimatedStat({ value, label, delay = 0 }: { value: string; label: strin
   );
 }
 
-function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
+/** TrustBox carousel widget — loads real Trustpilot reviews automatically, no API key needed */
+function TrustBoxCarousel() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    type TrustpilotGlobal = { loadFromElement: (el: Element, force: boolean) => void };
+    const win = window as Window & { Trustpilot?: TrustpilotGlobal };
+    if (win.Trustpilot && ref.current) {
+      win.Trustpilot.loadFromElement(ref.current, true);
+    }
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="trustpilot-widget"
+      data-locale="fr-FR"
+      data-template-id="54ad5defc6454f065c28af8b"
+      data-businessunit-id={BUSINESS_UNIT_ID}
+      data-style-height="240px"
+      data-style-width="100%"
+      data-theme="light"
+      data-stars="4,5"
+    >
+      <a href="https://www.trustpilot.com/review/lecomax.com" target="_blank" rel="noopener noreferrer">
+        Voir nos avis Trustpilot
+      </a>
+    </div>
+  );
+}
+
+/** TrustBox micro score badge for the section header */
+function TrustBoxMini() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    type TrustpilotGlobal = { loadFromElement: (el: Element, force: boolean) => void };
+    const win = window as Window & { Trustpilot?: TrustpilotGlobal };
+    if (win.Trustpilot && ref.current) {
+      win.Trustpilot.loadFromElement(ref.current, true);
+    }
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="trustpilot-widget"
+      data-locale="fr-FR"
+      data-template-id="5419b6ffb0d04a076446a9af"
+      data-businessunit-id={BUSINESS_UNIT_ID}
+      data-style-height="24px"
+      data-style-width="160px"
+      data-theme="light"
+    >
+      <a href="https://www.trustpilot.com/review/lecomax.com" target="_blank" rel="noopener noreferrer" className="text-[11px] text-neutral-500">
+        Trustpilot
+      </a>
+    </div>
+  );
+}
+
+export default function Testimonials() {
+  return (
+    <section className="border-t border-line bg-neutral-50/60">
+      {/* Stats band */}
+      <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-4 border-b border-line">
+        {STATS.map((s, i) => (
+          <AnimatedStat key={s.label} value={s.value} label={s.label} delay={i * 120} />
+        ))}
+      </div>
+
+      {/* Trustpilot Reviews */}
+      <div className="max-w-7xl mx-auto px-6 pt-12 pb-16">
+        <ScrollReveal direction="up">
+          <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
+            <div>
+              <p className="label-eyebrow">Avis vérifiés</p>
+              <h2 className="h-display text-3xl md:text-5xl mt-2">Ils nous font confiance</h2>
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <TrustBoxMini />
+              <a
+                href="https://www.trustpilot.com/review/lecomax.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] font-bold text-[#00b67a] hover:underline"
+              >
+                Voir tous les avis →
+              </a>
+            </div>
+          </div>
+        </ScrollReveal>
+
+        {/* TrustBox carousel — auto-populated with real Trustpilot reviews */}
+        <TrustBoxCarousel />
+
+        {/* Bottom trust bar */}
+        <div className="mt-10 flex items-center justify-center gap-x-8 gap-y-3 text-[12px] text-neutral-500 font-semibold border-t border-neutral-100 pt-8 flex-wrap">
+          <span className="flex items-center gap-1.5">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <polyline points="9 12 11 14 15 10" />
+            </svg>
+            Avis clients authentiques
+          </span>
+          <span className="w-1 h-1 rounded-full bg-neutral-300" />
+          <span className="flex items-center gap-1.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#00b67a">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            Avis Trustpilot vérifiés
+          </span>
+          <span className="w-1 h-1 rounded-full bg-neutral-300" />
+          <a
+            href="https://www.trustpilot.com/evaluate/lecomax.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 hover:text-[#00b67a] transition-colors"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+            Laisser un avis
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
   return (
     <div className="flex items-center gap-0.5" aria-label={`Note ${rating} sur 5`}>
       {Array.from({ length: 5 }).map((_, i) => (

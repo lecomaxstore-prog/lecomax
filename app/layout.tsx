@@ -146,6 +146,8 @@ export default function RootLayout({
         gtag('js', new Date());
         gtag('config', 'G-9N1CPZQ1HG', { page_path: window.location.pathname });
       `}</Script>
+      {/* Trustpilot TrustBox widget bootstrap */}
+      <Script src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" strategy="lazyOnload" />
       {/* Microsoft Clarity — heatmaps & session recordings */}
       <Script id="clarity-init" strategy="afterInteractive">{`
         (function(c,l,a,r,i,t,y){
