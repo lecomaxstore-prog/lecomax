@@ -39,6 +39,7 @@ export default function ReviewsPage() {
   const [replyingId, setReplyingId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [savingReply, setSavingReply] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [products, setProducts] = useState<ProductOption[]>([]);
 
   // Add review form
@@ -66,6 +67,25 @@ export default function ReviewsPage() {
     } else {
       const json = await res.json();
       showToast("Erreur : " + (json.error ?? "inconnue"), false);
+    }
+  }
+
+  async function generateAIReply(review: Review) {
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/ai-reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: review.author_name + (review.city ? ` (${review.city})` : ""),
+          subject: review.title || `Avis ${review.rating}/5 sur ${review.product_slug}`,
+          message: review.body,
+        }),
+      });
+      const data = await res.json();
+      if (data.reply) setReplyText(data.reply);
+    } finally {
+      setAiLoading(false);
     }
   }
 
@@ -302,12 +322,22 @@ export default function ReviewsPage() {
                   )}
                   {replyingId === r.id && (
                     <div className="mt-3 space-y-2">
+                      <button
+                        onClick={() => generateAIReply(r)}
+                        disabled={aiLoading}
+                        className="flex items-center gap-1.5 border border-violet-200 bg-violet-50 text-violet-700 text-xs font-bold px-3 py-1.5 rounded-xl hover:bg-violet-100 transition-colors disabled:opacity-50"
+                      >
+                        {aiLoading ? (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="animate-spin"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                        ) : "✨"}
+                        {aiLoading ? "Génération…" : "Générer une réponse IA"}
+                      </button>
                       <textarea
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
                         rows={3}
                         autoFocus
-                        placeholder="Votre réponse publique à cet avis…"
+                        placeholder="Réponse (ou cliquez IA pour générer)…"
                         className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all resize-none"
                       />
                       <div className="flex gap-2">
