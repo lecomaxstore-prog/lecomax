@@ -204,17 +204,56 @@ export default function RootLayout({
               "inLanguage": "fr-MA"
             },
             {
-              "@type": "Store",
+              "@type": ["Store", "LocalBusiness"],
               "@id": "${SITE_URL}/#store",
               "name": "L'ecomax",
               "url": "${SITE_URL}",
               "image": "${SITE_URL}/ecomax-hero-banner.jpg.png",
-              "description": "L'ecomax — chaussures sport, vêtements, écouteurs, enceintes et gaming. Livraison 35 MAD partout au Maroc.",
+              "description": "L'ecomax — boutique en ligne au Maroc : chaussures sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc, paiement à la livraison.",
               "priceRange": "69 MAD - 499 MAD",
               "currenciesAccepted": "MAD",
-              "paymentAccepted": "Paiement à la livraison, Carte bancaire",
-              "hasMap": "https://maps.google.com/?q=Maroc",
-              "areaServed": "Maroc"
+              "paymentAccepted": "Paiement à la livraison, Carte bancaire, PayPal",
+              "telephone": "+212-699-289-568",
+              "email": "contact@lecomax.com",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Sidi Bennour",
+                "addressRegion": "Doukkala-Abda",
+                "addressCountry": "MA"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 32.6528,
+                "longitude": -8.4236
+              },
+              "openingHoursSpecification": {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+                "opens": "08:00",
+                "closes": "22:00"
+              },
+              "hasMap": "https://maps.google.com/?q=Sidi+Bennour+Maroc",
+              "areaServed": {
+                "@type": "Country",
+                "name": "Maroc"
+              },
+              "servesCuisine": null,
+              "hasOfferCatalog": {
+                "@type": "OfferCatalog",
+                "name": "Boutique L'ecomax",
+                "itemListElement": [
+                  { "@type": "OfferCatalog", "name": "Chaussures de sport" },
+                  { "@type": "OfferCatalog", "name": "Vêtements tendance" },
+                  { "@type": "OfferCatalog", "name": "Écouteurs sans fil" },
+                  { "@type": "OfferCatalog", "name": "Enceintes Bluetooth" },
+                  { "@type": "OfferCatalog", "name": "Accessoires gaming" }
+                ]
+              },
+              "sameAs": [
+                "https://www.instagram.com/lecomax",
+                "https://www.tiktok.com/@lecomax",
+                "https://www.facebook.com/lecomax"
+              ]
             }
           ]
         }
