@@ -160,11 +160,15 @@ export default function ChatWidget() {
       const res = await fetch(`/api/chat/poll/${sessionId}`);
       const data = await res.json();
       const newMsgs: ChatMsg[] = data.messages || [];
+      const newStatus = data.status || "ai";
+
+      // Always sync status (catches admin resolving the chat)
+      setStatus(newStatus);
+
       if (newMsgs.length > prevMsgCount.current) {
         const prevCount = prevMsgCount.current;
         prevMsgCount.current = newMsgs.length;
         setMessages(newMsgs);
-        setStatus(data.status || "ai");
         // Detect first agent reply → show "agent joined" banner, hide call banner
         const hadAgentBefore = newMsgs.slice(0, prevCount).some((m) => m.sent_by === "agent");
         const hasAgentNow = newMsgs.some((m) => m.sent_by === "agent");
