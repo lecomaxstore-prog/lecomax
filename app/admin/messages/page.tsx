@@ -361,6 +361,7 @@ export default function MessagesPage() {
   const [lcSending, setLcSending] = useState(false);
   const [lcSent, setLcSent] = useState(false);
   const [lcStatusFilter, setLcStatusFilter] = useState<"all" | "ai" | "escalated" | "resolved">("all");
+  const [showEndLcConfirm, setShowEndLcConfirm] = useState(false);
   const lcBottomRef = useRef<HTMLDivElement>(null);
   const lcPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -1052,7 +1053,35 @@ export default function MessagesPage() {
           {/* Right: chat panel */}
           {lcSelected && (
             <div className="w-96 flex-shrink-0">
-              <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden flex flex-col sticky top-24" style={{ maxHeight: "calc(100vh - 160px)" }}>
+              <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden flex flex-col sticky top-24 relative" style={{ maxHeight: "calc(100vh - 160px)" }}>
+                {/* End conversation confirmation overlay */}
+                {showEndLcConfirm && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 rounded-2xl">
+                    <div className="bg-white rounded-2xl shadow-2xl p-5 mx-4 flex flex-col items-center gap-3" style={{ maxWidth: 280, width: "100%" }}>
+                      <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5">
+                          <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45c.98.37 2.05.57 3.16.57A2.27 2.27 0 0 1 23 17.02v3.23A2.27 2.27 0 0 1 20.73 22C10.91 22 2 13.1 2 3.27A2.27 2.27 0 0 1 4.27 1h3.23A2.27 2.27 0 0 1 9.77 3.27c0 1.11.2 2.18.57 3.16a2 2 0 0 1-.45 2.11L8.62 9.81"/>
+                          <line x1="22" y1="2" x2="2" y2="22"/>
+                        </svg>
+                      </div>
+                      <div className="text-center">
+                        <p className="font-bold text-neutral-900 text-sm">Terminer la conversation ?</p>
+                        <p className="text-neutral-500 text-[11px] mt-1">Le client verra un message de fin et pourra démarrer une nouvelle conversation.</p>
+                      </div>
+                      <div className="flex gap-2 w-full">
+                        <button onClick={() => setShowEndLcConfirm(false)}
+                          className="flex-1 py-1.5 rounded-xl border border-neutral-200 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors">
+                          Annuler
+                        </button>
+                        <button onClick={() => { setShowEndLcConfirm(false); updateLcStatus(lcSelected.id, "resolved"); }}
+                          className="flex-1 py-1.5 rounded-xl bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors">
+                          Terminer
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Header */}
                 <div className="flex items-center gap-3 px-4 py-3 border-b border-neutral-100 bg-neutral-50">
                   <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
@@ -1085,9 +1114,9 @@ export default function MessagesPage() {
                     </button>
                   )}
                   {lcSelected.status !== "resolved" && (
-                    <button onClick={() => updateLcStatus(lcSelected.id, "resolved")}
-                      className="flex-1 text-[10px] font-bold py-1.5 rounded-lg bg-neutral-100 text-neutral-500 hover:bg-neutral-200 transition-colors">
-                      ✓ Résoudre
+                    <button onClick={() => setShowEndLcConfirm(true)}
+                      className="flex-1 text-[10px] font-bold py-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                      🔴 Terminer la conversation
                     </button>
                   )}
                 </div>

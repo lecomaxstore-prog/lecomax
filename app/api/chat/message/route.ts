@@ -25,19 +25,98 @@ function wantsHuman(text: string): boolean {
   return ESCALATION_PATTERNS.some((p) => p.test(text));
 }
 
-const SYSTEM_PROMPT = `You are Eco, the friendly AI assistant for L'ecomax — a Moroccan online store (lecomax.com) selling fashion, sports shoes, clothing, earphones, Bluetooth speakers, and gaming accessories.
+const STORE_CONTEXT = `You are Eco, the professional AI assistant for L'ecomax — a Moroccan e-commerce store at lecomax.com, based in Sidi Bennour, Morocco.
 
-Store info:
-- Delivery: 35 MAD anywhere in Morocco, cash on delivery (COD)
-- Free returns within 30 days
-- Email: contact@lecomax.com
-- Working hours: 9h–20h
+## ABOUT L'ECOMAX
+- Online store: fashion, sportswear, shoes, wireless earphones, Bluetooth speakers, gaming accessories, bags.
+- Website: lecomax.com
+- Contact: contact@lecomax.com | WhatsApp available
+- Working hours: 9h–20h, 7 days a week
+- Rated 5/5 on Trustpilot
 
-LANGUAGE RULE: Detect the customer's language and ALWAYS reply in that exact language (French / English / Arabic / Darija).
+## DELIVERY & ORDERS
+- Delivery fee: 35 MAD anywhere in Morocco (flat rate, no minimum order)
+- Payment: Cash on delivery (COD) only — customer pays upon receipt, no prepayment
+- Delivery time: 2–5 business days
+- Order tracking: lecomax.com/suivre-commande
 
-ESCALATION RULE: ONLY add "[ESCALATE]" at the very end if the customer EXPLICITLY asks to speak with a human agent. Do NOT add [ESCALATE] for product questions, order questions, or anything you can answer yourself.
+## RETURNS & GUARANTEES
+- Free returns within 30 days — no questions asked
+- Returns page: lecomax.com/retours
 
-Style: Warm, helpful, concise (under 100 words). No long paragraphs. Answer confidently.`;
+## LOYALTY PROGRAM (ECOCLUB)
+- Members earn points on every purchase and unlock exclusive discounts
+- Join at: lecomax.com/ecoclub
+
+## USEFUL LINKS
+- Shop all: lecomax.com/boutique
+- Men: lecomax.com/homme | Women: lecomax.com/femme
+- Shoes: lecomax.com/chaussures | Accessories: lecomax.com/accessoires
+- New arrivals: lecomax.com/nouveautes | Promotions: lecomax.com/promotions
+- Size guide: lecomax.com/guide-des-tailles
+- FAQ / Help: lecomax.com/aide
+- Contact us: lecomax.com/nous-contacter
+- About: lecomax.com/a-propos
+
+## RESPONSE RULES
+1. LANGUAGE: Always reply in the customer's exact language (French / English / Arabic / Darija). Never mix languages.
+2. TONE: Professional, warm, concise. Maximum 3 short sentences. Use natural sentences, not bullet lists.
+3. ESCALATION: ONLY add [ESCALATE] at the very end if the customer explicitly asks to speak with a human agent. Never add it for product or order questions you can answer yourself.
+4. SALES: When relevant, suggest specific products from the catalog with their price and link (lecomax.com/produit/[slug]).
+5. ORDERS: You cannot access real-time order data. For order status, direct to lecomax.com/suivre-commande or contact@lecomax.com.
+6. STOCK: If asked about stock for a specific product, say you recommend checking the product page directly or contacting support.`;
+
+// Cache products for 5 minutes to avoid hitting Supabase on every message
+let cachedProducts: string = "";
+let cacheTime = 0;
+
+async function buildSystemPrompt(): Promise<string> {
+  const now = Date.now();
+  if (cachedProducts && now - cacheTime < 5 * 60 * 1000) {
+    return STORE_CONTEXT + cachedProducts;
+  }
+
+  const { data: products } = await supabase
+    .from("products")
+    .select("name, category, brand, price, original_price, description, colors, sizes, tags, active, stock, slug")
+    .eq("active", true)
+    .order("created_at", { ascending: false })
+    .limit(80);
+
+  if (!products || products.length === 0) {
+    cachedProducts = "";
+    cacheTime = now;
+    return STORE_CONTEXT;
+  }
+
+  // Group by category
+  const byCategory: Record<string, typeof products> = {};
+  for (const p of products) {
+    const cat = p.category || "autres";
+    if (!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push(p);
+  }
+
+  let catalog = "\n\n## LIVE PRODUCT CATALOG (auto-updated)\n";
+  for (const [cat, items] of Object.entries(byCategory)) {
+    catalog += `\n### ${cat.toUpperCase()}\n`;
+    for (const p of items) {
+      const price = p.original_price && p.original_price > p.price
+        ? `${p.price} MAD (was ${p.original_price} MAD)`
+        : `${p.price} MAD`;
+      const colors = Array.isArray(p.colors) && p.colors.length ? ` | Colors: ${p.colors.join(", ")}` : "";
+      const sizes = Array.isArray(p.sizes) && p.sizes.length ? ` | Sizes: ${p.sizes.join(", ")}` : "";
+      const brand = p.brand ? ` [${p.brand}]` : "";
+      const stock = p.stock === 0 ? " ⚠️ OUT OF STOCK" : "";
+      const desc = p.description ? ` — ${p.description.slice(0, 120)}` : "";
+      catalog += `- ${p.name}${brand} — ${price}${colors}${sizes}${stock}${desc}\n  Link: lecomax.com/produit/${p.slug}\n`;
+    }
+  }
+
+  cachedProducts = catalog;
+  cacheTime = now;
+  return STORE_CONTEXT + catalog;
+}
 
 /** POST /api/chat/message — visitor sends a message */
 export async function POST(req: Request) {
@@ -109,10 +188,11 @@ export async function POST(req: Request) {
   // Call Groq AI
   let aiReply = "";
   try {
+    const systemPrompt = await buildSystemPrompt();
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: systemPrompt },
         ...chatHistory,
         { role: "user", content: body.trim() },
       ],
