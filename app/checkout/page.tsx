@@ -213,16 +213,16 @@ export default function CheckoutPage() {
 
   // Track abandoned cart — save when phone or email is entered
   useEffect(() => {
-    if (!f.telephone && !f.email) return;
+    if (!form.telephone && !form.email) return;
     if (items.length === 0) return;
     const t = setTimeout(() => {
       fetch("/api/abandoned-carts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phone: f.telephone || null,
-          name: (f.prenom || f.nom) ? `${f.prenom} ${f.nom}`.trim() : null,
-          email: f.email || null,
+          phone: form.telephone || null,
+          name: (form.prenom || form.nom) ? `${form.prenom} ${form.nom}`.trim() : null,
+          email: form.email || null,
           items: items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price, size: i.size })),
           total: total,
         }),
@@ -230,7 +230,7 @@ export default function CheckoutPage() {
     }, 1500);
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [f.telephone, f.email, f.prenom, f.nom]);
+  }, [form.telephone, form.email, form.prenom, form.nom]);
 
   // Fetch EcoClub tier to apply automatic loyalty discount
   useEffect(() => {
