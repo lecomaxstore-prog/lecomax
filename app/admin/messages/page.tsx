@@ -366,7 +366,7 @@ export default function MessagesPage() {
   const lcPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── Feedback ──────────────────────────────────────────────────────────
-  type ChatFeedback = { id: string; session_id: string; rating: number; comment: string | null; created_at: string; chat_sessions?: { name: string | null; last_message: string | null } };
+  type ChatFeedback = { id: string; session_id: string; rating: number; comment: string | null; created_at: string };
   const [feedbacks, setFeedbacks] = useState<ChatFeedback[]>([]);
   const [feedbacksLoading, setFeedbacksLoading] = useState(false);
 

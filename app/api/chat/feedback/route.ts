@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 export async function GET() {
   const { data, error } = await supabase
     .from("chat_feedback")
-    .select("*, chat_sessions(visitor_id, name, last_message, created_at)")
+    .select("*")
     .order("created_at", { ascending: false })
     .limit(100);
 
