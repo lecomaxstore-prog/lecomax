@@ -48,7 +48,7 @@ type ChatMessage = {
 const STATUS_FILTERS = ["Tous", "Non lus", "Lus"] as const;
 
 export default function MessagesPage() {
-  const [tab, setTab] = useState<"contact" | "inbox" | "whatsapp" | "livechat">("contact");
+  const [tab, setTab] = useState<"contact" | "inbox" | "whatsapp" | "livechat" | "feedback">("contact");
 
   // ── Contact form messages ──
   const [messages, setMessages] = useState<Message[]>([]);
@@ -365,6 +365,26 @@ export default function MessagesPage() {
   const lcBottomRef = useRef<HTMLDivElement>(null);
   const lcPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // ── Feedback ──────────────────────────────────────────────────────────
+  type ChatFeedback = { id: string; session_id: string; rating: number; comment: string | null; created_at: string; chat_sessions?: { name: string | null; last_message: string | null } };
+  const [feedbacks, setFeedbacks] = useState<ChatFeedback[]>([]);
+  const [feedbacksLoading, setFeedbacksLoading] = useState(false);
+
+  const loadFeedbacks = useCallback(async () => {
+    setFeedbacksLoading(true);
+    try {
+      const res = await fetch("/api/chat/feedback");
+      const data = await res.json();
+      setFeedbacks(Array.isArray(data) ? data : []);
+    } finally {
+      setFeedbacksLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (tab === "feedback") loadFeedbacks();
+  }, [tab, loadFeedbacks]);
+
   const loadLcSessions = useCallback(async () => {
     setLcLoading(true);
     try {
@@ -528,6 +548,10 @@ export default function MessagesPage() {
           Live Chat
           {lcTotalUnread > 0 && <span className="bg-purple-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{lcTotalUnread}</span>}
           {lcEscalated > 0 && <span className="bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{lcEscalated}</span>}
+        </button>
+        <button onClick={() => setTab("feedback")}
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${tab === "feedback" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
+          ⭐ Avis chatbot
         </button>
       </div>
 
@@ -1195,6 +1219,87 @@ export default function MessagesPage() {
           )}
         </div>
       )} {/* end livechat tab */}
+
+      {/* ── FEEDBACK TAB ── */}
+      {tab === "feedback" && (
+        <div>
+          {feedbacksLoading ? (
+            <div className="flex justify-center py-16 text-neutral-400 text-sm">Chargement…</div>
+          ) : feedbacks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3 text-neutral-400">
+              <span className="text-4xl">⭐</span>
+              <p className="text-sm font-medium">Aucun avis pour le moment</p>
+              <p className="text-xs">Les avis apparaîtront ici après chaque conversation.</p>
+            </div>
+          ) : (
+            <>
+              {/* Summary bar */}
+              <div className="flex items-center gap-6 bg-white rounded-2xl p-4 mb-5 shadow-sm border border-neutral-100">
+                <div className="text-center">
+                  <p className="text-3xl font-black text-black">
+                    {(feedbacks.reduce((s, f) => s + f.rating, 0) / feedbacks.length).toFixed(1)}
+                  </p>
+                  <p className="text-xs text-neutral-500 mt-0.5">Note moyenne</p>
+                </div>
+                <div className="flex gap-1">
+                  {[1,2,3,4,5].map((star) => {
+                    const avg = feedbacks.reduce((s, f) => s + f.rating, 0) / feedbacks.length;
+                    return <span key={star} className={`text-2xl ${star <= Math.round(avg) ? "text-amber-400" : "text-neutral-200"}`}>★</span>;
+                  })}
+                </div>
+                <div className="ml-auto text-right">
+                  <p className="text-lg font-black text-black">{feedbacks.length}</p>
+                  <p className="text-xs text-neutral-500">avis total</p>
+                </div>
+                <button onClick={loadFeedbacks} className="p-2 rounded-lg hover:bg-neutral-100 text-neutral-400 transition-colors" title="Actualiser">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                </button>
+              </div>
+
+              {/* Rating breakdown */}
+              <div className="bg-white rounded-2xl p-4 mb-5 shadow-sm border border-neutral-100">
+                <p className="text-xs font-bold text-neutral-700 mb-3">Répartition des notes</p>
+                {[5,4,3,2,1].map((star) => {
+                  const count = feedbacks.filter((f) => f.rating === star).length;
+                  const pct = feedbacks.length > 0 ? (count / feedbacks.length) * 100 : 0;
+                  return (
+                    <div key={star} className="flex items-center gap-2 mb-2">
+                      <span className="text-xs w-4 text-right text-neutral-600">{star}</span>
+                      <span className="text-amber-400 text-xs">★</span>
+                      <div className="flex-1 bg-neutral-100 rounded-full h-2 overflow-hidden">
+                        <div className="h-2 bg-amber-400 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="text-xs text-neutral-400 w-6 text-right">{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Feedback list */}
+              <div className="flex flex-col gap-3">
+                {feedbacks.map((f) => (
+                  <div key={f.id} className="bg-white rounded-2xl p-4 shadow-sm border border-neutral-100">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex gap-0.5">
+                        {[1,2,3,4,5].map((star) => (
+                          <span key={star} className={`text-lg ${star <= f.rating ? "text-amber-400" : "text-neutral-200"}`}>★</span>
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-neutral-400 whitespace-nowrap">
+                        {new Date(f.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                    {f.comment && (
+                      <p className="text-sm text-neutral-700 mt-2 leading-relaxed">&ldquo;{f.comment}&rdquo;</p>
+                    )}
+                    <p className="text-[10px] text-neutral-300 mt-2 font-mono">Session: {f.session_id?.slice(0, 8)}…</p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )} {/* end feedback tab */}
     </div>
   );
 }

@@ -95,6 +95,9 @@ export default function ChatWidget() {
   const [agentJoined, setAgentJoined] = useState(false);
   const [callVisible, setCallVisible] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
+  const [feedbackRating, setFeedbackRating] = useState(0);
+  const [feedbackComment, setFeedbackComment] = useState("");
+  const [feedbackState, setFeedbackState] = useState<"idle" | "submitted">("idle");
   const agentJoinedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -279,6 +282,9 @@ export default function ChatWidget() {
     setInput("");
     setAgentJoined(false);
     setCallVisible(false);
+    setFeedbackRating(0);
+    setFeedbackComment("");
+    setFeedbackState("idle");
     await startSession();
   }
 
@@ -613,10 +619,63 @@ export default function ChatWidget() {
           {/* Input */}
           <div className="flex-shrink-0 border-t border-neutral-100 bg-white p-3">
             {status === "resolved" ? (
-              <button onClick={newConversation}
-                className="w-full py-2 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition-colors">
-                Nouvelle conversation
-              </button>
+              feedbackState === "submitted" ? (
+                <div className="flex flex-col items-center gap-2 py-2">
+                  <span className="text-2xl">🎉</span>
+                  <p className="text-sm font-bold text-neutral-800">Merci pour votre avis !</p>
+                  <p className="text-xs text-neutral-400 text-center">Votre retour nous aide à améliorer notre service.</p>
+                  <button onClick={newConversation}
+                    className="mt-1 w-full py-2 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition-colors">
+                    Nouvelle conversation
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <div className="bg-neutral-50 rounded-xl p-3 text-center border border-neutral-100">
+                    <p className="text-xs font-bold text-neutral-700 mb-0.5">Conversation terminée</p>
+                    <p className="text-[11px] text-neutral-400">Comment s&apos;est passée votre expérience ?</p>
+                  </div>
+                  {/* Star rating */}
+                  <div className="flex justify-center gap-1.5">
+                    {[1,2,3,4,5].map((star) => (
+                      <button key={star} onClick={() => setFeedbackRating(star)}
+                        className="text-2xl transition-transform hover:scale-110 active:scale-95"
+                        aria-label={`${star} étoile${star > 1 ? "s" : ""}`}>
+                        {star <= feedbackRating ? "⭐" : "☆"}
+                      </button>
+                    ))}
+                  </div>
+                  {feedbackRating > 0 && (
+                    <>
+                      <textarea
+                        value={feedbackComment}
+                        onChange={(e) => setFeedbackComment(e.target.value)}
+                        placeholder="Un commentaire ? (optionnel)"
+                        rows={2}
+                        className="resize-none rounded-xl border border-neutral-200 px-3 py-2 text-xs focus:outline-none focus:border-black bg-neutral-50"
+                      />
+                      <button
+                        onClick={async () => {
+                          if (!sessionId || !feedbackRating) return;
+                          await fetch("/api/chat/feedback", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ session_id: sessionId, rating: feedbackRating, comment: feedbackComment }),
+                          });
+                          setFeedbackState("submitted");
+                        }}
+                        className="w-full py-2 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition-colors"
+                      >
+                        Envoyer mon avis
+                      </button>
+                    </>
+                  )}
+                  <button onClick={newConversation}
+                    className="w-full py-1.5 rounded-xl border border-neutral-200 text-xs font-semibold text-neutral-500 hover:bg-neutral-50 transition-colors">
+                    Passer · Nouvelle conversation
+                  </button>
+                </div>
+              )
             ) : (
               <div className="flex gap-2 items-end">
                 <textarea
