@@ -62,6 +62,26 @@ function playNotifSound() {
   } catch {}
 }
 
+const URL_REGEX = /(https?:\/\/[^\s]+|(?:lecomax\.com|www\.[^\s]+)\/[^\s]*)/gi;
+
+function renderWithLinks(text: string) {
+  const parts = text.split(URL_REGEX);
+  return parts.map((part, i) => {
+    if (URL_REGEX.test(part)) {
+      URL_REGEX.lastIndex = 0;
+      const href = part.startsWith("http") ? part : `https://${part}`;
+      return (
+        <a key={i} href={href} target="_blank" rel="noopener noreferrer"
+          className="underline underline-offset-2 break-all"
+          style={{ color: "inherit", opacity: 0.85 }}>
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+}
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -275,7 +295,7 @@ export default function ChatWidget() {
   return (
     <>
       {/* ── Floating toggle button ── */}
-      <div className={`fixed bottom-16 right-0 z-50 ${open ? "hidden" : ""}`}>
+      <div className={`fixed bottom-16 right-2 z-50 ${open ? "hidden" : ""}`}>
         {/* Badge positioned relative to the visible green circle (PNG has ~18% whitespace on each side) */}
         <div className="relative inline-block">
           <button
@@ -517,7 +537,7 @@ export default function ChatWidget() {
                         : "bg-white border border-neutral-100 text-neutral-800 rounded-bl-sm"
                     }`}
                     style={m.sent_by === "agent" ? { boxShadow: "0 2px 8px rgba(251,191,36,0.15)" } : {}}>
-                    <p style={{ whiteSpace: "pre-wrap" }}>{m.body}</p>
+                    <p style={{ whiteSpace: "pre-wrap" }}>{renderWithLinks(m.body)}</p>
                     <p className={`text-[10px] mt-1 ${m.direction === "in" ? "text-white/50 text-right" : "text-neutral-400"}`}>
                       {formatTime(m.timestamp)}
                     </p>
