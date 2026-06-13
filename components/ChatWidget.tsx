@@ -90,7 +90,7 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [starting, setStarting] = useState(false);
-  const [unread, setUnread] = useState(1);
+  const [unread, setUnread] = useState(0);
   const [hasNew, setHasNew] = useState(false);
   const [agentJoined, setAgentJoined] = useState(false);
   const [callVisible, setCallVisible] = useState(false);
