@@ -12,9 +12,9 @@ import { CartProvider } from "@/components/CartContext";
 import PageTracker from "@/components/PageTracker";
 import AdminLayoutWrapper from "@/components/AdminLayoutWrapper";
 import SiteProtection from "@/components/SiteProtection";
-import WhatsAppButton from "@/components/WhatsAppButton";
 import CookieBanner from "@/components/CookieBanner";
 import BackToTop from "@/components/BackToTop";
+import ChatWidget from "@/components/ChatWidget";
 
 
 const inter = Inter({
@@ -272,7 +272,7 @@ export default function RootLayout({
             <Footer />
           </AdminLayoutWrapper>
           <AdminLayoutWrapper>
-            <WhatsAppButton />
+            <ChatWidget />
           </AdminLayoutWrapper>
           <CookieBanner />
           <BackToTop />
