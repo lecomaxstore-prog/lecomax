@@ -305,7 +305,7 @@ export default function ChatWidget() {
   return (
     <>
       {/* ── Floating toggle button ── */}
-      <div className={`fixed bottom-16 right-0 z-50 ${open ? "hidden" : ""}`}>
+      <div className={`fixed bottom-16 z-50 ${open ? "hidden" : ""}`} style={{ right: "-26px" }}>
         {/* Badge positioned relative to the visible green circle (PNG has ~18% whitespace on each side) */}
         <div className="relative inline-block">
           <button
