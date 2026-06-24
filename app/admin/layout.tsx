@@ -64,6 +64,17 @@ const nav = [
     ),
   },
   {
+    label: "Données clients",
+    href: "/admin/client-data",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <ellipse cx="12" cy="5" rx="9" ry="3" />
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+      </svg>
+    ),
+  },
+  {
     label: "Stock",
     href: "/admin/stock",
     badge: "stock",
@@ -103,6 +114,17 @@ const nav = [
     ),
   },
   {
+    label: "Notifications Push",
+    href: "/admin/push",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        <line x1="12" y1="2" x2="12" y2="1"/>
+      </svg>
+    ),
+  },
+  {
     label: "Trustpilot",
     href: "/admin/trustpilot",
     icon: (
@@ -126,6 +148,46 @@ const nav = [
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
         <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+      </svg>
+    ),
+  },
+  {
+    label: "Pages",
+    href: "/admin/pages",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Bannières",
+    href: "/admin/banners",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Médiathèque",
+    href: "/admin/media",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Studio",
+    href: "/admin/studio",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M5.636 5.636a9 9 0 1 0 12.728 12.728A9 9 0 0 0 5.636 5.636"/>
+        <path d="M12 2v2M12 20v2M2 12h2M20 12h2"/>
       </svg>
     ),
   },
@@ -165,6 +227,16 @@ const nav = [
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
         <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
         <line x1="7" y1="7" x2="7.01" y2="7" />
+      </svg>
+    ),
+  },
+  {
+    label: "Publicités",
+    href: "/admin/ads",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+        <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
       </svg>
     ),
   },
@@ -221,9 +293,9 @@ const nav = [
 
 const navSections: { title: string; hrefs: string[] }[] = [
   { title: "VENTES",     hrefs: ["/admin/dashboard", "/admin/analytics", "/admin/recordings", "/admin/orders"] },
-  { title: "CATALOGUE",  hrefs: ["/admin/products", "/admin/categories", "/admin/stock"] },
-  { title: "CLIENTS",    hrefs: ["/admin/customers", "/admin/loyalty", "/admin/abandoned-carts"] },
-  { title: "MARKETING",  hrefs: ["/admin/promotions", "/admin/newsletter", "/admin/coupons", "/admin/announcement", "/admin/broadcast"] },
+  { title: "CATALOGUE",  hrefs: ["/admin/products", "/admin/categories", "/admin/stock", "/admin/pages", "/admin/banners", "/admin/media", "/admin/studio"] },
+  { title: "CLIENTS",    hrefs: ["/admin/customers", "/admin/client-data", "/admin/loyalty", "/admin/abandoned-carts"] },
+  { title: "MARKETING",  hrefs: ["/admin/promotions", "/admin/ads", "/admin/push", "/admin/newsletter", "/admin/coupons", "/admin/announcement", "/admin/broadcast"] },
   { title: "SAV",        hrefs: ["/admin/messages", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
   { title: "LOGISTIQUE", hrefs: ["/admin/shipping", "/admin/size-guide"] },
   { title: "CONFIG",     hrefs: ["/admin/settings"] },
@@ -238,6 +310,9 @@ const pageLabels: Record<string, string> = {
   reviews: "Avis", returns: "Retours", trustpilot: "Trustpilot", shipping: "Livraison",
   "size-guide": "Guide tailles", settings: "Paramètres",
   "abandoned-carts": "Paniers abandonnés", loyalty: "Fidélité", broadcast: "Broadcast",
+  pages: "Pages", banners: "Bannières", media: "Médiathèque",
+  "client-data": "Données clients",
+  ads: "Publicités", studio: "Studio Créatif", push: "Notifications Push",
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

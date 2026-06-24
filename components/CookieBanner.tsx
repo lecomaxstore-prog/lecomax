@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-type Consent = { essential: true; analytics: boolean; preferences: boolean };
+type Consent = { essential: true; analytics: boolean; preferences: boolean; data_collection: boolean };
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [preferences, setPreferences] = useState(false);
+  const [dataCollection, setDataCollection] = useState(false);
 
   useEffect(() => {
     try {
@@ -29,12 +30,56 @@ export default function CookieBanner() {
     } catch {
       // ignore
     }
+    // Register or revoke data collection consent on the server
+    try {
+      const sessionId = getOrCreateSessionId();
+      if (consent.data_collection) {
+        fetch("/api/client-data/consent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            session_id: sessionId,
+            browser: navigator.userAgent.includes("Chrome") ? "Chrome" : navigator.userAgent.includes("Firefox") ? "Firefox" : navigator.userAgent.includes("Safari") ? "Safari" : "Other",
+            os: navigator.platform || "",
+            screen_width: window.screen.width,
+            screen_height: window.screen.height,
+            language: navigator.language,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            referrer: document.referrer || null,
+          }),
+        }).catch(() => {});
+      } else {
+        // Revoke: send revoke signal
+        fetch("/api/client-data/consent", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId }),
+        }).catch(() => {});
+      }
+      // Notify DataCollector
+      window.dispatchEvent(new CustomEvent("lecomax-data-consent", { detail: consent.data_collection }));
+    } catch {
+      // ignore
+    }
     setVisible(false);
   };
 
-  const acceptAll = () => save({ essential: true, analytics: true, preferences: true });
-  const rejectAll = () => save({ essential: true, analytics: false, preferences: false });
-  const saveCustom = () => save({ essential: true, analytics, preferences });
+  function getOrCreateSessionId(): string {
+    try {
+      let sid = localStorage.getItem("lecomax_session_id");
+      if (!sid) {
+        sid = crypto.randomUUID();
+        localStorage.setItem("lecomax_session_id", sid);
+      }
+      return sid;
+    } catch {
+      return "unknown";
+    }
+  }
+
+  const acceptAll = () => save({ essential: true, analytics: true, preferences: true, data_collection: true });
+  const rejectAll = () => save({ essential: true, analytics: false, preferences: false, data_collection: false });
+  const saveCustom = () => save({ essential: true, analytics, preferences, data_collection: dataCollection });
 
   if (!visible) return null;
 
@@ -141,6 +186,23 @@ export default function CookieBanner() {
                     className={`relative shrink-0 w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#3ecf4c] focus:ring-offset-1 ${preferences ? "bg-[#3ecf4c]" : "bg-neutral-300"}`}
                   >
                     <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${preferences ? "translate-x-5" : ""}`} />
+                  </button>
+                </label>
+
+                {/* Data Collection */}
+                <label className="flex items-center justify-between bg-neutral-50 border border-neutral-100 px-4 py-3 cursor-pointer hover:border-neutral-300 transition-colors">
+                  <div>
+                    <p className="font-black text-[12px] uppercase tracking-widest mb-0.5">Collecte de données comportementales</p>
+                    <p className="text-[11px] text-neutral-500">Nous permet d&apos;enregistrer les pages visitées et produits consultés pour améliorer votre expérience. Aucune donnée personnelle identifiable n&apos;est partagée.</p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={dataCollection}
+                    onClick={() => setDataCollection(!dataCollection)}
+                    className={`relative shrink-0 w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#3ecf4c] focus:ring-offset-1 ${dataCollection ? "bg-[#3ecf4c]" : "bg-neutral-300"}`}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${dataCollection ? "translate-x-5" : ""}`} />
                   </button>
                 </label>
               </div>

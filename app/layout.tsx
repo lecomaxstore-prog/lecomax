@@ -13,7 +13,10 @@ import PageTracker from "@/components/PageTracker";
 import AdminLayoutWrapper from "@/components/AdminLayoutWrapper";
 import SiteProtection from "@/components/SiteProtection";
 import CookieBanner from "@/components/CookieBanner";
+import DataCollector from "@/components/DataCollector";
 import BackToTop from "@/components/BackToTop";
+import AdsDisplay from "@/components/AdsDisplay";
+import PushPrompt from "@/components/PushPrompt";
 import ChatWidget from "@/components/ChatWidget";
 
 
@@ -281,7 +284,10 @@ export default function RootLayout({
             <ChatWidget />
           </AdminLayoutWrapper>
           <CookieBanner />
+          <DataCollector />
           <BackToTop />
+          <AdsDisplay />
+          <PushPrompt />
           {process.env.NODE_ENV === "production" && <SpeedInsights />}
           {process.env.NODE_ENV === "production" && <Analytics />}
         </CartProvider>

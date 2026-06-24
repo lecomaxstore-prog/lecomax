@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import type { Category } from "@/lib/supabase";
 
@@ -16,6 +16,9 @@ export default function CategoriesPage() {
   const [form, setForm] = useState({ ...emptyForm });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -35,6 +38,17 @@ export default function CategoriesPage() {
       setForm({ ...emptyForm });
     }
   }, [editId, isNew, categories]);
+
+  async function handleImageUpload(file: File) {
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const data = await res.json();
+    setUploading(false);
+    if (res.ok) setForm((f) => ({ ...f, image: data.url }));
+    else setMsg({ type: "err", text: data.error ?? "Échec upload" });
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -73,7 +87,42 @@ export default function CategoriesPage() {
           <Field label="Nom *" value={form.label} onChange={(v) => setForm({ ...form, label: v })} required />
           <Field label="Slug *" value={form.slug} onChange={(v) => setForm({ ...form, slug: v })} placeholder="ex: homme" required />
         </div>
-        <Field label="URL Image" value={form.image} onChange={(v) => setForm({ ...form, image: v })} placeholder="https://..." />
+        <Field label="URL Image (ou uploader ci-dessous)" value={form.image} onChange={(v) => setForm({ ...form, image: v })} placeholder="https://..." />
+        {/* Image uploader */}
+        <div>
+          <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Photo de la catégorie</label>
+          <div
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) handleImageUpload(f); }}
+            onClick={() => fileInputRef.current?.click()}
+            className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors ${dragOver ? "border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"}`}
+          >
+            {form.image ? (
+              <div className="flex items-center gap-4">
+                <img src={form.image} alt="preview" className="w-20 h-20 object-cover rounded-xl bg-neutral-100 flex-shrink-0" />
+                <div className="text-left flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-neutral-700 truncate">{form.image.split("/").pop()}</p>
+                  <p className="text-xs text-neutral-400 mt-0.5">Cliquez ou glissez pour remplacer</p>
+                </div>
+              </div>
+            ) : uploading ? (
+              <div className="flex flex-col items-center gap-2 py-4">
+                <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-neutral-500">Upload en cours…</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2 py-4">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-300">
+                  <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <p className="text-sm font-medium text-neutral-500">Glissez une image ou <span className="text-black underline">cliquez pour choisir</span></p>
+                <p className="text-xs text-neutral-400">JPG, PNG, WEBP · max 5 MB</p>
+              </div>
+            )}
+          </div>
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); }} />
+        </div>
         <div>
           <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Description</label>
           <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black resize-none" />

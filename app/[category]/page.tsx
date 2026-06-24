@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { createClient } from "@supabase/supabase-js";
 import {
   categories,
   productsByCategory,
@@ -84,7 +85,17 @@ export default async function CategoryPage({
   params: Promise<{ category: string }>;
 }) {
   const { category } = await params;
-  if (!valid.has(category as never)) notFound();
+
+  // Check if it's a custom CMS page first
+  if (!valid.has(category as never)) {
+    const supa = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const { data: page } = await supa.from("pages").select("*").eq("slug", category).eq("active", true).single();
+    if (page) return <CustomPage page={page} />;
+    notFound();
+  }
 
   const cat = categories.find((c) => c.slug === category)!;
 
@@ -191,6 +202,30 @@ export default async function CategoryPage({
 
       {/* Filters + grid */}
       <CategoryFilters products={list} subCategories={subCategories} />
+    </div>
+  );
+}
+
+// ─── Custom CMS Page renderer ────────────────────────────────────────────────
+function CustomPage({ page }: {
+  page: { title: string; slug: string; content: string | null; meta_title: string | null };
+}) {
+  return (
+    <div className="max-w-3xl mx-auto px-6 py-16">
+      <nav className="flex items-center gap-2 text-neutral-400 text-[11px] uppercase tracking-[0.2em] mb-8">
+        <Link href="/" className="hover:text-black transition-colors">Accueil</Link>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
+        <span className="text-neutral-700 font-semibold">{page.title}</span>
+      </nav>
+      <h1 className="text-4xl font-black mb-8 leading-tight">{page.title}</h1>
+      {page.content ? (
+        <div
+          className="prose prose-neutral max-w-none prose-headings:font-black prose-a:text-black prose-a:underline prose-img:rounded-xl"
+          dangerouslySetInnerHTML={{ __html: page.content }}
+        />
+      ) : (
+        <p className="text-neutral-400">Cette page est vide pour l&apos;instant.</p>
+      )}
     </div>
   );
 }

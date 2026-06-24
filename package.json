@@ -14,6 +14,7 @@
     "@supabase/supabase-js": "^2.105.0",
     "@types/mailparser": "^3.4.6",
     "@types/nodemailer": "^8.0.1",
+    "@types/web-push": "^3.6.4",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "imapflow": "^1.4.0",
@@ -23,7 +24,8 @@
     "openai": "^6.42.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "resend": "^6.12.2"
+    "resend": "^6.12.2",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",
