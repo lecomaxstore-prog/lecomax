@@ -14,8 +14,49 @@ const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
 import { products as staticProducts, type CardProduct } from "@/lib/products";
 import { getDbProducts } from "@/lib/db-server";
 
+const SITE_URL_PAGE = "https://lecomax.com";
+
 export const metadata: Metadata = {
+  title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
+  description:
+    "L'ecomax : boutique en ligne au Maroc — chaussures running, vêtements tendance, écouteurs Bluetooth, enceintes HiFi et manettes gaming. Livraison 35 MAD partout au Maroc. Paiement à la livraison. Retours gratuits 30 jours.",
+  keywords: [
+    "boutique en ligne Maroc",
+    "acheter chaussures Maroc",
+    "vêtements sport Maroc",
+    "écouteurs sans fil Maroc",
+    "manette gaming Maroc",
+    "livraison Maroc",
+    "paiement à la livraison",
+    "L'ecomax",
+    "lecomax.com",
+  ],
   alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "fr_MA",
+    url: SITE_URL_PAGE,
+    siteName: "L'ecomax",
+    title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
+    description:
+      "Boutique en ligne Maroc — chaussures, vêtements sport, écouteurs, enceintes et gaming. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
+    images: [
+      {
+        url: `${SITE_URL_PAGE}/ecomax-hero-banner.jpg.png`,
+        width: 1200,
+        height: 630,
+        alt: "L'ecomax — Boutique en ligne Maroc",
+        type: "image/png",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
+    description:
+      "Boutique en ligne Maroc — chaussures, vêtements, écouteurs, enceintes et gaming. Livraison 35 MAD.",
+    images: [`${SITE_URL_PAGE}/ecomax-hero-banner.jpg.png`],
+  },
 };
 
 export const revalidate = 60; // ISR — revalidate every 60 seconds
@@ -74,12 +115,84 @@ export default async function HomePage() {
     })),
   };
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Quels sont les frais de livraison au Maroc ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "La livraison est à 35 MAD partout au Maroc, quel que soit le montant de la commande. Les commandes sont expédiées sous 24h et livrées en 2 à 5 jours ouvrables."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Puis-je payer à la livraison sur L'ecomax ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui, L'ecomax propose le paiement à la livraison (Cash on Delivery) partout au Maroc. Vous payez uniquement à la réception de votre commande."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Quelle est la politique de retour de L'ecomax ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Vous disposez de 30 jours après réception pour retourner un article. Les retours sont gratuits et le remboursement est effectué sous 3 à 5 jours ouvrables."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "L'ecomax livre-t-il dans toutes les villes du Maroc ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui, L'ecomax livre dans toutes les villes du Maroc : Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir, Meknès, Oujda, Sidi Bennour et partout ailleurs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Comment suivre ma commande L'ecomax ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Vous pouvez suivre votre commande en temps réel sur la page de suivi de commande disponible sur lecomax.com/suivre-commande. Un numéro de suivi vous est envoyé par SMS dès l'expédition."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Quels types de produits vend L'ecomax ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "L'ecomax propose des chaussures de sport et lifestyle, des vêtements tendance (homme et femme), des écouteurs Bluetooth, des enceintes HiFi et des accessoires gaming comme des manettes sans fil. Tous les produits sont sélectionnés pour leur qualité et leur rapport qualité-prix."
+        }
+      }
+    ]
+  };
+
+  const webPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${SITE_URL_PAGE}/#webpage`,
+    "url": SITE_URL_PAGE,
+    "name": "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
+    "description": "Boutique en ligne au Maroc — chaussures running, vêtements tendance, écouteurs Bluetooth, enceintes HiFi et accessoires gaming. Livraison 35 MAD partout au Maroc.",
+    "isPartOf": { "@id": `${SITE_URL_PAGE}/#website` },
+    "about": { "@id": `${SITE_URL_PAGE}/#organization` },
+    "inLanguage": "fr-MA",
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Accueil", "item": SITE_URL_PAGE }
+      ]
+    }
+  };
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }} />
       <HeroBanner
         heroImage={heroImages.hero_image}
         heroImageMobile={heroImages.hero_image_mobile}

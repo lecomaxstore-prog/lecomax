@@ -82,6 +82,13 @@ function renderWithLinks(text: string) {
   });
 }
 
+const QUICK_CHIPS = [
+  { label: "🛍️ Nos produits", msg: "Quels produits proposez-vous ?" },
+  { label: "🚚 Livraison", msg: "Quels sont vos délais et frais de livraison ?" },
+  { label: "↩️ Retours", msg: "Quelle est votre politique de retour ?" },
+  { label: "💳 Paiement", msg: "Quels modes de paiement acceptez-vous ?" },
+];
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -98,12 +105,70 @@ export default function ChatWidget() {
   const [feedbackRating, setFeedbackRating] = useState(0);
   const [feedbackComment, setFeedbackComment] = useState("");
   const [feedbackState, setFeedbackState] = useState<"idle" | "submitted">("idle");
+  const [inactiveWarning, setInactiveWarning] = useState(false);
+  const [inactiveCountdown, setInactiveCountdown] = useState(30);
   const agentJoinedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const prevMsgCount = useRef(0);
+  const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countdownTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // ── Mobile keyboard: keep header visible by tracking visualViewport ────────
+  useEffect(() => {
+    if (!open) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    const isMobile = () => window.innerWidth < 640;
+    const resize = () => {
+      if (!isMobile()) { panel.style.height = ""; return; }
+      const h = window.visualViewport?.height ?? window.innerHeight;
+      panel.style.height = `${h}px`;
+      // Keep the panel anchored to the top of the visual viewport
+      const offsetTop = window.visualViewport?.offsetTop ?? 0;
+      panel.style.top = `${offsetTop}px`;
+    };
+    window.visualViewport?.addEventListener("resize", resize);
+    window.visualViewport?.addEventListener("scroll", resize);
+    resize();
+    return () => {
+      window.visualViewport?.removeEventListener("resize", resize);
+      window.visualViewport?.removeEventListener("scroll", resize);
+      panel.style.height = "";
+      panel.style.top = "";
+    };
+  }, [open]);
+
+  const INACTIVITY_MS = 5 * 60 * 1000; // 5 minutes
+  const WARNING_SECS  = 30;
+
+  // ── Reset the inactivity clock ────────────────────────────────────────────
+  const resetInactivity = useCallback(() => {
+    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    if (countdownTimer.current) clearInterval(countdownTimer.current);
+    setInactiveWarning(false);
+    setInactiveCountdown(WARNING_SECS);
+    inactivityTimer.current = setTimeout(() => {
+      // Show 30-second warning
+      setInactiveWarning(true);
+      setInactiveCountdown(WARNING_SECS);
+      let secs = WARNING_SECS;
+      countdownTimer.current = setInterval(() => {
+        secs -= 1;
+        setInactiveCountdown(secs);
+        if (secs <= 0) {
+          if (countdownTimer.current) clearInterval(countdownTimer.current);
+          // Auto-close
+          setOpen(false);
+          setInactiveWarning(false);
+          document.body.classList.remove("chat-open");
+        }
+      }, 1000);
+    }, INACTIVITY_MS);
+  }, [INACTIVITY_MS]);
 
   // ── Start or resume session ──────────────────────────────────────────────
   const startSession = useCallback(async () => {
@@ -228,6 +293,7 @@ export default function ChatWidget() {
     setMessages((prev) => [...prev, tempMsg]);
     setInput("");
     setLoading(true);
+    resetInactivity(); // visitor activity → reset timer
 
     try {
       const res = await fetch("/api/chat/message", {
@@ -272,7 +338,17 @@ export default function ChatWidget() {
     setUnread(0);
     setHasNew(false);
     document.body.classList.add("chat-open");
+    resetInactivity();
   }
+
+  // Clear inactivity timer when chat closes
+  useEffect(() => {
+    if (!open) {
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+      if (countdownTimer.current) clearInterval(countdownTimer.current);
+      setInactiveWarning(false);
+    }
+  }, [open]);
 
   async function newConversation() {
     clearSession();
@@ -359,73 +435,109 @@ export default function ChatWidget() {
 
       {/* ── Chat panel ── */}
       {open && (
-        <div className="fixed z-50 flex flex-col overflow-hidden bg-white shadow-2xl border border-neutral-200
+        <div ref={panelRef} className="fixed z-50 flex flex-col overflow-hidden bg-white shadow-2xl border border-neutral-200
           bottom-0 right-0 left-0 top-0 rounded-none w-full h-full
           sm:bottom-5 sm:right-5 sm:left-auto sm:top-auto sm:w-[360px] sm:h-[540px] sm:max-h-[calc(100vh-80px)] sm:rounded-2xl sm:max-w-[calc(100vw-20px)]"
           style={{ fontFamily: "Inter, sans-serif" }}>
 
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3.5 text-white flex-shrink-0"
-            style={{ background: "linear-gradient(135deg,#111 0%,#3ecf4c 100%)" }}>
-            {/* Logo with online ring */}
-            <div className="relative flex-shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/chatbot logo.png?v=2"
-                alt="Eco"
-                width={44}
-                height={44}
-                className="w-11 h-11 rounded-full object-cover"
-                style={{ boxShadow: "0 0 0 2px rgba(255,255,255,0.6)" }}
-              />
-              {/* Online dot */}
-              <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#3ecf4c] rounded-full border-2 border-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold leading-tight">Eco — Assistant L&apos;ecomax</p>
-              <p className="text-[11px] text-white/75 leading-tight">
-                {status === "escalated" && callVisible && !agentJoined ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    {/* Pulsing live dot */}
-                    <span className="relative inline-flex" style={{ width: 8, height: 8 }}>
-                      <span style={{
-                        position: "absolute", inset: 0, borderRadius: "50%",
-                        background: "#f97316",
-                        animation: "agentPing 1s cubic-bezier(0,0,0.2,1) infinite"
-                      }} />
-                      <span style={{
-                        position: "relative", display: "inline-block",
-                        width: 8, height: 8, borderRadius: "50%",
-                        background: "#fb923c"
-                      }} />
-                    </span>
-                    <span style={{ animation: "agentFade 1.8s ease-in-out infinite" }}>
-                      Agent en route
-                    </span>
-                    {/* Bouncing dots */}
-                    {["0s","0.2s","0.4s"].map((delay, i) => (
-                      <span key={i} style={{
-                        display: "inline-block", width: 3, height: 3, borderRadius: "50%",
-                        background: "rgba(255,255,255,0.7)",
-                        animation: `agentBounce 1s ease-in-out ${delay} infinite`
-                      }} />
-                    ))}
-                    <style>{`
-                      @keyframes agentPing {
-                        75%, 100% { transform: scale(2.2); opacity: 0; }
-                      }
-                      @keyframes agentFade {
-                        0%, 100% { opacity: 0.7; }
-                        50%       { opacity: 1; }
-                      }
-                      @keyframes agentBounce {
-                        0%, 100% { transform: translateY(0); }
-                        50%       { transform: translateY(-3px); }
-                      }
-                    `}</style>
-                  </span>
-                ) : status === "resolved" ? "✅ Résolu" : agentJoined ? "🟢 Zakaria · Agent en ligne" : "🟢 En ligne"}
-              </p>
+            style={{
+              background: agentJoined
+                ? "linear-gradient(135deg,#1a3a1a 0%,#22c55e 100%)"
+                : "linear-gradient(135deg,#111 0%,#3ecf4c 100%)",
+              transition: "background 0.6s ease",
+            }}>
+            <style>{`
+              @keyframes headerFadeIn {
+                from { opacity: 0; transform: scale(0.85); }
+                to   { opacity: 1; transform: scale(1); }
+              }
+              @keyframes agentPing {
+                75%, 100% { transform: scale(2.2); opacity: 0; }
+              }
+              @keyframes agentFade {
+                0%, 100% { opacity: 0.7; }
+                50%       { opacity: 1; }
+              }
+              @keyframes agentBounce {
+                0%, 100% { transform: translateY(0); }
+                50%       { transform: translateY(-3px); }
+              }
+            `}</style>
+
+            {agentJoined ? (
+              /* ── Zakaria agent mode ── */
+              <div className="relative flex-shrink-0" style={{ animation: "headerFadeIn 0.4s ease both" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/zakaria agent.jpeg"
+                  alt="Zakaria"
+                  width={44}
+                  height={44}
+                  className="w-11 h-11 rounded-full object-cover"
+                  style={{ objectPosition: "center 15%", boxShadow: "0 0 0 2px rgba(255,255,255,0.6)" }}
+                />
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#4ade80] rounded-full border-2 border-white"
+                  style={{ boxShadow: "0 0 6px #4ade80" }} />
+              </div>
+            ) : (
+              /* ── Bot mode ── */
+              <div className="relative flex-shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/chatbot logo.png?v=2"
+                  alt="Eco"
+                  width={44}
+                  height={44}
+                  className="w-11 h-11 rounded-full object-cover"
+                  style={{ boxShadow: "0 0 0 2px rgba(255,255,255,0.6)" }}
+                />
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#3ecf4c] rounded-full border-2 border-white" />
+              </div>
+            )}
+
+            <div className="flex-1 min-w-0" style={{ animation: "headerFadeIn 0.4s ease both" }}>
+              {agentJoined ? (
+                <>
+                  <p className="text-sm font-bold leading-tight">Zakaria</p>
+                  <p className="text-[11px] text-white/90 leading-tight flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#4ade80] inline-block"
+                      style={{ boxShadow: "0 0 5px #4ade80" }} />
+                    Agent en ligne · L&apos;ecomax
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-bold leading-tight">Eco — Assistant L&apos;ecomax</p>
+                  <p className="text-[11px] text-white/75 leading-tight">
+                    {status === "escalated" && callVisible ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="relative inline-flex" style={{ width: 8, height: 8 }}>
+                          <span style={{
+                            position: "absolute", inset: 0, borderRadius: "50%",
+                            background: "#f97316",
+                            animation: "agentPing 1s cubic-bezier(0,0,0.2,1) infinite"
+                          }} />
+                          <span style={{
+                            position: "relative", display: "inline-block",
+                            width: 8, height: 8, borderRadius: "50%",
+                            background: "#fb923c"
+                          }} />
+                        </span>
+                        <span style={{ animation: "agentFade 1.8s ease-in-out infinite" }}>Agent en route</span>
+                        {["0s","0.2s","0.4s"].map((delay, i) => (
+                          <span key={i} style={{
+                            display: "inline-block", width: 3, height: 3, borderRadius: "50%",
+                            background: "rgba(255,255,255,0.7)",
+                            animation: `agentBounce 1s ease-in-out ${delay} infinite`
+                          }} />
+                        ))}
+                      </span>
+                    ) : status === "resolved" ? "✅ Résolu" : "🟢 En ligne"}
+                  </p>
+                </>
+              )}
             </div>
             <div className="flex items-center gap-1 ml-auto">
             <button onClick={() => { setOpen(false); document.body.classList.remove("chat-open"); }} className="text-white/70 hover:text-white" aria-label="Fermer">
@@ -498,75 +610,140 @@ export default function ChatWidget() {
           )}
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-neutral-50"
+          <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto p-4 bg-neutral-50"
             style={{
               scrollBehavior: "smooth",
               overscrollBehavior: "contain",
               WebkitOverflowScrolling: "touch",
               scrollbarWidth: "thin",
               scrollbarColor: "#3ecf4c transparent",
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
             }}
           >
+            <style>{`
+              @keyframes msgIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to   { opacity: 1; transform: translateY(0); }
+              }
+              .chat-msg { animation: msgIn 0.22s ease both; }
+            `}</style>
+
             {starting && (
-              <div className="flex items-center gap-2 text-xs text-neutral-400">
-                <span className="w-2 h-2 rounded-full bg-neutral-300 animate-pulse" />Chargement…
+              <div className="flex items-center gap-2 text-xs text-neutral-400 mt-2">
+                <span className="w-2 h-2 rounded-full bg-[#3ecf4c] animate-pulse" />Connexion…
               </div>
             )}
+
+            {/* Welcome card — shown only before any messages */}
             {!starting && messages.length === 0 && (
-              <div className="bg-white rounded-2xl rounded-tl-sm p-3 shadow-sm text-sm text-neutral-700 max-w-[85%]">
-                👋 Bonjour ! Je suis <strong>Eco</strong>, l&apos;assistant de L&apos;ecomax. Comment puis-je vous aider ?
+              <div className="chat-msg flex flex-col gap-3">
+                {/* Bot bubble */}
+                <div className="flex items-end gap-2 justify-start">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/chatbot logo.png?v=2" alt="Eco" width={32} height={32}
+                    className="w-8 h-8 rounded-full object-cover flex-shrink-0 shadow-sm"
+                    style={{ mixBlendMode: "multiply" }} />
+                  <div className="flex flex-col gap-0.5" style={{ maxWidth: "82%" }}>
+                    <span className="text-[10px] font-semibold text-[#3ecf4c] pl-1">Eco · Assistant</span>
+                    <div className="bg-white border border-neutral-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm text-sm text-neutral-800 leading-relaxed">
+                      👋 Bonjour ! Je suis <strong>Eco</strong>, l&apos;assistant de L&apos;ecomax.<br />
+                      Comment puis-je vous aider aujourd&apos;hui ?
+                    </div>
+                  </div>
+                </div>
+                {/* Quick chips */}
+                <div className="flex flex-wrap gap-2 pl-10">
+                  {QUICK_CHIPS.map((chip) => (
+                    <button
+                      key={chip.label}
+                      onClick={() => { setInput(chip.msg); setTimeout(() => inputRef.current?.focus(), 50); }}
+                      className="px-3 py-1.5 rounded-full text-xs font-medium border border-neutral-200 bg-white text-neutral-700 hover:border-[#3ecf4c] hover:text-[#2db83a] transition-colors shadow-sm"
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
+
             {messages.map((m) => (
-              <div key={m.id} className={`flex items-end gap-2 ${m.direction === "in" ? "justify-end" : "justify-start"}`}>
-                {/* Agent avatar with online dot */}
-                {m.sent_by === "agent" && (
-                  <div className="relative flex-shrink-0">
-                    <img
-                      src="/images/zakaria agent.jpeg"
-                      alt="Zakaria"
-                      className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"
-                      style={{ objectPosition: "center 15%" }}
-                    />
-                    <span
-                      className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-400 border-2 border-white"
-                      style={{ boxShadow: "0 0 4px #4ade80" }}
-                    />
+              <div key={m.id} className={`chat-msg flex items-end gap-2 ${m.direction === "in" ? "justify-end" : "justify-start"}`}>
+                {/* Avatar — AI or Agent */}
+                {m.direction === "out" && (
+                  <div className="flex-shrink-0 self-end">
+                    {m.sent_by === "agent" ? (
+                      <div className="relative">
+                        <img
+                          src="/images/zakaria agent.jpeg"
+                          alt="Zakaria"
+                          className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-md"
+                          style={{ objectPosition: "center 15%" }}
+                        />
+                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-white"
+                          style={{ boxShadow: "0 0 4px #4ade80" }} />
+                      </div>
+                    ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src="/images/chatbot logo.png?v=2" alt="Eco" width={32} height={32}
+                        className="w-8 h-8 rounded-full object-cover shadow-sm"
+                        style={{ mixBlendMode: "multiply" }} />
+                    )}
                   </div>
                 )}
+
                 <div className="flex flex-col gap-0.5" style={{ maxWidth: "78%" }}>
-                  {/* Name label above bubble */}
-                  {m.sent_by === "agent" && (
-                    <span className="text-[10px] font-semibold text-amber-600 pl-1">Zakaria · Agent</span>
+                  {/* Label */}
+                  {m.direction === "out" && (
+                    <span className={`text-[10px] font-semibold pl-1 ${m.sent_by === "agent" ? "text-amber-600" : "text-[#3ecf4c]"}`}>
+                      {m.sent_by === "agent" ? "Zakaria · Agent" : "Eco · Assistant"}
+                    </span>
                   )}
-                  <div className={`px-3 py-2 rounded-2xl text-sm leading-relaxed shadow-sm
+
+                  <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm
                     ${m.direction === "in"
                       ? "bg-black text-white rounded-br-sm"
                       : m.sent_by === "agent"
                         ? "bg-white border border-amber-200 text-neutral-800 rounded-bl-sm"
                         : "bg-white border border-neutral-100 text-neutral-800 rounded-bl-sm"
                     }`}
-                    style={m.sent_by === "agent" ? { boxShadow: "0 2px 8px rgba(251,191,36,0.15)" } : {}}>
+                    style={m.sent_by === "agent" ? { boxShadow: "0 2px 8px rgba(251,191,36,0.12)" } : {}}>
                     <p style={{ whiteSpace: "pre-wrap" }}>{renderWithLinks(m.body)}</p>
-                    <p className={`text-[10px] mt-1 ${m.direction === "in" ? "text-white/50 text-right" : "text-neutral-400"}`}>
+                    <p className={`text-[10px] mt-1 ${m.direction === "in" ? "text-white/40 text-right" : "text-neutral-300"}`}>
                       {formatTime(m.timestamp)}
                     </p>
                   </div>
                 </div>
               </div>
             ))}
+
+            {/* Typing indicator */}
             {loading && (
-              <div className="flex justify-start">
-                <div className="bg-white border border-neutral-100 rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-sm flex gap-1.5 items-center">
-                  <span className="w-2 h-2 rounded-full bg-neutral-300 animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <span className="w-2 h-2 rounded-full bg-neutral-300 animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <span className="w-2 h-2 rounded-full bg-neutral-300 animate-bounce" style={{ animationDelay: "300ms" }} />
+              <div className="chat-msg flex items-end gap-2 justify-start">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/images/chatbot logo.png?v=2" alt="Eco" width={32} height={32}
+                  className="w-8 h-8 rounded-full object-cover flex-shrink-0 shadow-sm"
+                  style={{ mixBlendMode: "multiply" }} />
+                <div className="bg-white border border-neutral-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm flex gap-1.5 items-center">
+                  <style>{`
+                    @keyframes typingDot {
+                      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+                      30%           { transform: translateY(-5px); opacity: 1; }
+                    }
+                  `}</style>
+                  {[0, 150, 300].map((delay, i) => (
+                    <span key={i} className="w-2 h-2 rounded-full"
+                      style={{ background: "#3ecf4c", animation: `typingDot 1.2s ease-in-out ${delay}ms infinite` }} />
+                  ))}
                 </div>
               </div>
             )}
+
+            {/* Agent connecting card */}
             {status === "escalated" && callVisible && !loading && (
               <div
-                className="rounded-2xl px-4 py-3 text-xs text-center overflow-hidden"
+                className="chat-msg rounded-2xl px-4 py-3 text-xs text-center overflow-hidden"
                 style={{
                   background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
                   border: "1px solid rgba(99,179,237,0.3)",
@@ -574,7 +751,6 @@ export default function ChatWidget() {
                   boxShadow: "0 0 20px rgba(62,207,76,0.15), 0 4px 15px rgba(0,0,0,0.3)"
                 }}
               >
-                {/* Ripple rings */}
                 <div className="relative flex justify-center items-center mb-2">
                   <span style={{ position: "absolute", width: 56, height: 56, borderRadius: "50%", border: "2px solid rgba(62,207,76,0.6)", animation: "callRipple 1.5s ease-out infinite" }} />
                   <span style={{ position: "absolute", width: 56, height: 56, borderRadius: "50%", border: "2px solid rgba(62,207,76,0.4)", animation: "callRipple 1.5s ease-out 0.4s infinite" }} />
@@ -617,25 +793,50 @@ export default function ChatWidget() {
           </div>
 
           {/* Input */}
-          <div className="flex-shrink-0 border-t border-neutral-100 bg-white p-3">
+          {/* Inactivity warning banner */}
+          {inactiveWarning && (
+            <div
+              className="flex-shrink-0 flex items-center gap-3 px-4 py-2.5"
+              style={{
+                background: "linear-gradient(90deg, #fffbeb 0%, #fef3c7 100%)",
+                borderTop: "1px solid #fbbf24",
+                animation: "msgIn 0.3s ease both",
+              }}
+            >
+              <span className="text-xl flex-shrink-0">⏱️</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-semibold text-amber-800 leading-tight">Toujours là ?</p>
+                <p className="text-[11px] text-amber-700 leading-tight">
+                  Fermeture automatique dans <strong>{inactiveCountdown}s</strong>
+                </p>
+              </div>
+              <button
+                onClick={() => { resetInactivity(); }}
+                className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-amber-400 text-amber-900 text-[11px] font-bold hover:bg-amber-500 transition-colors"
+              >
+                Je suis là
+              </button>
+            </div>
+          )}
+
+          <div className="flex-shrink-0 bg-white" style={{ borderTop: "1px solid #f0f0f0" }}>
             {status === "resolved" ? (
               feedbackState === "submitted" ? (
-                <div className="flex flex-col items-center gap-2 py-2">
-                  <span className="text-2xl">🎉</span>
+                <div className="flex flex-col items-center gap-2 py-4 px-4">
+                  <span className="text-3xl">🎉</span>
                   <p className="text-sm font-bold text-neutral-800">Merci pour votre avis !</p>
                   <p className="text-xs text-neutral-400 text-center">Votre retour nous aide à améliorer notre service.</p>
                   <button onClick={newConversation}
-                    className="mt-1 w-full py-2 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition-colors">
+                    className="mt-1 w-full py-2.5 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition-colors">
                     Nouvelle conversation
                   </button>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 p-3">
                   <div className="bg-neutral-50 rounded-xl p-3 text-center border border-neutral-100">
                     <p className="text-xs font-bold text-neutral-700 mb-0.5">Conversation terminée</p>
                     <p className="text-[11px] text-neutral-400">Comment s&apos;est passée votre expérience ?</p>
                   </div>
-                  {/* Star rating */}
                   <div className="flex justify-center gap-1.5">
                     {[1,2,3,4,5].map((star) => (
                       <button key={star} onClick={() => setFeedbackRating(star)}
@@ -664,7 +865,7 @@ export default function ChatWidget() {
                           });
                           setFeedbackState("submitted");
                         }}
-                        className="w-full py-2 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition-colors"
+                        className="w-full py-2.5 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition-colors"
                       >
                         Envoyer mon avis
                       </button>
@@ -677,32 +878,38 @@ export default function ChatWidget() {
                 </div>
               )
             ) : (
-              <div className="flex gap-2 items-end">
-                <textarea
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKey}
-                  placeholder={status === "escalated" ? "Attendez la réponse de l'agent…" : "Votre message…"}
-                  rows={1}
-                  className="flex-1 resize-none rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10 bg-neutral-50 leading-snug"
-                  style={{ maxHeight: 90, overflowY: "auto" }}
-                />
-                <button
-                  onClick={sendMessage}
-                  disabled={!input.trim() || loading}
-                  className="w-9 h-9 flex-shrink-0 rounded-xl bg-black text-white flex items-center justify-center hover:bg-neutral-800 disabled:opacity-40 transition-colors"
-                  aria-label="Envoyer"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
-                  </svg>
-                </button>
+              <div className="px-3 pt-2.5 pb-2">
+                <div className="flex gap-2 items-end bg-neutral-50 border border-neutral-200 rounded-2xl px-3 py-2 focus-within:border-[#3ecf4c] focus-within:bg-white transition-colors"
+                  style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+                  <textarea
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKey}
+                    placeholder={status === "escalated" ? "Écrivez à l'agent…" : "Écrivez votre message…"}
+                    rows={1}
+                    className="flex-1 resize-none bg-transparent text-sm focus:outline-none leading-snug text-neutral-800 placeholder-neutral-400"
+                    style={{ maxHeight: 90, overflowY: "auto" }}
+                  />
+                  <button
+                    onClick={sendMessage}
+                    disabled={!input.trim() || loading}
+                    className="w-8 h-8 flex-shrink-0 rounded-xl flex items-center justify-center transition-all disabled:opacity-30"
+                    style={{ background: input.trim() && !loading ? "linear-gradient(135deg,#111 0%,#3ecf4c 100%)" : "#e5e7eb" }}
+                    aria-label="Envoyer"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+                      <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+                    </svg>
+                  </button>
+                </div>
+                <p className="text-[10px] text-neutral-400 text-center mt-1.5">
+                  {status === "ai"
+                    ? <>Propulsé par IA · <span className="text-neutral-500 font-medium">Tapez « agent »</span> pour parler à un humain</>
+                    : "Chat en direct avec notre équipe"}
+                </p>
               </div>
             )}
-            <p className="text-[10px] text-neutral-400 text-center mt-1.5">
-              {status === "ai" ? "Propulsé par IA • Tapez « agent » pour parler à un humain" : "Chat en direct avec notre équipe"}
-            </p>
           </div>
         </div>
       )}

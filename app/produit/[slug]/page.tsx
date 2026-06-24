@@ -390,7 +390,7 @@ export default async function ProductPage({
       { "@type": "ListItem", "position": 3, "name": product.displayName ?? product.name, "item": `${SITE_URL}/produit/${product.slug}` },
     ],
   };
-  const features = getFeatures(product.subCategory);
+  const features = (product.specs && product.specs.length > 0) ? product.specs : getFeatures(product.subCategory);
   const related = products
     .filter((p) => p.category === product.category && p.slug !== product.slug)
     .slice(0, 4);

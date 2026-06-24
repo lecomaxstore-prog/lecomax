@@ -1,14 +1,58 @@
-﻿import Link from "next/link";
+﻿import type { Metadata } from "next";
+import Link from "next/link";
 import Image from "next/image";
 
-export const metadata = {
-  title: "À Propos | L'ecomax — Fondée à Sidi Bennour",
-  description: "L'ecomax est une marque marocaine née à Sidi Bennour en 2026. Mode, sneakers et accessoires tech à prix juste.",
+const SITE_URL = "https://lecomax.com";
+
+export const metadata: Metadata = {
+  title: "À Propos de L'ecomax | Boutique Marocaine — Sidi Bennour",
+  description:
+    "Découvrez L'ecomax, marque marocaine fondée à Sidi Bennour en 2026. Mode, sneakers et accessoires tech à prix juste. Livraison partout au Maroc.",
+  alternates: { canonical: "/a-propos/" },
+  openGraph: {
+    type: "website",
+    locale: "fr_MA",
+    url: `${SITE_URL}/a-propos/`,
+    title: "À Propos de L'ecomax | Boutique Marocaine — Sidi Bennour",
+    description:
+      "L'ecomax est une marque marocaine née à Sidi Bennour en 2026. Mode, sneakers et accessoires tech à prix juste.",
+    images: [
+      {
+        url: `${SITE_URL}/ecomax-hero-banner.jpg.png`,
+        width: 1200,
+        height: 630,
+        alt: "L'ecomax — Boutique Marocaine Sidi Bennour",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "À Propos de L'ecomax | Boutique Marocaine",
+    description: "L'ecomax est une marque marocaine née à Sidi Bennour en 2026.",
+    images: [`${SITE_URL}/ecomax-hero-banner.jpg.png`],
+  },
 };
 
 export default function AProposPage() {
+  const aboutSchema = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "name": "À Propos de L'ecomax",
+    "url": `${SITE_URL}/a-propos/`,
+    "description": "L'ecomax est une boutique en ligne marocaine fondée à Sidi Bennour en 2026, spécialisée dans la mode, les sneakers et les accessoires tech.",
+    "inLanguage": "fr-MA",
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Accueil", "item": SITE_URL },
+        { "@type": "ListItem", "position": 2, "name": "À Propos", "item": `${SITE_URL}/a-propos/` },
+      ],
+    },
+  };
+
   return (
     <div className="bg-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }} />
 
       {/* ── HERO ─────────────────────────────────────── */}
       <section className="relative text-white overflow-hidden h-screen flex items-end">

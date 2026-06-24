@@ -6,25 +6,25 @@ const SITE_URL = "https://lecomax.com";
 const categorySlugs = ["homme", "femme", "chaussures", "accessoires"];
 
 const staticPages = [
-  { path: "/", priority: 1.0, changeFreq: "daily" },
-  { path: "/boutique/", priority: 0.9, changeFreq: "daily" },
-  { path: "/nouveautes/", priority: 0.8, changeFreq: "weekly" },
-  { path: "/bestsellers/", priority: 0.8, changeFreq: "weekly" },
-  { path: "/promotions/", priority: 0.8, changeFreq: "daily" },
-  { path: "/guide-des-tailles/", priority: 0.6, changeFreq: "monthly" },
-  { path: "/a-propos/", priority: 0.6, changeFreq: "monthly" },
-  { path: "/aide/", priority: 0.6, changeFreq: "monthly" },
-  { path: "/nous-contacter/", priority: 0.6, changeFreq: "monthly" },
-  { path: "/suivre-commande/", priority: 0.5, changeFreq: "monthly" },
-  { path: "/retours/", priority: 0.5, changeFreq: "monthly" },
-  { path: "/ecoclub/", priority: 0.5, changeFreq: "monthly" },
-  { path: "/carrieres/", priority: 0.4, changeFreq: "monthly" },
-  { path: "/boutiques/", priority: 0.4, changeFreq: "monthly" },
-  { path: "/conditions/", priority: 0.3, changeFreq: "yearly" },
-  { path: "/conditions-utilisation/", priority: 0.3, changeFreq: "yearly" },
-  { path: "/confidentialite/", priority: 0.3, changeFreq: "yearly" },
-  { path: "/politique-confidentialite/", priority: 0.3, changeFreq: "yearly" },
-  { path: "/cookies/", priority: 0.3, changeFreq: "yearly" },
+  { path: "/", priority: 1.0, changeFreq: "daily",   lastmod: "2026-06-24" },
+  { path: "/boutique/", priority: 0.9, changeFreq: "daily",   lastmod: "2026-06-24" },
+  { path: "/nouveautes/", priority: 0.8, changeFreq: "weekly", lastmod: "2026-06-24" },
+  { path: "/bestsellers/", priority: 0.8, changeFreq: "weekly", lastmod: "2026-06-24" },
+  { path: "/promotions/", priority: 0.8, changeFreq: "daily",   lastmod: "2026-06-24" },
+  { path: "/guide-des-tailles/", priority: 0.6, changeFreq: "monthly", lastmod: "2026-06-01" },
+  { path: "/a-propos/", priority: 0.6, changeFreq: "monthly", lastmod: "2026-06-01" },
+  { path: "/aide/", priority: 0.6, changeFreq: "monthly", lastmod: "2026-06-01" },
+  { path: "/nous-contacter/", priority: 0.6, changeFreq: "monthly", lastmod: "2026-06-01" },
+  { path: "/suivre-commande/", priority: 0.5, changeFreq: "monthly", lastmod: "2026-06-01" },
+  { path: "/retours/", priority: 0.5, changeFreq: "monthly", lastmod: "2026-06-01" },
+  { path: "/ecoclub/", priority: 0.5, changeFreq: "monthly", lastmod: "2026-06-01" },
+  { path: "/carrieres/", priority: 0.4, changeFreq: "monthly", lastmod: "2026-06-01" },
+  { path: "/boutiques/", priority: 0.4, changeFreq: "monthly", lastmod: "2026-06-01" },
+  { path: "/conditions/", priority: 0.3, changeFreq: "yearly", lastmod: "2026-01-01" },
+  { path: "/conditions-utilisation/", priority: 0.3, changeFreq: "yearly", lastmod: "2026-01-01" },
+  { path: "/confidentialite/", priority: 0.3, changeFreq: "yearly", lastmod: "2026-01-01" },
+  { path: "/politique-confidentialite/", priority: 0.3, changeFreq: "yearly", lastmod: "2026-01-01" },
+  { path: "/cookies/", priority: 0.3, changeFreq: "yearly", lastmod: "2026-01-01" },
 ];
 
 export const revalidate = 3600; // revalidate every hour
@@ -38,7 +38,7 @@ export async function GET() {
   for (const p of staticPages) {
     entries.push(`  <url>
     <loc>${SITE_URL}${p.path}</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${p.lastmod}</lastmod>
     <changefreq>${p.changeFreq}</changefreq>
     <priority>${p.priority}</priority>
   </url>`);
@@ -48,7 +48,7 @@ export async function GET() {
   for (const slug of categorySlugs) {
     entries.push(`  <url>
     <loc>${SITE_URL}/${slug}/</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${now.split("T")[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`);

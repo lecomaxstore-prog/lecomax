@@ -27,6 +27,7 @@ const chaussures: Product[] = [
   {
     slug: "c-baasploa-course-homme",
     name: "Baasploa Baskets de Course Respirantes Homme",
+    specs: ["Tige en mesh respirant", "Ultra-léger & flexible", "Semelle amorti souple", "Grip multisurface", "Idéal course & marche", "Design tendance sport"],
     category: "chaussures",
     subCategory: "Running",
     price: 249,
@@ -248,6 +249,7 @@ const accessoires: Product[] = [
   {
     slug: "a-genai-tws-hd",
     name: "GENAI Écouteurs Stéréo HD Sans Fil TWS",
+    specs: ["Son stéréo HD haute fidélité", "Connexion Bluetooth stable", "Contrôle tactile volume", "Longue autonomie", "Micro intégré appels", "Compatible iOS & Android"],
     category: "accessoires",
     subCategory: "Audio",
     price: 149,

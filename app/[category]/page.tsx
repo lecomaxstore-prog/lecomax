@@ -104,8 +104,30 @@ export default async function CategoryPage({
   const newCount = list.filter((p) => p.badge === "Nouveau").length;
   const promoCount = list.filter((p) => p.oldPrice).length;
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Accueil", "item": SITE_URL },
+      { "@type": "ListItem", "position": 2, "name": cat.label, "item": `${SITE_URL}/${category}/` },
+    ],
+  };
+
+  const categoryPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": categoryMeta[category]?.title ?? `${cat.label} | L'ecomax`,
+    "description": categoryMeta[category]?.description ?? cat.description,
+    "url": `${SITE_URL}/${category}/`,
+    "inLanguage": "fr-MA",
+    "numberOfItems": list.length,
+    "breadcrumb": { "@id": `${SITE_URL}/${category}/#breadcrumb` },
+  };
+
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryPageSchema) }} />
       {/* Hero */}
       <section className="relative h-[58vh] min-h-[380px] bg-black overflow-hidden">
         <Image

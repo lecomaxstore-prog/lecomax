@@ -165,14 +165,20 @@ export default function RootLayout({
               "@type": "Organization",
               "@id": "${SITE_URL}/#organization",
               "name": "L'ecomax",
+              "alternateName": "Lecomax",
               "url": "${SITE_URL}",
+              "foundingDate": "2026",
+              "foundingLocation": {
+                "@type": "Place",
+                "name": "Sidi Bennour, Maroc"
+              },
               "logo": {
                 "@type": "ImageObject",
-                "url": "${SITE_URL}/favicon.svg",
-                "width": 200,
-                "height": 60
+                "url": "${SITE_URL}/ecomax-hero-banner.jpg.png",
+                "width": 1200,
+                "height": 630
               },
-              "description": "Boutique en ligne marocaine spécialisée dans les chaussures de sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming.",
+              "description": "L'ecomax est une boutique en ligne marocaine fondée à Sidi Bennour, spécialisée dans les chaussures de sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc.",
               "areaServed": {
                 "@type": "Country",
                 "name": "Maroc"
