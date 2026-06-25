@@ -1,8 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 
-// Strip any whitespace/newlines that may be present in the env var
 const VAPID_PUBLIC_KEY = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "").replace(/\s+/g, "");
+const LS_DONE      = "push_done";       // "1" = subscribed, never show again
+const LS_VISITS    = "push_visits";     // visit counter
+const LS_THRESHOLD = "push_threshold";  // show after this many visits (default 3)
+const SHOW_DELAY   = 6000;             // ms after page load before showing
+const REMIND_AFTER = 3;               // visits until showing again after "Plus tard"
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -21,52 +25,65 @@ export default function PushPrompt() {
   const [dismissed, setDismissed] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check support
     if (typeof window === "undefined" || !("serviceWorker" in navigator) || !("PushManager" in window)) {
       setPermState("unsupported");
       return;
     }
 
-    // Check if already dismissed this session
-    if (sessionStorage.getItem("push_dismissed")) return;
+    // Already subscribed permanently
+    if (localStorage.getItem(LS_DONE) === "1") return;
 
-    // Check permission state
     const perm = Notification.permission as PermState;
     setPermState(perm);
 
+    if (perm === "denied") return;
+
     if (perm === "granted") {
-      // Register SW first, then check subscription
+      // They already granted — check if they have an active SW subscription
       navigator.serviceWorker.register("/sw.js").catch(() => {});
       navigator.serviceWorker.ready.then(reg => {
         reg.pushManager.getSubscription().then(sub => {
-          if (sub) setSubscribed(true);
-          else setShown(true); // Granted but not subscribed — re-subscribe
+          if (sub) {
+            localStorage.setItem(LS_DONE, "1");
+            setSubscribed(true);
+          } else {
+            // Granted but no subscription (SW was cleared) — re-show prompt
+            const t = setTimeout(() => setShown(true), SHOW_DELAY);
+            return () => clearTimeout(t);
+          }
         });
       });
       return;
     }
 
-    if (perm === "denied") return;
+    // Track visits in localStorage
+    const visits = (parseInt(localStorage.getItem(LS_VISITS) ?? "0", 10) || 0) + 1;
+    localStorage.setItem(LS_VISITS, String(visits));
 
-    // Show prompt after 8 seconds
-    const t = setTimeout(() => setShown(true), 8000);
-    return () => clearTimeout(t);
+    const threshold = parseInt(localStorage.getItem(LS_THRESHOLD) ?? "3", 10) || 3;
+
+    if (visits >= threshold) {
+      const t = setTimeout(() => setShown(true), SHOW_DELAY);
+      return () => clearTimeout(t);
+    }
   }, []);
 
   async function subscribe() {
     setLoading(true);
+    setError(null);
     try {
       const perm = await Notification.requestPermission();
       setPermState(perm as PermState);
 
       if (perm !== "granted") {
         setShown(false);
+        setLoading(false);
         return;
       }
 
-      // Register the service worker before subscribing
       await navigator.serviceWorker.register("/sw.js");
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.subscribe({
@@ -74,25 +91,39 @@ export default function PushPrompt() {
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       });
 
-      await fetch("/api/push/subscribe", {
+      const res = await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(sub.toJSON()),
       });
 
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? `HTTP ${res.status}`);
+      }
+
+      localStorage.setItem(LS_DONE, "1");
       setSubscribed(true);
       setShown(false);
     } catch (err) {
       console.error("Push subscribe error:", err);
-      setShown(false);
+      setError("Erreur lors de l'activation. Réessayez.");
     }
     setLoading(false);
   }
 
-  function dismiss() {
+  function dismiss(later: boolean) {
     setShown(false);
     setDismissed(true);
-    sessionStorage.setItem("push_dismissed", "1");
+    if (later) {
+      // Remind again after REMIND_AFTER more visits
+      const visits = parseInt(localStorage.getItem(LS_VISITS) ?? "0", 10) || 0;
+      localStorage.setItem(LS_THRESHOLD, String(visits + REMIND_AFTER));
+    } else {
+      // X button — same "later" behaviour (don't permanently silence)
+      const visits = parseInt(localStorage.getItem(LS_VISITS) ?? "0", 10) || 0;
+      localStorage.setItem(LS_THRESHOLD, String(visits + REMIND_AFTER));
+    }
   }
 
   if (permState === "unsupported" || permState === "denied" || subscribed || dismissed || !shown) {
@@ -117,7 +148,7 @@ export default function PushPrompt() {
       >
         {/* Dismiss */}
         <button
-          onClick={dismiss}
+          onClick={() => dismiss(false)}
           aria-label="Fermer"
           className="absolute top-4 right-4 w-6 h-6 rounded-full flex items-center justify-center text-white/30 hover:text-white/70 hover:bg-white/10 transition-all"
         >
@@ -213,11 +244,15 @@ export default function PushPrompt() {
           )}
         </button>
 
+        {error && (
+          <p className="text-[11px] text-red-500 text-center mb-2 mt-1">{error}</p>
+        )}
+
         <button
-          onClick={dismiss}
+          onClick={() => dismiss(true)}
           className="w-full mt-2.5 py-2 text-xs text-neutral-400 hover:text-neutral-600 font-medium transition-colors"
         >
-          Non merci, plus tard
+          Plus tard
         </button>
 
         {/* Trust note */}

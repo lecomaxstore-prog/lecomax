@@ -395,212 +395,155 @@ export default function ChatWidget() {
 
   return (
     <>
-      {/* ── Floating toggle button ── */}
+      {/* Floating button */}
       <div className={`fixed bottom-16 z-50 ${open ? "hidden" : ""}`} style={{ right: "-16px" }}>
-        {/* Badge positioned relative to the visible green circle (PNG has ~18% whitespace on each side) */}
         <div className="relative inline-block">
-          <button
-            onClick={handleOpen}
-            aria-label="Ouvrir le chat"
+          <button onClick={handleOpen} aria-label="Ouvrir le chat"
             className="relative w-36 h-36 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
-            style={{ background: "transparent" }}
-          >
-            {/* Chatbot logo */}
+            style={{ background: "transparent" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/chatbot logo.png?v=2"
-              alt="Chat"
-              width={144}
-              height={144}
-              className="w-36 h-36 object-contain"
-              style={{ mixBlendMode: "multiply" }}
-            />
+            <img src="/images/chatbot logo.png?v=2" alt="Chat" width={144} height={144}
+              className="w-36 h-36 object-contain" style={{ mixBlendMode: "multiply" }} />
           </button>
           {unread > 0 && (
-            <span
-              className="absolute min-w-[24px] h-[24px] bg-red-500 text-white text-[12px] font-black rounded-full flex items-center justify-center px-1.5 shadow-lg pointer-events-none"
-              style={{
-                top: "28px",
-                right: "20px",
-                animation: "badgePop 0.4s cubic-bezier(.36,.07,.19,.97) both, badgePulse 2s ease-in-out 0.5s infinite"
-              }}
-            >
+            <span className="absolute min-w-[24px] h-[24px] bg-red-500 text-white text-[12px] font-black rounded-full flex items-center justify-center px-1.5 shadow-lg pointer-events-none"
+              style={{ top: "28px", right: "20px", animation: "badgePop 0.4s cubic-bezier(.36,.07,.19,.97) both, badgePulse 2s ease-in-out 0.5s infinite" }}>
               {unread}
             </span>
           )}
           {hasNew && unread === 0 && (
-            <span
-              className="absolute w-4 h-4 bg-red-500 rounded-full shadow pointer-events-none"
-              style={{ top: "28px", right: "20px", animation: "badgePulse 1.5s ease-in-out infinite" }}
-            />
+            <span className="absolute w-4 h-4 bg-red-500 rounded-full shadow pointer-events-none"
+              style={{ top: "28px", right: "20px", animation: "badgePulse 1.5s ease-in-out infinite" }} />
           )}
           <style>{`
-            @keyframes badgePop {
-              0%   { transform: scale(0); opacity: 0; }
-              60%  { transform: scale(1.3); opacity: 1; }
-              100% { transform: scale(1); opacity: 1; }
-            }
-            @keyframes badgePulse {
-              0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); }
-              50%       { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
-            }
+            @keyframes badgePop { 0%{transform:scale(0);opacity:0;} 60%{transform:scale(1.3);opacity:1;} 100%{transform:scale(1);opacity:1;} }
+            @keyframes badgePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7);} 50%{box-shadow:0 0 0 8px rgba(239,68,68,0);} }
           `}</style>
         </div>
       </div>
 
-      {/* ── Chat panel ── */}
+      {/* Chat panel */}
       {open && (
-        <div ref={panelRef} className="fixed z-50 flex flex-col overflow-hidden bg-white shadow-2xl border border-neutral-200
-          bottom-0 right-0 left-0 top-0 rounded-none w-full h-full
-          sm:bottom-5 sm:right-5 sm:left-auto sm:top-auto sm:w-[360px] sm:h-[540px] sm:max-h-[calc(100vh-80px)] sm:rounded-2xl sm:max-w-[calc(100vw-20px)]"
-          style={{ fontFamily: "Inter, sans-serif" }}>
+        <div ref={panelRef}
+          className="fixed z-50 flex flex-col overflow-hidden shadow-2xl bottom-0 right-0 left-0 top-0 rounded-none w-full h-full sm:bottom-5 sm:right-5 sm:left-auto sm:top-auto sm:w-[370px] sm:h-[580px] sm:max-h-[calc(100vh-80px)] sm:rounded-3xl sm:max-w-[calc(100vw-20px)]"
+          style={{ fontFamily:"Inter,sans-serif", background:"#f5f6f8", border:"1px solid rgba(0,0,0,0.08)" }}>
+
+          <style>{`
+            @keyframes headerFadeIn { from{opacity:0;transform:scale(0.85);} to{opacity:1;transform:scale(1);} }
+            @keyframes agentPing    { 75%,100%{transform:scale(2.2);opacity:0;} }
+            @keyframes agentFade    { 0%,100%{opacity:0.7;} 50%{opacity:1;} }
+            @keyframes msgIn        { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+            @keyframes typingDot    { 0%,60%,100%{transform:translateY(0);opacity:0.35;} 30%{transform:translateY(-5px);opacity:1;} }
+            @keyframes slideDown    { from{opacity:0;transform:translateY(-8px);} to{opacity:1;transform:translateY(0);} }
+            @keyframes callRipple   { 0%{transform:scale(1);opacity:1;} 100%{transform:scale(2.2);opacity:0;} }
+            @keyframes callShake    { 0%,100%{transform:rotate(0deg);} 20%{transform:rotate(-15deg);} 40%{transform:rotate(15deg);} 60%{transform:rotate(-10deg);} 80%{transform:rotate(10deg);} }
+            @keyframes callSlideIn  { 0%{transform:translateY(20px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+            .chat-msg { animation: msgIn 0.25s cubic-bezier(0.22,1,0.36,1) both; }
+          `}</style>
 
           {/* Header */}
-          <div className="flex items-center gap-3 px-4 py-3.5 text-white flex-shrink-0"
+          <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3 text-white relative overflow-hidden"
             style={{
-              background: agentJoined
-                ? "linear-gradient(135deg,#1a3a1a 0%,#22c55e 100%)"
-                : "linear-gradient(135deg,#111 0%,#3ecf4c 100%)",
-              transition: "background 0.6s ease",
+              background: hasAgentJoined
+                ? "linear-gradient(135deg,#0a2a0a 0%,#16a34a 100%)"
+                : "linear-gradient(135deg,#0a0a0a 0%,#1a1a1a 60%,#166534 100%)",
+              transition:"background 0.7s ease", minHeight:68,
             }}>
-            <style>{`
-              @keyframes headerFadeIn {
-                from { opacity: 0; transform: scale(0.85); }
-                to   { opacity: 1; transform: scale(1); }
-              }
-              @keyframes agentPing {
-                75%, 100% { transform: scale(2.2); opacity: 0; }
-              }
-              @keyframes agentFade {
-                0%, 100% { opacity: 0.7; }
-                50%       { opacity: 1; }
-              }
-              @keyframes agentBounce {
-                0%, 100% { transform: translateY(0); }
-                50%       { transform: translateY(-3px); }
-              }
-            `}</style>
+            <span style={{ position:"absolute",right:-20,top:-20,width:100,height:100,borderRadius:"50%",background:"rgba(62,207,76,0.08)",pointerEvents:"none" }} />
+            <span style={{ position:"absolute",right:20,bottom:-30,width:70,height:70,borderRadius:"50%",background:"rgba(62,207,76,0.06)",pointerEvents:"none" }} />
 
             {hasAgentJoined ? (
-              /* ── Agent mode (persistent once agent joins) ── */
-              <div className="relative flex-shrink-0" style={{ animation: "headerFadeIn 0.4s ease both" }}>
+              <div className="relative flex-shrink-0" style={{ animation:"headerFadeIn 0.4s ease both" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/zakaria agent.jpeg"
-                  alt="Zakaria"
-                  width={44}
-                  height={44}
+                <img src="/images/zakaria agent.jpeg" alt="Zakaria" width={44} height={44}
                   className="w-11 h-11 rounded-full object-cover"
-                  style={{ objectPosition: "center 15%", boxShadow: "0 0 0 2px rgba(255,255,255,0.6)" }}
-                />
-                <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#4ade80] rounded-full border-2 border-white"
-                  style={{ boxShadow: "0 0 6px #4ade80" }} />
+                  style={{ objectPosition:"center 15%", boxShadow:"0 0 0 2px rgba(255,255,255,0.5),0 0 0 4px rgba(62,207,76,0.3)" }} />
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#4ade80] rounded-full border-2 border-[#0a2a0a]"
+                  style={{ boxShadow:"0 0 8px #4ade80" }} />
               </div>
             ) : (
-              /* ── Bot mode ── */
-              <div className="relative flex-shrink-0">
+              <div className="relative flex-shrink-0" style={{ animation:"headerFadeIn 0.4s ease both" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/chatbot logo.png?v=2"
-                  alt="Eco"
-                  width={44}
-                  height={44}
-                  className="w-11 h-11 rounded-full object-cover"
-                  style={{ boxShadow: "0 0 0 2px rgba(255,255,255,0.6)" }}
-                />
-                <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#3ecf4c] rounded-full border-2 border-white" />
+                <img src="/images/chatbot logo.png?v=2" alt="Eco" width={44} height={44}
+                  className="w-11 h-11 rounded-full object-cover bg-white/10"
+                  style={{ boxShadow:"0 0 0 2px rgba(255,255,255,0.4),0 0 0 4px rgba(62,207,76,0.2)" }} />
+                <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#0a0a0a]"
+                  style={{ background:"#3ecf4c", boxShadow:"0 0 6px #3ecf4c" }} />
               </div>
             )}
 
-            <div className="flex-1 min-w-0" style={{ animation: "headerFadeIn 0.4s ease both" }}>
+            <div className="flex-1 min-w-0" style={{ animation:"headerFadeIn 0.4s ease both" }}>
               {hasAgentJoined ? (
                 <>
-                  <p className="text-sm font-bold leading-tight">Zakaria</p>
-                  <p className="text-[11px] text-white/90 leading-tight flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#4ade80] inline-block"
-                      style={{ boxShadow: "0 0 5px #4ade80" }} />
-                    Agent en ligne · L&apos;ecomax
-                  </p>
+                  <p className="text-[14px] font-bold leading-tight tracking-tight">Zakaria</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] flex-shrink-0" style={{ boxShadow:"0 0 5px #4ade80" }} />
+                    <p className="text-[11px] text-white/75">Agent L&apos;ecomax &middot; En ligne</p>
+                  </div>
                 </>
               ) : (
                 <>
-                  <p className="text-sm font-bold leading-tight">Eco — Assistant L&apos;ecomax</p>
-                  <p className="text-[11px] text-white/75 leading-tight">
+                  <p className="text-[14px] font-bold leading-tight tracking-tight">Eco &mdash; L&apos;ecomax</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
                     {status === "escalated" && callVisible ? (
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="relative inline-flex" style={{ width: 8, height: 8 }}>
-                          <span style={{
-                            position: "absolute", inset: 0, borderRadius: "50%",
-                            background: "#f97316",
-                            animation: "agentPing 1s cubic-bezier(0,0,0.2,1) infinite"
-                          }} />
-                          <span style={{
-                            position: "relative", display: "inline-block",
-                            width: 8, height: 8, borderRadius: "50%",
-                            background: "#fb923c"
-                          }} />
+                      <>
+                        <span className="relative inline-flex flex-shrink-0" style={{ width:8,height:8 }}>
+                          <span style={{ position:"absolute",inset:0,borderRadius:"50%",background:"#f97316",animation:"agentPing 1s cubic-bezier(0,0,0.2,1) infinite" }} />
+                          <span style={{ position:"relative",display:"inline-block",width:8,height:8,borderRadius:"50%",background:"#fb923c" }} />
                         </span>
-                        <span style={{ animation: "agentFade 1.8s ease-in-out infinite" }}>Agent en route</span>
-                        {["0s","0.2s","0.4s"].map((delay, i) => (
-                          <span key={i} style={{
-                            display: "inline-block", width: 3, height: 3, borderRadius: "50%",
-                            background: "rgba(255,255,255,0.7)",
-                            animation: `agentBounce 1s ease-in-out ${delay} infinite`
-                          }} />
-                        ))}
-                      </span>
-                    ) : status === "resolved" ? "✅ Résolu" : "🟢 En ligne"}
-                  </p>
+                        <span className="text-[11px] text-white/75" style={{ animation:"agentFade 1.8s ease-in-out infinite" }}>Agent en route&hellip;</span>
+                      </>
+                    ) : status === "resolved" ? (
+                      <span className="text-[11px] text-white/60">&#10003; Conversation termin&eacute;e</span>
+                    ) : (
+                      <>
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] flex-shrink-0" style={{ boxShadow:"0 0 5px #3ecf4c" }} />
+                        <p className="text-[11px] text-white/70">R&eacute;pond instantan&eacute;ment &middot; IA</p>
+                      </>
+                    )}
+                  </div>
                 </>
               )}
             </div>
-            <div className="flex items-center gap-1 ml-auto">
-            <button onClick={() => { setOpen(false); document.body.classList.remove("chat-open"); }} className="text-white/70 hover:text-white" aria-label="Fermer">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M18 6L6 18M6 6l12 12" />
-              </svg>
-            </button>
-            {status !== "resolved" && (
-              <button
-                onClick={() => setShowEndConfirm(true)}
-                className="text-white/60 hover:text-red-300 transition-colors ml-1"
-                aria-label="Terminer la conversation"
-                title="Terminer la conversation"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45c.98.37 2.05.57 3.16.57A2.27 2.27 0 0 1 23 17.02v3.23A2.27 2.27 0 0 1 20.73 22C10.91 22 2 13.1 2 3.27A2.27 2.27 0 0 1 4.27 1h3.23A2.27 2.27 0 0 1 9.77 3.27c0 1.11.2 2.18.57 3.16a2 2 0 0 1-.45 2.11L8.62 9.81" />
-                  <line x1="22" y1="2" x2="2" y2="22" />
-                </svg>
+
+            <div className="flex items-center gap-0.5 ml-auto flex-shrink-0">
+              <button onClick={() => { setOpen(false); document.body.classList.remove("chat-open"); }}
+                className="w-8 h-8 flex items-center justify-center rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all" aria-label="R&eacute;duire">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 9l-7 7-7-7"/></svg>
               </button>
-            )}
+              {status !== "resolved" && (
+                <button onClick={() => setShowEndConfirm(true)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full text-white/60 hover:text-red-300 hover:bg-white/10 transition-all" aria-label="Terminer">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45c.98.37 2.05.57 3.16.57A2.27 2.27 0 0 1 23 17.02v3.23A2.27 2.27 0 0 1 20.73 22C10.91 22 2 13.1 2 3.27A2.27 2.27 0 0 1 4.27 1h3.23A2.27 2.27 0 0 1 9.77 3.27c0 1.11.2 2.18.57 3.16a2 2 0 0 1-.45 2.11L8.62 9.81"/>
+                    <line x1="22" y1="2" x2="2" y2="22"/>
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
 
-          {/* End chat confirmation overlay */}
+          {/* End confirm modal */}
           {showEndConfirm && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(2px)" }}>
-              <div className="bg-white rounded-2xl shadow-2xl px-6 py-5 mx-4 flex flex-col items-center gap-4" style={{ maxWidth: 300, width: "100%" }}>
-                <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5">
-                    <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45c.98.37 2.05.57 3.16.57A2.27 2.27 0 0 1 23 17.02v3.23A2.27 2.27 0 0 1 20.73 22C10.91 22 2 13.1 2 3.27A2.27 2.27 0 0 1 4.27 1h3.23A2.27 2.27 0 0 1 9.77 3.27c0 1.11.2 2.18.57 3.16a2 2 0 0 1-.45 2.11L8.62 9.81" />
-                    <line x1="22" y1="2" x2="2" y2="22" />
+            <div className="absolute inset-0 z-20 flex items-center justify-center" style={{ background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)" }}>
+              <div className="bg-white rounded-3xl shadow-2xl px-6 py-6 mx-4 flex flex-col items-center gap-4" style={{ maxWidth:300,width:"100%",animation:"headerFadeIn 0.2s ease both" }}>
+                <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5">
+                    <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45c.98.37 2.05.57 3.16.57A2.27 2.27 0 0 1 23 17.02v3.23A2.27 2.27 0 0 1 20.73 22C10.91 22 2 13.1 2 3.27A2.27 2.27 0 0 1 4.27 1h3.23A2.27 2.27 0 0 1 9.77 3.27c0 1.11.2 2.18.57 3.16a2 2 0 0 1-.45 2.11L8.62 9.81"/>
+                    <line x1="22" y1="2" x2="2" y2="22"/>
                   </svg>
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-neutral-900 text-base">Terminer la conversation ?</p>
-                  <p className="text-neutral-500 text-xs mt-1">Vous pourrez démarrer une nouvelle conversation à tout moment.</p>
+                  <p className="font-bold text-neutral-900 text-[15px] mb-1">Terminer la conversation&nbsp;?</p>
+                  <p className="text-neutral-500 text-xs leading-relaxed">Vous pourrez d&eacute;marrer une nouvelle conversation &agrave; tout moment.</p>
                 </div>
                 <div className="flex gap-2 w-full">
-                  <button
-                    onClick={() => setShowEndConfirm(false)}
-                    className="flex-1 py-2 rounded-xl border border-neutral-200 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
-                  >
+                  <button onClick={() => setShowEndConfirm(false)}
+                    className="flex-1 py-2.5 rounded-2xl border border-neutral-200 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors">
                     Annuler
                   </button>
-                  <button
-                    onClick={() => { setShowEndConfirm(false); endChat(); }}
-                    className="flex-1 py-2 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition-colors"
-                  >
+                  <button onClick={() => { setShowEndConfirm(false); endChat(); }}
+                    className="flex-1 py-2.5 rounded-2xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition-colors">
                     Terminer
                   </button>
                 </div>
@@ -608,75 +551,106 @@ export default function ChatWidget() {
             </div>
           )}
 
-          {/* Agent joined sticky banner */}
+          {/* Agent joined banner */}
           {agentJoined && (
-            <div
-              className="flex items-center gap-2 justify-center px-3 py-2 flex-shrink-0"
-              style={{
-                background: "linear-gradient(90deg, #dcfce7 0%, #f0fdf4 100%)",
-                borderBottom: "1px solid #86efac",
-                animation: "callSlideIn 0.4s cubic-bezier(.36,.07,.19,.97) both",
-              }}
-            >
-              <img src="/images/zakaria agent.jpeg" alt="Zakaria" style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover", objectPosition: "center 15%", border: "2px solid #86efac", flexShrink: 0 }} />
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e", display: "inline-block", boxShadow: "0 0 6px #22c55e", flexShrink: 0 }} />
-              <span style={{ fontSize: 12, fontWeight: 600, color: "#16a34a" }}>Zakaria a rejoint le chat</span>
+            <div className="flex-shrink-0 flex items-center gap-2.5 justify-center px-4 py-2.5"
+              style={{ background:"linear-gradient(90deg,#f0fdf4,#dcfce7,#f0fdf4)",borderBottom:"1px solid #bbf7d0",animation:"slideDown 0.4s cubic-bezier(.36,.07,.19,.97) both" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/zakaria agent.jpeg" alt="Zakaria"
+                style={{ width:26,height:26,borderRadius:"50%",objectFit:"cover",objectPosition:"center 15%",border:"2px solid #4ade80",flexShrink:0 }} />
+              <span style={{ width:7,height:7,borderRadius:"50%",background:"#22c55e",display:"inline-block",boxShadow:"0 0 6px #22c55e",flexShrink:0 }} />
+              <span style={{ fontSize:12,fontWeight:700,color:"#15803d" }}>Zakaria a rejoint la conversation</span>
             </div>
           )}
 
-          {/* Messages */}
-          <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto p-4 bg-neutral-50"
+          {/* Messages area */}
+          <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-4"
             style={{
-              scrollBehavior: "smooth",
-              overscrollBehavior: "contain",
-              WebkitOverflowScrolling: "touch",
-              scrollbarWidth: "thin",
-              scrollbarColor: "#3ecf4c transparent",
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
-            }}
-          >
-            <style>{`
-              @keyframes msgIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to   { opacity: 1; transform: translateY(0); }
-              }
-              .chat-msg { animation: msgIn 0.22s ease both; }
-            `}</style>
+              scrollBehavior:"smooth",overscrollBehavior:"contain",
+              scrollbarWidth:"thin",scrollbarColor:"#3ecf4c transparent",
+              display:"flex",flexDirection:"column",gap:"10px",
+              background:"#f5f6f8",
+              backgroundImage:"radial-gradient(circle,rgba(0,0,0,0.04) 1px,transparent 1px)",
+              backgroundSize:"22px 22px",
+            }}>
 
             {starting && (
-              <div className="flex items-center gap-2 text-xs text-neutral-400 mt-2">
-                <span className="w-2 h-2 rounded-full bg-[#3ecf4c] animate-pulse" />Connexion…
+              <div className="flex items-center justify-center gap-2 text-xs text-neutral-400 py-4">
+                <div className="w-4 h-4 border-2 border-[#3ecf4c] border-t-transparent rounded-full animate-spin" />
+                Connexion en cours&hellip;
               </div>
             )}
 
-            {/* Welcome card — shown only before any messages */}
+            {/* Welcome card */}
             {!starting && messages.length === 0 && (
               <div className="chat-msg flex flex-col gap-3">
-                {/* Bot bubble */}
-                <div className="flex items-end gap-2 justify-start">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/chatbot logo.png?v=2" alt="Eco" width={32} height={32}
-                    className="w-8 h-8 rounded-full object-cover flex-shrink-0 shadow-sm"
-                    style={{ mixBlendMode: "multiply" }} />
-                  <div className="flex flex-col gap-0.5" style={{ maxWidth: "82%" }}>
-                    <span className="text-[10px] font-semibold text-[#3ecf4c] pl-1">Eco · Assistant</span>
-                    <div className="bg-white border border-neutral-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm text-sm text-neutral-800 leading-relaxed">
-                      👋 Bonjour ! Je suis <strong>Eco</strong>, l&apos;assistant virtuel de <strong>L&apos;ecomax</strong>.<br />
-                      Je peux vous aider avec nos produits, la livraison, les commandes et bien plus. Comment puis-je vous aider ?
+                <div className="rounded-3xl overflow-hidden" style={{ background:"white",border:"1px solid rgba(0,0,0,0.08)",boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+                  <div className="flex items-center gap-3 px-4 pt-4 pb-3" style={{ background:"linear-gradient(135deg,#f0fdf4 0%,#f8fff9 60%,#fff 100%)" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <div className="relative flex-shrink-0">
+                      <img src="/images/chatbot logo.png?v=2" alt="Eco" width={44} height={44}
+                        className="w-11 h-11 rounded-2xl object-contain p-1 bg-white"
+                        style={{ boxShadow:"0 0 0 2px #3ecf4c, 0 2px 8px rgba(62,207,76,0.2)" }} />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white bg-[#22c55e]"
+                        style={{ boxShadow:"0 0 0 0 rgba(34,197,94,0.6)",animation:"onlinePulse 2.5s ease-in-out infinite" }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-neutral-900 text-[14px] font-bold leading-tight">Eco</p>
+                      <p className="text-neutral-400 text-[11px] mt-0.5 truncate">Assistant virtuel L&apos;ecomax</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full flex-shrink-0" style={{ background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.2)" }}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+                      <span className="text-[#15803d] text-[10px] font-semibold">En ligne</span>
                     </div>
                   </div>
+                  <style>{`@keyframes onlinePulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.5);}50%{box-shadow:0 0 0 4px rgba(34,197,94,0);}}`}</style>
+                  <div className="px-4 pb-3" style={{ borderTop:"1px solid #f5f5f5" }}>
+                    <p className="text-neutral-600 text-[13px] leading-relaxed pt-3">
+                      Bonjour&nbsp;! Je suis <span className="text-[#16a34a] font-semibold">Eco</span>, votre assistant L&apos;ecomax. Comment puis-je vous aider&nbsp;?
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 px-4 pb-4">
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap" style={{ background:"#fefce8",color:"#a16207",border:"1px solid #fef08a" }}>&#11088; 5/5 Trustpilot</span>
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap" style={{ background:"#f0fdf4",color:"#15803d",border:"1px solid #bbf7d0" }}>&#9889; Instantan&eacute;</span>
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap" style={{ background:"#eff6ff",color:"#1d4ed8",border:"1px solid #bfdbfe" }}>&#128197; 7j/7</span>
+                  </div>
                 </div>
-                {/* Quick chips */}
-                <div className="flex flex-wrap gap-2 pl-10">
+
+                <div className="flex items-center gap-2 px-1">
+                  <div className="flex-1 h-px bg-neutral-200" />
+                  <span className="text-[10px] text-neutral-400 font-medium whitespace-nowrap">Sujets fr&eacute;quents</span>
+                  <div className="flex-1 h-px bg-neutral-200" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
                   {QUICK_CHIPS.map((chip) => (
-                    <button
-                      key={chip.label}
-                      onClick={() => { setInput(chip.msg); setTimeout(() => inputRef.current?.focus(), 50); }}
-                      className="px-3 py-1.5 rounded-full text-xs font-medium border border-neutral-200 bg-white text-neutral-700 hover:border-[#3ecf4c] hover:text-[#2db83a] transition-colors shadow-sm"
-                    >
-                      {chip.label}
+                    <button key={chip.label}
+                      onClick={async () => {
+                        if (!sessionId || loading) return;
+                        const tempMsg: ChatMsg = { id:genId(), direction:"in", body:chip.msg, sent_by:"visitor", timestamp:new Date().toISOString() };
+                        setMessages(prev => [...prev, tempMsg]);
+                        setLoading(true);
+                        resetInactivity();
+                        try {
+                          const res = await fetch("/api/chat/message", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ session_id:sessionId, body:chip.msg }) });
+                          const data = await res.json();
+                          if (data.reply) {
+                            const aiMsg: ChatMsg = { id:genId(), direction:"out", body:data.reply, sent_by:"ai", timestamp:new Date().toISOString() };
+                            setMessages(prev => [...prev, aiMsg]);
+                          }
+                          if (data.status) { if (data.status === "escalated" && status !== "escalated") setCallVisible(true); setStatus(data.status); }
+                        } finally { setLoading(false); }
+                      }}
+                      className="flex items-center gap-2 px-2.5 py-2.5 rounded-2xl text-left transition-all duration-150 hover:shadow-md active:scale-[0.97]"
+                      style={{ background:"white",border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 1px 3px rgba(0,0,0,0.04)" }}>
+                      <span className="w-7 h-7 rounded-lg flex items-center justify-center text-[15px] flex-shrink-0"
+                        style={{ background:(["rgba(34,197,94,0.1)","rgba(251,191,36,0.1)","rgba(59,130,246,0.1)","rgba(239,68,68,0.1)","rgba(139,92,246,0.1)","rgba(249,115,22,0.1)"] as const)[QUICK_CHIPS.indexOf(chip)] ?? "rgba(0,0,0,0.04)" }}>
+                        {chip.label.split(" ")[0]}
+                      </span>
+                      <span className="text-[11.5px] font-semibold text-neutral-800 leading-tight flex-1">
+                        {chip.label.split(" ").slice(1).join(" ")}
+                      </span>
+                      <svg className="flex-shrink-0 text-neutral-300" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6"/></svg>
                     </button>
                   ))}
                 </div>
@@ -685,47 +659,39 @@ export default function ChatWidget() {
 
             {messages.map((m) => (
               <div key={m.id} className={`chat-msg flex items-end gap-2 ${m.direction === "in" ? "justify-end" : "justify-start"}`}>
-                {/* Avatar — AI or Agent */}
                 {m.direction === "out" && (
-                  <div className="flex-shrink-0 self-end">
+                  <div className="flex-shrink-0 self-end mb-1">
                     {m.sent_by === "agent" ? (
                       <div className="relative">
-                        <img
-                          src="/images/zakaria agent.jpeg"
-                          alt="Zakaria"
-                          className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-md"
-                          style={{ objectPosition: "center 15%" }}
-                        />
-                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-white"
-                          style={{ boxShadow: "0 0 4px #4ade80" }} />
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/images/zakaria agent.jpeg" alt="Zakaria"
+                          className="w-7 h-7 rounded-full object-cover border-2 border-white shadow"
+                          style={{ objectPosition:"center 15%" }} />
+                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-white"
+                          style={{ boxShadow:"0 0 4px #4ade80" }} />
                       </div>
                     ) : (
                       /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src="/images/chatbot logo.png?v=2" alt="Eco" width={32} height={32}
-                        className="w-8 h-8 rounded-full object-cover shadow-sm"
-                        style={{ mixBlendMode: "multiply" }} />
+                      <img src="/images/chatbot logo.png?v=2" alt="Eco" width={28} height={28}
+                        className="w-7 h-7 rounded-full object-contain bg-white border border-neutral-100 shadow-sm p-0.5" />
                     )}
                   </div>
                 )}
-
-                <div className="flex flex-col gap-0.5" style={{ maxWidth: "78%" }}>
-                  {/* Label */}
+                <div className="flex flex-col gap-0.5" style={{ maxWidth:"78%" }}>
                   {m.direction === "out" && (
-                    <span className={`text-[10px] font-semibold pl-1 ${m.sent_by === "agent" ? "text-amber-600" : "text-[#3ecf4c]"}`}>
+                    <span className={`text-[10px] font-semibold pl-1 ${m.sent_by === "agent" ? "text-amber-600" : "text-[#16a34a]"}`}>
                       {m.sent_by === "agent" ? "Zakaria · Agent" : "Eco · Assistant"}
                     </span>
                   )}
-
-                  <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm
-                    ${m.direction === "in"
-                      ? "bg-black text-white rounded-br-sm"
+                  <div
+                    className={`px-3.5 py-2.5 text-sm leading-relaxed ${m.direction === "in" ? "text-white rounded-3xl rounded-br-lg" : m.sent_by === "agent" ? "bg-white text-neutral-800 rounded-3xl rounded-bl-lg border border-amber-100" : "bg-white text-neutral-800 rounded-3xl rounded-bl-lg border border-neutral-100"}`}
+                    style={m.direction === "in"
+                      ? { background:"linear-gradient(135deg,#111 0%,#1a1a1a 100%)",boxShadow:"0 2px 8px rgba(0,0,0,0.15)" }
                       : m.sent_by === "agent"
-                        ? "bg-white border border-amber-200 text-neutral-800 rounded-bl-sm"
-                        : "bg-white border border-neutral-100 text-neutral-800 rounded-bl-sm"
-                    }`}
-                    style={m.sent_by === "agent" ? { boxShadow: "0 2px 8px rgba(251,191,36,0.12)" } : {}}>
-                    <p style={{ whiteSpace: "pre-wrap" }}>{renderWithLinks(m.body)}</p>
-                    <p className={`text-[10px] mt-1 ${m.direction === "in" ? "text-white/40 text-right" : "text-neutral-300"}`}>
+                        ? { boxShadow:"0 1px 6px rgba(251,191,36,0.1)" }
+                        : { boxShadow:"0 1px 4px rgba(0,0,0,0.05)" }}>
+                    <p style={{ whiteSpace:"pre-wrap" }}>{renderWithLinks(m.body)}</p>
+                    <p className={`text-[9px] mt-1.5 font-medium ${m.direction === "in" ? "text-white/35 text-right" : "text-neutral-300"}`}>
                       {formatTime(m.timestamp)}
                     </p>
                   </div>
@@ -737,23 +703,16 @@ export default function ChatWidget() {
             {loading && (
               <div className="chat-msg flex items-end gap-2 justify-start">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/chatbot logo.png?v=2" alt="Eco" width={32} height={32}
-                  className="w-8 h-8 rounded-full object-cover flex-shrink-0 shadow-sm"
-                  style={{ mixBlendMode: "multiply" }} />
+                <img src="/images/chatbot logo.png?v=2" alt="Eco" width={28} height={28}
+                  className="w-7 h-7 rounded-full object-contain bg-white border border-neutral-100 shadow-sm p-0.5 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[10px] font-semibold text-[#3ecf4c] pl-1">Eco · Assistant</span>
-                  <div className="bg-white border border-neutral-100 rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-sm flex items-center gap-2">
-                    <style>{`
-                      @keyframes typingDot {
-                        0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-                        30%           { transform: translateY(-5px); opacity: 1; }
-                      }
-                    `}</style>
-                    {[0, 150, 300].map((delay, i) => (
-                      <span key={i} className="w-1.5 h-1.5 rounded-full"
-                        style={{ background: "#3ecf4c", animation: `typingDot 1.2s ease-in-out ${delay}ms infinite` }} />
+                  <span className="text-[10px] font-semibold text-[#16a34a] pl-1">Eco · Assistant</span>
+                  <div className="bg-white border border-neutral-100 rounded-3xl rounded-bl-lg px-4 py-2.5 shadow-sm flex items-center gap-2.5">
+                    {[0,140,280].map((delay,i) => (
+                      <span key={i} className="w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ background:"#3ecf4c",animation:`typingDot 1.2s ease-in-out ${delay}ms infinite` }} />
                     ))}
-                    <span className="text-[11px] text-neutral-400 italic">Eco écrit…</span>
+                    <span className="text-[11px] text-neutral-400 font-medium">Eco &eacute;crit&hellip;</span>
                   </div>
                 </div>
               </div>
@@ -761,172 +720,124 @@ export default function ChatWidget() {
 
             {/* Agent connecting card */}
             {status === "escalated" && callVisible && !loading && (
-              <div
-                className="chat-msg rounded-2xl px-4 py-3 text-xs text-center overflow-hidden"
-                style={{
-                  background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-                  border: "1px solid rgba(99,179,237,0.3)",
-                  animation: "callSlideIn 0.5s cubic-bezier(.36,.07,.19,.97) both",
-                  boxShadow: "0 0 20px rgba(62,207,76,0.15), 0 4px 15px rgba(0,0,0,0.3)"
-                }}
-              >
-                <div className="relative flex justify-center items-center mb-2">
-                  <span style={{ position: "absolute", width: 56, height: 56, borderRadius: "50%", border: "2px solid rgba(62,207,76,0.6)", animation: "callRipple 1.5s ease-out infinite" }} />
-                  <span style={{ position: "absolute", width: 56, height: 56, borderRadius: "50%", border: "2px solid rgba(62,207,76,0.4)", animation: "callRipple 1.5s ease-out 0.4s infinite" }} />
-                  <span style={{ position: "absolute", width: 56, height: 56, borderRadius: "50%", border: "2px solid rgba(62,207,76,0.2)", animation: "callRipple 1.5s ease-out 0.8s infinite" }} />
-                  <div style={{
-                    width: 44, height: 44, borderRadius: "50%",
-                    background: "linear-gradient(135deg, #3ecf4c, #2db83a)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    boxShadow: "0 0 12px rgba(62,207,76,0.6)",
-                    animation: "callShake 0.6s ease-in-out infinite",
-                    zIndex: 1
-                  }}>
+              <div className="chat-msg rounded-3xl px-5 py-4 overflow-hidden"
+                style={{ background:"linear-gradient(135deg,#0d0d0d 0%,#0f2217 100%)",border:"1px solid rgba(62,207,76,0.2)",boxShadow:"0 0 30px rgba(62,207,76,0.1)",animation:"callSlideIn 0.5s cubic-bezier(.36,.07,.19,.97) both" }}>
+                <div className="relative flex justify-center items-center mb-3">
+                  {[0,0.4,0.8].map((delay,i) => (
+                    <span key={i} style={{ position:"absolute",width:60,height:60,borderRadius:"50%",border:`1.5px solid rgba(62,207,76,${0.5-i*0.15})`,animation:`callRipple 1.6s ease-out ${delay}s infinite` }} />
+                  ))}
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center z-10"
+                    style={{ background:"linear-gradient(135deg,#3ecf4c,#16a34a)",boxShadow:"0 0 16px rgba(62,207,76,0.5)",animation:"callShake 0.7s ease-in-out infinite" }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
                       <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>
                     </svg>
                   </div>
                 </div>
-                <p className="font-bold text-white text-[12px] mb-0.5">Agent en cours de connexion…</p>
-                <p className="text-blue-200 text-[10px] opacity-80">Un agent vous rejoindra dans quelques instants</p>
-                <style>{`
-                  @keyframes callRipple {
-                    0%   { transform: scale(1); opacity: 1; }
-                    100% { transform: scale(2.2); opacity: 0; }
-                  }
-                  @keyframes callShake {
-                    0%, 100% { transform: rotate(0deg); }
-                    20%       { transform: rotate(-15deg); }
-                    40%       { transform: rotate(15deg); }
-                    60%       { transform: rotate(-10deg); }
-                    80%       { transform: rotate(10deg); }
-                  }
-                  @keyframes callSlideIn {
-                    0%   { transform: translateY(20px); opacity: 0; }
-                    100% { transform: translateY(0); opacity: 1; }
-                  }
-                `}</style>
+                <p className="font-bold text-white text-[13px] text-center mb-1">Agent en cours de connexion&hellip;</p>
+                <p className="text-[#3ecf4c]/60 text-[11px] text-center">Un agent L&apos;ecomax vous rejoindra sous peu</p>
               </div>
             )}
             <div ref={bottomRef} />
           </div>
 
-          {/* Input */}
-          {/* Inactivity warning banner */}
+          {/* Inactivity warning */}
           {inactiveWarning && (
-            <div
-              className="flex-shrink-0 flex items-center gap-3 px-4 py-2.5"
-              style={{
-                background: "linear-gradient(90deg, #fffbeb 0%, #fef3c7 100%)",
-                borderTop: "1px solid #fbbf24",
-                animation: "msgIn 0.3s ease both",
-              }}
-            >
-              <span className="text-xl flex-shrink-0">⏱️</span>
+            <div className="flex-shrink-0 flex items-center gap-3 px-4 py-2.5"
+              style={{ background:"linear-gradient(90deg,#fffbeb,#fef9c3)",borderTop:"1px solid #fde68a",animation:"slideDown 0.3s ease both" }}>
+              <span className="text-lg flex-shrink-0">&#9201;</span>
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-semibold text-amber-800 leading-tight">Toujours là ?</p>
-                <p className="text-[11px] text-amber-700 leading-tight">
-                  Fermeture automatique dans <strong>{inactiveCountdown}s</strong>
-                </p>
+                <p className="text-[12px] font-bold text-amber-900 leading-tight">Toujours l&agrave;&nbsp;?</p>
+                <p className="text-[11px] text-amber-700">Fermeture dans <strong>{inactiveCountdown}s</strong></p>
               </div>
-              <button
-                onClick={() => { resetInactivity(); }}
-                className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-amber-400 text-amber-900 text-[11px] font-bold hover:bg-amber-500 transition-colors"
-              >
-                Je suis là
+              <button onClick={resetInactivity}
+                className="flex-shrink-0 px-3 py-1.5 rounded-xl bg-amber-400 text-amber-900 text-[11px] font-bold hover:bg-amber-500 transition-colors">
+                Je suis l&agrave;&nbsp;!
               </button>
             </div>
           )}
 
-          <div className="flex-shrink-0 bg-white" style={{ borderTop: "1px solid #f0f0f0" }}>
+          {/* Input */}
+          <div className="flex-shrink-0 bg-white" style={{ borderTop:"1px solid rgba(0,0,0,0.06)" }}>
             {status === "resolved" ? (
               feedbackState === "submitted" ? (
-                <div className="flex flex-col items-center gap-2 py-4 px-4">
-                  <span className="text-3xl">🎉</span>
-                  <p className="text-sm font-bold text-neutral-800">Merci pour votre avis !</p>
-                  <p className="text-xs text-neutral-400 text-center">Votre retour nous aide à améliorer notre service.</p>
+                <div className="flex flex-col items-center gap-2 py-5 px-4">
+                  <div className="w-12 h-12 rounded-2xl bg-green-50 flex items-center justify-center text-2xl mb-1">&#127881;</div>
+                  <p className="text-[14px] font-bold text-neutral-900">Merci pour votre avis&nbsp;!</p>
+                  <p className="text-[12px] text-neutral-500 text-center leading-relaxed">Votre retour nous aide &agrave; am&eacute;liorer notre service.</p>
                   <button onClick={newConversation}
-                    className="mt-1 w-full py-2.5 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition-colors">
+                    className="mt-2 w-full py-3 rounded-2xl text-sm font-bold text-white transition-all hover:opacity-90"
+                    style={{ background:"linear-gradient(135deg,#111 0%,#1a1a1a 100%)" }}>
                     Nouvelle conversation
                   </button>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2 p-3">
-                  <div className="bg-neutral-50 rounded-xl p-3 text-center border border-neutral-100">
-                    <p className="text-xs font-bold text-neutral-700 mb-0.5">Conversation terminée</p>
-                    <p className="text-[11px] text-neutral-400">Comment s&apos;est passée votre expérience ?</p>
+                <div className="flex flex-col gap-3 p-4">
+                  <div className="rounded-2xl p-3 text-center" style={{ background:"linear-gradient(135deg,#f8fffe,#f0fdf4)",border:"1px solid #d1fae5" }}>
+                    <p className="text-[12px] font-bold text-neutral-800">Conversation termin&eacute;e &#10003;</p>
+                    <p className="text-[11px] text-neutral-500 mt-0.5">Comment s&apos;est pass&eacute;e votre exp&eacute;rience&nbsp;?</p>
                   </div>
-                  <div className="flex justify-center gap-1.5">
+                  <div className="flex justify-center gap-2">
                     {[1,2,3,4,5].map((star) => (
                       <button key={star} onClick={() => setFeedbackRating(star)}
-                        className="text-2xl transition-transform hover:scale-110 active:scale-95"
-                        aria-label={`${star} étoile${star > 1 ? "s" : ""}`}>
-                        {star <= feedbackRating ? "⭐" : "☆"}
+                        className="text-[26px] transition-all hover:scale-125 active:scale-110"
+                        aria-label={`${star} ${star > 1 ? "etoiles" : "etoile"}`}>
+                        <span style={{ filter:star<=feedbackRating?"none":"grayscale(1) opacity(0.35)" }}>&#11088;</span>
                       </button>
                     ))}
                   </div>
                   {feedbackRating > 0 && (
                     <>
-                      <textarea
-                        value={feedbackComment}
-                        onChange={(e) => setFeedbackComment(e.target.value)}
-                        placeholder="Un commentaire ? (optionnel)"
-                        rows={2}
-                        className="resize-none rounded-xl border border-neutral-200 px-3 py-2 text-xs focus:outline-none focus:border-black bg-neutral-50"
-                      />
+                      <textarea value={feedbackComment} onChange={(e) => setFeedbackComment(e.target.value)}
+                        placeholder="Un commentaire ? (optionnel)" rows={2}
+                        className="resize-none rounded-2xl border border-neutral-200 px-3.5 py-2.5 text-[12px] focus:outline-none focus:border-[#3ecf4c] bg-neutral-50 transition-colors" />
                       <button
                         onClick={async () => {
                           if (!sessionId || !feedbackRating) return;
-                          await fetch("/api/chat/feedback", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ session_id: sessionId, rating: feedbackRating, comment: feedbackComment }),
-                          });
+                          await fetch("/api/chat/feedback", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ session_id:sessionId, rating:feedbackRating, comment:feedbackComment }) });
                           setFeedbackState("submitted");
                         }}
-                        className="w-full py-2.5 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition-colors"
-                      >
+                        className="w-full py-3 rounded-2xl text-sm font-bold text-white transition-all hover:opacity-90"
+                        style={{ background:"linear-gradient(135deg,#111 0%,#1a1a1a 100%)" }}>
                         Envoyer mon avis
                       </button>
                     </>
                   )}
                   <button onClick={newConversation}
-                    className="w-full py-1.5 rounded-xl border border-neutral-200 text-xs font-semibold text-neutral-500 hover:bg-neutral-50 transition-colors">
-                    Passer · Nouvelle conversation
+                    className="w-full py-2 rounded-2xl border border-neutral-200 text-[12px] font-semibold text-neutral-500 hover:bg-neutral-50 transition-colors">
+                    Passer &middot; Nouvelle conversation
                   </button>
                 </div>
               )
             ) : (
-              <div className="px-3 pt-2.5 pb-2">
-                <div className="flex gap-2 items-end bg-neutral-50 border border-neutral-200 rounded-2xl px-3 py-2 focus-within:border-[#3ecf4c] focus-within:bg-white transition-colors"
-                  style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
-                  <textarea
-                    ref={inputRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKey}
-                    placeholder={status === "escalated" ? "Écrivez à l'agent…" : "Écrivez votre message…"}
-                    rows={1}
-                    className="flex-1 resize-none bg-transparent text-sm focus:outline-none leading-snug text-neutral-800 placeholder-neutral-400"
-                    style={{ maxHeight: 90, overflowY: "auto" }}
-                  />
-                  <button
-                    onClick={sendMessage}
-                    disabled={!input.trim() || loading}
-                    className="w-8 h-8 flex-shrink-0 rounded-xl flex items-center justify-center transition-all disabled:opacity-30"
-                    style={{ background: input.trim() && !loading ? "linear-gradient(135deg,#111 0%,#3ecf4c 100%)" : "#e5e7eb" }}
-                    aria-label="Envoyer"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-                      <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+              <div className="px-3 pt-3 pb-2.5">
+                <div className="flex gap-2 items-end rounded-2xl px-3.5 py-2.5 transition-all"
+                  style={{ background:"white",border:"1.5px solid #e8e8e8",boxShadow:"0 1px 4px rgba(0,0,0,0.06)" }}>
+                  <textarea ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKey}
+                    placeholder={status === "escalated" ? "Écrivez à l'agent..." : "Posez votre question ici..."}
+                    rows={1} className="flex-1 resize-none bg-transparent text-[13px] focus:outline-none leading-snug text-neutral-800 placeholder-neutral-400"
+                    style={{ maxHeight:90,overflowY:"auto" }} />
+                  <button onClick={sendMessage} disabled={!input.trim() || loading}
+                    className="w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center active:scale-90"
+                    style={{
+                      background: input.trim() && !loading ? "linear-gradient(135deg,#3ecf4c,#16b277)" : "#f0f0f0",
+                      boxShadow: input.trim() && !loading ? "0 2px 8px rgba(62,207,76,0.35)" : "none",
+                      transition:"all 0.2s ease"
+                    }}
+                    aria-label="Envoyer">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                      stroke={input.trim() && !loading ? "white" : "#bbb"} strokeWidth="2.5" strokeLinecap="round">
+                      <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
                     </svg>
                   </button>
                 </div>
-                <p className="text-[10px] text-neutral-400 text-center mt-1.5">
-                  {status === "ai"
-                    ? <><span className="inline-flex items-center gap-1"><svg width="9" height="9" viewBox="0 0 24 24" fill="#3ecf4c"><circle cx="12" cy="12" r="10"/></svg>Assistant IA · L&apos;ecomax</span> · <span className="text-neutral-500 font-medium">Tapez « agent » pour un humain</span></>
-                    : <span className="inline-flex items-center gap-1"><svg width="9" height="9" viewBox="0 0 24 24" fill="#22c55e"><circle cx="12" cy="12" r="10"/></svg>Chat en direct · Notre équipe est là</span>}
-                </p>
+                <div className="flex items-center justify-center gap-1.5 mt-2">
+                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: status === "escalated" ? "#22c55e" : "#3ecf4c", boxShadow: `0 0 4px ${status === "escalated" ? "#22c55e" : "#3ecf4c"}` }} />
+                  <p className="text-[10px] text-neutral-400">
+                    {status === "ai"
+                      ? <><span className="font-medium text-neutral-500">Assistant IA</span> &middot; Tapez <span className="font-semibold text-neutral-600">agent</span> pour un humain</>
+                      : <span className="font-medium text-neutral-600">Chat en direct &middot; Notre &eacute;quipe est l&agrave;</span>}
+                  </p>
+                </div>
               </div>
             )}
           </div>
