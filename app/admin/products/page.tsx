@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import type { Product } from "@/lib/supabase";
 import Link from "next/link";
+import { useApproval } from "@/lib/use-approval";
 
 const CATEGORIES = ["homme", "femme", "chaussures", "accessoires"];
 
@@ -64,6 +65,7 @@ export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const { isStaff, submitForApproval } = useApproval();
 
   const showForm = isNew || !!editId;
 
@@ -201,6 +203,33 @@ export default function ProductsPage() {
       desc_images: descImages.filter(Boolean),
       video: form.video.trim() || null,
     };
+    // ── Staff: route through approval queue ──────────────────────────────────
+    if (isStaff) {
+      const action = editId ? "update" : "create";
+      const description = editId
+        ? `Modification produit : ${payload.name}`
+        : `Création produit : ${payload.name}`;
+      const { submitted, error } = await submitForApproval({
+        action,
+        entity_type: "product",
+        entity_id: editId ?? undefined,
+        description,
+        payload: payload as Record<string, unknown>,
+        api_endpoint: editId ? `/api/products/${editId}` : "/api/products",
+        api_method: editId ? "PUT" : "POST",
+        preview_image: payload.images?.[0] ?? undefined,
+      });
+      setSaving(false);
+      if (submitted) {
+        setMsg({ type: "ok", text: "✅ Soumis pour approbation — le propriétaire sera notifié." });
+        setTimeout(() => router.replace("/admin/products"), 1500);
+      } else {
+        setMsg({ type: "err", text: error ?? "Erreur lors de la soumission" });
+      }
+      return;
+    }
+
+    // ── Owner: apply directly ─────────────────────────────────────────────────
     const url = editId ? `/api/products/${editId}` : "/api/products";
     const method = editId ? "PUT" : "POST";
     const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
@@ -212,6 +241,20 @@ export default function ProductsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Supprimer ce produit ?")) return;
+    if (isStaff) {
+      const product = products.find(p => p.id === id);
+      await submitForApproval({
+        action: "delete",
+        entity_type: "product",
+        entity_id: id,
+        description: `Suppression produit : ${product?.name ?? id}`,
+        api_endpoint: `/api/products/${id}`,
+        api_method: "DELETE",
+        preview_image: product?.images?.[0] ?? undefined,
+      });
+      setMsg({ type: "ok", text: "✅ Demande de suppression soumise pour approbation." });
+      return;
+    }
     setDeleting(id);
     await fetch(`/api/products/${id}`, { method: "DELETE" });
     setDeleting(null);

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const VAPID_PUBLIC_KEY = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "").replace(/\s+/g, "");
 const LS_DONE      = "push_done";       // "1" = subscribed, never show again
@@ -20,6 +21,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
 type PermState = "default" | "granted" | "denied" | "unsupported";
 
 export default function PushPrompt() {
+  const pathname = usePathname();
   const [permState, setPermState] = useState<PermState>("default");
   const [shown, setShown] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -136,6 +138,8 @@ export default function PushPrompt() {
       localStorage.setItem(LS_THRESHOLD, String(visits + REMIND_AFTER));
     }
   }
+
+  if (pathname?.startsWith("/admin")) return null;
 
   if (permState === "unsupported" || permState === "denied" || subscribed || dismissed || !shown) {
     return null;

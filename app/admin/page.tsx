@@ -26,20 +26,37 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: authData, error: err } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (err) {
       setError("Email ou mot de passe incorrect.");
     } else {
+      const maxAge = rememberMe ? 2592000 : 86400;
       if (rememberMe) {
         try { localStorage.setItem(SAVED_EMAIL_KEY, email); } catch {}
-        // 30-day cookie when "remember me" is checked
-        document.cookie = "admin_session=authenticated; path=/; max-age=2592000; SameSite=Strict";
       } else {
         try { localStorage.removeItem(SAVED_EMAIL_KEY); } catch {}
-        // 1-day cookie otherwise
-        document.cookie = "admin_session=authenticated; path=/; max-age=86400; SameSite=Strict";
       }
+      document.cookie = `admin_session=authenticated; path=/; max-age=${maxAge}; SameSite=Strict`;
+
+      // Check if this user is a staff member (restricted access)
+      if (authData?.user?.email) {
+        try {
+          const res = await fetch(`/api/admin/staff/permissions?email=${encodeURIComponent(authData.user.email)}`);
+          const { isStaff, permissions } = res.ok ? await res.json() : { isStaff: false, permissions: [] };
+
+          if (isStaff) {
+            // Always set cookie — empty array means dashboard only
+            document.cookie = `staff_permissions=${encodeURIComponent(JSON.stringify(permissions))}; path=/; max-age=${maxAge}; SameSite=Strict`;
+          } else {
+            // Main owner → clear any stale staff cookie
+            document.cookie = "staff_permissions=; path=/; max-age=0; SameSite=Strict";
+          }
+        } catch {
+          document.cookie = "staff_permissions=; path=/; max-age=0; SameSite=Strict";
+        }
+      }
+
       router.replace("/admin/dashboard");
     }
   }

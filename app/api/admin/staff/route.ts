@@ -1,6 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { randomBytes } from "crypto";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,19 +17,33 @@ export async function GET() {
   return NextResponse.json(data ?? []);
 }
 
-// POST /api/admin/staff — invite a new staff member
+// POST /api/admin/staff — create a new staff member with email + password
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  if (!body?.email || !body?.name) {
-    return NextResponse.json({ error: "email and name are required" }, { status: 400 });
+  if (!body?.email || !body?.name || !body?.password) {
+    return NextResponse.json({ error: "email, name et password sont requis" }, { status: 400 });
   }
 
   const email = body.email.toLowerCase().trim();
   const name = body.name.trim();
-  const invite_token = randomBytes(32).toString("hex");
-  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lecomax.ma";
 
-  // 1. Save staff record
+  // 1. Create Supabase auth account directly (no invite link needed)
+  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    email,
+    password: body.password,
+    email_confirm: true,
+    user_metadata: { name },
+  });
+
+  if (authError) {
+    const msg = authError.message.toLowerCase();
+    if (msg.includes("already registered") || msg.includes("already exists") || msg.includes("email_exists") || msg.includes("unique")) {
+      return NextResponse.json({ error: "Cet email est déjà enregistré" }, { status: 409 });
+    }
+    return NextResponse.json({ error: authError.message }, { status: 500 });
+  }
+
+  // 2. Save staff record in admin_staff table
   const { data, error } = await supabase
     .from("admin_staff")
     .insert({
@@ -38,55 +51,21 @@ export async function POST(req: NextRequest) {
       name,
       avatar_url: body.avatar_url ?? null,
       role_id: body.role_id ?? null,
-      status: "invited",
-      invite_token,
+      status: "active",
     })
     .select("*, admin_roles(id, name, color, slug)")
     .single();
 
   if (error) {
+    // Cleanup: delete the auth user we just created
+    if (authData?.user?.id) {
+      await supabase.auth.admin.deleteUser(authData.user.id).catch(() => {});
+    }
     if (error.code === "23505") {
       return NextResponse.json({ error: "Cet email est déjà enregistré" }, { status: 409 });
     }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // 2. Send invite via Supabase Auth (reliable, no domain verification needed)
-  const redirectTo = `${origin}/admin/accept-invite?token=${invite_token}`;
-  const { error: authInviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
-    redirectTo,
-    data: { name, invite_token },
-  });
-
-  // 3. Fallback: send via Resend if Supabase invite failed and Resend key is set
-  if (authInviteError) {
-    const RESEND_KEY = process.env.RESEND_API_KEY;
-    if (RESEND_KEY) {
-      const inviteLink = `${origin}/admin/accept-invite?token=${invite_token}`;
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${RESEND_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "onboarding@resend.dev",
-          to: email,
-          subject: "Invitation — Panneau Admin L'ecomax",
-          html: `
-            <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-              <h2 style="font-size:20px;font-weight:800;margin-bottom:8px">Bienvenue, ${name} 👋</h2>
-              <p style="color:#555;margin-bottom:24px">Vous avez été invité(e) à gérer le panneau administrateur de <strong>L'ecomax</strong>.</p>
-              <a href="${inviteLink}" style="background:#0d0d0d;color:#fff;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:700;display:inline-block">
-                Créer mon compte &amp; me connecter
-              </a>
-              <p style="color:#999;font-size:12px;margin-top:24px">Ce lien est valable 7 jours.</p>
-            </div>
-          `,
-        }),
-      }).catch(() => {});
-    }
-  }
-
-  return NextResponse.json({ ...data, invite_token }, { status: 201 });
+  return NextResponse.json(data, { status: 201 });
 }

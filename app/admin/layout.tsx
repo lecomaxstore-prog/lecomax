@@ -309,6 +309,17 @@ const nav = [
     ),
   },
   {
+    label: "Approbations",
+    href: "/admin/approvals",
+    badge: "approvals",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+    ),
+  },
+  {
     label: "Comment c'est construit",
     href: "/admin/how-it-was-built",
     icon: (
@@ -327,9 +338,49 @@ const navSections: { title: string; hrefs: string[] }[] = [
   { title: "SAV",        hrefs: ["/admin/messages", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
   { title: "LOGISTIQUE", hrefs: ["/admin/shipping", "/admin/size-guide"] },
   { title: "CONFIG",     hrefs: ["/admin/settings"] },
-  { title: "ÉQUIPE",     hrefs: ["/admin/roles", "/admin/staff"] },
+  { title: "ÉQUIPE",     hrefs: ["/admin/roles", "/admin/staff", "/admin/approvals"] },
   { title: "DÉVELOPPEUR", hrefs: ["/admin/how-it-was-built"] },
 ];
+
+// Permission required per nav href.
+// null  → always visible (everyone)
+// undefined → owner only (hidden from all staff)
+// "slug" → visible if staff has that permission
+const NAV_PERMISSIONS: Record<string, string | null | undefined> = {
+  "/admin/dashboard":      null,
+  "/admin/analytics":      "analytics.view",
+  "/admin/recordings":     "recordings.view",
+  "/admin/products":       "products.view",
+  "/admin/orders":         "orders.view",
+  "/admin/customers":      "customers.view",
+  "/admin/client-data":    "customers.view",
+  "/admin/stock":          "stock.edit",
+  "/admin/abandoned-carts":"carts.view",
+  "/admin/loyalty":        "loyalty.edit",
+  "/admin/broadcast":      "broadcast.send",
+  "/admin/push":           "push.send",
+  "/admin/trustpilot":     "reviews.edit",
+  "/admin/reviews":        "reviews.edit",
+  "/admin/categories":     "categories.edit",
+  "/admin/pages":          "pages.edit",
+  "/admin/banners":        "banners.edit",
+  "/admin/media":          "media.manage",
+  "/admin/studio":         "studio.access",
+  "/admin/shipping":       "shipping.edit",
+  "/admin/size-guide":     "size-guide.edit",
+  "/admin/announcement":   "announcement.edit",
+  "/admin/promotions":     "promotions.edit",
+  "/admin/ads":            "ads.edit",
+  "/admin/newsletter":     "newsletter.edit",
+  "/admin/coupons":        "promotions.edit",
+  "/admin/messages":       "messages.view",
+  "/admin/returns":        "returns.edit",
+  "/admin/settings":       "settings.edit",
+  "/admin/roles":          "roles.manage",
+  "/admin/staff":          "staff.manage",
+  "/admin/approvals":       undefined,
+  "/admin/how-it-was-built": undefined,
+};
 
 // Page label map
 const pageLabels: Record<string, string> = {
@@ -346,6 +397,7 @@ const pageLabels: Record<string, string> = {
   "how-it-was-built": "Comment c'est construit",
   "roles": "Rôles & Permissions",
   "staff": "Équipe & Accès",
+  "approvals": "Approbations",
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -354,8 +406,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [checking, setChecking] = useState(true);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [badges, setBadges] = useState<Record<string, number>>({ orders: 0, stock: 0, messages: 0 });
+  const [badges, setBadges] = useState<Record<string, number>>({ orders: 0, stock: 0, messages: 0, approvals: 0 });
   const [now, setNow] = useState("");
+  // null = owner (no restriction), string[] = staff permissions list
+  const [staffPermissions, setStaffPermissions] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    async function loadPermissions() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.email) return;
+        const res = await fetch(`/api/admin/staff/permissions?email=${encodeURIComponent(user.email)}`);
+        if (!res.ok) return;
+        const { isStaff, permissions } = await res.json();
+        if (isStaff) {
+          setStaffPermissions(permissions as string[]); // [] = dashboard only
+        }
+        // else: owner → stays null → sees everything
+      } catch { /* silently keep null = owner mode */ }
+    }
+    loadPermissions();
+  }, []);
 
   useEffect(() => {
     const updateTime = () => {
@@ -383,14 +454,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Load badge counts (pending orders + low stock)
   useEffect(() => {
     if (pathname === "/admin" || pathname === "/admin/") return;
-    Promise.all([fetch("/api/orders"), fetch("/api/products"), fetch("/api/messages?unread=true")]).then(async ([oRes, pRes, mRes]) => {
+    Promise.all([
+      fetch("/api/orders"),
+      fetch("/api/products"),
+      fetch("/api/messages?unread=true"),
+      fetch("/api/admin/approvals?status=pending"),
+    ]).then(async ([oRes, pRes, mRes, aRes]) => {
       const orders = oRes.ok ? await oRes.json() : [];
       const products = pRes.ok ? await pRes.json() : [];
       const msgs = mRes.ok ? await mRes.json() : [];
+      const approvals = aRes.ok ? await aRes.json() : [];
       const pending = Array.isArray(orders) ? orders.filter((o: { status: string }) => o.status === "pending").length : 0;
       const lowStock = Array.isArray(products) ? products.filter((p: { stock: number }) => p.stock <= 3).length : 0;
       const unread = Array.isArray(msgs) ? msgs.length : 0;
-      setBadges({ orders: pending, stock: lowStock, messages: unread });
+      const pendingApprovals = Array.isArray(approvals) ? approvals.length : 0;
+      setBadges({ orders: pending, stock: lowStock, messages: unread, approvals: pendingApprovals });
     }).catch(() => {});
   }, [pathname]);
 
@@ -411,13 +489,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Filtered nav for search
   const allNavItems = nav.filter(n =>
-    !search || n.label.toLowerCase().includes(search.toLowerCase())
+    canSee(n.href) &&
+    (!search || n.label.toLowerCase().includes(search.toLowerCase()))
   );
 
   async function logout() {
     await supabase.auth.signOut();
     document.cookie = "admin_session=; path=/; max-age=0; SameSite=Strict";
+    document.cookie = "staff_permissions=; path=/; max-age=0; SameSite=Strict";
     router.replace("/admin");
+  }
+
+  // Returns true if this nav href should be visible to the current user
+  function canSee(href: string): boolean {
+    if (staffPermissions === null) return true; // owner — see everything
+    const perm = NAV_PERMISSIONS[href];
+    if (perm === null) return true;       // always visible (dashboard)
+    if (perm === undefined) return false; // owner-only section
+    return staffPermissions.includes(perm);
   }
 
   const totalAlerts = (badges.orders || 0) + (badges.messages || 0);
@@ -515,7 +604,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <span className="flex-1 truncate">{item.label}</span>
                     {badgeCount > 0 && (
                       <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight shrink-0
-                        ${item.badge === "stock" ? "bg-amber-400 text-amber-950" : item.badge === "messages" ? "bg-blue-500 text-white" : "bg-orange-500 text-white"}`}>
+                        ${item.badge === "stock" ? "bg-amber-400 text-amber-950" : item.badge === "messages" ? "bg-blue-500 text-white" : item.badge === "approvals" ? "bg-amber-500 text-white animate-pulse" : "bg-orange-500 text-white"}`}>
                         {badgeCount}
                       </span>
                     )}
@@ -524,7 +613,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               })}
             </div>
           ) : navSections.map((section) => {
-            const items = section.hrefs.map(href => nav.find(n => n.href === href)).filter((x): x is typeof nav[0] => !!x);
+            const items = section.hrefs
+              .map(href => nav.find(n => n.href === href))
+              .filter((x): x is typeof nav[0] => !!x && canSee(x.href));
+            if (items.length === 0) return null;
             return (
               <div key={section.title} className="mb-1">
                 <p className="px-3 pt-3 pb-1 text-[9px] font-bold text-white/18 uppercase tracking-[0.2em]">{section.title}</p>
@@ -540,7 +632,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <span className="flex-1 truncate">{item.label}</span>
                         {badgeCount > 0 && (
                           <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight shrink-0
-                            ${item.badge === "stock" ? "bg-amber-400 text-amber-950" : item.badge === "messages" ? "bg-blue-500 text-white" : "bg-orange-500 text-white"}`}>
+                            ${item.badge === "stock" ? "bg-amber-400 text-amber-950" : item.badge === "messages" ? "bg-blue-500 text-white" : item.badge === "approvals" ? "bg-amber-500 text-white animate-pulse" : "bg-orange-500 text-white"}`}>
                             {badgeCount}
                           </span>
                         )}
