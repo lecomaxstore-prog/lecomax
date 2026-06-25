@@ -33,6 +33,9 @@ export default function PushPrompt() {
       return;
     }
 
+    // No VAPID key configured — skip
+    if (!VAPID_PUBLIC_KEY) { setPermState("unsupported"); return; }
+
     // Already subscribed permanently
     if (localStorage.getItem(LS_DONE) === "1") return;
 
@@ -107,7 +110,15 @@ export default function PushPrompt() {
       setShown(false);
     } catch (err) {
       console.error("Push subscribe error:", err);
-      setError("Erreur lors de l'activation. Réessayez.");
+      const name = err instanceof Error ? err.name : "";
+      if (name === "AbortError") {
+        setError("Notifications bloquées (navigation privée). Réessayez dans une fenêtre normale.");
+      } else if (name === "NotAllowedError") {
+        setPermState("denied");
+        setShown(false);
+      } else {
+        setError("Erreur lors de l'activation. Réessayez.");
+      }
     }
     setLoading(false);
   }
