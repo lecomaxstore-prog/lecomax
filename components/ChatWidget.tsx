@@ -84,9 +84,11 @@ function renderWithLinks(text: string) {
 
 const QUICK_CHIPS = [
   { label: "🛍️ Nos produits", msg: "Quels produits proposez-vous ?" },
-  { label: "🚚 Livraison", msg: "Quels sont vos délais et frais de livraison ?" },
+  { label: "🚚 Livraison", msg: "Quels sont les délais et frais de livraison ?" },
+  { label: "📦 Suivre ma commande", msg: "Comment suivre ma commande ?" },
   { label: "↩️ Retours", msg: "Quelle est votre politique de retour ?" },
   { label: "💳 Paiement", msg: "Quels modes de paiement acceptez-vous ?" },
+  { label: "🏷️ Promotions", msg: "Avez-vous des promotions ou codes promo en ce moment ?" },
 ];
 
 export default function ChatWidget() {
@@ -99,7 +101,8 @@ export default function ChatWidget() {
   const [starting, setStarting] = useState(false);
   const [unread, setUnread] = useState(0);
   const [hasNew, setHasNew] = useState(false);
-  const [agentJoined, setAgentJoined] = useState(false);
+  const [agentJoined, setAgentJoined] = useState(false); // temporary 5s banner
+  const [hasAgentJoined, setHasAgentJoined] = useState(false); // persistent — agent is in the chat
   const [callVisible, setCallVisible] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [feedbackRating, setFeedbackRating] = useState(0);
@@ -161,7 +164,18 @@ export default function ChatWidget() {
         setInactiveCountdown(secs);
         if (secs <= 0) {
           if (countdownTimer.current) clearInterval(countdownTimer.current);
-          // Auto-close
+          // Mark session resolved then close
+          setSessionId(prev => {
+            if (prev) {
+              fetch(`/api/chat/sessions/${prev}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "resolved" }),
+              }).catch(() => {});
+            }
+            return prev;
+          });
+          setStatus("resolved");
           setOpen(false);
           setInactiveWarning(false);
           document.body.classList.remove("chat-open");
@@ -207,11 +221,9 @@ export default function ChatWidget() {
         setMessages(loadedMsgs);
         setStatus(d.status || "ai");
         prevMsgCount.current = loadedMsgs.length;
-        // If agent already replied, show joined banner
+        // If agent already replied, mark as joined (no animation banner on resume)
         if (loadedMsgs.some((m) => m.sent_by === "agent")) {
-          setAgentJoined(true);
-          if (agentJoinedTimer.current) clearTimeout(agentJoinedTimer.current);
-          agentJoinedTimer.current = setTimeout(() => setAgentJoined(false), 5000);
+          setHasAgentJoined(true);
         }
       });
     } else {
@@ -241,7 +253,8 @@ export default function ChatWidget() {
         const hadAgentBefore = newMsgs.slice(0, prevCount).some((m) => m.sent_by === "agent");
         const hasAgentNow = newMsgs.some((m) => m.sent_by === "agent");
         if (!hadAgentBefore && hasAgentNow) {
-          setAgentJoined(true);
+          setAgentJoined(true); // trigger 5s banner
+          setHasAgentJoined(true); // persistent — keeps agent header
           setCallVisible(false);
           if (agentJoinedTimer.current) clearTimeout(agentJoinedTimer.current);
           agentJoinedTimer.current = setTimeout(() => setAgentJoined(false), 5000);
@@ -357,6 +370,7 @@ export default function ChatWidget() {
     setStatus("ai");
     setInput("");
     setAgentJoined(false);
+    setHasAgentJoined(false);
     setCallVisible(false);
     setFeedbackRating(0);
     setFeedbackComment("");
@@ -375,6 +389,7 @@ export default function ChatWidget() {
     } catch {}
     setStatus("resolved");
     setAgentJoined(false);
+    setHasAgentJoined(false);
     setCallVisible(false);
   }
 
@@ -466,8 +481,8 @@ export default function ChatWidget() {
               }
             `}</style>
 
-            {agentJoined ? (
-              /* ── Zakaria agent mode ── */
+            {hasAgentJoined ? (
+              /* ── Agent mode (persistent once agent joins) ── */
               <div className="relative flex-shrink-0" style={{ animation: "headerFadeIn 0.4s ease both" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -498,7 +513,7 @@ export default function ChatWidget() {
             )}
 
             <div className="flex-1 min-w-0" style={{ animation: "headerFadeIn 0.4s ease both" }}>
-              {agentJoined ? (
+              {hasAgentJoined ? (
                 <>
                   <p className="text-sm font-bold leading-tight">Zakaria</p>
                   <p className="text-[11px] text-white/90 leading-tight flex items-center gap-1.5">
@@ -648,8 +663,8 @@ export default function ChatWidget() {
                   <div className="flex flex-col gap-0.5" style={{ maxWidth: "82%" }}>
                     <span className="text-[10px] font-semibold text-[#3ecf4c] pl-1">Eco · Assistant</span>
                     <div className="bg-white border border-neutral-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm text-sm text-neutral-800 leading-relaxed">
-                      👋 Bonjour ! Je suis <strong>Eco</strong>, l&apos;assistant de L&apos;ecomax.<br />
-                      Comment puis-je vous aider aujourd&apos;hui ?
+                      👋 Bonjour ! Je suis <strong>Eco</strong>, l&apos;assistant virtuel de <strong>L&apos;ecomax</strong>.<br />
+                      Je peux vous aider avec nos produits, la livraison, les commandes et bien plus. Comment puis-je vous aider ?
                     </div>
                   </div>
                 </div>
@@ -725,17 +740,21 @@ export default function ChatWidget() {
                 <img src="/images/chatbot logo.png?v=2" alt="Eco" width={32} height={32}
                   className="w-8 h-8 rounded-full object-cover flex-shrink-0 shadow-sm"
                   style={{ mixBlendMode: "multiply" }} />
-                <div className="bg-white border border-neutral-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm flex gap-1.5 items-center">
-                  <style>{`
-                    @keyframes typingDot {
-                      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-                      30%           { transform: translateY(-5px); opacity: 1; }
-                    }
-                  `}</style>
-                  {[0, 150, 300].map((delay, i) => (
-                    <span key={i} className="w-2 h-2 rounded-full"
-                      style={{ background: "#3ecf4c", animation: `typingDot 1.2s ease-in-out ${delay}ms infinite` }} />
-                  ))}
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[10px] font-semibold text-[#3ecf4c] pl-1">Eco · Assistant</span>
+                  <div className="bg-white border border-neutral-100 rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-sm flex items-center gap-2">
+                    <style>{`
+                      @keyframes typingDot {
+                        0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+                        30%           { transform: translateY(-5px); opacity: 1; }
+                      }
+                    `}</style>
+                    {[0, 150, 300].map((delay, i) => (
+                      <span key={i} className="w-1.5 h-1.5 rounded-full"
+                        style={{ background: "#3ecf4c", animation: `typingDot 1.2s ease-in-out ${delay}ms infinite` }} />
+                    ))}
+                    <span className="text-[11px] text-neutral-400 italic">Eco écrit…</span>
+                  </div>
                 </div>
               </div>
             )}
@@ -905,8 +924,8 @@ export default function ChatWidget() {
                 </div>
                 <p className="text-[10px] text-neutral-400 text-center mt-1.5">
                   {status === "ai"
-                    ? <>Propulsé par IA · <span className="text-neutral-500 font-medium">Tapez « agent »</span> pour parler à un humain</>
-                    : "Chat en direct avec notre équipe"}
+                    ? <><span className="inline-flex items-center gap-1"><svg width="9" height="9" viewBox="0 0 24 24" fill="#3ecf4c"><circle cx="12" cy="12" r="10"/></svg>Assistant IA · L&apos;ecomax</span> · <span className="text-neutral-500 font-medium">Tapez « agent » pour un humain</span></>
+                    : <span className="inline-flex items-center gap-1"><svg width="9" height="9" viewBox="0 0 24 24" fill="#22c55e"><circle cx="12" cy="12" r="10"/></svg>Chat en direct · Notre équipe est là</span>}
                 </p>
               </div>
             )}
