@@ -75,6 +75,10 @@ SELECT r.id, p.slug FROM admin_roles r, (VALUES
   ('broadcast.send'), ('announcement.edit'), ('analytics.view'), ('media.manage')
 ) AS p(slug) WHERE r.slug = 'marketing'
 ON CONFLICT DO NOTHING;
+-- ── Grant access to service_role ──────────────────
+GRANT ALL PRIVILEGES ON TABLE admin_roles TO service_role, postgres, authenticated, anon;
+GRANT ALL PRIVILEGES ON TABLE admin_role_permissions TO service_role, postgres, authenticated, anon;
+GRANT ALL PRIVILEGES ON TABLE admin_staff TO service_role, postgres, authenticated, anon;
 `;
 
 console.log(sql);
