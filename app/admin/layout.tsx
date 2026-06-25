@@ -290,6 +290,25 @@ const nav = [
     ),
   },
   {
+    label: "Rôles & Permissions",
+    href: "/admin/roles",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Équipe & Accès",
+    href: "/admin/staff",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+      </svg>
+    ),
+  },
+  {
     label: "Comment c'est construit",
     href: "/admin/how-it-was-built",
     icon: (
@@ -308,6 +327,7 @@ const navSections: { title: string; hrefs: string[] }[] = [
   { title: "SAV",        hrefs: ["/admin/messages", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
   { title: "LOGISTIQUE", hrefs: ["/admin/shipping", "/admin/size-guide"] },
   { title: "CONFIG",     hrefs: ["/admin/settings"] },
+  { title: "ÉQUIPE",     hrefs: ["/admin/roles", "/admin/staff"] },
   { title: "DÉVELOPPEUR", hrefs: ["/admin/how-it-was-built"] },
 ];
 
@@ -324,6 +344,8 @@ const pageLabels: Record<string, string> = {
   "client-data": "Données clients",
   ads: "Publicités", studio: "Studio Créatif", push: "Notifications Push",
   "how-it-was-built": "Comment c'est construit",
+  "roles": "Rôles & Permissions",
+  "staff": "Équipe & Accès",
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
