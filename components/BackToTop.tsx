@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function BackToTop() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -20,7 +22,7 @@ export default function BackToTop() {
     return () => observer.disconnect();
   }, []);
 
-  if (!visible || chatOpen) return null;
+  if (!visible || chatOpen || pathname.startsWith("/admin")) return null;
 
   return (
     <button

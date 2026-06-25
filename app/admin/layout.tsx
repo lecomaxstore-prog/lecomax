@@ -289,6 +289,15 @@ const nav = [
       </svg>
     ),
   },
+  {
+    label: "Comment c'est construit",
+    href: "/admin/how-it-was-built",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+      </svg>
+    ),
+  },
 ];
 
 const navSections: { title: string; hrefs: string[] }[] = [
@@ -299,6 +308,7 @@ const navSections: { title: string; hrefs: string[] }[] = [
   { title: "SAV",        hrefs: ["/admin/messages", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
   { title: "LOGISTIQUE", hrefs: ["/admin/shipping", "/admin/size-guide"] },
   { title: "CONFIG",     hrefs: ["/admin/settings"] },
+  { title: "DÉVELOPPEUR", hrefs: ["/admin/how-it-was-built"] },
 ];
 
 // Page label map
@@ -313,6 +323,7 @@ const pageLabels: Record<string, string> = {
   pages: "Pages", banners: "Bannières", media: "Médiathèque",
   "client-data": "Données clients",
   ads: "Publicités", studio: "Studio Créatif", push: "Notifications Push",
+  "how-it-was-built": "Comment c'est construit",
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

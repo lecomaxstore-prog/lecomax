@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!;
+// Strip any whitespace/newlines that may be present in the env var
+const VAPID_PUBLIC_KEY = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "").replace(/\s+/g, "");
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -36,7 +37,8 @@ export default function PushPrompt() {
     setPermState(perm);
 
     if (perm === "granted") {
-      // Check if already subscribed
+      // Register SW first, then check subscription
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
       navigator.serviceWorker.ready.then(reg => {
         reg.pushManager.getSubscription().then(sub => {
           if (sub) setSubscribed(true);
@@ -64,6 +66,8 @@ export default function PushPrompt() {
         return;
       }
 
+      // Register the service worker before subscribing
+      await navigator.serviceWorker.register("/sw.js");
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
