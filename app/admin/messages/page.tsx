@@ -362,11 +362,13 @@ export default function MessagesPage() {
   const [lcSent, setLcSent] = useState(false);
   const [lcStatusFilter, setLcStatusFilter] = useState<"all" | "ai" | "escalated" | "resolved">("all");
   const [showEndLcConfirm, setShowEndLcConfirm] = useState(false);
+  const [lcClientTyping, setLcClientTyping] = useState(false);
   const lcBottomRef = useRef<HTMLDivElement>(null);
   const lcMsgsContainerRef = useRef<HTMLDivElement>(null);
   const lcPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lcTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lcTypingActiveRef = useRef(false);
+  const lcClientTypingPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── Feedback ──────────────────────────────────────────────────────────
   type ChatFeedback = { id: string; session_id: string; rating: number; comment: string | null; created_at: string };
@@ -430,6 +432,23 @@ export default function MessagesPage() {
     return () => clearInterval(iv);
   }, [lcSelected, loadLcMessages]);
 
+  // Poll client typing indicator
+  useEffect(() => {
+    if (!lcSelected) {
+      setLcClientTyping(false);
+      if (lcClientTypingPollRef.current) clearInterval(lcClientTypingPollRef.current);
+      return;
+    }
+    lcClientTypingPollRef.current = setInterval(async () => {
+      const res = await fetch(`/api/chat/typing?session_id=${lcSelected.id}&from=client`).catch(() => null);
+      if (res?.ok) { const d = await res.json(); setLcClientTyping(!!d.typing); }
+    }, 2000);
+    return () => {
+      if (lcClientTypingPollRef.current) clearInterval(lcClientTypingPollRef.current);
+      setLcClientTyping(false);
+    };
+  }, [lcSelected]);
+
   useEffect(() => {
     const el = lcMsgsContainerRef.current;
     if (el) el.scrollTop = el.scrollHeight;
@@ -469,7 +488,7 @@ export default function MessagesPage() {
       fetch("/api/chat/typing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId, typing: true }),
+        body: JSON.stringify({ session_id: sessionId, typing: true, from: "agent" }),
       });
     }
     if (lcTypingTimeoutRef.current) clearTimeout(lcTypingTimeoutRef.current);
@@ -478,7 +497,7 @@ export default function MessagesPage() {
       fetch("/api/chat/typing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId, typing: false }),
+        body: JSON.stringify({ session_id: sessionId, typing: false, from: "agent" }),
       });
     }, 3000);
   }
@@ -492,7 +511,7 @@ export default function MessagesPage() {
     fetch("/api/chat/typing", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: lcSelected.id, typing: false }),
+      body: JSON.stringify({ session_id: lcSelected.id, typing: false, from: "agent" }),
     });
     try {
       await fetch("/api/chat/reply", {
@@ -1229,6 +1248,22 @@ export default function MessagesPage() {
                       );
                     })
                   )}
+                  {/* Client typing indicator */}
+                  {lcClientTyping && (
+                    <div className="flex items-end gap-2 py-1">
+                      <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0">
+                        {(lcSelected.name || "V").charAt(0).toUpperCase()}
+                      </div>
+                      <div className="bg-neutral-100 rounded-2xl rounded-bl-sm px-3 py-2 flex items-center gap-1.5">
+                        {[0, 150, 300].map((d, i) => (
+                          <span key={i} className="w-1.5 h-1.5 rounded-full bg-neutral-400"
+                            style={{ animation: `typingDot 1.2s ease-in-out ${d}ms infinite` }} />
+                        ))}
+                      </div>
+                      <span className="text-[9px] text-neutral-400 mb-1">écrit…</span>
+                    </div>
+                  )}
+                  <style>{`@keyframes typingDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}`}</style>
                   <div ref={lcBottomRef} />
                 </div>
 

@@ -112,6 +112,8 @@ export default function ChatWidget() {
   const [inactiveWarning, setInactiveWarning] = useState(false);
   const [inactiveCountdown, setInactiveCountdown] = useState(30);
   const agentJoinedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clientTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clientTypingActiveRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -267,13 +269,13 @@ export default function ChatWidget() {
 
   // ── Poll agent typing indicator ──────────────────────────────────────────
   useEffect(() => {
-    if (!sessionId || !open || status !== "escalated") { setAgentTyping(false); return; }
+    if (!sessionId || !open) { setAgentTyping(false); return; }
     const iv = setInterval(async () => {
-      const res = await fetch(`/api/chat/typing?session_id=${sessionId}`).catch(() => null);
+      const res = await fetch(`/api/chat/typing?session_id=${sessionId}&from=agent`).catch(() => null);
       if (res?.ok) { const d = await res.json(); setAgentTyping(!!d.typing); }
     }, 2000);
     return () => { clearInterval(iv); setAgentTyping(false); };
-  }, [sessionId, open, status]);
+  }, [sessionId, open]);
 
   // Poll when closed to show unread badge
   useEffect(() => {
@@ -855,7 +857,22 @@ export default function ChatWidget() {
               <div className="px-3 pt-3 pb-2.5">
                 <div className="flex gap-2 items-end rounded-2xl px-3.5 py-2.5 transition-all"
                   style={{ background:"white",border:"1.5px solid #e8e8e8",boxShadow:"0 1px 4px rgba(0,0,0,0.06)" }}>
-                  <textarea ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKey}
+                  <textarea ref={inputRef} value={input} onChange={(e) => {
+                    setInput(e.target.value);
+                    if (sessionId && e.target.value) {
+                      if (!clientTypingActiveRef.current) {
+                        clientTypingActiveRef.current = true;
+                        fetch("/api/chat/typing", { method:"POST", headers:{"Content-Type":"application/json"},
+                          body: JSON.stringify({ session_id: sessionId, typing: true, from: "client" }) });
+                      }
+                      if (clientTypingTimeoutRef.current) clearTimeout(clientTypingTimeoutRef.current);
+                      clientTypingTimeoutRef.current = setTimeout(() => {
+                        clientTypingActiveRef.current = false;
+                        fetch("/api/chat/typing", { method:"POST", headers:{"Content-Type":"application/json"},
+                          body: JSON.stringify({ session_id: sessionId, typing: false, from: "client" }) });
+                      }, 3000);
+                    }
+                  }} onKeyDown={handleKey}
                     placeholder={status === "escalated" ? "Écrivez à l'agent..." : "Posez votre question ici..."}
                     rows={1} className="flex-1 resize-none bg-transparent text-[13px] focus:outline-none leading-snug text-neutral-800 placeholder-neutral-400"
                     style={{ maxHeight:90,overflowY:"auto" }} />
