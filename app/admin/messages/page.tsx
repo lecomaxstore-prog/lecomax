@@ -454,6 +454,14 @@ export default function MessagesPage() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [lcMessages]);
 
+  // Scroll to bottom when client starts typing so latest messages are visible
+  useEffect(() => {
+    if (lcClientTyping) {
+      const el = lcMsgsContainerRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
+    }
+  }, [lcClientTyping]);
+
   async function openLcSession(s: ChatSession) {
     setLcSelected(s);
     setLcReply("");
@@ -1248,24 +1256,29 @@ export default function MessagesPage() {
                       );
                     })
                   )}
-                  {/* Client typing indicator */}
-                  {lcClientTyping && (
-                    <div className="flex items-end gap-2 py-1">
-                      <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0">
-                        {(lcSelected.name || "V").charAt(0).toUpperCase()}
-                      </div>
-                      <div className="bg-neutral-100 rounded-2xl rounded-bl-sm px-3 py-2 flex items-center gap-1.5">
-                        {[0, 150, 300].map((d, i) => (
-                          <span key={i} className="w-1.5 h-1.5 rounded-full bg-neutral-400"
-                            style={{ animation: `typingDot 1.2s ease-in-out ${d}ms infinite` }} />
-                        ))}
-                      </div>
-                      <span className="text-[9px] text-neutral-400 mb-1">écrit…</span>
-                    </div>
-                  )}
                   <style>{`@keyframes typingDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}`}</style>
                   <div ref={lcBottomRef} />
                 </div>
+
+                {/* Client typing indicator — pinned above reply box */}
+                {lcClientTyping && (
+                  <div className="flex-shrink-0 flex items-center gap-2.5 px-4 py-2"
+                    style={{ borderTop:"1px solid #f3e8ff", background:"linear-gradient(90deg,#faf5ff,#fff)" }}>
+                    <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0">
+                      {(lcSelected.name || "V").charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] text-purple-500 font-semibold">{lcSelected.name || "Visiteur"}</span>
+                      <span className="text-[10px] text-neutral-400">est en train d&apos;écrire</span>
+                      <div className="flex gap-0.5 items-end pb-0.5">
+                        {[0, 150, 300].map((d, i) => (
+                          <span key={i} className="w-1.5 h-1.5 rounded-full bg-purple-400 inline-block"
+                            style={{ animation: `typingDot 1.2s ease-in-out ${d}ms infinite` }} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Reply box */}
                 <div className="flex-shrink-0 border-t border-neutral-100 p-3">
