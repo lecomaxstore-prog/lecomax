@@ -400,6 +400,33 @@ const pageLabels: Record<string, string> = {
   "approvals": "Approbations",
 };
 
+// ─── Scroll-to-top button (anchored inside the main scroll container) ─────────
+function ScrollToTop() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = document.getElementById("admin-main");
+    if (!el) return;
+    const onScroll = () => setVisible(el.scrollTop > 300);
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <button
+      onClick={() => document.getElementById("admin-main")?.scrollTo({ top: 0, behavior: "smooth" })}
+      className="fixed bottom-6 right-6 z-50 w-10 h-10 rounded-2xl bg-black text-white shadow-lg flex items-center justify-center hover:bg-neutral-800 transition-all hover:scale-110 active:scale-95"
+      title="Retour en haut"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+        <polyline points="18 15 12 9 6 15" />
+      </svg>
+    </button>
+  );
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -726,8 +753,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto pb-24 lg:pb-8">
+        <main id="admin-main" className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto pb-24 lg:pb-8">
           {children}
+          <ScrollToTop />
         </main>
 
         {/* ──────────────── MOBILE BOTTOM NAV ──────────────── */}

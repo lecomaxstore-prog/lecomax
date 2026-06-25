@@ -951,9 +951,9 @@ export default function ProductsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-neutral-100 overflow-x-auto">
-          <table className="w-full text-sm min-w-[700px]">
-            <thead>
-              <tr className="border-b border-neutral-100 text-left">
+          <table className="w-full text-sm min-w-[820px]">
+            <thead className="sticky top-0 z-10">
+              <tr className="border-b border-neutral-100 text-left bg-white">
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Produit</th>
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Catégorie</th>
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Prix</th>
