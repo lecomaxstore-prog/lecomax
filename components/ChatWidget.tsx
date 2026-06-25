@@ -103,6 +103,7 @@ export default function ChatWidget() {
   const [hasNew, setHasNew] = useState(false);
   const [agentJoined, setAgentJoined] = useState(false); // temporary 5s banner
   const [hasAgentJoined, setHasAgentJoined] = useState(false); // persistent — agent is in the chat
+  const [agentTyping, setAgentTyping] = useState(false); // admin is typing
   const [callVisible, setCallVisible] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [feedbackRating, setFeedbackRating] = useState(0);
@@ -263,6 +264,16 @@ export default function ChatWidget() {
     }, 5000);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [sessionId, open]);
+
+  // ── Poll agent typing indicator ──────────────────────────────────────────
+  useEffect(() => {
+    if (!sessionId || !open || status !== "escalated") { setAgentTyping(false); return; }
+    const iv = setInterval(async () => {
+      const res = await fetch(`/api/chat/typing?session_id=${sessionId}`).catch(() => null);
+      if (res?.ok) { const d = await res.json(); setAgentTyping(!!d.typing); }
+    }, 2000);
+    return () => { clearInterval(iv); setAgentTyping(false); };
+  }, [sessionId, open, status]);
 
   // Poll when closed to show unread badge
   useEffect(() => {
@@ -657,7 +668,18 @@ export default function ChatWidget() {
               </div>
             )}
 
-            {messages.map((m) => (
+            {messages.map((m) => {
+              // System message: agent joined
+              if (m.body === "__AGENT_JOINED__" && m.direction === "out") {
+                return (
+                  <div key={m.id} className="chat-msg flex justify-center py-1">
+                    <span className="text-[10px] text-neutral-400 bg-neutral-100 px-3 py-1 rounded-full">
+                      👤 Un agent a rejoint la conversation
+                    </span>
+                  </div>
+                );
+              }
+              return (
               <div key={m.id} className={`chat-msg flex items-end gap-2 ${m.direction === "in" ? "justify-end" : "justify-start"}`}>
                 {m.direction === "out" && (
                   <div className="flex-shrink-0 self-end mb-1">
@@ -697,9 +719,10 @@ export default function ChatWidget() {
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
 
-            {/* Typing indicator */}
+            {/* Typing indicator — AI */}
             {loading && (
               <div className="chat-msg flex items-end gap-2 justify-start">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -713,6 +736,26 @@ export default function ChatWidget() {
                         style={{ background:"#3ecf4c",animation:`typingDot 1.2s ease-in-out ${delay}ms infinite` }} />
                     ))}
                     <span className="text-[11px] text-neutral-400 font-medium">Eco &eacute;crit&hellip;</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Typing indicator — Agent */}
+            {agentTyping && !loading && (
+              <div className="chat-msg flex items-end gap-2 justify-start">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/images/zakaria agent.jpeg" alt="Agent" width={28} height={28}
+                  className="w-7 h-7 rounded-full object-cover border-2 border-white shadow flex-shrink-0"
+                  style={{ objectPosition:"center 15%" }} />
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[10px] font-semibold text-amber-600 pl-1">Agent · L&apos;ecomax</span>
+                  <div className="bg-white border border-amber-100 rounded-3xl rounded-bl-lg px-4 py-2.5 shadow-sm flex items-center gap-2.5">
+                    {[0,140,280].map((delay,i) => (
+                      <span key={i} className="w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ background:"#f59e0b",animation:`typingDot 1.2s ease-in-out ${delay}ms infinite` }} />
+                    ))}
+                    <span className="text-[11px] text-neutral-400 font-medium">Agent &eacute;crit&hellip;</span>
                   </div>
                 </div>
               </div>

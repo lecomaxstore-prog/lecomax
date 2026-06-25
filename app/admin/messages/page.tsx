@@ -363,7 +363,10 @@ export default function MessagesPage() {
   const [lcStatusFilter, setLcStatusFilter] = useState<"all" | "ai" | "escalated" | "resolved">("all");
   const [showEndLcConfirm, setShowEndLcConfirm] = useState(false);
   const lcBottomRef = useRef<HTMLDivElement>(null);
+  const lcMsgsContainerRef = useRef<HTMLDivElement>(null);
   const lcPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lcTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lcTypingActiveRef = useRef(false);
 
   // ── Feedback ──────────────────────────────────────────────────────────
   type ChatFeedback = { id: string; session_id: string; rating: number; comment: string | null; created_at: string };
@@ -428,7 +431,8 @@ export default function MessagesPage() {
   }, [lcSelected, loadLcMessages]);
 
   useEffect(() => {
-    lcBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = lcMsgsContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [lcMessages]);
 
   async function openLcSession(s: ChatSession) {
@@ -436,6 +440,10 @@ export default function MessagesPage() {
     setLcReply("");
     setLcSent(false);
     await loadLcMessages(s.id);
+    setTimeout(() => {
+      const el = lcMsgsContainerRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
+    }, 50);
     await fetch(`/api/chat/sessions/${s.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -444,9 +452,48 @@ export default function MessagesPage() {
     setLcSessions((prev) => prev.map((c) => c.id === s.id ? { ...c, unread_count: 0 } : c));
   }
 
+  async function joinLcSession(sessionId: string) {
+    // Send agent-joined system message visible to the client
+    await fetch("/api/chat/reply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId, body: "__AGENT_JOINED__" }),
+    });
+    await updateLcStatus(sessionId, "escalated");
+    await loadLcMessages(sessionId);
+  }
+
+  function signalTyping(sessionId: string) {
+    if (!lcTypingActiveRef.current) {
+      lcTypingActiveRef.current = true;
+      fetch("/api/chat/typing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId, typing: true }),
+      });
+    }
+    if (lcTypingTimeoutRef.current) clearTimeout(lcTypingTimeoutRef.current);
+    lcTypingTimeoutRef.current = setTimeout(() => {
+      lcTypingActiveRef.current = false;
+      fetch("/api/chat/typing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId, typing: false }),
+      });
+    }, 3000);
+  }
+
   async function sendLcReply() {
     if (!lcSelected || !lcReply.trim()) return;
     setLcSending(true);
+    // Clear typing indicator immediately on send
+    if (lcTypingTimeoutRef.current) clearTimeout(lcTypingTimeoutRef.current);
+    lcTypingActiveRef.current = false;
+    fetch("/api/chat/typing", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: lcSelected.id, typing: false }),
+    });
     try {
       await fetch("/api/chat/reply", {
         method: "POST",
@@ -1132,9 +1179,9 @@ export default function MessagesPage() {
                     </button>
                   )}
                   {lcSelected.status !== "escalated" && (
-                    <button onClick={() => updateLcStatus(lcSelected.id, "escalated")}
+                    <button onClick={() => joinLcSession(lcSelected.id)}
                       className="flex-1 text-[10px] font-bold py-1.5 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors">
-                      👤 Prendre en charge
+                      👤 Rejoindre la conversation
                     </button>
                   )}
                   {lcSelected.status !== "resolved" && (
@@ -1154,6 +1201,13 @@ export default function MessagesPage() {
                   ) : (
                     lcMessages.map((msg) => {
                       const isOut = msg.direction === "out";
+                      if (msg.body === "__AGENT_JOINED__") {
+                        return (
+                          <div key={msg.id} className="flex justify-center py-1">
+                            <span className="text-[10px] text-neutral-400 bg-neutral-100 px-3 py-1 rounded-full">👤 Agent a rejoint la conversation</span>
+                          </div>
+                        );
+                      }
                       return (
                         <div key={msg.id} className={`flex ${isOut ? "justify-end" : "justify-start"}`}>
                           <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-xs leading-relaxed ${
@@ -1194,7 +1248,7 @@ export default function MessagesPage() {
                   <div className="flex gap-2">
                     <textarea
                       value={lcReply}
-                      onChange={(e) => { setLcReply(e.target.value); setLcSent(false); }}
+                      onChange={(e) => { setLcReply(e.target.value); setLcSent(false); if (e.target.value && lcSelected) signalTyping(lcSelected.id); }}
                       onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendLcReply(); } }}
                       placeholder={lcSelected.status === "ai" ? "Prenez en charge pour répondre…" : "Répondre… (Entrée pour envoyer)"}
                       rows={2}
