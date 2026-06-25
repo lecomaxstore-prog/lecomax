@@ -18,8 +18,10 @@
   colorImages?: Record<string, string>;
   colorSizes?: Record<string, string[]>;
   outOfStockColors?: string[];
+  outOfStockSizes?: string[];
   video?: string;
   sizeGuideType?: "clothing" | "shoes" | "none";
+  urgencyStock?: number;
 };
 
 /* ─────────────────────────── CHAUSSURES ────────────────────────── */
@@ -53,6 +55,157 @@ const chaussures: Product[] = [
     },
     video: "https://goods-vod.kwcdn.com/goods-video/ee9eeea66a636eb7c84ad443fc2f90558be85d05.f30.mp4",
     description: "Chaussures de marche décontractées et respirantes pour hommes. Baskets tendance ultra-légères, idéales pour la course, la marche et le tennis au quotidien. Semelle souple et aérée pour un confort toute la journée.",
+  },
+  {
+    slug: "c-chaussons-interieur-femme",
+    name: "Chaussons d'intérieur pour femme — Printemps & Automne, Semelles Épaisses",
+    displayName: "Chaussons d'intérieur Femme — Semelles Épaisses",
+    specs: [
+      "Semelles épaisses confortables",
+      "Ultra-légères & durables",
+      "Tissu doux printemps-automne",
+      "Usage intérieur",
+      "Antidérapantes",
+      "Design féminin tendance",
+    ],
+    category: "chaussures",
+    subCategory: "Chaussons",
+    price: 69,
+    oldPrice: 89,
+    badge: "Promo",
+    colors: ["Blanc", "Rose"],
+    sizes: ["37", "39"],
+    colorSizes: {
+      "Blanc": ["39"],
+    },
+    outOfStockColors: ["Rose"],
+    image: "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/1%20blanc.avif",
+    gallery: [
+      "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/2%20blanc.avif",
+      "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/3%20blanc.avif",
+      "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/1%20rose.avif",
+      "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/2%20rose.avif",
+      "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/3%20rose.avif",
+    ],
+    colorImages: {
+      "Blanc": "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/1%20blanc.avif",
+      "Rose":  "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/1%20rose.avif",
+    },
+    video: "https://goods-vod.kwcdn.com/goods-video/52c9701b5ad421a16359b2952200d0e353dc7ce0.f30.mp4",
+    sizeGuideType: "shoes",
+    description: "Chaussons d'intérieur pour femme légers avec semelles épaisses, confortables et durables pour une utilisation intérieure. Idéaux pour le printemps et l'automne, ces chaussons offrent un confort optimal à la maison avec leur semelle épaisse antidérapante et leur tissu doux.",
+  },
+  {
+    slug: "c-chaussons-mode-femme-peluche",
+    name: "Chaussons de mode pour femme en peluche de couleur unie avec lanières croisées",
+    displayName: "Chaussons Mode Femme — Peluche & Lanières Croisées",
+    specs: [
+      "Peluche douce & chaleureuse",
+      "Lanières croisées élégantes",
+      "Semelles épaisses antidérapantes",
+      "Ultra-légères & confortables",
+      "Design mode tendance",
+      "Usage intérieur",
+    ],
+    category: "chaussures",
+    subCategory: "Chaussons",
+    price: 69,
+    oldPrice: 89,
+    badge: "Promo",
+    colors: ["Kaki", "Blanc"],
+    sizes: ["39", "41", "44"],
+    colorSizes: {
+      "Kaki": ["44"],
+    },
+    outOfStockColors: ["Blanc"],
+    image: "/images/products/Chaussons%20de%20mode%20pour%20femme/1%20kaki.avif",
+    gallery: [
+      "/images/products/Chaussons%20de%20mode%20pour%20femme/2%20kaki.avif",
+      "/images/products/Chaussons%20de%20mode%20pour%20femme/1%20blanc.avif",
+      "/images/products/Chaussons%20de%20mode%20pour%20femme/2%20blanc.avif",
+    ],
+    colorImages: {
+      "Kaki":  "/images/products/Chaussons%20de%20mode%20pour%20femme/1%20kaki.avif",
+      "Blanc": "/images/products/Chaussons%20de%20mode%20pour%20femme/1%20blanc.avif",
+    },
+    sizeGuideType: "shoes",
+    urgencyStock: 6,
+    description: "Chaussons de mode pour femme en peluche douce avec lanières croisées élégantes. Semelles épaisses antidérapantes pour un confort optimal en intérieur. Design tendance coupe-vent pour un style féminin moderne à la maison.",
+  },
+  {
+    slug: "c-chaussons-exterieur-poils-femme",
+    name: "Chaussons d'extérieur à poils pour femme automne/hiver avec décoration de cœur brodé",
+    displayName: "Chaussons Femme Automne/Hiver — Cœur Brodé",
+    specs: [
+      "Poils doux & moelleux",
+      "Décoration cœur brodé",
+      "Semelle plate confortable",
+      "Bout ouvert tendance",
+      "Usage extérieur & intérieur",
+      "Idéal automne/hiver",
+    ],
+    category: "chaussures",
+    subCategory: "Chaussons",
+    price: 89,
+    colors: [],
+    sizes: ["37", "39"],
+    outOfStockSizes: ["39"],
+    image: "/images/products/Chaussons%20d%27ext%C3%A9rieur%20%C3%A0%20poils%20pour%20femme/1.avif",
+    gallery: [
+      "/images/products/Chaussons%20d%27ext%C3%A9rieur%20%C3%A0%20poils%20pour%20femme/2.avif",
+      "/images/products/Chaussons%20d%27ext%C3%A9rieur%20%C3%A0%20poils%20pour%20femme/3.avif",
+    ],
+    descriptionImages: [
+      "/images/products/Chaussons%20d%27ext%C3%A9rieur%20%C3%A0%20poils%20pour%20femme/descption%20iamges/1.avif",
+      "/images/products/Chaussons%20d%27ext%C3%A9rieur%20%C3%A0%20poils%20pour%20femme/descption%20iamges/2.avif",
+      "/images/products/Chaussons%20d%27ext%C3%A9rieur%20%C3%A0%20poils%20pour%20femme/descption%20iamges/3.avif",
+    ],
+    sizeGuideType: "shoes",
+    urgencyStock: 6,
+    description: "Chaussons d'extérieur à poils pour femme, idéaux pour l'automne et l'hiver. Design tendance avec décoration cœur brodée, semelle plate confortable et bout ouvert. Utilisables en intérieur comme en extérieur pour un style chic au quotidien.",
+  },
+  {
+    slug: "c-chaussons-fleurs-rose-femme",
+    name: "Chaussons à fleurs de rose, Chaussures pour femme",
+    displayName: "Chaussons Femme — Fleurs de Rose",
+    specs: [
+      "Décoration florale tendance",
+      "Tissu doux & confortable",
+      "Semelle épaisse antidérapante",
+      "Légères & résistantes",
+      "Design féminin moderne",
+      "Usage intérieur & extérieur",
+    ],
+    category: "chaussures",
+    subCategory: "Chaussons",
+    price: 69,
+    oldPrice: 89,
+    badge: "Promo",
+    colors: ["Gris Clair", "Kaki"],
+    sizes: ["39", "43"],
+    colorSizes: {
+      "Gris Clair": ["43"],
+    },
+    outOfStockColors: ["Kaki"],
+    outOfStockSizes: ["39"],
+    image: "/images/products/Chaussons%20%C3%A0%20fleurs%20de%20rose/1%20gris%20clair.avif",
+    gallery: [
+      "/images/products/Chaussons%20%C3%A0%20fleurs%20de%20rose/2%20gris%20clair.avif",
+      "/images/products/Chaussons%20%C3%A0%20fleurs%20de%20rose/1%20kaki.avif",
+      "/images/products/Chaussons%20%C3%A0%20fleurs%20de%20rose/2%20kaki.avif",
+    ],
+    colorImages: {
+      "Gris Clair": "/images/products/Chaussons%20%C3%A0%20fleurs%20de%20rose/1%20gris%20clair.avif",
+      "Kaki":       "/images/products/Chaussons%20%C3%A0%20fleurs%20de%20rose/1%20kaki.avif",
+    },
+    descriptionImages: [
+      "/images/products/Chaussons%20%C3%A0%20fleurs%20de%20rose/descption%20images/1.avif",
+      "/images/products/Chaussons%20%C3%A0%20fleurs%20de%20rose/descption%20images/2.avif",
+    ],
+    video: "https://goods-vod.kwcdn.com/goods-video/23a93596d41219b9e867740f8b67917d26b78635gs2CV.f30.mp4",
+    sizeGuideType: "shoes",
+    urgencyStock: 6,
+    description: "Chaussons à fleurs de rose pour femme, alliant style et confort. Tissu doux avec décoration florale tendance, semelle épaisse antidérapante pour un maintien optimal. Idéaux en intérieur comme en extérieur pour toutes les saisons.",
   },
 ];
 
@@ -347,6 +500,8 @@ export type CardProduct = {
   colors: string[];
   sizes: string[];
   badge?: string;
+  rating?: number;
+  reviewCount?: number;
 };
 
 /** Convert an API/Supabase product to the CardProduct format */

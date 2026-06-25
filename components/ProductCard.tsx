@@ -30,7 +30,9 @@ export function ratingFor(slug: string) {
 
 export default function ProductCard({ product }: { product: CardProduct }) {
   const [wished, setWished] = useState(false);
-  const { rating, count } = ratingFor(product.slug);
+  const { rating: hashRating, count: hashCount } = ratingFor(product.slug);
+  const rating = product.rating ?? hashRating;
+  const count = product.reviewCount ?? hashCount;
   const onSale = product.oldPrice && product.oldPrice > product.price;
   const discount = onSale ? Math.round((1 - product.price / product.oldPrice!) * 100) : 0;
 

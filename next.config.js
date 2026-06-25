@@ -54,6 +54,16 @@ const nextConfig = {
   },
   async headers() {
     return [
+      // ── Admin panel: no caching ────────────────────────────────────────────
+      {
+        source: "/admin/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, private" },
+          { key: "Pragma", value: "no-cache" },
+          { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
+        ],
+      },
+      // ── Next.js static assets: long-lived immutable cache ─────────────────
       {
         source: "/_next/static/(.*)",
         headers: [

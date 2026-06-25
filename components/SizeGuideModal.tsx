@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ClothingRow = { label: string; fr: string; poitrine: string; taille: string };
 type ShoeRow = { eu: string; us: string; uk: string; cm: string };
@@ -31,16 +31,26 @@ export default function SizeGuideModal({
   onClose,
   type = "chaussures",
   availableSizes = [],
+  selectedSize,
 }: {
   open: boolean;
   onClose: () => void;
   type?: "chaussures" | "vetements";
   availableSizes?: string[];
+  selectedSize?: string;
 }) {
-  const [shoesSizes, setShoesSizes]     = useState<ShoeRow[]>(DEFAULT_SHOES);
+  const [shoesSizes, setShoesSizes]       = useState<ShoeRow[]>(DEFAULT_SHOES);
   const [clothingSizes, setClothingSizes] = useState<ClothingRow[]>(DEFAULT_CLOTHING);
+  const selectedRowRef = useRef<HTMLTableRowElement | null>(null);
 
-  // Fetch dynamic size guide once on first open
+  // Auto-scroll to selected size when modal opens
+  useEffect(() => {
+    if (!open || !selectedSize) return;
+    const timeout = setTimeout(() => {
+      selectedRowRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+    }, 320); // after drawer slide-in
+    return () => clearTimeout(timeout);
+  }, [open, selectedSize]);
   useEffect(() => {
     if (!open) return;
     fetch("/api/size-guide")
@@ -184,26 +194,41 @@ export default function SizeGuideModal({
                   <tbody>
                     {shoesSizes.map((row, i) => {
                       const isAvailable = availableSizes.includes(row.eu);
+                      const isSelected = selectedSize === row.eu;
                       return (
                         <tr
                           key={row.eu}
-                          className={`transition-colors ${
-                            isAvailable
-                              ? "bg-black/5 font-semibold"
-                              : i % 2 === 0
-                              ? "bg-white"
-                              : "bg-neutral-50"
-                          }`}
+                          ref={isSelected ? selectedRowRef : undefined}
+                          className="transition-colors"
+                          style={
+                            isSelected
+                              ? { backgroundColor: "#f0fdf4", borderLeft: "3px solid #3ecf4c" }
+                              : isAvailable
+                              ? { backgroundColor: "rgba(0,0,0,0.04)" }
+                              : { backgroundColor: i % 2 === 0 ? "#fff" : "#fafafa" }
+                          }
                         >
-                          <td className="py-3 px-3 font-bold flex items-center justify-center gap-1.5">
-                            {row.eu}
-                            {isAvailable && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-black inline-block" />
-                            )}
+                          <td className="py-3 px-3 font-bold">
+                            <div className="flex items-center justify-center gap-1.5">
+                              {isSelected && (
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                              )}
+                              <span className={isSelected ? "text-[#166534] font-black" : ""}>{row.eu}</span>
+                              {isSelected && (
+                                <span className="text-[9px] font-black uppercase tracking-wide text-[#166534] border border-[#86efac] bg-[#dcfce7] px-1.5 py-0.5 rounded-full leading-none">
+                                  Votre taille
+                                </span>
+                              )}
+                              {!isSelected && isAvailable && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 inline-block" />
+                              )}
+                            </div>
                           </td>
-                          <td className={`py-3 px-3 ${isAvailable ? "text-black" : "text-neutral-500"}`}>{row.us}</td>
-                          <td className={`py-3 px-3 ${isAvailable ? "text-black" : "text-neutral-500"}`}>{row.uk}</td>
-                          <td className={`py-3 px-3 ${isAvailable ? "text-black" : "text-neutral-500"}`}>{row.cm}</td>
+                          <td className={`py-3 px-3 ${isSelected ? "text-[#166534] font-semibold" : isAvailable ? "font-semibold" : "text-neutral-500"}`}>{row.us}</td>
+                          <td className={`py-3 px-3 ${isSelected ? "text-[#166534] font-semibold" : isAvailable ? "font-semibold" : "text-neutral-500"}`}>{row.uk}</td>
+                          <td className={`py-3 px-3 ${isSelected ? "text-[#166534] font-semibold" : isAvailable ? "font-semibold" : "text-neutral-500"}`}>{row.cm}</td>
                         </tr>
                       );
                     })}
@@ -222,26 +247,41 @@ export default function SizeGuideModal({
                   <tbody>
                     {clothingSizes.map((row, i) => {
                       const isAvailable = availableSizes.includes(row.label);
+                      const isSelected = selectedSize === row.label;
                       return (
                         <tr
                           key={row.label}
-                          className={`transition-colors ${
-                            isAvailable
-                              ? "bg-black/5 font-semibold"
-                              : i % 2 === 0
-                              ? "bg-white"
-                              : "bg-neutral-50"
-                          }`}
+                          ref={isSelected ? selectedRowRef : undefined}
+                          className="transition-colors"
+                          style={
+                            isSelected
+                              ? { backgroundColor: "#f0fdf4", borderLeft: "3px solid #3ecf4c" }
+                              : isAvailable
+                              ? { backgroundColor: "rgba(0,0,0,0.04)" }
+                              : { backgroundColor: i % 2 === 0 ? "#fff" : "#fafafa" }
+                          }
                         >
-                          <td className="py-3 px-3 font-bold flex items-center justify-center gap-1.5">
-                            {row.label}
-                            {isAvailable && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-black inline-block" />
-                            )}
+                          <td className="py-3 px-3 font-bold">
+                            <div className="flex items-center justify-center gap-1.5">
+                              {isSelected && (
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                              )}
+                              <span className={isSelected ? "text-[#166534] font-black" : ""}>{row.label}</span>
+                              {isSelected && (
+                                <span className="text-[9px] font-black uppercase tracking-wide text-[#166534] border border-[#86efac] bg-[#dcfce7] px-1.5 py-0.5 rounded-full leading-none">
+                                  Votre taille
+                                </span>
+                              )}
+                              {!isSelected && isAvailable && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 inline-block" />
+                              )}
+                            </div>
                           </td>
-                          <td className={`py-3 px-3 ${isAvailable ? "text-black" : "text-neutral-500"}`}>{row.fr}</td>
-                          <td className={`py-3 px-3 ${isAvailable ? "text-black" : "text-neutral-500"}`}>{row.poitrine}</td>
-                          <td className={`py-3 px-3 ${isAvailable ? "text-black" : "text-neutral-500"}`}>{row.taille}</td>
+                          <td className={`py-3 px-3 ${isSelected ? "text-[#166534] font-semibold" : isAvailable ? "font-semibold" : "text-neutral-500"}`}>{row.fr}</td>
+                          <td className={`py-3 px-3 ${isSelected ? "text-[#166534] font-semibold" : isAvailable ? "font-semibold" : "text-neutral-500"}`}>{row.poitrine}</td>
+                          <td className={`py-3 px-3 ${isSelected ? "text-[#166534] font-semibold" : isAvailable ? "font-semibold" : "text-neutral-500"}`}>{row.taille}</td>
                         </tr>
                       );
                     })}
@@ -250,11 +290,23 @@ export default function SizeGuideModal({
               )}
             </div>
 
-            {availableSizes.length > 0 && (
-              <p className="text-[11px] text-neutral-400 mt-3 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-black inline-block" />
-                Tailles disponibles pour ce produit
-              </p>
+            {(availableSizes.length > 0 || selectedSize) && (
+              <div className="flex flex-col gap-1.5 mt-3">
+                {selectedSize && (
+                  <p className="text-[11px] text-[#166534] flex items-center gap-1.5 font-semibold">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Taille {selectedSize} sélectionnée
+                  </p>
+                )}
+                {availableSizes.length > 0 && (
+                  <p className="text-[11px] text-neutral-400 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 inline-block" />
+                    Tailles disponibles pour ce produit
+                  </p>
+                )}
+              </div>
             )}
           </div>
 

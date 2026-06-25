@@ -65,17 +65,40 @@ export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const { isStaff, submitForApproval } = useApproval();
+  const [pendingProducts, setPendingProducts] = useState<Array<{
+    id: string; action: string; description: string;
+    payload: Record<string, unknown> | null; created_at: string;
+  }>>([]);
+  const { isStaff, userEmail, ready, submitForApproval } = useApproval();
 
   const showForm = isNew || !!editId;
 
   const load = useCallback(async () => {
+    if (!ready) return;
     setLoading(true);
-    const res = await fetch("/api/products");
-    const data = await res.json();
-    setProducts(Array.isArray(data) ? data : []);
+    if (isStaff && userEmail) {
+      // Staff: only their own approved products + their pending approvals
+      const [prodRes, approvalRes] = await Promise.all([
+        fetch(`/api/products?created_by=${encodeURIComponent(userEmail)}`),
+        fetch("/api/admin/approvals?status=pending"),
+      ]);
+      const prodData = await prodRes.json();
+      const approvalData = await approvalRes.json();
+      setProducts(Array.isArray(prodData) ? prodData : []);
+      const myPending = (Array.isArray(approvalData) ? approvalData : []).filter(
+        (c: { staff_email: string; entity_type: string }) =>
+          c.staff_email === userEmail && c.entity_type === "product"
+      );
+      setPendingProducts(myPending);
+    } else {
+      // Owner: all products
+      const res = await fetch("/api/products");
+      const data = await res.json();
+      setProducts(Array.isArray(data) ? data : []);
+      setPendingProducts([]);
+    }
     setLoading(false);
-  }, []);
+  }, [ready, isStaff, userEmail]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -915,7 +938,11 @@ export default function ProductsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-black">Produits</h1>
-          <p className="text-neutral-500 text-sm mt-0.5">{products.length} produit{products.length !== 1 ? "s" : ""} au total</p>
+          <p className="text-neutral-500 text-sm mt-0.5">
+            {isStaff
+              ? `${products.length} produit${products.length !== 1 ? "s" : ""} approuvé${products.length !== 1 ? "s" : ""} · vos ajouts uniquement`
+              : `${products.length} produit${products.length !== 1 ? "s" : ""} au total`}
+          </p>
         </div>
         <button onClick={() => router.push("/admin/products?new=1")}
           className="bg-black text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-neutral-800 flex items-center gap-2">
@@ -923,6 +950,46 @@ export default function ProductsPage() {
           Nouveau produit
         </button>
       </div>
+
+      {/* Pending approvals banner — staff only */}
+      {isStaff && pendingProducts.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-5">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <p className="text-sm font-bold text-amber-800">
+              {pendingProducts.length} demande{pendingProducts.length > 1 ? "s" : ""} en attente d&apos;approbation
+            </p>
+          </div>
+          <div className="space-y-2">
+            {pendingProducts.map((pending) => {
+              const pl = pending.payload as Record<string, unknown> | null;
+              const img = Array.isArray(pl?.images) ? (pl!.images as string[])[0] : null;
+              const name = typeof pl?.name === "string" ? pl.name : pending.description;
+              const actionLabel = pending.action === "create" ? "Nouveau produit" : pending.action === "update" ? "Modification" : "Suppression";
+              return (
+                <div key={pending.id} className="bg-white rounded-xl p-3 flex items-center gap-3 border border-amber-100">
+                  <div className="w-10 h-10 rounded-lg bg-neutral-100 overflow-hidden shrink-0">
+                    {img
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={img} alt="" className="w-full h-full object-cover" />
+                      : <div className="w-full h-full flex items-center justify-center">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        </div>
+                    }
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold truncate">{name}</p>
+                    <p className="text-[11px] text-neutral-400">{actionLabel} · en attente de validation</p>
+                  </div>
+                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 shrink-0 whitespace-nowrap">
+                    En attente
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-xs">
@@ -946,8 +1013,24 @@ export default function ProductsPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white rounded-2xl border border-neutral-100 p-12 text-center">
-          <p className="text-neutral-500 text-sm">Aucun produit trouvé</p>
-          <button onClick={() => router.push("/admin/products?new=1")} className="mt-3 text-sm font-bold text-black underline underline-offset-2">Créer le premier produit</button>
+          {isStaff ? (
+            <>
+              <div className="text-4xl mb-3">📦</div>
+              <p className="text-neutral-700 font-bold text-sm">Aucun produit approuvé pour l&apos;instant</p>
+              <p className="text-neutral-400 text-xs mt-1 max-w-xs mx-auto">
+                Vos produits apparaîtront ici une fois approuvés par l&apos;administrateur.
+                {pendingProducts.length > 0 && ` Vous avez ${pendingProducts.length} demande${pendingProducts.length > 1 ? "s" : ""} en attente.`}
+              </p>
+              <button onClick={() => router.push("/admin/products?new=1")} className="mt-4 text-sm font-bold text-black underline underline-offset-2">
+                Soumettre un nouveau produit →
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-neutral-500 text-sm">Aucun produit trouvé</p>
+              <button onClick={() => router.push("/admin/products?new=1")} className="mt-3 text-sm font-bold text-black underline underline-offset-2">Créer le premier produit</button>
+            </>
+          )}
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-neutral-100 overflow-x-auto">
@@ -1000,10 +1083,16 @@ export default function ProductsPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
+                    {isStaff ? (
+                      <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${p.active ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
+                        {p.active ? "Actif" : "Inactif"}
+                      </span>
+                    ) : (
                     <button onClick={() => toggleActive(p)}
                       className={`text-[11px] font-bold px-2.5 py-1 rounded-full transition-colors ${p.active ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : "bg-red-50 text-red-600 hover:bg-red-100"}`}>
                       {p.active ? "Actif" : "Inactif"}
                     </button>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">

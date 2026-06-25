@@ -25,6 +25,8 @@ type HookReturn = {
   userEmail: string;
   /** Display name of the current user */
   userName: string;
+  /** True once auth + permissions have both resolved */
+  ready: boolean;
   /**
    * Submit a change for owner approval.
    * Returns `{ submitted: true }` on success, `{ submitted: false, error }` on failure.
@@ -64,10 +66,11 @@ export function useApproval(): HookReturn {
   const [isStaff, setIsStaff] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user?.email) return;
+      if (!user?.email) { setReady(true); return; }
       const email = user.email;
       const name = user.user_metadata?.name || email.split("@")[0];
       setUserEmail(email);
@@ -77,8 +80,9 @@ export function useApproval(): HookReturn {
         .then(r => r.json())
         .then(({ isStaff: staffFlag }: { isStaff: boolean }) => {
           setIsStaff(!!staffFlag);
+          setReady(true);
         })
-        .catch(() => {});
+        .catch(() => { setReady(true); });
     });
   }, []);
 
@@ -110,5 +114,5 @@ export function useApproval(): HookReturn {
     }
   }
 
-  return { isStaff, userEmail, userName, submitForApproval };
+  return { isStaff, userEmail, userName, ready, submitForApproval };
 }

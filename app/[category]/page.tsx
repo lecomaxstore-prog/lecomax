@@ -9,7 +9,7 @@ import {
   subCategoriesFor,
   type CardProduct,
 } from "@/lib/products";
-import { getDbProducts } from "@/lib/db-server";
+import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import CategoryFilters from "@/components/CategoryFilters";
 
 const valid = new Set(categories.map((c) => c.slug));
@@ -100,12 +100,20 @@ export default async function CategoryPage({
   const cat = categories.find((c) => c.slug === category)!;
 
   // Fetch DB products + static products, deduplicated by slug
-  const [dbProducts, staticList] = await Promise.all([
+  const [dbProducts, staticList, reviewStats] = await Promise.all([
     getDbProducts({ category, activeOnly: true }),
     Promise.resolve(productsByCategory(category) as CardProduct[]),
+    getReviewStats(),
   ]);
   const dbSlugs = new Set(dbProducts.map((p) => p.slug));
-  const list: CardProduct[] = [...dbProducts, ...staticList.filter((p) => !dbSlugs.has(p.slug))];
+  const list: CardProduct[] = [
+    ...dbProducts,
+    ...staticList.filter((p) => !dbSlugs.has(p.slug)),
+  ].map((p) => ({
+    ...p,
+    rating: reviewStats[p.slug]?.rating ?? p.rating,
+    reviewCount: reviewStats[p.slug]?.count ?? p.reviewCount,
+  }));
 
   // Build subCategories from merged list
   const subCategoriesFromDb = [...new Set(dbProducts.map((p) => p.subCategory).filter(Boolean))] as string[];

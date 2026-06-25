@@ -55,18 +55,22 @@ function BoutiqueContent() {
   const setSort = (sort: SortId) => { setActiveSort(sort); updateURL(activeCategory, sort); };
 
   useEffect(() => {
-    fetch("/api/products?active=true")
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          const cards = data.map(apiToCard);
-          // deduplicate by slug (prefer DB version)
-          const staticSlugs = new Set(cards.map((p) => p.slug));
-          const merged = [...cards, ...staticProducts.filter((p) => !staticSlugs.has(p.slug))];
-          setDbProducts(merged);
-        }
-      })
-      .catch(() => {});
+    Promise.all([
+      fetch("/api/products?active=true").then((r) => r.json()),
+      fetch("/api/reviews/stats").then((r) => r.json()).catch(() => ({})),
+    ]).then(([data, reviewStats]) => {
+      if (Array.isArray(data)) {
+        const cards = data.map(apiToCard).map((p: CardProduct) => ({
+          ...p,
+          rating: (reviewStats as Record<string, { rating: number; count: number }>)[p.slug]?.rating,
+          reviewCount: (reviewStats as Record<string, { rating: number; count: number }>)[p.slug]?.count,
+        }));
+        // deduplicate by slug (prefer DB version)
+        const staticSlugs = new Set(cards.map((p: CardProduct) => p.slug));
+        const merged = [...cards, ...staticProducts.filter((p) => !staticSlugs.has(p.slug))];
+        setDbProducts(merged);
+      }
+    }).catch(() => {});
   }, []);
 
   const allProducts: CardProduct[] = dbProducts.length > 0 ? dbProducts : staticProducts;

@@ -522,7 +522,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   async function logout() {
     await supabase.auth.signOut();
-    document.cookie = "admin_session=; path=/; max-age=0; SameSite=Strict";
+    await fetch("/api/admin/auth/session", { method: "DELETE" });
     document.cookie = "staff_permissions=; path=/; max-age=0; SameSite=Strict";
     router.replace("/admin");
   }

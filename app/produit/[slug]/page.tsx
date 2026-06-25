@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatMAD, getProduct, products, type Product } from "@/lib/products";
 import { getDbProductRaw } from "@/lib/db-server";
@@ -287,7 +287,8 @@ export default async function ProductPage({
   const displayRating = reviewCount > 0 ? reviewRating : ratingFor(slug).rating;
   const displayReviewCount = reviewCount > 0 ? reviewCount : ratingFor(slug).count;
 
-  // Fetch color_stock from DB and compute out-of-stock colors
+  // Fetch color_stock and stock from DB
+  let realStock: number | null = null;
   try {
     const { createClient: createClient2 } = await import("@supabase/supabase-js");
     const supa2 = createClient2(
@@ -296,7 +297,7 @@ export default async function ProductPage({
     );
     const { data: stockData } = await supa2
       .from("products")
-      .select("color_stock")
+      .select("color_stock, stock")
       .eq("slug", slug)
       .single();
     if (stockData?.color_stock && typeof stockData.color_stock === "object") {
@@ -306,6 +307,9 @@ export default async function ProductPage({
         const existing = product.outOfStockColors ?? [];
         product = { ...product, outOfStockColors: [...new Set([...existing, ...dbOos])] };
       }
+    }
+    if (typeof stockData?.stock === "number" && stockData.stock >= 0) {
+      realStock = stockData.stock;
     }
   } catch { /* non-critical */ }
 
@@ -391,8 +395,22 @@ export default async function ProductPage({
     ],
   };
   const features = (product.specs && product.specs.length > 0) ? product.specs : getFeatures(product.subCategory);
+  // Gender-aware related: femme products only show femme, homme only homme
+  const productGender =
+    product.slug.includes("femme") || product.name.toLowerCase().includes("femme") || product.category === "femme"
+      ? "femme"
+      : product.slug.includes("homme") || product.name.toLowerCase().includes("homme") || product.category === "homme"
+      ? "homme"
+      : null;
   const related = products
-    .filter((p) => p.category === product.category && p.slug !== product.slug)
+    .filter((p) => {
+      if (p.category !== product.category || p.slug === product.slug) return false;
+      if (productGender === "femme")
+        return p.slug.includes("femme") || p.name.toLowerCase().includes("femme");
+      if (productGender === "homme")
+        return p.slug.includes("homme") || p.name.toLowerCase().includes("homme");
+      return true;
+    })
     .slice(0, 4);
   const allImages = [product.image, ...product.gallery];
 
@@ -525,7 +543,8 @@ export default async function ProductPage({
 
           {/* Urgency / scarcity signal */}
           {(() => {
-            const stock = stockFor(product.slug);
+            const stock = realStock === 0 ? null : (product.urgencyStock ?? (realStock !== null && realStock > 0 ? realStock : stockFor(product.slug)));
+            if (!stock) return null;
             return (
               <div className="flex items-center gap-2 py-2.5 px-3.5 bg-amber-50 border border-amber-200 rounded-lg mb-4">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />

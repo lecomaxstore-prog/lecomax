@@ -13,6 +13,8 @@ export default function AdminLoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // Honeypot: bots fill hidden fields; humans never see them
+  const [_hp, setHp] = useState("");
 
   // Restore saved email on mount (localStorage — persists across sessions)
   useEffect(() => {
@@ -25,19 +27,35 @@ export default function AdminLoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    // If the honeypot field was filled, this is a bot — fail silently
+    if (_hp) { setLoading(false); return; }
     setLoading(true);
     const { data: authData, error: err } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (err) {
       setError("Email ou mot de passe incorrect.");
     } else {
-      const maxAge = rememberMe ? 2592000 : 86400;
       if (rememberMe) {
         try { localStorage.setItem(SAVED_EMAIL_KEY, email); } catch {}
       } else {
         try { localStorage.removeItem(SAVED_EMAIL_KEY); } catch {}
       }
-      document.cookie = `admin_session=authenticated; path=/; max-age=${maxAge}; SameSite=Strict`;
+
+      // Set session via server-side endpoint so the cookie is HttpOnly
+      const sessionRes = await fetch("/api/admin/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          access_token: authData.session?.access_token,
+          email: authData.user?.email,
+          rememberMe,
+        }),
+      });
+      if (!sessionRes.ok) {
+        setLoading(false);
+        setError("Erreur lors de la création de la session. Réessayez.");
+        return;
+      }
 
       // Check if this user is a staff member (restricted access)
       if (authData?.user?.email) {
@@ -47,7 +65,8 @@ export default function AdminLoginPage() {
 
           if (isStaff) {
             // Always set cookie — empty array means dashboard only
-            document.cookie = `staff_permissions=${encodeURIComponent(JSON.stringify(permissions))}; path=/; max-age=${maxAge}; SameSite=Strict`;
+            const staffMaxAge = rememberMe ? 2592000 : 86400;
+            document.cookie = `staff_permissions=${encodeURIComponent(JSON.stringify(permissions))}; path=/; max-age=${staffMaxAge}; SameSite=Strict`;
           } else {
             // Main owner → clear any stale staff cookie
             document.cookie = "staff_permissions=; path=/; max-age=0; SameSite=Strict";
@@ -121,6 +140,17 @@ export default function AdminLoginPage() {
 
           <div className="bg-white border border-neutral-100 rounded-2xl p-6 shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
             <form onSubmit={handleLogin} className="space-y-4">
+              {/* Honeypot trap — invisible to humans, bots fill it and get blocked */}
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                value={_hp}
+                onChange={(e) => setHp(e.target.value)}
+                style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", opacity: 0 }}
+              />
 
               {/* Email */}
               <div>

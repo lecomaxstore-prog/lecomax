@@ -52,13 +52,18 @@ export async function PATCH(
   if (body.decision === "approve" && change.api_endpoint && change.api_method && change.payload) {
     try {
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+      // Inject created_by for product creations so staff can see their approved products
+      const applyPayload =
+        change.entity_type === "product" && change.action === "create"
+          ? { ...change.payload, created_by: change.staff_email }
+          : change.payload;
       const applyRes = await fetch(`${baseUrl}${change.api_endpoint}`, {
         method: change.api_method,
         headers: {
           "Content-Type": "application/json",
           "x-approval-token": process.env.INTERNAL_APPROVAL_TOKEN ?? "approval-internal",
         },
-        body: JSON.stringify(change.payload),
+        body: JSON.stringify(applyPayload),
       });
       if (!applyRes.ok) {
         const errText = await applyRes.text().catch(() => "");

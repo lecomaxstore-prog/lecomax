@@ -14,8 +14,11 @@ export async function GET(req: NextRequest) {
   const search = searchParams.get("search");
   const limit = searchParams.get("limit");
 
+  const createdBy = searchParams.get("created_by");
+
   let query = supabase.from("products").select("*").order("created_at", { ascending: false });
 
+  if (createdBy) query = query.eq("created_by", createdBy);
   if (category) query = query.eq("category", category);
   if (active === "true") query = query.eq("active", true);
   if (search) {

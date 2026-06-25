@@ -12,7 +12,7 @@ const ScrollReveal = dynamic(() => import("@/components/ScrollReveal"));
 const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
 import { products as staticProducts, type CardProduct } from "@/lib/products";
-import { getDbProducts } from "@/lib/db-server";
+import { getDbProducts, getReviewStats } from "@/lib/db-server";
 
 const SITE_URL_PAGE = "https://lecomax.com";
 
@@ -83,15 +83,20 @@ async function getHeroImages() {
 
 export default async function HomePage() {
   // Merge DB products with static, DB products appear first
-  const [dbProducts, heroImages] = await Promise.all([
+  const [dbProducts, heroImages, reviewStats] = await Promise.all([
     getDbProducts({ activeOnly: true }),
     getHeroImages(),
+    getReviewStats(),
   ]);
   const dbSlugs = new Set(dbProducts.map((p) => p.slug));
   const allProducts: CardProduct[] = [
     ...dbProducts,
     ...(staticProducts as CardProduct[]).filter((p) => !dbSlugs.has(p.slug)),
-  ];
+  ].map((p) => ({
+    ...p,
+    rating: reviewStats[p.slug]?.rating ?? p.rating,
+    reviewCount: reviewStats[p.slug]?.count ?? p.reviewCount,
+  }));
 
   const newArrivals = allProducts.filter((p) => p.badge === "Nouveau");
   const bestSellers = allProducts.filter((p) => p.badge === "Bestseller");

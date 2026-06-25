@@ -26,21 +26,71 @@ export async function POST(req: NextRequest) {
 
   const email = body.email.toLowerCase().trim();
   const name = body.name.trim();
+  const password: string = body.password;
 
-  // 1. Create Supabase auth account directly (no invite link needed)
+  // Server-side password strength check
+  if (password.length < 8) {
+    return NextResponse.json(
+      { error: "Le mot de passe doit contenir au moins 8 caractères." },
+      { status: 400 }
+    );
+  }
+
+  // 1. Create Supabase auth account (or reuse if it already exists from a previous deletion)
+  let authUserId: string;
   const { data: authData, error: authError } = await supabase.auth.admin.createUser({
     email,
-    password: body.password,
+    password: password,
     email_confirm: true,
     user_metadata: { name },
   });
 
   if (authError) {
     const msg = authError.message.toLowerCase();
-    if (msg.includes("already registered") || msg.includes("already exists") || msg.includes("email_exists") || msg.includes("unique")) {
-      return NextResponse.json({ error: "Cet email est déjà enregistré" }, { status: 409 });
+    const alreadyExists =
+      msg.includes("already registered") ||
+      msg.includes("already been registered") ||
+      msg.includes("already exists") ||
+      msg.includes("email_exists") ||
+      msg.includes("unique");
+
+    if (alreadyExists) {
+      // Auth user exists (leftover from a previous deletion) — find them via REST, update password, reuse
+      const listRes = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users?per_page=50`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+            apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          },
+        }
+      );
+      const listData = await listRes.json();
+      const existing = (listData.users ?? []).find(
+        (u: { email: string; id: string }) => u.email === email
+      );
+      if (!existing) {
+        return NextResponse.json({ error: "Cet email est déjà enregistré" }, { status: 409 });
+      }
+      // Update the password so the new credentials work
+      await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users/${existing.id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+            apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ password: body.password, user_metadata: { name }, email_confirm: true }),
+        }
+      );
+      authUserId = existing.id;
+    } else {
+      return NextResponse.json({ error: authError.message }, { status: 500 });
     }
-    return NextResponse.json({ error: authError.message }, { status: 500 });
+  } else {
+    authUserId = authData.user!.id;
   }
 
   // 2. Save staff record in admin_staff table
@@ -57,7 +107,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) {
-    // Cleanup: delete the auth user we just created
+    // Cleanup: delete the auth user only if we just created it (not if we reused it)
     if (authData?.user?.id) {
       await supabase.auth.admin.deleteUser(authData.user.id).catch(() => {});
     }

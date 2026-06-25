@@ -53,6 +53,29 @@ export async function getDbProducts(options?: {
   }
 }
 
+/** Fetch average rating + count per product slug from the reviews table. */
+export async function getReviewStats(): Promise<Record<string, { rating: number; count: number }>> {
+  try {
+    const sb = getClient();
+    const { data } = await sb.from("reviews").select("product_slug,rating");
+    if (!data || data.length === 0) return {};
+    const acc: Record<string, { sum: number; count: number }> = {};
+    for (const r of data as { product_slug: string; rating: number }[]) {
+      if (!acc[r.product_slug]) acc[r.product_slug] = { sum: 0, count: 0 };
+      acc[r.product_slug].sum += r.rating;
+      acc[r.product_slug].count++;
+    }
+    return Object.fromEntries(
+      Object.entries(acc).map(([slug, { sum, count }]) => [
+        slug,
+        { rating: Math.round((sum / count) * 10) / 10, count },
+      ])
+    );
+  } catch {
+    return {};
+  }
+}
+
 /** Returns the raw API product (all fields) for the product detail page. */
 export async function getDbProductRaw(slug: string): Promise<ApiProduct | null> {
   try {

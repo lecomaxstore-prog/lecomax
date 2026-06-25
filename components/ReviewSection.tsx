@@ -164,8 +164,8 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
         </div>
         <div className="flex items-center gap-3 bg-neutral-50 border border-neutral-100 px-4 py-3">
           <div>
-            <p className="text-3xl font-black leading-none">{cardRating.toFixed(1)}</p>
-            <StarRow rating={Math.round(cardRating)} size={10} />
+            <p className="text-3xl font-black leading-none">{avg.toFixed(1)}</p>
+            <StarRow rating={Math.round(avg)} size={10} />
             <p className="text-[11px] text-neutral-400 mt-1">{displayCount} avis</p>
           </div>
         </div>

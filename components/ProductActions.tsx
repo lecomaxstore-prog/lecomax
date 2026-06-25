@@ -169,9 +169,10 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const effectiveColorImages = colorImagesProp ?? product.colorImages;
   const hasColorImages = !!(effectiveColorImages);
   const outOfStockColors = product.outOfStockColors ?? [];
-  const availableSizes = ((product.colorSizes && color && product.colorSizes[color])
+  const outOfStockSizes = product.outOfStockSizes ?? [];
+  const availableSizes = (((product.colorSizes && color && product.colorSizes[color])
     ? product.colorSizes[color]
-    : product.sizes) ?? [];
+    : product.sizes) ?? []).filter((s) => !outOfStockSizes.includes(s));
 
   const [size, setSize] = useState<string | null>(
     (product.sizes ?? []).length === 1 && product.sizes[0] === "Taille unique" ? "Taille unique" : null
@@ -270,13 +271,12 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
                   return (
                     <button
                       key={c}
-                      onClick={() => { if (!isOOS) { setColor(c); setColorModalOpen(false); } }}
-                      disabled={isOOS}
+                      onClick={() => { setColor(c); setColorModalOpen(false); }}
                       className={`flex items-center gap-4 w-full text-left rounded-xl px-3 py-3 transition-all border ${
                         isSelected
                           ? "border-black bg-neutral-50"
                           : isOOS
-                          ? "border-neutral-100 opacity-50 cursor-not-allowed"
+                          ? "border-neutral-100 opacity-50 hover:border-neutral-200 hover:bg-neutral-50 cursor-pointer"
                           : "border-neutral-100 hover:border-neutral-300 hover:bg-neutral-50 cursor-pointer"
                       }`}
                     >
@@ -352,9 +352,9 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
                   <button
                     key={c}
                     title={isOOS ? `${c} — Rupture de stock` : c}
-                    onClick={() => { if (!isOOS) setColor(c); }}
+                    onClick={() => setColor(c)}
                     className={`relative flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden border-2 transition-all ${
-                      isOOS ? "opacity-40 cursor-not-allowed" :
+                      isOOS ? "opacity-50 cursor-pointer" :
                       isSelected ? "border-black shadow-sm" : "border-neutral-200 hover:border-neutral-400"
                     }`}
                   >
@@ -542,6 +542,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
           : product.category === "chaussures" ? "chaussures" : "vetements"
         }
         availableSizes={availableSizes}
+        selectedSize={size ?? undefined}
       />
     </div>
   );
