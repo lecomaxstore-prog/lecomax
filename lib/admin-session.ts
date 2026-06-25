@@ -11,11 +11,11 @@
 
 const ENCODER = new TextEncoder();
 
-function getKeyMaterial(): Uint8Array {
+function getKeyMaterial(): Uint8Array<ArrayBuffer> {
   const secret =
     process.env.SUPABASE_SERVICE_ROLE_KEY ??
     "dev-only-fallback-not-for-production-please-set-env";
-  return ENCODER.encode(secret);
+  return ENCODER.encode(secret) as Uint8Array<ArrayBuffer>;
 }
 
 async function importHmacKey(usage: "sign" | "verify"): Promise<CryptoKey> {
