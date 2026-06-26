@@ -23,28 +23,29 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const name = product.displayName ?? product.name;
     const desc = product.description
       ? product.description.slice(0, 155) + (product.description.length > 155 ? "…" : "")
-      : `Achetez ${name} sur L'ecomax. Livraison 35 MAD partout au Maroc.`;
+      : `Achetez ${name} sur L'ecomax. Livraison 35 MAD partout au Maroc. Paiement à la livraison.`;
     const imgUrl = product.image
       ? product.image.startsWith("http")
         ? product.image
         : `${PRODUCT_SITE_URL}${product.image}`
       : `${PRODUCT_SITE_URL}/ecomax-hero-banner.jpg.png`;
+    const title = `${name} — Acheter au Maroc | L'ecomax`;
     return {
-      title: `${name} | L'ecomax`,
+      title,
       description: desc,
-      keywords: [name, product.category, "L'ecomax", "acheter Maroc", "livraison Maroc"],
-      alternates: { canonical: `/produit/${slug}` },
+      keywords: [name, product.category, "L'ecomax", "acheter Maroc", "livraison Maroc", "paiement à la livraison", `${product.category} Maroc`],
+      alternates: { canonical: `${PRODUCT_SITE_URL}/produit/${slug}/` },
       openGraph: {
         type: "website",
         locale: "fr_MA",
-        url: `${PRODUCT_SITE_URL}/produit/${slug}`,
-        title: name,
+        url: `${PRODUCT_SITE_URL}/produit/${slug}/`,
+        title,
         description: desc,
         images: [{ url: imgUrl, width: 800, height: 800, alt: name }],
       },
       twitter: {
         card: "summary_large_image",
-        title: `${name} | L'ecomax`,
+        title,
         description: desc,
         images: [imgUrl],
       },
@@ -61,23 +62,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         : `${PRODUCT_SITE_URL}/ecomax-hero-banner.jpg.png`;
       const desc = dbProd.description
         ? dbProd.description.slice(0, 155) + (dbProd.description.length > 155 ? "…" : "")
-        : `Achetez ${dbProd.name} sur L'ecomax. Livraison 35 MAD partout au Maroc.`;
+        : `Achetez ${dbProd.name} sur L'ecomax. Livraison 35 MAD partout au Maroc. Paiement à la livraison.`;
+      const dbTitle = `${dbProd.name} — Acheter au Maroc | L'ecomax`;
       return {
-        title: `${dbProd.name} | L'ecomax`,
+        title: dbTitle,
         description: desc,
-        keywords: [dbProd.name, dbProd.category, "L'ecomax", "acheter Maroc", "livraison Maroc"],
-        alternates: { canonical: `/produit/${slug}` },
+        keywords: [dbProd.name, dbProd.category, "L'ecomax", "acheter Maroc", "livraison Maroc", "paiement à la livraison", `${dbProd.category} Maroc`],
+        alternates: { canonical: `${PRODUCT_SITE_URL}/produit/${slug}/` },
         openGraph: {
           type: "website",
           locale: "fr_MA",
-          url: `${PRODUCT_SITE_URL}/produit/${slug}`,
-          title: dbProd.name,
+          url: `${PRODUCT_SITE_URL}/produit/${slug}/`,
+          title: dbTitle,
           description: desc,
           images: [{ url: imgUrl, width: 800, height: 800, alt: dbProd.name }],
         },
         twitter: {
           card: "summary_large_image",
-          title: `${dbProd.name} | L'ecomax`,
+          title: dbTitle,
           description: desc,
           images: [imgUrl],
         },
