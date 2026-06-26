@@ -30,8 +30,11 @@ export function ratingFor(slug: string) {
 
 export default function ProductCard({ product }: { product: CardProduct }) {
   const [wished, setWished] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const rating = product.rating ?? 0;
   const count = product.reviewCount ?? 0;
+
+  useEffect(() => setMounted(true), []);
   const onSale = product.oldPrice && product.oldPrice > product.price;
   const discount = onSale ? Math.round((1 - product.price / product.oldPrice!) * 100) : 0;
 
@@ -124,8 +127,8 @@ export default function ProductCard({ product }: { product: CardProduct }) {
           {product.name}
         </h3>
 
-        {/* Rating — only show when there are real reviews */}
-        {count > 0 && (
+        {/* Rating — only show when there are real reviews, after hydration */}
+        {mounted && count > 0 && (
         <div className="flex items-center gap-1.5 mt-2">
           <div className="flex items-center gap-[1.5px]">
             {Array.from({ length: 5 }).map((_, i) => {
