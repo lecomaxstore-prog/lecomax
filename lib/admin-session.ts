@@ -106,3 +106,44 @@ export async function verifySessionToken(
     return null;
   }
 }
+
+/**
+ * Create a signed token encoding a staff member's permission slugs.
+ * Format (before base64url): `<json_array>.<hmac_sha256_hex>`
+ */
+export async function createStaffPermissionsToken(permissions: string[]): Promise<string> {
+  const payload = JSON.stringify(permissions);
+  const key = await importHmacKey("sign");
+  const sigBuf = await crypto.subtle.sign("HMAC", key, ENCODER.encode(payload));
+  const sigHex = Array.from(new Uint8Array(sigBuf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  return b64uEncode(`${payload}.${sigHex}`);
+}
+
+/**
+ * Verify a signed staff-permissions token.
+ * Returns the permissions array if valid, or `null` if tampered / malformed.
+ */
+export async function verifyStaffPermissionsToken(token: string): Promise<string[] | null> {
+  try {
+    const decoded = b64uDecode(token);
+    const dotIdx = decoded.lastIndexOf(".");
+    if (dotIdx === -1) return null;
+    const payload = decoded.slice(0, dotIdx);
+    const sigHex  = decoded.slice(dotIdx + 1);
+
+    const key = await importHmacKey("verify");
+    const sigBytes = new Uint8Array(
+      (sigHex.match(/.{2}/g) ?? []).map((b) => parseInt(b, 16))
+    );
+    const valid = await crypto.subtle.verify("HMAC", key, sigBytes, ENCODER.encode(payload));
+    if (!valid) return null;
+
+    const perms = JSON.parse(payload);
+    if (!Array.isArray(perms)) return null;
+    return perms as string[];
+  } catch {
+    return null;
+  }
+}

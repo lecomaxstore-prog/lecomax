@@ -64,7 +64,7 @@ export const revalidate = 60; // ISR — revalidate every 60 seconds
 async function getHeroImages() {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/settings?key=in.(hero_image,hero_image_mobile)&select=key,value`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/settings?key=in.(hero_image,hero_image_mobile,shipping_cost)&select=key,value`,
       {
         headers: {
           apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -201,6 +201,7 @@ export default async function HomePage() {
       <HeroBanner
         heroImage={heroImages.hero_image}
         heroImageMobile={heroImages.hero_image_mobile}
+        shippingCost={heroImages.shipping_cost}
       />
 
       <ProductRail

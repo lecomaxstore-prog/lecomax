@@ -170,7 +170,8 @@ export default function CouponsPage() {
             <p className="text-xs text-neutral-400 mt-1">Créez votre premier code ci-dessus</p>
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[680px]">
             <thead>
               <tr className="border-b border-neutral-100 text-[11px] text-neutral-400 uppercase tracking-wider">
                 <th className="px-5 py-3 text-left font-semibold">Code</th>
@@ -227,6 +228,7 @@ export default function CouponsPage() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

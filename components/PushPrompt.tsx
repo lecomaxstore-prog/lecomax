@@ -6,8 +6,9 @@ const VAPID_PUBLIC_KEY = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "").replac
 const LS_DONE      = "push_done";
 const LS_VISITS    = "push_visits";
 const LS_THRESHOLD = "push_threshold";
+const SS_COUNTED   = "push_counted"; // sessionStorage — one count per browser session
 const SHOW_DELAY   = 6000;
-const REMIND_AFTER = 3;
+const REMIND_AFTER = 3; // show again after 3 separate visits
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -53,7 +54,13 @@ export default function PushPrompt() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [visible, setVisible] = useState(false);
 
+  // Immediately hide if the user navigates to an admin route
   useEffect(() => {
+    if (pathname?.startsWith("/admin")) setShown(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (pathname?.startsWith("/admin")) return; // never show on admin pages
     if (typeof window === "undefined" || !("serviceWorker" in navigator) || !("PushManager" in window)) {
       setPermState("unsupported"); return;
     }
@@ -75,14 +82,19 @@ export default function PushPrompt() {
       return;
     }
 
-    const visits = (parseInt(localStorage.getItem(LS_VISITS) ?? "0", 10) || 0) + 1;
-    localStorage.setItem(LS_VISITS, String(visits));
+    // Only increment the visit counter once per browser session (not on every refresh / nav)
+    let visits = parseInt(localStorage.getItem(LS_VISITS) ?? "0", 10) || 0;
+    if (!sessionStorage.getItem(SS_COUNTED)) {
+      visits += 1;
+      localStorage.setItem(LS_VISITS, String(visits));
+      sessionStorage.setItem(SS_COUNTED, "1");
+    }
     const threshold = parseInt(localStorage.getItem(LS_THRESHOLD) ?? "3", 10) || 3;
     if (visits >= threshold) {
       const t = setTimeout(() => setShown(true), SHOW_DELAY);
       return () => clearTimeout(t);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (shown) { const t = setTimeout(() => setVisible(true), 60); return () => clearTimeout(t); }
@@ -219,81 +231,91 @@ export default function PushPrompt() {
            animation: anim,
            fontFamily: "var(--font-sans, Inter, sans-serif)",
            background: "#fff",
-           boxShadow: "0 16px 56px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.1)",
+           boxShadow: "0 24px 72px rgba(0,0,0,0.26), 0 4px 16px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)",
          }}>
       <style>{KF}</style>
 
-      {/* ── Dark header ── */}
-      <div className="relative px-5 pt-5 pb-5 overflow-hidden"
-           style={{ background: "linear-gradient(150deg,#0d0d0d 0%,#1a1a1a 100%)" }}>
+      {/* ── Header ── */}
+      <div className="relative px-5 pt-4 pb-7 overflow-hidden"
+           style={{ background: "#fff", borderBottom: "1px solid #f0f0f0" }}>
 
-        {/* Green glow top-left */}
-        <div className="absolute -top-8 -left-8 w-32 h-32 rounded-full pointer-events-none"
-             style={{ background: "radial-gradient(circle,rgba(62,207,76,0.18) 0%,transparent 70%)" }} />
+        {/* Ambient glows */}
+        <div className="absolute -top-12 -left-12 w-44 h-44 rounded-full pointer-events-none"
+             style={{ background: "radial-gradient(circle,rgba(62,207,76,0.1) 0%,transparent 68%)" }} />
+        <div className="absolute -bottom-10 right-0 w-36 h-36 rounded-full pointer-events-none"
+             style={{ background: "radial-gradient(circle,rgba(62,207,76,0.06) 0%,transparent 70%)" }} />
 
-        {/* Close (X) */}
-        <button onClick={() => dismiss(false)} aria-label="Fermer"
-          className="absolute top-3.5 right-3.5 w-7 h-7 rounded-full flex items-center justify-center transition-colors"
-          style={{ background: "rgba(255,255,255,0.07)" }}>
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-
-        {/* Brand */}
-        <div className="flex items-center gap-2.5 mb-5">
-          <div className="w-8 h-8 rounded-xl overflow-hidden flex-shrink-0"
-               style={{ outline: "2px solid rgba(255,255,255,0.08)", outlineOffset: 0 }}>
-            <img src="/favicon.png" alt="L'ecomax" className="w-full h-full object-cover" />
+        {/* Top row: Brand + Close */}
+        <div className="relative flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg overflow-hidden flex-shrink-0"
+                 style={{ outline: "1.5px solid rgba(0,0,0,0.08)", outlineOffset: 0 }}>
+              <img src="/favicon.png" alt="L'ecomax" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <p className="text-neutral-900 text-[10.5px] font-black tracking-[0.13em] leading-none">L&apos;ECOMAX</p>
+              <p className="text-[9px] font-medium tracking-[0.15em] uppercase leading-none mt-[3px]"
+                 style={{ color: "rgba(0,0,0,0.35)" }}>Mode · Tech · Sport</p>
+            </div>
           </div>
-          <div>
-            <p className="text-white text-[11px] font-black tracking-[0.12em]">L&apos;ECOMAX</p>
-            <p className="text-[10px] font-medium tracking-[0.14em] uppercase" style={{ color: "rgba(255,255,255,0.28)" }}>
-              Mode · Tech · Sport
-            </p>
-          </div>
+          <button onClick={() => dismiss(false)} aria-label="Fermer"
+            className="w-7 h-7 rounded-full flex items-center justify-center transition-colors hover:bg-black/5"
+            style={{ background: "rgba(0,0,0,0.05)" }}>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.4)" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
 
-        {/* Icon + copy */}
-        <div className="flex items-start gap-3.5">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 relative"
-               style={{ background: "rgba(62,207,76,0.12)", border: "1px solid rgba(62,207,76,0.22)", animation: "pp-ring 2.5s ease infinite" }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="1.8" strokeLinecap="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
+        {/* Hero: Centered bell + headline + social proof */}
+        <div className="relative flex flex-col items-center text-center">
+          {/* Bell icon with rings */}
+          <div className="relative flex items-center justify-center mb-4" style={{ width: 88, height: 88 }}>
+            {/* Outer ring */}
+            <div className="absolute inset-0 rounded-full pointer-events-none"
+                 style={{ border: "1px solid rgba(62,207,76,0.13)", animation: "pp-ring 3s ease infinite" }} />
+            {/* Mid ring */}
+            <div className="absolute rounded-full pointer-events-none"
+                 style={{ inset: 10, border: "1px solid rgba(62,207,76,0.22)", animation: "pp-ring 3s ease 0.7s infinite" }} />
+            {/* Icon box */}
+            <div className="absolute flex items-center justify-center rounded-[18px] z-10"
+                 style={{ inset: 20, background: "rgba(62,207,76,0.13)", border: "1px solid rgba(62,207,76,0.3)", boxShadow: "0 0 32px rgba(62,207,76,0.22)", animation: "pp-ring 2.5s ease 1.4s infinite" }}>
+              <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="1.7" strokeLinecap="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+            </div>
             {/* Live dot */}
-            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#3ecf4c]"
-                  style={{ boxShadow: "0 0 0 2px #1a1a1a" }} />
+            <span className="absolute top-[22px] right-[19px] w-3 h-3 rounded-full bg-[#3ecf4c] z-20"
+                  style={{ boxShadow: "0 0 0 2px #fff, 0 0 8px rgba(62,207,76,0.7)" }} />
           </div>
-          <div>
-            <p className="text-white font-bold text-[14px] leading-snug mb-1">
-              Restez informé en temps réel
-            </p>
-            <p className="text-[11.5px] leading-relaxed" style={{ color: "rgba(255,255,255,0.42)" }}>
-              Offres exclusives et nouveautés directement sur votre appareil.
-            </p>
-          </div>
+
+          {/* Headline */}
+          <p className="text-neutral-900 font-black text-[18px] leading-tight tracking-[-0.01em] mb-2">
+            Restez informé<br />en temps réel
+          </p>
+          <p className="text-[11.5px] leading-relaxed mb-3.5" style={{ color: "rgba(0,0,0,0.4)" }}>
+            Offres exclusives &amp; nouveautés<br />directement sur votre appareil.
+          </p>
+
+
         </div>
       </div>
 
-      {/* ── White body ── */}
-      <div className="px-5 pt-5 pb-5">
+      {/* ── Body ── */}
+      <div className="px-5 pt-4 pb-5">
 
-        {/* Benefits */}
-        <div className="space-y-2 mb-5">
+        {/* Benefits — 3-column grid */}
+        <div className="grid grid-cols-3 gap-2 mb-4">
           {[
-            { e: "🔥", t: "Offres flash & ventes privées" },
-            { e: "📦", t: "Statut commande en temps réel" },
-            { e: "🎁", t: "Codes promo en avant-première" },
+            { e: "🔥", t: "Offres flash" },
+            { e: "📦", t: "Suivi colis" },
+            { e: "🎁", t: "Codes promo" },
           ].map(({ e, t }) => (
-            <div key={t} className="flex items-center gap-3 py-2 px-3 rounded-xl"
-                 style={{ background: "#f9fafb" }}>
-              <span className="text-[16px] flex-shrink-0">{e}</span>
-              <span className="text-[12.5px] text-neutral-700 font-medium flex-1 min-w-0">{t}</span>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
+            <div key={t} className="flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl"
+                 style={{ background: "#f8faf8", border: "1px solid #f0f0f0" }}>
+              <span className="text-[20px] leading-none">{e}</span>
+              <span className="text-[10.5px] text-neutral-600 font-semibold leading-tight text-center">{t}</span>
             </div>
           ))}
         </div>
@@ -316,7 +338,7 @@ export default function PushPrompt() {
           style={{
             background: "linear-gradient(135deg,#3ecf4c 0%,#2db83a 50%,#3ecf4c 100%)",
             backgroundSize: "200% auto",
-            boxShadow: "0 4px 20px rgba(62,207,76,0.45)",
+            boxShadow: "0 6px 28px rgba(62,207,76,0.55), 0 2px 8px rgba(62,207,76,0.2)",
             animation: phase !== "loading" ? "pp-shimmer 2.8s linear infinite" : undefined,
           }}
         >

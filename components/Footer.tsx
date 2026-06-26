@@ -205,16 +205,18 @@ export default function Footer() {
                 <svg className="mt-0.5 shrink-0" style={{color:'#3ecf4c'}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                 <div>
                   <p className="text-[11px] text-white/40 uppercase tracking-wide mb-0.5">Email</p>
-                  <a href="mailto:contact@lecomax.com" className="text-[13px] text-white/80 hover:text-white transition-colors">contact@lecomax.com</a>
+                  <a href={`mailto:${siteSettings.store_email || "contact@lecomax.com"}`} className="text-[13px] text-white/80 hover:text-white transition-colors">{siteSettings.store_email || "contact@lecomax.com"}</a>
                 </div>
               </li>
+              {(siteSettings.store_city || siteSettings.store_address) && (
               <li className="flex items-start gap-3">
                 <svg className="mt-0.5 shrink-0" style={{color:'#3ecf4c'}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 5.25 8 13 8 13s8-7.75 8-13a8 8 0 00-8-8z"/></svg>
                 <div>
                   <p className="text-[11px] text-white/40 uppercase tracking-wide mb-0.5">Adresse</p>
-                  <p className="text-[13px] text-white/80">Sidi Bennour, Maroc</p>
+                  <p className="text-[13px] text-white/80">{[siteSettings.store_address, siteSettings.store_city, "Maroc"].filter(Boolean).join(", ")}</p>
                 </div>
               </li>
+              )}
             </ul>
           </div>
 

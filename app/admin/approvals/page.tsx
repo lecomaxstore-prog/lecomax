@@ -13,6 +13,8 @@ type PendingChange = {
   description: string;
   payload: Record<string, unknown> | null;
   preview_image: string | null;
+  api_endpoint: string | null;
+  api_method: string | null;
   status: "pending" | "approved" | "rejected";
   rejection_reason: string | null;
   reviewed_by: string | null;
@@ -61,6 +63,166 @@ function formatDate(iso: string) {
   });
 }
 
+// ─── Detail sub-components ────────────────────────────────────────────────────
+
+function ProductDetail({ payload }: { payload: Record<string, unknown> }) {
+  const p = payload as {
+    name?: string; price?: number; original_price?: number;
+    category?: string; description?: string;
+    images?: string[]; colors?: string[]; sizes?: string[];
+    stock?: number; brand?: string; tags?: string[];
+    featured?: boolean; active?: boolean;
+  };
+
+  const images: string[] = Array.isArray(p.images) ? p.images : [];
+
+  return (
+    <div className="space-y-5">
+      {/* Images */}
+      {images.length > 0 && (
+        <div>
+          <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Photos</p>
+          <div className="flex gap-2 flex-wrap">
+            {images.map((src, i) => (
+              <img key={i} src={src} alt={`img-${i}`}
+                className="w-20 h-20 rounded-2xl object-cover border border-neutral-100" />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Core info */}
+      <div className="grid grid-cols-2 gap-3">
+        {p.name && (
+          <div className="col-span-2 bg-neutral-50 rounded-2xl px-4 py-3">
+            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-0.5">Nom du produit</p>
+            <p className="text-sm font-black text-neutral-900">{p.name}</p>
+          </div>
+        )}
+        {p.price !== undefined && (
+          <div className="bg-green-50 border border-green-100 rounded-2xl px-4 py-3">
+            <p className="text-[10px] font-bold text-green-600 uppercase tracking-widest mb-0.5">Prix</p>
+            <p className="text-lg font-black text-green-700">{p.price} MAD</p>
+          </div>
+        )}
+        {p.original_price !== undefined && (
+          <div className="bg-neutral-50 rounded-2xl px-4 py-3">
+            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-0.5">Ancien prix</p>
+            <p className="text-lg font-black text-neutral-400 line-through">{p.original_price} MAD</p>
+          </div>
+        )}
+        {p.category && (
+          <div className="bg-neutral-50 rounded-2xl px-4 py-3">
+            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-0.5">Catégorie</p>
+            <p className="text-sm font-bold text-neutral-900 capitalize">{p.category}</p>
+          </div>
+        )}
+        {p.stock !== undefined && (
+          <div className="bg-neutral-50 rounded-2xl px-4 py-3">
+            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-0.5">Stock</p>
+            <p className="text-sm font-bold text-neutral-900">{p.stock} unités</p>
+          </div>
+        )}
+        {p.brand && (
+          <div className="bg-neutral-50 rounded-2xl px-4 py-3">
+            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-0.5">Marque</p>
+            <p className="text-sm font-bold text-neutral-900">{p.brand}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Colors */}
+      {Array.isArray(p.colors) && p.colors.length > 0 && (
+        <div>
+          <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Couleurs</p>
+          <div className="flex gap-2 flex-wrap">
+            {p.colors.map((c: string) => (
+              <span key={c} className="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-xs font-bold">{c}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Sizes */}
+      {Array.isArray(p.sizes) && p.sizes.length > 0 && (
+        <div>
+          <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Tailles</p>
+          <div className="flex gap-2 flex-wrap">
+            {p.sizes.map((s: string) => (
+              <span key={s} className="w-10 h-10 flex items-center justify-center bg-neutral-100 text-neutral-700 rounded-xl text-xs font-black">{s}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Description */}
+      {p.description && (
+        <div>
+          <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Description</p>
+          <div className="bg-neutral-50 rounded-2xl px-4 py-3">
+            <p className="text-sm text-neutral-700 leading-relaxed">{p.description}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Tags */}
+      {Array.isArray(p.tags) && p.tags.length > 0 && (
+        <div>
+          <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Tags</p>
+          <div className="flex gap-1.5 flex-wrap">
+            {p.tags.map((t: string) => (
+              <span key={t} className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-full text-[11px] font-bold">#{t}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Flags */}
+      <div className="flex gap-2">
+        {p.featured !== undefined && (
+          <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${p.featured ? "bg-amber-50 text-amber-700" : "bg-neutral-100 text-neutral-400"}`}>
+            {p.featured ? "⭐ Mis en avant" : "Non mis en avant"}
+          </span>
+        )}
+        {p.active !== undefined && (
+          <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${p.active ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
+            {p.active ? "✓ Actif" : "Inactif"}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function GenericDetail({ payload }: { payload: Record<string, unknown> }) {
+  const SKIP = new Set(["id", "created_at", "updated_at"]);
+  const entries = Object.entries(payload).filter(([k]) => !SKIP.has(k));
+
+  return (
+    <div>
+      <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3">Détails</p>
+      <div className="grid grid-cols-2 gap-2">
+        {entries.map(([key, val]) => (
+          <div key={key} className="bg-neutral-50 rounded-2xl px-4 py-3">
+            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-0.5">
+              {key.replace(/_/g, " ")}
+            </p>
+            <p className="text-sm font-semibold text-neutral-800 break-words">
+              {val === null || val === undefined
+                ? <span className="text-neutral-300 italic">—</span>
+                : typeof val === "boolean"
+                ? (val ? "Oui" : "Non")
+                : Array.isArray(val)
+                ? val.join(", ")
+                : String(val)}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function ApprovalsPage() {
   const [changes, setChanges] = useState<PendingChange[]>([]);
@@ -78,6 +240,8 @@ export default function ApprovalsPage() {
 
   // Expanded payload viewer
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [drawerTab, setDrawerTab] = useState<"details" | "code">("details");
+  const detailChange = changes.find(c => c.id === expandedId) ?? null;
 
   // Get current user email for reviewer attribution
   useEffect(() => {
@@ -352,7 +516,7 @@ export default function ApprovalsPage() {
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {change.payload && (
                         <button
-                          onClick={() => setExpandedId(isExpanded ? null : change.id)}
+                          onClick={() => { setExpandedId(isExpanded ? null : change.id); setDrawerTab("details"); }}
                           className="p-2 rounded-xl text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition-colors"
                           title="Voir les détails"
                         >
@@ -403,22 +567,175 @@ export default function ApprovalsPage() {
                     </div>
                   </div>
 
-                  {/* Expanded payload viewer */}
-                  {isExpanded && change.payload && (
-                    <div className="mt-4 bg-neutral-950 rounded-2xl p-4 overflow-x-auto">
-                      <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2">
-                        Détails du changement
-                      </p>
-                      <pre className="text-[11px] text-neutral-300 font-mono whitespace-pre-wrap break-words leading-relaxed">
-                        {JSON.stringify(change.payload, null, 2)}
-                      </pre>
-                    </div>
-                  )}
+                  {/* No inline expansion anymore — details open in the side drawer */}
                 </div>
               </div>
             );
           })}
         </div>
+      )}
+
+      {/* ── Detail Drawer ─────────────────────────────────────────────── */}
+      {detailChange && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]"
+            onClick={() => setExpandedId(null)}
+          />
+
+          {/* Slide-in panel */}
+          <div className="fixed right-0 top-0 h-full w-full max-w-[520px] z-50 bg-white shadow-2xl flex flex-col"
+               style={{ animation: "slideIn 260ms cubic-bezier(0.34,1.1,0.64,1)" }}>
+            <style>{`@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}`}</style>
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-100 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-black shrink-0"
+                     style={{ background: avatarColor(detailChange.staff_email) }}>
+                  {initials(detailChange.staff_name, detailChange.staff_email)}
+                </div>
+                <div>
+                  <p className="font-black text-neutral-900 text-sm leading-none">{detailChange.description}</p>
+                  <p className="text-[11px] text-neutral-400 mt-0.5">
+                    {detailChange.staff_name || detailChange.staff_email} · {formatDate(detailChange.created_at)}
+                  </p>
+                </div>
+              </div>
+              <button onClick={() => setExpandedId(null)}
+                className="w-8 h-8 rounded-xl bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center transition-colors">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Badges */}
+            <div className="flex items-center gap-2 px-6 py-3 border-b border-neutral-100 shrink-0">
+              {(() => {
+                const entity = ENTITY_LABELS[detailChange.entity_type] ?? ENTITY_LABELS.other;
+                const action = ACTION_LABELS[detailChange.action] ?? ACTION_LABELS.create;
+                return (
+                  <>
+                    <span className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide"
+                          style={{ color: action.color, background: action.bg }}>{action.label}</span>
+                    <span className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide"
+                          style={{ color: entity.color, background: entity.bg }}>{entity.label}</span>
+                    {detailChange.status === "approved" && (
+                      <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-green-100 text-green-700 uppercase tracking-wide">Approuvé</span>
+                    )}
+                    {detailChange.status === "rejected" && (
+                      <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-red-100 text-red-600 uppercase tracking-wide">Rejeté</span>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+
+            {/* Tab bar */}
+            <div className="flex items-center gap-1 px-6 py-3 border-b border-neutral-100 shrink-0">
+              <button
+                onClick={() => setDrawerTab("details")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  drawerTab === "details" ? "bg-neutral-900 text-white" : "text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100"
+                }`}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                  <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Détails
+              </button>
+              <button
+                onClick={() => setDrawerTab("code")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  drawerTab === "code" ? "bg-neutral-900 text-white" : "text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100"
+                }`}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                </svg>
+                Code
+              </button>
+            </div>
+
+            {/* Scrollable body */}
+            <div className="flex-1 overflow-y-auto px-6 py-5">
+              {drawerTab === "code" ? (
+                <div className="space-y-4">
+                  {/* API call */}
+                  <div>
+                    <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Requête API</p>
+                    <div className="flex items-center gap-2 bg-neutral-950 rounded-2xl px-4 py-3">
+                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase ${
+                        detailChange.api_method === "POST" ? "bg-green-500/20 text-green-400" :
+                        detailChange.api_method === "PUT" || detailChange.api_method === "PATCH" ? "bg-blue-500/20 text-blue-400" :
+                        detailChange.api_method === "DELETE" ? "bg-red-500/20 text-red-400" : "bg-neutral-700 text-neutral-300"
+                      }`}>{detailChange.api_method ?? "POST"}</span>
+                      <code className="text-green-400 text-[12px] font-mono">{detailChange.api_endpoint ?? "/api/products"}</code>
+                    </div>
+                  </div>
+                  {/* Payload */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Payload JSON</p>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(JSON.stringify(detailChange.payload, null, 2));
+                        }}
+                        className="flex items-center gap-1 text-[10px] text-neutral-400 hover:text-neutral-200 font-bold transition-colors"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                          <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                        </svg>
+                        Copier
+                      </button>
+                    </div>
+                    <div className="bg-neutral-950 rounded-2xl p-4 overflow-x-auto">
+                      <pre className="text-[11.5px] text-neutral-300 font-mono whitespace-pre-wrap break-words leading-relaxed">
+                        {JSON.stringify(detailChange.payload, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              ) : detailChange.payload ? (
+                detailChange.entity_type === "product"
+                  ? <ProductDetail payload={detailChange.payload} />
+                  : <GenericDetail payload={detailChange.payload} />
+              ) : (
+                <p className="text-sm text-neutral-400 text-center py-12">Aucun détail disponible.</p>
+              )}
+            </div>
+
+            {/* Footer action buttons */}
+            {detailChange.status === "pending" && (
+              <div className="shrink-0 px-6 py-4 border-t border-neutral-100 flex gap-3">
+                <button
+                  onClick={async () => { await handleApprove(detailChange.id); setExpandedId(null); }}
+                  disabled={!!approvingId}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-bold text-sm transition-colors disabled:opacity-50"
+                >
+                  {approvingId === detailChange.id ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  )}
+                  Approuver
+                </button>
+                <button
+                  onClick={() => { setRejectTarget(detailChange.id); setRejectReason(""); setExpandedId(null); }}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-2xl font-bold text-sm transition-colors"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                  Rejeter
+                </button>
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* Rejection modal */}

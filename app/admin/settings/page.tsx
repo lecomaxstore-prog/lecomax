@@ -12,11 +12,12 @@ const DEFAULT_SETTINGS: SettingsMap = {
   store_address: "",
   store_city: "Casablanca",
   currency: "MAD",
-  whatsapp_number: "",
-  instagram_url: "",
-  facebook_url: "",
-  tiktok_url: "",
+  whatsapp_number: "212699289568",
+  instagram_url: "https://www.instagram.com/lecomaxcom",
+  facebook_url: "https://www.facebook.com/lecomaxcom",
+  tiktok_url: "https://www.tiktok.com/@lecomaxcom",
   free_shipping_threshold: "500",
+  shipping_cost: "35",
   maintenance_mode: "false",
   // image settings — pre-filled with current site defaults
   favicon_image: "/favicon.png",
@@ -71,6 +72,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<SettingsMap>({ ...DEFAULT_SETTINGS });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [maintenanceSaving, setMaintenanceSaving] = useState(false);
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"general" | "images" | "shipping" | "social" | "advanced" | "security">("general");
@@ -133,6 +135,34 @@ export default function SettingsPage() {
       setTimeout(() => setMsg(null), 3000);
     } else {
       setMsg({ type: "err", text: data.error ?? "Échec de l'upload" });
+    }
+  }
+
+  async function toggleMaintenance() {
+    const newValue = settings.maintenance_mode === "true" ? "false" : "true";
+    setSettings(s => ({ ...s, maintenance_mode: newValue }));
+    setMaintenanceSaving(true);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...settings, maintenance_mode: newValue }),
+      });
+      if (res.ok) {
+        // Keep maintenance bypass so admin stays accessible
+        document.cookie = "maintenance_bypass=admin; path=/; max-age=86400; SameSite=Strict";
+        setMsg({ type: "ok", text: newValue === "true" ? "🔒 Mode maintenance activé — visiteurs redirigés" : "✓ Site en ligne — mode maintenance désactivé" });
+      } else {
+        // Revert on failure
+        setSettings(s => ({ ...s, maintenance_mode: settings.maintenance_mode }));
+        setMsg({ type: "err", text: "Erreur lors de la sauvegarde" });
+      }
+    } catch {
+      setSettings(s => ({ ...s, maintenance_mode: settings.maintenance_mode }));
+      setMsg({ type: "err", text: "Erreur réseau" });
+    } finally {
+      setMaintenanceSaving(false);
+      setTimeout(() => setMsg(null), 5000);
     }
   }
 
@@ -280,9 +310,9 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-[12px] text-blue-700 flex items-start gap-2 mt-2">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              Les frais de livraison sont actuellement codés dans le code source. Modifier ces valeurs dans la base de données ne les applique pas automatiquement — il faut aussi mettre à jour le code.
+            <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 text-[12px] text-emerald-700 flex items-start gap-2 mt-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Ces valeurs sont lues en temps réel par le checkout, le footer et la bannière héro. Enregistrez pour appliquer immédiatement sur tout le site.
             </div>
           </Section>
           <div className="flex justify-end pt-2">
@@ -333,20 +363,28 @@ export default function SettingsPage() {
             {settings.maintenance_mode === "true" && (
               <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-2">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" className="shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                <p className="text-[12px] text-red-700 font-bold">Votre boutique est actuellement en mode maintenance — les visiteurs voient une page d&apos;attente.</p>
+                <p className="text-[12px] text-red-700 font-bold">⚠️ Votre boutique est en mode maintenance — les visiteurs voient une page d&apos;attente.</p>
               </div>
             )}
             <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl border border-neutral-200">
               <div>
                 <p className="font-bold text-sm">Mode maintenance</p>
-                <p className="text-[12px] text-neutral-500 mt-0.5">Affiche une page de maintenance aux visiteurs. L&apos;admin reste accessible.</p>
+                <p className="text-[12px] text-neutral-500 mt-0.5">
+                  {settings.maintenance_mode === "true"
+                    ? "🔴 Actif — le site est hors ligne pour les visiteurs"
+                    : "🟢 Inactif — le site est en ligne"}
+                </p>
               </div>
               <button
                 type="button"
-                onClick={() => setSettings(s => ({ ...s, maintenance_mode: s.maintenance_mode === "true" ? "false" : "true" }))}
-                className={`relative w-12 h-6 rounded-full transition-colors ${settings.maintenance_mode === "true" ? "bg-red-500" : "bg-neutral-300"}`}
+                disabled={maintenanceSaving}
+                onClick={toggleMaintenance}
+                className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-60 ${settings.maintenance_mode === "true" ? "bg-red-500" : "bg-neutral-300"}`}
               >
-                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${settings.maintenance_mode === "true" ? "translate-x-7" : "translate-x-1"}`} />
+                {maintenanceSaving
+                  ? <span className="absolute inset-0 flex items-center justify-center"><span className="w-3 h-3 border-2 border-white/60 border-t-white rounded-full animate-spin" /></span>
+                  : <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${settings.maintenance_mode === "true" ? "translate-x-7" : "translate-x-1"}`} />
+                }
               </button>
             </div>
           </Section>

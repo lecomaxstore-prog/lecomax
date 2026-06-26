@@ -243,20 +243,24 @@ export default function DashboardPage() {
               <div className="divide-y divide-neutral-50">
                 {recent.map((order) => (
                   <Link key={order.id} href={`/admin/orders?id=${order.id}`}
-                    className="flex items-center gap-4 px-6 py-3.5 hover:bg-neutral-50/50 transition-colors">
+                    className="flex items-center gap-3 px-4 sm:px-6 py-3 hover:bg-neutral-50/50 transition-colors">
                     <div className="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center shrink-0">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-500">
                         <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
                       </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate">{order.customer?.name || "—"}</p>
-                      <p className="text-xs text-neutral-400">#{order.order_number} · {new Date(order.created_at).toLocaleDateString("fr-FR")}</p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-semibold truncate">{order.customer?.name || "—"}</p>
+                        <p className="text-sm font-bold shrink-0">{(order as { total: number }).total} MAD</p>
+                      </div>
+                      <div className="flex items-center justify-between gap-2 mt-0.5">
+                        <p className="text-xs text-neutral-400">#{order.order_number} · {new Date(order.created_at).toLocaleDateString("fr-FR")}</p>
+                        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full shrink-0 ${statusColors[order.status] || "bg-neutral-100 text-neutral-500"}`}>
+                          {statusLabels[order.status] || order.status}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-sm font-bold shrink-0">{(order as { total: number }).total} MAD</p>
-                    <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded-full shrink-0 ${statusColors[order.status] || "bg-neutral-100 text-neutral-500"}`}>
-                      {statusLabels[order.status] || order.status}
-                    </span>
                   </Link>
                 ))}
               </div>
@@ -264,15 +268,15 @@ export default function DashboardPage() {
           </div>
 
           {/* Quick actions */}
-          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="mt-4 grid grid-cols-2 gap-3">
             {[
               { label: "Nouveau produit", href: "/admin/products?new=1", icon: "+" },
-              { label: "Voir commandes", href: "/admin/orders", icon: "↗" },
-              { label: "Gérer le stock", href: "/admin/stock", icon: "⚡" },
-              { label: "Zones livraison", href: "/admin/shipping", icon: "🚚" },
+              { label: "Voir commandes", href: "/admin/orders", icon: "\u2197" },
+              { label: "G\u00e9rer le stock", href: "/admin/stock", icon: "\u26a1" },
+              { label: "Zones livraison", href: "/admin/shipping", icon: "\ud83d\ude9a" },
             ].map((l) => (
               <Link key={l.href} href={l.href}
-                className="bg-white rounded-xl border border-neutral-100 p-4 hover:border-black transition-colors flex items-center gap-3">
+                className="bg-white rounded-xl border border-neutral-100 p-4 hover:border-black transition-colors flex items-center gap-3 active:scale-[0.98]">
                 <span className="text-lg leading-none">{l.icon}</span>
                 <span className="font-semibold text-sm">{l.label}</span>
               </Link>

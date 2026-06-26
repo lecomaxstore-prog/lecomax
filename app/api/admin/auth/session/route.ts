@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSessionToken } from "@/lib/admin-session";
+import { createSessionToken, createStaffPermissionsToken } from "@/lib/admin-session";
+import { createClient } from "@supabase/supabase-js";
 
 // ── In-memory rate limiter ──────────────────────────────────────────────────
 // NOTE: on Vercel serverless this resets per cold-start, but still provides
@@ -83,6 +84,31 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Session invalide" }, { status: 401 });
   }
 
+  // ── Access control: only owner or active staff may receive a session ──────
+  const ownerEmail = (process.env.ADMIN_EMAIL ?? "contact@lecomax.com").toLowerCase();
+  const normalizedEmail = user.email.toLowerCase();
+  const isOwner = normalizedEmail === ownerEmail;
+
+  const sb = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data: staffRow } = await sb
+    .from("admin_staff")
+    .select("id, role_id")
+    .eq("email", normalizedEmail)
+    .maybeSingle();
+
+  // Reject accounts that are neither the owner nor an active staff member.
+  // This fires when a staff member has been removed from the admin_staff table.
+  if (!isOwner && !staffRow) {
+    return NextResponse.json(
+      { error: "Votre accès à l'administration a été révoqué.", code: "STAFF_REMOVED" },
+      { status: 403 }
+    );
+  }
+
   // Create a signed session token and set it as an HttpOnly cookie
   const maxAge = body.rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24; // 30d or 24h
   const sessionToken = await createSessionToken(user.email);
@@ -90,12 +116,37 @@ export async function POST(req: NextRequest) {
 
   const response = NextResponse.json({ ok: true });
   response.cookies.set("admin_session", sessionToken, {
-    httpOnly: true,        // ← JS cannot read or modify this cookie
-    secure: isProd,        // ← HTTPS only in production
+    httpOnly: true,
+    secure: isProd,
     sameSite: "strict",
     maxAge,
     path: "/",
   });
+
+  // Embed a signed permissions cookie for staff so the middleware can enforce
+  // route-level access without a DB round-trip on every request.
+  if (staffRow) {
+    let permissions: string[] = [];
+    if (staffRow.role_id) {
+      const { data: permRows } = await sb
+        .from("admin_role_permissions")
+        .select("permission_slug")
+        .eq("role_id", staffRow.role_id);
+      permissions = permRows?.map((r: { permission_slug: string }) => r.permission_slug) ?? [];
+    }
+    const staffToken = await createStaffPermissionsToken(permissions);
+    response.cookies.set("staff_permissions", staffToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "strict",
+      maxAge,
+      path: "/",
+    });
+  } else {
+    // Owner — clear any stale staff cookie
+    response.cookies.set("staff_permissions", "", { httpOnly: true, secure: isProd, sameSite: "strict", maxAge: 0, path: "/" });
+  }
+
   return response;
 }
 
@@ -104,6 +155,13 @@ export async function DELETE() {
   const isProd = process.env.NODE_ENV === "production";
   const response = NextResponse.json({ ok: true });
   response.cookies.set("admin_session", "", {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: "strict",
+    maxAge: 0,
+    path: "/",
+  });
+  response.cookies.set("staff_permissions", "", {
     httpOnly: true,
     secure: isProd,
     sameSite: "strict",

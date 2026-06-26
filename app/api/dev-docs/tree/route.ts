@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { verifySessionToken } from "@/lib/admin-session";
 
 // ── Security: folders/files that must never appear in the tree ──────────────
 const BLOCKED_NAMES = new Set([
@@ -76,7 +77,7 @@ function buildTree(dirPath: string, relPath: string = "", depth = 0): FileNode[]
 
 export async function GET(req: NextRequest) {
   const session = req.cookies.get("admin_session")?.value;
-  if (session !== "authenticated") {
+  if (!session || !(await verifySessionToken(session))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const tree = buildTree(process.cwd());

@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 const resend = new Resend(process.env.RESEND_API_KEY);
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://lecomax.com";
 
-async function getEmailBannerUrl(): Promise<string> {
+async function getStoreSettings(): Promise<{ name: string; email: string; banner: string }> {
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,15 +13,20 @@ async function getEmailBannerUrl(): Promise<string> {
     );
     const { data } = await supabase
       .from("settings")
-      .select("value")
-      .eq("key", "email_banner_image")
-      .single();
-    const val = data?.value;
-    if (val) {
-      return val.startsWith("http") ? val : `${SITE_URL}${val}`;
-    }
-  } catch {}
-  return `${SITE_URL}/images/email%20image/email%20image.png`;
+      .select("key, value")
+      .in("key", ["store_name", "store_email", "email_banner_image"]);
+    const map: Record<string, string> = {};
+    for (const row of data ?? []) if (row.value) map[row.key] = row.value;
+    return {
+      name: map.store_name || "LECOMAX",
+      email: map.store_email || "noreply@lecomax.com",
+      banner: map.email_banner_image
+        ? (map.email_banner_image.startsWith("http") ? map.email_banner_image : `${SITE_URL}${map.email_banner_image}`)
+        : `${SITE_URL}/images/email%20image/email%20image.png`,
+    };
+  } catch {
+    return { name: "LECOMAX", email: "noreply@lecomax.com", banner: `${SITE_URL}/images/email%20image/email%20image.png` };
+  }
 }
 
 export async function POST(req: Request) {
@@ -36,7 +41,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  const emailBannerUrl = await getEmailBannerUrl();
+  const { name: storeName, email: storeEmail, banner: emailBannerUrl } = await getStoreSettings();
 
   const itemsHtml = (order_items as string)
     .split("\n")
@@ -142,8 +147,8 @@ export async function POST(req: Request) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "LECOMAX <noreply@lecomax.com>",
-      replyTo: "contact@lecomax.com",
+      from: `${storeName} <noreply@lecomax.com>`,
+      replyTo: storeEmail,
       to: [to_email],
       subject: `Votre commande ${order_number} est confirmee - LECOMAX`,
       html,

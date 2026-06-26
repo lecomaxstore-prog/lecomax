@@ -4,12 +4,15 @@ import Link from "next/link";
 export default function HeroBanner({
   heroImage,
   heroImageMobile,
+  shippingCost,
 }: {
   heroImage?: string;
   heroImageMobile?: string;
+  shippingCost?: string;
 }) {
   const desktopSrc = heroImage || "/images/hero secrtion/hero section web version.png";
   const mobileSrc = heroImageMobile || "/images/hero secrtion/hero section mobile version.png";
+  const shippingLabel = shippingCost ? `Livraison ${shippingCost} MAD` : "Livraison 35 MAD";
 
   return (
     <>
@@ -36,7 +39,7 @@ export default function HeroBanner({
               Style.
             </h1>
             <p className="text-white/65 text-[15px] mb-9 max-w-xs leading-relaxed">
-              Livraison 35 MAD · Retours gratuits 30 j · Paiement à la livraison
+              {shippingLabel} · Retours gratuits 30 j · Paiement à la livraison
             </p>
             <div className="flex items-center gap-4">
               <Link

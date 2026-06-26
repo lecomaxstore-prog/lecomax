@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { verifySessionToken } from "@/lib/admin-session";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,8 +14,12 @@ export async function GET() {
   return NextResponse.json(data);
 }
 
-// POST /api/settings  (upsert all keys)
+// POST /api/settings  (upsert all keys) — admin only
 export async function POST(req: NextRequest) {
+  const session = req.cookies.get("admin_session")?.value;
+  if (!session || !(await verifySessionToken(session))) {
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  }
   let body: unknown;
   try { body = await req.json(); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });

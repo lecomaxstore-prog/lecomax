@@ -12,6 +12,7 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [removed, setRemoved] = useState(false);
   const [loading, setLoading] = useState(false);
   // Honeypot: bots fill hidden fields; humans never see them
   const [_hp, setHp] = useState("");
@@ -53,31 +54,92 @@ export default function AdminLoginPage() {
       });
       if (!sessionRes.ok) {
         setLoading(false);
+        const body = await sessionRes.json().catch(() => ({}));
+        if (body?.code === "STAFF_REMOVED") {
+          setRemoved(true);
+          return;
+        }
         setError("Erreur lors de la création de la session. Réessayez.");
         return;
       }
 
-      // Check if this user is a staff member (restricted access)
-      if (authData?.user?.email) {
-        try {
-          const res = await fetch(`/api/admin/staff/permissions?email=${encodeURIComponent(authData.user.email)}`);
-          const { isStaff, permissions } = res.ok ? await res.json() : { isStaff: false, permissions: [] };
-
-          if (isStaff) {
-            // Always set cookie — empty array means dashboard only
-            const staffMaxAge = rememberMe ? 2592000 : 86400;
-            document.cookie = `staff_permissions=${encodeURIComponent(JSON.stringify(permissions))}; path=/; max-age=${staffMaxAge}; SameSite=Strict`;
-          } else {
-            // Main owner → clear any stale staff cookie
-            document.cookie = "staff_permissions=; path=/; max-age=0; SameSite=Strict";
-          }
-        } catch {
-          document.cookie = "staff_permissions=; path=/; max-age=0; SameSite=Strict";
-        }
-      }
+      // Permissions are now set server-side as a signed HttpOnly cookie
+      // by the /api/admin/auth/session endpoint — no client-side cookie needed.
 
       router.replace("/admin/dashboard");
     }
+  }
+
+  if (removed) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-6 relative overflow-hidden">
+        {/* Subtle grid */}
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-red-500/60 to-transparent" />
+
+        <div className="relative z-10 max-w-md w-full">
+          {/* Logo */}
+          <div className="flex items-center gap-3 mb-12">
+            <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0">
+              <img src="/favicon.png" alt="L'ecomax" width={36} height={36} className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <p className="text-white font-black tracking-wide text-sm">L&apos;ECOMAX</p>
+              <p className="text-white/25 text-[10px] uppercase tracking-widest">Administration</p>
+            </div>
+          </div>
+
+          {/* Card */}
+          <div className="bg-white/[0.04] border border-white/[0.08] rounded-3xl p-10 text-center backdrop-blur-sm">
+            {/* Icon */}
+            <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-6">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="1.8" strokeLinecap="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+              </svg>
+            </div>
+
+            <h1 className="text-2xl font-black text-white mb-3">Accès révoqué</h1>
+            <p className="text-white/40 text-sm leading-relaxed mb-8">
+              Votre compte n&apos;est plus associé à l&apos;espace d&apos;administration de L&apos;Ecomax.
+              Si vous pensez qu&apos;il s&apos;agit d&apos;une erreur, veuillez contacter le responsable.
+            </p>
+
+            {/* Info strip */}
+            <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-4 text-left mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff60" strokeWidth="2" strokeLinecap="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-white/25 uppercase tracking-widest font-bold mb-0.5">Identifiant</p>
+                  <p className="text-white/60 text-sm font-mono truncate">{email}</p>
+                </div>
+              </div>
+            </div>
+
+            <a
+              href="mailto:contact@lecomax.com"
+              className="flex items-center justify-center gap-2 w-full bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] text-white/70 hover:text-white text-sm font-bold py-3 rounded-2xl transition-all"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              Contacter l&apos;administrateur
+            </a>
+          </div>
+
+          <p className="text-center text-[10px] text-white/15 mt-8 uppercase tracking-widest">
+            L&apos;ECOMAX © {new Date().getFullYear()}
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

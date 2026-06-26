@@ -277,6 +277,132 @@ function ExplorerSection() {
 // ─── From 0 to Hero ──────────────────────────────────────────────────────────
 const PHASES = [
   {
+    num: "00", label: "Avant de coder — Configurer son environnement", color: "bg-slate-700",
+    steps: [
+      {
+        title: "Étape 1 — Installer Node.js (v20 LTS)",
+        desc: "Node.js est le moteur d'exécution JavaScript côté serveur. Il inclut npm (le gestionnaire de paquets). Sans lui, rien ne fonctionne.",
+        code: `# 1. Aller sur https://nodejs.org
+# 2. Télécharger la version LTS (Long Term Support) — v20 ou plus
+# 3. Installer le .msi (Windows) ou .pkg (Mac) — next, next, finish.
+
+# 4. Vérifier l'installation dans le terminal :
+node -v    # doit afficher v20.x.x ou +
+npm -v     # doit afficher 10.x.x ou +
+
+# Si une ancienne version est déjà installée, utilise NVM (Node Version Manager)
+# https://github.com/nvm-sh/nvm  (Mac/Linux)
+# https://github.com/coreybutler/nvm-windows  (Windows)`
+      },
+      {
+        title: "Étape 2 — Installer Git",
+        desc: "Git est le système de gestion de version. Il permet de sauvegarder l'historique du code et de déployer sur Vercel via GitHub.",
+        code: `# 1. Aller sur https://git-scm.com/downloads
+# 2. Télécharger et installer (laisser toutes les options par défaut)
+
+# 3. Vérifier l'installation :
+git --version    # doit afficher git version 2.x.x
+
+# 4. Configurer son identité (une seule fois) :
+git config --global user.name  "Ton Nom"
+git config --global user.email "ton@email.com"`
+      },
+      {
+        title: "Étape 3 — Installer VS Code",
+        desc: "Visual Studio Code est l'éditeur de code utilisé pour tout ce projet. Gratuit, léger, et puissant avec ses extensions.",
+        code: `# 1. Aller sur https://code.visualstudio.com
+# 2. Télécharger et installer la version stable
+
+# 3. Extensions INDISPENSABLES à installer dans VS Code :
+#    (Ctrl+Shift+X pour ouvrir le panneau Extensions)
+#
+#    ESLint                  → Détecte les erreurs JS/TS en temps réel
+#    Prettier                → Formate le code automatiquement
+#    Tailwind CSS IntelliSense → Autocomplétion des classes Tailwind
+#    TypeScript Next.js      → Types Next.js dans l'IDE
+#    GitLens                 → Voir l'historique git dans l'éditeur
+#    Thunder Client          → Tester les routes API sans Postman
+
+# 4. Activer "Format on save" :
+#    Ctrl+Shift+P → "Open Settings (UI)"
+#    Chercher "format on save" → Cocher la case`
+      },
+      {
+        title: "Étape 4 — Créer le dossier du projet",
+        desc: "Créer un dossier propre qui contiendra tout le code source. Le nom du dossier deviendra la racine du projet.",
+        code: `# Option A — Via l'explorateur Windows :
+# 1. Bureau (ou Documents) → Clic droit → "Nouveau dossier"
+# 2. Nommer le dossier : lecomax
+
+# Option B — Via le terminal (PowerShell ou CMD) :
+cd C:\\Users\\VotreNom\\Desktop
+mkdir lecomax
+
+# Option C — Via le terminal intégré de VS Code :
+# Ouvrir VS Code → Terminal → New Terminal
+mkdir lecomax
+cd lecomax
+
+# Structure attendue après création :
+# C:\\Users\\VotreNom\\Desktop\\lecomax\\    ← VIDE pour l'instant`
+      },
+      {
+        title: "Étape 5 — Ouvrir le dossier dans VS Code",
+        desc: "VS Code doit être ouvert sur le dossier du projet (pas sur un fichier isolé). Cela active toutes les fonctionnalités de l'espace de travail.",
+        code: `# Option A — Glisser-déposer le dossier "lecomax" dans la fenêtre VS Code
+
+# Option B — Via VS Code :
+# File → Open Folder → Sélectionner C:\\Users\\VotreNom\\Desktop\\lecomax
+
+# Option C — Depuis le terminal Windows :
+cd C:\\Users\\VotreNom\\Desktop\\lecomax
+code .     # Le point . = "ouvrir VS Code ici"
+
+# Option D — Clic droit sur le dossier → "Open with Code"
+# (disponible si VS Code est installé et l'option a été cochée à l'install)
+
+# ✅ VS Code s'ouvre avec le panneau "EXPLORER" montrant "LECOMAX"
+# ✅ On voit le dossier vide dans la barre latérale gauche`
+      },
+      {
+        title: "Étape 6 — Ouvrir le terminal intégré de VS Code",
+        desc: "Toutes les commandes (npm, git, etc.) sont exécutées dans le terminal VS Code. C'est beaucoup plus pratique que d'ouvrir un terminal séparé.",
+        code: `# Ouvrir le terminal intégré :
+# Ctrl + \`  (backtick — la touche à gauche du 1)
+# OU : Terminal → New Terminal dans le menu
+
+# Le terminal s'ouvre en bas de VS Code avec le chemin du projet :
+# PS C:\\Users\\VotreNom\\Desktop\\lecomax>
+
+# Vérifier qu'on est bien dans le bon dossier :
+pwd    # Windows: Get-Location  → affiche le chemin actuel
+
+# Pour créer un terminal supplémentaire (utile pour npm run dev + autre tâche) :
+# Cliquer le "+" dans le panneau terminal en bas`
+      },
+      {
+        title: "Étape 7 — Créer le compte GitHub",
+        desc: "GitHub hébergera le code source. Vercel se connecte à GitHub pour déployer automatiquement à chaque git push.",
+        code: `# 1. Aller sur https://github.com → Sign up
+# 2. Choisir un username (ex: monnom-dev)
+# 3. Vérifier l'email
+
+# 4. Authentifier VS Code avec GitHub :
+#    Ctrl+Shift+P → "GitHub: Sign in"
+#    OU installer l'extension "GitHub Pull Requests and Issues"
+
+# 5. Créer un nouveau repository sur GitHub.com :
+#    → Clic sur "+" en haut à droite → "New repository"
+#    → Name: lecomax
+#    → Public ou Private (au choix)
+#    → ⚠️ NE PAS cocher "Initialize this repository" (on le fera depuis VS Code)
+#    → Create repository
+
+# GitHub donne ensuite les commandes exactes à exécuter — les copier dans VS Code terminal`
+      },
+    ],
+  },
+  {
     num: "01", label: "Initialisation du projet", color: "bg-violet-500",
     steps: [
       {
@@ -750,23 +876,47 @@ node_modules/       ← Dépendances (npm install les recrée)`
 8. ✅ Chaque git push → redéploiement automatique en ~30 secondes`
       },
       {
-        title: "Connecter lecomax.com",
-        desc: "Vercel génère automatiquement un certificat SSL/TLS. CDN mondial actif.",
-        code: `1. Acheter lecomax.com (Namecheap, GoDaddy, OVH...)
-2. Vercel Dashboard → Project → Settings → Domains
-3. Ajouter "lecomax.com" et "www.lecomax.com"
-4. Vercel fournit les DNS records :
-     A record    →  76.76.21.21
-     CNAME       →  cname.vercel-dns.com
+        title: "Connecter lecomax.com via Namecheap",
+        desc: "Namecheap est le registrar utilisé. La config DNS prend 5 min, la propagation 24–48h. Vercel génère le SSL automatiquement.",
+        code: `# ── ÉTAPE 1 : Acheter le domaine sur Namecheap ──────────────────────────────
+# 1. Aller sur https://namecheap.com
+# 2. Chercher "lecomax.com" → Ajouter au panier → Payer (~10$/an)
+# 3. Accéder à "Domain List" → Cliquer "Manage" sur lecomax.com
 
-5. Configurer ces DNS records chez votre registrar
-6. Propagation DNS : 24-48h
-7. SSL/TLS : Vercel génère automatiquement un certificat Let's Encrypt
+# ── ÉTAPE 2 : Changer les nameservers vers Vercel ────────────────────────────
+# Dans Namecheap Dashboard → Domain → Nameservers :
+# Choisir "Custom DNS" et entrer :
+#   ns1.vercel-dns.com
+#   ns2.vercel-dns.com
+# → SAVE
 
-Résultat final :
-✅ https://lecomax.com          → Production (Vercel CDN mondial)
-✅ https://preview.vercel.app   → Previews par branche Git
-✅ http://localhost:3000        → Développement local (npm run dev)`
+# ── ÉTAPE 3 : OU garder les nameservers Namecheap (méthode A Record) ─────────
+# Dans Namecheap → Advanced DNS → Add New Record :
+#
+#   Type: A Record  | Host: @   | Value: 76.76.21.21      | TTL: Auto
+#   Type: CNAME     | Host: www | Value: cname.vercel-dns.com | TTL: Auto
+#
+# Le @ = lecomax.com (racine)
+# Le www = www.lecomax.com (sous-domaine)
+
+# ── ÉTAPE 4 : Configurer le domaine dans Vercel ───────────────────────────────
+# 1. Vercel Dashboard → Project → Settings → Domains
+# 2. Ajouter "lecomax.com" → Add
+# 3. Ajouter "www.lecomax.com" → Add
+# 4. Vercel configure automatiquement le SSL (Let's Encrypt)
+
+# ── ÉTAPE 5 : DNS pour les emails Resend (délivrabilité) ─────────────────────
+# Dans Namecheap → Advanced DNS → ajouter ces records DKIM/SPF :
+#
+#   Type: TXT | Host: @ | Value: v=spf1 include:amazonses.com ~all
+#   Type: TXT | Host: resend._domainkey | Value: [fourni par Resend dashboard]
+#   Type: TXT | Host: @ | Value: v=DMARC1; p=none; rua=mailto:contact@lecomax.com
+
+# ── RÉSULTAT FINAL ────────────────────────────────────────────────────────────
+# ✅ https://lecomax.com           → Production (CDN Vercel mondial)
+# ✅ https://www.lecomax.com       → Redirige vers lecomax.com (canonical)
+# ✅ SSL/TLS                       → Certificat Let's Encrypt auto-renouvelé
+# ✅ Emails @lecomax.com           → Délivrabilité maximale (SPF+DKIM+DMARC)`
       },
     ],
   },
@@ -864,11 +1014,258 @@ export async function middleware(req: NextRequest) {
       },
     ],
   },
+  {
+    num: "09", label: "Outils pour faire grandir le site", color: "bg-rose-500",
+    steps: [
+      {
+        title: "Resend — Emails transactionnels & newsletters",
+        desc: "Resend gère TOUS les emails du site : confirmation de commande, mise à jour de livraison, newsletter marketing. Excellent taux de délivrabilité.",
+        code: `# ── CRÉER UN COMPTE RESEND ───────────────────────────────────────────────────
+# 1. Aller sur https://resend.com → Sign up (gratuit jusqu'à 3 000 emails/mois)
+
+# ── AJOUTER SON DOMAINE ───────────────────────────────────────────────────────
+# 2. Resend Dashboard → Domains → Add Domain → entrer "lecomax.com"
+# 3. Resend fournit 3 records DNS à ajouter dans Namecheap :
+#
+#    Type: TXT  | Host: resend._domainkey       | Value: p=MIGf...    (DKIM)
+#    Type: MX   | Host: send                    | Value: feedback-smtp.eu-west-1.amazonses.com
+#    Type: TXT  | Host: @                       | Value: v=spf1 include:amazonses.com ~all
+#
+# 4. Cliquer "Verify" dans Resend → Status passe au vert (peut prendre 24h)
+
+# ── OBTENIR LA CLÉ API ────────────────────────────────────────────────────────
+# 5. Resend Dashboard → API Keys → Create API Key
+# 6. Nommer : "lecomax-production" | Permission : Sending access
+# 7. Copier la clé : re_xxxxxxxxxxxx (ne s'affiche qu'une fois !)
+
+# ── CONFIGURER DANS LE PROJET ────────────────────────────────────────────────
+# .env.local :
+RESEND_API_KEY=re_xxxxxxxxxxxx
+
+# Vercel Dashboard → Settings → Environment Variables :
+# Ajouter RESEND_API_KEY = re_xxxxxxxxxxxx (pour la production)
+
+# ── UTILISATION DANS LE CODE ─────────────────────────────────────────────────
+# app/api/send-confirmation/route.ts :
+import { Resend } from "resend";
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+await resend.emails.send({
+  from: "L'ecomax <contact@lecomax.com>",
+  to: customer.email,
+  subject: "Confirmation de votre commande #" + order.order_number,
+  html: emailTemplate(order),
+});
+
+# Emails envoyés par le site :
+# - Confirmation de commande         → dès qu'une commande est créée
+# - Mise à jour statut livraison     → quand admin change le statut
+# - Newsletter (depuis /admin/newsletter) → campagnes marketing
+# - Formulaire de contact            → relais vers contact@lecomax.com`
+      },
+      {
+        title: "Notifications Push Web (web-push + VAPID)",
+        desc: "Les push notifications permettent de recontacter les visiteurs même quand ils n'ont pas le site ouvert. Idéal pour les promotions flash.",
+        code: `# ── GÉNÉRER LES CLÉS VAPID ───────────────────────────────────────────────────
+# VAPID = Voluntary Application Server Identification
+# Ces clés authentifient le serveur auprès des navigateurs.
+
+# Dans le terminal VS Code :
+npx web-push generate-vapid-keys
+
+# Résultat :
+# Public Key:  BExxx...   ← côté client (safe à exposer)
+# Private Key: xxx...     ← serveur UNIQUEMENT (secret absolu)
+
+# ── CONFIGURER LES CLÉS ───────────────────────────────────────────────────────
+# .env.local :
+VAPID_PUBLIC_KEY=BExxx...
+VAPID_PRIVATE_KEY=xxx...
+VAPID_EMAIL=mailto:contact@lecomax.com
+
+# Vercel Dashboard → Settings → Environment Variables → ajouter les 3
+
+# ── COMMENT ÇA MARCHE ─────────────────────────────────────────────────────────
+# 1. Visiteur clique "Autoriser les notifications" (PushPrompt.tsx)
+# 2. Le navigateur génère un objet PushSubscription (endpoint + keys)
+# 3. On sauvegarde cet objet dans Supabase (table push_subscriptions)
+# 4. Admin va sur /admin/push → rédige un message → Envoyer
+# 5. L'API /api/push/send récupère tous les abonnés et envoie via web-push
+# 6. Le service worker (public/sw.js) reçoit et affiche la notification
+
+# Cas d'usage :
+# ✅ "Nouvelle collection disponible !"
+# ✅ "Flash vente -30% pendant 2h !"
+# ✅ "Votre commande a été expédiée !"
+# ✅ "Nouveau stock dispo pour votre taille"`
+      },
+      {
+        title: "WhatsApp Business API (via whapi.cloud)",
+        desc: "WhatsApp est le canal de communication N°1 au Maroc. On l'utilise pour le chat client, les confirmations et les broadcasts marketing.",
+        code: `# ── CRÉER UN COMPTE WHAPI ─────────────────────────────────────────────────────
+# 1. Aller sur https://whapi.cloud → S'inscrire
+# 2. Créer un "Channel" → Scanner le QR code avec WhatsApp Business
+# 3. Copier l'API Token (dashboard → channel → API Token)
+
+# ── CONFIGURER DANS LE PROJET ────────────────────────────────────────────────
+# .env.local :
+WHATSAPP_API_TOKEN=eyJ...
+WHATSAPP_CHANNEL_ID=xxx
+NEXT_PUBLIC_WHATSAPP_NUMBER=212XXXXXXXXX   # Numéro au format international
+
+# ── UTILISATION ──────────────────────────────────────────────────────────────
+# Bouton WhatsApp visible sur le site (components/WhatsAppButton.tsx)
+# → Ouvre WhatsApp avec un message pré-rempli
+
+# API broadcast (app/api/whatsapp/route.ts) :
+# → Envoyer des messages à des groupes de clients depuis /admin/broadcast
+
+# Template de message de confirmation (auto après achat) :
+# "Bonjour [prénom], votre commande #[numéro] a bien été reçue !
+#  Livraison estimée : 2-5 jours ouvrables.
+#  Suivi : https://lecomax.com/suivre-commande"
+
+# Cas d'usage :
+# ✅ Notification de commande en temps réel
+# ✅ Chat support client (widget ChatWidget.tsx)
+# ✅ Broadcast promotions à la liste clients
+# ✅ Relance paniers abandonnés`
+      },
+      {
+        title: "Google Search Console + IndexNow (SEO)",
+        desc: "Google Search Console surveille l'indexation du site. IndexNow notifie instantanément Bing et Yandex quand un produit est créé/modifié.",
+        code: `# ── GOOGLE SEARCH CONSOLE ───────────────────────────────────────────────────
+# 1. Aller sur https://search.google.com/search-console
+# 2. Ajouter une propriété → URL prefix → https://lecomax.com
+# 3. Vérifier la propriété via le fichier TXT dans Namecheap :
+#    Type: TXT | Host: @ | Value: google-site-verification=xxx
+# 4. Soumettre le sitemap :
+#    → Sitemaps → Entrer "sitemap.xml/sitemap.xml" → Submit
+#    (notre sitemap est généré dynamiquement par app/sitemap.xml/route.ts)
+
+# ── INDEXNOW ─────────────────────────────────────────────────────────────────
+# IndexNow = protocole pour notifier les moteurs de recherche IMMÉDIATEMENT
+# au lieu d'attendre le prochain crawl (peut prendre des semaines sinon)
+
+# Fichier de vérification : public/d724dd3eb875908a4448cca481e61afd.txt
+# → Ce fichier existe déjà dans le projet !
+
+# L'API /api/indexnow/route.ts soumet automatiquement les URLs quand :
+# - Un nouveau produit est créé/modifié
+# - Une nouvelle page est publiée
+
+# ── SITEMAP DYNAMIQUE ────────────────────────────────────────────────────────
+# app/sitemap.xml/route.ts génère automatiquement :
+# - Toutes les pages statiques (/, /boutique, /a-propos, etc.)
+# - Toutes les pages produits (/produit/[slug])
+# - Toutes les catégories (/chaussures, /homme, etc.)
+# Mis à jour en temps réel à chaque nouveau produit.`
+      },
+      {
+        title: "Vercel Analytics + Speed Insights (Performance)",
+        desc: "Analytics sans cookies RGPD. Speed Insights mesure les Core Web Vitals réels depuis les vrais utilisateurs — pas des tests simulés.",
+        code: `# ── VERCEL ANALYTICS ─────────────────────────────────────────────────────────
+# Données disponibles dans le Vercel Dashboard → Analytics :
+# ✅ Pages vues (time series)
+# ✅ Pages les plus visitées
+# ✅ Pays d'origine des visiteurs
+# ✅ Types d'appareils (mobile/desktop)
+# ✅ Referrers (d'où viennent les visiteurs)
+# ✅ Conversion funnel (boutique → produit → panier → checkout)
+# ✅ ZÉRO cookie (conforme RGPD sans bannière obligatoire)
+
+# Installation dans le code (déjà fait) :
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+// Dans app/layout.tsx → <Analytics /> + <SpeedInsights />
+
+# ── SPEED INSIGHTS ────────────────────────────────────────────────────────────
+# Mesure les 3 Core Web Vitals (critères de Google pour le ranking) :
+# LCP  (Largest Contentful Paint)  → Image/texte principal affiché < 2.5s ✅
+# FID  (First Input Delay)         → Réactivité au premier clic < 100ms  ✅
+# CLS  (Cumulative Layout Shift)   → Stabilité visuelle (score 0 = parfait) ✅
+
+# Activer dans Vercel Dashboard :
+# Project → Analytics → Enable
+# Project → Speed Insights → Enable
+
+# Accès côté admin du site :
+# /admin/analytics → graphiques traffic
+# /admin/recordings → enregistrements de sessions (via DataCollector.tsx)`
+      },
+      {
+        title: "OpenAI — Intelligence artificielle intégrée",
+        desc: "L'IA est utilisée dans 5 sections du panel admin pour accélérer la gestion du store. Nécessite un compte OpenAI et une clé API.",
+        code: `# ── CRÉER UN COMPTE OPENAI ───────────────────────────────────────────────────
+# 1. Aller sur https://platform.openai.com → Sign up
+# 2. Ajouter un moyen de paiement (facturation à l'usage)
+# 3. Dashboard → API Keys → Create new secret key
+# 4. Nommer : "lecomax" | Copier : sk-xxxxxxxxxxxx
+
+# .env.local :
+OPENAI_API_KEY=sk-xxxxxxxxxxxx
+
+# ── 5 USAGES DANS L'ADMIN ────────────────────────────────────────────────────
+# 1. /admin/products → Bouton "✨ Générer avec IA"
+#    → GPT analyse le nom + catégorie → génère une description de vente
+#    → Économise 5-10 min par produit
+
+# 2. /admin/messages → Bouton "Réponse suggérée"
+#    → GPT lit le message client → propose une réponse professionnelle
+#    → L'admin peut la modifier avant d'envoyer
+
+# 3. /admin/broadcast → Assistant marketing
+#    → GPT génère le contenu d'un email, SMS, ou post WhatsApp
+#    → Basé sur un objectif (promo, lancement, annonce)
+
+# 4. /admin/reviews → Analyse des avis
+#    → GPT détecte les avis faux ou inappropriés
+#    → Suggère si approuver ou rejeter
+
+# 5. /admin/studio → Studio créatif IA
+#    → Génération de textes marketing, titres, hashtags
+
+# Coût moyen : ~0.01$ par génération (GPT-4o-mini)
+# Budget typique : < 5$/mois pour une boutique de taille moyenne`
+      },
+      {
+        title: "PayPal — Paiement en ligne international",
+        desc: "PayPal complète le paiement à la livraison (COD). Permet aux clients d'acheter avec leur compte PayPal ou carte de crédit internationale.",
+        code: `# ── CRÉER UN COMPTE PAYPAL BUSINESS ─────────────────────────────────────────
+# 1. Aller sur https://developer.paypal.com → Log in / Sign up
+# 2. Dashboard → Apps & Credentials → Create App
+# 3. Nommer : "lecomax" | Type : Merchant
+# 4. Copier le Client ID (Sandbox pour tests, puis Live pour production)
+
+# .env.local :
+NEXT_PUBLIC_PAYPAL_CLIENT_ID=AXxxx...   # Sandbox (tests)
+# Pour la production : remplacer par le Live Client ID
+
+# Vercel → Settings → Env → Ajouter la clé Live en production
+
+# ── DANS LE CODE ──────────────────────────────────────────────────────────────
+# app/checkout/page.tsx utilise @paypal/react-paypal-js :
+import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
+
+<PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID! }}>
+  <PayPalButtons
+    createOrder={(data, actions) => actions.order.create({ purchase_units: [{ amount: { value: total.toString() } }] })}
+    onApprove={(data, actions) => { /* créer la commande */ }}
+  />
+</PayPalScriptProvider>
+
+# Méthodes de paiement acceptées sur le site :
+# ✅ Paiement à la livraison (Cash on Delivery) — principal au Maroc
+# ✅ PayPal — pour les achats internationaux
+# ✅ Carte bancaire via PayPal (sans compte PayPal nécessaire)`
+      },
+    ],
+  },
 ];
 
 function HeroSection() {
-  const [openPhase, setOpenPhase] = useState<string | null>("01");
-  const [openSteps, setOpenSteps] = useState<Record<string, string | null>>({ "01": "Bootstrap Next.js App" });
+  const [openPhase, setOpenPhase] = useState<string | null>("00");
+  const [openSteps, setOpenSteps] = useState<Record<string, string | null>>({ "00": "Étape 1 — Installer Node.js (v20 LTS)" });
   const [copied, setCopied] = useState("");
 
   const copy = (text: string, k: string) => {
@@ -880,7 +1277,7 @@ function HeroSection() {
     <div className="space-y-6">
       <div className="mb-6">
         <h2 className="text-xl font-black text-gray-900">De 0 à Héros — Construction complète du site</h2>
-        <p className="text-sm text-gray-500 mt-1">Chaque phase de la création : initialisation → Supabase → frontend → admin → APIs → GitHub → Vercel → domaine.</p>
+        <p className="text-sm text-gray-500 mt-1">Chaque phase de la création : configuration → initialisation → Supabase → frontend → admin → APIs → GitHub → Vercel → Namecheap → outils de croissance.</p>
       </div>
       <div className="relative">
         <div className="absolute left-[19px] top-5 bottom-5 w-0.5 bg-gray-200" />
@@ -1002,15 +1399,20 @@ const TECH = [
   { name: "TypeScript", v: "5.7.2", badge: "devtool", cat: "Langage", why: "strict:true attrape les bugs à la compile. Types Product, Order, Category partagés partout." },
   { name: "Tailwind CSS", v: "3.4.15", badge: "ui", cat: "Style", why: "Classes utilitaires. Design system dans tailwind.config.js (brand green #16b277, Inter+Sora)." },
   { name: "Supabase", v: "2.105.0", badge: "db", cat: "BDD+Auth", why: "PostgreSQL + Auth + Storage. Anon key safe côté client. Service role pour API admin." },
-  { name: "Resend", v: "6.12.2", badge: "email", cat: "Email transac.", why: "API simple, haute délivrabilité pour confirmations et shipping updates." },
+  { name: "Vercel", v: "Hosting", badge: "hosting", cat: "Hébergement", why: "Déploiement automatique à chaque git push. CDN mondial, SSL auto, Edge Functions. Plan gratuit généreux." },
+  { name: "Namecheap", v: "Registrar", badge: "domain", cat: "Domaine", why: "Registrar utilisé pour lecomax.com. Interface DNS simple pour A Record, CNAME et records DKIM/SPF (Resend)." },
+  { name: "Resend", v: "6.12.2", badge: "email", cat: "Email transac.", why: "Emails de confirmation commande et newsletters. Délivrabilité élevée. Setup DNS DKIM en 5 min. 3 000 emails/mois gratuits." },
   { name: "Nodemailer", v: "8.0.11", badge: "email", cat: "Email SMTP", why: "SMTP flexible dans les routes API server-side." },
   { name: "EmailJS", v: "4.4.1", badge: "email", cat: "Email client", why: "Formulaire contact côté client, sans API route dédiée." },
   { name: "imapflow + mailparser", v: "1.4.0", badge: "email", cat: "Email IMAP", why: "Lecture emails entrants pour l'inbox dans /admin/messages." },
   { name: "PayPal SDK", v: "10.0.0", badge: "payment", cat: "Paiement", why: "Boutons PayPal React dans le checkout, complète le COD." },
-  { name: "OpenAI", v: "6.42.0", badge: "ai", cat: "IA", why: "Descriptions produits, réponses clients, broadcast marketing, modération avis." },
-  { name: "web-push", v: "3.6.7", badge: "push", cat: "Push Notif.", why: "Envoie des notifications web depuis /admin/push aux abonnés." },
-  { name: "Vercel Analytics", v: "2.0.1", badge: "analytics", cat: "Analytics", why: "Traffic sans cookies, privacy-first, intégré à Vercel." },
-  { name: "Vercel Speed Insights", v: "2.0.0", badge: "analytics", cat: "Performance", why: "Core Web Vitals réels (LCP, FID, CLS) depuis les vrais users." },
+  { name: "OpenAI", v: "6.42.0", badge: "ai", cat: "IA", why: "Descriptions produits, réponses clients, broadcast marketing, modération avis. ~0.01$/requête avec GPT-4o-mini." },
+  { name: "web-push", v: "3.6.7", badge: "push", cat: "Push Notif.", why: "Envoie des notifications web depuis /admin/push aux abonnés. Clés VAPID générées via npx web-push generate-vapid-keys." },
+  { name: "Vercel Analytics", v: "2.0.1", badge: "analytics", cat: "Analytics", why: "Traffic sans cookies, privacy-first, intégré à Vercel. Pages vues, pays, devices, referrers." },
+  { name: "Vercel Speed Insights", v: "2.0.0", badge: "analytics", cat: "Performance", why: "Core Web Vitals réels (LCP, FID, CLS) depuis les vrais users. Essentiel pour le ranking Google." },
+  { name: "WhatsApp (whapi.cloud)", v: "API", badge: "comms", cat: "Messaging", why: "Canal N°1 au Maroc. Chat client, confirmations commande, broadcasts marketing via /admin/broadcast." },
+  { name: "Google Search Console", v: "Gratuit", badge: "seo", cat: "SEO", why: "Surveillance indexation, mots-clés, clic/impression Google. Soumettre le sitemap.xml pour accélérer le crawl." },
+  { name: "IndexNow", v: "API", badge: "seo", cat: "SEO", why: "Notifie Bing et Yandex INSTANTANÉMENT quand un produit est créé. Sans attendre le prochain crawl (peut prendre des semaines)." },
   { name: "Inter + Sora", v: "Google Fonts", badge: "ui", cat: "Polices", why: "Inter pour le corps (lisibilité), Sora pour les titres (impact)." },
 ];
 const BC: Record<string, string> = {
@@ -1018,7 +1420,9 @@ const BC: Record<string, string> = {
   ui:"bg-pink-100 text-pink-700 border-pink-200", email:"bg-blue-100 text-blue-700 border-blue-200",
   payment:"bg-yellow-100 text-yellow-800 border-yellow-200", analytics:"bg-orange-100 text-orange-700 border-orange-200",
   ai:"bg-cyan-100 text-cyan-700 border-cyan-200", devtool:"bg-slate-100 text-slate-700 border-slate-200",
-  push:"bg-red-100 text-red-700 border-red-200",
+  push:"bg-red-100 text-red-700 border-red-200", hosting:"bg-gray-100 text-gray-700 border-gray-200",
+  domain:"bg-amber-100 text-amber-700 border-amber-200", comms:"bg-green-100 text-green-700 border-green-200",
+  seo:"bg-indigo-100 text-indigo-700 border-indigo-200",
 };
 function TechSec() {
   const [exp, setExp] = useState<string|null>(null);

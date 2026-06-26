@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken } from "@/lib/admin-session";
+import { verifySessionToken, verifyStaffPermissionsToken } from "@/lib/admin-session";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -22,6 +22,46 @@ async function isValidAdminSession(req: NextRequest): Promise<boolean> {
   const email = await verifySessionToken(value);
   return !!email;
 }
+
+// Route slug → required permission slug.
+// null      = always visible to all authenticated users (e.g. dashboard)
+// undefined = owner-only (hidden from all staff)
+// "slug"    = staff must have this permission
+const ROUTE_PERMISSIONS: Record<string, string | null | undefined> = {
+  "dashboard":       null,
+  "analytics":       "analytics.view",
+  "recordings":      "recordings.view",
+  "products":        "products.view",
+  "orders":          "orders.view",
+  "customers":       "customers.view",
+  "client-data":     "customers.view",
+  "stock":           "stock.edit",
+  "abandoned-carts": "carts.view",
+  "loyalty":         "loyalty.edit",
+  "broadcast":       "broadcast.send",
+  "push":            "push.send",
+  "trustpilot":      "reviews.edit",
+  "reviews":         "reviews.edit",
+  "categories":      "categories.edit",
+  "pages":           "pages.edit",
+  "banners":         "banners.edit",
+  "media":           "media.manage",
+  "studio":          "studio.access",
+  "shipping":        "shipping.edit",
+  "size-guide":      "size-guide.edit",
+  "announcement":    "announcement.edit",
+  "promotions":      "promotions.edit",
+  "ads":             "ads.edit",
+  "newsletter":      "newsletter.edit",
+  "coupons":         "promotions.edit",
+  "messages":        "messages.view",
+  "returns":         "returns.edit",
+  "settings":        "settings.edit",
+  "roles":           "roles.manage",
+  "staff":           "staff.manage",
+  "approvals":       undefined,
+  "how-it-was-built": undefined,
+};
 
 /**
  * Verify that write requests to admin API routes come from the same origin.
@@ -53,7 +93,7 @@ export async function middleware(req: NextRequest) {
   const isStaticOrApi = pathname.startsWith("/_next") || pathname.startsWith("/api") || pathname.startsWith("/admin");
 
   // ── Maintenance mode check (for non-admin, non-static routes) ──
-  if (!isStaticOrApi && pathname !== "/maintenance") {
+  if (!isStaticOrApi && !pathname.startsWith("/maintenance")) {
     const maintenanceCookie = req.cookies.get("maintenance_bypass")?.value;
     if (maintenanceCookie !== "admin") {
       try {
@@ -91,6 +131,30 @@ export async function middleware(req: NextRequest) {
       const loginUrl = new URL("/admin", req.url);
       loginUrl.searchParams.set("from", pathname);
       return NextResponse.redirect(loginUrl);
+    }
+
+    // ── Staff permission enforcement ──────────────────────────────────────
+    // If a signed staff_permissions cookie exists, this is a restricted staff
+    // member. Verify the token and block any route they don't have access to.
+    const staffToken = req.cookies.get("staff_permissions")?.value;
+    if (staffToken) {
+      const staffPerms = await verifyStaffPermissionsToken(staffToken);
+      if (staffPerms !== null) {
+        // Valid staff token — enforce route permission
+        const pageKey = pathname.split("/admin/")[1]?.split("/")[0] ?? "dashboard";
+        const required = ROUTE_PERMISSIONS[pageKey];
+        const allowed =
+          required === null ||                          // always allowed
+          (required !== undefined && staffPerms.includes(required)); // has perm
+        if (!allowed) {
+          return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+        }
+      } else {
+        // Tampered / malformed staff cookie — force re-login
+        const loginUrl = new URL("/admin", req.url);
+        loginUrl.searchParams.set("from", pathname);
+        return NextResponse.redirect(loginUrl);
+      }
     }
   }
 

@@ -131,7 +131,8 @@ export default function CustomersPage() {
           {filtered.length === 0 ? (
             <div className="px-6 py-16 text-center text-neutral-400 text-sm">Aucun client trouvé.</div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[580px]">
               <thead>
                 <tr className="border-b border-neutral-100 text-xs text-neutral-400 uppercase tracking-wide">
                   <th className="text-left px-5 py-3">Client</th>
@@ -179,6 +180,7 @@ export default function CustomersPage() {
                 })}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}

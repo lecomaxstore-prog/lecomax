@@ -70,6 +70,11 @@ export default function ProductsPage() {
     payload: Record<string, unknown> | null; created_at: string;
   }>>([]);
   const { isStaff, userEmail, ready, submitForApproval } = useApproval();
+  const tableRef = useRef<HTMLDivElement>(null);
+
+  const scrollTable = (dir: "left" | "right") => {
+    tableRef.current?.scrollBy({ left: dir === "right" ? 300 : -300, behavior: "smooth" });
+  };
 
   const showForm = isNew || !!editId;
 
@@ -745,55 +750,6 @@ export default function ProductsPage() {
               )}
             </div>
 
-            {/* Description Images */}
-            <div className="bg-white border border-neutral-100 rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Images de description</h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 bg-neutral-100 rounded-full text-neutral-500">{descImages.length} photo{descImages.length !== 1 ? "s" : ""}</span>
-              </div>
-              <p className="text-[11px] text-neutral-400 mb-4">Photos affichées dans la section description du produit (détails, matières, lifestyle…)</p>
-              <input ref={descFileInputRef} type="file" accept="image/*" multiple className="hidden"
-                onChange={(e) => e.target.files && uploadDescFiles(e.target.files)} />
-              <div
-                onClick={() => !uploadingDesc && descFileInputRef.current?.click()}
-                onDragOver={(e) => { e.preventDefault(); setDragOverDesc(true); }}
-                onDragLeave={() => setDragOverDesc(false)}
-                onDrop={(e) => { e.preventDefault(); setDragOverDesc(false); uploadDescFiles(e.dataTransfer.files); }}
-                className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all mb-3 ${dragOverDesc ? "border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${uploadingDesc ? "pointer-events-none opacity-70" : ""}`}>
-                {uploadingDesc ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                    <p className="text-xs text-neutral-500">Upload en cours…</p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="w-9 h-9 bg-neutral-100 rounded-xl flex items-center justify-center mb-1">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-500">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                      </svg>
-                    </div>
-                    <p className="text-xs font-semibold text-neutral-700">Cliquer ou glisser des images</p>
-                    <p className="text-[10px] text-neutral-400">JPG, PNG, WEBP, AVIF — max 5 MB</p>
-                  </div>
-                )}
-              </div>
-              {descImages.length > 0 && (
-                <div className="grid grid-cols-2 gap-2">
-                  {descImages.map((url, i) => (
-                    <div key={i} className="relative group rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200" style={{ aspectRatio: "4/3" }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt="" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <button type="button" onClick={() => setDescImages((prev) => prev.filter((_, j) => j !== i))}
-                          className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-white">
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
 
           {/* ── RIGHT ── */}
@@ -888,6 +844,56 @@ export default function ProductsPage() {
                   </div>
                 );
               })()}
+            </div>
+
+            {/* Description Images */}
+            <div className="bg-white border border-neutral-100 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-1">
+                <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Images de description</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 bg-neutral-100 rounded-full text-neutral-500">{descImages.length} photo{descImages.length !== 1 ? "s" : ""}</span>
+              </div>
+              <p className="text-[11px] text-neutral-400 mb-4">Photos affichées dans la section description du produit (détails, matières, lifestyle…)</p>
+              <input ref={descFileInputRef} type="file" accept="image/*" multiple className="hidden"
+                onChange={(e) => e.target.files && uploadDescFiles(e.target.files)} />
+              <div
+                onClick={() => !uploadingDesc && descFileInputRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setDragOverDesc(true); }}
+                onDragLeave={() => setDragOverDesc(false)}
+                onDrop={(e) => { e.preventDefault(); setDragOverDesc(false); uploadDescFiles(e.dataTransfer.files); }}
+                className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all mb-3 ${dragOverDesc ? "border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${uploadingDesc ? "pointer-events-none opacity-70" : ""}`}>
+                {uploadingDesc ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    <p className="text-xs text-neutral-500">Upload en cours…</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-9 h-9 bg-neutral-100 rounded-xl flex items-center justify-center mb-1">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-500">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                    </div>
+                    <p className="text-xs font-semibold text-neutral-700">Cliquer ou glisser des images</p>
+                    <p className="text-[10px] text-neutral-400">JPG, PNG, WEBP, AVIF — max 5 MB</p>
+                  </div>
+                )}
+              </div>
+              {descImages.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {descImages.map((url, i) => (
+                    <div key={i} className="relative group rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200" style={{ aspectRatio: "4/3" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button type="button" onClick={() => setDescImages((prev) => prev.filter((_, j) => j !== i))}
+                          className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-white">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Status & Options */}
@@ -1005,6 +1011,23 @@ export default function ProductsPage() {
             {c === "all" ? "Tous" : c.charAt(0).toUpperCase() + c.slice(1)}
           </button>
         ))}
+        {/* Scroll arrows for the table below */}
+        <div className="ml-auto flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={() => scrollTable("left")}
+            className="w-8 h-8 flex items-center justify-center rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 hover:border-neutral-400 transition-all text-neutral-500 hover:text-black"
+            aria-label="Défiler à gauche"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button
+            onClick={() => scrollTable("right")}
+            className="w-8 h-8 flex items-center justify-center rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 hover:border-neutral-400 transition-all text-neutral-500 hover:text-black"
+            aria-label="Défiler à droite"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -1033,7 +1056,7 @@ export default function ProductsPage() {
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-neutral-100 overflow-x-auto">
+        <div ref={tableRef} className="bg-white rounded-2xl border border-neutral-100 overflow-x-auto">
           <table className="w-full text-sm min-w-[820px]">
             <thead className="sticky top-0 z-10">
               <tr className="border-b border-neutral-100 text-left bg-white">

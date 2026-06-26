@@ -119,7 +119,8 @@ export default function LoyaltyPage() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[460px]">
             <thead>
               <tr className="border-b border-neutral-100 text-[11px] text-neutral-400 uppercase tracking-wide">
                 <th className="text-left px-4 py-3">Membre</th>
@@ -193,6 +194,7 @@ export default function LoyaltyPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { verifySessionToken } from "@/lib/admin-session";
 
 const BLOCKED_PATTERNS = [
   /^\.env/i,
@@ -26,7 +27,7 @@ const MAX_SIZE = 300 * 1024; // 300 KB
 
 export async function GET(req: NextRequest) {
   const session = req.cookies.get("admin_session")?.value;
-  if (session !== "authenticated") {
+  if (!session || !(await verifySessionToken(session))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

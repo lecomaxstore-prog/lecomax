@@ -207,7 +207,8 @@ export default function NewsletterPage() {
             {!search && <p className="text-xs text-neutral-400 mt-1">Ajoutez votre premier abonné ci-dessus ou configurez le formulaire sur le site</p>}
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[560px]">
             <thead>
               <tr className="border-b border-neutral-100 text-[11px] text-neutral-400 uppercase tracking-wider">
                 <th className="px-5 py-3 text-left font-semibold">Email</th>
@@ -240,6 +241,7 @@ export default function NewsletterPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

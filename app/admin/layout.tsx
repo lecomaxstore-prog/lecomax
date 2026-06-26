@@ -523,7 +523,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   async function logout() {
     await supabase.auth.signOut();
     await fetch("/api/admin/auth/session", { method: "DELETE" });
-    document.cookie = "staff_permissions=; path=/; max-age=0; SameSite=Strict";
     router.replace("/admin");
   }
 
@@ -759,8 +758,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </main>
 
         {/* ──────────────── MOBILE BOTTOM NAV ──────────────── */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-neutral-100 shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
-          <div className="flex items-center justify-around h-16 px-2">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-neutral-100 shadow-[0_-2px_20px_rgba(0,0,0,0.08)]"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+          <div className="flex items-center justify-around h-[60px] px-1">
+
+            {/* Left pair */}
             {[
               {
                 href: "/admin/dashboard", label: "Accueil",
@@ -770,33 +772,60 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 href: "/admin/orders", label: "Commandes", badge: "orders",
                 icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
               },
-              {
-                href: "/admin/products", label: "Produits",
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-              },
-              {
-                href: "/admin/analytics", label: "Stats",
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-              },
+            ].map((item) => {
+              const active = pathname.startsWith(item.href);
+              const badgeCount = item.badge ? (badges[item.badge as keyof typeof badges] ?? 0) : 0;
+              return (
+                <Link key={item.href} href={item.href}
+                  className={`relative flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all duration-150 active:scale-90
+                    ${active ? "text-black" : "text-neutral-400"}`}>
+                  {badgeCount > 0 && (
+                    <span className="absolute top-1.5 right-[calc(50%-16px)] w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center shadow-sm z-10">
+                      {badgeCount > 9 ? "9+" : badgeCount}
+                    </span>
+                  )}
+                  <span className={active ? "text-black" : "text-neutral-400"}>{item.icon}</span>
+                  <span className={`text-[9px] font-bold tracking-wide ${active ? "text-black" : "text-neutral-400"}`}>{item.label}</span>
+                  {active && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-[#3ecf4c] rounded-full" />}
+                </Link>
+              );
+            })}
+
+            {/* Centre FAB — Nouveau produit */}
+            <div className="flex-1 flex items-center justify-center">
+              <Link href="/admin/products?new=1"
+                className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 active:scale-90 transition-all">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </Link>
+            </div>
+
+            {/* Right pair */}
+            {[
               {
                 href: "/admin/messages", label: "Messages", badge: "messages",
                 icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
               },
+              {
+                href: "/admin/products", label: "Produits",
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+              },
             ].map((item) => {
               const active = pathname.startsWith(item.href);
-              const badgeCount = item.badge ? (badges[item.badge] ?? 0) : 0;
+              const badgeCount = item.badge ? (badges[item.badge as keyof typeof badges] ?? 0) : 0;
               return (
                 <Link key={item.href} href={item.href}
-                  className={`relative flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all duration-150
-                    ${active ? "text-black" : "text-neutral-400 active:scale-95"}`}>
+                  className={`relative flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all duration-150 active:scale-90
+                    ${active ? "text-black" : "text-neutral-400"}`}>
                   {badgeCount > 0 && (
-                    <span className="absolute -top-0.5 right-0 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center shadow-sm">
+                    <span className="absolute top-1.5 right-[calc(50%-16px)] w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center shadow-sm z-10">
                       {badgeCount > 9 ? "9+" : badgeCount}
                     </span>
                   )}
-                  <span className={`transition-colors ${active ? "text-black" : "text-neutral-400"}`}>{item.icon}</span>
+                  <span className={active ? "text-black" : "text-neutral-400"}>{item.icon}</span>
                   <span className={`text-[9px] font-bold tracking-wide ${active ? "text-black" : "text-neutral-400"}`}>{item.label}</span>
-                  {active && <span className="absolute -bottom-px left-1/2 -translate-x-1/2 w-5 h-0.5 bg-[#3ecf4c] rounded-full" />}
+                  {active && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-[#3ecf4c] rounded-full" />}
                 </Link>
               );
             })}
