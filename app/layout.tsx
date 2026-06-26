@@ -219,9 +219,6 @@ export default function RootLayout({
     }
   ]
 }` }} />
-              "sameAs": [
-                "https://www.instagram.com/lecomax",
-                "https://www.tiktok.com/@lecomax",
       <body className="min-h-screen flex flex-col font-sans">
         <CartProvider>
           <SiteProtection />

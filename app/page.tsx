@@ -94,8 +94,8 @@ export default async function HomePage() {
     ...(staticProducts as CardProduct[]).filter((p) => !dbSlugs.has(p.slug)),
   ].map((p) => ({
     ...p,
-    rating: reviewStats[p.slug]?.rating ?? p.rating,
-    reviewCount: reviewStats[p.slug]?.count ?? p.reviewCount,
+    rating: reviewStats[p.slug]?.rating,
+    reviewCount: reviewStats[p.slug]?.count,
   }));
 
   const newArrivals = allProducts.filter((p) => p.badge === "Nouveau");

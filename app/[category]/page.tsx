@@ -130,8 +130,8 @@ export default async function CategoryPage({
     ...staticList.filter((p) => !dbSlugs.has(p.slug)),
   ].map((p) => ({
     ...p,
-    rating: reviewStats[p.slug]?.rating ?? p.rating,
-    reviewCount: reviewStats[p.slug]?.count ?? p.reviewCount,
+    rating: reviewStats[p.slug]?.rating,
+    reviewCount: reviewStats[p.slug]?.count,
   }));
 
   // Build subCategories from merged list
