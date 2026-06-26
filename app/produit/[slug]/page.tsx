@@ -286,8 +286,8 @@ export default async function ProductPage({
     }
   } catch { /* use fallback */ }
 
-  const displayRating = reviewCount > 0 ? reviewRating : ratingFor(slug).rating;
-  const displayReviewCount = reviewCount > 0 ? reviewCount : ratingFor(slug).count;
+  const displayRating = reviewRating;
+  const displayReviewCount = reviewCount;
 
   // Fetch color_stock and stock from DB
   let realStock: number | null = null;
@@ -485,19 +485,23 @@ export default async function ProductPage({
             const full = Math.round(rating);
             return (
               <div className="flex items-center gap-2 mt-3 flex-wrap">
-                <div className="flex gap-0.5">
-                  {[1,2,3,4,5].map(s => (
-                    <svg key={s} width="12" height="12" viewBox="0 0 24 24"
-                      fill={s <= full ? "#facc15" : "none"}
-                      stroke={s <= full ? "#facc15" : "#d4d4d4"}
-                      strokeWidth="1.5">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                  ))}
-                </div>
-                <span className="text-[12px] font-bold">{rating}</span>
-                <span className="text-[12px] text-neutral-400">({count} avis)</span>
-                <span className="text-neutral-200">·</span>
+                {count > 0 && (
+                  <>
+                    <div className="flex gap-0.5">
+                      {[1,2,3,4,5].map(s => (
+                        <svg key={s} width="12" height="12" viewBox="0 0 24 24"
+                          fill={s <= full ? "#facc15" : "none"}
+                          stroke={s <= full ? "#facc15" : "#d4d4d4"}
+                          strokeWidth="1.5">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                      ))}
+                    </div>
+                    <span className="text-[12px] font-bold">{rating}</span>
+                    <span className="text-[12px] text-neutral-400">({count} avis)</span>
+                    <span className="text-neutral-200">·</span>
+                  </>
+                )}
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   En stock
