@@ -94,28 +94,25 @@ export async function middleware(req: NextRequest) {
 
   // ── Maintenance mode check (for non-admin, non-static routes) ──
   if (!isStaticOrApi && !pathname.startsWith("/maintenance")) {
-    const maintenanceCookie = req.cookies.get("maintenance_bypass")?.value;
-    if (maintenanceCookie !== "admin") {
-      try {
-        // Query Supabase REST directly — no circular middleware call
-        const res = await fetch(
-          `${SUPABASE_URL}/rest/v1/settings?key=eq.maintenance_mode&select=value`,
-          {
-            headers: {
-              apikey: SUPABASE_ANON_KEY,
-              Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-            },
-          }
-        );
-        if (res.ok) {
-          const rows: { value: string }[] = await res.json();
-          if (rows[0]?.value === "true") {
-            return NextResponse.redirect(new URL("/maintenance", req.url));
-          }
+    try {
+      // Query Supabase REST directly — no circular middleware call
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/settings?key=eq.maintenance_mode&select=value`,
+        {
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          },
         }
-      } catch {
-        // If DB is unreachable, don't block visitors
+      );
+      if (res.ok) {
+        const rows: { value: string }[] = await res.json();
+        if (rows[0]?.value === "true") {
+          return NextResponse.redirect(new URL("/maintenance", req.url));
+        }
       }
+    } catch {
+      // If DB is unreachable, don't block visitors
     }
   }
 
