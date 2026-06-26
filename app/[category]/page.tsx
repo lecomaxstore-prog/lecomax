@@ -126,6 +126,7 @@ export default async function CategoryPage({
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
+    "@id": `${SITE_URL}/${category}/#breadcrumb`,
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Accueil", "item": SITE_URL },
       { "@type": "ListItem", "position": 2, "name": cat.label, "item": `${SITE_URL}/${category}/` },
