@@ -23,19 +23,38 @@ const categoryMeta: Record<string, { title: string; description: string; keyword
     keywords: ["vêtements homme Maroc", "veste homme Maroc", "bomber homme Maroc", "sweat hoodie homme", "mode homme Maroc"],
   },
   femme: {
-    title: "Vêtements Femme | L'ecomax — Maroc",
-    description: "Collection vêtements femme au Maroc : vestes, bombers et hoodies tendance. Style et confort au quotidien. Livraison 35 MAD. Paiement à la livraison.",
-    keywords: ["vêtements femme Maroc", "veste femme Maroc", "bomber femme Maroc", "mode femme Maroc", "sweat femme Maroc"],
+    title: "Vêtements & Chaussons Femme | L'ecomax — Maroc",
+    description: "Collection femme au Maroc : chaussons confortables, vestes, bombers et hoodies tendance. Style et chaleur au quotidien. Livraison 35 MAD. Paiement à la livraison.",
+    keywords: ["vêtements femme Maroc", "chaussons femme Maroc", "chaussons hiver femme", "bomber femme Maroc", "mode femme Maroc"],
   },
   chaussures: {
     title: "Chaussures Sport & Lifestyle | L'ecomax — Maroc",
-    description: "Chaussures running, trail et lifestyle au Maroc. Nike, Adidas et marques premium. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
+    description: "Chaussures running, trail et lifestyle au Maroc. Baskets respirantes légères disponibles en plusieurs coloris. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
     keywords: ["chaussures sport Maroc", "chaussures running Maroc", "baskets Maroc", "chaussures lifestyle Maroc", "sneakers Maroc"],
   },
   accessoires: {
     title: "Accessoires Tech & Gaming | L'ecomax — Maroc",
-    description: "Accessoires tech au Maroc : manettes gaming, écouteurs sans fil, sacs à dos et plus. Livraison 35 MAD. Paiement à la livraison.",
+    description: "Accessoires tech au Maroc : manettes gaming sans fil, écouteurs TWS, enceintes Bluetooth, sacs à dos anti-vol. Livraison 35 MAD. Paiement à la livraison.",
     keywords: ["accessoires tech Maroc", "manette gaming Maroc", "écouteurs sans fil Maroc", "sac à dos Maroc", "enceinte bluetooth Maroc"],
+  },
+};
+
+const categorySeoContent: Record<string, { heading: string; body: string }> = {
+  homme: {
+    heading: "Vêtements Homme au Maroc — Style & Confort",
+    body: "Découvrez notre collection de vêtements homme soigneusement sélectionnés pour le style et la performance. Vestes de sport, bombers tendance, sweats et hoodies disponibles dans des coupes modernes adaptées à toutes les morphologies. Chaque article est choisi pour son rapport qualité-prix exceptionnel. Livraison rapide à 35 MAD partout au Maroc — Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir et toutes les villes. Paiement à la livraison disponible. Retours gratuits sous 30 jours.",
+  },
+  femme: {
+    heading: "Vêtements & Chaussons Femme au Maroc — Confort & Tendance",
+    body: "Retrouvez notre sélection de chaussons et vêtements pour femme adaptés à toutes les saisons. Chaussons d'intérieur en peluche chauds et moelleux, chaussons à fleurs tendance, chaussons extérieur antidérapants — des modèles confortables pour la maison et les courtes sorties. Également vestes et hoodies féminins pour compléter votre garde-robe. Articles en promotion régulièrement. Livraison 35 MAD partout au Maroc, paiement à la livraison, retours gratuits 30 jours.",
+  },
+  chaussures: {
+    heading: "Chaussures de Sport & Running au Maroc",
+    body: "Trouvez la chaussure idéale parmi notre sélection de baskets et chaussures de sport au Maroc. Modèles respirants ultra-légers pour la course à pied et la marche quotidienne, avec semelles souples pour un confort toute la journée. Disponibles en plusieurs couleurs et pointures (38 à 45). Idéales pour le running, le tennis et les activités sportives. Livraison express à 35 MAD partout au Maroc avec paiement à la livraison. Retours gratuits sous 30 jours.",
+  },
+  accessoires: {
+    heading: "Accessoires Tech & Gaming au Maroc — Qualité Premium",
+    body: "Explorez notre gamme d'accessoires tech sélectionnés pour leur qualité et innovation. Enceintes Bluetooth HiFi son stéréo cinéma, écouteurs sans fil TWS avec microphone intégré, manettes gaming sans fil compatibles iOS/PC/Switch/Android, sacs à dos anti-vol pour le voyage et le quotidien. Tous nos produits sont testés et garantis. Livraison à 35 MAD partout au Maroc — Casablanca, Rabat, Marrakech et toutes les villes. Paiement à la livraison, retours gratuits 30 jours.",
   },
 };
 
@@ -211,6 +230,18 @@ export default async function CategoryPage({
 
       {/* Filters + grid */}
       <CategoryFilters products={list} subCategories={subCategories} />
+
+      {/* SEO content block */}
+      {categorySeoContent[category] && (
+        <section className="max-w-4xl mx-auto px-6 py-16 border-t border-neutral-100">
+          <h2 className="text-xl font-black mb-4 text-neutral-800">
+            {categorySeoContent[category].heading}
+          </h2>
+          <p className="text-neutral-500 text-[14px] leading-relaxed">
+            {categorySeoContent[category].body}
+          </p>
+        </section>
+      )}
     </div>
   );
 }

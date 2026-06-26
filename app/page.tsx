@@ -383,6 +383,25 @@ export default async function HomePage() {
 
         </div>
       </section>
+
+      {/* ── SEO text block ──────────────────────────────────── */}
+      <section className="max-w-5xl mx-auto px-6 py-16 border-t border-neutral-100">
+        <h2 className="text-xl font-black mb-6 text-neutral-800">
+          L&apos;ecomax — Boutique en ligne au Maroc : Mode, Sport &amp; Tech
+        </h2>
+        <div className="grid md:grid-cols-2 gap-8 text-neutral-500 text-[14px] leading-relaxed">
+          <div>
+            <p>
+              L&apos;ecomax est une boutique en ligne marocaine spécialisée dans les vêtements tendance, les chaussures de sport et les accessoires tech. Retrouvez une sélection soignée de baskets respirantes pour la course à pied, de chaussons confortables pour femme, de vestes et hoodies homme et femme, ainsi que des accessoires gaming et audio de qualité premium.
+            </p>
+          </div>
+          <div>
+            <p>
+              Nous livrons partout au Maroc — Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir, Meknès, Oujda et toutes les villes — à seulement 35 MAD. Paiement à la livraison disponible sur toutes les commandes. Retours gratuits sous 30 jours. Commandez en toute confiance sur lecomax.com.
+            </p>
+          </div>
+        </div>
+      </section>
     </>
   );
 }
