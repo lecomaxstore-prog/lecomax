@@ -104,6 +104,8 @@ export default function PushPrompt() {
   async function subscribe() {
     setPhase("loading");
     setError(null);
+    // Mark as interacted immediately — never show this prompt again regardless of outcome
+    localStorage.setItem(LS_DONE, "1");
     try {
       const perm = await Notification.requestPermission();
       setPermState(perm as PermState);
