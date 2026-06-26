@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { createClient } from "@supabase/supabase-js";
 import { ratingFor } from "@/components/ProductCard";
-
-const supabaseBrowser = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 type Review = {
   id: string;
@@ -72,7 +66,9 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   // Email order-check state
   const [emailChecking, setEmailChecking] = useState(false);
@@ -152,19 +148,19 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
     let uploadedImageUrl: string | null = null;
     if (photoFile) {
       setPhotoUploading(true);
-      const ext = photoFile.name.split(".").pop() ?? "jpg";
-      const fileName = `${productSlug}-${Date.now()}.${ext}`;
-      const { data: uploadData, error: uploadError } = await supabaseBrowser.storage
-        .from("review-photos")
-        .upload(fileName, photoFile, { cacheControl: "31536000", upsert: false });
+      const fd = new FormData();
+      fd.append("photo", photoFile);
+      fd.append("slug", productSlug);
+      const uploadRes = await fetch("/api/reviews/upload-photo", { method: "POST", body: fd });
       setPhotoUploading(false);
-      if (uploadError) {
-        setFormError("Erreur lors de l'envoi de la photo. Réessayez ou soumettez sans photo.");
+      if (!uploadRes.ok) {
+        const uploadData = await uploadRes.json().catch(() => ({}));
+        setFormError(uploadData.error ?? "Erreur lors de l'envoi de la photo. Réessayez ou soumettez sans photo.");
         setSubmitting(false);
         return;
       }
-      const { data: { publicUrl } } = supabaseBrowser.storage.from("review-photos").getPublicUrl(uploadData.path);
-      uploadedImageUrl = publicUrl;
+      const uploadData = await uploadRes.json();
+      uploadedImageUrl = uploadData.url ?? null;
     }
 
     const res = await fetch("/api/reviews", {
@@ -375,6 +371,7 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
             <label className="block text-[11px] font-bold uppercase tracking-wide text-neutral-500 mb-2">
               Photo du produit <span className="text-neutral-400 font-normal">(optionnel)</span>
             </label>
+            {/* hidden input: gallery */}
             <input
               ref={photoInputRef}
               type="file"
@@ -383,29 +380,75 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
               onChange={(e) => {
                 const file = e.target.files?.[0] ?? null;
                 setPhotoFile(file);
-                if (file) setPhotoPreview(URL.createObjectURL(file));
-                else setPhotoPreview(null);
+                setPhotoPreview(file ? URL.createObjectURL(file) : null);
+                setShowPhotoOptions(false);
               }}
             />
+            {/* hidden input: camera */}
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                setPhotoFile(file);
+                setPhotoPreview(file ? URL.createObjectURL(file) : null);
+                setShowPhotoOptions(false);
+              }}
+            />
+
             {!photoPreview ? (
-              <button
-                type="button"
-                onClick={() => photoInputRef.current?.click()}
-                className="flex items-center gap-2.5 border border-dashed border-neutral-300 px-4 py-3 text-[12px] text-neutral-500 hover:border-black hover:text-black transition-colors w-full justify-center"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-                  <polyline points="21 15 16 10 5 21"/>
-                </svg>
-                Ajouter une photo de votre produit
-              </button>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowPhotoOptions((v) => !v)}
+                  className="flex items-center gap-2.5 border border-dashed border-neutral-300 px-4 py-3 text-[12px] text-neutral-500 hover:border-black hover:text-black transition-colors w-full justify-center"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  Ajouter une photo de votre produit
+                </button>
+                {showPhotoOptions && (
+                  <div className="absolute left-0 top-full mt-1 z-20 bg-white border border-neutral-200 shadow-lg w-full">
+                    <button
+                      type="button"
+                      onClick={() => { setShowPhotoOptions(false); photoInputRef.current?.click(); }}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-[12px] text-neutral-700 hover:bg-neutral-50 transition-colors border-b border-neutral-100"
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                      Importer depuis la galerie
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowPhotoOptions(false); cameraInputRef.current?.click(); }}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-[12px] text-neutral-700 hover:bg-neutral-50 transition-colors"
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+                      </svg>
+                      Prendre une photo
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="relative w-32 h-32 group">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={photoPreview} alt="Aperçu" className="w-32 h-32 object-cover border border-neutral-200" />
                 <button
                   type="button"
-                  onClick={() => { setPhotoFile(null); setPhotoPreview(null); if (photoInputRef.current) photoInputRef.current.value = ""; }}
+                  onClick={() => {
+                    setPhotoFile(null);
+                    setPhotoPreview(null);
+                    if (photoInputRef.current) photoInputRef.current.value = "";
+                    if (cameraInputRef.current) cameraInputRef.current.value = "";
+                  }}
                   className="absolute top-1 right-1 w-6 h-6 bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                   title="Supprimer la photo"
                 >
