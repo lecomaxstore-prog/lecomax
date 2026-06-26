@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import SEED_REVIEWS from "@/lib/seed-reviews";
+import { createClient } from "@supabase/supabase-js";
 import { ratingFor } from "@/components/ProductCard";
+
+const supabaseBrowser = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 type Review = {
   id: string;
@@ -14,6 +19,7 @@ type Review = {
   color: string | null;
   created_at: string;
   admin_reply?: string | null;
+  image_url?: string | null;
 };
 
 function StarRow({ rating, size = 12 }: { rating: number; size?: number }) {
@@ -62,6 +68,12 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
   const [formError, setFormError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
+  // Photo upload state
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
   // Email order-check state
   const [emailChecking, setEmailChecking] = useState(false);
   const [emailStatus, setEmailStatus] = useState<"idle" | "ok" | "not_ordered" | "already_reviewed" | "not_delivered">("idle");
@@ -104,23 +116,16 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
     fetch(`/api/reviews?slug=${productSlug}`)
       .then((r) => r.json())
       .then((d) => {
-        const dbReviews: Review[] = d.reviews ?? [];
-        const seeds = SEED_REVIEWS[productSlug] ?? [];
-        // Merge: seed reviews first, then real DB reviews on top
-        // Deduplicate by id (DB reviews take precedence)
-        const dbIds = new Set(dbReviews.map((r) => r.id));
-        const merged = [...seeds.filter((s) => !dbIds.has(s.id)), ...dbReviews];
-        setReviews(merged);
+        setReviews(d.reviews ?? []);
       })
       .finally(() => setLoading(false));
   }, [productSlug]);
 
-  // Use the same ratingFor function as ProductCard for consistent header stats
-  const { rating: cardRating, count: cardCount } = ratingFor(productSlug);
+  // Real average — only from actual DB reviews
   const avg = reviews.length
-    ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
-    : cardRating;
-  const displayCount = reviews.length || cardCount;
+    ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) * 10) / 10
+    : 0;
+  const displayCount = reviews.length;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,6 +147,26 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
     }
     setSubmitting(true);
     setFormError(null);
+
+    // Upload photo if selected
+    let uploadedImageUrl: string | null = null;
+    if (photoFile) {
+      setPhotoUploading(true);
+      const ext = photoFile.name.split(".").pop() ?? "jpg";
+      const fileName = `${productSlug}-${Date.now()}.${ext}`;
+      const { data: uploadData, error: uploadError } = await supabaseBrowser.storage
+        .from("review-photos")
+        .upload(fileName, photoFile, { cacheControl: "31536000", upsert: false });
+      setPhotoUploading(false);
+      if (uploadError) {
+        setFormError("Erreur lors de l'envoi de la photo. Réessayez ou soumettez sans photo.");
+        setSubmitting(false);
+        return;
+      }
+      const { data: { publicUrl } } = supabaseBrowser.storage.from("review-photos").getPublicUrl(uploadData.path);
+      uploadedImageUrl = publicUrl;
+    }
+
     const res = await fetch("/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -153,6 +178,7 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
         rating,
         title,
         review_body: body,
+        image_url: uploadedImageUrl,
       }),
     });
     const data = await res.json();
@@ -161,15 +187,9 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
       setFormError(data.error ?? "Une erreur est survenue.");
     } else {
       setSubmitted(true);
-      // Reload reviews and re-merge with seeds
       fetch(`/api/reviews?slug=${productSlug}`)
         .then((r) => r.json())
-        .then((d) => {
-          const dbReviews: Review[] = d.reviews ?? [];
-          const seeds = SEED_REVIEWS[productSlug] ?? [];
-          const dbIds = new Set(dbReviews.map((r) => r.id));
-          setReviews([...seeds.filter((s) => !dbIds.has(s.id)), ...dbReviews]);
-        });
+        .then((d) => setReviews(d.reviews ?? []));
     }
   };
 
@@ -181,13 +201,15 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
           <h2 className="h-display text-2xl md:text-3xl">Avis clients</h2>
           <div className="w-8 h-[3px] bg-black mt-2" />
         </div>
-        <div className="flex items-center gap-3 bg-neutral-50 border border-neutral-100 px-4 py-3">
-          <div>
-            <p className="text-3xl font-black leading-none">{avg.toFixed(1)}</p>
-            <StarRow rating={Math.round(avg)} size={10} />
-            <p className="text-[11px] text-neutral-400 mt-1">{displayCount} avis</p>
+        {reviews.length > 0 && (
+          <div className="flex items-center gap-3 bg-neutral-50 border border-neutral-100 px-4 py-3">
+            <div>
+              <p className="text-3xl font-black leading-none">{avg.toFixed(1)}</p>
+              <StarRow rating={Math.round(avg)} size={10} />
+              <p className="text-[11px] text-neutral-400 mt-1">{displayCount} avis</p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Leave a review button */}
@@ -348,6 +370,52 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
             />
           </div>
 
+          {/* Photo upload */}
+          <div className="mb-5">
+            <label className="block text-[11px] font-bold uppercase tracking-wide text-neutral-500 mb-2">
+              Photo du produit <span className="text-neutral-400 font-normal">(optionnel)</span>
+            </label>
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                setPhotoFile(file);
+                if (file) setPhotoPreview(URL.createObjectURL(file));
+                else setPhotoPreview(null);
+              }}
+            />
+            {!photoPreview ? (
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                className="flex items-center gap-2.5 border border-dashed border-neutral-300 px-4 py-3 text-[12px] text-neutral-500 hover:border-black hover:text-black transition-colors w-full justify-center"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                Ajouter une photo de votre produit
+              </button>
+            ) : (
+              <div className="relative w-32 h-32 group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photoPreview} alt="Aperçu" className="w-32 h-32 object-cover border border-neutral-200" />
+                <button
+                  type="button"
+                  onClick={() => { setPhotoFile(null); setPhotoPreview(null); if (photoInputRef.current) photoInputRef.current.value = ""; }}
+                  className="absolute top-1 right-1 w-6 h-6 bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Supprimer la photo"
+                >
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            )}
+            <p className="text-[10px] text-neutral-400 mt-1.5">JPG, PNG ou WebP — max 5 Mo</p>
+          </div>
+
           {formError && (
             <p className="text-red-600 text-[12px] mb-4 flex items-center gap-1.5">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
@@ -358,10 +426,10 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
           <div className="flex gap-3">
             <button
               type="submit"
-              disabled={submitting || emailChecking || emailStatus === "not_ordered" || emailStatus === "already_reviewed" || emailStatus === "not_delivered"}
+              disabled={submitting || photoUploading || emailChecking || emailStatus === "not_ordered" || emailStatus === "already_reviewed" || emailStatus === "not_delivered"}
               className="bg-black text-white px-6 py-3 text-[12px] font-black uppercase tracking-wide hover:bg-neutral-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {submitting ? "Envoi..." : emailChecking ? "Vérification..." : "Publier l'avis"}
+              {photoUploading ? "Envoi de la photo..." : submitting ? "Publication..." : emailChecking ? "Vérification..." : "Publier l'avis"}
             </button>
             <button
               type="button" onClick={() => { setShowForm(false); setFormError(null); setEmailStatus("idle"); }}
@@ -394,6 +462,16 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-40 w-72 flex-none bg-neutral-100 animate-pulse" />
           ))}
+        </div>
+      ) : reviews.length === 0 ? (
+        <div className="flex flex-col items-center gap-3 py-14 border border-dashed border-neutral-200 text-center">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d4d4d4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+          <p className="font-black text-neutral-700 text-[14px]">Pas encore d&apos;avis</p>
+          <p className="text-neutral-400 text-[13px] max-w-xs leading-relaxed">
+            Soyez le premier à partager votre expérience avec ce produit. Votre avis aide d&apos;autres clients à choisir.
+          </p>
         </div>
       ) : (
         <>
@@ -475,6 +553,18 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
               </div>
 
               <p className="text-[13px] text-neutral-600 leading-relaxed flex-1">{r.body}</p>
+
+              {/* Customer photo */}
+              {r.image_url && (
+                <a href={r.image_url} target="_blank" rel="noopener noreferrer" className="block mt-1">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={r.image_url}
+                    alt={`Photo de ${r.author_name}`}
+                    className="w-24 h-24 object-cover border border-neutral-100 hover:opacity-90 transition-opacity"
+                  />
+                </a>
+              )}
 
               {r.admin_reply && (
                 <div className="bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2.5 mt-1">

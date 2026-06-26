@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   if (slug) {
     const { data, error } = await supabase
       .from("reviews")
-      .select("id, author_name, city, rating, title, body, color, created_at")
+      .select("id, author_name, city, rating, title, body, color, created_at, image_url")
       .eq("product_slug", slug)
       .order("created_at", { ascending: false });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 // POST /api/reviews
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { product_slug, email, author_name, city, rating, title, review_body, color } = body;
+  const { product_slug, email, author_name, city, rating, title, review_body, color, image_url } = body;
 
   if (!product_slug || !email || !author_name || !rating || !review_body) {
     return NextResponse.json({ error: "Champs manquants." }, { status: 400 });
@@ -112,6 +112,7 @@ export async function POST(req: NextRequest) {
     title: title?.trim() ?? null,
     body: review_body.trim(),
     color: color?.trim() ?? null,
+    image_url: image_url?.trim() ?? null,
   });
 
   if (insertError) {
