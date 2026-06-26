@@ -11,11 +11,11 @@ export const metadata: Metadata = {
     "dernières arrivées L'ecomax",
     "édition limitée Maroc",
   ],
-  alternates: { canonical: "/nouveautes" },
+  alternates: { canonical: "https://lecomax.com/nouveautes/" },
   openGraph: {
     type: "website",
     locale: "fr_MA",
-    url: "https://lecomax.com/nouveautes",
+    url: "https://lecomax.com/nouveautes/",
     title: "Nouveautés | L'ecomax — Dernières Arrivées au Maroc",
     description:
       "Découvrez les dernières nouveautés L'ecomax : styles inédits et éditions limitées. Livraison 35 MAD au Maroc.",

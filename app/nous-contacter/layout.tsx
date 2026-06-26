@@ -11,12 +11,12 @@ export const metadata: Metadata = {
     "nous contacter lecomax",
     "support client Maroc",
   ],
-  alternates: { canonical: "/nous-contacter" },
+  alternates: { canonical: "https://lecomax.com/nous-contacter/" },
   openGraph: {
     title: "Nous Contacter | L'ecomax",
     description:
       "Contactez notre équipe par WhatsApp, email ou formulaire. Réponse rapide garantie.",
-    url: "https://lecomax.com/nous-contacter",
+    url: "https://lecomax.com/nous-contacter/",
   },
 };
 

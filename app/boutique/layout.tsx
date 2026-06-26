@@ -12,11 +12,11 @@ export const metadata: Metadata = {
     "acheter en ligne Maroc",
     "L'ecomax boutique",
   ],
-  alternates: { canonical: "/boutique" },
+  alternates: { canonical: "https://lecomax.com/boutique/" },
   openGraph: {
     type: "website",
     locale: "fr_MA",
-    url: "https://lecomax.com/boutique",
+    url: "https://lecomax.com/boutique/",
     title: "Boutique | L'ecomax — Chaussures, Vêtements & Accessoires Maroc",
     description:
       "Explorez toute la boutique L'ecomax : chaussures, vêtements, écouteurs et gaming. Livraison 35 MAD au Maroc.",

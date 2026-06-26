@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "paiement livraison Maroc",
     "suivi commande Maroc",
   ],
-  alternates: { canonical: "/aide" },
+  alternates: { canonical: "https://lecomax.com/aide/" },
   openGraph: {
     title: "Aide & FAQ | L'ecomax",
     description:

@@ -11,11 +11,11 @@ export const metadata: Metadata = {
     "chaussures tendance Maroc",
     "L'ecomax bestsellers",
   ],
-  alternates: { canonical: "/bestsellers" },
+  alternates: { canonical: "https://lecomax.com/bestsellers/" },
   openGraph: {
     type: "website",
     locale: "fr_MA",
-    url: "https://lecomax.com/bestsellers",
+    url: "https://lecomax.com/bestsellers/",
     title: "Bestsellers | L'ecomax — Les Plus Vendus au Maroc",
     description: "Les produits bestsellers de L'ecomax. Livraison 35 MAD au Maroc.",
     images: [

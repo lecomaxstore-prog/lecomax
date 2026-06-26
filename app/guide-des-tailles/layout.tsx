@@ -11,12 +11,12 @@ export const metadata: Metadata = {
     "guide tailles vêtements Maroc",
     "correspondance tailles Maroc",
   ],
-  alternates: { canonical: "/guide-des-tailles" },
+  alternates: { canonical: "https://lecomax.com/guide-des-tailles/" },
   openGraph: {
     title: "Guide des Tailles | L'ecomax",
     description:
       "Tableau de correspondance des tailles pour chaussures et vêtements L'ecomax.",
-    url: "https://lecomax.com/guide-des-tailles",
+    url: "https://lecomax.com/guide-des-tailles/",
   },
 };
 

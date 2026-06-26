@@ -11,11 +11,11 @@ export const metadata: Metadata = {
     "bons plans L'ecomax",
     "prix réduits Maroc",
   ],
-  alternates: { canonical: "/promotions" },
+  alternates: { canonical: "https://lecomax.com/promotions/" },
   openGraph: {
     type: "website",
     locale: "fr_MA",
-    url: "https://lecomax.com/promotions",
+    url: "https://lecomax.com/promotions/",
     title: "Promotions & Soldes | L'ecomax — Maroc",
     description: "Meilleures promotions L'ecomax. Livraison 35 MAD au Maroc.",
     images: [

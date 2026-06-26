@@ -11,12 +11,12 @@ export const metadata: Metadata = {
     "avantages membres Maroc",
     "livraison gratuite Maroc",
   ],
-  alternates: { canonical: "/ecoclub" },
+  alternates: { canonical: "https://lecomax.com/ecoclub/" },
   openGraph: {
     title: "ecoClub — Programme de Fidélité | L'ecomax",
     description:
       "Gagnez des points, obtenez la livraison gratuite et des réductions exclusives avec ecoClub.",
-    url: "https://lecomax.com/ecoclub",
+    url: "https://lecomax.com/ecoclub/",
   },
 };
 

@@ -339,7 +339,7 @@ export default async function ProductPage({
       "price": product.price,
       "priceCurrency": "MAD",
       "availability": "https://schema.org/InStock",
-      "url": `${SITE_URL}/produit/${product.slug}`,
+      "url": `${SITE_URL}/produit/${product.slug}/`,
       "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split("T")[0],
       "seller": { "@type": "Organization", "name": "L'ecomax", "url": SITE_URL },
       "shippingDetails": {
@@ -378,6 +378,7 @@ export default async function ProductPage({
         "returnFees": "https://schema.org/FreeReturn",
       },
     },
+    ...(reviewCount > 0 ? {
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": displayRating,
@@ -385,6 +386,7 @@ export default async function ProductPage({
       "bestRating": 5,
       "worstRating": 1,
     },
+    } : {}),
   };
 
   const breadcrumbSchema = {
@@ -392,8 +394,8 @@ export default async function ProductPage({
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Accueil", "item": SITE_URL },
-      { "@type": "ListItem", "position": 2, "name": product.category.charAt(0).toUpperCase() + product.category.slice(1), "item": `${SITE_URL}/${product.category}` },
-      { "@type": "ListItem", "position": 3, "name": product.displayName ?? product.name, "item": `${SITE_URL}/produit/${product.slug}` },
+      { "@type": "ListItem", "position": 2, "name": product.category.charAt(0).toUpperCase() + product.category.slice(1), "item": `${SITE_URL}/${product.category}/` },
+      { "@type": "ListItem", "position": 3, "name": product.displayName ?? product.name, "item": `${SITE_URL}/produit/${product.slug}/` },
     ],
   };
   const features = (product.specs && product.specs.length > 0) ? product.specs : getFeatures(product.subCategory);
