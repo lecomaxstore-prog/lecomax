@@ -159,114 +159,69 @@ export default function RootLayout({
           y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window,document,"clarity","script","x510dwwy6k");
       `}</Script>
-      {/* Organization + WebSite structured data for rich search results */}
-      <Script id="ld-org" type="application/ld+json" strategy="afterInteractive">{`
-        {
-          "@context": "https://schema.org",
-          "@graph": [
-            {
-              "@type": "Organization",
-              "@id": "${SITE_URL}/#organization",
-              "name": "L'ecomax",
-              "alternateName": "Lecomax",
-              "url": "${SITE_URL}",
-              "foundingDate": "2026",
-              "foundingLocation": {
-                "@type": "Place",
-                "name": "Sidi Bennour, Maroc"
-              },
-              "logo": {
-                "@type": "ImageObject",
-                "url": "${SITE_URL}/ecomax-hero-banner.jpg.png",
-                "width": 1200,
-                "height": 630
-              },
-              "description": "L'ecomax est une boutique en ligne marocaine fondée à Sidi Bennour, spécialisée dans les chaussures de sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc.",
-              "areaServed": {
-                "@type": "Country",
-                "name": "Maroc"
-              },
-              "contactPoint": {
-                "@type": "ContactPoint",
-                "contactType": "customer service",
-                "telephone": "+212-699-289-568",
-                "availableLanguage": ["French", "Arabic"]
-              },
+      {/* Organization + WebSite structured data — server-rendered for Googlebot */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: `{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "${SITE_URL}/#organization",
+      "name": "L'ecomax",
+      "alternateName": "Lecomax",
+      "url": "${SITE_URL}",
+      "foundingDate": "2026",
+      "foundingLocation": { "@type": "Place", "name": "Sidi Bennour, Maroc" },
+      "logo": { "@type": "ImageObject", "url": "${SITE_URL}/ecomax-hero-banner.jpg.png", "width": 1200, "height": 630 },
+      "description": "L'ecomax est une boutique en ligne marocaine fondée à Sidi Bennour, spécialisée dans les chaussures de sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc.",
+      "areaServed": { "@type": "Country", "name": "Maroc" },
+      "contactPoint": { "@type": "ContactPoint", "contactType": "customer service", "telephone": "+212-699-289-568", "availableLanguage": ["French", "Arabic"] },
+      "sameAs": ["https://www.instagram.com/lecomax", "https://www.tiktok.com/@lecomax", "https://www.facebook.com/lecomax"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "${SITE_URL}/#website",
+      "url": "${SITE_URL}",
+      "name": "L'ecomax",
+      "description": "Boutique en ligne au Maroc — chaussures, vêtements, accessoires tech",
+      "publisher": { "@id": "${SITE_URL}/#organization" },
+      "potentialAction": { "@type": "SearchAction", "target": "${SITE_URL}/boutique?q={search_term_string}", "query-input": "required name=search_term_string" },
+      "inLanguage": "fr-MA"
+    },
+    {
+      "@type": ["Store", "LocalBusiness"],
+      "@id": "${SITE_URL}/#store",
+      "name": "L'ecomax",
+      "url": "${SITE_URL}",
+      "image": "${SITE_URL}/ecomax-hero-banner.jpg.png",
+      "description": "L'ecomax — boutique en ligne au Maroc : chaussures sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc, paiement à la livraison.",
+      "priceRange": "69 MAD - 499 MAD",
+      "currenciesAccepted": "MAD",
+      "paymentAccepted": "Paiement à la livraison, Carte bancaire, PayPal",
+      "telephone": "+212-699-289-568",
+      "email": "contact@lecomax.com",
+      "address": { "@type": "PostalAddress", "addressLocality": "Sidi Bennour", "addressRegion": "Doukkala-Abda", "addressCountry": "MA" },
+      "geo": { "@type": "GeoCoordinates", "latitude": 32.6528, "longitude": -8.4236 },
+      "openingHoursSpecification": { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "08:00", "closes": "22:00" },
+      "hasMap": "https://maps.google.com/?q=Sidi+Bennour+Maroc",
+      "areaServed": { "@type": "Country", "name": "Maroc" },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Boutique L'ecomax",
+        "itemListElement": [
+          { "@type": "OfferCatalog", "name": "Chaussures de sport" },
+          { "@type": "OfferCatalog", "name": "Vêtements tendance" },
+          { "@type": "OfferCatalog", "name": "Écouteurs sans fil" },
+          { "@type": "OfferCatalog", "name": "Enceintes Bluetooth" },
+          { "@type": "OfferCatalog", "name": "Accessoires gaming" }
+        ]
+      },
+      "sameAs": ["https://www.instagram.com/lecomax", "https://www.tiktok.com/@lecomax", "https://www.facebook.com/lecomax"]
+    }
+  ]
+}` }} />
               "sameAs": [
                 "https://www.instagram.com/lecomax",
                 "https://www.tiktok.com/@lecomax",
-                "https://www.facebook.com/lecomax"
-              ]
-            },
-            {
-              "@type": "WebSite",
-              "@id": "${SITE_URL}/#website",
-              "url": "${SITE_URL}",
-              "name": "L'ecomax",
-              "description": "Boutique en ligne au Maroc — chaussures, vêtements, accessoires tech",
-              "publisher": { "@id": "${SITE_URL}/#organization" },
-              "potentialAction": {
-                "@type": "SearchAction",
-                "target": "${SITE_URL}/boutique?q={search_term_string}",
-                "query-input": "required name=search_term_string"
-              },
-              "inLanguage": "fr-MA"
-            },
-            {
-              "@type": ["Store", "LocalBusiness"],
-              "@id": "${SITE_URL}/#store",
-              "name": "L'ecomax",
-              "url": "${SITE_URL}",
-              "image": "${SITE_URL}/ecomax-hero-banner.jpg.png",
-              "description": "L'ecomax — boutique en ligne au Maroc : chaussures sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc, paiement à la livraison.",
-              "priceRange": "69 MAD - 499 MAD",
-              "currenciesAccepted": "MAD",
-              "paymentAccepted": "Paiement à la livraison, Carte bancaire, PayPal",
-              "telephone": "+212-699-289-568",
-              "email": "contact@lecomax.com",
-              "address": {
-                "@type": "PostalAddress",
-                "addressLocality": "Sidi Bennour",
-                "addressRegion": "Doukkala-Abda",
-                "addressCountry": "MA"
-              },
-              "geo": {
-                "@type": "GeoCoordinates",
-                "latitude": 32.6528,
-                "longitude": -8.4236
-              },
-              "openingHoursSpecification": {
-                "@type": "OpeningHoursSpecification",
-                "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-                "opens": "08:00",
-                "closes": "22:00"
-              },
-              "hasMap": "https://maps.google.com/?q=Sidi+Bennour+Maroc",
-              "areaServed": {
-                "@type": "Country",
-                "name": "Maroc"
-              },
-              "servesCuisine": null,
-              "hasOfferCatalog": {
-                "@type": "OfferCatalog",
-                "name": "Boutique L'ecomax",
-                "itemListElement": [
-                  { "@type": "OfferCatalog", "name": "Chaussures de sport" },
-                  { "@type": "OfferCatalog", "name": "Vêtements tendance" },
-                  { "@type": "OfferCatalog", "name": "Écouteurs sans fil" },
-                  { "@type": "OfferCatalog", "name": "Enceintes Bluetooth" },
-                  { "@type": "OfferCatalog", "name": "Accessoires gaming" }
-                ]
-              },
-              "sameAs": [
-                "https://www.instagram.com/lecomax",
-                "https://www.tiktok.com/@lecomax",
-                "https://www.facebook.com/lecomax"
-              ]
-            }
-          ]
-        }
-      `}</Script>
       <body className="min-h-screen flex flex-col font-sans">
         <CartProvider>
           <SiteProtection />
