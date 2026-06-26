@@ -46,34 +46,44 @@ export async function POST(req: NextRequest) {
   const product = getProduct(product_slug);
   const productName = product?.name?.toLowerCase() ?? "";
 
-  // Check if the customer has ordered this product
+  // Check if the customer has ordered this product and it was delivered
   const { data: orders, error: ordersError } = await supabase
     .from("orders")
-    .select("id, items")
+    .select("id, items, status")
     .filter("customer->>email", "ilike", normalizedEmail);
 
   if (ordersError) {
     return NextResponse.json({ error: "Erreur de vérification." }, { status: 500 });
   }
 
-  const hasOrdered = orders?.some((order) => {
+  const matchingOrders = orders?.filter((order) => {
     if (!Array.isArray(order.items)) return false;
     return order.items.some(
       (item: { slug?: string; name?: string }) => {
-        // New orders: match by slug
         if (item.slug) return item.slug === product_slug;
-        // Old orders: match by product name
         if (typeof item.name === "string" && productName) {
           return item.name.toLowerCase().includes(productName.slice(0, 20));
         }
         return false;
       }
     );
-  });
+  }) ?? [];
 
-  if (!hasOrdered) {
+  if (matchingOrders.length === 0) {
     return NextResponse.json(
       { error: "Seuls les clients ayant commandé ce produit peuvent laisser un avis." },
+      { status: 403 }
+    );
+  }
+
+  const DELIVERED_STATUSES = ["delivered", "livré", "livree", "shipped", "expédié", "expedie", "completed"];
+  const isDelivered = matchingOrders.some((o) =>
+    DELIVERED_STATUSES.includes((o.status ?? "").toLowerCase())
+  );
+
+  if (!isDelivered) {
+    return NextResponse.json(
+      { error: "Votre commande est en cours de livraison. Vous pourrez laisser un avis dès réception." },
       { status: 403 }
     );
   }

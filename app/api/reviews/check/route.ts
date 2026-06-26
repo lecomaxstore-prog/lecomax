@@ -28,14 +28,15 @@ export async function GET(req: NextRequest) {
   // Check orders
   const { data: orders, error: ordersError } = await supabase
     .from("orders")
-    .select("id, items")
+    .select("id, items, status")
     .filter("customer->>email", "ilike", normalizedEmail);
 
   if (ordersError) {
     return NextResponse.json({ error: "Erreur de vérification." }, { status: 500 });
   }
 
-  const hasOrdered = orders?.some((order) => {
+  // Find orders that contain this product
+  const matchingOrders = orders?.filter((order) => {
     if (!Array.isArray(order.items)) return false;
     return order.items.some((item: { slug?: string; name?: string }) => {
       if (item.slug) return item.slug === slug;
@@ -44,10 +45,20 @@ export async function GET(req: NextRequest) {
       }
       return false;
     });
-  });
+  }) ?? [];
 
-  if (!hasOrdered) {
+  if (matchingOrders.length === 0) {
     return NextResponse.json({ canReview: false, reason: "not_ordered" });
+  }
+
+  // Only allow reviews once order is delivered or shipped
+  const DELIVERED_STATUSES = ["delivered", "livré", "livree", "shipped", "expédié", "expedie", "completed"];
+  const isDelivered = matchingOrders.some((o) =>
+    DELIVERED_STATUSES.includes((o.status ?? "").toLowerCase())
+  );
+
+  if (!isDelivered) {
+    return NextResponse.json({ canReview: false, reason: "not_delivered" });
   }
 
   // Check if already reviewed
