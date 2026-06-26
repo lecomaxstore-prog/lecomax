@@ -25,31 +25,98 @@ const nextConfig = {
       },
       {
         source: "/authentication.html",
-        destination: "/connexion",
+        destination: "/connexion/",
+        permanent: true,
+      },
+      {
+        source: "/terms.html",
+        destination: "/conditions-utilisation/",
         permanent: true,
       },
       // Fix 404: deleted/renamed products — redirect to closest category
+      // Accessoires products
       {
         source: "/produit/a-mini-sac",
-        destination: "/accessoires",
+        destination: "/accessoires/",
         permanent: true,
       },
       {
         source: "/produit/a-mini-sac/",
-        destination: "/accessoires",
+        destination: "/accessoires/",
         permanent: true,
       },
       {
         source: "/produit/a-ecouteurs-sport",
-        destination: "/accessoires",
+        destination: "/accessoires/",
         permanent: true,
       },
       {
         source: "/produit/a-ecouteurs-sport/",
-        destination: "/accessoires",
+        destination: "/accessoires/",
         permanent: true,
       },
-
+      // Homme products
+      {
+        source: "/produit/h-softshell",
+        destination: "/homme/",
+        permanent: true,
+      },
+      {
+        source: "/produit/h-softshell/",
+        destination: "/homme/",
+        permanent: true,
+      },
+      {
+        source: "/produit/h-veste-zip-tech",
+        destination: "/homme/",
+        permanent: true,
+      },
+      {
+        source: "/produit/h-veste-zip-tech/",
+        destination: "/homme/",
+        permanent: true,
+      },
+      {
+        source: "/produit/h-doudoune-hiver",
+        destination: "/homme/",
+        permanent: true,
+      },
+      {
+        source: "/produit/h-doudoune-hiver/",
+        destination: "/homme/",
+        permanent: true,
+      },
+      // Chaussures products
+      {
+        source: "/produit/c-running-daily",
+        destination: "/chaussures/",
+        permanent: true,
+      },
+      {
+        source: "/produit/c-running-daily/",
+        destination: "/chaussures/",
+        permanent: true,
+      },
+      {
+        source: "/produit/c-trail-sport",
+        destination: "/chaussures/",
+        permanent: true,
+      },
+      {
+        source: "/produit/c-trail-sport/",
+        destination: "/chaussures/",
+        permanent: true,
+      },
+      {
+        source: "/produit/c-running-elite",
+        destination: "/chaussures/",
+        permanent: true,
+      },
+      {
+        source: "/produit/c-running-elite/",
+        destination: "/chaussures/",
+        permanent: true,
+      },
     ];
   },
   async headers() {

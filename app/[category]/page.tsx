@@ -56,11 +56,11 @@ export async function generateMetadata({
     title: meta.title,
     description: meta.description,
     keywords: meta.keywords,
-    alternates: { canonical: `/${category}` },
+    alternates: { canonical: `${SITE_URL}/${category}/` },
     openGraph: {
       type: "website",
       locale: "fr_MA",
-      url: `${SITE_URL}/${category}`,
+      url: `${SITE_URL}/${category}/`,
       title: meta.title,
       description: meta.description,
       images: [{ url: `${SITE_URL}${cat.hero}`, width: 1200, height: 630, alt: cat.label }],
