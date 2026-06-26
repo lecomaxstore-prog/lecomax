@@ -149,9 +149,16 @@ export default function SettingsPage() {
         body: JSON.stringify({ ...settings, maintenance_mode: newValue }),
       });
       if (res.ok) {
-        // Keep maintenance bypass so admin stays accessible
-        document.cookie = "maintenance_bypass=admin; path=/; max-age=86400; SameSite=Strict";
-        setMsg({ type: "ok", text: newValue === "true" ? "🔒 Mode maintenance activé — visiteurs redirigés" : "✓ Site en ligne — mode maintenance désactivé" });
+        if (newValue === "true") {
+          // Turning ON: expire bypass cookie so admin sees maintenance too
+          document.cookie = "maintenance_bypass=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Strict";
+          // Redirect to homepage — will land on /maintenance/
+          window.location.href = "/maintenance/";
+        } else {
+          // Turning OFF: set bypass cookie so admin can keep browsing
+          document.cookie = "maintenance_bypass=admin; path=/; max-age=86400; SameSite=Strict";
+          setMsg({ type: "ok", text: "✓ Site en ligne — mode maintenance désactivé" });
+        }
       } else {
         // Revert on failure
         setSettings(s => ({ ...s, maintenance_mode: settings.maintenance_mode }));
