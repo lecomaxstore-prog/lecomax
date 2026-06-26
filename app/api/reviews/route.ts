@@ -13,11 +13,26 @@ export async function GET(req: NextRequest) {
   const slug = req.nextUrl.searchParams.get("slug");
 
   if (slug) {
-    const { data, error } = await supabase
+    // Try with image_url first; fall back if column doesn't exist yet in the DB
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let data: any[] | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let error: any = null;
+
+    ({ data, error } = await supabase
       .from("reviews")
       .select("id, author_name, city, rating, title, body, color, created_at, image_url")
       .eq("product_slug", slug)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false }));
+
+    if (error && error.message.includes("image_url")) {
+      ({ data, error } = await supabase
+        .from("reviews")
+        .select("id, author_name, city, rating, title, body, color, created_at")
+        .eq("product_slug", slug)
+        .order("created_at", { ascending: false }));
+    }
+
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ reviews: data });
   }
@@ -103,7 +118,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { error: insertError } = await supabase.from("reviews").insert({
+  const baseInsert = {
     product_slug,
     email: normalizedEmail,
     author_name: author_name.trim(),
@@ -112,8 +127,17 @@ export async function POST(req: NextRequest) {
     title: title?.trim() ?? null,
     body: review_body.trim(),
     color: color?.trim() ?? null,
+  };
+
+  // Try insert with image_url; fall back if column doesn't exist yet
+  let { error: insertError } = await supabase.from("reviews").insert({
+    ...baseInsert,
     image_url: image_url?.trim() ?? null,
   });
+
+  if (insertError && insertError.message.includes("image_url")) {
+    ({ error: insertError } = await supabase.from("reviews").insert(baseInsert));
+  }
 
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
