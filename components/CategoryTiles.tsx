@@ -49,7 +49,7 @@ export default function CategoryTiles() {
     ...c,
     count: counts[c.slug] ?? productsByCategory(c.slug).length,
     image: categoryImages[c.slug],
-  })).filter((c) => c.count > 0);
+  })).filter((c) => c.count > 0 && c.slug !== "femme");
 
   const { ref, visible } = useInView(0.08);
   const total = cats.reduce((s, c) => s + c.count, 0);
@@ -150,8 +150,8 @@ export default function CategoryTiles() {
   );
 }
 
-function SmallTile({ slug, label, count, image, sizes }: {
-  slug: string; label: string; count: number; image: string; sizes: string;
+function SmallTile({ slug, label, image, sizes }: {
+  slug: string; label: string; image: string; sizes: string;
 }) {
   return (
     <Link href={`/${slug}`} className="relative block aspect-[4/3] overflow-hidden bg-neutral-900 group">
@@ -169,18 +169,6 @@ function SmallTile({ slug, label, count, image, sizes }: {
       <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-[#3ecf4c] scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-500 ease-out" />
       {/* Green glow border */}
       <div className="absolute inset-0 border border-transparent group-hover:border-[#3ecf4c]/30 transition-all duration-400" />
-      <div className="absolute inset-0 flex flex-col justify-end p-4 md:p-5">
-        <p className="text-white/50 text-[9px] uppercase tracking-[0.3em] font-bold mb-1 group-hover:text-[#3ecf4c] transition-colors duration-300">
-          {count} articles
-        </p>
-        <h3 className="h-display text-white text-xl group-hover:tracking-wider transition-all duration-500">{label}</h3>
-        <span className="mt-2.5 inline-flex items-center gap-1.5 self-start bg-white text-black text-[9px] font-black uppercase px-3 py-1.5 tracking-[0.15em] opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0 transition-all duration-300 ease-out">
-          Découvrir
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M5 12h14M12 5l7 7-7 7" />
-          </svg>
-        </span>
-      </div>
     </Link>
   );
 }
