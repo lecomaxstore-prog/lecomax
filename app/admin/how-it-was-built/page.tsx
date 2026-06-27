@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 
 // ─── Language ─────────────────────────────────────────────────────────────────
 type Lang = "fr" | "en" | "ar";
@@ -259,6 +259,7 @@ function ExplorerSection() {
   const [treeQ, setTreeQ] = useState("");
   const [copied, setCopied] = useState(false);
   const [mobileView, setMobileView] = useState<"tree" | "code">("tree");
+  const explorerTouchX = useRef<number | null>(null);
 
   useEffect(() => {
     fetch("/api/dev-docs/tree")
@@ -295,18 +296,31 @@ function ExplorerSection() {
         </p>
       </div>
 
-      <div className="flex min-h-[500px] sm:min-h-[640px] bg-[#1e1e1e] rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl">
-        {/* Mobile toggle */}
-        <div className="sm:hidden absolute z-10 flex w-full border-b border-white/[0.08] bg-[#252526]" style={{position:"relative"}}>
+      <div className="bg-[#1e1e1e] rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl">
+        {/* Mobile toggle — stays in normal document flow, above the flex row */}
+        <div className="sm:hidden flex border-b border-white/[0.08] bg-[#252526]">
           <button onClick={() => setMobileView("tree")}
-            className={`flex-1 py-2.5 text-[12px] font-semibold transition-colors flex items-center justify-center gap-1.5 ${mobileView === "tree" ? "text-white bg-[#1e1e1e] border-t-2 border-t-[#3ecf4c]" : "text-white/40 hover:text-white/70"}`}>
-            📁 Fichiers
+            className={`flex-1 py-3 text-[12px] font-semibold transition-all flex items-center justify-center gap-1.5 ${mobileView === "tree" ? "text-white bg-[#1e1e1e] border-b-2 border-b-[#3ecf4c]" : "text-white/40"}`}>
+            📁 <span>Fichiers</span>
           </button>
           <button onClick={() => setMobileView("code")}
-            className={`flex-1 py-2.5 text-[12px] font-semibold transition-colors flex items-center justify-center gap-1.5 ${mobileView === "code" ? "text-white bg-[#1e1e1e] border-t-2 border-t-[#3ecf4c]" : "text-white/40 hover:text-white/70"}`}>
-            📄 {selected ? selected.name : "Code"}
+            className={`flex-1 py-3 text-[12px] font-semibold transition-all flex items-center justify-center gap-1.5 ${mobileView === "code" ? "text-white bg-[#1e1e1e] border-b-2 border-b-[#3ecf4c]" : "text-white/40"}`}>
+            📄 <span className="truncate max-w-[120px]">{selected ? selected.name : "Code"}</span>
           </button>
         </div>
+        {/* Tree + Code row */}
+        <div
+          className="flex min-h-[460px] sm:min-h-[640px]"
+          onTouchStart={e => { explorerTouchX.current = e.touches[0].clientX; }}
+          onTouchEnd={e => {
+            if (explorerTouchX.current === null) return;
+            const dx = e.changedTouches[0].clientX - explorerTouchX.current;
+            explorerTouchX.current = null;
+            if (Math.abs(dx) < 40) return;
+            if (dx < 0) setMobileView("code");
+            else setMobileView("tree");
+          }}
+        >
         {/* Sidebar */}
         <div className={`${mobileView === "code" ? "hidden sm:flex" : "flex"} w-full sm:w-56 shrink-0 border-r border-white/[0.08] flex-col`}>
           <div className="px-3 py-2.5 border-b border-white/[0.08] bg-[#252526]">
@@ -332,19 +346,18 @@ function ExplorerSection() {
           {/* File tab */}
           <div className="flex items-center gap-0 border-b border-white/[0.08] bg-[#252526] min-h-[36px]">
             {selected ? (
-              <div className="flex items-center gap-1.5 px-4 py-2 bg-[#1e1e1e] border-t-2 border-t-[#007acc]">
+              <div className="flex items-center gap-1.5 px-3 py-2 bg-[#1e1e1e] border-t-2 border-t-[#007acc] min-w-0">
                 <FileIcon ext={selected.ext} />
-                <span className="text-white text-[12px] font-medium">{selected.name}</span>
-                {selected.ext && <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${EXT_BG[selected.ext] ?? "bg-gray-800 text-gray-400"}`}>{selected.ext.toUpperCase()}</span>}
+                <span className="text-white text-[11px] sm:text-[12px] font-medium truncate max-w-[120px] sm:max-w-none">{selected.name}</span>
+                {selected.ext && <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${EXT_BG[selected.ext] ?? "bg-gray-800 text-gray-400"}`}>{selected.ext.toUpperCase()}</span>}
               </div>
-            ) : <div className="px-4 py-2 text-white/20 text-[12px]">Sélectionnez un fichier dans l&apos;arborescence</div>}
+            ) : <div className="px-4 py-2 text-white/20 text-[11px] sm:text-[12px]">Sélectionnez un fichier dans l&apos;arborescence</div>}
             {selected && (
-              <div className="ml-auto px-3 flex items-center gap-3">
-                <span className="text-white/20 text-[9px] font-mono hidden md:block">{selected.path}</span>
+              <div className="ml-auto px-2 flex items-center gap-2 shrink-0">
                 <button onClick={() => { if (code) { navigator.clipboard.writeText(code).catch(() => {}); setCopied(true); setTimeout(() => setCopied(false), 2000); }}}
-                  className="text-white/40 hover:text-white text-[10px] flex items-center gap-1 px-2 py-1 rounded hover:bg-white/10 transition-colors">
+                  className="text-white/60 hover:text-white text-[10px] flex items-center gap-1 px-2 py-1.5 rounded bg-white/8 hover:bg-white/15 transition-colors">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                  {copied ? "✓ Copié" : "Copier"}
+                  {copied ? "✓" : "Copier"}
                 </button>
               </div>
             )}
@@ -363,11 +376,11 @@ function ExplorerSection() {
                 Chargement de {selected.name}…
               </div>
             ) : (
-              <div className="flex text-[11.5px] font-mono">
-                <div className="select-none shrink-0 text-right text-white/20 bg-[#1e1e1e] px-3 py-4 leading-[1.65] min-w-[42px] border-r border-white/[0.06]">
+              <div className="flex text-[10px] sm:text-[11.5px] font-mono">
+                <div className="select-none shrink-0 text-right text-white/20 bg-[#1e1e1e] px-2 sm:px-3 py-4 leading-[1.65] min-w-[32px] sm:min-w-[42px] border-r border-white/[0.06]">
                   {(code ?? "").split("\n").map((_, i) => <div key={i}>{i + 1}</div>)}
                 </div>
-                <pre className="flex-1 text-[#d4d4d4] px-4 py-4 leading-[1.65] overflow-x-auto whitespace-pre">
+                <pre className="flex-1 text-[#d4d4d4] px-2 sm:px-4 py-4 leading-[1.65] overflow-x-auto whitespace-pre">
                   {highlight(code ?? "", selected.ext)}
                 </pre>
               </div>
@@ -376,14 +389,15 @@ function ExplorerSection() {
 
           {/* Status bar */}
           {selected && (
-            <div className="bg-[#007acc] px-4 py-1 flex items-center gap-4 text-[10px] text-white/80 shrink-0">
+            <div className="bg-[#007acc] px-3 py-1.5 flex items-center gap-2 sm:gap-4 text-[9px] sm:text-[10px] text-white/80 shrink-0">
               <span className="truncate">{selected.path}</span>
               <span className="ml-auto shrink-0">{lines} lignes</span>
-              {!!selected.size && <span className="shrink-0">{fmtSize(selected.size)}</span>}
+              {!!selected.size && <span className="shrink-0 hidden sm:inline">{fmtSize(selected.size)}</span>}
               {selected.ext && <span className="uppercase shrink-0">{selected.ext}</span>}
             </div>
           )}
         </div>
+        </div>{/* end tree+code row */}
       </div>
     </div>
   );
@@ -2753,14 +2767,43 @@ const SITE_PAGES: PageEntry[] = [
 
 function HeroSection({ lang }: { lang: Lang }) {
   const u = UI[lang];
-  const [openPhase, setOpenPhase] = useState<string | null>("00");
-  const [openSteps, setOpenSteps] = useState<Record<string, number | null>>({ "00": 0 });
+  const [openPhases, setOpenPhases] = useState<Set<string>>(new Set(["00"]));
+  const [openSteps, setOpenSteps] = useState<Record<string, Set<number>>>({ "00": new Set([0]) });
   const [copied, setCopied] = useState("");
+  const allExpanded = openPhases.size === PHASES.length;
 
   const copy = (text: string, k: string) => {
     navigator.clipboard.writeText(text).catch(() => {});
     setCopied(k); setTimeout(() => setCopied(""), 2000);
   };
+
+  function togglePhase(num: string) {
+    setOpenPhases(prev => {
+      const next = new Set(prev);
+      next.has(num) ? next.delete(num) : next.add(num);
+      return next;
+    });
+  }
+
+  function toggleStep(phaseNum: string, idx: number) {
+    setOpenSteps(prev => {
+      const cur = new Set(prev[phaseNum] ?? []);
+      cur.has(idx) ? cur.delete(idx) : cur.add(idx);
+      return { ...prev, [phaseNum]: cur };
+    });
+  }
+
+  function expandAll() {
+    setOpenPhases(new Set(PHASES.map(p => p.num)));
+    const all: Record<string, Set<number>> = {};
+    PHASES.forEach(p => { all[p.num] = new Set(p.steps.map((_, i) => i)); });
+    setOpenSteps(all);
+  }
+
+  function collapseAll() {
+    setOpenPhases(new Set());
+    setOpenSteps({});
+  }
 
   function getPhaseLabel(phase: { num: string; label: string }) {
     if (lang === "fr") return phase.label;
@@ -2777,49 +2820,67 @@ function HeroSection({ lang }: { lang: Lang }) {
 
   return (
     <div className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
-      <div className="mb-6">
-        <h2 className="text-xl font-black text-gray-900">{u.heroTitle}</h2>
-        <p className="text-sm text-gray-500 mt-1">{u.heroSub}</p>
+      <div className="mb-4 flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl font-black text-gray-900">{u.heroTitle}</h2>
+          <p className="text-sm text-gray-500 mt-1">{u.heroSub}</p>
+        </div>
+        <div className="flex gap-2 shrink-0">
+          <button onClick={expandAll}
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#0d0d0d] text-white text-[11px] font-bold rounded-xl hover:bg-neutral-800 transition-colors active:scale-95">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+            {lang === "ar" ? "فتح الكل" : lang === "en" ? "Expand all" : "Tout ouvrir"}
+          </button>
+          {allExpanded && (
+            <button onClick={collapseAll}
+              className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-700 text-[11px] font-bold rounded-xl hover:bg-gray-200 transition-colors active:scale-95">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/></svg>
+              {lang === "ar" ? "إغلاق الكل" : lang === "en" ? "Collapse all" : "Tout fermer"}
+            </button>
+          )}
+        </div>
       </div>
       <div className="relative">
         <div className="absolute left-[19px] top-5 bottom-5 w-0.5 bg-gray-200" />
         <div className="space-y-3">
-          {PHASES.map(phase => (
+          {PHASES.map(phase => {
+            const isPhaseOpen = openPhases.has(phase.num);
+            return (
             <div key={phase.num} className="relative pl-10">
               <div className={`absolute left-0 top-3 w-9 h-9 rounded-full ${phase.color} flex items-center justify-center text-white text-[11px] font-black shadow-sm`}>{phase.num}</div>
               <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
-                <button onClick={() => setOpenPhase(openPhase === phase.num ? null : phase.num)}
+                <button onClick={() => togglePhase(phase.num)}
                   className="w-full flex items-start gap-3 px-4 sm:px-5 py-4 text-left hover:bg-gray-50 transition-colors">
                   <div className={`w-2 h-2 rounded-full ${phase.color} shrink-0 mt-[5px]`} />
                   <p className="flex-1 font-bold text-sm text-gray-900">{getPhaseLabel(phase)}</p>
                   <span className="text-[11px] text-gray-400 shrink-0 mt-0.5 ml-2">{phase.steps.length} {u.stepLabel}</span>
-                  <svg className={`shrink-0 text-gray-400 transition-transform ${openPhase === phase.num ? "rotate-180" : ""}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6" /></svg>
+                  <svg className={`shrink-0 text-gray-400 transition-transform ${isPhaseOpen ? "rotate-180" : ""}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6" /></svg>
                 </button>
-                {openPhase === phase.num && (
+                {isPhaseOpen && (
                   <div className="border-t border-gray-50 divide-y divide-gray-50">
                     {phase.steps.map((step, idx) => {
                       const key = `${phase.num}-${idx}`;
-                      const isOpen = openSteps[phase.num] === idx;
+                      const isStepOpen = openSteps[phase.num]?.has(idx) ?? false;
                       const { title: stTitle, desc: stDesc } = getStepLabel(phase.num, idx, step);
                       return (
                         <div key={idx}>
-                          <button onClick={() => setOpenSteps(p => ({ ...p, [phase.num]: isOpen ? null : idx }))}
+                          <button onClick={() => toggleStep(phase.num, idx)}
                             className="w-full flex items-center gap-3 px-4 sm:px-5 py-3 text-left hover:bg-gray-50 transition-colors">
                             <div className="w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0" />
                             <p className="flex-1 text-[13px] font-semibold text-gray-800 leading-tight">{stTitle}</p>
-                            <svg className={`shrink-0 text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6" /></svg>
+                            <svg className={`shrink-0 text-gray-400 transition-transform ${isStepOpen ? "rotate-180" : ""}`} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6" /></svg>
                           </button>
-                          {isOpen && (
-                            <div className="px-4 sm:px-5 pb-4 space-y-3">
+                          {isStepOpen && (
+                            <div className="px-3 sm:px-5 pb-4 space-y-3">
                               <p className="text-[12px] text-gray-600 leading-relaxed">{stDesc}</p>
                               {lang !== "fr" && step.desc !== stDesc && (
                                 <p className="text-[11px] text-gray-400 italic leading-relaxed border-l-2 border-gray-200 pl-3">{step.desc}</p>
                               )}
                               <div className="relative group">
-                                <pre className="bg-[#0d0d0d] text-[11px] font-mono leading-relaxed rounded-xl p-4 overflow-x-auto text-[#d4d4d4] whitespace-pre border border-white/[0.08] max-h-80 overflow-y-auto">{step.code}</pre>
+                                <pre className="bg-[#0d0d0d] text-[10px] sm:text-[11px] font-mono leading-[1.7] rounded-xl p-3 sm:p-4 overflow-x-auto text-[#d4d4d4] whitespace-pre border border-white/[0.08] max-h-64 sm:max-h-80 overflow-y-auto">{step.code}</pre>
                                 <button onClick={() => copy(step.code, key)}
-                                  className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity bg-white/10 hover:bg-white/20 text-white text-[9px] font-bold px-2 py-1 rounded-lg flex items-center gap-1">
-                                  {copied === key ? u.copied : u.copy}
+                                  className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity bg-white/15 hover:bg-white/25 text-white text-[9px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 border border-white/20">
+                                  {copied === key ? "✓" : u.copy}
                                 </button>
                               </div>
                             </div>
@@ -2831,7 +2892,7 @@ function HeroSection({ lang }: { lang: Lang }) {
                 )}
               </div>
             </div>
-          ))}
+          )})}
         </div>
       </div>
     </div>
@@ -2958,7 +3019,7 @@ function ArchSection({ lang }: { lang: Lang }) {
           ))}
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4 sm:p-5">
           <h3 className="font-bold text-sm text-gray-900 mb-3">{u.orderFlow}</h3>
           {(lang === "en"
@@ -3194,8 +3255,19 @@ export default function HowItWasBuiltPage() {
   const [tab, setTab] = useState("hero");
   const [lang, setLang] = useState<Lang>("fr");
   const u = UI[lang];
+  const touchStartX = useRef<number | null>(null);
 
   const LANG_FLAGS: Record<Lang, string> = { fr: "🇫🇷", en: "🇬🇧", ar: "🇸🇦" };
+
+  function handleTabSwipe(e: React.TouchEvent) {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) < 50) return;
+    const idx = TAB_IDS.indexOf(tab as typeof TAB_IDS[number]);
+    if (dx < 0 && idx < TAB_IDS.length - 1) setTab(TAB_IDS[idx + 1]);
+    if (dx > 0 && idx > 0) setTab(TAB_IDS[idx - 1]);
+    touchStartX.current = null;
+  }
 
   return (
     <div className="min-h-screen bg-[#f4f4f2]">
@@ -3228,8 +3300,8 @@ export default function HowItWasBuiltPage() {
           </div>
         </div>
         {/* Tabs */}
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 overflow-x-auto">
-          <div className="flex gap-0.5 min-w-max pb-px">
+        <div className="max-w-7xl mx-auto px-1 sm:px-6 overflow-x-auto scrollbar-none">
+          <div className="flex gap-0 sm:gap-0.5 min-w-max pb-px">
             {TAB_IDS.map(id => (
               <button key={id} onClick={() => setTab(id)}
                 className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-2.5 text-[11px] sm:text-[12px] font-semibold border-b-2 whitespace-nowrap transition-colors ${tab === id ? "border-[#3ecf4c] text-gray-900" : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"}`}>
@@ -3238,11 +3310,17 @@ export default function HowItWasBuiltPage() {
               </button>
             ))}
           </div>
+          {/* Mobile swipe hint */}
+          <p className="sm:hidden text-[9px] text-gray-400 text-center py-0.5 tracking-wide">← glissez pour changer d&apos;onglet →</p>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      {/* Content — swipeable on mobile */}
+      <div
+        className="max-w-7xl mx-auto px-2 sm:px-6 py-4 sm:py-6"
+        onTouchStart={e => { touchStartX.current = e.touches[0].clientX; }}
+        onTouchEnd={handleTabSwipe}
+      >
         {tab === "hero"   && <HeroSection lang={lang} />}
         {tab === "arch"   && <ArchSection lang={lang} />}
         {tab === "files"  && <ExplorerSection />}

@@ -235,7 +235,9 @@ export default function RootLayout({
           <AdminLayoutWrapper>
             <ChatWidget />
           </AdminLayoutWrapper>
-          <CookieBanner />
+          <AdminLayoutWrapper>
+            <CookieBanner />
+          </AdminLayoutWrapper>
           <DataCollector />
           <BackToTop />
           <AdsDisplay />

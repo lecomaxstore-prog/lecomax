@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     // Total consented sessions (active, not revoked)
     supabase
       .from("data_collection_consents")
-      .select("id, session_id, consented_at, browser, os, language, timezone, referrer", { count: "exact" })
+      .select("id, session_id, consented_at, browser, os, language, timezone, referrer, ip_address, country, city", { count: "exact" })
       .is("revoked_at", null)
       .order("consented_at", { ascending: false })
       .limit(200),
@@ -70,11 +70,23 @@ export async function GET(req: NextRequest) {
     .slice(0, 10)
     .map(([id, v]) => ({ id, ...v }));
 
+  // Aggregate top countries from consents
+  const countryMap = new Map<string, number>();
+  for (const row of consentsRes.data ?? []) {
+    const c = (row.country as string | null) ?? "XX";
+    countryMap.set(c, (countryMap.get(c) ?? 0) + 1);
+  }
+  const topCountries = [...countryMap.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([country, sessions]) => ({ country, sessions }));
+
   return NextResponse.json({
     consents: consentsRes.data ?? [],
     total_consents: consentsRes.count ?? 0,
     events: eventsRes.data ?? [],
     topPages,
     topProducts,
+    topCountries,
   });
 }

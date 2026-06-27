@@ -20,6 +20,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "session_id required" }, { status: 400 });
   }
 
+  // Extract IP — Vercel sets x-forwarded-for
+  const forwarded = req.headers.get("x-forwarded-for");
+  const realIp = req.headers.get("x-real-ip");
+  const ip_address = forwarded ? forwarded.split(",")[0].trim() : (realIp ?? null);
+
+  // Geo — populated automatically by Vercel Edge Network
+  const country = req.headers.get("x-vercel-ip-country") ?? null;
+  const city = req.headers.get("x-vercel-ip-city") ?? null;
+  const latitude = req.headers.get("x-vercel-ip-latitude") ?? null;
+  const longitude = req.headers.get("x-vercel-ip-longitude") ?? null;
+
   // Upsert: if session already consented, update consented_at
   const { error } = await supabase.from("data_collection_consents").upsert(
     {
@@ -33,6 +44,11 @@ export async function POST(req: NextRequest) {
       language: language ?? null,
       timezone: timezone ?? null,
       referrer: referrer ?? null,
+      ip_address,
+      country,
+      city,
+      latitude: latitude ? parseFloat(latitude) : null,
+      longitude: longitude ? parseFloat(longitude) : null,
     },
     { onConflict: "session_id" }
   );

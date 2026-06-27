@@ -1,0 +1,375 @@
+"use client";
+import { useEffect, useState } from "react";
+
+type Lang = "all" | "fr" | "ar" | "en";
+type KbEntry = {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  language: Lang;
+  active: boolean;
+  sort_order: number;
+  created_at: string;
+};
+
+const LANG_LABELS: Record<Lang, string> = { all: "Toutes", fr: "Français", ar: "عربي", en: "English" };
+const LANG_COLORS: Record<Lang, string> = {
+  all: "bg-neutral-100 text-neutral-600",
+  fr: "bg-blue-50 text-blue-700",
+  ar: "bg-green-50 text-green-700",
+  en: "bg-purple-50 text-purple-700",
+};
+
+const DEFAULT_CATEGORIES = ["général", "livraison", "retours", "paiement", "produits", "commande", "fidélité", "contact"];
+
+const EMPTY: Omit<KbEntry, "id" | "created_at"> = {
+  question: "", answer: "", category: "général", language: "all", active: true, sort_order: 0,
+};
+
+export default function ChatKbPage() {
+  const [entries, setEntries] = useState<KbEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [form, setForm] = useState<Omit<KbEntry, "id" | "created_at">>(EMPTY);
+  const [showForm, setShowForm] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterLang, setFilterLang] = useState<Lang | "all">("all");
+  const [filterCat, setFilterCat] = useState("all");
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+
+  function showToast(msg: string, ok = true) {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3000);
+  }
+
+  async function load() {
+    setLoading(true);
+    const r = await fetch("/api/chat-kb");
+    if (r.ok) setEntries(await r.json());
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, []);
+
+  function openNew() {
+    setForm(EMPTY);
+    setEditId(null);
+    setShowForm(true);
+  }
+
+  function openEdit(e: KbEntry) {
+    setForm({ question: e.question, answer: e.answer, category: e.category, language: e.language, active: e.active, sort_order: e.sort_order });
+    setEditId(e.id);
+    setShowForm(true);
+  }
+
+  async function save() {
+    if (!form.question.trim() || !form.answer.trim()) return;
+    setSaving(true);
+    try {
+      const url = editId ? `/api/chat-kb/${editId}` : "/api/chat-kb";
+      const method = editId ? "PUT" : "POST";
+      const r = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      if (r.ok) {
+        showToast(editId ? "Entrée mise à jour ✓" : "Entrée ajoutée ✓");
+        setShowForm(false);
+        setEditId(null);
+        load();
+      } else {
+        showToast("Erreur lors de la sauvegarde", false);
+      }
+    } finally { setSaving(false); }
+  }
+
+  async function remove(id: string) {
+    if (!confirm("Supprimer cette entrée ?")) return;
+    const r = await fetch(`/api/chat-kb/${id}`, { method: "DELETE" });
+    if (r.ok) { showToast("Supprimé ✓"); load(); }
+  }
+
+  async function toggleActive(e: KbEntry) {
+    await fetch(`/api/chat-kb/${e.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...e, active: !e.active }),
+    });
+    load();
+  }
+
+  const categories = [...new Set([...DEFAULT_CATEGORIES, ...entries.map(e => e.category)])];
+  const filtered = entries.filter(e => {
+    if (filterLang !== "all" && e.language !== filterLang) return false;
+    if (filterCat !== "all" && e.category !== filterCat) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      return e.question.toLowerCase().includes(q) || e.answer.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  const activeCount = entries.filter(e => e.active).length;
+
+  return (
+    <div className="p-6 max-w-5xl mx-auto">
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-lg text-[13px] font-bold transition-all ${toast.ok ? "bg-emerald-600 text-white" : "bg-red-500 text-white"}`}>
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-[1.4rem] font-black tracking-tight">Base de connaissance du bot</h1>
+          <p className="text-neutral-400 text-sm mt-0.5">
+            {activeCount} réponse{activeCount !== 1 ? "s" : ""} active{activeCount !== 1 ? "s" : ""} — le bot Eco les utilise pour répondre aux clients
+          </p>
+        </div>
+        <button
+          onClick={openNew}
+          className="flex items-center gap-2 bg-black text-white text-[12px] font-bold px-4 py-2.5 rounded-xl hover:bg-neutral-800 transition-colors"
+        >
+          <span className="text-lg leading-none">+</span> Ajouter une réponse
+        </button>
+      </div>
+
+      {/* Stats bar */}
+      <div className="grid grid-cols-4 gap-3 mb-6">
+        {(["all", "fr", "ar", "en"] as Lang[]).map(lang => {
+          const count = lang === "all" ? entries.filter(e => e.active).length : entries.filter(e => e.language === lang && e.active).length;
+          return (
+            <button
+              key={lang}
+              onClick={() => setFilterLang(lang)}
+              className={`rounded-xl p-3 text-center border transition-all ${filterLang === lang ? "border-black bg-black text-white" : "border-neutral-100 bg-white hover:border-neutral-300"}`}
+            >
+              <p className="text-[1.4rem] font-black">{count}</p>
+              <p className="text-[10px] uppercase tracking-widest mt-0.5 font-bold">{LANG_LABELS[lang]}</p>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-3 mb-5 flex-wrap">
+        <input
+          type="text"
+          placeholder="Rechercher une question ou réponse…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="border border-neutral-200 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-black bg-white flex-1 min-w-[200px]"
+        />
+        <select
+          value={filterCat}
+          onChange={e => setFilterCat(e.target.value)}
+          className="border border-neutral-200 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-black bg-white"
+        >
+          <option value="all">Toutes catégories</option>
+          {categories.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </div>
+
+      {/* Form modal */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+              <h2 className="font-black text-[16px]">{editId ? "Modifier la réponse" : "Nouvelle réponse"}</h2>
+              <button onClick={() => setShowForm(false)} className="text-neutral-400 hover:text-black text-xl font-bold">×</button>
+            </div>
+            <div className="p-6 space-y-4">
+              {/* Question */}
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-widest text-neutral-500 mb-1.5">
+                  Question du client
+                </label>
+                <input
+                  value={form.question}
+                  onChange={e => setForm(f => ({ ...f, question: e.target.value }))}
+                  placeholder="Ex: Quel est le délai de livraison ?"
+                  className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-[13px] focus:outline-none focus:border-black"
+                />
+                <p className="text-[11px] text-neutral-400 mt-1">Écrivez la question comme un vrai client la poserait</p>
+              </div>
+
+              {/* Answer */}
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-widest text-neutral-500 mb-1.5">
+                  Réponse exacte du bot
+                </label>
+                <textarea
+                  value={form.answer}
+                  onChange={e => setForm(f => ({ ...f, answer: e.target.value }))}
+                  placeholder="Ex: La livraison prend 2 à 5 jours ouvrables partout au Maroc, pour un tarif fixe de 35 MAD."
+                  rows={5}
+                  className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-[13px] focus:outline-none focus:border-black resize-none"
+                />
+                <p className="text-[11px] text-neutral-400 mt-1">Le bot utilisera cette réponse comme référence — soyez précis et complet</p>
+              </div>
+
+              {/* Row: Category + Language */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-neutral-500 mb-1.5">Catégorie</label>
+                  <input
+                    list="categories-list"
+                    value={form.category}
+                    onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                    className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-[13px] focus:outline-none focus:border-black"
+                  />
+                  <datalist id="categories-list">
+                    {categories.map(c => <option key={c} value={c} />)}
+                  </datalist>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-neutral-500 mb-1.5">Langue</label>
+                  <select
+                    value={form.language}
+                    onChange={e => setForm(f => ({ ...f, language: e.target.value as Lang }))}
+                    className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-[13px] focus:outline-none focus:border-black bg-white"
+                  >
+                    <option value="all">Toutes les langues</option>
+                    <option value="fr">Français seulement</option>
+                    <option value="ar">Arabe seulement</option>
+                    <option value="en">English only</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Active toggle */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setForm(f => ({ ...f, active: !f.active }))}
+                  className={`w-10 h-6 rounded-full transition-colors relative ${form.active ? "bg-emerald-500" : "bg-neutral-200"}`}
+                >
+                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${form.active ? "left-5" : "left-1"}`} />
+                </button>
+                <span className="text-[13px] font-medium">{form.active ? "Active — le bot utilisera cette réponse" : "Inactive — ignorée par le bot"}</span>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-neutral-100 flex gap-3 justify-end">
+              <button onClick={() => setShowForm(false)} className="px-5 py-2.5 text-[13px] font-bold text-neutral-600 hover:text-black transition-colors">
+                Annuler
+              </button>
+              <button
+                onClick={save}
+                disabled={saving || !form.question.trim() || !form.answer.trim()}
+                className="px-6 py-2.5 bg-black text-white text-[13px] font-bold rounded-xl hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {saving ? "Sauvegarde…" : editId ? "Mettre à jour" : "Ajouter"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* List */}
+      {loading ? (
+        <div className="flex items-center gap-3 py-12 text-neutral-400">
+          <div className="w-5 h-5 border-2 border-neutral-200 border-t-black rounded-full animate-spin" />
+          Chargement…
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="bg-white border border-neutral-100 rounded-2xl p-12 text-center">
+          <p className="text-4xl mb-3">🤖</p>
+          <p className="font-bold text-neutral-700">Aucune réponse configurée</p>
+          <p className="text-sm text-neutral-400 mt-1">Ajoutez des Q&amp;R pour améliorer les réponses du bot Eco</p>
+          <button onClick={openNew} className="mt-4 bg-black text-white text-[12px] font-bold px-5 py-2.5 rounded-xl hover:bg-neutral-800 transition-colors">
+            Ajouter la première réponse
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map(e => (
+            <div key={e.id} className={`bg-white border rounded-2xl p-5 transition-all ${e.active ? "border-neutral-100" : "border-neutral-100 opacity-50"}`}>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${LANG_COLORS[e.language]}`}>
+                      {LANG_LABELS[e.language]}
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600">
+                      {e.category}
+                    </span>
+                    {!e.active && (
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-50 text-red-500">Inactive</span>
+                    )}
+                  </div>
+                  <p className="font-bold text-[14px] text-neutral-800 mb-1.5">❓ {e.question}</p>
+                  <p className="text-[13px] text-neutral-500 leading-relaxed">💬 {e.answer}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => toggleActive(e)}
+                    className={`w-9 h-5 rounded-full transition-colors relative shrink-0 ${e.active ? "bg-emerald-500" : "bg-neutral-200"}`}
+                    title={e.active ? "Désactiver" : "Activer"}
+                  >
+                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${e.active ? "left-4" : "left-0.5"}`} />
+                  </button>
+                  <button onClick={() => openEdit(e)} className="px-3 py-1.5 text-[11px] font-bold border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors">
+                    Modifier
+                  </button>
+                  <button onClick={() => remove(e.id)} className="px-3 py-1.5 text-[11px] font-bold border border-red-100 text-red-500 rounded-lg hover:bg-red-50 transition-colors">
+                    Suppr.
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* SQL migration */}
+      <SqlSection />
+    </div>
+  );
+}
+
+function SqlSection() {
+  const [open, setOpen] = useState(false);
+  const sql = `-- Run once in Supabase SQL Editor
+CREATE TABLE IF NOT EXISTS chat_knowledge_base (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  question text NOT NULL,
+  answer text NOT NULL,
+  category text DEFAULT 'général',
+  language text DEFAULT 'all',
+  active boolean DEFAULT true,
+  sort_order int DEFAULT 0,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+-- Seed with common Q&As
+INSERT INTO chat_knowledge_base (question, answer, category, language) VALUES
+('Quel est le délai de livraison ?', 'La livraison prend 2 à 5 jours ouvrables partout au Maroc. Le tarif est fixe : 35 MAD quelle que soit votre commande.', 'livraison', 'fr'),
+('كم يستغرق التوصيل؟', 'التوصيل يستغرق من 2 إلى 5 أيام عمل في جميع أنحاء المغرب. التكلفة ثابتة: 35 درهم فقط.', 'livraison', 'ar'),
+('Comment suivre ma commande ?', 'Rendez-vous sur lecomax.com/suivre-commande, entrez votre numéro de commande et votre numéro de téléphone.', 'commande', 'fr'),
+('Comment retourner un produit ?', 'Vous avez 30 jours pour retourner tout article. Visitez lecomax.com/retours pour démarrer votre retour gratuitement.', 'retours', 'fr'),
+('Quels sont les modes de paiement ?', 'Nous acceptons uniquement le paiement à la livraison (cash on delivery). Vous payez uniquement quand vous recevez votre colis — aucun paiement en avance.', 'paiement', 'fr'),
+('طريقة الدفع', 'نقبل فقط الدفع عند الاستلام. لا تدفع شيئاً حتى تستلم طلبيتك.', 'paiement', 'ar'),
+('What payment methods do you accept?', 'We only accept cash on delivery (COD). You pay only when you receive your package — no prepayment required.', 'paiement', 'en');`;
+
+  return (
+    <div className="mt-8">
+      <button onClick={() => setOpen(!open)} className="flex items-center gap-2 text-[11px] font-bold text-neutral-400 hover:text-neutral-700 uppercase tracking-widest transition-colors">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <polyline points={open ? "18 15 12 9 6 15" : "6 9 12 15 18 9"} />
+        </svg>
+        {open ? "Masquer" : "Afficher"} le SQL de migration
+      </button>
+      {open && (
+        <div className="mt-3 bg-neutral-900 rounded-2xl p-4 overflow-x-auto">
+          <pre className="text-[11px] text-neutral-300 font-mono leading-relaxed whitespace-pre">{sql}</pre>
+          <button onClick={() => navigator.clipboard.writeText(sql)} className="mt-3 text-[10px] font-bold uppercase tracking-widest bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg transition-colors">
+            Copier le SQL
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

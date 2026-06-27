@@ -12,6 +12,9 @@ type ConsentRow = {
   language: string | null;
   timezone: string | null;
   referrer: string | null;
+  ip_address: string | null;
+  country: string | null;
+  city: string | null;
 };
 
 type EventRow = {
@@ -30,6 +33,7 @@ type EventRow = {
 
 type TopPage = { path: string; views: number };
 type TopProduct = { id: string; name: string; category: string; views: number };
+type TopCountry = { country: string; sessions: number };
 
 type DataSummary = {
   consents: ConsentRow[];
@@ -37,6 +41,7 @@ type DataSummary = {
   events: EventRow[];
   topPages: TopPage[];
   topProducts: TopProduct[];
+  topCountries: TopCountry[];
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -67,7 +72,25 @@ function relativeTime(iso: string) {
   if (hrs < 24) return `il y a ${hrs}h`;
   return `il y a ${Math.floor(hrs / 24)}j`;
 }
+const COUNTRY_NAMES: Record<string, string> = {
+  MA: "Maroc", FR: "France", BE: "Belgique", DZ: "Alg\u00e9rie", TN: "Tunisie",
+  ES: "Espagne", DE: "Allemagne", IT: "Italie", GB: "Royaume-Uni", US: "\u00c9tats-Unis",
+  CA: "Canada", NL: "Pays-Bas", CH: "Suisse", PT: "Portugal", SE: "Su\u00e8de",
+  NO: "Norv\u00e8ge", DK: "Danemark", AE: "\u00c9mirats arabes unis", SA: "Arabie saoudite",
+  QA: "Qatar", SN: "S\u00e9n\u00e9gal", CI: "C\u00f4te d'Ivoire", CM: "Cameroun",
+};
 
+function countryFlag(code: string | null): string {
+  if (!code || code.length !== 2) return "\uD83C\uDF0D";
+  const a = code.toUpperCase().charCodeAt(0) - 65;
+  const b = code.toUpperCase().charCodeAt(1) - 65;
+  return String.fromCodePoint(0x1F1E6 + a) + String.fromCodePoint(0x1F1E6 + b);
+}
+
+function countryName(code: string | null): string {
+  if (!code) return "Inconnu";
+  return COUNTRY_NAMES[code.toUpperCase()] ?? code;
+}
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function ClientDataPage() {
@@ -108,12 +131,45 @@ export default function ClientDataPage() {
     );
   }
 
-  const totalEvents = data.events.length;
-  const pageViews = data.events.filter(e => e.event_type === "page_view").length;
-  const productViews = data.events.filter(e => e.event_type === "product_view").length;
-  const cartAdds = data.events.filter(e => e.event_type === "cart_add").length;
+  const events = data.events ?? [];
+  const totalConsents = data.total_consents ?? 0;
+  const topPages = data.topPages ?? [];
+  const topProducts = data.topProducts ?? [];
+  const topCountries = data.topCountries ?? [];
+  const consents = data.consents ?? [];
+  const totalEvents = events.length;
+  const pageViews = events.filter(e => e.event_type === "page_view").length;
+  const productViews = events.filter(e => e.event_type === "product_view").length;
+  const cartAdds = events.filter(e => e.event_type === "cart_add").length;
 
-  const filteredEvents = data.events.filter(e => {
+  function downloadCSV(filename: string, rows: string[][]) {
+    const csv = rows.map(r => r.map(cell => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadEvents() {
+    const headers = ["ID", "Session", "Type", "Chemin", "Titre", "Produit", "Categorie", "Recherche", "Date"];
+    const rows = events.map(e => [
+      e.id, e.session_id, e.event_type, e.path ?? "", e.title ?? "",
+      e.product_name ?? "", e.category ?? "", e.query ?? "", e.created_at,
+    ]);
+    downloadCSV(`evenements-${new Date().toISOString().slice(0,10)}.csv`, [headers, ...rows]);
+  }
+
+  function downloadSessions() {
+    const headers = ["ID", "Session", "Consentement", "Navigateur", "OS", "Langue", "Fuseau", "Source"];
+    const rows = consents.map(c => [
+      c.id, c.session_id, c.consented_at, c.browser ?? "", c.os ?? "",
+      c.language ?? "", c.timezone ?? "", c.referrer ?? "",
+    ]);
+    downloadCSV(`sessions-${new Date().toISOString().slice(0,10)}.csv`, [headers, ...rows]);
+  }
+
+  const filteredEvents = events.filter(e => {
     if (filterType !== "all" && e.event_type !== filterType) return false;
     if (search) {
       const q = search.toLowerCase();
@@ -136,23 +192,41 @@ export default function ClientDataPage() {
           <h1 className="text-[1.4rem] font-black tracking-tight">Données clients</h1>
           <p className="text-neutral-400 text-sm mt-0.5">Collectées uniquement après consentement explicite</p>
         </div>
-        <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Conforme RGPD
-        </span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={downloadEvents}
+            disabled={events.length === 0}
+            className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Événements CSV
+          </button>
+          <button
+            onClick={downloadSessions}
+            disabled={consents.length === 0}
+            className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Sessions CSV
+          </button>
+          <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Conforme RGPD
+          </span>
+        </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: "Sessions consenties", value: data.total_consents, icon: "✅" },
+          { label: "Sessions consenties", value: totalConsents, icon: "✅" },
           { label: "Pages vues", value: pageViews, icon: "👁️" },
           { label: "Produits consultés", value: productViews, icon: "🛍️" },
           { label: "Ajouts panier", value: cartAdds, icon: "🛒" },
         ].map(({ label, value, icon }) => (
           <div key={label} className="bg-white border border-neutral-100 rounded-2xl p-5">
             <div className="text-2xl mb-2">{icon}</div>
-            <p className="text-[1.6rem] font-black">{value.toLocaleString("fr-FR")}</p>
+            <p className="text-[1.6rem] font-black">{(value ?? 0).toLocaleString("fr-FR")}</p>
             <p className="text-[11px] text-neutral-400 uppercase tracking-widest mt-0.5">{label}</p>
           </div>
         ))}
@@ -166,7 +240,7 @@ export default function ClientDataPage() {
             onClick={() => setTab(t)}
             className={`px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all ${tab === t ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}
           >
-            {t === "overview" ? "Aperçu" : t === "events" ? `Événements (${totalEvents})` : `Sessions (${data.total_consents})`}
+            {t === "overview" ? "Aperçu" : t === "events" ? `Événements (${totalEvents})` : `Sessions (${totalConsents})`}
           </button>
         ))}
       </div>
@@ -174,15 +248,46 @@ export default function ClientDataPage() {
       {/* Tab: Overview */}
       {tab === "overview" && (
         <div className="grid lg:grid-cols-2 gap-5">
+          {/* Top Countries */}
+          <div className="bg-white border border-neutral-100 rounded-2xl p-5">
+            <p className="font-black text-[13px] uppercase tracking-widest mb-4">Pays visiteurs</p>
+            {topCountries.length === 0 ? (
+              <p className="text-neutral-400 text-sm">Aucune donn\u00e9e</p>
+            ) : (
+              <div className="space-y-2">
+                {topCountries.map(({ country, sessions }) => {
+                  const maxSessions = topCountries[0].sessions;
+                  return (
+                    <div key={country}>
+                      <div className="flex justify-between text-[12px] mb-1">
+                        <span className="flex items-center gap-1.5 text-neutral-700 font-medium">
+                          <span>{countryFlag(country)}</span>
+                          <span>{countryName(country)}</span>
+                        </span>
+                        <span className="font-black text-neutral-900">{sessions}</span>
+                      </div>
+                      <div className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#3ecf4c] rounded-full"
+                          style={{ width: `${(sessions / maxSessions) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           {/* Top Pages */}
           <div className="bg-white border border-neutral-100 rounded-2xl p-5">
             <p className="font-black text-[13px] uppercase tracking-widest mb-4">Pages les plus visitées</p>
-            {data.topPages.length === 0 ? (
+            {topPages.length === 0 ? (
               <p className="text-neutral-400 text-sm">Aucune donnée</p>
             ) : (
               <div className="space-y-2">
-                {data.topPages.map(({ path, views }) => {
-                  const max = data.topPages[0].views;
+                {topPages.map(({ path, views }) => {
+                  const max = topPages[0].views;
                   return (
                     <div key={path}>
                       <div className="flex justify-between text-[12px] mb-1">
@@ -205,11 +310,11 @@ export default function ClientDataPage() {
           {/* Top Products */}
           <div className="bg-white border border-neutral-100 rounded-2xl p-5">
             <p className="font-black text-[13px] uppercase tracking-widest mb-4">Produits les plus consultés</p>
-            {data.topProducts.length === 0 ? (
+            {topProducts.length === 0 ? (
               <p className="text-neutral-400 text-sm">Aucune donnée</p>
             ) : (
               <div className="space-y-3">
-                {data.topProducts.map(({ id, name, category, views }) => (
+                {topProducts.map(({ id, name, category, views }) => (
                   <div key={id} className="flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <p className="text-[12px] font-bold text-neutral-800 truncate">{name}</p>
@@ -229,7 +334,7 @@ export default function ClientDataPage() {
             <p className="font-black text-[13px] uppercase tracking-widest mb-4">Répartition des événements</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {Object.entries(EVENT_LABELS).map(([type, { label, color }]) => {
-                const count = data.events.filter(e => e.event_type === type).length;
+                const count = events.filter(e => e.event_type === type).length;
                 return (
                   <div key={type} className={`border rounded-xl px-4 py-3 text-center ${color}`}>
                     <p className="text-[1.4rem] font-black">{count}</p>
@@ -320,17 +425,17 @@ export default function ClientDataPage() {
             <table className="w-full text-[12px]">
               <thead className="bg-neutral-50 border-b border-neutral-100">
                 <tr>
-                  {["Session", "Consentement", "Navigateur", "OS", "Langue", "Fuseau", "Source"].map(h => (
+                  {["Session", "IP", "Pays", "Ville", "Consentement", "Navigateur", "OS", "Langue", "Fuseau", "Source"].map(h => (
                     <th key={h} className="text-left px-4 py-2.5 font-bold text-neutral-500 uppercase tracking-widest text-[10px] whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {data.consents.length === 0 ? (
-                  <tr><td colSpan={7} className="text-center py-10 text-neutral-400">Aucune session consentie</td></tr>
+                {consents.length === 0 ? (
+                  <tr><td colSpan={10} className="text-center py-10 text-neutral-400">Aucune session consentie</td></tr>
                 ) : (
-                  data.consents.map(c => {
-                    const evCount = data.events.filter(e => e.session_id === c.session_id).length;
+                  consents.map(c => {
+                    const evCount = events.filter(e => e.session_id === c.session_id).length;
                     return (
                       <tr key={c.id} className="border-b border-neutral-50 hover:bg-neutral-50/50 transition-colors">
                         <td className="px-4 py-2.5">
@@ -341,6 +446,18 @@ export default function ClientDataPage() {
                             </span>
                           )}
                         </td>
+                        <td className="px-4 py-2.5 font-mono text-[10px] text-neutral-500 whitespace-nowrap">
+                          {c.ip_address ?? "—"}
+                        </td>
+                        <td className="px-4 py-2.5 whitespace-nowrap">
+                          {c.country ? (
+                            <span className="flex items-center gap-1.5">
+                              <span>{countryFlag(c.country)}</span>
+                              <span className="text-neutral-600 font-medium">{countryName(c.country)}</span>
+                            </span>
+                          ) : "—"}
+                        </td>
+                        <td className="px-4 py-2.5 text-neutral-600">{c.city ?? "—"}</td>
                         <td className="px-4 py-2.5 text-neutral-400 whitespace-nowrap">{fmt(c.consented_at)}</td>
                         <td className="px-4 py-2.5 text-neutral-600">{c.browser ?? "—"}</td>
                         <td className="px-4 py-2.5 text-neutral-600">{c.os ?? "—"}</td>
@@ -383,8 +500,20 @@ CREATE TABLE IF NOT EXISTS data_collection_consents (
   screen_height int,
   language text,
   timezone text,
-  referrer text
+  referrer text,
+  ip_address text,
+  country text,
+  city text,
+  latitude numeric,
+  longitude numeric
 );
+
+-- If the table already exists, add the new columns:
+ALTER TABLE data_collection_consents ADD COLUMN IF NOT EXISTS ip_address text;
+ALTER TABLE data_collection_consents ADD COLUMN IF NOT EXISTS country text;
+ALTER TABLE data_collection_consents ADD COLUMN IF NOT EXISTS city text;
+ALTER TABLE data_collection_consents ADD COLUMN IF NOT EXISTS latitude numeric;
+ALTER TABLE data_collection_consents ADD COLUMN IF NOT EXISTS longitude numeric;
 
 CREATE TABLE IF NOT EXISTS client_behavioral_events (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,

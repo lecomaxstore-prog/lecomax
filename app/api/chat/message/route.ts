@@ -118,52 +118,80 @@ const STORE_CONTEXT = `You are Eco, the professional and friendly AI assistant f
 let cachedProducts: string = "";
 let cacheTime = 0;
 
+// Cache knowledge base for 2 minutes
+let cachedKb: string = "";
+let kbCacheTime = 0;
+
+async function buildKbSection(): Promise<string> {
+  const now = Date.now();
+  if (cachedKb && now - kbCacheTime < 2 * 60 * 1000) return cachedKb;
+
+  const { data } = await supabase
+    .from("chat_knowledge_base")
+    .select("question, answer, language, category")
+    .eq("active", true)
+    .order("sort_order", { ascending: true })
+    .limit(150);
+
+  if (!data || data.length === 0) {
+    cachedKb = "";
+    kbCacheTime = now;
+    return "";
+  }
+
+  let section = "\n\n## KNOWLEDGE BASE — USE THESE EXACT ANSWERS (highest priority)\n";
+  section += "When a customer asks something matching these Q&As, use the provided answer verbatim or very closely. Do NOT invent alternatives.\n\n";
+  for (const item of data) {
+    const langNote = item.language !== "all" ? ` [${item.language.toUpperCase()}]` : "";
+    section += `Q: ${item.question}${langNote}\nA: ${item.answer}\n\n`;
+  }
+  cachedKb = section;
+  kbCacheTime = now;
+  return section;
+}
+
 async function buildSystemPrompt(): Promise<string> {
   const now = Date.now();
-  if (cachedProducts && now - cacheTime < 5 * 60 * 1000) {
-    return STORE_CONTEXT + cachedProducts;
-  }
+  const [kbSection] = await Promise.all([buildKbSection()]);
 
-  const { data: products } = await supabase
-    .from("products")
-    .select("name, category, brand, price, original_price, description, colors, sizes, tags, active, stock, slug")
-    .eq("active", true)
-    .order("created_at", { ascending: false })
-    .limit(80);
+  if (!cachedProducts || now - cacheTime >= 5 * 60 * 1000) {
+    const { data: products } = await supabase
+      .from("products")
+      .select("name, category, brand, price, original_price, description, colors, sizes, tags, active, stock, slug")
+      .eq("active", true)
+      .order("created_at", { ascending: false })
+      .limit(80);
 
-  if (!products || products.length === 0) {
-    cachedProducts = "";
-    cacheTime = now;
-    return STORE_CONTEXT;
-  }
-
-  // Group by category
-  const byCategory: Record<string, typeof products> = {};
-  for (const p of products) {
-    const cat = p.category || "autres";
-    if (!byCategory[cat]) byCategory[cat] = [];
-    byCategory[cat].push(p);
-  }
-
-  let catalog = "\n\n## LIVE PRODUCT CATALOG (auto-updated)\n";
-  for (const [cat, items] of Object.entries(byCategory)) {
-    catalog += `\n### ${cat.toUpperCase()}\n`;
-    for (const p of items) {
-      const price = p.original_price && p.original_price > p.price
-        ? `${p.price} MAD (was ${p.original_price} MAD)`
-        : `${p.price} MAD`;
-      const colors = Array.isArray(p.colors) && p.colors.length ? ` | Colors: ${p.colors.join(", ")}` : "";
-      const sizes = Array.isArray(p.sizes) && p.sizes.length ? ` | Sizes: ${p.sizes.join(", ")}` : "";
-      const brand = p.brand ? ` [${p.brand}]` : "";
-      const stock = p.stock === 0 ? " ⚠️ OUT OF STOCK" : "";
-      const desc = p.description ? ` — ${p.description.slice(0, 120)}` : "";
-      catalog += `- ${p.name}${brand} — ${price}${colors}${sizes}${stock}${desc}\n  Link: lecomax.com/produit/${p.slug}\n`;
+    if (products && products.length > 0) {
+      const byCategory: Record<string, typeof products> = {};
+      for (const p of products) {
+        const cat = p.category || "autres";
+        if (!byCategory[cat]) byCategory[cat] = [];
+        byCategory[cat].push(p);
+      }
+      let catalog = "\n\n## LIVE PRODUCT CATALOG (auto-updated)\n";
+      for (const [cat, items] of Object.entries(byCategory)) {
+        catalog += `\n### ${cat.toUpperCase()}\n`;
+        for (const p of items) {
+          const price = p.original_price && p.original_price > p.price
+            ? `${p.price} MAD (was ${p.original_price} MAD)`
+            : `${p.price} MAD`;
+          const colors = Array.isArray(p.colors) && p.colors.length ? ` | Colors: ${p.colors.join(", ")}` : "";
+          const sizes = Array.isArray(p.sizes) && p.sizes.length ? ` | Sizes: ${p.sizes.join(", ")}` : "";
+          const brand = p.brand ? ` [${p.brand}]` : "";
+          const stock = p.stock === 0 ? " ⚠️ OUT OF STOCK" : "";
+          const desc = p.description ? ` — ${p.description.slice(0, 120)}` : "";
+          catalog += `- ${p.name}${brand} — ${price}${colors}${sizes}${stock}${desc}\n  Link: lecomax.com/produit/${p.slug}\n`;
+        }
+      }
+      cachedProducts = catalog;
+    } else {
+      cachedProducts = "";
     }
+    cacheTime = now;
   }
 
-  cachedProducts = catalog;
-  cacheTime = now;
-  return STORE_CONTEXT + catalog;
+  return STORE_CONTEXT + kbSection + cachedProducts;
 }
 
 /** POST /api/chat/message — visitor sends a message */
@@ -171,6 +199,18 @@ export async function POST(req: Request) {
   const { session_id, body } = await req.json();
   if (!session_id || !body?.trim()) {
     return NextResponse.json({ error: "session_id and body required" }, { status: 400 });
+  }
+
+  // Rate limit: max 8 messages per session per 60 seconds
+  const oneMinuteAgo = new Date(Date.now() - 60_000).toISOString();
+  const { count: recentCount } = await supabase
+    .from("chat_messages")
+    .select("id", { count: "exact", head: true })
+    .eq("session_id", session_id)
+    .eq("direction", "in")
+    .gte("timestamp", oneMinuteAgo);
+  if ((recentCount ?? 0) >= 8) {
+    return NextResponse.json({ error: "rate_limit", reply: "Vous envoyez trop de messages. Veuillez patienter une minute." }, { status: 429 });
   }
 
   // Load session
@@ -244,8 +284,9 @@ export async function POST(req: Request) {
         ...chatHistory,
         { role: "user", content: body.trim() },
       ],
-      temperature: 0.55,
-      max_tokens: 300,
+      temperature: 0.4,
+      max_tokens: 400,
+      top_p: 0.9,
     });
     aiReply = completion.choices[0]?.message?.content?.trim() || "";
   } catch {
