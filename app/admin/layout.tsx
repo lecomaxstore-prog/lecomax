@@ -347,7 +347,7 @@ const navSections: { title: string; hrefs: string[] }[] = [
 // undefined → owner only (hidden from all staff)
 // "slug" → visible if staff has that permission
 const NAV_PERMISSIONS: Record<string, string | null | undefined> = {
-  "/admin/dashboard":      null,
+  "/admin/dashboard":             null,
   "/admin/analytics":      "analytics.view",
   "/admin/recordings":     "recordings.view",
   "/admin/products":       "products.view",

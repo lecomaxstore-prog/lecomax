@@ -163,20 +163,36 @@ export default function ChatWidget() {
   }, [open]);
 
   // ── Smart reply chips based on last AI message ─────────────────────
+  type SmartChip = { label: string; msg: string; emoji: string; bg: string; color: string; border: string; };
   const lastAiMsg = [...messages].reverse().find(m => m.sent_by === "ai")?.body?.toLowerCase() ?? "";
-  const smartChips: { label: string; msg: string }[] = (() => {
+  const smartChips: SmartChip[] = (() => {
     if (messages.length === 0 || loading || status !== "ai") return [];
     if (lastAiMsg.includes("livr") || lastAiMsg.includes("toull") || lastAiMsg.includes("توصيل"))
-      return [{ label: "📍 Changer l'adresse", msg: "Je voudrais changer mon adresse de livraison" }, { label: "⏱️ Délai express ?", msg: "Y a-t-il une option livraison express ?" }];
+      return [
+        { emoji: "📍", label: "Changer l'adresse", msg: "Je voudrais changer mon adresse de livraison", bg: "#eff6ff", color: "#1d4ed8", border: "#bfdbfe" },
+        { emoji: "⚡", label: "Livraison express", msg: "Y a-t-il une option livraison express ?", bg: "#fefce8", color: "#a16207", border: "#fde68a" },
+      ];
     if (lastAiMsg.includes("retour") || lastAiMsg.includes("rembours") || lastAiMsg.includes("إرجاع"))
-      return [{ label: "📦 Initier un retour", msg: "Comment démarrer un retour ?" }, { label: "💳 Délai de remboursement", msg: "Combien de temps pour le remboursement ?" }];
+      return [
+        { emoji: "📦", label: "Initier un retour", msg: "Comment démarrer un retour ?", bg: "#fff7ed", color: "#c2410c", border: "#fed7aa" },
+        { emoji: "⏳", label: "Délai remboursement", msg: "Combien de temps pour le remboursement ?", bg: "#faf5ff", color: "#7e22ce", border: "#e9d5ff" },
+      ];
     if (lastAiMsg.includes("commande") || lastAiMsg.includes("suivi") || lastAiMsg.includes("طلب"))
-      return [{ label: "❌ Annuler", msg: "Je voudrais annuler ma commande" }, { label: "🔍 Suivre", msg: "Comment suivre ma commande ?" }];
-    if (lastAiMsg.includes("paiement") || lastAiMsg.includes("livraison") || lastAiMsg.includes("دفع"))
-      return [{ label: "💵 Payer comment ?", msg: "Comment se passe le paiement à la livraison ?" }];
+      return [
+        { emoji: "🗑️", label: "Annuler", msg: "Je voudrais annuler ma commande", bg: "#fff1f2", color: "#be123c", border: "#fecdd3" },
+        { emoji: "📮", label: "Suivre ma commande", msg: "Comment suivre ma commande ?", bg: "#eff6ff", color: "#1d4ed8", border: "#bfdbfe" },
+      ];
+    if (lastAiMsg.includes("paiement") || lastAiMsg.includes("دفع"))
+      return [
+        { emoji: "💳", label: "Paiement à la livraison", msg: "Comment se passe le paiement à la livraison ?", bg: "#f0fdf4", color: "#15803d", border: "#bbf7d0" },
+      ];
     if (lastAiMsg.includes("taille") || lastAiMsg.includes("pointure") || lastAiMsg.includes("size"))
-      return [{ label: "📏 Guide des tailles", msg: "Pouvez-vous m'aider avec les tailles ?" }];
-    return [{ label: "📧 Autre question", msg: "J'ai une autre question" }];
+      return [
+        { emoji: "📏", label: "Guide des tailles", msg: "Pouvez-vous m'aider avec les tailles ?", bg: "#f8fafc", color: "#475569", border: "#e2e8f0" },
+      ];
+    return [
+      { emoji: "💬", label: "Autre question", msg: "J'ai une autre question", bg: "#f8fafc", color: "#475569", border: "#e2e8f0" },
+    ];
   })();
 
   const INACTIVITY_MS = 5 * 60 * 1000;
@@ -900,27 +916,39 @@ export default function ChatWidget() {
             ) : (
               <div className="px-3 pt-2.5 pb-2.5">
                 {/* Smart reply chips */}
-                {smartChips.length > 0 && messages.length > 0 && (
-                  <div className="flex gap-1.5 flex-wrap mb-2">
-                    {smartChips.map(chip => (
-                      <button key={chip.label}
-                        onClick={async () => {
-                          if (!sessionId || loading) return;
-                          const tempMsg: ChatMsg = { id: genId(), direction: "in", body: chip.msg, sent_by: "visitor", timestamp: new Date().toISOString() };
-                          setMessages(prev => [...prev, tempMsg]);
-                          setLoading(true);
-                          resetInactivity();
-                          try {
-                            const res = await fetch("/api/chat/message", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: sessionId, body: chip.msg }) });
-                            const data = await res.json();
-                            if (data.reply) setMessages(prev => [...prev, { id: genId(), direction: "out", body: data.reply, sent_by: "ai", timestamp: new Date().toISOString() }]);
-                            if (data.status) { if (data.status === "escalated" && status !== "escalated") setCallVisible(true); setStatus(data.status); }
-                          } finally { setLoading(false); }
-                        }}
-                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-semibold transition-all hover:shadow-md active:scale-95"
-                        style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d" }}
-                      >{chip.label}</button>
-                    ))}
+                {smartChips.length > 0 && messages.length > 0 && !input && (
+                  <div style={{ animation: "slideDown 0.2s ease both" }}>
+                    <p className="text-[9.5px] font-semibold text-neutral-400 uppercase tracking-wide mb-1.5 px-0.5">Suggestions</p>
+                    <div className="flex gap-1.5 flex-wrap mb-2.5">
+                      {smartChips.map((chip, i) => (
+                        <button key={chip.label}
+                          onClick={async () => {
+                            if (!sessionId || loading) return;
+                            const tempMsg: ChatMsg = { id: genId(), direction: "in", body: chip.msg, sent_by: "visitor", timestamp: new Date().toISOString() };
+                            setMessages(prev => [...prev, tempMsg]);
+                            setLoading(true);
+                            resetInactivity();
+                            try {
+                              const res = await fetch("/api/chat/message", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: sessionId, body: chip.msg }) });
+                              const data = await res.json();
+                              if (data.reply) setMessages(prev => [...prev, { id: genId(), direction: "out", body: data.reply, sent_by: "ai", timestamp: new Date().toISOString() }]);
+                              if (data.status) { if (data.status === "escalated" && status !== "escalated") setCallVisible(true); setStatus(data.status); }
+                            } finally { setLoading(false); }
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all active:scale-95"
+                          style={{
+                            background: chip.bg,
+                            border: `1px solid ${chip.border}`,
+                            color: chip.color,
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+                            animation: `slideDown 0.2s ease ${i * 50}ms both`,
+                          }}
+                        >
+                          <span className="text-[13px] leading-none">{chip.emoji}</span>
+                          <span>{chip.label}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
                 <div className="flex gap-2 items-end rounded-2xl px-3.5 py-2.5 transition-all"
