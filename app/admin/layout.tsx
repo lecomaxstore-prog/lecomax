@@ -331,15 +331,15 @@ const nav = [
 ];
 
 const navSections: { title: string; hrefs: string[] }[] = [
-  { title: "VENTES",     hrefs: ["/admin/dashboard", "/admin/analytics", "/admin/recordings", "/admin/orders"] },
-  { title: "CATALOGUE",  hrefs: ["/admin/products", "/admin/categories", "/admin/stock", "/admin/pages", "/admin/banners", "/admin/media", "/admin/studio"] },
-  { title: "CLIENTS",    hrefs: ["/admin/customers", "/admin/client-data", "/admin/loyalty", "/admin/abandoned-carts"] },
-  { title: "MARKETING",  hrefs: ["/admin/promotions", "/admin/ads", "/admin/push", "/admin/newsletter", "/admin/coupons", "/admin/announcement", "/admin/broadcast"] },
-  { title: "SAV",        hrefs: ["/admin/messages", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
-  { title: "LOGISTIQUE", hrefs: ["/admin/shipping", "/admin/size-guide"] },
-  { title: "CONFIG",     hrefs: ["/admin/settings"] },
-  { title: "ÉQUIPE",     hrefs: ["/admin/roles", "/admin/staff", "/admin/approvals"] },
+  { title: "VENTES",      hrefs: ["/admin/dashboard", "/admin/analytics", "/admin/recordings", "/admin/orders"] },
   { title: "DÉVELOPPEUR", hrefs: ["/admin/how-it-was-built"] },
+  { title: "CATALOGUE",   hrefs: ["/admin/products", "/admin/categories", "/admin/stock", "/admin/pages", "/admin/banners", "/admin/media", "/admin/studio"] },
+  { title: "CLIENTS",     hrefs: ["/admin/customers", "/admin/client-data", "/admin/loyalty", "/admin/abandoned-carts"] },
+  { title: "MARKETING",   hrefs: ["/admin/promotions", "/admin/ads", "/admin/push", "/admin/newsletter", "/admin/coupons", "/admin/announcement", "/admin/broadcast"] },
+  { title: "SAV",         hrefs: ["/admin/messages", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
+  { title: "LOGISTIQUE",  hrefs: ["/admin/shipping", "/admin/size-guide"] },
+  { title: "CONFIG",      hrefs: ["/admin/settings"] },
+  { title: "ÉQUIPE",      hrefs: ["/admin/roles", "/admin/staff", "/admin/approvals"] },
 ];
 
 // Permission required per nav href.
