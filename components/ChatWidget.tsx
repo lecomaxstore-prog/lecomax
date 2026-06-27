@@ -101,9 +101,9 @@ export default function ChatWidget() {
   const [starting, setStarting] = useState(false);
   const [unread, setUnread] = useState(0);
   const [hasNew, setHasNew] = useState(false);
-  const [agentJoined, setAgentJoined] = useState(false); // temporary 5s banner
-  const [hasAgentJoined, setHasAgentJoined] = useState(false); // persistent — agent is in the chat
-  const [agentTyping, setAgentTyping] = useState(false); // admin is typing
+  const [agentJoined, setAgentJoined] = useState(false);
+  const [hasAgentJoined, setHasAgentJoined] = useState(false);
+  const [agentTyping, setAgentTyping] = useState(false);
   const [callVisible, setCallVisible] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [feedbackRating, setFeedbackRating] = useState(0);
@@ -111,6 +111,8 @@ export default function ChatWidget() {
   const [feedbackState, setFeedbackState] = useState<"idle" | "submitted">("idle");
   const [inactiveWarning, setInactiveWarning] = useState(false);
   const [inactiveCountdown, setInactiveCountdown] = useState(30);
+  const [inputFocused, setInputFocused] = useState(false);
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
   const agentJoinedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clientTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clientTypingActiveRef = useRef(false);
@@ -148,7 +150,36 @@ export default function ChatWidget() {
     };
   }, [open]);
 
-  const INACTIVITY_MS = 5 * 60 * 1000; // 5 minutes
+  // ── Scroll-to-bottom detection ──────────────────────────────────────
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      setShowScrollBtn(distFromBottom > 120);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [open]);
+
+  // ── Smart reply chips based on last AI message ─────────────────────
+  const lastAiMsg = [...messages].reverse().find(m => m.sent_by === "ai")?.body?.toLowerCase() ?? "";
+  const smartChips: { label: string; msg: string }[] = (() => {
+    if (messages.length === 0 || loading || status !== "ai") return [];
+    if (lastAiMsg.includes("livr") || lastAiMsg.includes("toull") || lastAiMsg.includes("توصيل"))
+      return [{ label: "📍 Changer l'adresse", msg: "Je voudrais changer mon adresse de livraison" }, { label: "⏱️ Délai express ?", msg: "Y a-t-il une option livraison express ?" }];
+    if (lastAiMsg.includes("retour") || lastAiMsg.includes("rembours") || lastAiMsg.includes("إرجاع"))
+      return [{ label: "📦 Initier un retour", msg: "Comment démarrer un retour ?" }, { label: "💳 Délai de remboursement", msg: "Combien de temps pour le remboursement ?" }];
+    if (lastAiMsg.includes("commande") || lastAiMsg.includes("suivi") || lastAiMsg.includes("طلب"))
+      return [{ label: "❌ Annuler", msg: "Je voudrais annuler ma commande" }, { label: "🔍 Suivre", msg: "Comment suivre ma commande ?" }];
+    if (lastAiMsg.includes("paiement") || lastAiMsg.includes("livraison") || lastAiMsg.includes("دفع"))
+      return [{ label: "💵 Payer comment ?", msg: "Comment se passe le paiement à la livraison ?" }];
+    if (lastAiMsg.includes("taille") || lastAiMsg.includes("pointure") || lastAiMsg.includes("size"))
+      return [{ label: "📏 Guide des tailles", msg: "Pouvez-vous m'aider avec les tailles ?" }];
+    return [{ label: "📧 Autre question", msg: "J'ai une autre question" }];
+  })();
+
+  const INACTIVITY_MS = 5 * 60 * 1000;
   const WARNING_SECS  = 30;
 
   // ── Reset the inactivity clock ────────────────────────────────────────────
@@ -577,7 +608,8 @@ export default function ChatWidget() {
           )}
 
           {/* Messages area */}
-          <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-4"
+          <div className="relative flex-1 min-h-0" style={{ overflow: "hidden" }}>
+          <div ref={scrollRef} className="h-full overflow-y-auto px-4 py-4"
             style={{
               scrollBehavior:"smooth",overscrollBehavior:"contain",
               scrollbarWidth:"thin",scrollbarColor:"#3ecf4c transparent",
@@ -783,7 +815,19 @@ export default function ChatWidget() {
               </div>
             )}
             <div ref={bottomRef} />
-          </div>
+          {/* Scroll to bottom button — sits outside the scrollable div */}
+          </div>{/* end scrollRef scrollable div */}
+          {showScrollBtn && (
+            <button
+              onClick={() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }}
+              className="absolute z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-lg text-white text-[11px] font-bold transition-all hover:scale-105 active:scale-95"
+              style={{ bottom: 10, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg,#111 0%,#166534 100%)", boxShadow: "0 4px 16px rgba(0,0,0,0.25)", animation: "slideDown 0.25s ease both", whiteSpace: "nowrap" }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+              Défiler vers le bas
+            </button>
+          )}
+          </div>{/* end relative wrapper */}
 
           {/* Inactivity warning */}
           {inactiveWarning && (
@@ -854,49 +898,109 @@ export default function ChatWidget() {
                 </div>
               )
             ) : (
-              <div className="px-3 pt-3 pb-2.5">
+              <div className="px-3 pt-2.5 pb-2.5">
+                {/* Smart reply chips */}
+                {smartChips.length > 0 && messages.length > 0 && (
+                  <div className="flex gap-1.5 flex-wrap mb-2">
+                    {smartChips.map(chip => (
+                      <button key={chip.label}
+                        onClick={async () => {
+                          if (!sessionId || loading) return;
+                          const tempMsg: ChatMsg = { id: genId(), direction: "in", body: chip.msg, sent_by: "visitor", timestamp: new Date().toISOString() };
+                          setMessages(prev => [...prev, tempMsg]);
+                          setLoading(true);
+                          resetInactivity();
+                          try {
+                            const res = await fetch("/api/chat/message", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: sessionId, body: chip.msg }) });
+                            const data = await res.json();
+                            if (data.reply) setMessages(prev => [...prev, { id: genId(), direction: "out", body: data.reply, sent_by: "ai", timestamp: new Date().toISOString() }]);
+                            if (data.status) { if (data.status === "escalated" && status !== "escalated") setCallVisible(true); setStatus(data.status); }
+                          } finally { setLoading(false); }
+                        }}
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-semibold transition-all hover:shadow-md active:scale-95"
+                        style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d" }}
+                      >{chip.label}</button>
+                    ))}
+                  </div>
+                )}
                 <div className="flex gap-2 items-end rounded-2xl px-3.5 py-2.5 transition-all"
-                  style={{ background:"white",border:"1.5px solid #e8e8e8",boxShadow:"0 1px 4px rgba(0,0,0,0.06)" }}>
+                  style={{
+                    background: "white",
+                    border: inputFocused ? "1.5px solid #3ecf4c" : "1.5px solid #e8e8e8",
+                    boxShadow: inputFocused ? "0 0 0 3px rgba(62,207,76,0.12), 0 1px 4px rgba(0,0,0,0.06)" : "0 1px 4px rgba(0,0,0,0.06)",
+                    transition: "border 0.2s ease, box-shadow 0.2s ease",
+                  }}>
                   <textarea ref={inputRef} value={input} onChange={(e) => {
                     setInput(e.target.value);
                     if (sessionId && e.target.value) {
                       if (!clientTypingActiveRef.current) {
                         clientTypingActiveRef.current = true;
-                        fetch("/api/chat/typing", { method:"POST", headers:{"Content-Type":"application/json"},
+                        fetch("/api/chat/typing", { method: "POST", headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({ session_id: sessionId, typing: true, from: "client" }) });
                       }
                       if (clientTypingTimeoutRef.current) clearTimeout(clientTypingTimeoutRef.current);
                       clientTypingTimeoutRef.current = setTimeout(() => {
                         clientTypingActiveRef.current = false;
-                        fetch("/api/chat/typing", { method:"POST", headers:{"Content-Type":"application/json"},
+                        fetch("/api/chat/typing", { method: "POST", headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({ session_id: sessionId, typing: false, from: "client" }) });
                       }, 3000);
                     }
                   }} onKeyDown={handleKey}
-                    placeholder={status === "escalated" ? "Écrivez à l'agent..." : "Posez votre question ici..."}
+                    onFocus={() => setInputFocused(true)}
+                    onBlur={() => setInputFocused(false)}
+                    placeholder={status === "escalated" ? "Écrivez à l'agent..." : "Posez votre question..."}
                     rows={1} className="flex-1 resize-none bg-transparent text-[13px] focus:outline-none leading-snug text-neutral-800 placeholder-neutral-400"
-                    style={{ maxHeight:90,overflowY:"auto" }} />
+                    style={{ maxHeight: 90, overflowY: "auto" }} />
+                  {input.length > 120 && (
+                    <span className="text-[10px] text-neutral-300 self-center flex-shrink-0 tabular-nums">{input.length}</span>
+                  )}
                   <button onClick={sendMessage} disabled={!input.trim() || loading}
                     className="w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center active:scale-90"
                     style={{
                       background: input.trim() && !loading ? "linear-gradient(135deg,#3ecf4c,#16b277)" : "#f0f0f0",
                       boxShadow: input.trim() && !loading ? "0 2px 8px rgba(62,207,76,0.35)" : "none",
-                      transition:"all 0.2s ease"
+                      transition: "all 0.2s ease",
                     }}
                     aria-label="Envoyer">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                      stroke={input.trim() && !loading ? "white" : "#bbb"} strokeWidth="2.5" strokeLinecap="round">
-                      <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                    </svg>
+                    {loading ? (
+                      <div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                        stroke={input.trim() ? "white" : "#bbb"} strokeWidth="2.5" strokeLinecap="round">
+                        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                      </svg>
+                    )}
                   </button>
                 </div>
-                <div className="flex items-center justify-center gap-1.5 mt-2">
-                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: status === "escalated" ? "#22c55e" : "#3ecf4c", boxShadow: `0 0 4px ${status === "escalated" ? "#22c55e" : "#3ecf4c"}` }} />
-                  <p className="text-[10px] text-neutral-400">
-                    {status === "ai"
-                      ? <><span className="font-medium text-neutral-500">Assistant IA</span> &middot; Tapez <span className="font-semibold text-neutral-600">agent</span> pour un humain</>
-                      : <span className="font-medium text-neutral-600">Chat en direct &middot; Notre &eacute;quipe est l&agrave;</span>}
-                  </p>
+                <div className="flex items-center justify-between mt-1.5 px-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: status === "escalated" ? "#22c55e" : "#3ecf4c", boxShadow: `0 0 4px ${status === "escalated" ? "#22c55e" : "#3ecf4c"}` }} />
+                    <p className="text-[10px] text-neutral-400">
+                      {status === "ai"
+                        ? <><span className="font-medium text-neutral-500">Eco IA</span> &middot; R&eacute;pond en secondes</>
+                        : <span className="font-medium text-neutral-600">Chat en direct &middot; Notre &eacute;quipe est l&agrave;</span>}
+                    </p>
+                  </div>
+                  {status === "ai" && (
+                    <button
+                      onClick={async () => {
+                        if (!sessionId || loading) return;
+                        const msg = "Je souhaite parler à un agent humain";
+                        const tempMsg: ChatMsg = { id: genId(), direction: "in", body: msg, sent_by: "visitor", timestamp: new Date().toISOString() };
+                        setMessages(prev => [...prev, tempMsg]);
+                        setLoading(true);
+                        try {
+                          const res = await fetch("/api/chat/message", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: sessionId, body: msg }) });
+                          const data = await res.json();
+                          if (data.reply) setMessages(prev => [...prev, { id: genId(), direction: "out", body: data.reply, sent_by: "ai", timestamp: new Date().toISOString() }]);
+                          if (data.status) { setCallVisible(true); setStatus(data.status); }
+                        } finally { setLoading(false); }
+                      }}
+                      className="flex items-center gap-1 text-[10px] font-semibold text-neutral-400 hover:text-[#16a34a] transition-colors active:scale-95"
+                    >
+                      🧑 Agent humain
+                    </button>
+                  )}
                 </div>
               </div>
             )}
