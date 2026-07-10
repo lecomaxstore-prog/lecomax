@@ -42,6 +42,8 @@ export default function ComptePage() {
   const [tierNext, setTierNext] = useState<number | null>(500);
   const [tierNextLabel, setTierNextLabel] = useState<string | null>("Silver");
   const [addressCount, setAddressCount] = useState<number | null>(null);
+  const [savedPosts, setSavedPosts] = useState<{ id: string; title: string; slug: string; image_url?: string; likes_count: number; comments_count: number }[]>([]);
+  const [savedLoading, setSavedLoading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -57,6 +59,13 @@ export default function ComptePage() {
       // Load address count from user metadata
       const saved = u.user_metadata?.addresses;
       setAddressCount(Array.isArray(saved) ? saved.length : 0);
+      // Fetch saved Ecomedia posts
+      setSavedLoading(true);
+      fetch(`/api/ecomedia/saved?userId=${encodeURIComponent(u.id)}`)
+        .then(r => r.json())
+        .then(d => { if (Array.isArray(d.posts)) setSavedPosts(d.posts); })
+        .catch(() => {})
+        .finally(() => setSavedLoading(false));
       // Fetch recent orders by email
       fetch(`/api/orders?email=${encodeURIComponent(email)}&limit=3`)
         .then(r => r.json())
@@ -295,6 +304,48 @@ export default function ComptePage() {
           </div>
         )}
       </div>
+
+      {/* ─── Saved Ecomedia posts ─── */}
+      {(savedLoading || savedPosts.length > 0) && (
+        <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
+            <div className="flex items-center gap-2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="text-black"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+              <p className="font-black text-[13px] uppercase tracking-wide">Posts enregistrés</p>
+            </div>
+            <Link href="/ecomedia" className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors flex items-center gap-1">
+              Ecomedia
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </Link>
+          </div>
+          {savedLoading ? (
+            <div className="px-6 py-8 flex items-center justify-center gap-2 text-neutral-400">
+              <span className="w-4 h-4 border-2 border-neutral-200 border-t-neutral-400 rounded-full animate-spin" />
+              <span className="text-[12px] font-bold uppercase tracking-widest">Chargement…</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-px bg-neutral-100">
+              {savedPosts.slice(0, 9).map((p) => (
+                <Link key={p.id} href={`/ecomedia/${p.slug}`} className="relative aspect-square bg-neutral-50 overflow-hidden group">
+                  {p.image_url ? (
+                    <Image src={p.image_url} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="160px" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-neutral-100">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-300"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end p-2 opacity-0 group-hover:opacity-100">
+                    <div className="flex items-center gap-2 text-white text-[10px] font-bold">
+                      <span className="flex items-center gap-0.5"><svg width="11" height="11" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>{p.likes_count}</span>
+                      <span className="flex items-center gap-0.5"><svg width="11" height="11" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>{p.comments_count}</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ─── Quick actions ─── */}
       <div>

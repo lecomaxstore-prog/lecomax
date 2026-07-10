@@ -214,7 +214,8 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
       return;
     }
     setError(null);
-    add(product, size, 1, color);
+    const colorImg = effectiveColorImages?.[color] ?? product.image;
+    add(product, size, 1, color, colorImg);
     trackAddToCart({
       item_id: product.slug,
       item_name: product.name,

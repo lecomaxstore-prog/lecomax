@@ -1,12 +1,22 @@
 "use client";
 
-export const dynamic = "force-static";
-
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
+
+/** Slug → color → image path — used to heal stale cart images */
+const COLOR_IMAGES: Record<string, Record<string, string>> = {
+  "c-baasploa-course-homme": { "Jaune": "/images/products/BAASPLOA%20Men's%20Lightweight%20Running%20Sneakers/Yellow.avif", "Bleu": "/images/products/BAASPLOA%20Men's%20Lightweight%20Running%20Sneakers/Blue.avif", "Gris": "/images/products/BAASPLOA%20Men's%20Lightweight%20Running%20Sneakers/grey.avif" },
+  "c-chaussons-interieur-femme": { "Blanc": "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/1%20blanc.avif", "Rose": "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/1%20rose.avif" },
+  "c-chaussons-mode-femme": { "Kaki": "/images/products/Chaussons%20de%20mode%20pour%20femme/1%20kaki.avif", "Blanc": "/images/products/Chaussons%20de%20mode%20pour%20femme/1%20blanc.avif" },
+  "c-chaussons-fleurs-femme": { "Gris Clair": "/images/products/Chaussons%20%C3%A0%20fleurs%20de%20rose/1%20gris%20clair.avif", "Kaki": "/images/products/Chaussons%20%C3%A0%20fleurs%20de%20rose/1%20kaki.avif" },
+  "a-sac-banane-pu-polyvalent": { "Noir": "/images/products/Sac%20banane/1.avif", "Gris": "/images/products/Sac%20banane/2.avif" },
+  "a-lenovo-gm2-pro": { "Blanc": "/images/products/lenovo%20gm2%20pro/1.avif", "Noir": "/images/products/lenovo%20gm2%20pro/2.avif" },
+  "a-lenovo-lp40-pro": { "Blanc": "/images/products/lenovo%20lp40%20pro/1.avif", "Noir": "/images/products/lenovo%20lp40%20pro/2.avif" },
+  "a-genai-tws-hd": { "Blanc": "/images/products/GENAI%20%C3%89couteurs%20st%C3%A9r%C3%A9o%20HD%20sans%20fil%20TWS/1%20white.avif", "Noir": "/images/products/GENAI%20%C3%89couteurs%20st%C3%A9r%C3%A9o%20HD%20sans%20fil%20TWS/2%20black.avif" },
+};
 
 
 export default function CartPage() {
@@ -18,6 +28,7 @@ export default function CartPage() {
   const [promoError, setPromoError] = useState("");
   const [promoOpen, setPromoOpen] = useState(false);
   const [promoLoading, setPromoLoading] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
 
   const discount = promoApplied?.discount ?? 0;
 
@@ -199,25 +210,32 @@ export default function CartPage() {
 
               {/* Items */}
               <ul className="divide-y divide-neutral-100">
-                {items.map((i) => (
-                  <li key={i.slug + i.size} className="px-6 py-5 grid grid-cols-[72px_1fr] md:grid-cols-[72px_1fr_100px_120px_100px] gap-4 items-center">
+                {items.map((i) => {
+                  const displayImage = (i.color && COLOR_IMAGES[i.slug]?.[i.color]) ? COLOR_IMAGES[i.slug][i.color] : i.image;
+                  return (
+                  <li key={i.slug + i.size + i.color} className="px-6 py-5 grid grid-cols-[72px_1fr] md:grid-cols-[72px_1fr_100px_120px_100px] gap-4 items-center">
                     {/* Image */}
                     <Link href={`/produit/${i.slug}`} className="relative block w-[72px] h-[90px] bg-neutral-50 rounded-lg overflow-hidden group shrink-0">
-                      <Image src={i.image} alt={i.name} fill sizes="72px" className="object-cover group-hover:scale-105 transition-transform duration-500"/>
+                      <Image src={displayImage} alt={i.name} fill sizes="72px" className="object-cover group-hover:scale-105 transition-transform duration-500"/>
                     </Link>
                     {/* Name + size */}
                     <div className="min-w-0">
                       <Link href={`/produit/${i.slug}`} className="font-bold text-[13px] leading-snug hover:text-neutral-600 transition-colors line-clamp-2">{i.name}</Link>
-                      <p className="text-[11px] text-neutral-400 mt-0.5 uppercase tracking-wide">Pointure : {i.size}</p>
+                      <p className="text-[11px] text-neutral-400 mt-0.5 uppercase tracking-wide">
+                        {i.size && i.size !== "Taille unique" ? `Taille : ${i.size}` : ""}
+                        {i.size && i.size !== "Taille unique" && i.color ? " · " : ""}
+                        {i.color ? `Couleur : ${i.color}` : ""}
+                        {(!i.color && i.size === "Taille unique") ? "Taille unique" : ""}
+                      </p>
                       {/* Mobile: qty stepper + price + remove */}
                       <div className="flex items-center gap-3 mt-2.5 md:hidden">
                         <div className="inline-flex border border-neutral-200 rounded-lg overflow-hidden">
-                          <button onClick={() => setQty(i.slug, i.size, i.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">−</button>
+                          <button onClick={() => setQty(i.slug, i.size, i.color, i.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">−</button>
                           <span className="w-9 h-8 flex items-center justify-center text-[13px] font-black border-x border-neutral-200">{i.quantity}</span>
-                          <button onClick={() => setQty(i.slug, i.size, i.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">+</button>
+                          <button onClick={() => setQty(i.slug, i.size, i.color, i.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">+</button>
                         </div>
                         <span className="text-[13px] font-black">{formatMAD(i.price * i.quantity)}</span>
-                        <button onClick={() => remove(i.slug, i.size)} className="ml-auto text-neutral-300 hover:text-red-400 transition-colors" aria-label="Retirer">
+                        <button onClick={() => remove(i.slug, i.size, i.color)} className="ml-auto text-neutral-300 hover:text-red-400 transition-colors" aria-label="Retirer">
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                         </button>
                       </div>
@@ -227,28 +245,60 @@ export default function CartPage() {
                     {/* Qty stepper */}
                     <div className="hidden md:flex items-center justify-center">
                       <div className="inline-flex border border-neutral-200 rounded-lg overflow-hidden">
-                        <button onClick={() => setQty(i.slug, i.size, i.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">−</button>
+                        <button onClick={() => setQty(i.slug, i.size, i.color, i.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">−</button>
                         <span className="w-9 h-8 flex items-center justify-center text-[13px] font-black border-x border-neutral-200">{i.quantity}</span>
-                        <button onClick={() => setQty(i.slug, i.size, i.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">+</button>
+                        <button onClick={() => setQty(i.slug, i.size, i.color, i.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">+</button>
                       </div>
                     </div>
                     {/* Row total + remove (desktop) */}
                     <div className="hidden md:flex flex-col items-end gap-1.5">
                       <span className="text-[14px] font-black">{formatMAD(i.price * i.quantity)}</span>
-                      <button onClick={() => remove(i.slug, i.size)} className="text-neutral-300 hover:text-red-400 transition-colors" aria-label="Retirer">
+                      <button onClick={() => remove(i.slug, i.size, i.color)} className="text-neutral-300 hover:text-red-400 transition-colors" aria-label="Retirer">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                       </button>
                     </div>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
 
               {/* Footer */}
-              <div className="px-6 py-4 border-t border-neutral-100 flex justify-end">
-                <button onClick={clear} className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-neutral-400 hover:text-red-500 transition-colors font-bold">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                  Vider le panier
-                </button>
+              <div className="px-6 py-4 border-t border-neutral-100 flex items-center justify-between min-h-[54px]">
+                {confirmClear ? (
+                  <div className="flex items-center gap-3 w-full">
+                    <span className="text-[12px] text-neutral-500 font-semibold flex-1">Vider tout le panier ?</span>
+                    <button
+                      onClick={() => { clear(); setConfirmClear(false); }}
+                      className="px-3 py-1.5 text-[11px] font-black uppercase tracking-wide bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                    >
+                      Confirmer
+                    </button>
+                    <button
+                      onClick={() => setConfirmClear(false)}
+                      className="px-3 py-1.5 text-[11px] font-black uppercase tracking-wide border border-neutral-200 text-neutral-500 rounded-lg hover:border-neutral-400 hover:text-black transition-colors"
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <span className="text-[11px] text-neutral-300">{count} article{count !== 1 ? "s" : ""}</span>
+                    <button
+                      onClick={() => setConfirmClear(true)}
+                      className="group flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-neutral-400 hover:text-red-500 transition-all duration-200 px-3 py-1.5 rounded-lg hover:bg-red-50 border border-transparent hover:border-red-100"
+                    >
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-neutral-100 group-hover:bg-red-100 transition-colors duration-200">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6l-1 14H6L5 6"/>
+                          <path d="M10 11v6M14 11v6"/>
+                          <path d="M9 6V4h6v2"/>
+                        </svg>
+                      </span>
+                      Vider le panier
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 

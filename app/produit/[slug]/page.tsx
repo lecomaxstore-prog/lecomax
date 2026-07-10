@@ -238,6 +238,7 @@ export default async function ProductPage({
     const dbProd = await getDbProductRaw(slug);
     if (!dbProd) notFound();
     // Convert API product to Product-compatible shape
+    const dbTags = (dbProd.tags as string[] | null) ?? [];
     product = {
       slug: dbProd.slug,
       name: dbProd.name,
@@ -247,17 +248,24 @@ export default async function ProductPage({
       oldPrice: dbProd.original_price ?? undefined,
       colors: (dbProd.colors as string[]) ?? [],
       sizes: (dbProd.sizes as string[]) ?? [],
-      image: (dbProd.images ?? [])[0] ?? "",
-      gallery: (dbProd.images ?? []).slice(1),
+      image: (dbProd.images ?? [])[0] || "",
+      gallery: (dbProd.images ?? []).filter(Boolean).slice(1),
       badge: dbProd.featured ? "Nouveau" : undefined,
       description: dbProd.description ?? "",
       video: dbProd.video ?? undefined,
       descriptionImages: (dbProd.description_images as string[] | null) ?? undefined,
-      outOfStockColors: (dbProd.tags as string[] | null)
-        ?.filter((t: string) => t.startsWith("__oos:"))
-        .map((t: string) => t.replace("__oos:", "")) ?? undefined,
+      // Extract __detail:Key:Value tags as product specs for the accordion
+      specs: dbTags
+        .filter((t: string) => t.startsWith("__detail:"))
+        .map((t: string) => {
+          const parts = t.slice("__detail:".length).split(":");
+          return `${parts[0]}: ${parts.slice(1).join(":")}`;
+        }),
+      outOfStockColors: dbTags
+        .filter((t: string) => t.startsWith("__oos:"))
+        .map((t: string) => t.replace("__oos:", "")),
       sizeGuideType: (() => {
-        const guideTag = (dbProd.tags as string[] | null)?.find((t: string) => t.startsWith("__guide:"));
+        const guideTag = dbTags.find((t: string) => t.startsWith("__guide:"));
         if (guideTag === "__guide:shoes") return "shoes";
         if (guideTag === "__guide:clothing") return "clothing";
         return undefined;
@@ -416,12 +424,16 @@ export default async function ProductPage({
       return true;
     })
     .slice(0, 4);
-  const allImages = [product.image, ...product.gallery];
+  const allImages = [product.image, ...product.gallery].filter(Boolean);
 
-  // Auto-build colorImages for DB products — map each color to its corresponding image
+  // Only build image-based color swatches when there are real uploaded images.
+  // If we used a placeholder, the swatch would show a gray no-image thumbnail.
+  const hasRealImages = allImages.some(
+    (img) => img && img.startsWith("http") && !img.includes("no-image") && !img.includes("placeholder")
+  );
   const resolvedColorImages: Record<string, string> | undefined =
     product.colorImages ??
-    (product.colors.length > 0
+    (product.colors.length > 0 && hasRealImages
       ? Object.fromEntries(product.colors.map((c, i) => [c, allImages[i] ?? allImages[0]]))
       : undefined);
 

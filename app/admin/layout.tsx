@@ -6,6 +6,17 @@ import { supabase } from "@/lib/supabase";
 
 const nav = [
   {
+    label: "Ecomedia",
+    href: "/admin/ecomedia",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/>
+        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+      </svg>
+    ),
+  },
+  {
     label: "Dashboard",
     href: "/admin/dashboard",
     icon: (
@@ -348,6 +359,7 @@ const navSections: { title: string; hrefs: string[] }[] = [
 // "slug" → visible if staff has that permission
 const NAV_PERMISSIONS: Record<string, string | null | undefined> = {
   "/admin/dashboard":             null,
+  "/admin/ecomedia":              null,  // visible to all admins
   "/admin/analytics":      "analytics.view",
   "/admin/recordings":     "recordings.view",
   "/admin/products":       "products.view",
@@ -397,6 +409,7 @@ const pageLabels: Record<string, string> = {
   "client-data": "Données clients",
   ads: "Publicités", studio: "Studio Créatif", push: "Notifications Push",
   "how-it-was-built": "Comment c'est construit",
+  "ecomedia": "Ecomedia Manager",
   "roles": "Rôles & Permissions",
   "staff": "Équipe & Accès",
   "approvals": "Approbations",
@@ -440,6 +453,53 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // null = owner (no restriction), string[] = staff permissions list
   const [staffPermissions, setStaffPermissions] = useState<string[] | null>(null);
 
+  // ── Set admin-specific document title ──────────────────────────────────
+  useEffect(() => {
+    const PAGE_TITLES: Record<string, string> = {
+      "/admin":                    "Connexion",
+      "/admin/dashboard":          "Dashboard",
+      "/admin/analytics":          "Analytiques",
+      "/admin/products":           "Produits",
+      "/admin/orders":             "Commandes",
+      "/admin/customers":          "Clients",
+      "/admin/messages":           "Messages",
+      "/admin/reviews":            "Avis",
+      "/admin/promotions":         "Promotions",
+      "/admin/coupons":            "Coupons",
+      "/admin/categories":         "Catégories",
+      "/admin/banners":            "Banners",
+      "/admin/announcement":       "Annonces",
+      "/admin/newsletter":         "Newsletter",
+      "/admin/push":               "Push",
+      "/admin/stock":              "Stock",
+      "/admin/shipping":           "Livraison",
+      "/admin/returns":            "Retours",
+      "/admin/settings":           "Paramètres",
+      "/admin/staff":              "Équipe",
+      "/admin/roles":              "Rôles",
+      "/admin/approvals":          "Approbations",
+      "/admin/ads":                "Publicités",
+      "/admin/media":              "Médias",
+      "/admin/loyalty":            "Fidélité",
+      "/admin/pages":              "Pages",
+      "/admin/size-guide":         "Guide des tailles",
+      "/admin/recordings":         "Enregistrements",
+      "/admin/client-data":        "Données clients",
+      "/admin/studio":             "Studio IA",
+      "/admin/broadcast":          "Broadcast",
+      "/admin/how-it-was-built":   "Comment c'est construit",
+      "/admin/chat-kb":            "Base de connaissances",
+      "/admin/abandoned-carts":    "Paniers abandonnés",
+      "/admin/ecoclub":            "Écoclub",
+      "/admin/trustpilot":         "Trustpilot",
+      "/admin/facture":            "Facture",
+    };
+    // Match by prefix to handle sub-routes like /admin/products?id=...
+    const base = "/" + pathname.split("/").slice(0, 3).join("/").replace(/^\//, "");
+    const pageName = PAGE_TITLES[base] ?? PAGE_TITLES[pathname] ?? "Admin";
+    document.title = `${pageName} — Admin · L'ecomax`;
+  }, [pathname]);
+
   useEffect(() => {
     async function loadPermissions() {
       try {
@@ -468,14 +528,33 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     const isLoginPage = pathname === "/admin" || pathname === "/admin/";
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session && !isLoginPage) {
-        router.replace("/admin");
-      }
-      setChecking(false);
-    });
+    if (isLoginPage) { setChecking(false); return; }
+
+    // Check the server-side admin_session cookie first (source of truth).
+    // Only fall back to Supabase if the cookie is also missing.
+    fetch("/api/admin/auth/verify", { method: "GET" })
+      .then((res) => {
+        if (res.ok) {
+          // Cookie session is valid — stay on current page regardless of Supabase state
+          setChecking(false);
+        } else {
+          // Cookie invalid — check Supabase as final fallback
+          supabase.auth.getSession().then(({ data }) => {
+            if (!data.session) router.replace("/admin");
+            setChecking(false);
+          });
+        }
+      })
+      .catch(() => {
+        supabase.auth.getSession().then(({ data }) => {
+          if (!data.session) router.replace("/admin");
+          setChecking(false);
+        });
+      });
+
+    // Still listen for explicit Supabase logout events while on page
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session && !isLoginPage) router.replace("/admin");
+      if (_event === "SIGNED_OUT" && !session) router.replace("/admin");
     });
     return () => listener.subscription.unsubscribe();
   }, [pathname, router]);
@@ -793,12 +872,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               );
             })}
 
-            {/* Centre FAB — Nouveau produit */}
+            {/* Centre FAB — Ecomedia */}
             <div className="flex-1 flex items-center justify-center">
-              <Link href="/admin/products?new=1"
-                className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 active:scale-90 transition-all">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              <Link href="/admin/ecomedia"
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition-all ${
+                  pathname.startsWith("/admin/ecomedia") ? "bg-[#3ecf4c] text-black" : "bg-black text-white hover:bg-neutral-800"
+                }`}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                  <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
                 </svg>
               </Link>
             </div>

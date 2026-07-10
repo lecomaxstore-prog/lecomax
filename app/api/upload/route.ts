@@ -6,8 +6,17 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"];
-const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_TYPES = [
+  "image/jpeg", "image/jpg", "image/png", "image/webp",
+  "image/avif", "image/gif", "image/heic", "image/heif",
+];
+// Extension → MIME fallback for mobile browsers that report empty type
+const EXT_TO_MIME: Record<string, string> = {
+  jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
+  webp: "image/webp", avif: "image/avif", gif: "image/gif",
+  heic: "image/heic", heif: "image/heif",
+};
+const MAX_SIZE = 15 * 1024 * 1024; // 15 MB — mobile photos can be large
 const BUCKET = "product-images";
 
 // POST /api/upload  (multipart/form-data  field: "file")
@@ -24,7 +33,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No file provided (field: file)" }, { status: 400 });
   }
 
-  if (!ALLOWED_TYPES.includes(file.type)) {
+  // Some Android/iOS browsers send an empty MIME type — fall back to extension
+  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
+  const mimeType = file.type || EXT_TO_MIME[ext] || "";
+
+  if (!ALLOWED_TYPES.includes(mimeType)) {
     return NextResponse.json(
       { error: "Type de fichier non autorisé. Utilisez JPG, PNG, WEBP, AVIF ou GIF." },
       { status: 415 }
@@ -32,10 +45,9 @@ export async function POST(req: NextRequest) {
   }
 
   if (file.size > MAX_SIZE) {
-    return NextResponse.json({ error: "Fichier trop volumineux (max 5 MB)." }, { status: 413 });
+    return NextResponse.json({ error: "Fichier trop volumineux (max 15 MB)." }, { status: 413 });
   }
 
-  const ext = file.name.split(".").pop() ?? "jpg";
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
   const arrayBuffer = await file.arrayBuffer();
@@ -44,7 +56,7 @@ export async function POST(req: NextRequest) {
   const { error } = await supabase.storage
     .from(BUCKET)
     .upload(filename, buffer, {
-      contentType: file.type,
+      contentType: mimeType,
       upsert: false,
     });
 

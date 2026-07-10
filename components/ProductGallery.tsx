@@ -56,10 +56,14 @@ export default function ProductGallery({
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const thumbsRef = useRef<HTMLDivElement>(null);
 
+  // Filter out empty/invalid image strings and ensure at least a placeholder
+  const validImages = images.filter(Boolean);
+  const safeImages = validImages.length > 0 ? validImages : ["/images/no-image.svg"];
+
   // Build the full list of "slides": video first (if any), then images
   const slides: Array<"video" | number> = [
     ...(video ? (["video"] as const) : []),
-    ...images.map((_, i) => i as number),
+    ...safeImages.map((_, i) => i as number),
   ];
   const activeIndex = slides.indexOf(active);
 
@@ -105,7 +109,7 @@ export default function ProductGallery({
   const handleColorClick = (color: string) => {
     setSelectedColor(color);
     if (colorImages?.[color]) {
-      const idx = images.indexOf(colorImages[color]);
+      const idx = safeImages.indexOf(colorImages[color]);
       if (idx >= 0) setActive(idx);
     }
   };
@@ -114,7 +118,7 @@ export default function ProductGallery({
   useEffect(() => {
     if (!hasColorPicker || !selectedColor) return;
     if (colorImages?.[selectedColor]) {
-      const idx = images.indexOf(colorImages[selectedColor]);
+      const idx = safeImages.indexOf(colorImages[selectedColor]);
       if (idx >= 0) setActive(idx);
     }
   }, [selectedColor]);
@@ -140,13 +144,13 @@ export default function ProductGallery({
             muted
             loop
             playsInline
-            poster={images[0]}
+            poster={safeImages[0]}
             className="absolute inset-0 w-full h-full object-cover"
           />
           )
         ) : (
           <Image
-            src={images[active as number]}
+            src={safeImages[active as number]}
             alt={name}
             fill
             sizes="(min-width: 1024px) 55vw, 100vw"
@@ -223,14 +227,14 @@ export default function ProductGallery({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={isYouTube(video) ? `https://img.youtube.com/vi/${getYouTubeId(video)}/mqdefault.jpg` : images[0]}
+                src={isYouTube(video) ? `https://img.youtube.com/vi/${getYouTubeId(video)}/mqdefault.jpg` : safeImages[0]}
                 alt="Vidéo"
                 className="absolute inset-0 w-full h-full object-cover opacity-50"
               />
               <span className="relative z-10 text-white text-2xl leading-none">▶</span>
             </button>
           )}
-          {images.map((src, i) => (
+          {safeImages.map((src, i) => (
             <button
               key={i}
               onClick={() => setActive(i)}

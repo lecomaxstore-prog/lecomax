@@ -33,6 +33,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
   const [mounted, setMounted] = useState(false);
   const rating = product.rating ?? 0;
   const count = product.reviewCount ?? 0;
+  const displayImage = product.image || "/images/no-image.svg";
 
   useEffect(() => setMounted(true), []);
   const onSale = product.oldPrice && product.oldPrice > product.price;
@@ -46,7 +47,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
       {/* Image */}
       <div className="relative aspect-[4/5] bg-neutral-50 overflow-hidden">
         <Image
-          src={product.image}
+          src={displayImage}
           alt={product.name}
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"

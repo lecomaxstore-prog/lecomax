@@ -116,6 +116,14 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // ── Auto-redirect authenticated users away from login page ──────────────
+  if (pathname === "/admin" || pathname === "/admin/") {
+    const valid = await isValidAdminSession(req);
+    if (valid) {
+      return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+    }
+  }
+
   // ── Protect /admin sub-routes (not the login page itself or accept-invite) ──
   if (
     pathname.startsWith("/admin") &&

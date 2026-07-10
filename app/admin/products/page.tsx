@@ -33,7 +33,7 @@ type ExtendedProduct = Product & {
   colors?: string[];
   sizes?: string[];
   weight?: number;
-  desc_images?: string[];
+  description_images?: string[];
   video?: string | null;
 };
 
@@ -71,6 +71,9 @@ export default function ProductsPage() {
   }>>([]);
   const { isStaff, userEmail, ready, submitForApproval } = useApproval();
   const tableRef = useRef<HTMLDivElement>(null);
+  // Tracks which editId has been initialized — prevents products re-fetch from
+  // wiping images the user just uploaded (same mobile session-refresh bug).
+  const initializedEditIdRef = useRef<string | null>(null);
 
   const scrollTable = (dir: "left" | "right") => {
     tableRef.current?.scrollBy({ left: dir === "right" ? 300 : -300, behavior: "smooth" });
@@ -107,59 +110,106 @@ export default function ProductsPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // ── Reset form when entering "new product" mode ──────────────────────────
+  // NOTE: depends ONLY on [isNew] so that background product-list re-fetches
+  // (triggered by Supabase session refresh on mobile tab-switch) do NOT wipe
+  // the images the user just uploaded.
   useEffect(() => {
-    if (editId) {
-      const p = products.find((x) => x.id === editId) as ExtendedProduct | undefined;
-      if (p) {
-        const tags = p.tags ?? [];
-        const guideTag = tags.find((t) => t.startsWith("__guide:"));
-        setSizeGuideType(guideTag === "__guide:shoes" ? "shoes" : guideTag === "__guide:clothing" ? "clothing" : guideTag === "__guide:custom" ? "custom" : "none");
-        setForm({
-          slug: p.slug, name: p.name, brand: p.brand ?? "",
-          category: p.category,
-          price: String(p.price), original_price: p.original_price ? String(p.original_price) : "",
-          description: p.description ?? "",
-          stock: String(p.stock), active: p.active,
-          featured: p.featured ?? false,
-          tags: tags.filter((t) => !t.startsWith("__guide:") && !t.startsWith("__sstock:") && !t.startsWith("__detail:")).join(", "),
-          weight: p.weight ? String(p.weight) : "",
-          video: (p as ExtendedProduct).video ?? "",
-        });
-        setImages(p.images?.length ? p.images : []);
-        setDescImages((p as ExtendedProduct).desc_images?.length ? (p as ExtendedProduct).desc_images! : []);
-        setSelectedColors(p.colors ?? []);
-        // Restore product details from tags like "__detail:Matière:100% coton"
-        const detailTags = tags.filter((t) => t.startsWith("__detail:"));
-        setProductDetails(detailTags.map((t) => {
-          const parts = t.slice("__detail:".length).split(":");
-          return { key: parts[0] ?? "", value: parts.slice(1).join(":") };
-        }));
-        const savedSizes = p.sizes ?? [];
-        setSelectedSizes(savedSizes);
-        // Restore size stocks from tags like "__sstock:XS:5"
-        const sstocks: Record<string, number> = {};
-        tags.filter((t) => t.startsWith("__sstock:")).forEach((t) => {
-          const [, size, qty] = t.split(":");
-          if (size && qty) sstocks[size] = parseInt(qty) || 0;
-        });
-        setSizeStocks(sstocks);
-        // Restore custom sizes
-        const guideT = guideTag === "__guide:shoes" ? "shoes" : guideTag === "__guide:clothing" ? "clothing" : guideTag === "__guide:custom" ? "custom" : "none";
-        if (guideT === "custom") setCustomSizes(savedSizes);
-        else setCustomSizes([]);
-      }
-    } else if (isNew) {
-      setForm({ ...emptyForm });
-      setImages([]);
-      setDescImages([]);
-      setSelectedColors([]);
-      setSelectedSizes([]);
-      setSizeGuideType("none");
-      setCustomSizes([]);
-      setSizeStocks({});
-      setProductDetails([]);
+    if (!isNew) return;
+    setForm({ ...emptyForm });
+    setImages([]);
+    setDescImages([]);
+    setSelectedColors([]);
+    setSelectedSizes([]);
+    setSizeGuideType("none");
+    setCustomSizes([]);
+    setSizeStocks({});
+    setProductDetails([]);
+    // Clear any leftover sessionStorage draft from a previous session
+    sessionStorage.removeItem("__new_product_images");
+    sessionStorage.removeItem("__new_product_desc_images");
+  }, [isNew]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Load product data when editing ───────────────────────────────────────
+  useEffect(() => {
+    if (!editId) { initializedEditIdRef.current = null; return; }
+    const p = products.find((x) => x.id === editId) as ExtendedProduct | undefined;
+    if (!p) return;
+    // Only initialize once per editId — subsequent products reloads (e.g. mobile
+    // Supabase session refresh) must NOT overwrite images the user just uploaded.
+    if (initializedEditIdRef.current === editId) return;
+    initializedEditIdRef.current = editId;
+    const tags = p.tags ?? [];
+    const guideTag = tags.find((t) => t.startsWith("__guide:"));
+    setSizeGuideType(guideTag === "__guide:shoes" ? "shoes" : guideTag === "__guide:clothing" ? "clothing" : guideTag === "__guide:custom" ? "custom" : "none");
+    setForm({
+      slug: p.slug, name: p.name, brand: p.brand ?? "",
+      category: p.category,
+      price: String(p.price), original_price: p.original_price ? String(p.original_price) : "",
+      description: p.description ?? "",
+      stock: String(p.stock), active: p.active,
+      featured: p.featured ?? false,
+      tags: tags.filter((t) => !t.startsWith("__guide:") && !t.startsWith("__sstock:") && !t.startsWith("__detail:")).join(", "),
+      weight: p.weight ? String(p.weight) : "",
+      video: (p as ExtendedProduct).video ?? "",
+    });
+    // Prefer sessionStorage over DB if the user had uploaded images that survived
+    // a mobile page reload (sessionStorage is cleared on successful save).
+    try {
+      const cachedImgs = sessionStorage.getItem(`__edit_product_images_${editId}`);
+      const parsedCached = cachedImgs ? JSON.parse(cachedImgs) : null;
+      setImages(Array.isArray(parsedCached) && parsedCached.length > 0 ? parsedCached : (p.images ?? []));
+      const cachedDesc = sessionStorage.getItem(`__edit_product_desc_images_${editId}`);
+      const parsedDesc = cachedDesc ? JSON.parse(cachedDesc) : null;
+      setDescImages(Array.isArray(parsedDesc) && parsedDesc.length > 0 ? parsedDesc : ((p as ExtendedProduct).description_images ?? []));
+    } catch {
+      setImages(p.images ?? []);
+      setDescImages((p as ExtendedProduct).description_images ?? []);
     }
-  }, [editId, isNew, products]);
+    setSelectedColors(p.colors ?? []);
+    const detailTags = tags.filter((t) => t.startsWith("__detail:"));
+    setProductDetails(detailTags.map((t) => {
+      const parts = t.slice("__detail:".length).split(":");
+      return { key: parts[0] ?? "", value: parts.slice(1).join(":") };
+    }));
+    const savedSizes = p.sizes ?? [];
+    setSelectedSizes(savedSizes);
+    const sstocks: Record<string, number> = {};
+    tags.filter((t) => t.startsWith("__sstock:")).forEach((t) => {
+      const [, size, qty] = t.split(":");
+      if (size && qty) sstocks[size] = parseInt(qty) || 0;
+    });
+    setSizeStocks(sstocks);
+    const guideT = guideTag === "__guide:shoes" ? "shoes" : guideTag === "__guide:clothing" ? "clothing" : guideTag === "__guide:custom" ? "custom" : "none";
+    if (guideT === "custom") setCustomSizes(savedSizes);
+    else setCustomSizes([]);
+  }, [editId, products]);
+
+  // ── Persist images to sessionStorage while filling forms ─────────────────
+  // Covers both new-product and edit modes; survives full mobile page reload.
+  useEffect(() => {
+    if (!isNew && !editId) return;
+    const key = editId ? `__edit_product_images_${editId}` : "__new_product_images";
+    sessionStorage.setItem(key, JSON.stringify(images));
+  }, [images, isNew, editId]);
+
+  useEffect(() => {
+    if (!isNew && !editId) return;
+    const key = editId ? `__edit_product_desc_images_${editId}` : "__new_product_desc_images";
+    sessionStorage.setItem(key, JSON.stringify(descImages));
+  }, [descImages, isNew, editId]);
+
+  // ── Restore images after mobile page reload ───────────────────────────────
+  // This runs once after the reset effect above (effects run in definition order).
+  useEffect(() => {
+    if (!isNew) return;
+    try {
+      const imgs = sessionStorage.getItem("__new_product_images");
+      if (imgs) { const p = JSON.parse(imgs); if (Array.isArray(p) && p.length > 0) setImages(p); }
+      const desc = sessionStorage.getItem("__new_product_desc_images");
+      if (desc) { const p = JSON.parse(desc); if (Array.isArray(p) && p.length > 0) setDescImages(p); }
+    } catch { /* ignore malformed storage */ }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function uploadFiles(files: FileList | File[]) {
     const list = Array.from(files);
@@ -228,7 +278,7 @@ export default function ProductsPage() {
       colors: selectedColors,
       sizes: selectedSizes,
       weight: form.weight ? parseFloat(form.weight) : null,
-      desc_images: descImages.filter(Boolean),
+      description_images: descImages.filter(Boolean),
       video: form.video.trim() || null,
     };
     // ── Staff: route through approval queue ──────────────────────────────────
@@ -249,6 +299,10 @@ export default function ProductsPage() {
       });
       setSaving(false);
       if (submitted) {
+        sessionStorage.removeItem("__new_product_images");
+        sessionStorage.removeItem("__new_product_desc_images");
+        if (editId) { sessionStorage.removeItem(`__edit_product_images_${editId}`); sessionStorage.removeItem(`__edit_product_desc_images_${editId}`); }
+        initializedEditIdRef.current = null;
         setMsg({ type: "ok", text: "✅ Soumis pour approbation — le propriétaire sera notifié." });
         setTimeout(() => router.replace("/admin/products"), 1500);
       } else {
@@ -264,7 +318,15 @@ export default function ProductsPage() {
     const json = await res.json();
     setSaving(false);
     if (!res.ok) setMsg({ type: "err", text: json.error ?? "Erreur inconnue" });
-    else { setMsg({ type: "ok", text: editId ? "Produit mis à jour ✓" : "Produit créé ✓" }); load(); setTimeout(() => router.replace("/admin/products"), 1000); }
+    else {
+      sessionStorage.removeItem("__new_product_images");
+      sessionStorage.removeItem("__new_product_desc_images");
+      if (editId) { sessionStorage.removeItem(`__edit_product_images_${editId}`); sessionStorage.removeItem(`__edit_product_desc_images_${editId}`); }
+      initializedEditIdRef.current = null;
+      setMsg({ type: "ok", text: editId ? "Produit mis à jour ✓" : "Produit créé ✓" });
+      load();
+      setTimeout(() => router.replace("/admin/products"), 1000);
+    }
   }
 
   async function handleDelete(id: string) {
@@ -390,7 +452,7 @@ export default function ProductsPage() {
   if (showForm) return (
     <div className="max-w-5xl">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => router.replace("/admin/products")} className="p-2 hover:bg-neutral-100 rounded-lg transition-colors">
+        <button onClick={() => { sessionStorage.removeItem("__new_product_images"); sessionStorage.removeItem("__new_product_desc_images"); if (editId) { sessionStorage.removeItem(`__edit_product_images_${editId}`); sessionStorage.removeItem(`__edit_product_desc_images_${editId}`); } initializedEditIdRef.current = null; router.replace("/admin/products"); }} className="p-2 hover:bg-neutral-100 rounded-lg transition-colors">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </button>
         <div>
@@ -760,14 +822,14 @@ export default function ProductsPage() {
                 <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Images</h2>
                 <span className="text-[10px] font-bold px-2 py-0.5 bg-neutral-100 rounded-full text-neutral-500">{images.length} photo{images.length !== 1 ? "s" : ""}</span>
               </div>
-              <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden"
+              <input ref={fileInputRef} id="img-upload-main" type="file" accept="image/*,image/heic,image/heif" multiple className="hidden"
                 onChange={(e) => e.target.files && uploadFiles(e.target.files)} />
-              <div
-                onClick={() => !uploading && fileInputRef.current?.click()}
+              <label
+                htmlFor={uploading ? undefined : "img-upload-main"}
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={(e) => { e.preventDefault(); setDragOver(false); uploadFiles(e.dataTransfer.files); }}
-                className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all mb-4 ${dragOver ? "border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${uploading ? "pointer-events-none opacity-70" : ""}`}>
+                className={`block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all mb-4 ${dragOver ? "border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${uploading ? "pointer-events-none opacity-70" : ""}`}>
                 {uploading ? (
                   <div className="flex flex-col items-center gap-2">
                     <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
@@ -780,11 +842,11 @@ export default function ProductsPage() {
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                       </svg>
                     </div>
-                    <p className="text-xs font-semibold text-neutral-700">Cliquer ou glisser des images</p>
-                    <p className="text-[10px] text-neutral-400">JPG, PNG, WEBP, AVIF — max 5 MB</p>
+                    <p className="text-xs font-semibold text-neutral-700">Appuyer ou glisser des images</p>
+                    <p className="text-[10px] text-neutral-400">JPG, PNG, WEBP, AVIF, HEIC — max 15 MB</p>
                   </div>
                 )}
-              </div>
+              </label>
               {images.length > 0 && (
                 <div className="grid grid-cols-3 gap-2">
                   {images.map((url, i) => (
@@ -792,7 +854,7 @@ export default function ProductsPage() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={url} alt="" className="w-full h-full object-cover" />
                       {i === 0 && <span className="absolute top-1 left-1 text-[9px] font-black bg-black text-white px-1.5 py-0.5 rounded-full">MAIN</span>}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                      <div className="absolute inset-0 bg-black/40 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
                         {i > 0 && (
                           <button type="button" onClick={() => setImages((prev) => { const a = [...prev]; [a[0], a[i]] = [a[i], a[0]]; return a; })}
                             className="w-7 h-7 bg-white rounded-full flex items-center justify-center text-xs font-bold text-black">★</button>
@@ -853,14 +915,14 @@ export default function ProductsPage() {
                 <span className="text-[10px] font-bold px-2 py-0.5 bg-neutral-100 rounded-full text-neutral-500">{descImages.length} photo{descImages.length !== 1 ? "s" : ""}</span>
               </div>
               <p className="text-[11px] text-neutral-400 mb-4">Photos affichées dans la section description du produit (détails, matières, lifestyle…)</p>
-              <input ref={descFileInputRef} type="file" accept="image/*" multiple className="hidden"
+              <input ref={descFileInputRef} id="img-upload-desc" type="file" accept="image/*,image/heic,image/heif" multiple className="hidden"
                 onChange={(e) => e.target.files && uploadDescFiles(e.target.files)} />
-              <div
-                onClick={() => !uploadingDesc && descFileInputRef.current?.click()}
+              <label
+                htmlFor={uploadingDesc ? undefined : "img-upload-desc"}
                 onDragOver={(e) => { e.preventDefault(); setDragOverDesc(true); }}
                 onDragLeave={() => setDragOverDesc(false)}
                 onDrop={(e) => { e.preventDefault(); setDragOverDesc(false); uploadDescFiles(e.dataTransfer.files); }}
-                className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all mb-3 ${dragOverDesc ? "border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${uploadingDesc ? "pointer-events-none opacity-70" : ""}`}>
+                className={`block border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all mb-3 ${dragOverDesc ? "border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${uploadingDesc ? "pointer-events-none opacity-70" : ""}`}>
                 {uploadingDesc ? (
                   <div className="flex flex-col items-center gap-2">
                     <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
@@ -873,18 +935,18 @@ export default function ProductsPage() {
                         <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                       </svg>
                     </div>
-                    <p className="text-xs font-semibold text-neutral-700">Cliquer ou glisser des images</p>
-                    <p className="text-[10px] text-neutral-400">JPG, PNG, WEBP, AVIF — max 5 MB</p>
+                    <p className="text-xs font-semibold text-neutral-700">Appuyer ou glisser des images</p>
+                    <p className="text-[10px] text-neutral-400">JPG, PNG, WEBP, AVIF, HEIC — max 15 MB</p>
                   </div>
                 )}
-              </div>
+              </label>
               {descImages.length > 0 && (
                 <div className="grid grid-cols-2 gap-2">
                   {descImages.map((url, i) => (
                     <div key={i} className="relative group rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200" style={{ aspectRatio: "4/3" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={url} alt="" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/40 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <button type="button" onClick={() => setDescImages((prev) => prev.filter((_, j) => j !== i))}
                           className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-white">
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -931,7 +993,7 @@ export default function ProductsPage() {
               className="w-full bg-black text-white font-bold py-3.5 rounded-xl hover:bg-neutral-800 disabled:opacity-50 flex items-center justify-center gap-2">
               {saving ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Enregistrement…</> : `${editId ? "Mettre à jour" : "Créer le produit"} →`}
             </button>
-            <button type="button" onClick={() => router.replace("/admin/products")}
+            <button type="button" onClick={() => { sessionStorage.removeItem("__new_product_images"); sessionStorage.removeItem("__new_product_desc_images"); if (editId) { sessionStorage.removeItem(`__edit_product_images_${editId}`); sessionStorage.removeItem(`__edit_product_desc_images_${editId}`); } initializedEditIdRef.current = null; router.replace("/admin/products"); }}
               className="w-full py-2.5 text-sm text-neutral-500 hover:text-black transition-colors">Annuler</button>
           </div>
         </div>

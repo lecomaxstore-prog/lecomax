@@ -5,26 +5,6 @@ type Message = { id: string; name: string; email: string; subject: string; messa
 type InboxEmail = { uid: number; subject: string; from: string; fromAddress: string; date: string; read: boolean; hasAttachment: boolean };
 type InboxEmailDetail = InboxEmail & { to: string; text: string; html: string; attachments: { filename: string; contentType: string; size: number }[] };
 
-// ─── WhatsApp types ───────────────────────────────────────────────────────
-type WaConversation = {
-  id: string;
-  phone: string;
-  name: string | null;
-  status: "ai" | "escalated" | "resolved";
-  unread_count: number;
-  last_message: string | null;
-  last_at: string;
-  created_at: string;
-};
-type WaMessage = {
-  id: string;
-  conversation_id: string;
-  direction: "in" | "out";
-  body: string;
-  sent_by: "client" | "ai" | "agent";
-  timestamp: string;
-};
-
 // ─── Live Chat types ────────────────────────────────────────────────────────
 type ChatSession = {
   id: string;
@@ -48,7 +28,7 @@ type ChatMessage = {
 const STATUS_FILTERS = ["Tous", "Non lus", "Lus"] as const;
 
 export default function MessagesPage() {
-  const [tab, setTab] = useState<"contact" | "inbox" | "whatsapp" | "livechat" | "feedback">("contact");
+  const [tab, setTab] = useState<"contact" | "inbox" | "livechat" | "feedback">("contact");
 
   // ── Contact form messages ──
   const [messages, setMessages] = useState<Message[]>([]);
@@ -244,112 +224,7 @@ export default function MessagesPage() {
 
   const inboxUnread = inboxEmails.filter((e) => !e.read).length;
 
-  // ─── WhatsApp state ───────────────────────────────────────────────────────
-  const [waConvs, setWaConvs] = useState<WaConversation[]>([]);
-  const [waLoading, setWaLoading] = useState(false);
-  const [selectedConv, setSelectedConv] = useState<WaConversation | null>(null);
-  const [waMessages, setWaMessages] = useState<WaMessage[]>([]);
-  const [waMessagesLoading, setWaMessagesLoading] = useState(false);
-  const [waReplyText, setWaReplyText] = useState("");
-  const [waSending, setWaSending] = useState(false);
-  const [waSent, setWaSent] = useState(false);
-  const [waStatusFilter, setWaStatusFilter] = useState<"all" | "ai" | "escalated" | "resolved">("all");
-  const waChatBottomRef = useRef<HTMLDivElement>(null);
-  const waPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const loadWaConvs = useCallback(async () => {
-    setWaLoading(true);
-    try {
-      const res = await fetch("/api/whatsapp/conversations");
-      const data = await res.json();
-      setWaConvs(Array.isArray(data) ? data : []);
-    } finally {
-      setWaLoading(false);
-    }
-  }, []);
-
-  const loadWaMessages = useCallback(async (convId: string) => {
-    setWaMessagesLoading(true);
-    try {
-      const res = await fetch(`/api/whatsapp/conversations/${convId}`);
-      const data = await res.json();
-      setWaMessages(Array.isArray(data) ? data : []);
-    } finally {
-      setWaMessagesLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (tab === "whatsapp") {
-      loadWaConvs();
-      // Poll for new messages every 8 s
-      waPollRef.current = setInterval(async () => {
-        const res = await fetch("/api/whatsapp/conversations");
-        const data = await res.json();
-        if (Array.isArray(data)) setWaConvs(data);
-      }, 8000);
-    } else {
-      if (waPollRef.current) clearInterval(waPollRef.current);
-    }
-    return () => { if (waPollRef.current) clearInterval(waPollRef.current); };
-  }, [tab, loadWaConvs]);
-
-  // Poll messages for active conversation
-  useEffect(() => {
-    if (!selectedConv) return;
-    const iv = setInterval(() => loadWaMessages(selectedConv.id), 8000);
-    return () => clearInterval(iv);
-  }, [selectedConv, loadWaMessages]);
-
-  // Scroll chat to bottom
-  useEffect(() => {
-    waChatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [waMessages]);
-
-  async function openConversation(conv: WaConversation) {
-    setSelectedConv(conv);
-    setWaReplyText("");
-    setWaSent(false);
-    await loadWaMessages(conv.id);
-    setWaConvs((prev) => prev.map((c) => c.id === conv.id ? { ...c, unread_count: 0 } : c));
-  }
-
-  async function sendWaReply() {
-    if (!selectedConv || !waReplyText.trim()) return;
-    setWaSending(true);
-    try {
-      await fetch("/api/whatsapp/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          conversation_id: selectedConv.id,
-          phone: selectedConv.phone,
-          body: waReplyText.trim(),
-        }),
-      });
-      setWaSent(true);
-      setWaReplyText("");
-      await loadWaMessages(selectedConv.id);
-    } finally {
-      setWaSending(false);
-    }
-  }
-
-  async function updateConvStatus(id: string, status: WaConversation["status"]) {
-    await fetch(`/api/whatsapp/conversations/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    setWaConvs((prev) => prev.map((c) => c.id === id ? { ...c, status } : c));
-    if (selectedConv?.id === id) setSelectedConv((c) => c ? { ...c, status } : c);
-  }
-
-  const filteredWaConvs = waConvs.filter((c) =>
-    waStatusFilter === "all" ? true : c.status === waStatusFilter
-  );
-  const waEscalated = waConvs.filter((c) => c.status === "escalated").length;
-  const waTotalUnread = waConvs.reduce((s, c) => s + c.unread_count, 0);
 
   // ─── Live Chat state ─────────────────────────────────────────────────────
   const [lcSessions, setLcSessions] = useState<ChatSession[]>([]);
@@ -580,53 +455,42 @@ export default function MessagesPage() {
   return (
     <div className="max-w-5xl">
       <div className="mb-6">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
           <h1 className="text-xl font-black">Messages</h1>
           {unread > 0 && <span className="bg-blue-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{unread} non lus</span>}
           {inboxUnread > 0 && <span className="bg-green-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{inboxUnread} inbox</span>}
-          {waEscalated > 0 && <span className="bg-orange-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{waEscalated} WhatsApp</span>}
-          {lcEscalated > 0 && <span className="bg-purple-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{lcEscalated} Chat</span>}
+          {lcEscalated > 0 && <span className="bg-purple-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{lcEscalated} chat</span>}
         </div>
-        <p className="text-xs text-neutral-400 mt-0.5">Formulaire de contact, boîte de réception, WhatsApp IA &amp; Live Chat</p>
+        <p className="text-xs text-neutral-400 mt-0.5">Formulaire de contact, boîte de réception &amp; Live Chat</p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-5 bg-neutral-100 rounded-xl p-1 w-fit">
-        <button onClick={() => setTab("contact")}
-          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${tab === "contact" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
-          Formulaire de contact
-          {unread > 0 && <span className="ml-1.5 bg-blue-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{unread}</span>}
-        </button>
-        <button onClick={() => setTab("inbox")}
-          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${tab === "inbox" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 7 10-7"/>
-          </svg>
-          contact@lecomax.com
-          {inboxUnread > 0 && <span className="bg-green-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{inboxUnread}</span>}
-        </button>
-        <button onClick={() => setTab("whatsapp")}
-          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${tab === "whatsapp" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
-          <svg width="12" height="12" viewBox="0 0 48 48" fill="currentColor">
-            <path d="M24 4C13 4 4 13 4 24c0 3.6 1 7 2.7 10L4 44l10.3-2.7C17.1 43 20.5 44 24 44c11 0 20-9 20-20S35 4 24 4zm8.8 28.2c-.5-.2-2.8-1.4-3.2-1.5-.4-.2-.7-.2-1 .2-.3.5-1.2 1.5-1.4 1.8-.3.3-.5.3-1 .1s-1.9-.7-3.6-2.2c-1.3-1.2-2.2-2.6-2.5-3.1-.3-.5 0-.7.2-1 .2-.2.4-.5.6-.8.2-.3.2-.5.4-.8.1-.3.1-.6-.1-.8-.2-.2-1-2.4-1.3-3.3-.4-.9-.7-.8-1-.8h-.9c-.3 0-.8.1-1.2.6-.4.5-1.5 1.5-1.5 3.7s1.6 4.3 1.8 4.6c.2.3 3.1 4.8 7.6 6.7 1.1.5 1.9.7 2.6.9 1.1.3 2.1.3 2.9.2.9-.1 2.8-1.1 3.2-2.2.4-1.1.4-2 .3-2.2-.2-.2-.5-.3-1-.5z"/>
-          </svg>
-          WhatsApp IA
-          {waTotalUnread > 0 && <span className="bg-[#25D366] text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{waTotalUnread}</span>}
-          {waEscalated > 0 && <span className="bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{waEscalated}</span>}
-        </button>
-        <button onClick={() => setTab("livechat")}
-          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${tab === "livechat" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-          </svg>
-          Live Chat
-          {lcTotalUnread > 0 && <span className="bg-purple-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{lcTotalUnread}</span>}
-          {lcEscalated > 0 && <span className="bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{lcEscalated}</span>}
-        </button>
-        <button onClick={() => setTab("feedback")}
-          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${tab === "feedback" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
-          ⭐ Avis chatbot
-        </button>
+      {/* Tabs — scrollable on mobile */}
+      <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 mb-5">
+        <div className="flex gap-1 bg-neutral-100 rounded-xl p-1 w-max min-w-full md:w-fit">
+          <button onClick={() => setTab("contact")}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${tab === "contact" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Contact
+            {unread > 0 && <span className="bg-blue-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{unread}</span>}
+          </button>
+          <button onClick={() => setTab("inbox")}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${tab === "inbox" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 7 10-7"/></svg>
+            E-mail
+            {inboxUnread > 0 && <span className="bg-green-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{inboxUnread}</span>}
+          </button>
+          <button onClick={() => setTab("livechat")}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${tab === "livechat" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Live Chat
+            {lcTotalUnread > 0 && <span className="bg-purple-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{lcTotalUnread}</span>}
+            {lcEscalated > 0 && <span className="bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{lcEscalated}</span>}
+          </button>
+          <button onClick={() => setTab("feedback")}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${tab === "feedback" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
+            ⭐ Avis
+          </button>
+        </div>
       </div>
 
       {/* ── CONTACT FORM TAB ── */}
@@ -635,7 +499,7 @@ export default function MessagesPage() {
         {/* Left: list */}
         <div className="flex-1 min-w-0">
           {/* Filters */}
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
             {STATUS_FILTERS.map((f) => (
               <button key={f} onClick={() => setFilter(f)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${filter === f ? "bg-black text-white" : "bg-white border border-neutral-200 text-neutral-500 hover:border-neutral-400"}`}>
@@ -643,7 +507,7 @@ export default function MessagesPage() {
               </button>
             ))}
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher…"
-              className="ml-auto border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-black bg-white w-44 transition-all" />
+              className="ml-auto border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-black bg-white w-32 md:w-44 transition-all" />
           </div>
 
           <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
@@ -682,18 +546,20 @@ export default function MessagesPage() {
           </div>
         </div>
 
-        {/* Right: detail */}
+        {/* Right: detail — fullscreen overlay on mobile */}
         {selected && (
-          <div className="w-80 flex-shrink-0">
-            <div className="bg-white border border-neutral-100 rounded-2xl p-5 sticky top-24">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <p className="font-bold text-sm">{selected.name}</p>
-                  <p className="text-xs text-neutral-400">{selected.email}</p>
-                </div>
-                <button onClick={() => setSelected(null)} className="text-neutral-300 hover:text-black transition-colors">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          <div className="fixed inset-0 z-50 bg-white overflow-auto md:relative md:inset-auto md:z-auto md:w-80 md:flex-shrink-0">
+            <div className="bg-white md:border md:border-neutral-100 md:rounded-2xl p-5 md:sticky md:top-24 min-h-full md:min-h-0">
+              {/* Mobile back bar */}
+              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-neutral-100">
+                <button onClick={() => setSelected(null)} className="flex items-center gap-2 text-sm font-semibold text-neutral-600 hover:text-black transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                  <span className="md:hidden">Retour</span>
                 </button>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm truncate">{selected.name}</p>
+                  <p className="text-xs text-neutral-400 truncate">{selected.email}</p>
+                </div>
               </div>
               <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1">Sujet</p>
               <p className="text-sm font-semibold mb-4">{selected.subject}</p>
@@ -806,23 +672,24 @@ export default function MessagesPage() {
             )}
           </div>
 
-          {/* Right: email detail */}
+          {/* Right: email detail — fullscreen overlay on mobile */}
           {(selectedEmail || emailLoading) && (
-            <div className="w-80 flex-shrink-0">
-              <div className="bg-white border border-neutral-100 rounded-2xl p-5 sticky top-24">
+            <div className="fixed inset-0 z-50 bg-white overflow-auto md:relative md:inset-auto md:z-auto md:w-80 md:flex-shrink-0">
+              <div className="bg-white md:border md:border-neutral-100 md:rounded-2xl p-5 md:sticky md:top-24 min-h-full md:min-h-0">
                 {emailLoading ? (
                   <div className="text-sm text-neutral-400 text-center py-8">Chargement…</div>
                 ) : selectedEmail ? (
                   <>
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1 min-w-0 pr-2">
+                    <div className="flex items-center gap-3 mb-4 pb-3 border-b border-neutral-100">
+                      <button onClick={() => setSelectedEmail(null)} className="flex items-center gap-2 text-sm font-semibold text-neutral-600 hover:text-black transition-colors">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                        <span className="md:hidden">Retour</span>
+                      </button>
+                      <div className="flex-1 min-w-0">
                         <p className="font-bold text-sm truncate">{(selectedEmail.from?.replace(/<.*>/, "").trim()) || selectedEmail.fromAddress || "Inconnu"}</p>
                         <p className="text-xs text-neutral-400 truncate">{selectedEmail.fromAddress}</p>
                         <p className="text-[10px] text-neutral-400 mt-0.5">{new Date(selectedEmail.date).toLocaleString("fr-FR")}</p>
                       </div>
-                      <button onClick={() => setSelectedEmail(null)} className="text-neutral-300 hover:text-black transition-colors flex-shrink-0">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                      </button>
                     </div>
                     <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1">Sujet</p>
                     <p className="text-sm font-semibold mb-4">{selectedEmail.subject}</p>
@@ -873,8 +740,8 @@ export default function MessagesPage() {
         </div>
       )} {/* end inbox tab */}
 
-      {/* ── WHATSAPP TAB ── */}
-      {tab === "whatsapp" && (
+      {/* WhatsApp tab removed */}
+      {false && (
         <div className="flex gap-5">
           {/* Left: conversation list */}
           <div className="flex-1 min-w-0">
@@ -1148,10 +1015,10 @@ export default function MessagesPage() {
             )}
           </div>
 
-          {/* Right: chat panel */}
+          {/* Right: chat panel — fullscreen overlay on mobile */}
           {lcSelected && (
-            <div className="w-96 flex-shrink-0">
-              <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden flex flex-col sticky top-24 relative" style={{ maxHeight: "calc(100vh - 160px)" }}>
+            <div className="fixed inset-0 z-50 bg-white flex flex-col md:relative md:inset-auto md:z-auto md:w-96 md:flex-shrink-0">
+              <div className="bg-white md:border md:border-neutral-100 md:rounded-2xl overflow-hidden flex flex-col flex-1 md:sticky md:top-24 md:relative" style={{ maxHeight: "calc(100vh - 160px)" }}>
                 {/* End conversation confirmation overlay */}
                 {showEndLcConfirm && (
                   <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 rounded-2xl">
@@ -1182,6 +1049,9 @@ export default function MessagesPage() {
 
                 {/* Header */}
                 <div className="flex items-center gap-3 px-4 py-3 border-b border-neutral-100 bg-neutral-50">
+                  <button onClick={() => setLcSelected(null)} className="md:hidden text-neutral-500 hover:text-black transition-colors flex-shrink-0">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                  </button>
                   <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                     {(lcSelected.name || "V").charAt(0).toUpperCase()}
                   </div>

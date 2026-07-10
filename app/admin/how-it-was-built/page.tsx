@@ -297,32 +297,21 @@ function ExplorerSection() {
       </div>
 
       <div className="bg-[#1e1e1e] rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl">
-        {/* Mobile toggle — stays in normal document flow, above the flex row */}
+        {/* Mobile toggle */}
         <div className="sm:hidden flex border-b border-white/[0.08] bg-[#252526]">
           <button onClick={() => setMobileView("tree")}
-            className={`flex-1 py-3 text-[12px] font-semibold transition-all flex items-center justify-center gap-1.5 ${mobileView === "tree" ? "text-white bg-[#1e1e1e] border-b-2 border-b-[#3ecf4c]" : "text-white/40"}`}>
+            className={`flex-1 py-3 text-[12px] font-bold transition-all flex items-center justify-center gap-2 ${mobileView === "tree" ? "text-white bg-[#1e1e1e] border-b-2 border-b-[#3ecf4c]" : "text-white/40 hover:text-white/60"}`}>
             📁 <span>Fichiers</span>
           </button>
           <button onClick={() => setMobileView("code")}
-            className={`flex-1 py-3 text-[12px] font-semibold transition-all flex items-center justify-center gap-1.5 ${mobileView === "code" ? "text-white bg-[#1e1e1e] border-b-2 border-b-[#3ecf4c]" : "text-white/40"}`}>
-            📄 <span className="truncate max-w-[120px]">{selected ? selected.name : "Code"}</span>
+            className={`flex-1 py-3 text-[12px] font-bold transition-all flex items-center justify-center gap-2 ${mobileView === "code" ? "text-white bg-[#1e1e1e] border-b-2 border-b-[#3ecf4c]" : "text-white/40 hover:text-white/60"}`}>
+            📄 <span className="truncate max-w-[140px]">{selected ? selected.name : "Code"}</span>
           </button>
         </div>
-        {/* Tree + Code row */}
-        <div
-          className="flex min-h-[460px] sm:min-h-[640px]"
-          onTouchStart={e => { explorerTouchX.current = e.touches[0].clientX; }}
-          onTouchEnd={e => {
-            if (explorerTouchX.current === null) return;
-            const dx = e.changedTouches[0].clientX - explorerTouchX.current;
-            explorerTouchX.current = null;
-            if (Math.abs(dx) < 40) return;
-            if (dx < 0) setMobileView("code");
-            else setMobileView("tree");
-          }}
-        >
+        {/* Tree + Code row — h- (not min-h) is required for flex-1 overflow-y-auto to scroll */}
+        <div className="flex h-[520px] sm:h-[640px]">
         {/* Sidebar */}
-        <div className={`${mobileView === "code" ? "hidden sm:flex" : "flex"} w-full sm:w-56 shrink-0 border-r border-white/[0.08] flex-col`}>
+        <div className={`${mobileView === "code" ? "hidden sm:flex" : "flex"} w-full sm:w-64 shrink-0 border-r border-white/[0.08] flex-col`}>
           <div className="px-3 py-2.5 border-b border-white/[0.08] bg-[#252526]">
             <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2">LECOMAX</p>
             <div className="relative">
@@ -331,9 +320,15 @@ function ExplorerSection() {
                 className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg pl-6 pr-2 py-1.5 text-[11px] text-white/60 placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.09] transition-all" />
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto py-1">
+          <div className="flex-1 overflow-y-auto py-1 min-h-0">
             {loading && <p className="px-3 py-6 text-white/30 text-[11px]">Chargement de l&apos;arbre…</p>}
-            {error && <p className="px-3 py-6 text-red-400 text-[11px]">Erreur. Vérifiez que vous êtes bien connecté en tant qu&apos;admin.</p>}
+            {error && (
+              <div className="px-3 py-6 space-y-2">
+                <p className="text-amber-400 text-[11px] font-semibold">Fichiers non disponibles</p>
+                <p className="text-white/30 text-[10px] leading-relaxed">Cet explorateur lit directement le disque du serveur. Il fonctionne uniquement en développement local (localhost).</p>
+                <p className="text-white/20 text-[10px] leading-relaxed">En production (Vercel), le système de fichiers source n&apos;est pas accessible. Ouvrez <span className="text-white/40 font-mono">localhost:3000/admin/how-it-was-built</span> depuis votre PC de développement.</p>
+              </div>
+            )}
             {!loading && !error && filtered.length === 0 && <p className="px-3 py-6 text-white/30 text-[11px]">Aucun fichier trouvé.</p>}
             {filtered.map(node => (
               <TreeNode key={node.path} node={node} depth={0} selected={selected?.path ?? null} onSelect={onSelect} expanded={expanded} onToggle={onToggle} />
@@ -342,7 +337,7 @@ function ExplorerSection() {
         </div>
 
         {/* Code viewer */}
-        <div className={`${mobileView === "tree" ? "hidden sm:flex" : "flex"} flex-1 min-w-0 flex-col`}>
+        <div className={`${mobileView === "tree" ? "hidden sm:flex" : "flex"} flex-1 min-w-0 min-h-0 flex-col`}>
           {/* File tab */}
           <div className="flex items-center gap-0 border-b border-white/[0.08] bg-[#252526] min-h-[36px]">
             {selected ? (
@@ -529,6 +524,204 @@ pwd    # Windows: Get-Location  → affiche le chemin actuel
 
 # GitHub donne ensuite les commandes exactes à exécuter — les copier dans VS Code terminal`
       },
+      {
+        title: "Étape 8 — Maîtriser le terminal — commandes essentielles",
+        desc: "Le terminal est ton outil le plus puissant. Voici toutes les commandes que tu utiliseras tous les jours pour développer ce site.",
+        code: `# ─── NAVIGATION DANS LES DOSSIERS ────────────────────────────────────────
+pwd                    # Afficher le dossier actuel (Print Working Directory)
+ls                     # Lister les fichiers (Mac/Linux) 
+dir                    # Lister les fichiers (Windows CMD)
+Get-ChildItem          # Lister les fichiers (Windows PowerShell)
+cd lecomax             # Entrer dans le dossier "lecomax"
+cd ..                  # Remonter d'un niveau
+cd ~                   # Aller à la racine de l'utilisateur
+cd C:\\Users\\Ton\\Bureau  # Chemin absolu Windows
+
+# ─── GESTION DES FICHIERS ────────────────────────────────────────────────
+mkdir components       # Créer un dossier
+touch fichier.ts       # Créer un fichier vide (Mac/Linux)
+New-Item fichier.ts    # Créer un fichier vide (Windows PowerShell)
+cp source.ts dest.ts   # Copier un fichier
+rm fichier.ts          # Supprimer un fichier
+cat fichier.ts         # Afficher le contenu d'un fichier
+
+# ─── NPM (NODE PACKAGE MANAGER) ──────────────────────────────────────────
+npm install            # Installer toutes les dépendances (lit package.json)
+npm install axios      # Installer le package "axios"
+npm install -D @types/node  # Installer en devDependencies (dev seulement)
+npm uninstall axios    # Désinstaller un package
+npm run dev            # Lancer le serveur de développement
+npm run build          # Compiler le projet (production)
+npm run lint           # Vérifier le style du code
+
+# ─── GIT (VERSIONNEMENT) ─────────────────────────────────────────────────
+git init               # Initialiser git dans le dossier courant
+git status             # Voir les fichiers modifiés
+git add .              # Ajouter TOUS les changements au staging
+git add app/page.tsx   # Ajouter UN fichier au staging
+git commit -m "msg"    # Sauvegarder les changements avec un message
+git push origin main   # Envoyer sur GitHub
+git pull origin main   # Télécharger les derniers changements
+git log --oneline      # Voir l'historique des commits
+git diff               # Voir les changements non sauvegardés
+
+# ─── RACCOURCIS TERMINAL VS CODE ─────────────────────────────────────────
+Ctrl + C               # Arrêter un processus (ex: arrêter npm run dev)
+Ctrl + L               # Effacer le terminal (ou taper "clear")
+↑ flèche               # Remonter dans l'historique des commandes
+Tab                    # Auto-complétion du nom de fichier/dossier`,
+      },
+      {
+        title: "Étape 9 — Comprendre TypeScript — pourquoi et comment",
+        desc: "TypeScript est JavaScript avec des types. Il attrape les bugs AVANT l'exécution. Tout le projet L'ecomax est écrit en TypeScript. Voici les bases essentielles.",
+        code: `// ─── JAVASCRIPT (sans types) — les bugs se cachent partout ─────────────
+function calcTotal(price, qty) {
+  return price * qty;           // Et si qty est "deux" ? Bug silencieux !
+}
+calcTotal(99, "deux");          // NaN — pas d'erreur visible au dev
+
+// ─── TYPESCRIPT (avec types) — les bugs sont visibles avant d'exécuter ─
+function calcTotal(price: number, qty: number): number {
+  return price * qty;
+}
+calcTotal(99, "deux");          // ❌ ERREUR IDE immédiate : Expected number, got string
+
+// ─── LES TYPES DE BASE ──────────────────────────────────────────────────
+let name: string = "L'ecomax";
+let price: number = 299;
+let active: boolean = true;
+let tags: string[] = ["running", "sport"];   // tableau de strings
+let coords: [number, number] = [33.5, -7.6]; // tuple
+
+// ─── INTERFACES (définir la forme d'un objet) ────────────────────────────
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string[];
+  active: boolean;
+  category: "homme" | "femme" | "chaussures" | "accessoires"; // union type
+  description?: string;  // ← le "?" signifie optionnel
+}
+
+const shoe: Product = {
+  id: "uuid-123",
+  name: "Nike Air Max",
+  price: 599,
+  images: ["url1.jpg", "url2.jpg"],
+  active: true,
+  category: "chaussures",
+};
+
+// ─── TYPES UTILES ────────────────────────────────────────────────────────
+type Status = "pending" | "confirmed" | "shipped" | "delivered";
+type Optional<T> = T | null | undefined;
+
+// ─── GENERICS (types paramétrables) ─────────────────────────────────────
+function first<T>(arr: T[]): T | undefined {
+  return arr[0];
+}
+first<string>(["a", "b"]);   // → string
+first<number>([1, 2, 3]);    // → number
+
+// ─── async/await avec TypeScript ─────────────────────────────────────────
+async function fetchProduct(slug: string): Promise<Product | null> {
+  const res = await fetch(\`/api/products/\${slug}\`);
+  if (!res.ok) return null;
+  const data: Product = await res.json();
+  return data;
+}
+
+// ─── FICHIERS DANS CE PROJET ─────────────────────────────────────────────
+// .ts  → fichier TypeScript pur (fonctions utilitaires, types)
+// .tsx → fichier TypeScript + JSX (composants React)
+// lib/supabase.ts   → types Product, Order, etc.
+// next-env.d.ts     → types Next.js (généré automatiquement, ne pas toucher)`,
+      },
+      {
+        title: "Étape 10 — Comprendre React & Next.js — les bases absolues",
+        desc: "React est la bibliothèque UI. Next.js est le framework au-dessus qui ajoute routing, SSR, API routes, etc. Voici TOUT ce qu'il faut comprendre avant de coder.",
+        code: `// ─── REACT : COMPOSANTS ─────────────────────────────────────────────────
+// Un composant = une fonction qui retourne du JSX (HTML dans JS)
+
+// Composant simple
+function Bouton() {
+  return <button className="bg-black text-white px-4 py-2">Acheter</button>;
+}
+
+// Composant avec props (paramètres)
+function Bouton({ label, onClick }: { label: string; onClick: () => void }) {
+  return <button onClick={onClick}>{label}</button>;
+}
+
+// ─── REACT : STATE (état local) ──────────────────────────────────────────
+import { useState } from "react";
+
+function Compteur() {
+  const [count, setCount] = useState(0);   // [valeur, fonction pour changer]
+
+  return (
+    <div>
+      <p>Compte : {count}</p>
+      <button onClick={() => setCount(count + 1)}>+1</button>
+    </div>
+  );
+}
+
+// ─── REACT : useEffect (effets secondaires) ───────────────────────────────
+import { useEffect } from "react";
+
+function ProductList() {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    // Exécuté APRÈS le rendu du composant
+    fetch("/api/products").then(r => r.json()).then(setProducts);
+  }, []); // ← [] = exécuté une seule fois au montage
+
+  return <div>{products.map(p => <p key={p.id}>{p.name}</p>)}</div>;
+}
+
+// ─── NEXT.JS : ROUTING (App Router) ──────────────────────────────────────
+// Le dossier = l'URL. Le fichier page.tsx = la page visible.
+// app/page.tsx              → /
+// app/boutique/page.tsx     → /boutique
+// app/produit/[slug]/page.tsx → /produit/nike-air-max (dynamique)
+
+// ─── NEXT.JS : SERVER vs CLIENT COMPONENTS ───────────────────────────────
+// Server Component (défaut — rendu côté serveur, meilleur SEO)
+export default async function ProductPage({ params }) {
+  const product = await getProduct(params.slug);  // Appel direct à la DB !
+  return <h1>{product.name}</h1>;
+}
+
+// Client Component ("use client" — nécessaire pour useState, useEffect, events)
+"use client";
+export default function AddToCartButton({ product }) {
+  const [added, setAdded] = useState(false);
+  return <button onClick={() => setAdded(true)}>{added ? "✓" : "Ajouter"}</button>;
+}
+
+// ─── NEXT.JS : API ROUTES ────────────────────────────────────────────────
+// app/api/products/route.ts → https://lecomax.com/api/products
+export async function GET() {
+  const products = await getProducts();
+  return Response.json(products);
+}
+
+export async function POST(req: Request) {
+  const body = await req.json();
+  await createProduct(body);
+  return Response.json({ success: true }, { status: 201 });
+}
+
+// ─── JSX : RÈGLES IMPORTANTES ────────────────────────────────────────────
+// 1. className (pas class)      → <div className="text-black">
+// 2. Un seul élément racine     → <> ... </> (Fragment)
+// 3. Les expressions JS dans {} → <p>{product.name}</p>
+// 4. Les événements en camelCase → onClick, onChange, onSubmit
+// 5. Les éléments auto-fermants → <img />, <input />, <br />`,
+      },
     ],
   },
   {
@@ -583,6 +776,168 @@ pwd    # Windows: Get-Location  → affiche le chemin actuel
     },
   },
 };`
+      },
+      {
+        title: "Étape 4 — Lancer le serveur de développement",
+        desc: "C'est LA commande la plus utilisée. Elle démarre Next.js en mode développement avec rechargement automatique à chaque modification de fichier.",
+        code: `# Dans le terminal VS Code, depuis le dossier du projet :
+npm run dev
+
+# Next.js démarre et affiche :
+# ▲ Next.js 15.x.x
+# - Local:   http://localhost:3000
+# - Network: http://192.168.1.x:3000   ← accès depuis un téléphone sur le même Wi-Fi
+# ✓ Ready in 2.5s
+
+# 👆 Ouvrir http://localhost:3000 dans le navigateur → tu vois le site !
+# Chaque fois que tu modifies un fichier → le navigateur se met à jour automatiquement
+
+# ─── AUTRES COMMANDES IMPORTANTES ────────────────────────────────────────
+npm run dev      # Serveur développement (TOUJOURS utiliser ça pour coder)
+npm run build    # Compiler pour la production (avant de déployer)
+npm run start    # Lancer le build de production localement (test final)
+npm run lint     # Vérifier les erreurs ESLint
+
+# ─── ARRÊTER LE SERVEUR ──────────────────────────────────────────────────
+Ctrl + C         # Arrête npm run dev
+
+# ─── PROBLÈMES COURANTS ──────────────────────────────────────────────────
+# "Port 3000 already in use" → un autre serveur tourne déjà
+npm run dev -- -p 3001  # Utiliser le port 3001 à la place
+
+# "Module not found" → dépendance manquante
+npm install      # Réinstaller toutes les dépendances
+
+# "Error: Cannot find module '@/...'" → alias mal configuré
+# Vérifier tsconfig.json → paths → "@/*"`,
+      },
+      {
+        title: "Étape 5 — Comprendre la structure complète des fichiers",
+        desc: "Voici TOUS les dossiers et fichiers importants de ce projet Next.js, leur rôle exact, et quand les modifier.",
+        code: `lecomax/
+│
+├── app/                          ← ROUTING : chaque dossier = une URL
+│   ├── layout.tsx                → Layout racine (Header + Footer + Providers)
+│   ├── page.tsx                  → Page d'accueil (/)
+│   ├── globals.css               → Styles CSS globaux
+│   ├── not-found.tsx             → Page 404
+│   ├── [category]/page.tsx       → /homme /femme /chaussures /accessoires
+│   ├── produit/[slug]/page.tsx   → /produit/nom-du-produit
+│   ├── panier/page.tsx           → /panier
+│   ├── checkout/page.tsx         → /checkout
+│   ├── connexion/page.tsx        → /connexion
+│   ├── admin/                    → Tout le panel admin (protégé par middleware)
+│   │   ├── layout.tsx            → Layout admin (sidebar + topbar)
+│   │   ├── dashboard/page.tsx    → Tableau de bord
+│   │   ├── products/page.tsx     → Gestion des produits
+│   │   ├── orders/page.tsx       → Gestion des commandes
+│   │   └── ...                   → 30+ autres sections
+│   └── api/                      → Routes API (backend)
+│       ├── products/route.ts     → GET/POST /api/products
+│       ├── orders/route.ts       → GET/POST /api/orders
+│       └── ...                   → 40+ routes
+│
+├── components/                   ← COMPOSANTS réutilisables
+│   ├── Header.tsx                → Navigation principale
+│   ├── Footer.tsx                → Pied de page
+│   ├── CartContext.tsx           → Contexte React du panier
+│   ├── ProductCard.tsx           → Carte produit (affiché dans la grille)
+│   ├── ProductGallery.tsx        → Galerie images produit
+│   ├── ProductActions.tsx        → Taille + couleur + ajouter au panier
+│   └── ...                       → 40+ composants
+│
+├── lib/                          ← UTILITAIRES et TYPES
+│   ├── supabase.ts               → Client Supabase + tous les types TypeScript
+│   ├── db-server.ts              → Fonctions DB côté serveur (service_role)
+│   ├── products.ts               → Données statiques + helpers produits
+│   └── ...
+│
+├── public/                       ← FICHIERS STATIQUES (servis directement)
+│   ├── images/                   → Images des produits (statiques)
+│   ├── manifest.json             → PWA manifest
+│   └── robots.txt                → Instructions pour les moteurs de recherche
+│
+├── .env.local                    → Variables d'environnement (⚠️ JAMAIS sur GitHub!)
+├── next.config.js                → Configuration Next.js
+├── tailwind.config.js            → Design system
+├── tsconfig.json                 → Configuration TypeScript
+├── middleware.ts                 → Exécuté sur chaque requête (auth, redirect...)
+└── package.json                  → Dépendances + scripts npm`,
+      },
+      {
+        title: "Étape 6 — Créer sa première page et son premier composant",
+        desc: "En pratique : comment créer une nouvelle page et un nouveau composant dans Next.js App Router. C'est la base de tout.",
+        code: `// ─── CRÉER UNE PAGE ──────────────────────────────────────────────────────
+// 1. Créer le fichier : app/a-propos/page.tsx
+// 2. Next.js la détecte automatiquement → accessible sur /a-propos
+
+// app/a-propos/page.tsx
+export default function AProposPage() {
+  return (
+    <main className="max-w-4xl mx-auto px-4 py-12">
+      <h1 className="text-4xl font-black mb-4">À propos de L'ecomax</h1>
+      <p className="text-neutral-600">
+        L'ecomax est une boutique en ligne marocaine...
+      </p>
+    </main>
+  );
+}
+
+// ─── CRÉER UN COMPOSANT ──────────────────────────────────────────────────
+// 1. Créer le fichier : components/MonComposant.tsx
+
+// components/Badge.tsx
+interface BadgeProps {
+  label: string;
+  color?: "green" | "red" | "blue";
+}
+
+export default function Badge({ label, color = "green" }: BadgeProps) {
+  const colors = {
+    green: "bg-green-100 text-green-700",
+    red:   "bg-red-100 text-red-700",
+    blue:  "bg-blue-100 text-blue-700",
+  };
+
+  return (
+    <span className={\`inline-flex px-2 py-0.5 rounded-full text-xs font-bold \${colors[color]}\`}>
+      {label}
+    </span>
+  );
+}
+
+// ─── UTILISER LE COMPOSANT ────────────────────────────────────────────────
+// Dans n'importe quel fichier :
+import Badge from "@/components/Badge";
+
+export default function MaPage() {
+  return (
+    <div>
+      <Badge label="Nouveau" color="green" />
+      <Badge label="Rupture" color="red" />
+    </div>
+  );
+}
+
+// ─── AJOUTER DES MÉTADONNÉES SEO ─────────────────────────────────────────
+// Dans n'importe quelle page Server Component :
+export const metadata = {
+  title: "À propos | L'ecomax",
+  description: "L'ecomax est une boutique en ligne marocaine...",
+};
+
+// ─── ROUTE DYNAMIQUE ─────────────────────────────────────────────────────
+// app/produit/[slug]/page.tsx
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  // slug = "nike-air-max" si l'URL est /produit/nike-air-max
+  const product = await getProduct(slug);
+  return <h1>{product?.name ?? "Produit non trouvé"}</h1>;
+}`,
       },
     ],
   },
@@ -664,6 +1019,198 @@ function getClient() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!   // ⚠️ Jamais côté client
   );
 }`
+      },
+      {
+        title: "Étape 4 — Utiliser le Dashboard Supabase comme un pro",
+        desc: "Le Dashboard Supabase est ta base de données visuelle. Voici tous les menus importants et comment les utiliser au quotidien.",
+        code: `# ─── NAVIGATION DANS LE DASHBOARD SUPABASE ──────────────────────────────
+# https://supabase.com/dashboard/project/TON_PROJECT_ID
+
+# 📊 TABLE EDITOR  (vue tableur — la plus utilisée au quotidien)
+#    → Voir, ajouter, modifier, supprimer des lignes
+#    → Filtrer par colonne
+#    → Idéal pour vérifier les données après tests
+
+# 🔷 SQL EDITOR  (requêtes SQL directes)
+#    → Exécuter du SQL brut (CREATE TABLE, INSERT, SELECT...)
+#    → Sauvegarder tes requêtes fréquentes
+#    → Voir le plan d'exécution
+#    ASTUCE : "New snippet" pour sauvegarder tes requêtes récurrentes
+
+# 🔐 AUTHENTICATION
+#    → Users : voir tous les comptes créés avec Supabase Auth
+#    → Policies : règles RLS (voir étape suivante)
+#    → Providers : activer Google/Facebook login
+
+# 📁 STORAGE
+#    → Buckets : dossiers virtuels pour stocker les fichiers
+#    → "product-images" → images des produits uploadées depuis l'admin
+#    → Gérer les permissions (public ou privé)
+
+# 📈 LOGS
+#    → API Logs : voir chaque requête avec temps de réponse
+#    → Auth Logs : tentatives de connexion
+#    → Très utile pour déboguer les 403/500
+
+# ─── OPÉRATIONS COURANTES DANS SQL EDITOR ────────────────────────────────
+
+-- Voir les 10 dernières commandes :
+SELECT * FROM orders ORDER BY created_at DESC LIMIT 10;
+
+-- Compter les produits actifs par catégorie :
+SELECT category, COUNT(*) as total
+FROM products WHERE active = true
+GROUP BY category;
+
+-- Trouver un client par email :
+SELECT * FROM orders WHERE customer->>'email' = 'client@email.com';
+
+-- Vider une table de test :
+TRUNCATE TABLE push_subscriptions;
+
+-- Ajouter une colonne manquante :
+ALTER TABLE products ADD COLUMN weight numeric;
+
+-- Créer un index pour accélérer les recherches :
+CREATE INDEX idx_orders_created ON orders(created_at DESC);`,
+      },
+      {
+        title: "Étape 5 — Row Level Security (RLS) — Protéger les données",
+        desc: "RLS est le système de sécurité de Supabase. Sans RLS, n'importe qui avec ta clé anon peut lire/modifier TOUTES tes données. C'est la faille de sécurité n°1 des débutants.",
+        code: `-- ─── COMPRENDRE RLS ──────────────────────────────────────────────────────
+-- Sans RLS activé :
+-- SELECT * FROM orders  → Tout le monde voit toutes les commandes ❌
+
+-- Avec RLS activé + policies correctes :
+-- SELECT * FROM orders  → Chaque user ne voit QUE ses commandes ✅
+
+-- ─── ACTIVER RLS SUR UNE TABLE ────────────────────────────────────────────
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+
+-- ─── POLICIES DANS CE PROJET ──────────────────────────────────────────────
+
+-- 1. Produits : lecture publique (tout le monde peut voir les produits)
+CREATE POLICY "products_public_read" ON products
+  FOR SELECT USING (active = true);
+
+-- 2. Produits : écriture admin uniquement (protégé par service_role key)
+-- Note: le service_role bypasse automatiquement toutes les policies RLS
+-- Pas besoin de policy d'écriture pour les tables admin-only
+
+-- 3. Commandes : JAMAIS accessibles côté client
+-- Toujours utiliser lib/db-server.ts avec service_role key pour les commandes
+
+-- 4. Avis : lecture publique, écriture par utilisateur connecté
+CREATE POLICY "reviews_public_read" ON reviews
+  FOR SELECT USING (true);
+
+CREATE POLICY "reviews_insert_authenticated" ON reviews
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- ─── STRATÉGIE UTILISÉE DANS CE PROJET ────────────────────────────────────
+-- Toutes les routes API admin utilisent lib/db-server.ts
+-- qui crée un client avec SUPABASE_SERVICE_ROLE_KEY
+-- Ce client bypasse RLS → accès total côté serveur
+-- 
+-- Les routes publiques (produits, reviews) utilisent la clé anon
+-- avec des policies RLS appropriées
+
+-- ─── TESTER SES POLICIES ──────────────────────────────────────────────────
+-- Dans SQL Editor, simuler un utilisateur :
+SET LOCAL ROLE anon;  -- simuler un visiteur non connecté
+SELECT * FROM orders;  -- doit retourner 0 résultats si RLS bien configuré`,
+      },
+      {
+        title: "Étape 6 — Requêtes Supabase dans Next.js — guide complet",
+        desc: "Voici toutes les opérations CRUD (Create, Read, Update, Delete) avec le client Supabase JavaScript. C'est ce que tu utiliseras dans chaque API route et page.",
+        code: `import { createClient } from "@supabase/supabase-js";
+const supabase = createClient(URL, SERVICE_ROLE_KEY);  // côté serveur
+
+// ─── SELECT (lire des données) ───────────────────────────────────────────
+
+// Tous les produits actifs
+const { data: products, error } = await supabase
+  .from("products")
+  .select("*")
+  .eq("active", true)
+  .order("created_at", { ascending: false });
+
+// Un seul produit par slug
+const { data: product } = await supabase
+  .from("products")
+  .select("*")
+  .eq("slug", "nike-air-max")
+  .single();  // ← renvoie un objet, pas un tableau
+
+// Sélectionner des colonnes spécifiques (plus rapide)
+const { data } = await supabase
+  .from("products")
+  .select("id, name, price, images")
+  .eq("category", "chaussures")
+  .gte("price", 100)        // gte = >=
+  .lte("price", 500)        // lte = <=
+  .ilike("name", "%nike%")  // recherche insensible à la casse
+  .limit(12)
+  .range(0, 11);             // pagination
+
+// ─── INSERT (créer) ───────────────────────────────────────────────────────
+
+const { data: newProduct, error } = await supabase
+  .from("products")
+  .insert({
+    slug: "adidas-ultraboost",
+    name: "Adidas Ultraboost",
+    price: 799,
+    category: "chaussures",
+    active: true,
+  })
+  .select()    // ← retourner la ligne créée
+  .single();
+
+// ─── UPDATE (modifier) ────────────────────────────────────────────────────
+
+const { data, error } = await supabase
+  .from("products")
+  .update({ price: 699, active: false })
+  .eq("id", "uuid-123")
+  .select()
+  .single();
+
+// ─── DELETE (supprimer) ───────────────────────────────────────────────────
+
+const { error } = await supabase
+  .from("products")
+  .delete()
+  .eq("id", "uuid-123");
+
+// ─── GESTION DES ERREURS ──────────────────────────────────────────────────
+
+const { data, error } = await supabase.from("products").select("*");
+
+if (error) {
+  console.error("Supabase error:", error.message, error.code);
+  // error.message = description humaine
+  // error.code    = code PGSQL (ex: "23505" = unique violation)
+  return;
+}
+
+// ─── UPLOAD FICHIER DANS STORAGE ─────────────────────────────────────────
+
+const file = formData.get("file") as File;
+const filename = \`\${Date.now()}-\${Math.random().toString(36).slice(2)}.jpg\`;
+
+const { error: uploadError } = await supabase.storage
+  .from("product-images")   // nom du bucket
+  .upload(filename, await file.arrayBuffer(), {
+    contentType: file.type,
+  });
+
+// Obtenir l'URL publique
+const { data: { publicUrl } } = supabase.storage
+  .from("product-images")
+  .getPublicUrl(filename);
+// publicUrl = "https://xxxx.supabase.co/storage/v1/object/public/product-images/xxx.jpg"`,
       },
     ],
   },
@@ -797,6 +1344,131 @@ export function CartProvider({ children }) {
     ├── products/route.ts   → GET/POST/PUT/DELETE
     ├── orders/route.ts     → GET/POST/PUT
     └── ...                 → 40+ routes API`
+      },
+      {
+        title: "Tailwind CSS — Maîtriser le styling sans écrire de CSS",
+        desc: "Tailwind CSS est un framework de classes utilitaires. Au lieu d'écrire du CSS, tu appliques des classes directement dans le HTML. Voici les classes les plus utilisées dans ce projet.",
+        code: `{/* ─── LAYOUT / DISPOSITION ──────────────────────────────────────────── */}
+<div className="flex items-center gap-4">          {/* flex horizontal, centré */}
+<div className="flex flex-col gap-2">              {/* flex vertical */}
+<div className="grid grid-cols-3 gap-4">           {/* grille 3 colonnes */}
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"> {/* responsive */}
+
+{/* ─── ESPACEMENT ──────────────────────────────────────────────────────── */}
+<div className="p-4">        {/* padding 4 = 1rem partout */}
+<div className="px-6 py-3">  {/* px = gauche/droite, py = haut/bas */}
+<div className="mt-4 mb-2">  {/* margin top 4, bottom 2 */}
+<div className="space-y-4">  {/* gap entre enfants verticaux */}
+
+{/* ─── TAILLE ──────────────────────────────────────────────────────────── */}
+<div className="w-full h-screen">    {/* 100% largeur, 100% hauteur écran */}
+<div className="w-64 h-32">          {/* 16rem × 8rem */}
+<div className="max-w-7xl mx-auto">  {/* Largeur max + centré */}
+<img className="w-10 h-10 rounded-full">  {/* Avatar 40px */}
+
+{/* ─── TEXTE ────────────────────────────────────────────────────────────── */}
+<p className="text-xl font-black text-gray-900">   {/* grand + très gras + sombre */}
+<p className="text-sm text-neutral-400 truncate">  {/* petit + gris + coupé */}
+<p className="text-[13px] leading-relaxed">        {/* taille custom */}
+<p className="uppercase tracking-widest">          {/* majuscules + espacement */}
+
+{/* ─── COULEURS & FONDS ────────────────────────────────────────────────── */}
+<div className="bg-black text-white">
+<div className="bg-neutral-50 border border-neutral-200 rounded-2xl">
+<div className="bg-emerald-50 text-emerald-700">   {/* vert clair */}
+<span className="text-red-500">Erreur</span>
+
+{/* ─── RESPONSIVE (mobile-first) ───────────────────────────────────────── */}
+{/* Pas de préfixe = mobile, sm: = 640px+, md: = 768px+, lg: = 1024px+ */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+<p className="text-sm md:text-base lg:text-lg">
+<div className="hidden md:block">  {/* Caché sur mobile, visible sur tablette+ */}
+<div className="block md:hidden">  {/* Visible sur mobile, caché sur tablette+ */}
+
+{/* ─── INTERACTIVITÉ ───────────────────────────────────────────────────── */}
+<button className="hover:bg-gray-100 active:scale-95 transition-all">
+<div className="cursor-pointer select-none">
+<input className="focus:outline-none focus:ring-2 focus:ring-black">
+
+{/* ─── RACCOURCIS UTILES ────────────────────────────────────────────────── */}
+{/* rounded-xl = border-radius 12px  */}
+{/* shadow-sm = légère ombre         */}
+{/* overflow-hidden = clip contenu   */}
+{/* z-50 = z-index 50               */}
+{/* fixed inset-0 = position fixe plein écran */}
+{/* opacity-50 = 50% opacité        */}
+{/* pointer-events-none = non cliquable */}`,
+      },
+      {
+        title: "Créer une API Route — lire et écrire dans Supabase",
+        desc: "Une API route dans Next.js = un endpoint backend. C'est là que se fait tout le travail avec la base de données, les emails, etc. Voici le pattern exact utilisé partout dans ce projet.",
+        code: `// app/api/products/route.ts
+// Accessible sur : GET/POST https://lecomax.com/api/products
+
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { verifyAdminSession } from "@/lib/admin-session";  // protection admin
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// ─── GET : Lire des données ───────────────────────────────────────────────
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const category = searchParams.get("category");  // ?category=chaussures
+
+  let query = supabase
+    .from("products")
+    .select("*")
+    .eq("active", true)
+    .order("created_at", { ascending: false });
+
+  if (category) query = query.eq("category", category);
+
+  const { data, error } = await query;
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
+}
+
+// ─── POST : Créer une donnée (protégé — admin seulement) ──────────────────
+export async function POST(req: NextRequest) {
+  // 1. Vérifier que c'est bien un admin
+  const isAdmin = await verifyAdminSession(req);
+  if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // 2. Lire le corps de la requête
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  // 3. Insérer dans Supabase
+  const { data, error } = await supabase
+    .from("products")
+    .insert(body as object)
+    .select()
+    .single();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data, { status: 201 });
+}
+
+// ─── APPELER CETTE API DEPUIS LE FRONTEND ─────────────────────────────────
+// GET (lire les produits chaussures) :
+const res = await fetch("/api/products?category=chaussures");
+const products = await res.json();
+
+// POST (créer un produit depuis l'admin) :
+const res = await fetch("/api/products", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ name: "Nike", price: 599, category: "chaussures" }),
+});
+const newProduct = await res.json();`,
       },
     ],
   },
@@ -1046,6 +1718,573 @@ node_modules/       ← Dépendances (npm install les recrée)`
 # ✅ https://www.lecomax.com       → Redirige vers lecomax.com (canonical)
 # ✅ SSL/TLS                       → Certificat Let's Encrypt auto-renouvelé
 # ✅ Emails @lecomax.com           → Délivrabilité maximale (SPF+DKIM+DMARC)`
+      },
+      {
+        title: "Le cycle de déploiement complet — Du code à la production",
+        desc: "Voici EXACTEMENT ce que tu fais chaque fois que tu veux publier une modification sur le site en production. C'est le workflow que tu répéteras des centaines de fois.",
+        code: `# ─── WORKFLOW COMPLET : MODIFIER → DÉPLOYER ─────────────────────────────
+
+# 1. Tu codes dans VS Code (npm run dev tourne en arrière-plan)
+#    → Les changements apparaissent sur localhost:3000 en temps réel
+
+# 2. Tu testes que tout fonctionne localement
+npm run build   # ← OBLIGATOIRE avant de push (détecte les erreurs)
+# → Si ça build OK = ça déploiera OK sur Vercel (presque toujours)
+
+# 3. Tu prépares tes fichiers pour Git
+git status           # Voir quels fichiers ont changé
+git add .            # Ajouter TOUS les changements (le plus courant)
+# OU
+git add app/admin/products/page.tsx  # Ajouter seulement un fichier
+
+# 4. Tu commites (crée un checkpoint)
+git commit -m "feat: améliore la page produits mobile"
+# Convention de messages : feat | fix | style | refactor | docs | chore
+
+# 5. Tu pousses sur GitHub
+git push origin main
+# → Dans les 30 secondes, Vercel commence le déploiement
+
+# 6. Tu vérifies le déploiement dans le dashboard Vercel
+# https://vercel.com/dashboard → ton projet → Deployments
+# → Vert = succès | Rouge = échec (clique pour voir les logs)
+
+# ─── COMMANDES GIT DU QUOTIDIEN ──────────────────────────────────────────
+git status              # Voir les fichiers modifiés
+git diff                # Voir les changements ligne par ligne  
+git log --oneline -5    # Les 5 derniers commits
+git stash               # Sauvegarder temporairement sans commiter
+git stash pop           # Récupérer les changements sauvegardés
+git reset --soft HEAD~1 # Annuler le dernier commit (garde les changements)
+
+# ─── CRÉER UNE BRANCHE POUR TESTER UNE FONCTIONNALITÉ ───────────────────
+git checkout -b feature/paiement-youcan  # Créer une nouvelle branche
+git checkout main                         # Retourner à la branche principale
+git merge feature/paiement-youcan        # Fusionner dans main
+git push origin main                      # Pousser sur GitHub
+
+# ─── ANNULER UNE MODIFICATION NON COMMITÉE ────────────────────────────────
+git checkout -- app/produit/[slug]/page.tsx  # Annuler les changements d'un fichier
+git checkout -- .                            # Annuler TOUS les changements`,
+      },
+      {
+        title: "Variables d'environnement Vercel — Guide complet",
+        desc: "Les variables d'environnement sur Vercel doivent être configurées manuellement. Elles ne sont PAS dans le code GitHub (sinon ce serait un risque de sécurité). Voici toutes les variables nécessaires.",
+        code: `# ─── OÙ CONFIGURER ────────────────────────────────────────────────────────
+# Vercel Dashboard → ton projet → Settings → Environment Variables
+
+# ─── TOUTES LES VARIABLES NÉCESSAIRES ────────────────────────────────────
+# Nom                          Valeur                  Où obtenir
+# ─────────────────────────────────────────────────────────────────────────
+
+# SUPABASE (obligatoire pour tout)
+NEXT_PUBLIC_SUPABASE_URL        https://xxx.supabase.co    Supabase Dashboard → Settings → API
+NEXT_PUBLIC_SUPABASE_ANON_KEY   eyJhbG...                  Supabase Dashboard → Settings → API
+SUPABASE_SERVICE_ROLE_KEY       eyJhbG...                  Supabase Dashboard → Settings → API
+
+# EMAILS (obligatoire pour confirmation commandes)
+RESEND_API_KEY                  re_xxxx                    resend.com → API Keys
+
+# INTELLIGENCE ARTIFICIELLE
+OPENAI_API_KEY                  sk-xxxx                    platform.openai.com → API Keys
+
+# NOTIFICATIONS PUSH
+VAPID_PUBLIC_KEY                BNxx...                    Générer avec web-push (voir ci-dessous)
+VAPID_PRIVATE_KEY               xxxx...                    Générer avec web-push (voir ci-dessous)
+VAPID_CONTACT_EMAIL             contact@lecomax.com        Ton email de contact
+
+# SÉCURITÉ ADMIN
+ADMIN_JWT_SECRET                une-chaine-aléatoire-32chars  Générer : openssl rand -base64 32
+NEXT_PUBLIC_ADMIN_DOMAIN        lecomax.com                Ton domaine
+
+# EMAILS IMAP (boîte de réception admin)
+PRIVATE_EMAIL_USER              contact@lecomax.com        Ton email Namecheap
+PRIVATE_EMAIL_PASS              xxxx                       Mot de passe email
+PRIVATE_EMAIL_HOST              mail.privateemail.com      Serveur IMAP Namecheap
+
+# CRON JOBS (sauvegardes auto)
+CRON_SECRET                     une-chaine-aléatoire       openssl rand -hex 32
+
+# ─── GÉNÉRER LES CLÉS VAPID (push notifications) ──────────────────────────
+npx web-push generate-vapid-keys
+# → Affiche : Public Key: BNxx...  | Private Key: xxxx...
+# → Copier dans Vercel Environment Variables
+
+# ─── TESTER LES VARIABLES EN LOCAL ────────────────────────────────────────
+# Créer .env.local à la racine du projet (JAMAIS commité sur GitHub)
+# Copier le contenu ci-dessus avec tes vraies valeurs
+
+# Vérifier que la var est bien lue :
+console.log(process.env.NEXT_PUBLIC_SUPABASE_URL);  // Dans n'importe quel composant
+
+# ─── APRÈS AVOIR AJOUTÉ UNE VARIABLE SUR VERCEL ───────────────────────────
+# ⚠️ Le déploiement actuel N'hérite PAS des nouvelles variables
+# Il faut REDÉPLOYER pour qu'elles soient prises en compte :
+# Vercel Dashboard → Deployments → "..." → Redeploy`,
+      },
+    ],
+  },
+  {
+    num: "16", label: "Workflows Quotidiens — Ajouter, Modifier, Déboguer", color: "bg-sky-600",
+    steps: [
+      {
+        title: "Comment ajouter une nouvelle page admin de A à Z",
+        desc: "C'est la tâche que tu feras souvent : créer une nouvelle section dans le panel admin. Voici le processus exact, étape par étape, avec tout le code nécessaire.",
+        code: `# EXEMPLE : Créer la page /admin/suppliers (gestion fournisseurs)
+
+# ─── ÉTAPE 1 : Créer les fichiers ─────────────────────────────────────────
+mkdir app/admin/suppliers
+touch app/admin/suppliers/page.tsx
+
+# ─── ÉTAPE 2 : Créer le composant de base ─────────────────────────────────
+# app/admin/suppliers/page.tsx
+"use client";
+import { useState, useEffect } from "react";
+
+type Supplier = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  created_at: string;
+};
+
+export default function SuppliersPage() {
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/suppliers")
+      .then(r => r.json())
+      .then(data => { setSuppliers(data); setLoading(false); });
+  }, []);
+
+  return (
+    <div className="max-w-5xl">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-black">Fournisseurs</h1>
+          <p className="text-xs text-neutral-400 mt-0.5">Gérez vos fournisseurs</p>
+        </div>
+        <button className="bg-black text-white px-4 py-2 rounded-xl text-sm font-bold">
+          + Ajouter
+        </button>
+      </div>
+      {loading ? (
+        <div className="text-neutral-400 text-sm">Chargement…</div>
+      ) : (
+        <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
+          {suppliers.map(s => (
+            <div key={s.id} className="px-5 py-4 border-b border-neutral-50">
+              <p className="font-semibold">{s.name}</p>
+              <p className="text-sm text-neutral-400">{s.email}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+# ─── ÉTAPE 3 : Créer la table Supabase ────────────────────────────────────
+# Dans Supabase → SQL Editor :
+CREATE TABLE suppliers (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name text NOT NULL,
+  email text,
+  phone text,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE suppliers ENABLE ROW LEVEL SECURITY;
+
+# ─── ÉTAPE 4 : Créer l'API route ──────────────────────────────────────────
+# app/api/suppliers/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+const sb = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function GET() {
+  const { data, error } = await sb
+    .from("suppliers")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
+}
+
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const { data, error } = await sb.from("suppliers").insert(body).select().single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data, { status: 201 });
+}
+
+# ─── ÉTAPE 5 : Ajouter le lien dans la sidebar admin ─────────────────────
+# Dans app/admin/layout.tsx (ou le composant de navigation admin),
+# ajouter dans le tableau de navigation :
+{ href: "/admin/suppliers", label: "Fournisseurs", icon: "🏭" }`,
+      },
+      {
+        title: "Comment modifier le design d'un composant existant",
+        desc: "Tu veux changer l'apparence d'un bouton, d'une carte produit, ou d'une section ? Voici le processus exact pour trouver et modifier n'importe quel élément visuel.",
+        code: `# ─── TROUVER LE COMPOSANT À MODIFIER ────────────────────────────────────
+
+# Méthode 1 : Inspecter dans le navigateur
+# Clic droit sur l'élément → "Inspecter" → Chercher la classe Tailwind
+# Ex: tu vois "bg-black text-white px-4 py-2 rounded-xl" → CTRL+SHIFT+F dans VS Code
+# → Chercher cette combinaison dans le code → Trouver le fichier
+
+# Méthode 2 : Chercher dans VS Code
+# CTRL+SHIFT+F → "Recherche globale"
+# Chercher le texte affiché Ex: "Ajouter au panier" → Trouve le composant
+
+# Méthode 3 : Structure des dossiers
+# Bouton "Ajouter au panier" → components/ProductActions.tsx
+# Carte produit → components/ProductCard.tsx
+# Header → components/Header.tsx
+# Footer → components/Footer.tsx
+
+# ─── MODIFIER LES CLASSES TAILWIND ────────────────────────────────────────
+
+# Exemple : Changer la couleur du bouton principal
+# AVANT :
+className="bg-black text-white px-4 py-2 rounded-xl"
+# APRÈS : Bouton vert (couleur brand)
+className="bg-[#16b277] text-white px-4 py-2 rounded-xl hover:bg-[#0a9061]"
+
+# Changer le rayon des coins
+rounded-sm   → 2px
+rounded-md   → 6px
+rounded-xl   → 12px
+rounded-2xl  → 16px
+rounded-full → 9999px (cercle parfait)
+
+# Changer la taille du texte
+text-xs  → 12px
+text-sm  → 14px
+text-base → 16px
+text-lg  → 18px
+text-xl  → 20px
+text-2xl → 24px
+text-4xl → 36px
+
+# Changer l'espacement (1 = 4px)
+p-2  → padding 8px
+p-4  → padding 16px
+p-6  → padding 24px
+mt-4 → margin-top 16px
+gap-2 → gap 8px entre éléments flex/grid
+
+# ─── AJOUTER UNE ANIMATION ────────────────────────────────────────────────
+className="transition-all duration-300 hover:scale-105"
+className="transition-colors duration-200 hover:bg-neutral-100"
+className="animate-pulse"      // Pulsation (skeleton loaders)
+className="animate-spin"       // Rotation (loading spinners)
+className="animate-bounce"     // Rebond
+
+# ─── MODIFIER UN COMPOSANT RÉUTILISABLE ───────────────────────────────────
+# ⚠️ Attention : si tu modifies un composant réutilisable,
+# ça affecte PARTOUT où il est utilisé.
+# Vérifier dans VS Code : clic droit sur le nom du composant → "Find All References"
+# pour voir où il est utilisé avant de modifier.`,
+      },
+      {
+        title: "Comment déboguer une erreur — Guide complet",
+        desc: "Tout développeur rencontre des erreurs. Voici comment les lire, les comprendre et les résoudre rapidement. Les 10 erreurs les plus courantes dans Next.js sont expliquées ici.",
+        code: `# ─── TYPES D'ERREURS ET OÙ LES VOIR ─────────────────────────────────────
+
+# 1. ERREURS DE BUILD (avant le déploiement)
+npm run build
+# → Lit les lignes rouges → Fichier:ligne:colonne
+# Ex: "app/admin/products/page.tsx:45:3 - error TS2304: Cannot find name 'X'"
+
+# 2. ERREURS RUNTIME (en développement)
+# → Le navigateur affiche "Error: ..." avec une stack trace
+# → VS Code terminal affiche les erreurs API (Server Components, API routes)
+
+# 3. ERREURS EN PRODUCTION (Vercel)
+# Vercel Dashboard → ton projet → Functions → Voir les logs temps réel
+
+# ─── LES 10 ERREURS LES PLUS COURANTES ───────────────────────────────────
+
+# ❌ "Cannot find module '@/components/Header'"
+# ✅ Fix: Vérifier que le fichier existe et que le chemin est correct
+#         Vérifier tsconfig.json → "@/*": ["./*"]
+
+# ❌ "useClient must be called within a React component"
+# ✅ Fix: Ajouter "use client"; en haut du fichier
+
+# ❌ "Hydration failed" ou "Text content did not match"
+# ✅ Fix: Le HTML serveur ≠ HTML client
+#         Éviter Date.now(), Math.random() dans le rendu initial
+#         Utiliser useEffect pour les données qui changent côté client
+
+# ❌ "Cannot read properties of undefined (reading 'map')"
+# ✅ Fix: data est undefined, pas un tableau
+#         Ajouter: const products = data ?? [] ou data?.map(...)
+
+# ❌ "Error: 401 Unauthorized" depuis l'API
+# ✅ Fix: La session admin est expirée ou incorrecte
+#         Se reconnecter à /admin
+
+# ❌ "Error: 500" depuis l'API
+# ✅ Fix: Regarder les logs Vercel (ou terminal VS Code en dev)
+#         Souvent une variable d'environnement manquante
+
+# ❌ "Type 'string | null' is not assignable to type 'string'"
+# ✅ Fix: Ajouter null-check: if (!value) return; ou value ?? "default"
+
+# ❌ "Dynamic server usage: headers() should be wrapped in a Suspense"  
+# ✅ Fix: Ajouter export const dynamic = "force-dynamic"; dans la page
+
+# ❌ Build timeout sur Vercel (> 1h)
+# ✅ Fix: Vérifier les imports circulaires, réduire les dépendances
+#         Mettre à jour Next.js: npm install next@latest
+
+# ❌ Images ne s'affichent pas en production
+# ✅ Fix: Vérifier next.config.js → images → remotePatterns
+#         Ajouter le hostname Supabase: { hostname: "*.supabase.co" }
+
+# ─── TECHNIQUE DE DÉBOGAGE ────────────────────────────────────────────────
+# La technique la plus simple et efficace : les console.log() stratégiques
+
+// Dans un Server Component ou API route :
+console.log("Produit reçu:", JSON.stringify(product, null, 2));
+
+// Dans un Client Component (visible dans F12 → Console) :
+console.log("État actuel:", { images, loading, error });
+
+// Pour déboguer une API route :
+export async function GET(req: NextRequest) {
+  const url = req.url;
+  const params = Object.fromEntries(new URL(url).searchParams);
+  console.log("GET /api/products params:", params);  // Visible dans terminal VS Code
+  // ...
+}`,
+      },
+      {
+        title: "Comment ajouter un nouveau champ à un produit",
+        desc: "Exemple concret : ajouter un champ 'condition' (neuf/occasion) aux produits. Ce guide montre comment modifier la DB, l'API, le formulaire admin, et la page produit.",
+        code: `# EXEMPLE COMPLET : Ajouter le champ "condition" aux produits
+
+# ─── ÉTAPE 1 : Modifier la table Supabase ─────────────────────────────────
+# Dans Supabase → SQL Editor :
+ALTER TABLE products ADD COLUMN condition text DEFAULT 'neuf';
+-- 'neuf' | 'occasion' | 'reconditionné'
+
+# ─── ÉTAPE 2 : Mettre à jour le type TypeScript ───────────────────────────
+# Dans lib/supabase.ts :
+export type Product = {
+  // ... autres champs existants ...
+  condition?: "neuf" | "occasion" | "reconditionné";  // ← AJOUTER
+};
+
+# ─── ÉTAPE 3 : Ajouter le champ au formulaire admin ──────────────────────
+# Dans app/admin/products/page.tsx :
+
+# 1. Ajouter au state initial :
+const emptyForm = {
+  // ... autres champs ...
+  condition: "neuf",  // ← AJOUTER
+};
+
+# 2. Ajouter le select dans le formulaire (chercher "Catégorie" pour s'en inspirer) :
+<div>
+  <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">
+    Condition
+  </label>
+  <select
+    value={form.condition}
+    onChange={e => setForm({ ...form, condition: e.target.value })}
+    className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50"
+  >
+    <option value="neuf">Neuf</option>
+    <option value="occasion">Occasion</option>
+    <option value="reconditionné">Reconditionné</option>
+  </select>
+</div>
+
+# 3. Ajouter dans le payload de sauvegarde (handleSave) :
+const payload = {
+  // ... autres champs ...
+  condition: form.condition,  // ← AJOUTER
+};
+
+# ─── ÉTAPE 4 : Afficher le champ sur la page produit ────────────────────
+# Dans app/produit/[slug]/page.tsx :
+# Après avoir récupéré le produit (dbProd), afficher le badge :
+
+{dbProd.condition && (
+  <span className={
+    dbProd.condition === "occasion"
+      ? "bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full font-bold"
+      : "bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-bold"
+  }>
+    {dbProd.condition === "neuf" ? "✓ Neuf"
+     : dbProd.condition === "occasion" ? "★ Occasion"
+     : "♻ Reconditionné"}
+  </span>
+)}
+
+# ─── ÉTAPE 5 : Tester ─────────────────────────────────────────────────────
+npm run dev
+# 1. Aller sur /admin/products → Créer/modifier un produit → Vérifier que le champ apparaît
+# 2. Sauvegarder → Aller sur /produit/[slug] → Vérifier l'affichage
+# 3. Vérifier dans Supabase Table Editor que la valeur est bien sauvegardée`,
+      },
+      {
+        title: "FAQ Développement — Les 15 questions les plus posées",
+        desc: "Les vraies questions que se posent tous les débutants en développant ce type de projet. Réponses directes et pratiques.",
+        code: `# Q1 : Comment savoir si mon changement est bien en production ?
+# R : Vercel Dashboard → ton projet → Deployments
+#     Vert = déployé | Rouge = échec | En cours = déploiement
+
+# Q2 : J'ai modifié une variable d'environnement sur Vercel, ça ne change rien ?
+# R : Après avoir ajouté/modifié une variable Vercel, tu dois REDÉPLOYER.
+#     Deployments → "..." sur le dernier déploiement → Redeploy
+
+# Q3 : Comment voir les erreurs de mes API routes en production ?
+# R : Vercel Dashboard → ton projet → Functions → Logs
+#     Filtre par date et recherche "ERROR"
+
+# Q4 : Est-ce que je peux utiliser fetch() dans un Server Component ?
+# R : OUI ! Les Server Components peuvent faire des fetch() directement.
+#     Pas besoin de useEffect. C'est même recommandé pour le SEO.
+async function ProductPage({ params }) {
+  const product = await fetch('/api/products/' + params.slug).then(r => r.json());
+  return <h1>{product.name}</h1>;
+}
+
+# Q5 : Comment tester mon site sur mobile pendant le développement ?
+# R : npm run dev → http://192.168.x.x:3000 (l'IP réseau affichée dans le terminal)
+#     Ton téléphone doit être sur le même Wi-Fi
+
+# Q6 : Comment ajouter une image au projet (pas depuis Supabase) ?
+# R : Mettre l'image dans public/images/ → Utiliser /images/mon-image.jpg
+<img src="/images/hero.jpg" alt="Hero" />
+# OU avec Next.js Image :
+import Image from "next/image";
+<Image src="/images/hero.jpg" alt="Hero" width={1200} height={600} />
+
+# Q7 : Quelle est la différence entre getStaticProps et les Server Components ?
+# R : getStaticProps = Next.js 12 (Pages Router, ancien) → NE PAS UTILISER
+#     Server Components = Next.js 13+ (App Router, actuel) → UTILISER
+#     Dans l'App Router : chaque page async function = Server Component
+
+# Q8 : Comment protéger une page admin ?
+# R : middleware.ts vérifie le cookie admin_session sur CHAQUE requête /admin/*
+#     Si pas de cookie → redirect vers /admin (page de login)
+#     Voir middleware.ts pour le code exact
+
+# Q9 : Comment afficher un loading state pendant un fetch ?
+# R : Pattern classique avec useState :
+const [loading, setLoading] = useState(true);
+useEffect(() => {
+  setLoading(true);
+  fetch("/api/products").then(r => r.json()).then(data => {
+    setProducts(data);
+    setLoading(false);
+  });
+}, []);
+if (loading) return <div>Chargement...</div>;
+
+# Q10 : Comment envoyer un email depuis l'app ?
+# R : Utiliser Resend (déjà configuré dans le projet)
+import { Resend } from "resend";
+const resend = new Resend(process.env.RESEND_API_KEY);
+await resend.emails.send({
+  from: "L'ecomax <contact@lecomax.com>",
+  to: customerEmail,
+  subject: "Votre commande est confirmée",
+  html: "<p>Merci pour votre commande !</p>",
+});
+
+# Q11 : Comment paginer les résultats Supabase ?
+# R : Utiliser .range(from, to)
+const PAGE_SIZE = 20;
+const { data } = await supabase
+  .from("products")
+  .select("*")
+  .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+# Q12 : Comment faire une recherche en temps réel ?
+# R : Utiliser useEffect avec debounce + ilike Supabase
+const [search, setSearch] = useState("");
+useEffect(() => {
+  const timer = setTimeout(() => {
+    fetch("/api/products?search=" + search).then(...);
+  }, 300);  // Attendre 300ms après la dernière frappe
+  return () => clearTimeout(timer);
+}, [search]);
+
+# Q13 : Mon site est trop lent, comment l'accélérer ?
+# R : 1. Utiliser next/image pour toutes les images (compression auto)
+#     2. Ajouter loading="lazy" aux images non-critiques
+#     3. Utiliser des Server Components (pas de JS côté client)
+#     4. Ajouter cache aux API routes: headers: { 'Cache-Control': 's-maxage=60' }
+#     5. Optimiser les requêtes Supabase (SELECT uniquement les colonnes nécessaires)
+
+# Q14 : Comment gérer les erreurs 404 personnalisées ?
+# R : Le fichier app/not-found.tsx est déjà configuré dans ce projet
+#     Pour un 404 programmé : import { notFound } from "next/navigation"; notFound();
+
+# Q15 : Comment voir les requêtes Supabase qui prennent du temps ?
+# R : Supabase Dashboard → Database → Query Performance
+#     Ou activer pg_stat_statements: SELECT * FROM pg_stat_statements ORDER BY total_time DESC;`,
+      },
+      {
+        title: "Checklist avant de lancer le site en production",
+        desc: "La checklist complète à vérifier AVANT d'annoncer le site à tes premiers clients. Ne lance jamais sans avoir tout coché.",
+        code: `# ─── CHECKLIST DE LANCEMENT ─────────────────────────────────────────────
+
+# ✅ TECHNIQUE
+[ ] npm run build réussit sans erreur
+[ ] Toutes les variables d'environnement sont dans Vercel
+[ ] Le domaine pointe vers Vercel (A Record ou Nameservers)
+[ ] SSL actif (cadenas vert dans le navigateur)
+[ ] Les images Supabase s'affichent correctement
+[ ] Le panier fonctionne (ajouter → vérifier localStorage)
+[ ] Le formulaire de commande fonctionne end-to-end
+[ ] Les emails de confirmation partent (tester avec ta propre adresse)
+[ ] L'admin est accessible sur /admin avec ton compte
+[ ] Les produits sont créés et visibles sur le site
+
+# ✅ SEO
+[ ] Le fichier public/robots.txt est configuré
+[ ] Le sitemap /sitemap.xml liste tous les produits actifs
+[ ] Les métadonnées (title, description) sont présentes sur chaque page
+[ ] Open Graph (partage réseaux sociaux) est configuré dans layout.tsx
+[ ] Google Search Console est configuré avec ton domaine
+
+# ✅ PERFORMANCE
+[ ] Test Lighthouse score > 80 sur mobile : https://pagespeed.web.dev
+[ ] Les images sont en AVIF/WebP (vérifier dans l'inspecteur réseau)
+[ ] Aucune image > 500 KB chargée sans lazy loading
+
+# ✅ SÉCURITÉ
+[ ] Le fichier .env.local est dans .gitignore (vérifier: git status)
+[ ] SUPABASE_SERVICE_ROLE_KEY n'est PAS dans une variable NEXT_PUBLIC_
+[ ] Les routes admin retournent 401 pour les non-connectés
+[ ] middleware.ts protège bien /admin/*
+
+# ✅ EXPÉRIENCE UTILISATEUR
+[ ] Le site fonctionne sur mobile (tester sur vrai téléphone)
+[ ] Les images de produits sont de bonne qualité
+[ ] Le bouton WhatsApp est configuré avec ton vrai numéro
+[ ] Les CGV, mentions légales et politique de confidentialité sont présentes
+[ ] La page de contact fonctionne (/nous-contacter)
+
+# ✅ ANALYTICS
+[ ] Vercel Analytics est activé (voir app/layout.tsx)
+[ ] Google Analytics est configuré (optionnel mais recommandé)
+
+# 🎉 LANCEMENT !
+git add . && git commit -m "chore: production ready" && git push origin main
+# → Vercel déploie → Annonce sur WhatsApp → Premiers visiteurs !`,
       },
     ],
   },
@@ -2375,6 +3614,477 @@ COMMANDES DE DÉVELOPPEMENT QUOTIDIEN :
       },
     ],
   },
+  {
+    num: "14", label: "Intégration du paiement en ligne — PayPal, CMI, Cash", color: "bg-green-600",
+    steps: [
+      {
+        title: "Étape 1 — Les options de paiement au Maroc (état 2025)",
+        desc: "Le marché marocain a des contraintes spécifiques : la majorité des clients préfèrent le paiement à la livraison. Voici toutes les options disponibles pour ajouter un vrai paiement en ligne.",
+        code: `# OPTIONS DE PAIEMENT DISPONIBLES AU MAROC
+
+┌─────────────────────────────────────────────────────────────────┐
+│  OPTION             │ FACILE ?  │ INTERNATIONAL │ FRAIS         │
+├─────────────────────────────────────────────────────────────────┤
+│  PayPal             │ ✅ Facile │ ✅ Oui        │ ~3.4% + 0.35€ │
+│  Stripe             │ ✅ Facile │ ✅ Oui        │ ~2.9% + 0.30€ │
+│  CMI (Maroc)        │ ⚠️  Moyen  │ ❌ Non        │ Contrat banque│
+│  HPS PowerCARD      │ ⚠️  Moyen  │ ❌ Non        │ Contrat banque│
+│  Maroc Telecom Cash │ ⚠️  Moyen  │ ❌ Non        │ Variable      │
+│  Cashplus / CIH     │ ⚠️  Moyen  │ ❌ Non        │ Variable      │
+│  YouCan Pay (maroc) │ ✅ Facile │ ✅ Oui        │ ~2.5%         │
+│  Virement bancaire  │ ✅ Facile │ ❌ Non        │ Gratuit       │
+└─────────────────────────────────────────────────────────────────┘
+
+RECOMMANDATION POUR L'ECOMAX :
+  Phase 1 (maintenant) : Paiement à la livraison (déjà en place ✅)
+  Phase 2 (prochain)   : PayPal ou YouCan Pay (le plus simple)
+  Phase 3 (avancé)     : CMI pour les cartes Visa/Mastercard marocaines
+
+NOTE IMPORTANTE :
+  YouCan Pay est fait pour les e-commerces marocains.
+  Ils fournissent une API simple + SDK React.
+  Inscription : https://youcan.shop/pay
+  Pas besoin de contrat bancaire, juste un KYC.`,
+      },
+      {
+        title: "Étape 2 — Ajouter PayPal (le plus simple, international)",
+        desc: "PayPal est le plus simple à intégrer. Déjà installé dans le projet via @paypal/react-paypal-js. Il suffit d'activer les bonnes variables d'environnement et de modifier le checkout.",
+        code: `# PAYPAL — INTÉGRATION COMPLÈTE
+
+# 1. Le package est déjà installé :
+#    @paypal/react-paypal-js (dans package.json)
+
+# 2. Variables d'environnement à ajouter :
+NEXT_PUBLIC_PAYPAL_CLIENT_ID=AXxxxxxxxxxxxxxxxxxxxxxxxxxx
+PAYPAL_SECRET_KEY=EKxxxxxxxxxxxxxxxxxxxxxxxxxx
+# Obtenir sur : https://developer.paypal.com → My Apps & Credentials
+
+# 3. Activer dans app/checkout/page.tsx :
+# Remplacer le bloc "paiement à la livraison" par :
+
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+
+// Dans le composant checkout :
+<PayPalScriptProvider options={{
+  "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
+  currency: "USD",  // PayPal Maroc → USD ou EUR
+}}>
+  <PayPalButtons
+    style={{ layout: "vertical", color: "gold", shape: "rect" }}
+    createOrder={async (data, actions) => {
+      return actions.order.create({
+        purchase_units: [{
+          amount: {
+            value: total.toFixed(2),  // total en USD
+          },
+        }],
+      });
+    }}
+    onApprove={async (data, actions) => {
+      const details = await actions.order!.capture();
+      // details.status === "COMPLETED"
+      // → Appeler /api/orders avec payment_method: "paypal"
+      // → Envoyer email de confirmation
+      await createOrder({ payment_method: "paypal", paypal_id: details.id });
+    }}
+    onError={(err) => {
+      console.error("PayPal error:", err);
+      alert("Erreur PayPal. Veuillez réessayer.");
+    }}
+  />
+</PayPalScriptProvider>
+
+# 4. Modifier l'API /api/orders/route.ts :
+# Ajouter "paypal" comme payment_method valide
+# Stocker le paypal_transaction_id dans la commande
+
+# 5. Test en mode SANDBOX :
+# Utilisez les comptes sandbox PayPal Developer pour tester sans argent réel
+# Email sandbox : sb-xxxxx@personal.example.com
+# Mot de passe : trouvé dans Developer Dashboard → Sandbox Accounts`,
+      },
+      {
+        title: "Étape 3 — Sécuriser les paiements avec des webhooks",
+        desc: "Ne jamais faire confiance au client pour confirmer un paiement. Toujours vérifier côté serveur via webhook. C'est la règle d'or de la sécurité des paiements.",
+        code: `# WEBHOOKS — SÉCURITÉ CRITIQUE
+
+# Règle absolue : JAMAIS confirmer une commande depuis le client (frontend)
+# Le client peut mentir sur le montant ou le statut.
+# Toujours vérifier côté serveur via webhook.
+
+# FLUX SÉCURISÉ :
+┌──────────┐   1. Crée commande   ┌──────────────┐
+│ Frontend │ ─────────────────→  │  /api/orders │
+│          │                      │  status=PENDING
+│          │   2. Lance paiement  │              │
+│          │ ─────────────────→  │  PayPal/Stripe│
+└──────────┘                      └──────────────┘
+                                         │
+                                  3. Webhook (côté serveur)
+                                         │
+                                  ┌──────────────┐
+                                  │/api/webhooks/│
+                                  │ paypal        │
+                                  │ ↓             │
+                                  │ Vérifie sig.  │
+                                  │ Met à jour DB │
+                                  │ Envoie email  │
+                                  └──────────────┘
+
+# EXEMPLE : app/api/webhooks/paypal/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+export async function POST(req: NextRequest) {
+  const body = await req.text();
+  
+  // 1. Vérifier la signature PayPal (IMPORTANT)
+  const webhookId = process.env.PAYPAL_WEBHOOK_ID!;
+  const isValid = await verifyPayPalWebhook(req.headers, body, webhookId);
+  if (!isValid) return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  
+  const event = JSON.parse(body);
+  
+  // 2. Traiter selon le type d'événement
+  if (event.event_type === "PAYMENT.CAPTURE.COMPLETED") {
+    const orderId = event.resource.custom_id; // ton order_id Supabase
+    
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    
+    // 3. Mettre à jour le statut en base
+    await supabase
+      .from("orders")
+      .update({ 
+        status: "confirmed",
+        payment_status: "paid",
+        payment_id: event.resource.id
+      })
+      .eq("id", orderId);
+      
+    // 4. Envoyer email de confirmation
+    await sendOrderConfirmationEmail(orderId);
+  }
+  
+  return NextResponse.json({ received: true });
+}
+
+# Ajouter l'URL du webhook dans PayPal Developer :
+# https://developer.paypal.com → My Apps → Webhooks
+# URL : https://lecomax.com/api/webhooks/paypal`,
+      },
+      {
+        title: "Étape 4 — CMI (Centre Monétique Interbancaire) — Cartes marocaines",
+        desc: "CMI est le réseau bancaire marocain pour les paiements par carte Visa/Mastercard locale. Nécessite un contrat avec une banque marocaine. Plus complexe mais indispensable pour cibler les cartes marocaines.",
+        code: `# CMI — PAIEMENT PAR CARTE MAROCAINE
+
+# PRÉ-REQUIS :
+# 1. Avoir un compte entreprise dans une banque marocaine (Attijariwafa, CIH, BMCE...)
+# 2. Signer un contrat e-paiement avec la banque (délai : 2-4 semaines)
+# 3. Recevoir les credentials CMI : merchantID, storeKey, storeType
+
+# VARIABLES D'ENVIRONNEMENT :
+CMI_CLIENT_ID=votre_merchant_id
+CMI_STORE_KEY=votre_store_key_secret
+CMI_BASE_URL=https://testpayment.cmi.co.ma  # test
+# CMI_BASE_URL=https://payment.cmi.co.ma    # production
+
+# FLUX DE PAIEMENT CMI :
+# 1. Le client clique "Payer par carte"
+# 2. Tu génères un hash sécurisé côté serveur
+# 3. Tu redirigies vers la page CMI avec les paramètres
+# 4. CMI traite le paiement
+# 5. CMI redirige vers ton callbackUrl avec le résultat
+# 6. Tu vérifies le hash de réponse (IMPORTANT)
+
+# EXEMPLE : app/api/payment/cmi/route.ts
+import crypto from "crypto";
+
+export async function POST(req: Request) {
+  const { orderId, amount, customerEmail } = await req.json();
+  
+  const params = {
+    clientid: process.env.CMI_CLIENT_ID!,
+    amount: amount.toFixed(2),
+    currency: "504",  // 504 = MAD (Dirham marocain)
+    oid: orderId,
+    okUrl: \`https://lecomax.com/merci?order=\${orderId}\`,
+    failUrl: \`https://lecomax.com/checkout?error=payment\`,
+    callbackUrl: "https://lecomax.com/api/webhooks/cmi",
+    email: customerEmail,
+    encoding: "UTF-8",
+    rnd: Date.now().toString(),
+  };
+  
+  // Générer le hash (HMAC-SHA512)
+  const hashStr = Object.keys(params)
+    .sort()
+    .map(k => params[k as keyof typeof params])
+    .join("|") + "|" + process.env.CMI_STORE_KEY;
+  
+  const hash = crypto.createHash("sha512").update(hashStr).digest("hex");
+  
+  return Response.json({
+    url: \`\${process.env.CMI_BASE_URL}/fim/est3Dgate\`,
+    params: { ...params, hash },
+  });
+}
+
+# DOCUMENTATION COMPLÈTE :
+# https://www.cmi.co.ma/fr/solutions-e-commerce
+# SDK Node.js communauté : npm install cmi-payment`,
+      },
+      {
+        title: "Étape 5 — YouCan Pay (recommandé pour les startups marocaines)",
+        desc: "YouCan Pay est la solution la plus simple pour les e-commerces marocains. Pas besoin de contrat bancaire, inscription en ligne, supporte les cartes marocaines ET internationales.",
+        code: `# YOUCAN PAY — LA SOLUTION LA PLUS SIMPLE
+
+# INSCRIPTION : https://youcan.shop/pay
+# Documents requis : CIN ou Passeport + RIB ou IBAN
+
+# INSTALLATION :
+npm install youcan-pay
+
+# VARIABLES D'ENVIRONNEMENT :
+YOUCAN_PUB_KEY=pub_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+YOUCAN_SECRET_KEY=pri_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# EXEMPLE D'INTÉGRATION :
+# app/api/payment/youcan/create/route.ts
+
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(req: NextRequest) {
+  const { amount, orderId, customerEmail, customerPhone } = await req.json();
+  
+  const response = await fetch("https://pay.youcan.shop/api/tokenize", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": \`Bearer \${process.env.YOUCAN_SECRET_KEY}\`,
+    },
+    body: JSON.stringify({
+      amount: Math.round(amount * 100),  // en centimes
+      currency: "MAD",
+      order_id: orderId,
+      customer_ip: req.headers.get("x-forwarded-for") ?? "127.0.0.1",
+      customer_name: customerEmail.split("@")[0],
+      customer_email: customerEmail,
+      customer_phone: customerPhone,
+      success_url: \`https://lecomax.com/merci?order=\${orderId}\`,
+      error_url: \`https://lecomax.com/checkout?error=1\`,
+    }),
+  });
+  
+  const data = await response.json();
+  // data.token → utiliser pour afficher le formulaire de paiement YouCan
+  return NextResponse.json({ token: data.token, url: data.url });
+}
+
+# FRONTEND : afficher le formulaire YouCan Pay
+# (iframe sécurisé fourni par YouCan Pay)
+<iframe
+  src={\`https://pay.youcan.shop/api/checkout/\${token}\`}
+  style={{ width: "100%", height: "600px", border: "none" }}
+/>
+
+# WEBHOOK YouCan Pay :
+# app/api/webhooks/youcan/route.ts
+# Vérifier la signature HMAC-SHA256 avec ton secret key
+# Mettre à jour le statut de la commande en DB`,
+      },
+    ],
+  },
+  {
+    num: "15", label: "Tests, débogage & monitoring — Rester pro en production", color: "bg-pink-600",
+    steps: [
+      {
+        title: "Étape 1 — Tester localement avant chaque déploiement",
+        desc: "La règle d'or : ne jamais pousser du code sur GitHub sans l'avoir testé localement avec npm run build. Un build réussi en local ne garantit pas un build réussi sur Vercel, mais ça élimine 90% des problèmes.",
+        code: `# CHECKLIST AVANT CHAQUE GIT PUSH
+
+# 1. Vérifier les erreurs TypeScript
+npx tsc --noEmit
+# → 0 erreur = bon signe
+
+# 2. Vérifier le lint
+npm run lint
+# → Corrige tous les warnings avant de push
+
+# 3. Tester le build de production EN LOCAL
+npm run build
+# → Si ça compile en local, ça compile sur Vercel (en général)
+# ATTENTION : les erreurs de build Vercel coûtent du temps de déploiement
+
+# 4. Tester en mode production local
+npm run build && npm run start
+# → http://localhost:3000 en mode production
+# → Teste les API routes, les Server Components, etc.
+
+# ERREURS COMMUNES ET SOLUTIONS :
+
+# Erreur : "Cannot find module '@/...'"
+# Solution : Vérifier tsconfig.json → paths → "@/*": ["./src/*"] ou ["./"]
+
+# Erreur : "Module not found: ESM"
+# Solution : Ajouter le module à transpilePackages dans next.config.js
+
+# Erreur : "Dynamic server usage: headers()"
+# Solution : Ajouter export const dynamic = "force-dynamic" dans la page
+
+# Erreur : "NEXT_PUBLIC_ env var undefined en production"
+# Solution : Ajouter la variable dans Vercel Dashboard → Environment Variables
+
+# Erreur : hydration mismatch
+# Solution : Vérifier que le rendu serveur = rendu client
+# (éviter Date.now(), Math.random() dans le rendu initial)`,
+      },
+      {
+        title: "Étape 2 — Déboguer les erreurs Vercel en production",
+        desc: "Quand quelque chose fonctionne en local mais pas en production, il faut savoir où regarder. Vercel fournit des logs en temps réel dans le dashboard.",
+        code: `# DÉBOGUER EN PRODUCTION VERCEL
+
+# 1. Logs en temps réel :
+#    Dashboard Vercel → ton projet → Logs → Real-time
+#    Tu vois les console.error() de tes API routes
+
+# 2. Erreurs de build :
+#    Dashboard Vercel → Deployments → Deploy échoué → View Build Logs
+#    Cherche les lignes rouges
+
+# 3. Erreurs courantes en production :
+
+# ERREUR : "Environment variable not set"
+# → Ajouter dans Vercel Dashboard → Settings → Environment Variables
+# → Redéployer après avoir ajouté (le déploiement actuel n'hérite pas)
+
+# ERREUR : CORS en production mais pas en local
+# → Dans next.config.js, ajouter les headers CORS :
+const nextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET, POST, PUT, DELETE, OPTIONS" },
+        ],
+      },
+    ];
+  },
+};
+
+# ERREUR : Timeout (Vercel free tier = 10s max)
+# → Optimiser les requêtes DB (index Supabase, pagination)
+# → Passer sur Vercel Pro pour 60s max
+
+# ERREUR : Supabase RLS refuse les requêtes admin
+# → Utiliser le service_role key (jamais exposé côté client)
+# → Vérifier les policies dans Supabase → Authentication → Policies
+
+# 4. Sentry — Monitoring d'erreurs en production (optionnel mais pro)
+npm install @sentry/nextjs
+npx @sentry/wizard@latest -i nextjs
+# → Configure automatiquement next.config.js
+# → Capture toutes les erreurs + contexte utilisateur
+# → Alertes email quand une nouvelle erreur apparaît`,
+      },
+      {
+        title: "Étape 3 — Monitoring des performances (Core Web Vitals)",
+        desc: "Google utilise les Core Web Vitals pour le classement SEO. Vercel Speed Insights mesure ces métriques sur tes vrais utilisateurs. Comprendre et améliorer ces scores = plus de trafic organique.",
+        code: `# CORE WEB VITALS — COMPRENDRE ET AMÉLIORER
+
+# Les 3 métriques qui comptent :
+┌──────────────────────────────────────────────────────────────────┐
+│  MÉTRIQUE │ NOM COMPLET              │ CIBLE      │ CE QUE C'EST│
+├──────────────────────────────────────────────────────────────────┤
+│  LCP      │ Largest Contentful Paint │ < 2.5s     │ Chargement  │
+│  INP      │ Interaction to Next Paint│ < 200ms    │ Réactivité  │
+│  CLS      │ Cumulative Layout Shift  │ < 0.1      │ Stabilité   │
+└──────────────────────────────────────────────────────────────────┘
+
+# DÉJÀ INTÉGRÉ dans ce projet :
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
+# → Voir dans app/layout.tsx
+
+# OPTIMISATIONS APPLIQUÉES DANS CE PROJET :
+
+# 1. Images → Next.js <Image> avec priority sur les images above-the-fold
+<Image src={product.image} alt={product.name} priority width={800} height={800} />
+
+# 2. Fonts → next/font (préchargé, pas de flash de police)
+import { Inter, Sora } from "next/font/google";
+
+# 3. Lazy loading des composants lourds
+const HeavyComponent = dynamic(() => import("@/components/HeavyComponent"), {
+  loading: () => <div>Chargement…</div>,
+});
+
+# 4. Préchargement des routes importantes
+<Link href="/boutique" prefetch={true}>Boutique</Link>
+
+# 5. Mise en cache des API routes
+export const revalidate = 60; // Revalide toutes les 60 secondes
+
+# OUTIL DE TEST GRATUIT :
+# https://pagespeed.web.dev/?url=https://lecomax.com
+# → Lance un audit Lighthouse complet
+# → Donne des recommandations précises`,
+      },
+      {
+        title: "Étape 4 — Sauvegardes et récupération de données",
+        desc: "Supabase fait des sauvegardes automatiques quotidiennes (plan gratuit = 7 jours). Mais pour une boutique en production, il faut avoir sa propre stratégie de sauvegarde.",
+        code: `# STRATÉGIE DE SAUVEGARDE SUPABASE
+
+# 1. Sauvegardes automatiques Supabase :
+#    Plan Free : 1 sauvegarde / jour, rétention 7 jours
+#    Plan Pro : sauvegardes continues (Point-in-time Recovery)
+#    Dashboard → Settings → Backups
+
+# 2. Export manuel via SQL Editor (à faire avant chaque grosse modification) :
+-- Exporter les commandes
+COPY (SELECT * FROM orders) TO '/tmp/orders_backup.csv' WITH CSV HEADER;
+
+-- Exporter les produits
+COPY (SELECT * FROM products) TO '/tmp/products_backup.csv' WITH CSV HEADER;
+
+# 3. Script de sauvegarde automatisé (Cron Job Vercel) :
+# app/api/backup/route.ts (protégé par CRON_SECRET)
+
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(req: NextRequest) {
+  const secret = req.headers.get("authorization");
+  if (secret !== \`Bearer \${process.env.CRON_SECRET}\`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
+  // Exporter vers un fichier JSON dans Supabase Storage
+  const { data: orders } = await supabase.from("orders").select("*");
+  const backup = JSON.stringify({ orders, timestamp: new Date().toISOString() });
+  
+  await supabase.storage
+    .from("backups")
+    .upload(\`backup-\${Date.now()}.json\`, backup);
+    
+  return NextResponse.json({ success: true, count: orders?.length });
+}
+
+# Configurer le Cron Job dans vercel.json :
+{
+  "crons": [
+    {
+      "path": "/api/backup",
+      "schedule": "0 2 * * *"  // Tous les jours à 2h du matin
+    }
+  ]
+}`,
+      },
+    ],
+  },
 ];
 
 // ─── Phase + Step translations (EN / AR) ────────────────────────────────────
@@ -2393,6 +4103,9 @@ const PHASE_TR: Record<string, { en: string; ar: string }> = {
   "11": { en: "Key Components — How They Work", ar: "المكوّنات الرئيسية — كيف تعمل" },
   "12": { en: "Environment Variables — Complete Guide", ar: "متغيرات البيئة — الدليل الكامل" },
   "13": { en: "Real Data Flows — Complete Schema", ar: "تدفقات البيانات الحقيقية — المخطط الكامل" },
+  "14": { en: "Payment Integration — PayPal, CMI, Cash", ar: "دمج الدفع — PayPal وCMI والدفع النقدي" },
+  "15": { en: "Testing, Debugging & Monitoring", ar: "الاختبار والتصحيح والمراقبة" },
+  "16": { en: "Daily Workflows — Add, Edit, Debug", ar: "سير العمل اليومي — إضافة وتعديل وتصحيح" },
 };
 // Step translations keyed by phaseNum → stepIndex
 const STEP_TR: Record<string, Array<{ enTitle: string; enDesc: string; arTitle: string; arDesc: string }>> = {
@@ -2820,25 +4533,26 @@ function HeroSection({ lang }: { lang: Lang }) {
 
   return (
     <div className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
-      <div className="mb-4 flex items-start justify-between gap-3 flex-wrap">
-        <div className="flex-1 min-w-0">
-          <h2 className="text-xl font-black text-gray-900">{u.heroTitle}</h2>
-          <p className="text-sm text-gray-500 mt-1">{u.heroSub}</p>
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <button onClick={expandAll}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#0d0d0d] text-white text-[11px] font-bold rounded-xl hover:bg-neutral-800 transition-colors active:scale-95">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
-            {lang === "ar" ? "فتح الكل" : lang === "en" ? "Expand all" : "Tout ouvrir"}
-          </button>
-          {allExpanded && (
-            <button onClick={collapseAll}
-              className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-700 text-[11px] font-bold rounded-xl hover:bg-gray-200 transition-colors active:scale-95">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/></svg>
-              {lang === "ar" ? "إغلاق الكل" : lang === "en" ? "Collapse all" : "Tout fermer"}
+      <div className="mb-4">
+        <div className="flex items-start justify-between gap-3 mb-1">
+          <h2 className="text-lg sm:text-xl font-black text-gray-900">{u.heroTitle}</h2>
+          <div className="flex gap-2 shrink-0">
+            <button onClick={expandAll}
+              className="flex items-center gap-1.5 px-3 py-2 bg-[#0d0d0d] text-white text-[11px] font-bold rounded-xl hover:bg-neutral-800 transition-colors active:scale-95">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+              <span className="hidden sm:inline">{lang === "ar" ? "فتح الكل" : lang === "en" ? "Expand all" : "Tout ouvrir"}</span>
+              <span className="sm:hidden">{lang === "ar" ? "فتح" : lang === "en" ? "Open" : "Ouvrir"}</span>
             </button>
-          )}
+            {allExpanded && (
+              <button onClick={collapseAll}
+                className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-700 text-[11px] font-bold rounded-xl hover:bg-gray-200 transition-colors active:scale-95">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/></svg>
+                <span className="hidden sm:inline">{lang === "ar" ? "إغلاق الكل" : lang === "en" ? "Collapse all" : "Tout fermer"}</span>
+              </button>
+            )}
+          </div>
         </div>
+        <p className="text-xs sm:text-sm text-gray-400 leading-relaxed line-clamp-2 sm:line-clamp-none">{u.heroSub}</p>
       </div>
       <div className="relative">
         <div className="absolute left-[19px] top-5 bottom-5 w-0.5 bg-gray-200" />
@@ -3299,27 +5013,30 @@ export default function HowItWasBuiltPage() {
             ))}
           </div>
         </div>
-        {/* Tabs */}
-        <div className="max-w-7xl mx-auto px-1 sm:px-6 overflow-x-auto scrollbar-none">
+        {/* Tabs — scrollable, no swipe hint */}
+        <div className="max-w-7xl mx-auto px-1 sm:px-6 overflow-x-auto scrollbar-none overscroll-x-contain">
           <div className="flex gap-0 sm:gap-0.5 min-w-max pb-px">
             {TAB_IDS.map(id => (
-              <button key={id} onClick={() => setTab(id)}
-                className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-2.5 text-[11px] sm:text-[12px] font-semibold border-b-2 whitespace-nowrap transition-colors ${tab === id ? "border-[#3ecf4c] text-gray-900" : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"}`}>
+              <button key={id} onClick={() => setTab(id)} active-tab={tab === id ? "true" : undefined}
+                className={`relative flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-2.5 text-[11px] sm:text-[12px] font-semibold whitespace-nowrap transition-colors active:scale-95 ${
+                  tab === id
+                    ? "text-gray-900"
+                    : "text-gray-400 hover:text-gray-700 hover:bg-gray-50"
+                }`}>
                 <span>{TAB_ICONS[id]}</span>
                 <span>{u.tabs[id]}</span>
+                {tab === id && (
+                  <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-[#3ecf4c] rounded-t-full" />
+                )}
               </button>
             ))}
           </div>
-          {/* Mobile swipe hint */}
-          <p className="sm:hidden text-[9px] text-gray-400 text-center py-0.5 tracking-wide">← glissez pour changer d&apos;onglet →</p>
         </div>
       </div>
 
-      {/* Content — swipeable on mobile */}
+      {/* Content */}
       <div
         className="max-w-7xl mx-auto px-2 sm:px-6 py-4 sm:py-6"
-        onTouchStart={e => { touchStartX.current = e.touches[0].clientX; }}
-        onTouchEnd={handleTabSwipe}
       >
         {tab === "hero"   && <HeroSection lang={lang} />}
         {tab === "arch"   && <ArchSection lang={lang} />}

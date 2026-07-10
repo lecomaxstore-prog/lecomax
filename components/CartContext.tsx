@@ -23,15 +23,15 @@ type CartCtx = {
   items: CartItem[];
   count: number;
   total: number;
-  add: (p: Product, size: string, qty?: number, color?: string) => void;
-  remove: (slug: string, size: string) => void;
-  setQty: (slug: string, size: string, qty: number) => void;
+  add: (p: Product, size: string, qty?: number, color?: string, image?: string) => void;
+  remove: (slug: string, size: string, color: string) => void;
+  setQty: (slug: string, size: string, color: string, qty: number) => void;
   clear: () => void;
 };
 
 const Ctx = createContext<CartCtx | null>(null);
 
-const KEY = "lecomax_cart_v1";
+const KEY = "lecomax_cart_v2";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -54,14 +54,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       items,
       count: items.reduce((s, i) => s + i.quantity, 0),
       total: items.reduce((s, i) => s + i.quantity * i.price, 0),
-      add: (p, size, qty = 1, color = "") =>
+      add: (p, size, qty = 1, color = "", image) =>
         setItems((prev) => {
           const idx = prev.findIndex(
             (i) => i.slug === p.slug && i.size === size && i.color === color
           );
           if (idx >= 0) {
             const next = [...prev];
-            next[idx] = { ...next[idx], quantity: next[idx].quantity + qty };
+            next[idx] = {
+              ...next[idx],
+              quantity: next[idx].quantity + qty,
+              image: image ?? next[idx].image,
+            };
             return next;
           }
           return [
@@ -69,7 +73,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             {
               slug: p.slug,
               name: p.name,
-              image: p.image,
+              image: image ?? p.image,
               price: p.price,
               size,
               color,
@@ -77,14 +81,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             },
           ];
         }),
-      remove: (slug, size) =>
+      remove: (slug, size, color) =>
         setItems((prev) =>
-          prev.filter((i) => !(i.slug === slug && i.size === size))
+          prev.filter((i) => !(i.slug === slug && i.size === size && i.color === color))
         ),
-      setQty: (slug, size, qty) =>
+      setQty: (slug, size, color, qty) =>
         setItems((prev) =>
           prev.map((i) =>
-            i.slug === slug && i.size === size
+            i.slug === slug && i.size === size && i.color === color
               ? { ...i, quantity: Math.max(1, qty) }
               : i
           )

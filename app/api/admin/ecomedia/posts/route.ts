@@ -1,0 +1,63 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { verifySessionToken } from "@/lib/admin-session";
+import { generateSlug } from "@/lib/ecomedia";
+
+const sb = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+async function auth(req: NextRequest): Promise<boolean> {
+  const token = req.cookies.get("admin_session")?.value;
+  if (!token) return false;
+  const email = await verifySessionToken(token);
+  return !!email;
+}
+
+// GET /api/admin/ecomedia/posts — list all posts (admin)
+export async function GET(req: NextRequest) {
+  if (!(await auth(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const limit = Math.min(parseInt(searchParams.get("limit") ?? "50"), 100);
+  const offset = parseInt(searchParams.get("offset") ?? "0");
+
+  const { data, error } = await sb
+    .from("ecomedia_posts")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data ?? []);
+}
+
+// POST /api/admin/ecomedia/posts — create post
+export async function POST(req: NextRequest) {
+  if (!(await auth(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  let body: Record<string, unknown>;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
+
+  const title = String(body.title ?? "").trim();
+  if (!title) return NextResponse.json({ error: "Le titre est requis" }, { status: 400 });
+
+  const payload = {
+    slug: body.slug ? String(body.slug).trim() : generateSlug(title),
+    title,
+    content: body.content ? String(body.content).trim() : null,
+    type: body.type ?? "text",
+    media_url: body.media_url || null,
+    thumbnail_url: body.thumbnail_url || null,
+    video_url: body.video_url || null,
+    product_url: body.product_url || null,
+    cta_text: body.cta_text || null,
+    is_published: Boolean(body.is_published),
+    is_featured: Boolean(body.is_featured),
+  };
+
+  const { data, error } = await sb.from("ecomedia_posts").insert(payload).select().single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data, { status: 201 });
+}

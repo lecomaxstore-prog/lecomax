@@ -300,13 +300,27 @@ export default function ProductAccordion({
 
       {/* Détails Du Produit */}
       <AccordionItem title="Détails Du Produit" defaultOpen={true}>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-2">
-          {features.map((f) => (
-            <div key={f} className="flex items-start gap-2 text-[13px] text-neutral-700">
-              <span className="flex-shrink-0 mt-[2px]">•</span>
-              {f}
-            </div>
-          ))}
+        <div className="space-y-0 divide-y divide-neutral-100 max-w-xl">
+          {features.map((f) => {
+            const colonIdx = f.indexOf(": ");
+            if (colonIdx > 0) {
+              // Key: Value format (from __detail: tags)
+              const key = f.slice(0, colonIdx);
+              const val = f.slice(colonIdx + 2);
+              return (
+                <div key={f} className="flex items-baseline gap-3 py-2.5 text-[13px]">
+                  <span className="w-32 shrink-0 font-semibold text-neutral-500 uppercase tracking-wide text-[11px]">{key}</span>
+                  <span className="text-neutral-800">{val}</span>
+                </div>
+              );
+            }
+            return (
+              <div key={f} className="flex items-start gap-2 py-2 text-[13px] text-neutral-700">
+                <span className="flex-shrink-0 mt-[2px]">•</span>
+                {f}
+              </div>
+            );
+          })}
         </div>
       </AccordionItem>
 

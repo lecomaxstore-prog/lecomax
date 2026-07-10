@@ -88,6 +88,23 @@ export default async function HomePage() {
     getHeroImages(),
     getReviewStats(),
   ]);
+
+  // Fetch latest Ecomedia post for homepage teaser
+  let latestPost: { id: string; title: string; content?: string; slug: string; media_url?: string; thumbnail_url?: string; likes_count: number; comments_count: number } | null = null;
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/ecomedia_posts?is_published=eq.true&order=created_at.desc&limit=1&select=id,title,content,slug,media_url,thumbnail_url,likes_count,comments_count`,
+      {
+        headers: {
+          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+        },
+        next: { revalidate: 60 },
+      }
+    );
+    if (res.ok) { const rows = await res.json(); latestPost = rows[0] ?? null; }
+  } catch { /* silent */ }
+
   const dbSlugs = new Set(dbProducts.map((p) => p.slug));
   const allProducts: CardProduct[] = [
     ...dbProducts,
@@ -309,6 +326,193 @@ export default async function HomePage() {
           />
           {/* Minimal overlay */}
           <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-500" />
+        </div>
+      </section>
+      </ScrollReveal>
+
+      {/* ── Ecomedia Community ─────────────────────────────────── */}
+      <ScrollReveal direction="up">
+      <section className="max-w-7xl mx-auto px-6 py-16">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-7 h-7 rounded-lg bg-black flex items-center justify-center">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2" strokeLinecap="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                </svg>
+              </div>
+              <p className="text-[10px] uppercase tracking-[0.4em] text-neutral-400 font-bold">Ecomedia</p>
+            </div>
+            <h2 className="h-display text-4xl md:text-[3rem] leading-[1.02]">
+              Notre<br/>communauté
+            </h2>
+          </div>
+          <Link
+            href="/ecomedia"
+            className="inline-flex items-center gap-2.5 bg-black text-white px-7 py-3.5 font-black uppercase text-[11px] tracking-[0.18em] hover:bg-neutral-800 active:scale-[0.97] transition-all self-start md:self-auto shrink-0"
+          >
+            Rejoindre
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </Link>
+        </div>
+
+        {/* Feature banner */}
+        <div className="relative overflow-hidden rounded-2xl bg-neutral-950 p-8 md:p-12">
+          {/* Glows */}
+          <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full blur-[120px] animate-ecomedia-glow" style={{ background: "#3ecf4c" }} />
+          <div className="pointer-events-none absolute -bottom-20 right-1/3 w-64 h-64 rounded-full blur-[100px] animate-ecomedia-glow delay-300" style={{ background: "#16b277" }} />
+
+          <div className={`relative grid gap-10 items-center ${latestPost ? "md:grid-cols-[1fr_300px]" : "md:grid-cols-[1fr_auto]"}`}>
+            <div className="flex flex-col gap-6">
+              {/* Label */}
+              <div className="flex items-center gap-3 animate-ecomedia-fade-up">
+                <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.35em] text-[#3ecf4c]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] animate-pulse" />
+                  Nouveau sur Ecomedia
+                </span>
+              </div>
+
+              {/* Headline */}
+              <div className="animate-ecomedia-fade-up delay-100">
+                <h3 className="h-display text-4xl md:text-[3rem] text-white leading-[1.02] tracking-tight mb-4">
+                  Actus, offres &amp;<br/>
+                  <span style={{ WebkitTextStroke: "1px rgba(255,255,255,0.25)", color: "transparent" }}>
+                    vidéos exclusives
+                  </span>
+                </h3>
+                <p className="text-neutral-400 text-[14px] leading-relaxed max-w-sm">
+                  Photos produits, offres flash, vidéos en avant-première et toute l&apos;actualité L&apos;ecomax — en un seul endroit.
+                </p>
+              </div>
+
+              {/* Stats row */}
+              <div className="flex items-center gap-6 animate-ecomedia-fade-up delay-200">
+                {[
+                  { icon: "❤️", label: "J'aime" },
+                  { icon: "💬", label: "Commentez" },
+                  { icon: "🔔", label: "Alertes" },
+                ].map(s => (
+                  <div key={s.label} className="flex items-center gap-2">
+                    <span className="text-base">{s.icon}</span>
+                    <span className="text-[11px] font-semibold text-neutral-400">{s.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <div className="animate-ecomedia-fade-up delay-300">
+                <Link
+                  href="/ecomedia"
+                  className="self-start inline-flex items-center gap-2.5 bg-[#3ecf4c] text-black font-black text-[11px] uppercase tracking-[0.2em] px-6 py-3.5 rounded-xl hover:bg-white active:scale-[0.97] transition-all group/btn"
+                >
+                  Explorer Ecomedia
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="group-hover/btn:translate-x-0.5 transition-transform"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </Link>
+              </div>
+            </div>
+
+            {/* Latest post card OR stats */}
+            {latestPost ? (
+              <Link href={`/ecomedia/${latestPost.slug}`} className="group shrink-0 block w-full animate-ecomedia-slide-in delay-400">
+                <div className="relative rounded-2xl overflow-hidden border border-white/10 group-hover:border-[#3ecf4c]/50 transition-all duration-500 animate-ecomedia-float">
+
+                  {/* Full-bleed image */}
+                  {(latestPost.thumbnail_url || latestPost.media_url) ? (
+                    <div className="relative w-full aspect-square overflow-hidden">
+                      <Image
+                        src={latestPost.thumbnail_url || latestPost.media_url!}
+                        alt={latestPost.title}
+                        fill
+                        className="object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out"
+                        sizes="(max-width: 768px) 100vw, 320px"
+                      />
+                      {/* Multi-layer dark overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+
+                      {/* Top header — avatar + username */}
+                      <div className="absolute top-0 left-0 right-0 px-4 pt-4 flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full border-2 border-[#3ecf4c] overflow-hidden shrink-0 bg-black">
+                          <img src="/images/lm-icon.svg" alt="L'ecomax" className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-[12px] font-black text-white drop-shadow-md">L&apos;ecomax</span>
+                        <span className="ml-auto flex items-center gap-1 bg-black/50 backdrop-blur-sm border border-white/10 rounded-full px-2 py-0.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] animate-pulse" />
+                          <span className="text-[9px] font-black text-white/80 uppercase tracking-widest">Live</span>
+                        </span>
+                      </div>
+
+                      {/* Bottom content overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 px-4 pb-4">
+                        <p className="text-white font-black text-[15px] leading-snug mb-2 drop-shadow-md line-clamp-2">
+                          {latestPost.title}
+                        </p>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 text-white/60 text-[11px]">
+                            <span className="flex items-center gap-1">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                              {latestPost.likes_count}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                              {latestPost.comments_count}
+                            </span>
+                          </div>
+                          <span className="ml-auto flex items-center gap-1.5 bg-[#3ecf4c] text-black text-[10px] font-black px-3 py-1.5 rounded-full group-hover:bg-white transition-colors">
+                            Voir le post
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    /* No image fallback */
+                    <div className="relative bg-white/[0.03] p-5">
+                      <div className="flex items-center gap-2.5 mb-3">
+                        <div className="w-7 h-7 rounded-full border-2 border-[#3ecf4c] overflow-hidden bg-black shrink-0">
+                          <img src="/images/lm-icon.svg" alt="L'ecomax" className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-[12px] font-black text-white">L&apos;ecomax</span>
+                      </div>
+                      <p className="text-white font-black text-[16px] leading-snug mb-2">{latestPost.title}</p>
+                      {latestPost.content && <p className="text-neutral-400 text-[12px] line-clamp-3 mb-4">{latestPost.content}</p>}
+                      <span className="inline-flex items-center gap-1.5 bg-[#3ecf4c] text-black text-[10px] font-black px-3 py-1.5 rounded-full">
+                        Voir le post <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ) : (
+              <div className="flex md:flex-col gap-6 md:gap-8 shrink-0">
+                {[
+                  { icon: "❤️", label: "J'aime", sub: "Réagissez" },
+                  { icon: "💬", label: "Commentaires", sub: "Discutez" },
+                  { icon: "↗️", label: "Partagez", sub: "Diffusez" },
+                ].map(s => (
+                  <div key={s.label} className="text-center">
+                    <div className="text-2xl mb-1">{s.icon}</div>
+                    <p className="text-white text-[11px] font-bold">{s.label}</p>
+                    <p className="text-neutral-500 text-[10px]">{s.sub}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom CTA row */}
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 px-1">
+          <p className="text-sm text-neutral-500">
+            Rejoignez la communauté L&apos;ecomax et ne ratez plus aucune actualité.
+          </p>
+          <Link
+            href="/ecomedia"
+            className="flex items-center gap-2 text-sm font-black text-black hover:text-[#16b277] transition-colors group"
+          >
+            Explorer Ecomedia
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="group-hover:translate-x-1 transition-transform"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </Link>
         </div>
       </section>
       </ScrollReveal>

@@ -36,6 +36,41 @@ body {
 @media (max-width: 767px)  { .so-desktop { display: none !important; } }
 @keyframes _spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+/* ── Ecomedia section animations ──────────────────────────────── */
+@keyframes ecomedia-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-8px) rotate(0.3deg); }
+  66%       { transform: translateY(-4px) rotate(-0.2deg); }
+}
+@keyframes ecomedia-glow-pulse {
+  0%, 100% { opacity: 0.08; transform: scale(1); }
+  50%       { opacity: 0.18; transform: scale(1.15); }
+}
+@keyframes ecomedia-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes ecomedia-btn-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes ecomedia-slide-in {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-ecomedia-float    { animation: ecomedia-float 6s ease-in-out infinite; }
+.animate-ecomedia-glow     { animation: ecomedia-glow-pulse 4s ease-in-out infinite; }
+.animate-ecomedia-fade-up  { animation: ecomedia-fade-up 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-ecomedia-slide-in { animation: ecomedia-slide-in 0.8s cubic-bezier(0.16,1,0.3,1) both; }
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+
+
 /* Mobile drawer stagger animations */
 @keyframes drawerFadeUp {
   from { opacity: 0; transform: translateY(18px); }
