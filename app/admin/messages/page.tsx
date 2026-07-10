@@ -23,6 +23,7 @@ type ChatMessage = {
   body: string;
   sent_by: "visitor" | "ai" | "agent";
   timestamp: string;
+  created_at?: string;
 };
 
 const STATUS_FILTERS = ["Tous", "Non lus", "Lus"] as const;
@@ -224,9 +225,49 @@ export default function MessagesPage() {
 
   const inboxUnread = inboxEmails.filter((e) => !e.read).length;
 
+  // ─── WhatsApp state ───────────────────────────────────────────────────────
+  type WaConversation = { id: string; name?: string; phone: string; status: "ai" | "escalated" | "resolved"; last_message?: string; last_at: string; unread_count: number };
+  const [waConvs, setWaConvs] = useState<WaConversation[]>([]);
+  const [waLoading, setWaLoading] = useState(false);
+  const [selectedConv, setSelectedConv] = useState<WaConversation | null>(null);
+  const [waStatusFilter, setWaStatusFilter] = useState<"all" | "ai" | "escalated" | "resolved">("all");
+  const filteredWaConvs = waConvs.filter(c => waStatusFilter === "all" || c.status === waStatusFilter);
+  type WaMessage = { id: string; direction: "in" | "out"; body: string; created_at: string; sent_by?: string; timestamp?: string };
+  const [waMessages, setWaMessages] = useState<WaMessage[]>([]);
+  const [waMessagesLoading, setWaMessagesLoading] = useState(false);
+  const [waReplyText, setWaReplyText] = useState("");
+  const [waSending, setWaSending] = useState(false);
+  const [waSent, setWaSent] = useState(false);
+  const waBottomRef = useRef<HTMLDivElement>(null);
+
+  async function loadWaConvs() {
+    setWaLoading(true);
+    try {
+      const res = await fetch("/api/whatsapp/conversations");
+      if (res.ok) setWaConvs(await res.json());
+    } catch { /* silent */ } finally { setWaLoading(false); }
+  }
+
+  async function sendWaReply() {
+    if (!selectedConv || !waReplyText.trim()) return;
+    setWaSending(true);
+    try {
+      await fetch(`/api/whatsapp/conversations/${selectedConv!.id}/reply`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: waReplyText }),
+      });
+      setWaMessages(prev => [...prev, { id: Date.now().toString(), direction: "out", body: waReplyText, created_at: new Date().toISOString() }]);
+      setWaReplyText(""); setWaSent(true);
+    } catch { /* silent */ } finally { setWaSending(false); }
+  }
+
+  async function updateConvStatus(id: string, status: WaConversation["status"]) {
+    await fetch(`/api/whatsapp/conversations/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
+    setWaConvs(prev => prev.map(c => c.id === id ? { ...c, status } : c));
+    if (selectedConv?.id === id) setSelectedConv(prev => prev ? { ...prev, status } : prev);
+  }
 
 
-  // ─── Live Chat state ─────────────────────────────────────────────────────
   const [lcSessions, setLcSessions] = useState<ChatSession[]>([]);
   const [lcLoading, setLcLoading] = useState(false);
   const [lcSelected, setLcSelected] = useState<ChatSession | null>(null);
@@ -434,7 +475,7 @@ export default function MessagesPage() {
     return <span className="bg-green-100 text-green-600 text-[9px] font-black px-1.5 py-0.5 rounded-full">IA</span>;
   }
 
-  function waStatusBadge(status: WaConversation["status"]) {
+  function waStatusBadge(status: "ai" | "escalated" | "resolved") {
     if (status === "escalated")
       return <span className="bg-orange-100 text-orange-600 text-[9px] font-black px-1.5 py-0.5 rounded-full">AGENT</span>;
     if (status === "resolved")
@@ -783,7 +824,7 @@ export default function MessagesPage() {
               <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
                 <div className="divide-y divide-neutral-50">
                   {filteredWaConvs.map((conv) => (
-                    <button key={conv.id} onClick={() => openConversation(conv)}
+                    <button key={conv.id} onClick={() => setSelectedConv(conv)}
                       className={`w-full text-left px-5 py-4 hover:bg-neutral-50 transition-colors ${selectedConv?.id === conv.id ? "bg-neutral-50" : ""}`}>
                       <div className="flex items-center gap-3">
                         {/* Avatar */}
@@ -831,14 +872,14 @@ export default function MessagesPage() {
                 <div className="flex items-center gap-3 px-4 py-3 border-b border-neutral-100 bg-neutral-50">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
                     style={{ backgroundColor: "#25D366" }}>
-                    {(selectedConv.name || selectedConv.phone).charAt(0).toUpperCase()}
+                    {(selectedConv!.name || selectedConv!.phone).charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold truncate">{selectedConv.name || selectedConv.phone}</p>
-                    <p className="text-[10px] text-neutral-400">+{selectedConv.phone}</p>
+                    <p className="text-sm font-bold truncate">{selectedConv!.name || selectedConv!.phone}</p>
+                    <p className="text-[10px] text-neutral-400">+{selectedConv!.phone}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {waStatusBadge(selectedConv.status)}
+                    {waStatusBadge(selectedConv!.status)}
                     <button onClick={() => setSelectedConv(null)} className="text-neutral-300 hover:text-black transition-colors">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
@@ -847,20 +888,20 @@ export default function MessagesPage() {
 
                 {/* Status actions */}
                 <div className="flex gap-1.5 px-4 py-2 border-b border-neutral-100 bg-neutral-50">
-                  {selectedConv.status !== "ai" && (
-                    <button onClick={() => updateConvStatus(selectedConv.id, "ai")}
+                  {selectedConv!.status !== "ai" && (
+                    <button onClick={() => updateConvStatus(selectedConv!.id, "ai")}
                       className="flex-1 text-[10px] font-bold py-1.5 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors">
                       🤖 Remettre à l&apos;IA
                     </button>
                   )}
-                  {selectedConv.status !== "escalated" && (
-                    <button onClick={() => updateConvStatus(selectedConv.id, "escalated")}
+                  {selectedConv!.status !== "escalated" && (
+                    <button onClick={() => updateConvStatus(selectedConv!.id, "escalated")}
                       className="flex-1 text-[10px] font-bold py-1.5 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors">
                       👤 Prendre en charge
                     </button>
                   )}
-                  {selectedConv.status !== "resolved" && (
-                    <button onClick={() => updateConvStatus(selectedConv.id, "resolved")}
+                  {selectedConv!.status !== "resolved" && (
+                    <button onClick={() => updateConvStatus(selectedConv!.id, "resolved")}
                       className="flex-1 text-[10px] font-bold py-1.5 rounded-lg bg-neutral-100 text-neutral-500 hover:bg-neutral-200 transition-colors">
                       ✓ Résoudre
                     </button>
@@ -891,18 +932,18 @@ export default function MessagesPage() {
                               </p>
                             )}
                             <p className="whitespace-pre-wrap">{msg.body}</p>
-                            <p className="text-[9px] opacity-60 mt-1 text-right">{formatWaTime(msg.timestamp)}</p>
+                            <p className="text-[9px] opacity-60 mt-1 text-right">{formatWaTime(msg.timestamp ?? msg.created_at)}</p>
                           </div>
                         </div>
                       );
                     })
                   )}
-                  <div ref={waChatBottomRef} />
+                  <div ref={waBottomRef} />
                 </div>
 
                 {/* Reply box */}
                 <div className="border-t border-neutral-100 p-3">
-                  {selectedConv.status === "ai" && (
+                  {selectedConv!.status === "ai" && (
                     <div className="flex items-center gap-1.5 mb-2 bg-green-50 rounded-xl px-3 py-2">
                       <svg width="10" height="10" viewBox="0 0 48 48" fill="#25D366">
                         <path d="M24 4C13 4 4 13 4 24c0 3.6 1 7 2.7 10L4 44l10.3-2.7C17.1 43 20.5 44 24 44c11 0 20-9 20-20S35 4 24 4z"/>
@@ -918,14 +959,14 @@ export default function MessagesPage() {
                       value={waReplyText}
                       onChange={(e) => { setWaReplyText(e.target.value); setWaSent(false); }}
                       onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendWaReply(); } }}
-                      placeholder={selectedConv.status === "ai" ? "Prenez en charge pour répondre…" : "Répondre… (Entrée pour envoyer)"}
+                      placeholder={selectedConv!.status === "ai" ? "Prenez en charge pour répondre…" : "Répondre… (Entrée pour envoyer)"}
                       rows={2}
-                      disabled={selectedConv.status === "ai"}
+                      disabled={selectedConv!.status === "ai"}
                       className="flex-1 border border-neutral-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-black resize-none disabled:opacity-40 disabled:bg-neutral-50"
                     />
                     <button
                       onClick={sendWaReply}
-                      disabled={waSending || !waReplyText.trim() || selectedConv.status === "ai"}
+                      disabled={waSending || !waReplyText.trim() || selectedConv!.status === "ai"}
                       className="self-end p-2.5 rounded-xl text-white transition-colors disabled:opacity-40"
                       style={{ backgroundColor: "#25D366" }}
                     >
@@ -1120,7 +1161,7 @@ export default function MessagesPage() {
                               </p>
                             )}
                             <p className="whitespace-pre-wrap">{msg.body}</p>
-                            <p className="text-[9px] opacity-60 mt-1 text-right">{formatWaTime(msg.timestamp)}</p>
+                            <p className="text-[9px] opacity-60 mt-1 text-right">{formatWaTime(msg.timestamp ?? msg.created_at)}</p>
                           </div>
                         </div>
                       );
