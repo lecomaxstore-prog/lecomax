@@ -21,8 +21,10 @@ export default function EcomediaManagerPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [images, setImages] = useState<string[]>([]);
 
   // Comments management
   const [comments, setComments] = useState<EcomediaComment[]>([]);
@@ -63,6 +65,7 @@ export default function EcomediaManagerPage() {
       is_published: post.is_published, is_featured: post.is_featured,
       slug: post.slug,
     });
+    setImages(post.images ?? (post.media_url ? [post.media_url] : []));
     setTab("new");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -70,24 +73,32 @@ export default function EcomediaManagerPage() {
   function resetForm() {
     setEditId(null);
     setForm({ ...EMPTY_FORM });
+    setImages([]);
     setMsg(null);
   }
 
-  async function uploadFile(file: File) {
+  async function uploadFile(file: File, idx?: number) {
+    if (images.length >= 5 && idx === undefined) { setMsg({ type: "err", text: "Maximum 5 images" }); return; }
     setUploading(true);
+    if (idx !== undefined) setUploadingIdx(idx);
     const fd = new FormData();
     fd.append("file", file);
     try {
       const res = await fetch("/api/ecomedia/upload", { method: "POST", body: fd });
       const data = await res.json();
       if (data.url) {
+        if (idx !== undefined) {
+          setImages(prev => { const next = [...prev]; next[idx] = data.url; return next; });
+        } else {
+          setImages(prev => [...prev, data.url]);
+        }
         setForm(f => ({ ...f, media_url: data.url }));
-        setMsg({ type: "ok", text: "Fichier uploadé ✓" });
+        setMsg({ type: "ok", text: "Image uploadée ✓" });
       } else {
         setMsg({ type: "err", text: data.error ?? "Erreur upload" });
       }
     } catch { setMsg({ type: "err", text: "Erreur réseau" }); }
-    finally { setUploading(false); }
+    finally { setUploading(false); setUploadingIdx(null); }
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -95,9 +106,10 @@ export default function EcomediaManagerPage() {
     if (!form.title.trim()) { setMsg({ type: "err", text: "Le titre est requis" }); return; }
     setSaving(true); setMsg(null);
     try {
+      const body = { ...form, media_url: images[0] ?? form.media_url, images: images.length > 0 ? images : undefined };
       const url = editId ? `/api/admin/ecomedia/posts/${editId}` : "/api/admin/ecomedia/posts";
       const method = editId ? "PUT" : "POST";
-      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const data = await res.json();
       if (!res.ok) { setMsg({ type: "err", text: data.error ?? "Erreur" }); return; }
       setMsg({ type: "ok", text: editId ? "Post mis à jour ✓" : "Post créé ✓" });
@@ -381,49 +393,79 @@ export default function EcomediaManagerPage() {
               {(form.type !== "text") && (
                 <div className="bg-white border border-neutral-100 rounded-2xl p-5 space-y-4">
                   <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Média</h3>
-                  {/* Upload */}
+                  {/* Multi-image Upload — max 5 */}
                   {["image", "video_upload", "product", "promotion"].includes(form.type) && (
                     <div>
-                      <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">
-                        {form.type === "video_upload" ? "Uploader une vidéo (MP4, max 100MB)" : "Uploader une image (JPG/PNG/WEBP)"}
-                      </label>
-                      <input ref={fileRef} type="file" accept={form.type === "video_upload" ? "video/*" : "image/*"} className="hidden"
-                        onChange={e => { if (e.target.files?.[0]) uploadFile(e.target.files[0]); }} />
-                      <div
-                        onClick={() => !uploading && fileRef.current?.click()}
-                        className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${uploading ? "opacity-60 pointer-events-none" : "border-neutral-200 hover:border-neutral-400"}`}>
-                        {uploading ? (
-                          <div className="flex flex-col items-center gap-2">
-                            <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                            <p className="text-xs text-neutral-500">Upload en cours…</p>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider">
+                          {form.type === "video_upload" ? "Vidéo (MP4)" : "Images (max 5)"}
+                        </label>
+                        <span className="text-[11px] text-neutral-400 font-semibold">{images.length}/5</span>
+                      </div>
+
+                      {/* Images grid */}
+                      <div className="grid grid-cols-5 gap-2 mb-3">
+                        {/* Uploaded images */}
+                        {images.map((url, i) => (
+                          <div key={i} className="relative group aspect-square rounded-xl overflow-hidden border border-neutral-200 bg-neutral-50">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={url} alt="" className="w-full h-full object-cover" />
+                            {i === 0 && (
+                              <div className="absolute top-1 left-1 bg-black/70 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">
+                                Principal
+                              </div>
+                            )}
+                            {uploadingIdx === i && (
+                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setImages(prev => prev.filter((_, j) => j !== i))}
+                              className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                            </button>
                           </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-400"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            <p className="text-xs font-semibold text-neutral-600">Cliquer pour uploader</p>
-                          </div>
+                        ))}
+
+                        {/* Add slot — show if < 5 images */}
+                        {images.length < 5 && (
+                          <button
+                            type="button"
+                            disabled={uploading}
+                            onClick={() => { if (!uploading) fileRef.current?.click(); }}
+                            className="aspect-square rounded-xl border-2 border-dashed border-neutral-200 hover:border-[#3ecf4c] hover:bg-green-50 transition-all flex flex-col items-center justify-center gap-1 disabled:opacity-50">
+                            {uploading && uploadingIdx === null ? (
+                              <div className="w-4 h-4 border-2 border-neutral-400 border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-400"><path d="M12 5v14M5 12h14"/></svg>
+                                <span className="text-[9px] text-neutral-400 font-bold">Ajouter</span>
+                              </>
+                            )}
+                          </button>
                         )}
                       </div>
-                      {form.media_url && (
-                        <div className="mt-2 flex items-center gap-2">
-                          {form.type !== "video_upload" ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={form.media_url} alt="" className="w-16 h-16 object-cover rounded-lg border border-neutral-200" />
-                          ) : (
-                            <div className="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center">
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9333ea" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs text-green-600 font-semibold">✓ Uploadé</p>
-                            <p className="text-[10px] text-neutral-400 truncate">{form.media_url}</p>
-                          </div>
-                          <button type="button" onClick={() => setForm(f => ({ ...f, media_url: "" }))} className="text-neutral-400 hover:text-red-500 transition-colors">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                          </button>
-                        </div>
-                      )}
-                      <p className="text-[10px] text-neutral-400 mt-1">Ou collez une URL ci-dessous</p>
+
+                      <input
+                        ref={fileRef}
+                        type="file"
+                        accept={form.type === "video_upload" ? "video/*" : "image/*"}
+                        multiple
+                        className="hidden"
+                        onChange={e => {
+                          const files = Array.from(e.target.files ?? []);
+                          const remaining = 5 - images.length;
+                          files.slice(0, remaining).forEach(file => uploadFile(file));
+                          e.target.value = "";
+                        }}
+                      />
+
+                      <p className="text-[10px] text-neutral-400">
+                        {images.length === 0 ? "Cliquez sur + pour ajouter jusqu'à 5 images" : "La 1ère image est l'image principale du post"}
+                      </p>
+                      <p className="text-[10px] text-neutral-400 mt-0.5">Ou collez une URL ci-dessous</p>
                     </div>
                   )}
                   {/* URL Field */}
@@ -436,9 +478,26 @@ export default function EcomediaManagerPage() {
                         placeholder="https://youtube.com/watch?v=..."
                         className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
                     ) : (
-                      <input value={form.media_url} onChange={e => setForm(f => ({ ...f, media_url: e.target.value }))}
-                        placeholder="https://…"
-                        className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+                      <div className="flex gap-2">
+                        <input value={form.media_url} onChange={e => setForm(f => ({ ...f, media_url: e.target.value }))}
+                          placeholder="https://… (coller URL puis Entrée pour ajouter)"
+                          className="flex-1 border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all"
+                          onKeyDown={e => {
+                            if (e.key === "Enter" && form.media_url.trim() && images.length < 5) {
+                              e.preventDefault();
+                              setImages(prev => [...prev, form.media_url.trim()]);
+                              setForm(f => ({ ...f, media_url: "" }));
+                            }
+                          }}
+                        />
+                        {form.media_url.trim() && images.length < 5 && (
+                          <button type="button"
+                            onClick={() => { setImages(prev => [...prev, form.media_url.trim()]); setForm(f => ({ ...f, media_url: "" })); }}
+                            className="px-3 py-2 bg-[#3ecf4c] text-black text-xs font-black rounded-xl hover:bg-[#34b841] transition-colors whitespace-nowrap">
+                            Ajouter
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>

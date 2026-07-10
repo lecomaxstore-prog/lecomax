@@ -16,6 +16,7 @@ export interface EcomediaPost {
   type: PostType;
   media_url: string | null;
   thumbnail_url: string | null;
+  images: string[] | null;
   video_url: string | null;
   product_url: string | null;
   cta_text: string | null;
