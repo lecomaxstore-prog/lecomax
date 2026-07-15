@@ -18,6 +18,7 @@ import BackToTop from "@/components/BackToTop";
 import AdsDisplay from "@/components/AdsDisplay";
 import PushPrompt from "@/components/PushPrompt";
 import ChatWidget from "@/components/ChatWidget";
+import { createClient } from "@supabase/supabase-js";
 
 
 const inter = Inter({
@@ -35,7 +36,7 @@ const sora = Sora({
 
 const SITE_URL = "https://lecomax.com";
 
-export const metadata: Metadata = {
+const defaultMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   manifest: "/manifest.json",
   title: {
@@ -125,6 +126,47 @@ export const metadata: Metadata = {
     "theme-color": "#3ecf4c",
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const { data } = await supabase.from("settings").select("key,value").in("key", [
+      "store_name", "seo_title", "seo_description", "favicon_image", "og_image",
+    ]);
+    const settings = Object.fromEntries((data ?? []).map((row) => [row.key, String(row.value ?? "")]));
+    const storeName = settings.store_name || "L'ecomax";
+    const seoTitle = settings.seo_title?.trim();
+    const seoDescription = settings.seo_description?.trim();
+    const favicon = settings.favicon_image?.trim();
+    const ogImage = settings.og_image?.trim();
+
+    return {
+      ...defaultMetadata,
+      applicationName: storeName,
+      title: seoTitle ? { default: seoTitle, template: `%s · ${storeName}` } : defaultMetadata.title,
+      description: seoDescription || defaultMetadata.description,
+      icons: favicon ? { icon: favicon, shortcut: favicon, apple: favicon } : defaultMetadata.icons,
+      openGraph: {
+        ...defaultMetadata.openGraph,
+        siteName: storeName,
+        title: seoTitle || defaultMetadata.openGraph?.title,
+        description: seoDescription || defaultMetadata.openGraph?.description,
+        images: ogImage ? [{ url: ogImage, alt: storeName }] : defaultMetadata.openGraph?.images,
+      },
+      twitter: {
+        ...defaultMetadata.twitter,
+        title: seoTitle || defaultMetadata.twitter?.title,
+        description: seoDescription || defaultMetadata.twitter?.description,
+        images: ogImage ? [ogImage] : defaultMetadata.twitter?.images,
+      },
+    };
+  } catch {
+    return defaultMetadata;
+  }
+}
 
 export default function RootLayout({
   children,

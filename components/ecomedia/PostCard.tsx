@@ -8,12 +8,19 @@ import EcomediaAuthPrompt from "./EcomediaAuthPrompt";
 import Image from "next/image";
 import Link from "next/link";
 
+let adminAccessPromise: Promise<boolean> | null = null;
+function hasAdminAccess() {
+  if (!adminAccessPromise) adminAccessPromise = fetch("/api/admin/auth/verify/", { credentials: "same-origin" }).then(response => response.ok).catch(() => false);
+  return adminAccessPromise;
+}
+
 interface PostCardProps {
   post: EcomediaPost;
   priority?: boolean;
+  onDeleted?: (postId: string) => void;
 }
 
-export default function PostCard({ post, priority = false }: PostCardProps) {
+export default function PostCard({ post, priority = false, onDeleted }: PostCardProps) {
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes_count);
   const [likeLoading, setLikeLoading] = useState(false);
@@ -25,17 +32,20 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const [saved, setSaved] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Auth state
   const [user, setUser] = useState<{ id: string; email?: string; name?: string } | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [authPromptAction, setAuthPromptAction] = useState<"like" | "comment" | "reply" | "save">("like");
 
   // Load Supabase auth
   useEffect(() => {
+    hasAdminAccess().then(setIsAdmin);
     supabase.auth.getUser().then(({ data: { user: u } }) => {
       if (u) setUser({ id: u.id, email: u.email, name: u.user_metadata?.name ?? u.user_metadata?.full_name ?? u.email?.split("@")[0] });
       setAuthChecked(true);
@@ -130,6 +140,28 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
     try { await navigator.clipboard.writeText(url); showToast("Lien copié !"); } catch { showToast("Copie non disponible"); }
   }
 
+  async function handleDeletePost() {
+    if (deleteLoading || !confirm("Supprimer définitivement cette publication ?")) return;
+    setDeleteLoading(true);
+    setMenuOpen(false);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(`/api/ecomedia/posts/${encodeURIComponent(post.slug)}`, {
+        method: "DELETE",
+        headers: session ? { Authorization: `Bearer ${session.access_token}` } : undefined,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Suppression impossible.");
+      if (onDeleted) onDeleted(post.id);
+      else window.location.assign("/ecomedia/");
+      showToast("Publication supprimée.");
+    } catch (reason) {
+      showToast(reason instanceof Error ? reason.message : "Suppression impossible.");
+    } finally {
+      setDeleteLoading(false);
+    }
+  }
+
   function showToast(msg: string) {
     const t = document.createElement("div");
     t.className = "fixed bottom-20 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-4 py-2.5 rounded-full z-50 shadow-lg";
@@ -141,6 +173,7 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
   const youtubeId = post.video_url ? extractYouTubeId(post.video_url) : null;
   const tiktokId = post.video_url ? extractTikTokId(post.video_url) : null;
   const [captionExpanded, setCaptionExpanded] = useState(false);
+  const canDelete = isAdmin || Boolean(user && post.author_id === user.id);
 
   // Double-tap to like
   const lastTap = useRef(0);
@@ -215,13 +248,21 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
 
                 <div className="h-px bg-neutral-100 mx-3" />
 
-                <button onClick={() => { setMenuOpen(false); alert('Signalement envoyé. Merci de nous aider à garder une communauté saine. 🙏'); }}
+                {canDelete && <button onClick={handleDeletePost} disabled={deleteLoading}
+                  className="flex w-full items-center gap-3 px-4 py-3.5 text-[13px] font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-red-50">
+                    {deleteLoading ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-red-200 border-t-red-600" /> : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3"><path d="M3 6h18M8 6V4h8v2m3 0-1 15H6L5 6m5 4v7m4-7v7" /></svg>}
+                  </div>
+                  Supprimer ce post
+                </button>}
+
+                {!canDelete && <button onClick={() => { setMenuOpen(false); alert('Signalement envoyé. Merci de nous aider à garder une communauté saine. 🙏'); }}
                   className="flex items-center gap-3 w-full px-4 py-3.5 text-[13px] font-semibold text-red-500 hover:bg-red-50 transition-colors">
                   <div className="w-7 h-7 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                   </div>
                   Signaler ce post
-                </button>
+                </button>}
 
                 <button onClick={() => setMenuOpen(false)}
                   className="flex items-center justify-center w-full px-4 py-3 text-[13px] font-black text-neutral-500 hover:bg-neutral-50 border-t border-neutral-100 transition-colors">
@@ -427,7 +468,7 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
           user={user}
           onClose={() => setShowComments(false)}
           onCommentAdded={() => setCommentsCount(c => c + 1)}
-          onRequireAuth={action => { setShowComments(false); setAuthPromptAction(action); setShowAuthPrompt(true); }}
+          onRequireAuth={action => { setAuthPromptAction(action); setShowAuthPrompt(true); }}
         />
       )}
     </>

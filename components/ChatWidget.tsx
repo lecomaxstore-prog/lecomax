@@ -492,12 +492,17 @@ export default function ChatWidget() {
       {/* Floating button */}
       <div className={`fixed bottom-16 z-50 ${open ? "hidden" : ""}`} style={{ right: "-16px" }}>
         <div className="relative inline-block">
-          <button onClick={handleOpen} aria-label="Ouvrir le chat"
-            className="relative w-36 h-36 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
+          <div role="status" aria-live="polite" className="chat-help-bubble pointer-events-none absolute right-[125px] top-9 z-10 whitespace-nowrap rounded-2xl border border-black/10 bg-white px-4 py-2.5 text-sm font-black text-neutral-950 shadow-[0_12px_35px_rgba(0,0,0,.16)]">
+            Besoin d’aide&nbsp;?
+            <span aria-hidden="true" className="absolute -right-2 top-1/2 h-4 w-4 -translate-y-1/2 rotate-45 border-r border-t border-black/10 bg-white" />
+          </div>
+          <span aria-hidden="true" className="chat-bot-ring pointer-events-none absolute left-1/2 top-1/2 h-[78px] w-[78px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#3ecf4c]/60" />
+          <button onClick={handleOpen} aria-label="Besoin d’aide ? Ouvrir le chat"
+            className="chat-bot-button relative w-36 h-36 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#3ecf4c]/40 focus-visible:ring-offset-2"
             style={{ background: "transparent" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/chatbot logo.png?v=2" alt="Chat" width={144} height={144}
-              className="w-36 h-36 object-contain" style={{ mixBlendMode: "multiply" }} />
+              className="chat-bot-logo w-36 h-36 object-contain" style={{ mixBlendMode: "multiply" }} />
           </button>
           {unread > 0 && (
             <span className="absolute min-w-[24px] h-[24px] bg-red-500 text-white text-[12px] font-black rounded-full flex items-center justify-center px-1.5 shadow-lg pointer-events-none"
@@ -512,6 +517,31 @@ export default function ChatWidget() {
           <style>{`
             @keyframes badgePop { 0%{transform:scale(0);opacity:0;} 60%{transform:scale(1.3);opacity:1;} 100%{transform:scale(1);opacity:1;} }
             @keyframes badgePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7);} 50%{box-shadow:0 0 0 8px rgba(239,68,68,0);} }
+            @keyframes chatBotAttention {
+              0%,1%,12%,100% { transform:translateY(0) rotate(0deg); }
+              3% { transform:translateY(-7px) rotate(-3deg); }
+              5% { transform:translateY(-7px) rotate(3deg); }
+              7% { transform:translateY(-4px) rotate(-2deg); }
+              10% { transform:translateY(0) rotate(0deg); }
+            }
+            @keyframes chatBotRing {
+              0%,1% { transform:translate(-50%,-50%) scale(.72); opacity:0; }
+              3% { opacity:.65; }
+              10% { transform:translate(-50%,-50%) scale(1.45); opacity:0; }
+              11%,100% { transform:translate(-50%,-50%) scale(.72); opacity:0; }
+            }
+            @keyframes chatHelpBubble {
+              0%,1%,15%,100% { opacity:0; transform:translateX(10px) scale(.9); }
+              3%,11% { opacity:1; transform:translateX(0) scale(1); }
+              14% { opacity:0; transform:translateX(5px) scale(.96); }
+            }
+            .chat-bot-logo { animation:chatBotAttention 30s cubic-bezier(.22,1,.36,1) infinite; transform-origin:50% 70%; }
+            .chat-bot-ring { animation:chatBotRing 30s ease-out infinite; }
+            .chat-help-bubble { animation:chatHelpBubble 30s cubic-bezier(.22,1,.36,1) infinite; transform-origin:100% 50%; }
+            @media (prefers-reduced-motion: reduce) {
+              .chat-bot-logo, .chat-bot-ring, .chat-help-bubble { animation:none !important; }
+              .chat-help-bubble, .chat-bot-ring { display:none; }
+            }
           `}</style>
         </div>
       </div>
@@ -750,14 +780,16 @@ export default function ChatWidget() {
               </div>
             )}
 
-            {messages.map((m) => {
+            {messages.map((m, messageIndex) => {
               // System message: agent joined
               if (m.body === "__AGENT_JOINED__" && m.direction === "out") {
+                if (messages[messageIndex - 1]?.body === "__AGENT_JOINED__") return null;
                 return (
-                  <div key={m.id} className="chat-msg flex justify-center py-1">
-                    <span className="text-[10px] text-neutral-400 bg-neutral-100 px-3 py-1 rounded-full">
-                      👤 Un agent a rejoint la conversation
-                    </span>
+                  <div key={m.id} className="chat-msg flex justify-center py-2">
+                    <div className="flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 shadow-sm">
+                      <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60"/><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"/></span>
+                      <span className="text-[10px] font-bold text-emerald-800">Zakaria a rejoint la conversation</span>
+                    </div>
                   </div>
                 );
               }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { ratingFor } from "@/components/ProductCard";
+import { useSettings } from "@/lib/use-settings";
 
 type Review = {
   id: string;
@@ -38,6 +39,7 @@ function formatDate(iso: string) {
 }
 
 export default function ReviewSection({ productSlug }: { productSlug: string }) {
+  const siteSettings = useSettings();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -188,6 +190,8 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
         .then((d) => setReviews(d.reviews ?? []));
     }
   };
+
+  if (siteSettings.enable_reviews === "false") return null;
 
   return (
     <section className="mt-16 border-t border-neutral-100 pt-12">

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getProduct } from "@/lib/products";
+import { broadcastAdminPushNotification } from "@/lib/push-notifications";
 
 // Use service role for admin operations; anon for public reads is fine but service role covers all
 const supabase = createClient(
@@ -48,6 +49,15 @@ export async function GET(req: NextRequest) {
 
 // POST /api/reviews
 export async function POST(req: NextRequest) {
+  const { data: featureSetting } = await supabase
+    .from("settings")
+    .select("value")
+    .eq("key", "enable_reviews")
+    .maybeSingle();
+  if (featureSetting?.value === "false") {
+    return NextResponse.json({ error: "Les avis sont temporairement désactivés." }, { status: 403 });
+  }
+
   const body = await req.json();
   const { product_slug, email, author_name, city, rating, title, review_body, color, image_url } = body;
 
@@ -142,6 +152,14 @@ export async function POST(req: NextRequest) {
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
+
+  await broadcastAdminPushNotification({
+    eventKey: `review:${product_slug}:${normalizedEmail}`,
+    title: `Nouvel avis client · ${Number(rating)}/5`,
+    body: `${author_name.trim()} — ${review_body.trim().replace(/\s+/g, " ").slice(0, 120)}`,
+    url: "/admin/reviews/",
+    tag: `admin-review-${product_slug}`,
+  }).catch((error) => console.error("Admin review push failed:", error));
 
   return NextResponse.json({ success: true });
 }

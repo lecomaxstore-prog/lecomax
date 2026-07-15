@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "moduleCount": 40,
-  "lessonCount": 160,
+  "moduleCount": 48,
+  "lessonCount": 192,
   "modules": [
     {
       "id": "module-00-learning-tools",
@@ -481,6 +481,102 @@
         "inventory-suppliers",
         "legal-trust-checklist",
         "growth-90-day-capstone"
+      ]
+    },
+    {
+      "id": "beginner-code-labs",
+      "order": 40,
+      "icon": "code",
+      "color": "#10b981",
+      "lessonIds": [
+        "read-code-symbols",
+        "variables-conditions",
+        "functions-arrays",
+        "debug-first-errors"
+      ]
+    },
+    {
+      "id": "next-routing-lab",
+      "order": 41,
+      "icon": "link",
+      "color": "#2563eb",
+      "lessonIds": [
+        "page-route-link",
+        "dynamic-product-route",
+        "shared-layout-metadata",
+        "loading-error-navigation"
+      ]
+    },
+    {
+      "id": "supabase-build-lab",
+      "order": 42,
+      "icon": "database",
+      "color": "#3ecf8e",
+      "lessonIds": [
+        "supabase-project-schema",
+        "supabase-client-crud",
+        "supabase-auth-rls",
+        "supabase-lab-storage-realtime"
+      ]
+    },
+    {
+      "id": "ui-build-lab",
+      "order": 43,
+      "icon": "layout",
+      "color": "#f43f5e",
+      "lessonIds": [
+        "wireframe-to-html",
+        "color-type-spacing-code",
+        "responsive-grid-product",
+        "ui-states-polish"
+      ]
+    },
+    {
+      "id": "china-sourcing",
+      "order": 44,
+      "icon": "package",
+      "color": "#dc2626",
+      "lessonIds": [
+        "sourcing-product-spec",
+        "find-verify-suppliers",
+        "rfq-samples-negotiation",
+        "safe-order-contract-payment"
+      ]
+    },
+    {
+      "id": "import-quality-logistics",
+      "order": 45,
+      "icon": "ship",
+      "color": "#0f766e",
+      "lessonIds": [
+        "compliance-before-order",
+        "incoterms-freight",
+        "quality-inspection-aql",
+        "customs-landed-cost-risk"
+      ]
+    },
+    {
+      "id": "seo-client-action-lab",
+      "order": 46,
+      "icon": "target",
+      "color": "#7c3aed",
+      "lessonIds": [
+        "search-console-baseline",
+        "rank-product-categories",
+        "client-acquisition-sprints",
+        "weekly-growth-review"
+      ]
+    },
+    {
+      "id": "zero-to-hero-capstone",
+      "order": 47,
+      "icon": "rocket",
+      "color": "#111827",
+      "lessonIds": [
+        "capstone-week-1-foundation",
+        "capstone-week-4-product",
+        "capstone-week-7-launch",
+        "capstone-week-10-grow"
       ]
     }
   ]

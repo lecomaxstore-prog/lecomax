@@ -11,10 +11,33 @@ import {
 } from "@/lib/products";
 import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import CategoryFilters from "@/components/CategoryFilters";
+import { sanitizePageHtml } from "@/lib/site-pages";
 
 const valid = new Set(categories.map((c) => c.slug));
 
 const SITE_URL = "https://lecomax.com";
+
+type DbCategory = {
+  slug: string; label: string; description: string | null; image: string | null;
+  image_mobile?: string | null; image_position?: string | null; image_mobile_position?: string | null;
+};
+
+async function getDbCategory(slug: string): Promise<DbCategory | null> {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const [{ data }, { data: mediaRow }] = await Promise.all([
+      supabase.from("categories").select("slug,name,description,image").eq("slug", slug).eq("active", true).maybeSingle(),
+      supabase.from("settings").select("value").eq("key", `category_media:${slug}`).maybeSingle(),
+    ]);
+    if (!data) return null;
+    let media = {};
+    try { media = mediaRow?.value ? JSON.parse(mediaRow.value) : {}; } catch { /* ignore */ }
+    return { ...data, label: data.name, ...media } as DbCategory;
+  } catch { return null; }
+}
 
 const categoryMeta: Record<string, { title: string; description: string; keywords: string[] }> = {
   homme: {
@@ -64,8 +87,20 @@ export async function generateMetadata({
   params: Promise<{ category: string }>;
 }): Promise<Metadata> {
   const { category } = await params;
-  const cat = categories.find((c) => c.slug === category);
-  if (!cat) return {};
+  const staticCategory = categories.find((c) => c.slug === category);
+  const dbCategory = await getDbCategory(category);
+  const cat = dbCategory ? { label: dbCategory.label, description: dbCategory.description || staticCategory?.description || "", hero: dbCategory.image || staticCategory?.hero || "" } : staticCategory;
+  if (!cat) {
+    const supa = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const { data: page } = await supa.from("pages").select("title,slug,meta_title,meta_description").eq("slug", category).eq("active", true).maybeSingle();
+    if (!page) return {};
+    const title = page.meta_title || page.title;
+    const description = page.meta_description || `Découvrez ${page.title} sur L'ecomax.`;
+    return { title, description, alternates: { canonical: `${SITE_URL}/${page.slug}/` }, openGraph: { type: "website", locale: "fr_MA", url: `${SITE_URL}/${page.slug}/`, title, description } };
+  }
   const meta = categoryMeta[category] ?? {
     title: `${cat.label} | L'ecomax`,
     description: cat.description,
@@ -82,7 +117,7 @@ export async function generateMetadata({
       url: `${SITE_URL}/${category}/`,
       title: meta.title,
       description: meta.description,
-      images: [{ url: `${SITE_URL}${cat.hero}`, width: 1200, height: 630, alt: cat.label }],
+      images: [{ url: cat.hero.startsWith("http") ? cat.hero : `${SITE_URL}${cat.hero}`, width: 1200, height: 630, alt: cat.label }],
     },
     twitter: {
       card: "summary_large_image",
@@ -104,9 +139,11 @@ export default async function CategoryPage({
   params: Promise<{ category: string }>;
 }) {
   const { category } = await params;
+  const staticCategory = categories.find((item) => item.slug === category);
+  const dbCategory = await getDbCategory(category);
 
   // Check if it's a custom CMS page first
-  if (!valid.has(category as never)) {
+  if (!valid.has(category as never) && !dbCategory) {
     const supa = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -116,7 +153,15 @@ export default async function CategoryPage({
     notFound();
   }
 
-  const cat = categories.find((c) => c.slug === category)!;
+  const cat = {
+    slug: category,
+    label: dbCategory?.label || staticCategory?.label || category,
+    description: dbCategory?.description || staticCategory?.description || "",
+    hero: dbCategory?.image || staticCategory?.hero || "/images/pages images/homme.png",
+    heroMobile: dbCategory?.image_mobile || dbCategory?.image || staticCategory?.hero || "/images/pages images/homme.png",
+    imagePosition: dbCategory?.image_position || (category === "chaussures" ? "50% 65%" : "50% 20%"),
+    imageMobilePosition: dbCategory?.image_mobile_position || dbCategory?.image_position || "50% 50%",
+  };
 
   // Fetch DB products + static products, deduplicated by slug
   const [dbProducts, staticList, reviewStats] = await Promise.all([
@@ -175,8 +220,17 @@ export default async function CategoryPage({
           fill
           priority
           sizes="100vw"
-          className="object-cover scale-[1.03] transition-transform duration-[8s] ease-out"
-          style={{ objectPosition: category === 'chaussures' ? 'center 65%' : 'center 20%' }}
+          className="hidden object-cover scale-[1.03] transition-transform duration-[8s] ease-out md:block"
+          style={{ objectPosition: cat.imagePosition }}
+        />
+        <Image
+          src={cat.heroMobile}
+          alt={cat.label}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover scale-[1.03] transition-transform duration-[8s] ease-out md:hidden"
+          style={{ objectPosition: cat.imageMobilePosition }}
         />
         {/* Multi-layer gradient: dark bottom + slight vignette */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
@@ -261,7 +315,7 @@ function CustomPage({ page }: {
       {page.content ? (
         <div
           className="prose prose-neutral max-w-none prose-headings:font-black prose-a:text-black prose-a:underline prose-img:rounded-xl"
-          dangerouslySetInnerHTML={{ __html: page.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizePageHtml(page.content) }}
         />
       ) : (
         <p className="text-neutral-400">Cette page est vide pour l&apos;instant.</p>

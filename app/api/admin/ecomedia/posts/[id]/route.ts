@@ -55,7 +55,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await auth(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
+  const { data: post } = await sb.from("ecomedia_posts").select("media_url").eq("id", id).maybeSingle();
   const { error } = await sb.from("ecomedia_posts").delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (post?.media_url) {
+    try {
+      const marker = "/storage/v1/object/public/";
+      const storedPath = String(post.media_url).split(marker)[1];
+      if (storedPath) {
+        const [bucket, ...parts] = decodeURIComponent(storedPath).split("/");
+        if (["ecomedia", "product-images"].includes(bucket) && parts.length) await sb.storage.from(bucket).remove([parts.join("/")]);
+      }
+    } catch { /* best-effort cleanup */ }
+  }
   return NextResponse.json({ success: true });
 }

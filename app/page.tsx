@@ -13,6 +13,7 @@ const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
 import { products as staticProducts, type CardProduct } from "@/lib/products";
 import { getDbProducts, getReviewStats } from "@/lib/db-server";
+import type { HeroBannerRecord } from "@/lib/hero-banners";
 
 const SITE_URL_PAGE = "https://lecomax.com";
 
@@ -81,11 +82,22 @@ async function getHeroImages() {
   }
 }
 
+async function getHeroBanners(): Promise<HeroBannerRecord[]> {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/banners?active=eq.true&select=*&order=sort_order.asc,created_at.asc`,
+      { headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}` }, next: { revalidate: 60 } }
+    );
+    return response.ok ? await response.json() : [];
+  } catch { return []; }
+}
+
 export default async function HomePage() {
   // Merge DB products with static, DB products appear first
-  const [dbProducts, heroImages, reviewStats] = await Promise.all([
+  const [dbProducts, heroImages, heroBanners, reviewStats] = await Promise.all([
     getDbProducts({ activeOnly: true }),
     getHeroImages(),
+    getHeroBanners(),
     getReviewStats(),
   ]);
 
@@ -216,6 +228,7 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }} />
       <HeroBanner
+        banners={heroBanners}
         heroImage={heroImages.hero_image}
         heroImageMobile={heroImages.hero_image_mobile}
         shippingCost={heroImages.shipping_cost}

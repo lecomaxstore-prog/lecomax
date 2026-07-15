@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
+import { broadcastAdminPushNotification } from "@/lib/push-notifications";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,6 +28,17 @@ export async function POST(req: NextRequest) {
   const { error: dbError } = await supabase
     .from("contact_messages")
     .insert({ name, email, subject, message, read: false });
+
+  if (!dbError) {
+    await broadcastAdminPushNotification({
+      eventKey: `contact:${Date.now()}:${email}`,
+      title: `Nouveau message · ${String(name).slice(0, 50)}`,
+      body: `${String(subject).slice(0, 70)} — ${String(message).replace(/\s+/g, " ").slice(0, 120)}`,
+      url: "/admin/messages/",
+      tag: "admin-contact-message",
+      requireInteraction: true,
+    }).catch((error) => console.error("Admin contact push failed:", error));
+  }
 
   // Send email notification to admin
   const adminEmail = process.env.ADMIN_EMAIL || "contact@lecomax.com";

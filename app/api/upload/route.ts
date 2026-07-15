@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { isAdminRequest } from "@/lib/request-auth";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,6 +22,7 @@ const BUCKET = "product-images";
 
 // POST /api/upload  (multipart/form-data  field: "file")
 export async function POST(req: NextRequest) {
+  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   let formData: FormData;
   try {
     formData = await req.formData();
@@ -48,7 +50,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Fichier trop volumineux (max 15 MB)." }, { status: 413 });
   }
 
-  const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const safeExtension = ({ "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/avif": "avif", "image/gif": "gif", "image/heic": "heic", "image/heif": "heif" } as Record<string, string>)[mimeType];
+  const filename = `admin/${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID()}.${safeExtension}`;
 
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);

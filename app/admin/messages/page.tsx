@@ -16,6 +16,7 @@ type ChatSession = {
   last_message: string | null;
   last_at: string;
   created_at: string;
+  agent_joined?: boolean;
 };
 type ChatMessage = {
   id: string;
@@ -72,6 +73,19 @@ export default function MessagesPage() {
     return matchFilter && matchSearch;
   });
   const unread = messages.filter((m) => !m.read).length;
+
+  function getInitials(name: string) {
+    return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "?";
+  }
+
+  function formatMessageDate(value: string) {
+    const date = new Date(value);
+    const now = new Date();
+    if (date.toDateString() === now.toDateString()) {
+      return date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    }
+    return date.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
+  }
 
   // ── IMAP Inbox ──
   const [inboxEmails, setInboxEmails] = useState<InboxEmail[]>([]);
@@ -277,7 +291,9 @@ export default function MessagesPage() {
   const [lcReply, setLcReply] = useState("");
   const [lcSending, setLcSending] = useState(false);
   const [lcSent, setLcSent] = useState(false);
-  const [lcStatusFilter, setLcStatusFilter] = useState<"all" | "ai" | "escalated" | "resolved">("all");
+  const [lcStatusFilter, setLcStatusFilter] = useState<"all" | "ai" | "escalated" | "joined" | "resolved">("all");
+  const [lcJoining, setLcJoining] = useState(false);
+  const [lcJoinError, setLcJoinError] = useState<string | null>(null);
   const [showEndLcConfirm, setShowEndLcConfirm] = useState(false);
   const [lcClientTyping, setLcClientTyping] = useState(false);
   const lcBottomRef = useRef<HTMLDivElement>(null);
@@ -399,6 +415,7 @@ export default function MessagesPage() {
 
   async function openLcSession(s: ChatSession) {
     setLcSelected(s);
+    setLcJoinError(null);
     setLcReply("");
     setLcSent(false);
     await loadLcMessages(s.id);
@@ -415,19 +432,35 @@ export default function MessagesPage() {
   }
 
   async function joinLcSession(sessionId: string) {
-    // Send agent-joined system message visible to the client
-    await fetch("/api/chat/reply", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: sessionId, body: "__AGENT_JOINED__" }),
-    });
-    await updateLcStatus(sessionId, "escalated");
-    await loadLcMessages(sessionId);
-    lcChannelRef.current?.send({
-      type: "broadcast",
-      event: "agent-joined",
-      payload: { at: new Date().toISOString() },
-    });
+    if (lcJoining) return;
+    setLcJoining(true);
+    setLcJoinError(null);
+    try {
+      const res = await fetch("/api/chat/join", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Impossible de rejoindre la conversation");
+
+      setLcSessions((prev) => prev.map((session) => session.id === sessionId
+        ? { ...session, status: "escalated", agent_joined: true }
+        : session));
+      setLcSelected((current) => current?.id === sessionId
+        ? { ...current, status: "escalated", agent_joined: true }
+        : current);
+      await loadLcMessages(sessionId);
+      await lcChannelRef.current?.send({
+        type: "broadcast",
+        event: "agent-joined",
+        payload: { at: new Date().toISOString(), agent_name: "Zakaria" },
+      });
+    } catch (error) {
+      setLcJoinError(error instanceof Error ? error.message : "Impossible de rejoindre la conversation");
+    } finally {
+      setLcJoining(false);
+    }
   }
 
   function signalTyping(sessionId: string, typing = true) {
@@ -451,7 +484,7 @@ export default function MessagesPage() {
   }
 
   async function sendLcReply() {
-    if (!lcSelected || !lcReply.trim()) return;
+    if (!lcSelected || !lcSelected.agent_joined || lcSelected.status !== "escalated" || !lcReply.trim()) return;
     setLcSending(true);
     // Clear typing indicator immediately on send
     if (lcTypingTimeoutRef.current) clearTimeout(lcTypingTimeoutRef.current);
@@ -480,16 +513,21 @@ export default function MessagesPage() {
     if (lcSelected?.id === id) setLcSelected((c) => c ? { ...c, status } : c);
   }
 
-  const filteredLcSessions = lcSessions.filter((s) =>
-    lcStatusFilter === "all" ? true : s.status === lcStatusFilter
-  );
-  const lcEscalated = lcSessions.filter((s) => s.status === "escalated").length;
+  const filteredLcSessions = lcSessions.filter((s) => {
+    if (lcStatusFilter === "all") return true;
+    if (lcStatusFilter === "joined") return s.status === "escalated" && Boolean(s.agent_joined);
+    if (lcStatusFilter === "escalated") return s.status === "escalated" && !s.agent_joined;
+    return s.status === lcStatusFilter;
+  });
+  const lcEscalated = lcSessions.filter((s) => s.status === "escalated" && !s.agent_joined).length;
   const lcTotalUnread = lcSessions.reduce((s, c) => s + c.unread_count, 0);
 
-  function lcStatusBadge(status: ChatSession["status"]) {
-    if (status === "escalated")
-      return <span className="bg-orange-100 text-orange-600 text-[9px] font-black px-1.5 py-0.5 rounded-full">AGENT</span>;
-    if (status === "resolved")
+  function lcStatusBadge(session: Pick<ChatSession, "status" | "agent_joined">) {
+    if (session.status === "escalated" && session.agent_joined)
+      return <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[9px] font-black text-blue-700">EN COURS</span>;
+    if (session.status === "escalated")
+      return <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[9px] font-black text-orange-700">AGENT REQUIS</span>;
+    if (session.status === "resolved")
       return <span className="bg-neutral-100 text-neutral-400 text-[9px] font-black px-1.5 py-0.5 rounded-full">RÉSOLU</span>;
     return <span className="bg-green-100 text-green-600 text-[9px] font-black px-1.5 py-0.5 rounded-full">IA</span>;
   }
@@ -513,41 +551,59 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="max-w-5xl">
-      <div className="mb-6">
-        <div className="flex items-center gap-2 flex-wrap">
-          <h1 className="text-xl font-black">Messages</h1>
-          {unread > 0 && <span className="bg-blue-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{unread} non lus</span>}
-          {inboxUnread > 0 && <span className="bg-green-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{inboxUnread} inbox</span>}
-          {lcEscalated > 0 && <span className="bg-purple-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{lcEscalated} chat</span>}
+    <div className="max-w-6xl pb-10">
+      <div className="mb-6 rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-start gap-3.5">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-black text-white shadow-sm">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>
+            </div>
+            <div>
+              <h1 className="text-xl font-black tracking-tight text-neutral-950 sm:text-2xl">Centre de messages</h1>
+              <p className="mt-1 max-w-xl text-xs leading-relaxed text-neutral-500 sm:text-sm">Gérez toutes les conversations clients depuis un seul espace.</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-2 sm:flex sm:gap-3">
+            <div className="rounded-xl border border-blue-100 bg-blue-50/70 px-3 py-2.5 sm:min-w-24">
+              <p className="text-lg font-black leading-none text-blue-700">{unread}</p>
+              <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-blue-600/70">Contacts</p>
+            </div>
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 px-3 py-2.5 sm:min-w-24">
+              <p className="text-lg font-black leading-none text-emerald-700">{inboxUnread}</p>
+              <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-emerald-600/70">E-mails</p>
+            </div>
+            <div className="rounded-xl border border-violet-100 bg-violet-50/70 px-3 py-2.5 sm:min-w-24">
+              <p className="text-lg font-black leading-none text-violet-700">{lcTotalUnread}</p>
+              <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-violet-600/70">Chats</p>
+            </div>
+          </div>
         </div>
-        <p className="text-xs text-neutral-400 mt-0.5">Formulaire de contact, boîte de réception &amp; Live Chat</p>
       </div>
 
       {/* Tabs — scrollable on mobile */}
-      <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 mb-5">
-        <div className="flex gap-1 bg-neutral-100 rounded-xl p-1 w-max min-w-full md:w-fit">
+      <div className="mb-5 overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex w-max min-w-full gap-1 rounded-2xl border border-neutral-200 bg-white p-1.5 shadow-sm md:w-fit">
           <button onClick={() => setTab("contact")}
-            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${tab === "contact" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
+            className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${tab === "contact" ? "bg-black text-white shadow-sm" : "text-neutral-500 hover:bg-neutral-100 hover:text-black"}`}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
             Contact
-            {unread > 0 && <span className="bg-blue-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{unread}</span>}
+            {unread > 0 && <span className={`${tab === "contact" ? "bg-white text-black" : "bg-blue-500 text-white"} rounded-full px-1.5 py-0.5 text-[9px] font-black`}>{unread}</span>}
           </button>
           <button onClick={() => setTab("inbox")}
-            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${tab === "inbox" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
+            className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${tab === "inbox" ? "bg-black text-white shadow-sm" : "text-neutral-500 hover:bg-neutral-100 hover:text-black"}`}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 7 10-7"/></svg>
             E-mail
             {inboxUnread > 0 && <span className="bg-green-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{inboxUnread}</span>}
           </button>
           <button onClick={() => setTab("livechat")}
-            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${tab === "livechat" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
+            className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${tab === "livechat" ? "bg-black text-white shadow-sm" : "text-neutral-500 hover:bg-neutral-100 hover:text-black"}`}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
             Live Chat
             {lcTotalUnread > 0 && <span className="bg-purple-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{lcTotalUnread}</span>}
             {lcEscalated > 0 && <span className="bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{lcEscalated}</span>}
           </button>
           <button onClick={() => setTab("feedback")}
-            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${tab === "feedback" ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
+            className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${tab === "feedback" ? "bg-black text-white shadow-sm" : "text-neutral-500 hover:bg-neutral-100 hover:text-black"}`}>
             ⭐ Avis
           </button>
         </div>
@@ -559,18 +615,34 @@ export default function MessagesPage() {
         {/* Left: list */}
         <div className="flex-1 min-w-0">
           {/* Filters */}
-          <div className="flex items-center gap-2 mb-4 flex-wrap">
-            {STATUS_FILTERS.map((f) => (
-              <button key={f} onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${filter === f ? "bg-black text-white" : "bg-white border border-neutral-200 text-neutral-500 hover:border-neutral-400"}`}>
-                {f}
-              </button>
-            ))}
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher…"
-              className="ml-auto border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-black bg-white w-32 md:w-44 transition-all" />
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-1 rounded-xl border border-neutral-200 bg-white p-1 shadow-sm">
+              {STATUS_FILTERS.map((f) => (
+                <button key={f} onClick={() => setFilter(f)}
+                  className={`flex-1 rounded-lg px-3 py-2 text-xs font-bold transition-all sm:flex-none ${filter === f ? "bg-neutral-950 text-white shadow-sm" : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"}`}>
+                  {f}
+                  {f === "Non lus" && unread > 0 && <span className={`ml-1.5 ${filter === f ? "text-white/70" : "text-blue-600"}`}>{unread}</span>}
+                </button>
+              ))}
+            </div>
+            <label className="group relative block sm:w-64">
+              <span className="sr-only">Rechercher un message</span>
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 transition-colors group-focus-within:text-black" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Nom, e-mail ou sujet…"
+                className="w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-9 pr-3 text-xs shadow-sm outline-none transition-all placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-100" />
+            </label>
           </div>
 
-          <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
+          <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3.5 sm:px-5">
+              <div>
+                <h2 className="text-sm font-black text-neutral-900">Demandes de contact</h2>
+                <p className="mt-0.5 text-[11px] text-neutral-400">{filtered.length} message{filtered.length !== 1 ? "s" : ""} affiché{filtered.length !== 1 ? "s" : ""}</p>
+              </div>
+              <button onClick={load} disabled={loading} aria-label="Actualiser les messages" className="flex h-9 w-9 items-center justify-center rounded-xl border border-neutral-200 text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-black disabled:opacity-40">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" className={loading ? "animate-spin" : ""}><path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M18.5 9A7 7 0 0 0 6.1 6.1L4 8M5.5 15A7 7 0 0 0 17.9 17.9L20 16"/></svg>
+              </button>
+            </div>
             {loading ? (
               <div className="p-8 text-center text-sm text-neutral-400">Chargement…</div>
             ) : filtered.length === 0 ? (
@@ -584,20 +656,24 @@ export default function MessagesPage() {
                 <p className="text-xs text-neutral-400 mt-1">Les messages du formulaire de contact apparaîtront ici</p>
               </div>
             ) : (
-              <div className="divide-y divide-neutral-50">
+              <div className="divide-y divide-neutral-100">
                 {filtered.map((m) => (
                   <button key={m.id} onClick={() => { setSelected(m); setContactReplyText(""); setContactReplySent(false); if (!m.read) markRead(m, true); }}
-                    className={`w-full text-left px-5 py-4 hover:bg-neutral-50 transition-colors ${selected?.id === m.id ? "bg-neutral-50" : ""}`}>
-                    <div className="flex items-start gap-3">
-                      <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${m.read ? "bg-transparent" : "bg-blue-500"}`} />
+                    className={`group w-full px-4 py-4 text-left transition-colors sm:px-5 ${selected?.id === m.id ? "bg-blue-50/60" : "hover:bg-neutral-50"}`}>
+                    <div className="flex items-start gap-3.5">
+                      <div className={`relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-xs font-black ${m.read ? "bg-neutral-100 text-neutral-500" : "bg-blue-600 text-white shadow-sm shadow-blue-200"}`}>
+                        {getInitials(m.name)}
+                        {!m.read && <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-blue-500" />}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <p className={`text-sm truncate ${m.read ? "font-medium text-neutral-600" : "font-bold text-black"}`}>{m.name}</p>
-                          <p className="text-[10px] text-neutral-400 flex-shrink-0">{new Date(m.created_at).toLocaleDateString("fr-FR")}</p>
+                          <p className={`truncate text-sm ${m.read ? "font-semibold text-neutral-700" : "font-black text-neutral-950"}`}>{m.name}</p>
+                          <p className={`flex-shrink-0 text-[10px] font-semibold ${m.read ? "text-neutral-400" : "text-blue-600"}`}>{formatMessageDate(m.created_at)}</p>
                         </div>
-                        <p className="text-xs text-neutral-400 truncate">{m.email}</p>
-                        <p className={`text-xs mt-0.5 truncate ${m.read ? "text-neutral-400" : "text-neutral-600 font-medium"}`}>{m.subject}</p>
+                        <p className={`mt-0.5 truncate text-xs ${m.read ? "text-neutral-500" : "font-semibold text-neutral-700"}`}>{m.subject}</p>
+                        <p className="mt-1 truncate text-[11px] text-neutral-400">{m.message || m.email}</p>
                       </div>
+                      <svg className="mt-3 hidden flex-shrink-0 text-neutral-300 transition-transform group-hover:translate-x-0.5 group-hover:text-neutral-500 sm:block" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
                     </div>
                   </button>
                 ))}
@@ -1008,15 +1084,17 @@ export default function MessagesPage() {
         <div className="flex gap-5">
           {/* Left: session list */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-4 flex-wrap">
-              {(["all", "escalated", "ai", "resolved"] as const).map((f) => (
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-1 overflow-x-auto rounded-xl border border-neutral-200 bg-white p-1 shadow-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {(["all", "escalated", "joined", "ai", "resolved"] as const).map((f) => (
                 <button key={f} onClick={() => setLcStatusFilter(f)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${lcStatusFilter === f ? "bg-black text-white" : "bg-white border border-neutral-200 text-neutral-500 hover:border-neutral-400"}`}>
-                  {f === "all" ? "Tous" : f === "escalated" ? "🟠 Agent requis" : f === "ai" ? "🤖 IA" : "✓ Résolus"}
+                  className={`whitespace-nowrap rounded-lg px-3 py-2 text-xs font-bold transition-all ${lcStatusFilter === f ? "bg-neutral-950 text-white shadow-sm" : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"}`}>
+                  {f === "all" ? "Tous" : f === "escalated" ? `Agent requis${lcEscalated ? ` · ${lcEscalated}` : ""}` : f === "joined" ? "En cours" : f === "ai" ? "IA" : "Résolus"}
                 </button>
               ))}
+              </div>
               <button onClick={loadLcSessions} disabled={lcLoading}
-                className="ml-auto flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-black transition-colors disabled:opacity-40">
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-xs font-bold text-neutral-500 shadow-sm transition-colors hover:text-black disabled:opacity-40">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={lcLoading ? "animate-spin" : ""}>
                   <path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
                 </svg>
@@ -1037,14 +1115,22 @@ export default function MessagesPage() {
                 <p className="text-xs text-neutral-400 mt-1">Les chats en direct apparaîtront ici quand des visiteurs vous écriront.</p>
               </div>
             ) : (
-              <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
-                <div className="divide-y divide-neutral-50">
+              <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+                <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-3.5">
+                  <div>
+                    <h2 className="text-sm font-black text-neutral-900">Conversations en direct</h2>
+                    <p className="mt-0.5 text-[11px] text-neutral-400">{filteredLcSessions.length} conversation{filteredLcSessions.length !== 1 ? "s" : ""}</p>
+                  </div>
+                  {lcEscalated > 0 && <span className="flex items-center gap-1.5 rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-bold text-orange-700"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-orange-500" />{lcEscalated} en attente</span>}
+                </div>
+                <div className="divide-y divide-neutral-100">
                   {filteredLcSessions.map((s) => (
                     <button key={s.id} onClick={() => openLcSession(s)}
-                      className={`w-full text-left px-5 py-4 hover:bg-neutral-50 transition-colors ${lcSelected?.id === s.id ? "bg-neutral-50" : ""}`}>
+                      className={`group w-full px-4 py-4 text-left transition-colors sm:px-5 ${lcSelected?.id === s.id ? "bg-violet-50/60" : "hover:bg-neutral-50"}`}>
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
+                        <div className={`relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-sm font-black text-white ${s.status === "escalated" && !s.agent_joined ? "bg-orange-500 shadow-sm shadow-orange-200" : s.agent_joined && s.status === "escalated" ? "bg-blue-600 shadow-sm shadow-blue-200" : "bg-violet-500"}`}>
                           {(s.name || "V").charAt(0).toUpperCase()}
+                          {s.status === "escalated" && !s.agent_joined && <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-white bg-orange-400"><span className="absolute inset-0 animate-ping rounded-full bg-orange-400 opacity-60" /></span>}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
@@ -1052,7 +1138,7 @@ export default function MessagesPage() {
                               <p className={`text-sm truncate ${s.unread_count > 0 ? "font-bold text-black" : "font-medium text-neutral-600"}`}>
                                 {s.name || "Visiteur"}
                               </p>
-                              {lcStatusBadge(s.status)}
+                              {lcStatusBadge(s)}
                             </div>
                             <div className="flex items-center gap-1.5 flex-shrink-0">
                               {s.unread_count > 0 && (
@@ -1067,6 +1153,7 @@ export default function MessagesPage() {
                             {s.last_message || "—"}
                           </p>
                         </div>
+                        <svg className="hidden flex-shrink-0 text-neutral-300 transition-transform group-hover:translate-x-0.5 group-hover:text-neutral-500 sm:block" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
                       </div>
                     </button>
                   ))}
@@ -1077,8 +1164,8 @@ export default function MessagesPage() {
 
           {/* Right: chat panel — fullscreen overlay on mobile */}
           {lcSelected && (
-            <div className="fixed inset-0 z-50 bg-white flex flex-col md:relative md:inset-auto md:z-auto md:w-96 md:flex-shrink-0">
-              <div className="bg-white md:border md:border-neutral-100 md:rounded-2xl overflow-hidden flex flex-col flex-1 md:sticky md:top-24 md:relative" style={{ maxHeight: "calc(100vh - 160px)" }}>
+            <div className="fixed inset-0 z-50 flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-white md:sticky md:top-24 md:inset-auto md:z-auto md:h-[calc(100vh-160px)] md:min-h-[480px] md:max-h-[760px] md:w-[28rem] md:flex-shrink-0 md:rounded-2xl md:border md:border-neutral-200 md:shadow-sm xl:w-[32rem]">
+              <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-white">
                 {/* End conversation confirmation overlay */}
                 {showEndLcConfirm && (
                   <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 rounded-2xl">
@@ -1108,60 +1195,74 @@ export default function MessagesPage() {
                 )}
 
                 {/* Header */}
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-neutral-100 bg-neutral-50">
-                  <button onClick={() => setLcSelected(null)} className="md:hidden text-neutral-500 hover:text-black transition-colors flex-shrink-0">
+                <div className="flex flex-shrink-0 items-center gap-3 border-b border-neutral-100 bg-white px-4 py-3.5">
+                  <button onClick={() => setLcSelected(null)} aria-label="Retour aux conversations" className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-neutral-200 text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-black md:hidden">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
                   </button>
-                  <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  <div className={`relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-sm font-black text-white ${lcSelected.status === "escalated" && !lcSelected.agent_joined ? "bg-orange-500" : lcSelected.agent_joined && lcSelected.status === "escalated" ? "bg-blue-600" : "bg-violet-500"}`}>
                     {(lcSelected.name || "V").charAt(0).toUpperCase()}
+                    {lcSelected.agent_joined && lcSelected.status === "escalated" && <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold truncate">{lcSelected.name || "Visiteur"}</p>
-                    <p className="text-[10px] text-neutral-400">ID: {lcSelected.visitor_id.slice(0, 8)}…</p>
+                    <p className="mt-0.5 text-[10px] text-neutral-400">Client · {lcSelected.visitor_id.slice(0, 8)}…</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {lcStatusBadge(lcSelected.status)}
-                    <button onClick={() => setLcSelected(null)} className="text-neutral-300 hover:text-black transition-colors">
+                    {lcStatusBadge(lcSelected)}
+                    <button onClick={() => setLcSelected(null)} aria-label="Fermer la conversation" className="hidden h-8 w-8 items-center justify-center rounded-lg text-neutral-300 transition-colors hover:bg-neutral-100 hover:text-black md:flex">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
                   </div>
                 </div>
 
                 {/* Status actions */}
-                <div className="flex gap-1.5 px-4 py-2 border-b border-neutral-100 bg-neutral-50">
-                  {lcSelected.status !== "ai" && (
-                    <button onClick={() => updateLcStatus(lcSelected.id, "ai")}
-                      className="flex-1 text-[10px] font-bold py-1.5 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors">
-                      🤖 Remettre à l&apos;IA
-                    </button>
-                  )}
-                  {lcSelected.status !== "escalated" && (
-                    <button onClick={() => joinLcSession(lcSelected.id)}
-                      className="flex-1 text-[10px] font-bold py-1.5 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors">
-                      👤 Rejoindre la conversation
-                    </button>
-                  )}
-                  {lcSelected.status !== "resolved" && (
-                    <button onClick={() => setShowEndLcConfirm(true)}
-                      className="flex-1 text-[10px] font-bold py-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
-                      🔴 Terminer la conversation
-                    </button>
-                  )}
-                </div>
+                {lcSelected.status === "escalated" && !lcSelected.agent_joined ? (
+                  <div className="flex-shrink-0 border-b border-orange-100 bg-orange-50/70 p-3.5">
+                    <div className="flex items-start gap-3">
+                      <span className="relative mt-1 flex h-2.5 w-2.5 flex-shrink-0"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-60"/><span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-orange-500"/></span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-black text-orange-950">Ce client attend un conseiller</p>
+                        <p className="mt-0.5 text-[10px] leading-relaxed text-orange-700">Rejoignez le chat pour arrêter l&apos;IA et informer immédiatement le client.</p>
+                        <button onClick={() => joinLcSession(lcSelected.id)} disabled={lcJoining}
+                          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-orange-600 px-4 py-2.5 text-xs font-black text-white shadow-sm transition-all hover:bg-orange-700 disabled:cursor-wait disabled:opacity-60">
+                          {lcJoining ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" /> : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>}
+                          {lcJoining ? "Connexion en cours…" : "Rejoindre et répondre"}
+                        </button>
+                        {lcJoinError && <p role="alert" className="mt-2 text-[10px] font-semibold text-red-600">{lcJoinError}</p>}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-shrink-0 items-center gap-2 border-b border-neutral-100 bg-neutral-50/80 px-3.5 py-2.5">
+                    {lcSelected.status === "escalated" && lcSelected.agent_joined && <div className="mr-auto flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500"/><span className="text-[10px] font-bold text-neutral-600">Vous gérez cette conversation</span></div>}
+                    {lcSelected.status === "ai" && <div className="mr-auto text-[10px] font-semibold text-emerald-700">Eco répond actuellement au client</div>}
+                    {lcSelected.status === "resolved" && <div className="mr-auto text-[10px] font-semibold text-neutral-500">Conversation terminée</div>}
+                    {lcSelected.status !== "ai" && (
+                      <button onClick={() => updateLcStatus(lcSelected.id, "ai")} className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[10px] font-bold text-neutral-600 transition-colors hover:bg-neutral-100">Remettre à l&apos;IA</button>
+                    )}
+                    {lcSelected.status !== "escalated" && (
+                      <button onClick={() => joinLcSession(lcSelected.id)} disabled={lcJoining} className="rounded-lg bg-blue-600 px-2.5 py-1.5 text-[10px] font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-50">{lcSelected.status === "resolved" ? "Rouvrir et rejoindre" : "Rejoindre"}</button>
+                    )}
+                    {lcSelected.status !== "resolved" && (
+                      <button onClick={() => setShowEndLcConfirm(true)} aria-label="Terminer la conversation" className="flex h-7 w-7 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8"/></svg></button>
+                    )}
+                  </div>
+                )}
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2" style={{ minHeight: 200 }}>
+                <div ref={lcMsgsContainerRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-4 py-3 pb-5">
                   {lcMsgsLoading && lcMessages.length === 0 ? (
                     <div className="text-center text-xs text-neutral-400 py-8">Chargement…</div>
                   ) : lcMessages.length === 0 ? (
                     <div className="text-center text-xs text-neutral-400 py-8">Aucun message</div>
                   ) : (
-                    lcMessages.map((msg) => {
+                    lcMessages.map((msg, messageIndex) => {
                       const isOut = msg.direction === "out";
                       if (msg.body === "__AGENT_JOINED__") {
+                        if (lcMessages[messageIndex - 1]?.body === "__AGENT_JOINED__") return null;
                         return (
-                          <div key={msg.id} className="flex justify-center py-1">
-                            <span className="text-[10px] text-neutral-400 bg-neutral-100 px-3 py-1 rounded-full">👤 Agent a rejoint la conversation</span>
+                          <div key={msg.id} className="flex justify-center py-2">
+                            <span className="flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[10px] font-bold text-blue-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Vous avez rejoint la conversation</span>
                           </div>
                         );
                       }
@@ -1211,40 +1312,46 @@ export default function MessagesPage() {
                 )}
 
                 {/* Reply box */}
-                <div className="flex-shrink-0 border-t border-neutral-100 p-3">
-                  {lcSelected.status === "ai" && (
-                    <div className="flex items-start gap-2 mb-2 bg-green-50 border border-green-100 rounded-xl p-2">
-                      <svg width="12" height="12" viewBox="0 0 48 48" fill="#22c55e" className="flex-shrink-0 mt-0.5">
-                        <path d="M24 4C13 4 4 13 4 24c0 3.6 1 7 2.7 10L4 44l10.3-2.7C17.1 43 20.5 44 24 44c11 0 20-9 20-20S35 4 24 4z"/>
-                      </svg>
-                      <p className="text-[10px] text-green-700 font-semibold">L&apos;IA répond automatiquement. Cliquez &quot;Prendre en charge&quot; pour répondre manuellement.</p>
+                <div className="relative z-10 flex-shrink-0 border-t border-neutral-200 bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.05)]">
+                  {lcSelected.status === "escalated" && lcSelected.agent_joined ? (
+                    <>
+                      {lcSent && <div className="mb-2 rounded-xl bg-emerald-50 p-2 text-center text-[10px] font-semibold text-emerald-700">✓ Message envoyé</div>}
+                      <div className="flex items-end gap-2">
+                        <textarea
+                          value={lcReply}
+                          onChange={(e) => { setLcReply(e.target.value); setLcSent(false); signalTyping(lcSelected.id, e.target.value.length > 0); }}
+                          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendLcReply(); } }}
+                          placeholder="Écrivez votre réponse…"
+                          rows={2}
+                          autoFocus
+                          className="min-h-[48px] flex-1 resize-none rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm outline-none transition-all placeholder:text-neutral-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50"
+                        />
+                        <button onClick={sendLcReply} disabled={lcSending || !lcReply.trim()} aria-label="Envoyer la réponse"
+                          className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm transition-all hover:bg-blue-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40">
+                          {lcSending ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" /> : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg>}
+                        </button>
+                      </div>
+                      <p className="mt-1.5 px-1 text-[9px] text-neutral-400">Entrée pour envoyer · Maj + Entrée pour une nouvelle ligne</p>
+                    </>
+                  ) : (
+                    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-2.5">
+                      <div className="mb-2 flex items-center gap-2 px-1">
+                        <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${lcSelected.status === "resolved" ? "bg-blue-100 text-blue-700" : lcSelected.status === "ai" ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"}`}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-black text-neutral-800">{lcSelected.status === "resolved" ? "Conversation terminée" : lcSelected.status === "ai" ? "Conversation gérée par Eco" : "Client en attente"}</p>
+                          <p className="text-[9px] text-neutral-500">Rejoignez-la pour activer la zone de réponse.</p>
+                        </div>
+                      </div>
+                      <button onClick={() => joinLcSession(lcSelected.id)} disabled={lcJoining}
+                        className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black text-white shadow-sm transition-all disabled:cursor-wait disabled:opacity-60 ${lcSelected.status === "escalated" ? "bg-orange-600 hover:bg-orange-700" : "bg-blue-600 hover:bg-blue-700"}`}>
+                        {lcJoining ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" /> : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>}
+                        {lcJoining ? "Connexion…" : lcSelected.status === "resolved" ? "Rouvrir, rejoindre et répondre" : "Rejoindre et commencer à répondre"}
+                      </button>
+                      {lcJoinError && <p role="alert" className="mt-2 text-center text-[10px] font-semibold text-red-600">{lcJoinError}</p>}
                     </div>
                   )}
-                  {lcSent && (
-                    <div className="text-[10px] text-green-600 font-semibold bg-green-50 rounded-xl p-2 text-center mb-2">✓ Message envoyé</div>
-                  )}
-                  <div className="flex gap-2">
-                    <textarea
-                      value={lcReply}
-                      onChange={(e) => { setLcReply(e.target.value); setLcSent(false); if (lcSelected) signalTyping(lcSelected.id, e.target.value.length > 0); }}
-                      onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendLcReply(); } }}
-                      placeholder={lcSelected.status === "ai" ? "Prenez en charge pour répondre…" : "Répondre… (Entrée pour envoyer)"}
-                      rows={2}
-                      disabled={lcSelected.status === "ai"}
-                      className="flex-1 border border-neutral-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-black resize-none disabled:opacity-40 disabled:bg-neutral-50"
-                    />
-                    <button
-                      onClick={sendLcReply}
-                      disabled={lcSending || !lcReply.trim() || lcSelected.status === "ai"}
-                      className="self-end p-2.5 rounded-xl bg-purple-600 text-white transition-colors disabled:opacity-40 hover:bg-purple-700"
-                    >
-                      {lcSending ? (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" className="animate-spin"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-                      ) : (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
-                      )}
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>

@@ -106,7 +106,7 @@ export default function EcomediaFeed({ initialPosts }: Props) {
             </div>
           ) : (
             <>
-              {posts.map((post, i) => <PostCard key={post.id} post={post} priority={i < 2} />)}
+              {posts.map((post, i) => <PostCard key={post.id} post={post} priority={i < 2} onDeleted={postId => { setPosts(current => current.filter(item => item.id !== postId)); setOffset(current => Math.max(0, current - 1)); }} />)}
               {hasMore && (
             <div className="py-6 flex justify-center">
               <button onClick={loadMore} disabled={loadingMore}

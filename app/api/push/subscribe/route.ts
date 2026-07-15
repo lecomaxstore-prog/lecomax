@@ -18,7 +18,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing subscription fields" }, { status: 400 });
   }
 
-  const userAgent = req.headers.get("user-agent") ?? "";
+  const rawUserAgent = req.headers.get("user-agent") ?? "";
+  const { data: existing } = await supabase
+    .from("push_subscriptions")
+    .select("user_agent")
+    .eq("endpoint", endpoint)
+    .maybeSingle();
+  // A device promoted to admin must never silently fall back into the customer audience.
+  const userAgent = existing?.user_agent?.startsWith("[LECOMAX_ADMIN] ")
+    ? existing.user_agent
+    : rawUserAgent;
 
   // Upsert — avoid duplicates by endpoint
   const { error } = await supabase

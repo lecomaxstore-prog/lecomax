@@ -96,7 +96,7 @@ export default function PushPrompt() {
     if (perm === "denied") return;
 
     if (perm === "granted") {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
+      navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" }).catch(() => {});
       navigator.serviceWorker.ready.then(reg => {
         reg.pushManager.getSubscription().then(sub => {
           if (sub) { localStorage.setItem(LS_DONE, "1"); setSubscribed(true); }
@@ -135,7 +135,7 @@ export default function PushPrompt() {
       setPermState(perm as PermState);
       if (perm !== "granted") { setPhase("idle"); setShown(false); return; }
 
-      await navigator.serviceWorker.register("/sw.js");
+      await navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" });
       const reg = await navigator.serviceWorker.ready;
       const existing = await reg.pushManager.getSubscription().catch(() => null);
       if (existing) await existing.unsubscribe().catch(() => {});

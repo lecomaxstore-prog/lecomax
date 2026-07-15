@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
+import { publishSettings } from "@/lib/use-settings";
 
 type SettingsMap = Record<string, string>;
 
@@ -19,6 +20,16 @@ const DEFAULT_SETTINGS: SettingsMap = {
   free_shipping_threshold: "500",
   shipping_cost: "35",
   maintenance_mode: "false",
+  enable_reviews: "true",
+  enable_coupons: "true",
+  enable_newsletter: "true",
+  enable_wishlist: "true",
+  enable_ecoclub: "true",
+  announcement_1: "LIVRAISON GRATUITE DÈS 500 MAD AU MAROC",
+  announcement_2: "RETOURS GRATUITS SOUS 30 JOURS",
+  announcement_3: "PAIEMENT À LA LIVRAISON DISPONIBLE",
+  seo_title: "",
+  seo_description: "",
   // image settings — pre-filled with current site defaults
   favicon_image: "/favicon.png",
   logo_image: "/images/lecomax logo.png",
@@ -70,6 +81,7 @@ const IMAGE_FIELDS = [
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<SettingsMap>({ ...DEFAULT_SETTINGS });
+  const savedSettingsRef = useRef<SettingsMap>({ ...DEFAULT_SETTINGS });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [maintenanceSaving, setMaintenanceSaving] = useState(false);
@@ -83,12 +95,11 @@ export default function SettingsPage() {
       .then(data => {
         if (Array.isArray(data)) {
           const map: SettingsMap = { ...DEFAULT_SETTINGS };
-          // Only override default if DB value is non-empty
           data.forEach((row: { key: string; value: string }) => {
-            const v = String(row.value ?? "");
-            if (v) map[row.key] = v;
+            map[row.key] = String(row.value ?? "");
           });
           setSettings(map);
+          savedSettingsRef.current = map;
         }
         setLoading(false);
       });
@@ -98,17 +109,21 @@ export default function SettingsPage() {
     e?.preventDefault();
     setSaving(true);
     setMsg(null);
-    const res = await fetch("/api/settings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(settings),
-    });
-    const json = await res.json();
-    setSaving(false);
-    if (res.ok) {
-      setMsg({ type: "ok", text: "Paramètres enregistrés ✓" });
-    } else {
-      setMsg({ type: "err", text: json.error ?? "Erreur inconnue" });
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Erreur inconnue");
+      publishSettings(settings);
+      savedSettingsRef.current = { ...settings };
+      setMsg({ type: "ok", text: "Paramètres enregistrés et appliqués sur le site ✓" });
+    } catch (error) {
+      setMsg({ type: "err", text: error instanceof Error ? error.message : "Erreur réseau" });
+    } finally {
+      setSaving(false);
     }
     setTimeout(() => setMsg(null), 4000);
   }
@@ -129,6 +144,8 @@ export default function SettingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updated),
       });
+      publishSettings(updated);
+      savedSettingsRef.current = { ...updated };
       setMsg({ type: "ok", text: "Image mise à jour ✓" });
       setTimeout(() => setMsg(null), 3000);
     } else {
@@ -147,6 +164,9 @@ export default function SettingsPage() {
         body: JSON.stringify({ ...settings, maintenance_mode: newValue }),
       });
       if (res.ok) {
+        const updated = { ...settings, maintenance_mode: newValue };
+        publishSettings(updated);
+        savedSettingsRef.current = updated;
         setMsg({ type: "ok", text: newValue === "true" ? "🔒 Mode maintenance activé — visiteurs redirigés" : "✓ Site en ligne — mode maintenance désactivé" });
       } else {
         // Revert on failure
@@ -175,47 +195,91 @@ export default function SettingsPage() {
     { id: "social", label: "R\u00e9seaux sociaux", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> },
     { id: "advanced", label: "Avanc\u00e9", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg> },    { id: "security", label: "Sécurité", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> },  ];
 
+  const tabDescriptions: Record<typeof activeTab, string> = {
+    general: "Identité, coordonnées et informations principales de votre boutique.",
+    images: "Logo, favicon et visuels utilisés sur le site et dans les emails.",
+    shipping: "Tarifs, seuil de gratuité et règles appliquées aux commandes.",
+    social: "Liens officiels vers vos profils et réseaux sociaux.",
+    advanced: "Fonctionnalités, annonces, maintenance et référencement.",
+    security: "Protection du compte administrateur et mot de passe.",
+  };
+  const activeTabInfo = tabs.find((tab) => tab.id === activeTab)!;
+  const isDirty = JSON.stringify(settings) !== JSON.stringify(savedSettingsRef.current);
+
   return (
-    <div className="max-w-3xl">
+    <div className="mx-auto w-full max-w-7xl pb-24 lg:pb-12">
 
       {/* Page header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-black">Paramètres</h1>
-          <p className="text-neutral-500 text-sm mt-0.5">Configuration générale de la boutique.</p>
+      <div className="relative mb-6 overflow-hidden rounded-3xl border border-neutral-200 bg-white px-5 py-6 shadow-[0_1px_2px_rgba(0,0,0,.03)] sm:px-7 lg:px-8">
+        <div className="pointer-events-none absolute -right-16 -top-24 h-52 w-52 rounded-full bg-[#3ecf4c]/10 blur-3xl" />
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-black text-[#3ecf4c] shadow-lg shadow-black/10">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.34 1.88l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.7 1.7 0 0015 19.4a1.7 1.7 0 00-1 .6 1.7 1.7 0 00-.4 1.1V21a2 2 0 01-4 0v-.09A1.7 1.7 0 008.6 19.4a1.7 1.7 0 00-1.88.34l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.7 1.7 0 004.6 15a1.7 1.7 0 00-.6-1 1.7 1.7 0 00-1.1-.4H3a2 2 0 010-4h.09A1.7 1.7 0 004.6 8.6a1.7 1.7 0 00-.34-1.88l-.06-.06a2 2 0 012.83-2.83l.06.06A1.7 1.7 0 009 4.6a1.7 1.7 0 001-.6 1.7 1.7 0 00.4-1.1V3a2 2 0 014 0v.09A1.7 1.7 0 0015.4 4.6a1.7 1.7 0 001.88-.34l.06-.06a2 2 0 012.83 2.83l-.06.06A1.7 1.7 0 0019.4 9c.14.37.35.7.6 1 .3.3.7.4 1.1.4H21a2 2 0 010 4h-.09c-.4 0-.8.2-1.1.4-.2.1-.3.2-.4.2z"/></svg>
+          </div>
+          <div>
+            <div className="mb-1.5 flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-black tracking-tight sm:text-[28px]">Paramètres</h1>
+              <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${settings.maintenance_mode === "true" ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}><span className={`h-1.5 w-1.5 rounded-full ${settings.maintenance_mode === "true" ? "bg-red-500" : "bg-emerald-500"}`}/>{settings.maintenance_mode === "true" ? "Maintenance" : "Site en ligne"}</span>
+            </div>
+            <p className="max-w-xl text-sm leading-relaxed text-neutral-500">Pilotez votre boutique depuis un espace unique. Les changements enregistrés sont appliqués automatiquement.</p>
+          </div>
         </div>
         <button
           onClick={() => handleSave()}
-          disabled={saving}
-          className="flex items-center gap-2 bg-black text-white font-bold text-sm px-6 py-2.5 rounded-xl hover:bg-neutral-800 disabled:opacity-50 transition-colors"
+          disabled={saving || !isDirty}
+          className="flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-black px-5 text-sm font-bold text-white shadow-lg shadow-black/10 transition-all hover:-translate-y-0.5 hover:bg-neutral-800 disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-500 disabled:shadow-none"
         >
           {saving
             ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Enregistrement…</>
             : <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Enregistrer</>}
         </button>
+        </div>
       </div>
 
       {/* Status message */}
       {msg && (
-        <div className={`mb-4 text-sm px-4 py-3 rounded-xl flex items-center gap-2 ${msg.type === "ok" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+        <div className={`fixed right-4 top-20 z-[100] flex max-w-[calc(100vw-2rem)] items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl sm:right-7 ${msg.type === "ok" ? "bg-neutral-950 text-white" : "border border-red-200 bg-red-50 text-red-700"}`}>
           {msg.type === "ok" ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg> : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>}
           {msg.text}
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-neutral-100 p-1 rounded-xl mb-6 overflow-x-auto">
+      <div className="grid items-start gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+      {/* Navigation */}
+      <aside className="sticky top-4 z-20 -mx-1 overflow-x-auto px-1 lg:mx-0 lg:overflow-visible lg:px-0">
+      <div className="flex min-w-max gap-2 rounded-2xl border border-neutral-200 bg-white p-2 shadow-[0_1px_2px_rgba(0,0,0,.03)] lg:min-w-0 lg:flex-col">
         {tabs.map(t => (
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === t.id ? "bg-white text-black shadow-sm" : "text-neutral-500 hover:text-black"}`}
+            className={`group flex items-center gap-3 whitespace-nowrap rounded-xl px-3.5 py-3 text-left text-[12px] font-bold transition-all lg:w-full ${activeTab === t.id ? "bg-black text-white shadow-md shadow-black/10" : "text-neutral-500 hover:bg-neutral-50 hover:text-black"}`}
           >
-            {t.icon}
+            <span className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${activeTab === t.id ? "bg-white/10 text-[#3ecf4c]" : "bg-neutral-100 text-neutral-500 group-hover:bg-white"}`}>{t.icon}</span>
             {t.label}
+            {activeTab === t.id && <span className="ml-auto hidden h-1.5 w-1.5 rounded-full bg-[#3ecf4c] lg:block" />}
           </button>
         ))}
       </div>
+      <div className="mt-4 hidden rounded-2xl bg-neutral-950 p-4 text-white lg:block">
+        <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-lg bg-[#3ecf4c]/15 text-[#3ecf4c]"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <p className="text-xs font-black">Synchronisation active</p>
+        <p className="mt-1 text-[11px] leading-relaxed text-white/45">Vos réglages sont sécurisés et partagés avec toute la boutique.</p>
+      </div>
+      </aside>
+
+      <main className="min-w-0">
+        <div className="mb-5 flex items-start justify-between gap-4 px-1">
+          <div>
+            <div className="mb-1 flex items-center gap-2 text-neutral-400">{activeTabInfo.icon}<span className="text-[10px] font-black uppercase tracking-[.18em]">Configuration</span></div>
+            <h2 className="text-xl font-black tracking-tight">{activeTabInfo.label}</h2>
+            <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-neutral-500">{tabDescriptions[activeTab]}</p>
+          </div>
+          <div className={`hidden items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-wider sm:flex ${isDirty ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${isDirty ? "animate-pulse bg-amber-500" : "bg-emerald-500"}`} />
+            {isDirty ? "Non enregistré" : "À jour"}
+          </div>
+        </div>
 
       {/* â”€â”€ GENERAL â”€â”€ */}
       {activeTab === "general" && (
@@ -271,6 +335,11 @@ export default function SettingsPage() {
               ))}
             </div>
           </Section>
+          <div className="flex justify-end pt-2">
+            <button type="button" onClick={() => handleSave()} disabled={saving} className="flex items-center gap-2 rounded-xl bg-black px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-neutral-800 disabled:opacity-50">
+              {saving ? "Enregistrement…" : "Enregistrer les images"}
+            </button>
+          </div>
         </div>
       )}
 
@@ -306,9 +375,23 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Tarif standard</p>
+                <p className="mt-2 text-2xl font-black tracking-tight">{settings.shipping_cost || "0"}<span className="ml-1 text-xs text-neutral-400">MAD</span></p>
+              </div>
+              <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Gratuite dès</p>
+                <p className="mt-2 text-2xl font-black tracking-tight">{settings.free_shipping_threshold || "0"}<span className="ml-1 text-xs text-neutral-400">MAD</span></p>
+              </div>
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Couverture</p>
+                <p className="mt-2 flex items-center gap-2 text-sm font-black text-emerald-800"><span className="h-2 w-2 rounded-full bg-emerald-500"/>Tout le Maroc</p>
+              </div>
+            </div>
             <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 text-[12px] text-emerald-700 flex items-start gap-2 mt-2">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg>
-              Ces valeurs sont lues en temps réel par le checkout, le footer et la bannière héro. Enregistrez pour appliquer immédiatement sur tout le site.
+              Ces valeurs sont lues en temps réel par le panier, le checkout, la validation des commandes, le footer et la bannière héro. Enregistrez pour appliquer immédiatement sur tout le site.
             </div>
           </Section>
           <div className="flex justify-end pt-2">
@@ -441,7 +524,23 @@ export default function SettingsPage() {
       {activeTab === "security" && (
         <SecurityTab />
       )}
+      </main>
+      </div>
 
+      {activeTab !== "security" && isDirty && (
+        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-neutral-200 bg-white/95 p-3 shadow-[0_-12px_30px_rgba(0,0,0,.08)] backdrop-blur-xl lg:hidden">
+          <div className="mx-auto flex max-w-7xl items-center gap-3">
+            <div className="min-w-0 flex-1 pl-1">
+              <p className="truncate text-xs font-black">Modifications non enregistrées</p>
+              <p className="text-[10px] text-neutral-400">Enregistrez pour publier sur le site.</p>
+            </div>
+            <button type="button" onClick={() => handleSave()} disabled={saving} className="flex h-11 items-center justify-center gap-2 rounded-xl bg-black px-5 text-xs font-black text-white disabled:opacity-50">
+              {saving ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>}
+              Enregistrer
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -550,13 +649,13 @@ function SecurityTab() {
 
 function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl border border-neutral-100 p-6">
-      <div className="flex items-center gap-2 mb-5">
-        {icon && <span className="text-neutral-400">{icon}</span>}
-        <h2 className="text-xs font-bold text-neutral-500 uppercase tracking-widest">{title}</h2>
+    <section className="overflow-hidden rounded-[22px] border border-neutral-200 bg-white shadow-[0_1px_2px_rgba(0,0,0,.025)]">
+      <div className="flex items-center gap-3 border-b border-neutral-100 bg-neutral-50/60 px-5 py-4 sm:px-6">
+        {icon && <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 bg-white text-neutral-500 shadow-sm">{icon}</span>}
+        <h2 className="text-[11px] font-black uppercase tracking-[.16em] text-neutral-700">{title}</h2>
       </div>
-      <div className="space-y-4">{children}</div>
-    </div>
+      <div className="space-y-5 p-5 sm:p-6">{children}</div>
+    </section>
   );
 }
 
@@ -568,13 +667,13 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1.5">{label}</label>
+      <label className="mb-2 block text-[11px] font-black uppercase tracking-[.12em] text-neutral-500">{label}</label>
       <input
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black transition-colors"
+        className="w-full rounded-xl border border-neutral-200 bg-neutral-50/70 px-4 py-3 text-sm outline-none transition-all placeholder:text-neutral-300 hover:border-neutral-300 focus:border-black focus:bg-white focus:ring-4 focus:ring-black/[.04]"
       />
     </div>
   );
@@ -595,14 +694,14 @@ function ImageUploadField({
   }
 
   return (
-    <div className="border border-neutral-200 rounded-xl overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white transition-shadow hover:shadow-md">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-neutral-50 border-b border-neutral-100">
+      <div className="flex flex-col gap-3 border-b border-neutral-100 bg-neutral-50/70 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="font-bold text-sm">{label}</p>
           <p className="text-[11px] text-neutral-400 mt-0.5">{hint}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {value && (
             <button
               type="button"

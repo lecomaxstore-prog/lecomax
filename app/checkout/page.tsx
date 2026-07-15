@@ -166,8 +166,6 @@ export default function CheckoutPage() {
   // EcoClub loyalty discount
   const [loyaltyTier, setLoyaltyTier] = useState<"Bronze" | "Silver" | "Gold">("Bronze");
   const [loyaltyDiscountPct, setLoyaltyDiscountPct] = useState(0); // 0, 30, or 50
-  // Shipping rate from DB (fallback: free ≥500, else 35 MAD)
-  const [shippingRate, setShippingRate] = useState<number | null>(null);
   const siteSettings = useSettings();
 
   // (stepper is static, no scroll logic needed)
@@ -178,21 +176,6 @@ export default function CheckoutPage() {
   const paypalDataRef = useRef({ form, items, grandTotal: 0, shipping: 0, couponApplied, discount: 0 });
   // Track if error originated from form validation (not from PayPal itself)
   const paypalFormErrorRef = useRef(false);
-
-  // Fetch shipping rates from DB
-  useEffect(() => {
-    fetch("/api/shipping")
-      .then(r => r.json())
-      .then((zones: { min_order?: number; free_above?: number; rate?: number; base_rate?: number }[]) => {
-        if (!Array.isArray(zones) || zones.length === 0) return;
-        // Use the first zone's free_above threshold and base rate
-        const zone = zones[0];
-        const freeAbove = zone.free_above ?? zone.min_order ?? 500;
-        const baseRate = zone.base_rate ?? zone.rate ?? 35;
-        setShippingRate(total >= freeAbove ? 0 : baseRate);
-      })
-      .catch(() => {});
-  }, [total]);
 
   // Fire begin_checkout once when user lands on checkout with items
   useEffect(() => {
@@ -252,10 +235,11 @@ export default function CheckoutPage() {
   const defaultShippingCost = Number(siteSettings.shipping_cost ?? 35);
   const defaultFreeAbove = Number(siteSettings.free_shipping_threshold ?? 500);
   const isSidiBennour = form.ville.trim().toLowerCase().replace(/[-\s]/g, "") === "sidibennour";
-  const shipping = isSidiBennour ? 0 : (shippingRate !== null ? shippingRate : (total >= defaultFreeAbove ? 0 : defaultShippingCost));
+  const shipping = isSidiBennour || total >= defaultFreeAbove ? 0 : defaultShippingCost;
   const couponDiscount = couponApplied?.discount ?? 0;
+  const effectiveLoyaltyDiscountPct = siteSettings.enable_ecoclub === "false" ? 0 : loyaltyDiscountPct;
   // Loyalty discount applies on subtotal (after coupon); Silver 30%, Gold 50%
-  const loyaltyDiscountAmount = loyaltyDiscountPct > 0 ? Math.round(((total - couponDiscount) * loyaltyDiscountPct) / 100) : 0;
+  const loyaltyDiscountAmount = effectiveLoyaltyDiscountPct > 0 ? Math.round(((total - couponDiscount) * effectiveLoyaltyDiscountPct) / 100) : 0;
   const discount = couponDiscount + loyaltyDiscountAmount;
   const grandTotal = Math.max(0, total + shipping - discount);
 
@@ -790,6 +774,25 @@ export default function CheckoutPage() {
 
               {/* Totals */}
               <div className="px-5 py-4 space-y-2.5 border-t border-neutral-100 bg-neutral-50/60">
+                {siteSettings.enable_coupons !== "false" && (
+                  <div className="pb-3 mb-3 border-b border-neutral-200">
+                    <label htmlFor="checkout-coupon" className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">Code promo</label>
+                    <div className="flex gap-2">
+                      <input
+                        id="checkout-coupon"
+                        value={couponCode}
+                        onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(""); }}
+                        placeholder="VOTRE CODE"
+                        className="min-w-0 flex-1 border border-neutral-200 bg-white px-3 py-2.5 text-xs font-bold uppercase outline-none focus:border-black"
+                      />
+                      <button type="button" onClick={applyCoupon} disabled={couponLoading || !couponCode.trim()} className="bg-black text-white px-4 py-2.5 text-[10px] font-black uppercase disabled:opacity-50">
+                        {couponLoading ? "..." : "Appliquer"}
+                      </button>
+                    </div>
+                    {couponError && <p className="mt-2 text-[11px] font-semibold text-red-600">{couponError}</p>}
+                    {couponApplied && <p className="mt-2 text-[11px] font-bold text-emerald-600">✓ {couponApplied.code} appliqué : − {formatMAD(couponApplied.discount)}</p>}
+                  </div>
+                )}
                 <div className="flex justify-between text-sm text-neutral-500">
                   <span>Sous-total</span>
                   <span className="font-semibold text-black">{formatMAD(total)}</span>
@@ -802,15 +805,22 @@ export default function CheckoutPage() {
                 </div>
                 {shipping > 0 && (
                   <p className="text-[10px] text-neutral-400 bg-neutral-100 px-3 py-2">
-                    Livraison <strong>gratuite</strong> dès <strong>500 MAD</strong> d'achats
+                    Livraison <strong>gratuite</strong> dès <strong>{defaultFreeAbove} MAD</strong> d&apos;achats
                   </p>
                 )}
 
-                {loyaltyDiscountPct > 0 && loyaltyDiscountAmount > 0 && (
+                {siteSettings.enable_coupons !== "false" && couponDiscount > 0 && (
+                  <div className="flex justify-between text-sm text-emerald-600">
+                    <span className="font-semibold">Code {couponApplied?.code}</span>
+                    <span className="font-black">− {formatMAD(couponDiscount)}</span>
+                  </div>
+                )}
+
+                {effectiveLoyaltyDiscountPct > 0 && loyaltyDiscountAmount > 0 && (
                   <div className="flex justify-between text-sm text-emerald-600">
                     <span className="font-semibold flex items-center gap-1.5">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                      EcoClub {loyaltyTier} ({loyaltyDiscountPct}%)
+                      EcoClub {loyaltyTier} ({effectiveLoyaltyDiscountPct}%)
                     </span>
                     <span className="font-black">− {formatMAD(loyaltyDiscountAmount)}</span>
                   </div>

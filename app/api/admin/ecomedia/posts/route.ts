@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifySessionToken } from "@/lib/admin-session";
-import { generateSlug } from "@/lib/ecomedia";
+import { generateSlug, hydrateCommunityPost } from "@/lib/ecomedia";
 import { notifyPublishedEcomediaPost } from "@/lib/push-notifications";
 
 const sb = createClient(
@@ -31,7 +31,14 @@ export async function GET(req: NextRequest) {
     .range(offset, offset + limit - 1);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data ?? []);
+  return NextResponse.json((data ?? []).map(post => {
+    const hydrated = hydrateCommunityPost(post);
+    return {
+      ...hydrated,
+      cta_text: post.cta_text,
+      moderation_status: hydrated.is_client_post ? (post.is_published ? "approved" : "pending") : undefined,
+    };
+  }));
 }
 
 // POST /api/admin/ecomedia/posts — create post

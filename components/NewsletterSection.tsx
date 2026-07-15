@@ -1,109 +1,41 @@
-﻿"use client";
-
-import { useState } from "react";
+import NewsletterForm from "@/components/NewsletterForm";
 
 export default function NewsletterSection() {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim() || !email.includes("@")) return;
-    setStatus("loading");
-    try {
-      const res = await fetch("/api/newsletter", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      if (res.ok) { setStatus("success"); setEmail(""); }
-      else setStatus("error");
-    } catch { setStatus("error"); }
-  };
-
-  const perks = [
-    { icon: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z", label: "Offres exclusives membres" },
-    { icon: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9", label: "Alertes nouveautes en avant-premiere" },
-    { icon: "M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7", label: "Acces aux ventes privees" },
-  ];
-
   return (
-    <section className="mt-20 mb-4">
-      <div className="relative overflow-hidden bg-neutral-950">
-        <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
-        <div className="pointer-events-none absolute top-0 left-1/4 w-96 h-96 -translate-y-1/2 rounded-full opacity-10 blur-3xl" style={{ background: "#3ecf4c" }} />
-        <div className="pointer-events-none absolute bottom-0 right-1/4 w-64 h-64 translate-y-1/2 rounded-full opacity-10 blur-3xl" style={{ background: "#3ecf4c" }} />
-
-        <div className="relative max-w-7xl mx-auto px-6 py-16 md:py-20 grid md:grid-cols-2 gap-12 items-center">
-          <div className="pb-10 md:pb-0">
-            <div className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 border border-[#3ecf4c]/25 bg-[#3ecf4c]/5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] animate-pulse" />
-              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[#3ecf4c]">Newsletter L&apos;ecomax</p>
-            </div>
-            <h2 className="h-display text-4xl md:text-5xl text-white leading-[0.95] mb-4">
-              Soyez<br />
-              <span className="text-[#3ecf4c]">les premiers</span><br />
-              informes.
-            </h2>
-            <p className="text-neutral-400 text-[13px] leading-relaxed max-w-xs mb-8">
-              Rejoignez notre communaute et profitez d&apos;avantages exclusifs reserves aux abonnes.
-            </p>
-            <ul className="space-y-3.5">
-              {perks.map((p) => (
-                <li key={p.label} className="flex items-center gap-3">
-                  <span className="w-8 h-8 shrink-0 border border-[#3ecf4c]/30 bg-[#3ecf4c]/10 flex items-center justify-center">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                      <path d={p.icon} />
-                    </svg>
-                  </span>
-                  <span className="text-[12px] text-neutral-300 font-semibold">{p.label}</span>
-                </li>
-              ))}
-            </ul>
+    <section aria-labelledby="product-newsletter-title" className="relative overflow-hidden rounded-[26px] border border-neutral-200 bg-gradient-to-br from-white via-white to-emerald-50/70 px-5 py-7 text-neutral-950 shadow-[0_22px_70px_rgba(15,23,18,.08)] sm:px-8 sm:py-9 md:px-10 md:py-10">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-28 h-72 w-72 rounded-full bg-[#3ecf4c]/15 blur-3xl" />
+      <div aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-[#3ecf4c] via-emerald-500 to-[#3ecf4c]" />
+      <div className="relative grid items-center gap-8 lg:grid-cols-[.95fr_1.05fr] lg:gap-14">
+        <div>
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#3ecf4c] opacity-40" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            <p className="text-[9px] font-black uppercase tracking-[.28em] text-emerald-700">Newsletter privée</p>
           </div>
-
-          <div className="pt-10 md:pt-0 border-t border-white/10 md:border-0">
-            {status === "success" ? (
-              <div className="flex flex-col items-start gap-4">
-                <div className="w-14 h-14 border border-[#3ecf4c]/40 bg-[#3ecf4c]/10 flex items-center justify-center">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-white font-black text-xl h-display">Bienvenue dans la famille !</p>
-                  <p className="text-neutral-400 text-[13px] mt-1.5 leading-relaxed">Votre inscription a bien ete prise en compte.</p>
-                </div>
-              </div>
-            ) : (
-              <>
-                <p className="text-neutral-300 text-[13px] leading-relaxed mb-6 border-l-2 border-[#3ecf4c] pl-4">
-                  Entrez votre adresse e-mail pour recevoir en exclusivite nos dernieres offres et nouveautes.
-                </p>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-500">Adresse e-mail</label>
-                  <div className="relative">
-                    <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-600 pointer-events-none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                      <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 7L2 7" />
-                    </svg>
-                    <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setStatus("idle"); }} placeholder="votre@email.com" required className="w-full pl-11 pr-4 py-4 bg-white/5 border border-white/10 text-white text-[13px] placeholder:text-neutral-600 focus:outline-none focus:border-[#3ecf4c] focus:bg-[#3ecf4c]/5 transition-all duration-200" />
-                  </div>
-                  <button type="submit" disabled={status === "loading"} className="w-full inline-flex items-center justify-center gap-2.5 bg-[#3ecf4c] text-black py-4 text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#2db83a] active:scale-[0.98] transition-all duration-200 disabled:opacity-60 mt-1">
-                    {status === "loading" ? (
-                      <svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
-                    ) : (
-                      <>Rejoindre la newsletter <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg></>
-                    )}
-                  </button>
-                  {status === "error" && <p className="text-red-400 text-[12px]">Une erreur est survenue. Veuillez reessayer.</p>}
-                </form>
-                <p className="mt-5 text-neutral-700 text-[11px] flex items-center gap-1.5">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                  Aucun spam. Desinscription en un clic.
-                </p>
-              </>
-            )}
+          <h2 id="product-newsletter-title" className="h-display max-w-xl text-[1.8rem] leading-[.98] tracking-[-.025em] sm:text-[2.2rem]">
+            Les nouveautés,<br className="hidden sm:block" /> avant tout le monde.
+          </h2>
+          <p className="mt-3 max-w-xl text-[12px] leading-6 text-neutral-500 sm:text-[13px]">
+            Recevez nos nouveaux produits, promotions et offres privées directement par e-mail.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+            {["Offres exclusives", "Nouveautés", "Sans spam"].map((benefit) => (
+              <span key={benefit} className="inline-flex items-center gap-1.5 text-[10px] font-bold text-neutral-600">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" className="text-emerald-600" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="currentColor" opacity=".12" /><path d="m5 8 2 2 4-4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                {benefit}
+              </span>
+            ))}
           </div>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200/80 bg-white/90 p-3 shadow-[0_14px_40px_rgba(15,23,18,.06)] backdrop-blur sm:p-4">
+          <NewsletterForm variant="light" />
+          <p className="mt-3 flex items-center justify-center gap-2 text-[10px] text-neutral-400 sm:justify-start">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+            Vos données restent privées. Désinscription en un clic.
+          </p>
         </div>
       </div>
     </section>

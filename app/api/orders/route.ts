@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
 import { products as catalogProducts } from "@/lib/products";
+import { broadcastAdminPushNotification } from "@/lib/push-notifications";
 
 // Use service role key server-side so RLS doesn't block order insertion
 const supabase = createClient(
@@ -154,9 +155,17 @@ export async function POST(req: NextRequest) {
 
   const safeNotes = cleanText(notes, 1000) || null;
   const calculatedSubtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const { data: featureRows } = await supabase
+    .from("settings")
+    .select("key,value")
+    .in("key", ["enable_coupons", "enable_ecoclub"]);
+  const featureSettings = Object.fromEntries((featureRows ?? []).map((row) => [row.key, String(row.value ?? "")]));
 
   let couponDiscount = 0;
   if (coupon_id) {
+    if (featureSettings.enable_coupons === "false") {
+      return NextResponse.json({ error: "Les codes promotionnels sont désactivés." }, { status: 409 });
+    }
     const { data: coupon } = await supabase.from("coupons").select("*").eq("id", coupon_id).eq("active", true).single();
     const couponValid = coupon &&
       (!coupon.expires_at || new Date(coupon.expires_at) >= new Date()) &&
@@ -170,7 +179,7 @@ export async function POST(req: NextRequest) {
 
   let loyaltyPercent = 0;
   const customerUser = await getCustomerUser(req);
-  if (customerUser?.email?.toLowerCase() === customer.email) {
+  if (featureSettings.enable_ecoclub !== "false" && customerUser?.email?.toLowerCase() === customer.email) {
     const { data: pointRecord } = await supabase.from("user_points").select("points").eq("email", customer.email).single();
     const points = Number(pointRecord?.points ?? 0);
     loyaltyPercent = points >= 1000 ? 50 : points >= 500 ? 30 : 0;
@@ -184,8 +193,10 @@ export async function POST(req: NextRequest) {
   ]);
   const settings = Object.fromEntries((settingRows ?? []).map((row) => [row.key, row.value]));
   const zone = zones?.[0];
-  const shippingRate = Number(zone?.base_rate ?? zone?.rate ?? settings.shipping_cost ?? 35);
-  const freeAbove = Number(zone?.free_above ?? zone?.min_order ?? settings.free_shipping_threshold ?? 500);
+  // Global Settings are authoritative. Shipping zones are retained only as a
+  // fallback for stores that have not configured the global values yet.
+  const shippingRate = Number(settings.shipping_cost ?? zone?.base_rate ?? zone?.rate ?? 35);
+  const freeAbove = Number(settings.free_shipping_threshold ?? zone?.free_above ?? zone?.min_order ?? 500);
   const isLocalDelivery = customer.city.toLowerCase().replace(/[-\s]/g, "") === "sidibennour";
   const safeShipping = isLocalDelivery || calculatedSubtotal >= freeAbove ? 0 : shippingRate;
 
@@ -216,6 +227,15 @@ export async function POST(req: NextRequest) {
     console.error("Order insert error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  await broadcastAdminPushNotification({
+    eventKey: `order:${data.id}`,
+    title: `Nouvelle commande · ${order_number}`,
+    body: `${customer.name} · ${total.toFixed(0)} MAD · ${items.length} article${items.length > 1 ? "s" : ""}`,
+    url: "/admin/orders/",
+    tag: `admin-order-${data.id}`,
+    requireInteraction: true,
+  }).catch((pushError) => console.error("Admin order push failed:", pushError));
 
   // Decrement stock for each ordered item (non-blocking, best-effort)
   for (const item of items) {
@@ -436,7 +456,7 @@ export async function POST(req: NextRequest) {
     </tr></table>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:14px;border-top:1px solid #e5e7eb;padding-top:14px;"><tr>
       <td style="font-size:10px;color:#9ca3af;">&#10003; Retours accept&#233;s sous 30 jours</td>
-      <td style="font-size:10px;color:#9ca3af;text-align:center;">&#10003; Livraison 35 MAD partout au Maroc</td>
+      <td style="font-size:10px;color:#9ca3af;text-align:center;">&#10003; Livraison ${shippingRate.toFixed(0)} MAD partout au Maroc</td>
       <td style="font-size:10px;color:#9ca3af;text-align:right;">&#10003; Paiement s&#233;curis&#233;</td>
     </tr></table>
   </td></tr>

@@ -30,6 +30,7 @@ export interface EcomediaPost {
   author_name?: string | null;
   author_avatar?: string | null;
   is_client_post?: boolean;
+  moderation_status?: "pending" | "approved";
 }
 
 export interface EcomediaComment {

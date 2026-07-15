@@ -1,3 +1,7 @@
+"use client";
+
+import { useSettings } from "@/lib/use-settings";
+
 type Props = {
   className?: string;
   variant?: "dark" | "light";
@@ -7,8 +11,20 @@ type Props = {
 export default function Logo({
   className = "",
   variant = "dark",
+  showWordmark = false,
 }: Props) {
+  const siteSettings = useSettings();
   const textColor = variant === "light" ? "#ffffff" : "#000000";
+  const configuredLogo = siteSettings.logo_image?.trim();
+
+  if (configuredLogo && variant === "dark" && !showWordmark) {
+    return (
+      <span className={`inline-flex h-10 w-[135px] items-center select-none ${className}`}>
+        {/* Uploaded Supabase URLs and local assets are both supported here. */}
+        <img src={configuredLogo} alt={siteSettings.store_name || "L'ecomax"} className="max-h-10 max-w-[135px] object-contain object-left" />
+      </span>
+    );
+  }
 
   return (
     <span className={`inline-flex items-center select-none ${className}`}>

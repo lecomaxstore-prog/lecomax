@@ -67,7 +67,7 @@ export default function EcomediaNotifButton() {
         setPhase("denied");
         return;
       }
-      await navigator.serviceWorker.register("/sw.js");
+      await navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" });
       const reg = await navigator.serviceWorker.ready;
       const existing = await reg.pushManager.getSubscription().catch(() => null);
       if (existing) await existing.unsubscribe().catch(() => {});

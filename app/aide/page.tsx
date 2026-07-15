@@ -107,12 +107,21 @@ export default function AidePage() {
   const [activeGroup, setActiveGroup] = useState("commandes");
   const [openFaq, setOpenFaq] = useState<string | null>(null);
 
-  const current = faqGroups.find((g) => g.id === activeGroup)!;
+  const visibleFaqGroups = faqGroups
+    .filter((group) => group.id !== "ecoclub" || siteSettings.enable_ecoclub !== "false")
+    .map((group) => group.id !== "livraison" ? group : {
+      ...group,
+      faqs: group.faqs.map((faq) => faq.q !== "Quels sont les délais de livraison ?" ? faq : {
+        ...faq,
+        a: `La livraison standard prend 3 à 5 jours ouvrables partout au Maroc. Les frais de livraison sont de ${siteSettings.shipping_cost || "35"} MAD (offerts dès ${siteSettings.free_shipping_threshold || "500"} MAD d'achats).`,
+      }),
+    });
+  const current = visibleFaqGroups.find((g) => g.id === activeGroup) ?? visibleFaqGroups[0];
 
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": faqGroups.flatMap((g) =>
+    "mainEntity": visibleFaqGroups.flatMap((g) =>
       g.faqs.map((f) => ({
         "@type": "Question",
         "name": f.q,
@@ -196,7 +205,7 @@ export default function AidePage() {
           {/* Left: topic sidebar */}
           <div className="lg:w-56 shrink-0">
             <div className="flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-1 pb-1 lg:pb-0">
-              {topics.map((t) => (
+              {topics.filter((topic) => topic.id !== "ecoclub" || siteSettings.enable_ecoclub !== "false").map((t) => (
                 <button
                   key={t.id}
                   onClick={() => { setActiveGroup(t.id); setOpenFaq(null); }}

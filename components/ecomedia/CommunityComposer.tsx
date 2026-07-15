@@ -19,6 +19,7 @@ export default function CommunityComposer({ onPublished }: { onPublished: (post:
   const [preview, setPreview] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -86,7 +87,9 @@ export default function CommunityComposer({ onPublished }: { onPublished: (post:
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Publication impossible.");
-      onPublished(data as EcomediaPost);
+      if (data.moderation_status !== "pending") onPublished(data as EcomediaPost);
+      setNotice("Publication envoyée ! Elle apparaîtra après validation par l’administrateur.");
+      window.setTimeout(() => setNotice(""), 6000);
       setContent("");
       setFile(null);
       setOpen(false);
@@ -109,7 +112,7 @@ export default function CommunityComposer({ onPublished }: { onPublished: (post:
               <span className="block text-[13px] font-medium text-neutral-500 group-hover:text-neutral-700">
                 {user ? `Quoi de neuf, ${firstName} ?` : "Partagez une idée avec la communauté"}
               </span>
-              <span className="mt-0.5 hidden text-[9px] text-neutral-400 sm:block">Texte ou photo · Simple, rapide et public</span>
+              <span className="mt-0.5 hidden text-[9px] text-neutral-400 sm:block">Texte ou photo · Validation avant publication</span>
             </button>
             <button type="button" onClick={startPost} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#3ecf4c] text-black shadow-[0_10px_24px_rgba(62,207,76,.22)] transition hover:-translate-y-0.5 hover:bg-[#16b277] hover:text-white active:scale-95" aria-label="Créer une publication">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3"><path d="M12 5v14M5 12h14"/></svg>
@@ -134,6 +137,7 @@ export default function CommunityComposer({ onPublished }: { onPublished: (post:
             </span>
           </div>
         </div>
+        {notice && <p role="status" className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[11px] font-bold leading-5 text-emerald-800">✓ {notice}</p>}
         {!user && checked && <p className="mt-2.5 px-2 text-[9px] leading-4 text-neutral-400">Lecture libre · Connectez-vous gratuitement pour publier du texte ou une photo.</p>}
       </section>
 
@@ -144,7 +148,7 @@ export default function CommunityComposer({ onPublished }: { onPublished: (post:
             <header className="relative overflow-hidden bg-neutral-950 px-5 pb-6 pt-5 text-white sm:px-6">
               <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#3ecf4c]/15 blur-3xl" />
               <div className="relative flex items-start justify-between">
-                <div><p className="text-[9px] font-black uppercase tracking-[.22em] text-[#3ecf4c]">Ecomedia communauté</p><h2 id="community-composer-title" className="mt-2 text-xl font-black">Créer une publication</h2><p className="mt-1 text-[10px] text-white/45">Votre publication sera visible publiquement.</p></div>
+                <div><p className="text-[9px] font-black uppercase tracking-[.22em] text-[#3ecf4c]">Ecomedia communauté</p><h2 id="community-composer-title" className="mt-2 text-xl font-black">Créer une publication</h2><p className="mt-1 text-[10px] text-white/45">Votre publication sera vérifiée avant sa mise en ligne.</p></div>
                 <button type="button" onClick={() => setOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[.07] text-white/70 transition hover:bg-white/15 hover:text-white" aria-label="Fermer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
               </div>
             </header>

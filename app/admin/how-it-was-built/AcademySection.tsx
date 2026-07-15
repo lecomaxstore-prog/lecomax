@@ -30,7 +30,7 @@ const TEXT = {
   fr: {
     badge: "Manuel interactif complet",
     title: "De zéro à créateur web et entrepreneur e-commerce — avec L’ecomax comme laboratoire.",
-    intro: "160 leçons complètes dans 40 modules : code, Next.js, design, layouts, vente, SEO, acquisition et croissance. Chaque leçon explique le pourquoi, montre un exemple annoté, te fait pratiquer, puis vérifie ta compréhension.",
+    intro: "192 leçons complètes dans 48 modules : code, Next.js, Supabase, design, sourcing en Chine, import, vente, SEO, acquisition et croissance. Chaque leçon explique le pourquoi, montre un exemple annoté, te fait pratiquer, puis vérifie ta compréhension.",
     modules: "modules", lessons: "leçons", languages: "langues", free: "accès libre",
     search: "Rechercher une notion, une commande, un fichier…", noResults: "Aucun résultat dans le cours.",
     program: "Programme", lesson: "Leçon", duration: "min", loading: "Chargement de la leçon…",
@@ -50,7 +50,7 @@ const TEXT = {
   en: {
     badge: "Complete interactive textbook",
     title: "From zero to web creator and ecommerce entrepreneur — using L’ecomax as your laboratory.",
-    intro: "160 complete lessons across 40 modules: code, Next.js, design, layouts, selling, SEO, acquisition, and growth. Every lesson explains why, shows an annotated example, guides practice, and checks your understanding.",
+    intro: "192 complete lessons across 48 modules: code, Next.js, Supabase, design, China sourcing, importing, selling, SEO, acquisition, and growth. Every lesson explains why, shows an annotated example, guides practice, and checks your understanding.",
     modules: "modules", lessons: "lessons", languages: "languages", free: "open access",
     search: "Search for a concept, command, or file…", noResults: "No course results.",
     program: "Curriculum", lesson: "Lesson", duration: "min", loading: "Loading lesson…",
@@ -70,7 +70,7 @@ const TEXT = {
   ar: {
     badge: "كتاب تفاعلي متكامل",
     title: "من الصفر إلى صانع ويب ورائد تجارة إلكترونية — باستخدام L’ecomax كمختبر عملي.",
-    intro: "160 درسًا كاملًا ضمن 40 وحدة: البرمجة وNext.js والتصميم والتخطيط والبيع وSEO والاكتساب والنمو. يشرح كل درس السبب ويعرض مثالًا مشروحًا ويوجه التطبيق ثم يتحقق من الفهم.",
+    intro: "192 درسًا كاملًا ضمن 48 وحدة: البرمجة وNext.js وSupabase والتصميم والتوريد من الصين والاستيراد والبيع وSEO والاكتساب والنمو. يشرح كل درس السبب ويعرض مثالًا مشروحًا ويوجه التطبيق ثم يتحقق من الفهم.",
     modules: "وحدة", lessons: "درسًا", languages: "لغات", free: "وصول مفتوح",
     search: "ابحث عن مفهوم أو أمر أو ملف…", noResults: "لا توجد نتائج في الدورة.",
     program: "البرنامج", lesson: "الدرس", duration: "دقيقة", loading: "جارٍ تحميل الدرس…",
@@ -87,6 +87,54 @@ const TEXT = {
     mobileModule: "اختر وحدة", mobileLesson: "اختر درسًا", navigation: "التنقل بين الدروس",
     retry: "إعادة المحاولة", searchUnavailable: "البحث غير متاح مؤقتًا، لكن جميع الدروس ما زالت متاحة.",
   },
+} as const;
+
+const PROGRESS_TEXT = {
+  fr: {
+    progress: "Progression de cette visite", completed: "terminées", markComplete: "Marquer comme terminée",
+    completedLesson: "Leçon terminée", continueLearning: "Continuer mon apprentissage",
+    beginnerPaths: "Parcours guidés pour débuter",
+    beginnerPathsIntro: "Choisis un objectif concret. Chaque parcours ouvre la bonne leçon avec le fichier, le code annoté, l'exercice et le quiz.",
+  },
+  en: {
+    progress: "Progress in this visit", completed: "completed", markComplete: "Mark as completed",
+    completedLesson: "Lesson completed", continueLearning: "Continue learning",
+    beginnerPaths: "Guided beginner paths",
+    beginnerPathsIntro: "Choose a concrete goal. Each path opens the right lesson with its file, annotated code, exercise, and quiz.",
+  },
+  ar: {
+    progress: "تقدم هذه الزيارة", completed: "مكتملة", markComplete: "تحديد الدرس كمكتمل",
+    completedLesson: "الدرس مكتمل", continueLearning: "متابعة التعلم",
+    beginnerPaths: "مسارات موجهة للمبتدئين",
+    beginnerPathsIntro: "اختر هدفاً واضحاً. يفتح كل مسار الدرس المناسب مع الملف والكود المشروح والتمرين والاختبار.",
+  },
+} as const;
+
+const QUICK_PATHS = {
+  fr: [
+    { icon: "01", title: "Je n'ai jamais codé", desc: "Lis les balises, accolades, parenthèses et erreurs sans te perdre.", moduleId: "beginner-code-labs", lessonId: "read-code-symbols", color: "#22c55e" },
+    { icon: "02", title: "Créer une page Next.js", desc: "Crée app/ma-page/page.tsx, ajoute son contenu et relie-la avec Link.", moduleId: "next-routing-lab", lessonId: "page-route-link", color: "#3b82f6" },
+    { icon: "03", title: "Styliser avec Tailwind", desc: "Comprends les classes, le mobile-first et les breakpoints sm, md et lg.", moduleId: "module-05-responsive-tailwind", lessonId: "lesson-05-03-tailwind", color: "#06b6d4" },
+    { icon: "04", title: "Construire une API", desc: "Crée route.ts, valide les données et retourne une réponse JSON propre.", moduleId: "nextjs-server-data", lessonId: "next-route-handlers", color: "#f59e0b" },
+    { icon: "05", title: "Coder dans Supabase", desc: "Crée tables et colonnes dans SQL Editor, puis connecte le CRUD à Next.js.", moduleId: "supabase-build-lab", lessonId: "supabase-project-schema", color: "#3ecf8e" },
+    { icon: "06", title: "Sécuriser les données", desc: "Comprends Auth, RLS, clé anon, service role et politiques d'accès.", moduleId: "supabase-build-lab", lessonId: "supabase-auth-rls", color: "#8b5cf6" },
+  ],
+  en: [
+    { icon: "01", title: "I have never coded", desc: "Read tags, braces, parentheses, and errors without getting lost.", moduleId: "beginner-code-labs", lessonId: "read-code-symbols", color: "#22c55e" },
+    { icon: "02", title: "Create a Next.js page", desc: "Create app/my-page/page.tsx, add content, and connect it with Link.", moduleId: "next-routing-lab", lessonId: "page-route-link", color: "#3b82f6" },
+    { icon: "03", title: "Style with Tailwind", desc: "Understand utility classes, mobile-first, and sm, md, lg breakpoints.", moduleId: "module-05-responsive-tailwind", lessonId: "lesson-05-03-tailwind", color: "#06b6d4" },
+    { icon: "04", title: "Build an API", desc: "Create route.ts, validate input, and return a clean JSON response.", moduleId: "nextjs-server-data", lessonId: "next-route-handlers", color: "#f59e0b" },
+    { icon: "05", title: "Write Supabase code", desc: "Create tables in SQL Editor, then connect CRUD to Next.js.", moduleId: "supabase-build-lab", lessonId: "supabase-project-schema", color: "#3ecf8e" },
+    { icon: "06", title: "Secure the data", desc: "Understand Auth, RLS, anon key, service role, and access policies.", moduleId: "supabase-build-lab", lessonId: "supabase-auth-rls", color: "#8b5cf6" },
+  ],
+  ar: [
+    { icon: "01", title: "لم أبرمج من قبل", desc: "تعلم قراءة الوسوم والأقواس والأخطاء بوضوح.", moduleId: "beginner-code-labs", lessonId: "read-code-symbols", color: "#22c55e" },
+    { icon: "02", title: "إنشاء صفحة Next.js", desc: "أنشئ app/my-page/page.tsx وأضف المحتوى ورابط Link.", moduleId: "next-routing-lab", lessonId: "page-route-link", color: "#3b82f6" },
+    { icon: "03", title: "التصميم بـ Tailwind", desc: "افهم الكلاسات وmobile-first ونقاط sm وmd وlg.", moduleId: "module-05-responsive-tailwind", lessonId: "lesson-05-03-tailwind", color: "#06b6d4" },
+    { icon: "04", title: "بناء API", desc: "أنشئ route.ts وتحقق من البيانات وأعد JSON صحيحاً.", moduleId: "nextjs-server-data", lessonId: "next-route-handlers", color: "#f59e0b" },
+    { icon: "05", title: "كتابة كود Supabase", desc: "أنشئ الجداول في SQL Editor ثم اربط CRUD بـ Next.js.", moduleId: "supabase-build-lab", lessonId: "supabase-project-schema", color: "#3ecf8e" },
+    { icon: "06", title: "حماية البيانات", desc: "افهم Auth وRLS وanon key وservice role وسياسات الوصول.", moduleId: "supabase-build-lab", lessonId: "supabase-auth-rls", color: "#8b5cf6" },
+  ],
 } as const;
 
 function readHash() {
@@ -166,6 +214,7 @@ function CodePanel({
 
 export default function AcademySection({ lang }: Props) {
   const labels = TEXT[lang];
+  const progressLabels = PROGRESS_TEXT[lang];
   const [moduleId, setModuleId] = useState(firstModule.id);
   const [lessonId, setLessonId] = useState(firstModule.lessonIds[0]);
   const [selectionReady, setSelectionReady] = useState(false);
@@ -184,9 +233,18 @@ export default function AcademySection({ lang }: Props) {
   const [visibleHints, setVisibleHints] = useState<Set<number>>(new Set());
   const [solutionOpen, setSolutionOpen] = useState(false);
   const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
   const lastNavigationHash = useRef("");
   const pendingLessonNavigation = useRef<{ lessonId: string; behavior: ScrollBehavior } | null>(null);
   const activeManifest = manifest.modules.find(item => item.id === moduleId) ?? firstModule;
+
+  function toggleLessonComplete(id: string) {
+    setCompletedLessons(previous => {
+      const next = new Set(previous);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
 
   const navigate = useCallback((nextModuleId: string, nextLessonId: string, push = true, focusLesson = true) => {
     const nextModule = manifest.modules.find(item => item.id === nextModuleId) ?? firstModule;
@@ -408,6 +466,23 @@ export default function AcademySection({ lang }: Props) {
           <div className="mt-5 flex flex-wrap gap-2">
             {[[manifest.moduleCount, labels.modules], [manifest.lessonCount, labels.lessons], [3, labels.languages], ["∞", labels.free]].map(([value, label]) => <div key={String(label)} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2"><span className="text-sm font-black text-[#3ecf4c]">{value}</span><span className="ms-1.5 text-[10px] text-white/45">{label}</span></div>)}
           </div>
+          <div className="mt-5 max-w-xl rounded-2xl border border-white/10 bg-white/[.06] p-4">
+            <div className="flex items-center justify-between gap-3 text-xs"><span className="font-black">{progressLabels.progress}</span><span className="tabular-nums text-white/55">{completedLessons.size}/{manifest.lessonCount} {progressLabels.completed}</span></div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#3ecf4c] transition-[width] duration-500" style={{ width: `${Math.min(100, (completedLessons.size / manifest.lessonCount) * 100)}%` }} /></div>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-neutral-100 bg-white p-4 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div><p className="text-[10px] font-black uppercase tracking-[.2em] text-[#16b277]">START HERE</p><h3 className="mt-1 text-xl font-black text-neutral-950">{progressLabels.beginnerPaths}</h3></div>
+          <p className="max-w-2xl text-sm leading-6 text-neutral-500 sm:text-xs">{progressLabels.beginnerPathsIntro}</p>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {QUICK_PATHS[lang].map(path => <button type="button" key={path.moduleId + path.lessonId} onClick={() => navigate(path.moduleId, path.lessonId)} className="group min-h-32 rounded-2xl border border-neutral-100 bg-neutral-50 p-4 text-start transition hover:-translate-y-0.5 hover:border-neutral-300 hover:bg-white hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16b277]">
+            <div className="flex items-center justify-between"><span className="flex h-8 w-8 items-center justify-center rounded-xl text-[10px] font-black text-white" style={{ backgroundColor: path.color }}>{path.icon}</span><span className="text-neutral-300 transition group-hover:translate-x-1 group-hover:text-neutral-700">→</span></div>
+            <p className="mt-3 text-sm font-black text-neutral-950">{path.title}</p><p className="mt-1 text-xs leading-5 text-neutral-500">{path.desc}</p>
+          </button>)}
         </div>
       </section>
 
@@ -433,9 +508,9 @@ export default function AcademySection({ lang }: Props) {
                 <div key={module.id}>
                   <button onClick={() => navigate(module.id, module.lessonIds[0])} aria-expanded={module.id === moduleId} className={"flex w-full items-start gap-2.5 rounded-xl border p-3 text-start transition " + (module.id === moduleId ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-100 bg-white hover:border-neutral-300")}>
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[9px] font-black text-white" style={{ backgroundColor: module.color }}>{String(moduleIndex + 1).padStart(2, "0")}</span>
-                    <span className="min-w-0"><span className="block text-[10px] font-black leading-4">{activeCourseIndex?.modules[moduleIndex]?.title ?? module.id}</span><span className="text-[9px] opacity-45">4 {labels.lessons}</span></span>
+                    <span className="min-w-0"><span className="block text-[10px] font-black leading-4">{activeCourseIndex?.modules[moduleIndex]?.title ?? module.id}</span><span className="text-[9px] opacity-45">{module.lessonIds.filter(id => completedLessons.has(id)).length}/{module.lessonIds.length} {progressLabels.completed}</span></span>
                   </button>
-                  {module.id === moduleId && <div className="my-1 space-y-0.5 border-s border-neutral-200 ps-3">{module.lessonIds.map((id, index) => <button key={id} onClick={() => navigate(module.id, id)} className={"block w-full rounded-lg px-2 py-2 text-start text-[10px] leading-4 " + (id === lessonId ? "bg-emerald-50 font-black text-emerald-800" : "text-neutral-500 hover:bg-neutral-50")}>{index + 1}. {activeCourseIndex?.modules[moduleIndex]?.lessonTitles[index] ?? id}</button>)}</div>}
+                  {module.id === moduleId && <div className="my-1 space-y-0.5 border-s border-neutral-200 ps-3">{module.lessonIds.map((id, index) => <button key={id} onClick={() => navigate(module.id, id)} className={"flex w-full items-start gap-2 rounded-lg px-2 py-2 text-start text-[10px] leading-4 " + (id === lessonId ? "bg-emerald-50 font-black text-emerald-800" : "text-neutral-500 hover:bg-neutral-50")}><span className={completedLessons.has(id) ? "text-emerald-600" : "text-neutral-300"}>{completedLessons.has(id) ? "✓" : "○"}</span><span>{index + 1}. {activeCourseIndex?.modules[moduleIndex]?.lessonTitles[index] ?? id}</span></button>)}</div>}
                 </div>
               ))}
             </div>
@@ -444,20 +519,21 @@ export default function AcademySection({ lang }: Props) {
 
         {moduleError ? <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 sm:p-6"><p>{moduleError}</p><button type="button" onClick={() => setRetryToken(value => value + 1)} className="mt-4 min-h-11 rounded-lg bg-red-700 px-3 py-2 text-sm font-black text-white sm:text-[11px]">{labels.retry}</button></div>
         : loading || loadedModuleKey !== requestedModuleKey ? <div role="status" aria-live="polite" className="flex min-h-96 items-center justify-center rounded-2xl border bg-white"><div className="text-center"><div className="mx-auto h-7 w-7 animate-spin rounded-full border-2 border-[#3ecf4c] border-t-transparent" /><p className="mt-3 text-xs text-neutral-400">{labels.loading}</p></div></div>
-        : lesson && activeCourseModule ? <LessonReader lesson={lesson} courseModule={activeCourseModule} labels={labels} lang={lang} copiedKey={copiedKey} onCopy={copy} renderBlock={renderBlock} visibleHints={visibleHints} setVisibleHints={setVisibleHints} solutionOpen={solutionOpen} setSolutionOpen={setSolutionOpen} answers={answers} setAnswers={setAnswers} onPrevious={() => adjacent(-1)} onNext={() => adjacent(1)} hasPrevious={currentModuleIndex > 0 || currentLessonIndex > 0} hasNext={currentModuleIndex < manifest.modules.length - 1 || currentLessonIndex < activeManifest.lessonIds.length - 1} /> : null}
+        : lesson && activeCourseModule ? <LessonReader lesson={lesson} courseModule={activeCourseModule} labels={labels} progressLabels={progressLabels} lang={lang} copiedKey={copiedKey} onCopy={copy} renderBlock={renderBlock} visibleHints={visibleHints} setVisibleHints={setVisibleHints} solutionOpen={solutionOpen} setSolutionOpen={setSolutionOpen} answers={answers} setAnswers={setAnswers} completed={completedLessons.has(lesson.id)} onToggleComplete={() => toggleLessonComplete(lesson.id)} onPrevious={() => adjacent(-1)} onNext={() => adjacent(1)} hasPrevious={currentModuleIndex > 0 || currentLessonIndex > 0} hasNext={currentModuleIndex < manifest.modules.length - 1 || currentLessonIndex < activeManifest.lessonIds.length - 1} /> : null}
       </div>
     </div>
   );
 }
 
 function LessonReader({
-  lesson, courseModule, labels, lang, copiedKey, onCopy, renderBlock,
+  lesson, courseModule, labels, progressLabels, lang, copiedKey, onCopy, renderBlock,
   visibleHints, setVisibleHints, solutionOpen, setSolutionOpen, answers, setAnswers,
-  onPrevious, onNext, hasPrevious, hasNext,
+  completed, onToggleComplete, onPrevious, onNext, hasPrevious, hasNext,
 }: {
   lesson: Lesson;
   courseModule: CourseModule;
   labels: Labels;
+  progressLabels: (typeof PROGRESS_TEXT)[CourseLanguage];
   lang: CourseLanguage;
   copiedKey: string;
   onCopy: (value: string, key: string) => void;
@@ -468,6 +544,8 @@ function LessonReader({
   setSolutionOpen: (value: boolean) => void;
   answers: Record<string, number>;
   setAnswers: React.Dispatch<React.SetStateAction<Record<string, number>>>;
+  completed: boolean;
+  onToggleComplete: () => void;
   onPrevious: () => void;
   onNext: () => void;
   hasPrevious: boolean;
@@ -523,6 +601,7 @@ function LessonReader({
           <header className="rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm sm:p-7">
             <div className={`flex flex-wrap items-center gap-2 text-[10px] font-black text-neutral-400 sm:text-[9px] ${eyebrowClass}`}><span>{courseModule.icon} {courseModule.title}</span><span>•</span><span>{labels.lesson} {lesson.order + 1}/4</span><span>•</span><span>{lesson.estimatedMinutes} {labels.duration}</span></div>
             <h1 tabIndex={-1} id="academy-lesson-title" className="mt-3 scroll-mt-40 text-2xl font-black leading-tight text-neutral-950 outline-none sm:scroll-mt-32 sm:text-3xl">{lesson.title}</h1>
+            <button type="button" aria-pressed={completed} onClick={onToggleComplete} className={"mt-4 min-h-11 rounded-xl border px-4 py-2.5 text-sm font-black transition sm:text-xs " + (completed ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-neutral-200 bg-white text-neutral-700 hover:border-emerald-300 hover:text-emerald-700")}><span className="me-2">{completed ? "✓" : "○"}</span>{completed ? progressLabels.completedLesson : progressLabels.markComplete}</button>
             <p className="mt-3 text-sm leading-7 text-neutral-500">{courseModule.summary}</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl bg-neutral-50 p-4"><p className={`text-[11px] font-black text-neutral-400 sm:text-[9px] ${eyebrowClass}`}>{labels.prerequisites}</p><ul className="mt-2 space-y-1">{lesson.prerequisites.map(item => <li key={item} className="text-sm leading-6 text-neutral-700 sm:text-[11px] sm:leading-5">✓ {item}</li>)}</ul></div>

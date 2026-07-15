@@ -3,11 +3,14 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import AdminPushNotifications from "@/components/AdminPushNotifications";
+import AdminCommandPalette from "@/components/AdminCommandPalette";
 
 const nav = [
   {
     label: "Ecomedia",
     href: "/admin/ecomedia",
+    badge: "ecomedia",
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
         <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
@@ -461,7 +464,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [checking, setChecking] = useState(true);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [badges, setBadges] = useState<Record<string, number>>({ orders: 0, stock: 0, messages: 0, approvals: 0 });
+  const [badges, setBadges] = useState<Record<string, number>>({ orders: 0, stock: 0, messages: 0, approvals: 0, ecomedia: 0 });
   const [now, setNow] = useState("");
   const [permissionState, setPermissionState] = useState<
     | { status: "loading" }
@@ -690,16 +693,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       fetch("/api/products"),
       fetch("/api/messages?unread=true"),
       fetch("/api/admin/approvals?status=pending"),
-    ]).then(async ([oRes, pRes, mRes, aRes]) => {
+      fetch("/api/admin/ecomedia/posts?limit=100"),
+    ]).then(async ([oRes, pRes, mRes, aRes, eRes]) => {
       const orders = oRes.ok ? await oRes.json() : [];
       const products = pRes.ok ? await pRes.json() : [];
       const msgs = mRes.ok ? await mRes.json() : [];
       const approvals = aRes.ok ? await aRes.json() : [];
+      const ecomediaPosts = eRes.ok ? await eRes.json() : [];
       const pending = Array.isArray(orders) ? orders.filter((o: { status: string }) => o.status === "pending").length : 0;
       const lowStock = Array.isArray(products) ? products.filter((p: { stock: number }) => p.stock <= 3).length : 0;
       const unread = Array.isArray(msgs) ? msgs.length : 0;
       const pendingApprovals = Array.isArray(approvals) ? approvals.length : 0;
-      setBadges({ orders: pending, stock: lowStock, messages: unread, approvals: pendingApprovals });
+      const pendingEcomedia = Array.isArray(ecomediaPosts) ? ecomediaPosts.filter((post: { is_client_post?: boolean; is_published?: boolean }) => post.is_client_post && !post.is_published).length : 0;
+      setBadges({ orders: pending, stock: lowStock, messages: unread, approvals: pendingApprovals, ecomedia: pendingEcomedia });
     }).catch(() => {});
   }, [pathname]);
 
@@ -722,6 +728,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     canSee(n.href) &&
     (!search || n.label.toLowerCase().includes(search.toLowerCase()))
   );
+
+  const commandItems = nav.filter(item => canSee(item.href)).map(item => ({
+    label: item.label,
+    href: item.href,
+    icon: item.icon,
+    badge: item.badge ? (badges[item.badge] ?? 0) : undefined,
+    section: navSections.find(section => section.hrefs.includes(item.href))?.title ?? "ADMINISTRATION",
+  }));
 
   async function logout() {
     await supabase.auth.signOut();
@@ -1013,6 +1027,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           {/* Right actions */}
           <div className="flex items-center gap-2 shrink-0">
+            <AdminCommandPalette items={commandItems} pathname={pathname} />
+            <AdminPushNotifications />
             {/* Alert pill — mobile */}
             {canSee("/admin/orders") && badges.orders > 0 && (
               <Link href="/admin/orders"

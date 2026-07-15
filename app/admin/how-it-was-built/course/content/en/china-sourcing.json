@@ -1,0 +1,984 @@
+{
+  "id": "china-sourcing",
+  "order": 44,
+  "icon": "package",
+  "color": "#dc2626",
+  "title": "Buying from China: product, supplier, and safe ordering",
+  "summary": "Source with specifications, verification, samples, and written protection.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/44-china-sourcing/sourcing-product-spec.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/44-china-sourcing/find-verify-suppliers.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/44-china-sourcing/rfq-samples-negotiation.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/44-china-sourcing/safe-order-contract-payment.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sourcing-product-spec",
+      "order": 0,
+      "title": "Choose the product and write a specification",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Choose the product and write a specification into concrete, measurable decisions that can be applied to a real store.",
+        "Turn an unambiguous sourcing product specification into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Define dimensions, materials, tolerances, colors, packaging, marking, tests, quantity, destination, and unacceptable defects before requesting price. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Define dimensions, materials, tolerances, colors, packaging, marking, tests, quantity, destination, and unacceptable defects before requesting price. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Choose the product and write a specification is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Define dimensions, materials, tolerances, colors, packaging, marking, tests, quantity, destination, and unacceptable defects before requesting price. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Choose the product and write a specification, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers an unambiguous sourcing product specification. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "MOQ",
+                  "definition": "A central Choose the product and write a specification concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "RFQ",
+                  "definition": "A measure or structure that makes the Choose the product and write a specification decision comparable and reproducible."
+                },
+                {
+                  "term": "Sample",
+                  "definition": "A control boundary used to verify that Choose the product and write a specification improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Choose the product and write a specification to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/sourcing-product-spec.md",
+                "source": "# Choose the product and write a specification\n- [ ] Customer problem: Define dimensions, materials, tolerances, colors, packaging, marking, tests, quantity, destination, and unacceptable defects before requesting price.\n- [ ] Deliverable: an unambiguous sourcing product specification\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Choose the product and write a specification before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/sourcing-product-spec.md",
+                "source": "# Choose the product and write a specification\n- [x] Customer problem: Define dimensions, materials, tolerances, colors, packaging, marking, tests, quantity, destination, and unacceptable defects before requesting price.\n- [ ] Deliverable: an unambiguous sourcing product specification\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Choose the product and write a specification",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Choose the product and write a specification completes every section of an unambiguous sourcing product specification, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: an unambiguous sourcing product specification exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce an unambiguous sourcing product specification, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: an unambiguous sourcing product specification exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Choose the product and write a specification looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Choose the product and write a specification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Choose the product and write a specification rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build an unambiguous sourcing product specification from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Choose the product and write a specification completes every section of an unambiguous sourcing product specification, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Choose the product and write a specification\n- [x] Customer problem: Define dimensions, materials, tolerances, colors, packaging, marking, tests, quantity, destination, and unacceptable defects before requesting price.\n- [ ] Deliverable: an unambiguous sourcing product specification\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Choose the product and write a specification",
+          "filename": "exercises/44-china-sourcing/sourcing-product-spec.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "sourcing-product-spec-q1",
+          "question": "Which approach correctly applies Choose the product and write a specification?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Choose the product and write a specification, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Choose the product and write a specification, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Choose the product and write a specification, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Choose the product and write a specification, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Choose the product and write a specification, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "sourcing-product-spec-q2",
+          "question": "Which definition matches the term “MOQ”?",
+          "options": [
+            "A measure or structure that makes the Choose the product and write a specification decision comparable and reproducible.",
+            "A central Choose the product and write a specification concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Choose the product and write a specification improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“MOQ” means: A central Choose the product and write a specification concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Choose the product and write a specification decision comparable and reproducible. ». The reference answer is « A central Choose the product and write a specification concept defined by an observable rule rather than preference. ». “MOQ” means: A central Choose the product and write a specification concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Choose the product and write a specification concept defined by an observable rule rather than preference. ». “MOQ” means: A central Choose the product and write a specification concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Choose the product and write a specification improves the system without moving the problem elsewhere. ». The reference answer is « A central Choose the product and write a specification concept defined by an observable rule rather than preference. ». “MOQ” means: A central Choose the product and write a specification concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Choose the product and write a specification concept defined by an observable rule rather than preference. ». “MOQ” means: A central Choose the product and write a specification concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "sourcing-product-spec-q3",
+          "question": "What is the best first fix when you observe: “Choose the product and write a specification looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Choose the product and write a specification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Choose the product and write a specification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Choose the product and write a specification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Choose the product and write a specification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Choose the product and write a specification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Choose the product and write a specification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Choose the product and write a specification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Choose the product and write a specification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Choose the product and write a specification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Choose the product and write a specification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Choose the product and write a specification starts from an observable customer problem, never an isolated trend.",
+        "The an unambiguous sourcing product specification deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Choose the product and write a specification, continue with Find and verify manufacturers and trading companies to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "find-verify-suppliers",
+      "order": 1,
+      "title": "Find and verify manufacturers and trading companies",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Find and verify manufacturers and trading companies into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a verification scorecard for at least five suppliers into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Compare legal identity, product experience, capacity, reports, references, communication, video or third-party audit, and certificate match to the exact model. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Compare legal identity, product experience, capacity, reports, references, communication, video or third-party audit, and certificate match to the exact model. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Find and verify manufacturers and trading companies is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Compare legal identity, product experience, capacity, reports, references, communication, video or third-party audit, and certificate match to the exact model. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Find and verify manufacturers and trading companies, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a verification scorecard for at least five suppliers. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "MOQ",
+                  "definition": "A central Find and verify manufacturers and trading companies concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "RFQ",
+                  "definition": "A measure or structure that makes the Find and verify manufacturers and trading companies decision comparable and reproducible."
+                },
+                {
+                  "term": "Sample",
+                  "definition": "A control boundary used to verify that Find and verify manufacturers and trading companies improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Find and verify manufacturers and trading companies to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/find-verify-suppliers.md",
+                "source": "# Find and verify manufacturers and trading companies\n- [ ] Customer problem: Compare legal identity, product experience, capacity, reports, references, communication, video or third-party audit, and certificate match to the exact model.\n- [ ] Deliverable: a verification scorecard for at least five suppliers\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://seller.alibaba.com/verified-supplier?language=en_US\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Find and verify manufacturers and trading companies before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/find-verify-suppliers.md",
+                "source": "# Find and verify manufacturers and trading companies\n- [x] Customer problem: Compare legal identity, product experience, capacity, reports, references, communication, video or third-party audit, and certificate match to the exact model.\n- [ ] Deliverable: a verification scorecard for at least five suppliers\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://seller.alibaba.com/verified-supplier?language=en_US\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Find and verify manufacturers and trading companies",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Find and verify manufacturers and trading companies completes every section of a verification scorecard for at least five suppliers, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a verification scorecard for at least five suppliers exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a verification scorecard for at least five suppliers, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a verification scorecard for at least five suppliers exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Find and verify manufacturers and trading companies looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Find and verify manufacturers and trading companies problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Find and verify manufacturers and trading companies rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a verification scorecard for at least five suppliers from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Find and verify manufacturers and trading companies completes every section of a verification scorecard for at least five suppliers, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Find and verify manufacturers and trading companies\n- [x] Customer problem: Compare legal identity, product experience, capacity, reports, references, communication, video or third-party audit, and certificate match to the exact model.\n- [ ] Deliverable: a verification scorecard for at least five suppliers\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://seller.alibaba.com/verified-supplier?language=en_US\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Find and verify manufacturers and trading companies",
+          "filename": "exercises/44-china-sourcing/find-verify-suppliers.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "find-verify-suppliers-q1",
+          "question": "Which approach correctly applies Find and verify manufacturers and trading companies?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Find and verify manufacturers and trading companies, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Find and verify manufacturers and trading companies, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Find and verify manufacturers and trading companies, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Find and verify manufacturers and trading companies, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Find and verify manufacturers and trading companies, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "find-verify-suppliers-q2",
+          "question": "Which definition matches the term “MOQ”?",
+          "options": [
+            "A measure or structure that makes the Find and verify manufacturers and trading companies decision comparable and reproducible.",
+            "A central Find and verify manufacturers and trading companies concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Find and verify manufacturers and trading companies improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“MOQ” means: A central Find and verify manufacturers and trading companies concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Find and verify manufacturers and trading companies decision comparable and reproducible. ». The reference answer is « A central Find and verify manufacturers and trading companies concept defined by an observable rule rather than preference. ». “MOQ” means: A central Find and verify manufacturers and trading companies concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Find and verify manufacturers and trading companies concept defined by an observable rule rather than preference. ». “MOQ” means: A central Find and verify manufacturers and trading companies concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Find and verify manufacturers and trading companies improves the system without moving the problem elsewhere. ». The reference answer is « A central Find and verify manufacturers and trading companies concept defined by an observable rule rather than preference. ». “MOQ” means: A central Find and verify manufacturers and trading companies concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Find and verify manufacturers and trading companies concept defined by an observable rule rather than preference. ». “MOQ” means: A central Find and verify manufacturers and trading companies concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "find-verify-suppliers-q3",
+          "question": "What is the best first fix when you observe: “Find and verify manufacturers and trading companies looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Find and verify manufacturers and trading companies problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Find and verify manufacturers and trading companies problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Find and verify manufacturers and trading companies problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Find and verify manufacturers and trading companies problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Find and verify manufacturers and trading companies problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Find and verify manufacturers and trading companies problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Find and verify manufacturers and trading companies problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Find and verify manufacturers and trading companies problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Find and verify manufacturers and trading companies problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Find and verify manufacturers and trading companies problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Find and verify manufacturers and trading companies starts from an observable customer problem, never an isolated trend.",
+        "The a verification scorecard for at least five suppliers deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Find and verify manufacturers and trading companies, continue with Comparable RFQ, samples, and negotiation to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "rfq-samples-negotiation",
+      "order": 2,
+      "title": "Comparable RFQ, samples, and negotiation",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Comparable RFQ, samples, and negotiation into concrete, measurable decisions that can be applied to a real store.",
+        "Turn an RFQ, quote matrix, and sample report into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Send the same complete request, compare landed price and lead time, test several samples, confirm a golden sample, and negotiate quantity, payment, and corrections in writing. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Send the same complete request, compare landed price and lead time, test several samples, confirm a golden sample, and negotiate quantity, payment, and corrections in writing. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Comparable RFQ, samples, and negotiation is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Send the same complete request, compare landed price and lead time, test several samples, confirm a golden sample, and negotiate quantity, payment, and corrections in writing. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Comparable RFQ, samples, and negotiation, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers an RFQ, quote matrix, and sample report. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "MOQ",
+                  "definition": "A central Comparable RFQ, samples, and negotiation concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "RFQ",
+                  "definition": "A measure or structure that makes the Comparable RFQ, samples, and negotiation decision comparable and reproducible."
+                },
+                {
+                  "term": "Sample",
+                  "definition": "A control boundary used to verify that Comparable RFQ, samples, and negotiation improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Comparable RFQ, samples, and negotiation to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/rfq-samples-negotiation.md",
+                "source": "# Comparable RFQ, samples, and negotiation\n- [ ] Customer problem: Send the same complete request, compare landed price and lead time, test several samples, confirm a golden sample, and negotiate quantity, payment, and corrections in writing.\n- [ ] Deliverable: an RFQ, quote matrix, and sample report\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Comparable RFQ, samples, and negotiation before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/rfq-samples-negotiation.md",
+                "source": "# Comparable RFQ, samples, and negotiation\n- [x] Customer problem: Send the same complete request, compare landed price and lead time, test several samples, confirm a golden sample, and negotiate quantity, payment, and corrections in writing.\n- [ ] Deliverable: an RFQ, quote matrix, and sample report\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Comparable RFQ, samples, and negotiation",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Comparable RFQ, samples, and negotiation completes every section of an RFQ, quote matrix, and sample report, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: an RFQ, quote matrix, and sample report exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce an RFQ, quote matrix, and sample report, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: an RFQ, quote matrix, and sample report exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Comparable RFQ, samples, and negotiation looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Comparable RFQ, samples, and negotiation problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Comparable RFQ, samples, and negotiation rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build an RFQ, quote matrix, and sample report from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Comparable RFQ, samples, and negotiation completes every section of an RFQ, quote matrix, and sample report, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Comparable RFQ, samples, and negotiation\n- [x] Customer problem: Send the same complete request, compare landed price and lead time, test several samples, confirm a golden sample, and negotiate quantity, payment, and corrections in writing.\n- [ ] Deliverable: an RFQ, quote matrix, and sample report\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Comparable RFQ, samples, and negotiation",
+          "filename": "exercises/44-china-sourcing/rfq-samples-negotiation.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "rfq-samples-negotiation-q1",
+          "question": "Which approach correctly applies Comparable RFQ, samples, and negotiation?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Comparable RFQ, samples, and negotiation, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Comparable RFQ, samples, and negotiation, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Comparable RFQ, samples, and negotiation, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Comparable RFQ, samples, and negotiation, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Comparable RFQ, samples, and negotiation, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "rfq-samples-negotiation-q2",
+          "question": "Which definition matches the term “MOQ”?",
+          "options": [
+            "A measure or structure that makes the Comparable RFQ, samples, and negotiation decision comparable and reproducible.",
+            "A central Comparable RFQ, samples, and negotiation concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Comparable RFQ, samples, and negotiation improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“MOQ” means: A central Comparable RFQ, samples, and negotiation concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Comparable RFQ, samples, and negotiation decision comparable and reproducible. ». The reference answer is « A central Comparable RFQ, samples, and negotiation concept defined by an observable rule rather than preference. ». “MOQ” means: A central Comparable RFQ, samples, and negotiation concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Comparable RFQ, samples, and negotiation concept defined by an observable rule rather than preference. ». “MOQ” means: A central Comparable RFQ, samples, and negotiation concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Comparable RFQ, samples, and negotiation improves the system without moving the problem elsewhere. ». The reference answer is « A central Comparable RFQ, samples, and negotiation concept defined by an observable rule rather than preference. ». “MOQ” means: A central Comparable RFQ, samples, and negotiation concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Comparable RFQ, samples, and negotiation concept defined by an observable rule rather than preference. ». “MOQ” means: A central Comparable RFQ, samples, and negotiation concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "rfq-samples-negotiation-q3",
+          "question": "What is the best first fix when you observe: “Comparable RFQ, samples, and negotiation looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Comparable RFQ, samples, and negotiation problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Comparable RFQ, samples, and negotiation problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Comparable RFQ, samples, and negotiation problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Comparable RFQ, samples, and negotiation problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Comparable RFQ, samples, and negotiation problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Comparable RFQ, samples, and negotiation problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Comparable RFQ, samples, and negotiation problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Comparable RFQ, samples, and negotiation problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Comparable RFQ, samples, and negotiation problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Comparable RFQ, samples, and negotiation problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Comparable RFQ, samples, and negotiation starts from an observable customer problem, never an isolated trend.",
+        "The an RFQ, quote matrix, and sample report deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Comparable RFQ, samples, and negotiation, continue with Contract, Trade Assurance, payment, and fraud prevention to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "safe-order-contract-payment",
+      "order": 3,
+      "title": "Contract, Trade Assurance, payment, and fraud prevention",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Contract, Trade Assurance, payment, and fraud prevention into concrete, measurable decisions that can be applied to a real store.",
+        "Turn an order and payment checklist with stop gates into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Match entity, beneficiary, and invoice; put specifications, tolerances, inspection, date, remedy, and Incoterm in the protected order; reject unverified bank changes. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Match entity, beneficiary, and invoice; put specifications, tolerances, inspection, date, remedy, and Incoterm in the protected order; reject unverified bank changes. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Contract, Trade Assurance, payment, and fraud prevention is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Match entity, beneficiary, and invoice; put specifications, tolerances, inspection, date, remedy, and Incoterm in the protected order; reject unverified bank changes. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Contract, Trade Assurance, payment, and fraud prevention, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers an order and payment checklist with stop gates. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "MOQ",
+                  "definition": "A central Contract, Trade Assurance, payment, and fraud prevention concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "RFQ",
+                  "definition": "A measure or structure that makes the Contract, Trade Assurance, payment, and fraud prevention decision comparable and reproducible."
+                },
+                {
+                  "term": "Sample",
+                  "definition": "A control boundary used to verify that Contract, Trade Assurance, payment, and fraud prevention improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Contract, Trade Assurance, payment, and fraud prevention to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/safe-order-contract-payment.md",
+                "source": "# Contract, Trade Assurance, payment, and fraud prevention\n- [ ] Customer problem: Match entity, beneficiary, and invoice; put specifications, tolerances, inspection, date, remedy, and Incoterm in the protected order; reject unverified bank changes.\n- [ ] Deliverable: an order and payment checklist with stop gates\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://buyer.alibaba.com/page/trade_Assurance.html\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Contract, Trade Assurance, payment, and fraud prevention before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/safe-order-contract-payment.md",
+                "source": "# Contract, Trade Assurance, payment, and fraud prevention\n- [x] Customer problem: Match entity, beneficiary, and invoice; put specifications, tolerances, inspection, date, remedy, and Incoterm in the protected order; reject unverified bank changes.\n- [ ] Deliverable: an order and payment checklist with stop gates\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://buyer.alibaba.com/page/trade_Assurance.html\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Contract, Trade Assurance, payment, and fraud prevention",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Contract, Trade Assurance, payment, and fraud prevention completes every section of an order and payment checklist with stop gates, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: an order and payment checklist with stop gates exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce an order and payment checklist with stop gates, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: an order and payment checklist with stop gates exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Contract, Trade Assurance, payment, and fraud prevention looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Contract, Trade Assurance, payment, and fraud prevention problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Contract, Trade Assurance, payment, and fraud prevention rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build an order and payment checklist with stop gates from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Contract, Trade Assurance, payment, and fraud prevention completes every section of an order and payment checklist with stop gates, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Contract, Trade Assurance, payment, and fraud prevention\n- [x] Customer problem: Match entity, beneficiary, and invoice; put specifications, tolerances, inspection, date, remedy, and Incoterm in the protected order; reject unverified bank changes.\n- [ ] Deliverable: an order and payment checklist with stop gates\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://buyer.alibaba.com/page/trade_Assurance.html\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Contract, Trade Assurance, payment, and fraud prevention",
+          "filename": "exercises/44-china-sourcing/safe-order-contract-payment.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "safe-order-contract-payment-q1",
+          "question": "Which approach correctly applies Contract, Trade Assurance, payment, and fraud prevention?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Contract, Trade Assurance, payment, and fraud prevention, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Contract, Trade Assurance, payment, and fraud prevention, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Contract, Trade Assurance, payment, and fraud prevention, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Contract, Trade Assurance, payment, and fraud prevention, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Contract, Trade Assurance, payment, and fraud prevention, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "safe-order-contract-payment-q2",
+          "question": "Which definition matches the term “MOQ”?",
+          "options": [
+            "A measure or structure that makes the Contract, Trade Assurance, payment, and fraud prevention decision comparable and reproducible.",
+            "A central Contract, Trade Assurance, payment, and fraud prevention concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Contract, Trade Assurance, payment, and fraud prevention improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“MOQ” means: A central Contract, Trade Assurance, payment, and fraud prevention concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Contract, Trade Assurance, payment, and fraud prevention decision comparable and reproducible. ». The reference answer is « A central Contract, Trade Assurance, payment, and fraud prevention concept defined by an observable rule rather than preference. ». “MOQ” means: A central Contract, Trade Assurance, payment, and fraud prevention concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Contract, Trade Assurance, payment, and fraud prevention concept defined by an observable rule rather than preference. ». “MOQ” means: A central Contract, Trade Assurance, payment, and fraud prevention concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Contract, Trade Assurance, payment, and fraud prevention improves the system without moving the problem elsewhere. ». The reference answer is « A central Contract, Trade Assurance, payment, and fraud prevention concept defined by an observable rule rather than preference. ». “MOQ” means: A central Contract, Trade Assurance, payment, and fraud prevention concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Contract, Trade Assurance, payment, and fraud prevention concept defined by an observable rule rather than preference. ». “MOQ” means: A central Contract, Trade Assurance, payment, and fraud prevention concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "safe-order-contract-payment-q3",
+          "question": "What is the best first fix when you observe: “Contract, Trade Assurance, payment, and fraud prevention looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Contract, Trade Assurance, payment, and fraud prevention problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Contract, Trade Assurance, payment, and fraud prevention problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Contract, Trade Assurance, payment, and fraud prevention problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Contract, Trade Assurance, payment, and fraud prevention problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Contract, Trade Assurance, payment, and fraud prevention problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Contract, Trade Assurance, payment, and fraud prevention problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Contract, Trade Assurance, payment, and fraud prevention problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Contract, Trade Assurance, payment, and fraud prevention problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Contract, Trade Assurance, payment, and fraud prevention problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Contract, Trade Assurance, payment, and fraud prevention problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Contract, Trade Assurance, payment, and fraud prevention starts from an observable customer problem, never an isolated trend.",
+        "The an order and payment checklist with stop gates deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Contract, Trade Assurance, payment, and fraud prevention, continue with Product and market compliance before ordering to connect the new skill to the next part of the selling system."
+    }
+  ]
+}

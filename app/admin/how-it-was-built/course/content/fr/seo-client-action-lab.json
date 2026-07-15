@@ -1,0 +1,984 @@
+{
+  "id": "seo-client-action-lab",
+  "order": 46,
+  "icon": "target",
+  "color": "#7c3aed",
+  "title": "Plan d’action : classer le site et gagner de nouveaux clients",
+  "summary": "Passer des conseils SEO et marketing à une routine hebdomadaire mesurable.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/46-seo-client-action-lab/search-console-baseline.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/46-seo-client-action-lab/rank-product-categories.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/46-seo-client-action-lab/client-acquisition-sprints.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/46-seo-client-action-lab/weekly-growth-review.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "search-console-baseline",
+      "order": 0,
+      "title": "Search Console, indexation et base de référence",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Search Console, indexation et base de référence en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un tableau de référence SEO avec problèmes priorisés en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Vérifier propriété, sitemap, pages indexées, requêtes, positions, CTR, problèmes techniques et résultats enrichis sans demander une indexation massive. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Vérifier propriété, sitemap, pages indexées, requêtes, positions, CTR, problèmes techniques et résultats enrichis sans demander une indexation massive. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Search Console, indexation et base de référence ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Vérifier propriété, sitemap, pages indexées, requêtes, positions, CTR, problèmes techniques et résultats enrichis sans demander une indexation massive. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Search Console, indexation et base de référence, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un tableau de référence SEO avec problèmes priorisés. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Impression",
+                  "definition": "Concept central de Search Console, indexation et base de référence, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Conversion",
+                  "definition": "Mesure ou structure qui rend la décision concernant Search Console, indexation et base de référence comparable et reproductible."
+                },
+                {
+                  "term": "Canal",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Search Console, indexation et base de référence améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Search Console, indexation et base de référence à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/46-seo-client-action-lab/search-console-baseline.md",
+                "source": "# Search Console, indexing, and baseline\n- [ ] Customer problem: Verify property, sitemap, indexed pages, queries, positions, CTR, technical issues, and rich results without mass indexing requests.\n- [ ] Deliverable: an SEO baseline with prioritized issues\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/monitor-debug/search-console-start\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Search Console, indexation et base de référence avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/46-seo-client-action-lab/search-console-baseline.md",
+                "source": "# Search Console, indexing, and baseline\n- [x] Customer problem: Verify property, sitemap, indexed pages, queries, positions, CTR, technical issues, and rich results without mass indexing requests.\n- [ ] Deliverable: an SEO baseline with prioritized issues\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/monitor-debug/search-console-start\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Search Console, indexation et base de référence",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Search Console, indexation et base de référence complète chaque section de un tableau de référence SEO avec problèmes priorisés, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un tableau de référence SEO avec problèmes priorisés existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un tableau de référence SEO avec problèmes priorisés, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un tableau de référence SEO avec problèmes priorisés existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Search Console, indexation et base de référence paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Search Console, indexation et base de référence, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Search Console, indexation et base de référence progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un tableau de référence SEO avec problèmes priorisés à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Search Console, indexation et base de référence complète chaque section de un tableau de référence SEO avec problèmes priorisés, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Search Console, indexing, and baseline\n- [x] Customer problem: Verify property, sitemap, indexed pages, queries, positions, CTR, technical issues, and rich results without mass indexing requests.\n- [ ] Deliverable: an SEO baseline with prioritized issues\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/monitor-debug/search-console-start\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Search Console, indexation et base de référence",
+          "filename": "exercises/46-seo-client-action-lab/search-console-baseline.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "search-console-baseline-q1",
+          "question": "Quelle démarche applique correctement Search Console, indexation et base de référence ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Search Console, indexation et base de référence, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Search Console, indexation et base de référence, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Search Console, indexation et base de référence, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Search Console, indexation et base de référence, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Search Console, indexation et base de référence, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "search-console-baseline-q2",
+          "question": "Quelle définition correspond au terme « Impression » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Search Console, indexation et base de référence comparable et reproductible.",
+            "Concept central de Search Console, indexation et base de référence, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Search Console, indexation et base de référence améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Impression » signifie : Concept central de Search Console, indexation et base de référence, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Search Console, indexation et base de référence comparable et reproductible. ». La réponse de référence est « Concept central de Search Console, indexation et base de référence, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Search Console, indexation et base de référence, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Search Console, indexation et base de référence, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Search Console, indexation et base de référence, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Search Console, indexation et base de référence améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Search Console, indexation et base de référence, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Search Console, indexation et base de référence, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Search Console, indexation et base de référence, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Search Console, indexation et base de référence, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "search-console-baseline-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Search Console, indexation et base de référence paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Search Console, indexation et base de référence, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Search Console, indexation et base de référence, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Search Console, indexation et base de référence, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Search Console, indexation et base de référence, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Search Console, indexation et base de référence, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Search Console, indexation et base de référence, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Search Console, indexation et base de référence, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Search Console, indexation et base de référence, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Search Console, indexation et base de référence, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Search Console, indexation et base de référence, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Search Console, indexation et base de référence est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un tableau de référence SEO avec problèmes priorisés rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Search Console, indexation et base de référence, poursuivez avec Classer catégories et produits sur les bonnes requêtes afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "rank-product-categories",
+      "order": 1,
+      "title": "Classer catégories et produits sur les bonnes requêtes",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Classer catégories et produits sur les bonnes requêtes en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un sprint SEO de quatre pages avec avant/après en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Choisir une intention par page, améliorer titre, contenu, filtres, liens, images, données produit, vitesse et preuves sans répétition artificielle de mots-clés. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Choisir une intention par page, améliorer titre, contenu, filtres, liens, images, données produit, vitesse et preuves sans répétition artificielle de mots-clés. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Classer catégories et produits sur les bonnes requêtes ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Choisir une intention par page, améliorer titre, contenu, filtres, liens, images, données produit, vitesse et preuves sans répétition artificielle de mots-clés. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Classer catégories et produits sur les bonnes requêtes, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un sprint SEO de quatre pages avec avant/après. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Impression",
+                  "definition": "Concept central de Classer catégories et produits sur les bonnes requêtes, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Conversion",
+                  "definition": "Mesure ou structure qui rend la décision concernant Classer catégories et produits sur les bonnes requêtes comparable et reproductible."
+                },
+                {
+                  "term": "Canal",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Classer catégories et produits sur les bonnes requêtes améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Classer catégories et produits sur les bonnes requêtes à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/46-seo-client-action-lab/rank-product-categories.md",
+                "source": "# Rank categories and products for the right queries\n- [ ] Customer problem: Choose one intent per page; improve title, content, filters, links, images, product data, speed, and proof without artificial keyword repetition.\n- [ ] Deliverable: a four-page SEO sprint with before and after\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/specialty/ecommerce\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Classer catégories et produits sur les bonnes requêtes avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/46-seo-client-action-lab/rank-product-categories.md",
+                "source": "# Rank categories and products for the right queries\n- [x] Customer problem: Choose one intent per page; improve title, content, filters, links, images, product data, speed, and proof without artificial keyword repetition.\n- [ ] Deliverable: a four-page SEO sprint with before and after\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/specialty/ecommerce\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Classer catégories et produits sur les bonnes requêtes",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Classer catégories et produits sur les bonnes requêtes complète chaque section de un sprint SEO de quatre pages avec avant/après, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un sprint SEO de quatre pages avec avant/après existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un sprint SEO de quatre pages avec avant/après, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un sprint SEO de quatre pages avec avant/après existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Classer catégories et produits sur les bonnes requêtes paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Classer catégories et produits sur les bonnes requêtes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Classer catégories et produits sur les bonnes requêtes progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un sprint SEO de quatre pages avec avant/après à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Classer catégories et produits sur les bonnes requêtes complète chaque section de un sprint SEO de quatre pages avec avant/après, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Rank categories and products for the right queries\n- [x] Customer problem: Choose one intent per page; improve title, content, filters, links, images, product data, speed, and proof without artificial keyword repetition.\n- [ ] Deliverable: a four-page SEO sprint with before and after\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/specialty/ecommerce\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Classer catégories et produits sur les bonnes requêtes",
+          "filename": "exercises/46-seo-client-action-lab/rank-product-categories.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "rank-product-categories-q1",
+          "question": "Quelle démarche applique correctement Classer catégories et produits sur les bonnes requêtes ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Classer catégories et produits sur les bonnes requêtes, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Classer catégories et produits sur les bonnes requêtes, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Classer catégories et produits sur les bonnes requêtes, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Classer catégories et produits sur les bonnes requêtes, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Classer catégories et produits sur les bonnes requêtes, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "rank-product-categories-q2",
+          "question": "Quelle définition correspond au terme « Impression » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Classer catégories et produits sur les bonnes requêtes comparable et reproductible.",
+            "Concept central de Classer catégories et produits sur les bonnes requêtes, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Classer catégories et produits sur les bonnes requêtes améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Impression » signifie : Concept central de Classer catégories et produits sur les bonnes requêtes, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Classer catégories et produits sur les bonnes requêtes comparable et reproductible. ». La réponse de référence est « Concept central de Classer catégories et produits sur les bonnes requêtes, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Classer catégories et produits sur les bonnes requêtes, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Classer catégories et produits sur les bonnes requêtes, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Classer catégories et produits sur les bonnes requêtes, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Classer catégories et produits sur les bonnes requêtes améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Classer catégories et produits sur les bonnes requêtes, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Classer catégories et produits sur les bonnes requêtes, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Classer catégories et produits sur les bonnes requêtes, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Classer catégories et produits sur les bonnes requêtes, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "rank-product-categories-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Classer catégories et produits sur les bonnes requêtes paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Classer catégories et produits sur les bonnes requêtes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Classer catégories et produits sur les bonnes requêtes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Classer catégories et produits sur les bonnes requêtes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Classer catégories et produits sur les bonnes requêtes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Classer catégories et produits sur les bonnes requêtes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Classer catégories et produits sur les bonnes requêtes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Classer catégories et produits sur les bonnes requêtes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Classer catégories et produits sur les bonnes requêtes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Classer catégories et produits sur les bonnes requêtes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Classer catégories et produits sur les bonnes requêtes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Classer catégories et produits sur les bonnes requêtes est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un sprint SEO de quatre pages avec avant/après rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Classer catégories et produits sur les bonnes requêtes, poursuivez avec Sprints nouveaux clients : contenu, local, partenaires et offres afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "client-acquisition-sprints",
+      "order": 2,
+      "title": "Sprints nouveaux clients : contenu, local, partenaires et offres",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Sprints nouveaux clients : contenu, local, partenaires et offres en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer quatre sprints acquisition avec budget et critères d’arrêt en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Tester une audience, une promesse et un canal à la fois avec contenu utile, distribution, partenariat, profil local ou offre rentable et suivi par source. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Tester une audience, une promesse et un canal à la fois avec contenu utile, distribution, partenariat, profil local ou offre rentable et suivi par source. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Sprints nouveaux clients : contenu, local, partenaires et offres ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Tester une audience, une promesse et un canal à la fois avec contenu utile, distribution, partenariat, profil local ou offre rentable et suivi par source. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Sprints nouveaux clients : contenu, local, partenaires et offres, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est quatre sprints acquisition avec budget et critères d’arrêt. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Impression",
+                  "definition": "Concept central de Sprints nouveaux clients : contenu, local, partenaires et offres, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Conversion",
+                  "definition": "Mesure ou structure qui rend la décision concernant Sprints nouveaux clients : contenu, local, partenaires et offres comparable et reproductible."
+                },
+                {
+                  "term": "Canal",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Sprints nouveaux clients : contenu, local, partenaires et offres améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Sprints nouveaux clients : contenu, local, partenaires et offres à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/46-seo-client-action-lab/client-acquisition-sprints.md",
+                "source": "# New-client sprints: content, local, partners, and offers\n- [ ] Customer problem: Test one audience, promise, and channel at a time with useful content, distribution, partnerships, local profile, or profitable offer and source tracking.\n- [ ] Deliverable: four acquisition sprints with budget and stop criteria\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/merchants/answer/13889434\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Sprints nouveaux clients : contenu, local, partenaires et offres avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/46-seo-client-action-lab/client-acquisition-sprints.md",
+                "source": "# New-client sprints: content, local, partners, and offers\n- [x] Customer problem: Test one audience, promise, and channel at a time with useful content, distribution, partnerships, local profile, or profitable offer and source tracking.\n- [ ] Deliverable: four acquisition sprints with budget and stop criteria\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/merchants/answer/13889434\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Sprints nouveaux clients : contenu, local, partenaires et offres",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Sprints nouveaux clients : contenu, local, partenaires et offres complète chaque section de quatre sprints acquisition avec budget et critères d’arrêt, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : quatre sprints acquisition avec budget et critères d’arrêt existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire quatre sprints acquisition avec budget et critères d’arrêt, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : quatre sprints acquisition avec budget et critères d’arrêt existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Sprints nouveaux clients : contenu, local, partenaires et offres paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Sprints nouveaux clients : contenu, local, partenaires et offres, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Sprints nouveaux clients : contenu, local, partenaires et offres progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire quatre sprints acquisition avec budget et critères d’arrêt à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Sprints nouveaux clients : contenu, local, partenaires et offres complète chaque section de quatre sprints acquisition avec budget et critères d’arrêt, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# New-client sprints: content, local, partners, and offers\n- [x] Customer problem: Test one audience, promise, and channel at a time with useful content, distribution, partnerships, local profile, or profitable offer and source tracking.\n- [ ] Deliverable: four acquisition sprints with budget and stop criteria\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/merchants/answer/13889434\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Sprints nouveaux clients : contenu, local, partenaires et offres",
+          "filename": "exercises/46-seo-client-action-lab/client-acquisition-sprints.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "client-acquisition-sprints-q1",
+          "question": "Quelle démarche applique correctement Sprints nouveaux clients : contenu, local, partenaires et offres ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Sprints nouveaux clients : contenu, local, partenaires et offres, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Sprints nouveaux clients : contenu, local, partenaires et offres, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Sprints nouveaux clients : contenu, local, partenaires et offres, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Sprints nouveaux clients : contenu, local, partenaires et offres, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Sprints nouveaux clients : contenu, local, partenaires et offres, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "client-acquisition-sprints-q2",
+          "question": "Quelle définition correspond au terme « Impression » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Sprints nouveaux clients : contenu, local, partenaires et offres comparable et reproductible.",
+            "Concept central de Sprints nouveaux clients : contenu, local, partenaires et offres, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Sprints nouveaux clients : contenu, local, partenaires et offres améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Impression » signifie : Concept central de Sprints nouveaux clients : contenu, local, partenaires et offres, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Sprints nouveaux clients : contenu, local, partenaires et offres comparable et reproductible. ». La réponse de référence est « Concept central de Sprints nouveaux clients : contenu, local, partenaires et offres, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Sprints nouveaux clients : contenu, local, partenaires et offres, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Sprints nouveaux clients : contenu, local, partenaires et offres, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Sprints nouveaux clients : contenu, local, partenaires et offres, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Sprints nouveaux clients : contenu, local, partenaires et offres améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Sprints nouveaux clients : contenu, local, partenaires et offres, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Sprints nouveaux clients : contenu, local, partenaires et offres, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Sprints nouveaux clients : contenu, local, partenaires et offres, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Sprints nouveaux clients : contenu, local, partenaires et offres, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "client-acquisition-sprints-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Sprints nouveaux clients : contenu, local, partenaires et offres paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Sprints nouveaux clients : contenu, local, partenaires et offres, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Sprints nouveaux clients : contenu, local, partenaires et offres, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Sprints nouveaux clients : contenu, local, partenaires et offres, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Sprints nouveaux clients : contenu, local, partenaires et offres, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Sprints nouveaux clients : contenu, local, partenaires et offres, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Sprints nouveaux clients : contenu, local, partenaires et offres, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Sprints nouveaux clients : contenu, local, partenaires et offres, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Sprints nouveaux clients : contenu, local, partenaires et offres, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Sprints nouveaux clients : contenu, local, partenaires et offres, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Sprints nouveaux clients : contenu, local, partenaires et offres, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Sprints nouveaux clients : contenu, local, partenaires et offres est un problème client observable, jamais une tendance isolée.",
+        "Le livrable quatre sprints acquisition avec budget et critères d’arrêt rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Sprints nouveaux clients : contenu, local, partenaires et offres, poursuivez avec Revue hebdomadaire SEO, vente et croissance afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "weekly-growth-review",
+      "order": 3,
+      "title": "Revue hebdomadaire SEO, vente et croissance",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Revue hebdomadaire SEO, vente et croissance en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un rituel de croissance de 60 minutes et un backlog priorisé en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Comparer trafic qualifié, leads, conversion, panier, marge, réachat et satisfaction, écrire apprentissage et choisir la prochaine contrainte plutôt qu’empiler les actions. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Comparer trafic qualifié, leads, conversion, panier, marge, réachat et satisfaction, écrire apprentissage et choisir la prochaine contrainte plutôt qu’empiler les actions. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Revue hebdomadaire SEO, vente et croissance ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Comparer trafic qualifié, leads, conversion, panier, marge, réachat et satisfaction, écrire apprentissage et choisir la prochaine contrainte plutôt qu’empiler les actions. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Revue hebdomadaire SEO, vente et croissance, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un rituel de croissance de 60 minutes et un backlog priorisé. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Impression",
+                  "definition": "Concept central de Revue hebdomadaire SEO, vente et croissance, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Conversion",
+                  "definition": "Mesure ou structure qui rend la décision concernant Revue hebdomadaire SEO, vente et croissance comparable et reproductible."
+                },
+                {
+                  "term": "Canal",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Revue hebdomadaire SEO, vente et croissance améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Revue hebdomadaire SEO, vente et croissance à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/46-seo-client-action-lab/weekly-growth-review.md",
+                "source": "# Weekly SEO, sales, and growth review\n- [ ] Customer problem: Compare qualified traffic, leads, conversion, basket, margin, repeat purchase, and satisfaction; record learning and choose the next constraint instead of stacking actions.\n- [ ] Deliverable: a sixty-minute growth ritual and prioritized backlog\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/analytics/answer/12926615\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Revue hebdomadaire SEO, vente et croissance avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/46-seo-client-action-lab/weekly-growth-review.md",
+                "source": "# Weekly SEO, sales, and growth review\n- [x] Customer problem: Compare qualified traffic, leads, conversion, basket, margin, repeat purchase, and satisfaction; record learning and choose the next constraint instead of stacking actions.\n- [ ] Deliverable: a sixty-minute growth ritual and prioritized backlog\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/analytics/answer/12926615\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Revue hebdomadaire SEO, vente et croissance",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Revue hebdomadaire SEO, vente et croissance complète chaque section de un rituel de croissance de 60 minutes et un backlog priorisé, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un rituel de croissance de 60 minutes et un backlog priorisé existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un rituel de croissance de 60 minutes et un backlog priorisé, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un rituel de croissance de 60 minutes et un backlog priorisé existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Revue hebdomadaire SEO, vente et croissance paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Revue hebdomadaire SEO, vente et croissance, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Revue hebdomadaire SEO, vente et croissance progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un rituel de croissance de 60 minutes et un backlog priorisé à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Revue hebdomadaire SEO, vente et croissance complète chaque section de un rituel de croissance de 60 minutes et un backlog priorisé, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Weekly SEO, sales, and growth review\n- [x] Customer problem: Compare qualified traffic, leads, conversion, basket, margin, repeat purchase, and satisfaction; record learning and choose the next constraint instead of stacking actions.\n- [ ] Deliverable: a sixty-minute growth ritual and prioritized backlog\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/analytics/answer/12926615\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Revue hebdomadaire SEO, vente et croissance",
+          "filename": "exercises/46-seo-client-action-lab/weekly-growth-review.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "weekly-growth-review-q1",
+          "question": "Quelle démarche applique correctement Revue hebdomadaire SEO, vente et croissance ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Revue hebdomadaire SEO, vente et croissance, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Revue hebdomadaire SEO, vente et croissance, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Revue hebdomadaire SEO, vente et croissance, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Revue hebdomadaire SEO, vente et croissance, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Revue hebdomadaire SEO, vente et croissance, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "weekly-growth-review-q2",
+          "question": "Quelle définition correspond au terme « Impression » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Revue hebdomadaire SEO, vente et croissance comparable et reproductible.",
+            "Concept central de Revue hebdomadaire SEO, vente et croissance, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Revue hebdomadaire SEO, vente et croissance améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Impression » signifie : Concept central de Revue hebdomadaire SEO, vente et croissance, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Revue hebdomadaire SEO, vente et croissance comparable et reproductible. ». La réponse de référence est « Concept central de Revue hebdomadaire SEO, vente et croissance, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Revue hebdomadaire SEO, vente et croissance, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Revue hebdomadaire SEO, vente et croissance, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Revue hebdomadaire SEO, vente et croissance, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Revue hebdomadaire SEO, vente et croissance améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Revue hebdomadaire SEO, vente et croissance, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Revue hebdomadaire SEO, vente et croissance, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Revue hebdomadaire SEO, vente et croissance, défini par une règle observable plutôt que par une préférence. ». « Impression » signifie : Concept central de Revue hebdomadaire SEO, vente et croissance, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "weekly-growth-review-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Revue hebdomadaire SEO, vente et croissance paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Revue hebdomadaire SEO, vente et croissance, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Revue hebdomadaire SEO, vente et croissance, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Revue hebdomadaire SEO, vente et croissance, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Revue hebdomadaire SEO, vente et croissance, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Revue hebdomadaire SEO, vente et croissance, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Revue hebdomadaire SEO, vente et croissance, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Revue hebdomadaire SEO, vente et croissance, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Revue hebdomadaire SEO, vente et croissance, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Revue hebdomadaire SEO, vente et croissance, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Revue hebdomadaire SEO, vente et croissance, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Revue hebdomadaire SEO, vente et croissance est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un rituel de croissance de 60 minutes et un backlog priorisé rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Revue hebdomadaire SEO, vente et croissance, poursuivez avec Semaines 1–3 : code, pages, design et données afin de relier la compétence acquise à l’étape suivante du système de vente."
+    }
+  ]
+}

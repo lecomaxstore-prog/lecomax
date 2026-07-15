@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Logo from "./Logo";
+import { useSettings } from "@/lib/use-settings";
 
 const cols = [
   {
@@ -97,25 +98,13 @@ const trustBadges = [
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [siteSettings, setSiteSettings] = useState<Record<string, string>>({});
-
-  // Load settings from DB
-  useEffect(() => {
-    fetch("/api/settings")
-      .then(r => r.json())
-      .then((rows: { key: string; value: string }[]) => {
-        if (!Array.isArray(rows)) return;
-        const map: Record<string, string> = {};
-        for (const row of rows) map[row.key] = row.value;
-        setSiteSettings(map);
-      })
-      .catch(() => {});
-  }, []);
+  const siteSettings = useSettings();
 
   const socials = DEFAULT_SOCIALS.map(s => ({ ...s, href: siteSettings[s.key] || s.defaultHref }));
   const whatsappNumber = siteSettings.whatsapp_number || "212699289568";
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}`;
-  const shippingFee = siteSettings.free_shipping_threshold ? `Livraison 35 MAD` : "Livraison 35 MAD";
+  const shippingCost = siteSettings.shipping_cost || "35";
+  const freeShippingThreshold = siteSettings.free_shipping_threshold || "500";
 
   const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,10 +144,10 @@ export default function Footer() {
               <div>
                 <p className="text-[12px] font-black uppercase tracking-wide text-white/90 leading-tight">
                   {b.dynamicLabel === "shipping"
-                    ? `Livraison ${siteSettings.shipping_cost || "35"} MAD`
+                    ? `Livraison ${shippingCost} MAD`
                     : b.label}
                 </p>
-                <p className="text-[11px] text-white/40 mt-0.5">{(b as any).sub}</p>
+                <p className="text-[11px] text-white/40 mt-0.5">{b.dynamicLabel === "shipping" ? `Gratuite dès ${freeShippingThreshold} MAD` : b.sub}</p>
               </div>
             </div>
           ))}
@@ -221,7 +210,7 @@ export default function Footer() {
           </div>
 
           {/* Newsletter */}
-          <div>
+          {siteSettings.enable_newsletter !== "false" && <div>
             <h3 className="font-black text-[11px] uppercase tracking-[0.25em] text-white/40 mb-5">Newsletter</h3>
             <p className="text-white/55 text-[13px] mb-5 leading-relaxed">
               Nouveautés, offres exclusives et invitations en avant-première.
@@ -252,7 +241,7 @@ export default function Footer() {
               )}
             </form>
             <p className="text-[10px] text-white/25 mt-2">Pas de spam. Désinscription en 1 clic.</p>
-          </div>
+          </div>}
         </div>
 
         {/* Nav columns */}
@@ -263,7 +252,7 @@ export default function Footer() {
                 {c.title}
               </h4>
               <ul className="space-y-3">
-                {c.links.map((l) => (
+                {c.links.filter((link) => link.href !== "/ecoclub/" || siteSettings.enable_ecoclub !== "false").map((l) => (
                   <li key={l.label}>
                     <Link
                       href={l.href}
@@ -281,7 +270,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 text-[11px] text-white/35">
-          <div>© {new Date().getFullYear()} L&apos;ecomax. Tous droits réservés. — Fait avec ♥ au Maroc</div>
+          <div>© {new Date().getFullYear()} {siteSettings.store_name || "L'ecomax"}. Tous droits réservés. — Fait avec ♥ au Maroc</div>
 
           <div className="flex flex-wrap justify-center gap-5">
             <Link href="/conditions-utilisation/" className="hover:text-white/60 transition-colors">Conditions</Link>
