@@ -4,14 +4,93 @@ import { useEffect, useState } from "react";
 
 const VAPID_PUBLIC_KEY = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "").replace(/\s+/g, "");
 const STORAGE_KEY = "lecomax_admin_push_enabled";
+const SERVICE_WORKER_URL = "/sw.js";
+const PUSH_TIMEOUT_MS = 20_000;
 
 type PushState = "checking" | "off" | "on" | "loading" | "denied" | "unsupported" | "error";
 
-function urlBase64ToUint8Array(value: string) {
+function urlBase64ToUint8Array(value: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (value.length % 4)) % 4);
   const base64 = (value + padding).replace(/-/g, "+").replace(/_/g, "/");
   const raw = window.atob(base64);
-  return Uint8Array.from([...raw].map((char) => char.charCodeAt(0)));
+  const bytes = new Uint8Array(new ArrayBuffer(raw.length));
+  for (let index = 0; index < raw.length; index += 1) bytes[index] = raw.charCodeAt(index);
+  return bytes;
+}
+
+function sameApplicationServerKey(subscription: PushSubscription, expected: Uint8Array<ArrayBuffer>) {
+  const current = subscription.options.applicationServerKey;
+  if (!current) return false;
+  const bytes = new Uint8Array(current);
+  return bytes.length === expected.length && bytes.every((byte, index) => byte === expected[index]);
+}
+
+function waitForActiveWorker(registration: ServiceWorkerRegistration) {
+  if (registration.active) return Promise.resolve(registration);
+  const worker = registration.installing ?? registration.waiting;
+  if (!worker) return navigator.serviceWorker.ready;
+
+  return new Promise<ServiceWorkerRegistration>((resolve, reject) => {
+    const timeout = window.setTimeout(() => reject(new Error("Le service de notifications met trop de temps à démarrer.")), PUSH_TIMEOUT_MS);
+    const onStateChange = () => {
+      if (worker.state === "activated") {
+        window.clearTimeout(timeout);
+        worker.removeEventListener("statechange", onStateChange);
+        resolve(registration);
+      } else if (worker.state === "redundant") {
+        window.clearTimeout(timeout);
+        worker.removeEventListener("statechange", onStateChange);
+        reject(new Error("Le service de notifications n’a pas pu démarrer."));
+      }
+    };
+    worker.addEventListener("statechange", onStateChange);
+  });
+}
+
+async function registerPushWorker() {
+  const registration = await navigator.serviceWorker.register(SERVICE_WORKER_URL, {
+    scope: "/",
+    updateViaCache: "none",
+  });
+  return waitForActiveWorker(registration);
+}
+
+async function subscribeWithTimeout(registration: ServiceWorkerRegistration, applicationServerKey: Uint8Array<ArrayBuffer>) {
+  let timeoutId = 0;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = window.setTimeout(
+      () => reject(new Error("Le service Push Android ne répond pas. Vérifiez votre connexion puis réessayez.")),
+      PUSH_TIMEOUT_MS,
+    );
+  });
+
+  try {
+    return await Promise.race([
+      registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey }),
+      timeout,
+    ]);
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
+function isRecoverablePushError(error: unknown) {
+  const text = error instanceof Error ? `${error.name} ${error.message}`.toLowerCase() : String(error).toLowerCase();
+  return text.includes("push service") || text.includes("registration failed") || text.includes("aborterror") || text.includes("networkerror");
+}
+
+function friendlyPushError(error: unknown) {
+  const text = error instanceof Error ? error.message : String(error);
+  if (/push service|registration failed|aborterror|networkerror/i.test(text)) {
+    return "Le service Push Android n’a pas répondu. Mettez Chrome et les Services Google Play à jour, autorisez leurs données en arrière-plan, puis réessayez en Wi-Fi ou en 4G.";
+  }
+  if (/applicationserverkey|vapid|clé|key/i.test(text)) {
+    return "La clé de notification de ce déploiement est invalide. Rechargez la page puis réessayez.";
+  }
+  if (/service worker|notifications met trop de temps|notifications n’a pas pu/i.test(text)) {
+    return "Le service de notifications n’a pas démarré. Fermez complètement l’application, rouvrez-la puis réessayez.";
+  }
+  return text || "Activation impossible. Vérifiez les réglages de notification de votre navigateur puis réessayez.";
 }
 
 export default function AdminPushNotifications() {
@@ -35,8 +114,7 @@ export default function AdminPushNotifications() {
         return;
       }
       try {
-        await navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" });
-        const registration = await navigator.serviceWorker.ready;
+        const registration = await registerPushWorker();
         const subscription = await registration.pushManager.getSubscription();
         if (!subscription) {
           localStorage.removeItem(STORAGE_KEY);
@@ -62,18 +140,40 @@ export default function AdminPushNotifications() {
     setState("loading");
     setMessage(null);
     try {
+      if (!window.isSecureContext) throw new Error("Les notifications nécessitent une connexion HTTPS sécurisée.");
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
         setState(permission === "denied" ? "denied" : "off");
         return;
       }
-      await navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" });
-      const registration = await navigator.serviceWorker.ready;
-      const existing = await registration.pushManager.getSubscription();
-      const subscription = existing ?? await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-      });
+      const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+      if (applicationServerKey.length !== 65 || applicationServerKey[0] !== 4) {
+        throw new Error("Clé VAPID invalide");
+      }
+
+      let registration = await registerPushWorker();
+      let existing = await registration.pushManager.getSubscription();
+      if (existing && !sameApplicationServerKey(existing, applicationServerKey)) {
+        await existing.unsubscribe();
+        existing = null;
+      }
+
+      let subscription: PushSubscription;
+      try {
+        subscription = existing ?? await subscribeWithTimeout(registration, applicationServerKey);
+      } catch (firstError) {
+        if (!isRecoverablePushError(firstError)) throw firstError;
+
+        // Android/Chromium can retain a broken FCM registration. Reinstalling the
+        // dedicated worker once clears that stale state without repeatedly prompting.
+        const staleSubscription = await registration.pushManager.getSubscription().catch(() => null);
+        if (staleSubscription) await staleSubscription.unsubscribe().catch(() => false);
+        await registration.unregister();
+        await new Promise((resolve) => window.setTimeout(resolve, 900));
+        registration = await registerPushWorker();
+        subscription = await subscribeWithTimeout(registration, applicationServerKey);
+      }
+
       const response = await fetch("/api/admin/push-subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -86,7 +186,8 @@ export default function AdminPushNotifications() {
       setMessage("Notifications activées sur cet appareil.");
     } catch (error) {
       setState("error");
-      setMessage(error instanceof Error ? error.message : "Activation impossible");
+      localStorage.removeItem(STORAGE_KEY);
+      setMessage(friendlyPushError(error));
     }
   }
 
