@@ -38,7 +38,7 @@ const SITE_URL = "https://lecomax.com";
 
 const defaultMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  manifest: "/manifest.json",
+  manifest: "/manifest.json?v=2",
   title: {
     default: "L'ecomax — Mode, Tech & Sport · Livraison partout au Maroc",
     template: "%s · L'ecomax",
@@ -210,13 +210,12 @@ export default function RootLayout({
       "name": "L'ecomax",
       "alternateName": "Lecomax",
       "url": "${SITE_URL}",
-      "foundingDate": "2026",
       "foundingLocation": { "@type": "Place", "name": "Sidi Bennour, Maroc" },
-      "logo": { "@type": "ImageObject", "url": "${SITE_URL}/ecomax-hero-banner.jpg.png", "width": 1200, "height": 630 },
+      "logo": { "@type": "ImageObject", "url": "${SITE_URL}/images/lecomax%20logo.png" },
       "description": "L'ecomax est une boutique en ligne marocaine fondée à Sidi Bennour, spécialisée dans les chaussures de sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc.",
       "areaServed": { "@type": "Country", "name": "Maroc" },
       "contactPoint": { "@type": "ContactPoint", "contactType": "customer service", "telephone": "+212-699-289-568", "availableLanguage": ["French", "Arabic"] },
-      "sameAs": ["https://www.instagram.com/lecomax", "https://www.tiktok.com/@lecomax", "https://www.facebook.com/lecomax"]
+      "sameAs": ["https://www.instagram.com/lecomaxcom", "https://www.tiktok.com/@lecomaxcom", "https://www.facebook.com/lecomaxcom"]
     },
     {
       "@type": "WebSite",
@@ -235,7 +234,7 @@ export default function RootLayout({
       "url": "${SITE_URL}",
       "image": "${SITE_URL}/ecomax-hero-banner.jpg.png",
       "description": "L'ecomax — boutique en ligne au Maroc : chaussures sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc, paiement à la livraison.",
-      "priceRange": "69 MAD - 499 MAD",
+      "priceRange": "69 MAD - 849 MAD",
       "currenciesAccepted": "MAD",
       "paymentAccepted": "Paiement à la livraison, Carte bancaire, PayPal",
       "telephone": "+212-699-289-568",
@@ -256,7 +255,7 @@ export default function RootLayout({
           { "@type": "OfferCatalog", "name": "Accessoires gaming" }
         ]
       },
-      "sameAs": ["https://www.instagram.com/lecomax", "https://www.tiktok.com/@lecomax", "https://www.facebook.com/lecomax"]
+      "sameAs": ["https://www.instagram.com/lecomaxcom", "https://www.tiktok.com/@lecomaxcom", "https://www.facebook.com/lecomaxcom"]
     }
   ]
 }` }} />

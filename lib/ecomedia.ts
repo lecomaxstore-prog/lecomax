@@ -53,16 +53,16 @@ export interface EcomediaLike {
   created_at: string;
 }
 
-const COMMUNITY_AUTHOR_PREFIX = "__ECOMEDIA_MEMBER__:";
+export const ECOMEDIA_COMMUNITY_AUTHOR_PREFIX = "__ECOMEDIA_MEMBER__:";
 
 export function encodeCommunityAuthor(author: { id: string; name: string; avatar: string | null }): string {
-  return COMMUNITY_AUTHOR_PREFIX + encodeURIComponent(JSON.stringify(author));
+  return ECOMEDIA_COMMUNITY_AUTHOR_PREFIX + encodeURIComponent(JSON.stringify(author));
 }
 
 export function hydrateCommunityPost(post: EcomediaPost): EcomediaPost {
-  if (!post.cta_text?.startsWith(COMMUNITY_AUTHOR_PREFIX)) return post;
+  if (!post.cta_text?.startsWith(ECOMEDIA_COMMUNITY_AUTHOR_PREFIX)) return post;
   try {
-    const author = JSON.parse(decodeURIComponent(post.cta_text.slice(COMMUNITY_AUTHOR_PREFIX.length))) as { id?: string; name?: string; avatar?: string | null };
+    const author = JSON.parse(decodeURIComponent(post.cta_text.slice(ECOMEDIA_COMMUNITY_AUTHOR_PREFIX.length))) as { id?: string; name?: string; avatar?: string | null };
     return { ...post, cta_text: null, author_id: author.id ?? null, author_name: author.name ?? "Membre", author_avatar: author.avatar ?? null, is_client_post: true };
   } catch { return post; }
 }

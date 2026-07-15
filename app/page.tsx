@@ -5,6 +5,7 @@ import CategoryTiles from "@/components/CategoryTiles";
 import ProductRail from "@/components/ProductRail";
 import Image from "next/image";
 import Link from "next/link";
+import { ECOMEDIA_COMMUNITY_AUTHOR_PREFIX } from "@/lib/ecomedia";
 
 // Lazy-load heavy below-fold components — keeps initial JS bundle small
 const OurProductsGrid = dynamic(() => import("@/components/OurProductsGrid"));
@@ -101,11 +102,18 @@ export default async function HomePage() {
     getReviewStats(),
   ]);
 
-  // Fetch latest Ecomedia post for homepage teaser
+  // Fetch only the latest official admin post for the homepage teaser.
   let latestPost: { id: string; title: string; content?: string; slug: string; media_url?: string; thumbnail_url?: string; likes_count: number; comments_count: number } | null = null;
   try {
+    const ecomediaParams = new URLSearchParams({
+      is_published: "eq.true",
+      or: `(cta_text.is.null,cta_text.not.like.${ECOMEDIA_COMMUNITY_AUTHOR_PREFIX}*)`,
+      order: "created_at.desc",
+      limit: "1",
+      select: "id,title,content,slug,media_url,thumbnail_url,likes_count,comments_count",
+    });
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/ecomedia_posts?is_published=eq.true&order=created_at.desc&limit=1&select=id,title,content,slug,media_url,thumbnail_url,likes_count,comments_count`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/ecomedia_posts?${ecomediaParams}`,
       {
         headers: {
           apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,

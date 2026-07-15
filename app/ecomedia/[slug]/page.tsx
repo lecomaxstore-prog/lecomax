@@ -7,6 +7,8 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
+const SITE_URL = "https://lecomax.com";
+
 async function getPost(slug: string): Promise<EcomediaPost | null> {
   try {
     const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
@@ -19,14 +21,37 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) return { title: "Post introuvable | L'ecomax" };
+  const postUrl = `${SITE_URL}/ecomedia/${encodeURIComponent(post.slug)}/`;
+  const socialImageUrl = `${SITE_URL}/api/ecomedia/social-image/${encodeURIComponent(post.slug)}/`;
+  const description = post.content?.slice(0, 155) ?? `Découvrez ce post sur L'ecomax Ecomedia.`;
+  const socialImage = {
+    url: socialImageUrl,
+    secureUrl: socialImageUrl,
+    width: 1200,
+    height: 630,
+    alt: post.title,
+    type: "image/png",
+  };
   return {
     title: `${post.title} | Ecomedia L'ecomax`,
-    description: post.content?.slice(0, 155) ?? `Découvrez ce post sur L'ecomax Ecomedia.`,
+    description,
+    alternates: { canonical: postUrl },
     openGraph: {
       title: post.title,
-      description: post.content?.slice(0, 155) ?? "",
-      images: post.media_url ? [{ url: post.media_url }] : [],
+      description,
+      url: postUrl,
+      siteName: "L'ecomax",
+      locale: "fr_MA",
+      images: [socialImage],
       type: "article",
+      publishedTime: post.created_at,
+      modifiedTime: post.updated_at,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      images: [socialImageUrl],
     },
   };
 }
@@ -59,8 +84,17 @@ export default async function EcomediaPostPage({ params }: { params: Promise<{ s
               "@type": "SocialMediaPosting",
               "headline": post.title,
               "description": post.content,
+              "url": `https://lecomax.com/ecomedia/${post.slug}/`,
+              "mainEntityOfPage": `https://lecomax.com/ecomedia/${post.slug}/`,
+              ...((post.thumbnail_url || post.media_url) ? { "image": post.thumbnail_url || post.media_url } : {}),
               "datePublished": post.created_at,
-              "author": { "@type": "Organization", "name": "L'ecomax" },
+              "dateModified": post.updated_at,
+              "author": { "@type": "Organization", "name": post.author_name || "L'ecomax", "url": "https://lecomax.com" },
+              "publisher": { "@type": "Organization", "name": "L'ecomax", "url": "https://lecomax.com" },
+              "interactionStatistic": [
+                { "@type": "InteractionCounter", "interactionType": "https://schema.org/LikeAction", "userInteractionCount": post.likes_count },
+                { "@type": "InteractionCounter", "interactionType": "https://schema.org/CommentAction", "userInteractionCount": post.comments_count }
+              ],
             }),
           }}
         />

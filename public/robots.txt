@@ -9,27 +9,39 @@ Disallow: /merci
 Disallow: /connexion
 Disallow: /inscription
 
-# Allow AI crawlers explicitly
+# OpenAI search and user-requested browsing. Keep private flows excluded.
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
 User-agent: GPTBot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /checkout
+Disallow: /panier
+Disallow: /compte/
+Disallow: /merci
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /facture
+Disallow: /maintenance
 
-User-agent: ChatGPT-User
-Allow: /
-
+# Other AI crawlers explicitly allowed on public content
 User-agent: ClaudeBot
-Allow: /
-
 User-agent: Claude-Web
-Allow: /
-
 User-agent: PerplexityBot
-Allow: /
-
 User-agent: Bingbot
-Allow: /
-
 User-agent: Applebot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /checkout
+Disallow: /panier
+Disallow: /compte/
+Disallow: /merci
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /facture
+Disallow: /maintenance
 
 # Prevent image files from being indexed as web pages
 User-agent: *
