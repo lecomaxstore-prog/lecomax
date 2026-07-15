@@ -8,6 +8,7 @@ import Logo from "./Logo";
 import { supabase } from "@/lib/supabase";
 import SearchOverlay from "./SearchOverlay";
 import { useSettings } from "@/lib/use-settings";
+import { useWishlist } from "./WishlistContext";
 
 const utilLinks = [
   { label: "Aide", href: "/aide", icon: <HelpIcon /> },
@@ -19,6 +20,7 @@ const utilLinks = [
 
 export default function Header() {
   const { count } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -158,8 +160,15 @@ export default function Header() {
           <IconBtn href={isLoggedIn ? "/compte" : "/connexion"} label="Mon compte">
             <UserIcon />
           </IconBtn>
-          {siteSettings.enable_wishlist !== "false" && <IconBtn href={isLoggedIn ? "/compte" : "/connexion"} label="Mes favoris">
-            <HeartIcon />
+          {siteSettings.enable_wishlist !== "false" && <IconBtn href="/wishlist" label="Mes favoris">
+            <span className="relative inline-flex">
+              <HeartIcon />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#3ecf4c] px-1 text-[8px] font-black leading-none text-black">
+                  {wishlistCount > 99 ? "99+" : wishlistCount}
+                </span>
+              )}
+            </span>
           </IconBtn>}
           <IconBtn href="/panier" label="Panier">
             <span

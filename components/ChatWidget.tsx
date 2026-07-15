@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 type ChatMsg = {
@@ -93,6 +94,8 @@ const QUICK_CHIPS = [
 ];
 
 export default function ChatWidget() {
+  const pathname = usePathname();
+  const hideLauncher = pathname?.startsWith("/nous-contacter") || pathname?.startsWith("/checkout") || pathname?.startsWith("/compte");
   const [open, setOpen] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [status, setStatus] = useState<SessionStatus>("ai");
@@ -490,7 +493,7 @@ export default function ChatWidget() {
   return (
     <>
       {/* Floating button */}
-      <div className={`fixed bottom-16 z-50 ${open ? "hidden" : ""}`} style={{ right: "-16px" }}>
+      <div className={`fixed bottom-16 z-50 ${open || hideLauncher ? "hidden" : ""}`} style={{ right: "-16px" }}>
         <div className="relative inline-block">
           <div role="status" aria-live="polite" className="chat-help-bubble pointer-events-none absolute right-[125px] top-9 z-10 whitespace-nowrap rounded-2xl border border-black/10 bg-white px-4 py-2.5 text-sm font-black text-neutral-950 shadow-[0_12px_35px_rgba(0,0,0,.16)]">
             Besoin d’aide&nbsp;?

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/CartContext";
@@ -28,7 +28,15 @@ export default function CartPage() {
   const shipping = total >= freeShippingThreshold ? 0 : shippingCost;
 
   const [promoInput, setPromoInput] = useState("");
-  const [promoApplied, setPromoApplied] = useState<null | { code: string; type: "percent" | "fixed"; value: number; label: string; discount: number }>(null);
+  const [promoApplied, setPromoApplied] = useState<null | {
+    code: string;
+    type: "percent" | "fixed";
+    value: number;
+    label: string;
+    discount: number;
+    excludedItemsCount: number;
+    excludedSubtotal: number;
+  }>(null);
   const [promoError, setPromoError] = useState("");
   const [promoOpen, setPromoOpen] = useState(false);
   const [promoLoading, setPromoLoading] = useState(false);
@@ -44,10 +52,13 @@ export default function CartPage() {
     setPromoLoading(true);
     setPromoError("");
     try {
-      const res = await fetch("/api/coupons/validate", {
+      const res = await fetch("/api/coupons/validate/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, order_total: total }),
+        body: JSON.stringify({
+          code,
+          items: items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -55,7 +66,15 @@ export default function CartPage() {
         setPromoApplied(null);
       } else {
         const label = data.type === "percent" ? `-${data.value}%` : `-${data.value} MAD`;
-        setPromoApplied({ code: data.code, type: data.type, value: data.value, label, discount: data.discount });
+        setPromoApplied({
+          code: data.code,
+          type: data.type,
+          value: data.value,
+          label,
+          discount: data.discount,
+          excludedItemsCount: data.excluded_items_count ?? 0,
+          excludedSubtotal: data.excluded_subtotal ?? 0,
+        });
         setPromoError("");
         setPromoInput("");
       }
@@ -71,6 +90,48 @@ export default function CartPage() {
     setPromoError("");
     setPromoInput("");
   }
+
+  // Keep an applied coupon accurate when quantities or cart lines change.
+  useEffect(() => {
+    if (!promoApplied) return;
+    if (items.length === 0) {
+      setPromoApplied(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    fetch("/api/coupons/validate/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify({
+        code: promoApplied.code,
+        items: items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
+      }),
+    })
+      .then(async (response) => ({ response, data: await response.json() }))
+      .then(({ response, data }) => {
+        if (!response.ok) {
+          setPromoApplied(null);
+          setPromoError(data.error || "Le code promo n'est plus applicable.");
+          return;
+        }
+        setPromoApplied((current) => current ? {
+          ...current,
+          discount: data.discount,
+          excludedItemsCount: data.excluded_items_count ?? 0,
+          excludedSubtotal: data.excluded_subtotal ?? 0,
+        } : null);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setPromoError("Impossible de recalculer le code promo.");
+      });
+
+    return () => controller.abort();
+  // Revalidate only when the cart itself changes; updating promoApplied is the result.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
 
   return (
     <div className="min-h-[60vh] bg-[#f7f7f8]">
@@ -269,17 +330,22 @@ export default function CartPage() {
               {/* Footer */}
               <div className="px-6 py-4 border-t border-neutral-100 flex items-center justify-between min-h-[54px]">
                 {confirmClear ? (
-                  <div className="flex items-center gap-3 w-full">
-                    <span className="text-[12px] text-neutral-500 font-semibold flex-1">Vider tout le panier ?</span>
+                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 w-full rounded-xl border border-red-100 bg-red-50/60 px-3 py-2">
+                    <span className="flex items-center gap-2 text-[12px] text-neutral-700 font-bold flex-1 min-w-[150px]">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-500">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.8 2.2 18a2 2 0 0 0 1.7 3h16.2a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0Z"/></svg>
+                      </span>
+                      Vider tout le panier ?
+                    </span>
                     <button
                       onClick={() => { clear(); setConfirmClear(false); }}
-                      className="px-3 py-1.5 text-[11px] font-black uppercase tracking-wide bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                      className="px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.1em] bg-red-500 text-white rounded-lg shadow-sm hover:bg-red-600 active:scale-[0.97] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
                     >
                       Confirmer
                     </button>
                     <button
                       onClick={() => setConfirmClear(false)}
-                      className="px-3 py-1.5 text-[11px] font-black uppercase tracking-wide border border-neutral-200 text-neutral-500 rounded-lg hover:border-neutral-400 hover:text-black transition-colors"
+                      className="px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.1em] border border-neutral-200 bg-white text-neutral-500 rounded-lg hover:border-neutral-400 hover:text-black active:scale-[0.97] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-300 focus-visible:ring-offset-2"
                     >
                       Annuler
                     </button>
@@ -289,10 +355,11 @@ export default function CartPage() {
                     <span className="text-[11px] text-neutral-300">{count} article{count !== 1 ? "s" : ""}</span>
                     <button
                       onClick={() => setConfirmClear(true)}
-                      className="group flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-neutral-400 hover:text-red-500 transition-all duration-200 px-3 py-1.5 rounded-lg hover:bg-red-50 border border-transparent hover:border-red-100"
+                      aria-label="Vider tous les articles du panier"
+                      className="group inline-flex items-center gap-2.5 rounded-full border border-neutral-200 bg-white px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-neutral-600 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-px hover:border-red-200 hover:bg-red-50 hover:text-red-600 hover:shadow-[0_5px_16px_rgba(239,68,68,0.10)] active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2"
                     >
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-neutral-100 group-hover:bg-red-100 transition-colors duration-200">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-500 transition-colors duration-200 group-hover:bg-red-100 group-hover:text-red-600">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="3 6 5 6 21 6"/>
                           <path d="M19 6l-1 14H6L5 6"/>
                           <path d="M10 11v6M14 11v6"/>
@@ -383,6 +450,12 @@ export default function CartPage() {
                             </button>
                           </div>
                         )}
+                        {promoOpen && (
+                          <p className="mt-2 flex items-start gap-1.5 text-[10px] font-medium leading-relaxed text-neutral-400">
+                            <svg className="mt-0.5 shrink-0" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+                            Les codes promo s&apos;appliquent uniquement aux articles qui ne sont pas déjà en promotion.
+                          </p>
+                        )}
                         {promoError && (
                           <p className="mt-2 text-[11px] text-red-500 font-semibold flex items-center gap-1">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
@@ -391,14 +464,21 @@ export default function CartPage() {
                         )}
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between px-3 py-2.5 rounded-lg" style={{ background: "#f0fdf4", border: "1px solid rgba(62,207,76,0.3)" }}>
-                        <span className="text-[12px] font-black text-[#16a34a] flex items-center gap-1.5">
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5"/></svg>
-                          {promoApplied.code} appliqué
-                        </span>
-                        <button onClick={removePromo} className="text-neutral-400 hover:text-red-500 transition-colors">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
+                      <div className="rounded-lg px-3 py-2.5" style={{ background: "#f0fdf4", border: "1px solid rgba(62,207,76,0.3)" }}>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[12px] font-black text-[#16a34a] flex items-center gap-1.5">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+                            {promoApplied.code} appliqué
+                          </span>
+                          <button onClick={removePromo} aria-label="Retirer le code promo" className="text-neutral-400 hover:text-red-500 transition-colors">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          </button>
+                        </div>
+                        {promoApplied.excludedItemsCount > 0 && (
+                          <p className="mt-2 border-t border-emerald-200/70 pt-2 text-[10px] font-semibold leading-relaxed text-amber-700">
+                            {promoApplied.excludedItemsCount} article{promoApplied.excludedItemsCount > 1 ? "s" : ""} déjà en promotion exclu{promoApplied.excludedItemsCount > 1 ? "s" : ""} du code ({formatMAD(promoApplied.excludedSubtotal)}).
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>}

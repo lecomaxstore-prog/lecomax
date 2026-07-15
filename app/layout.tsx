@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import AnnouncementBar from "@/components/AnnouncementBar";
 
 import { CartProvider } from "@/components/CartContext";
+import { WishlistProvider } from "@/components/WishlistContext";
 import PageTracker from "@/components/PageTracker";
 import AdminLayoutWrapper from "@/components/AdminLayoutWrapper";
 import SiteProtection from "@/components/SiteProtection";
@@ -262,6 +263,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col font-sans">
         <CartProvider>
+          <WishlistProvider>
           <SiteProtection />
           <PageTracker />
           <AdminLayoutWrapper>
@@ -285,6 +287,7 @@ export default function RootLayout({
           <PushPrompt />
           {process.env.NODE_ENV === "production" && <SpeedInsights />}
           {process.env.NODE_ENV === "production" && <Analytics />}
+          </WishlistProvider>
         </CartProvider>
       </body>
     </html>

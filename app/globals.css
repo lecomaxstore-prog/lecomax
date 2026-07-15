@@ -647,3 +647,60 @@ body {
 .stat-value-in {
   animation: stat-value-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* ── Products load-more magic ────────────────────────────────────── */
+@keyframes load-more-breathe {
+  0%, 100% { opacity: 0.18; transform: scale(0.88); }
+  50%      { opacity: 0.42; transform: scale(1.08); }
+}
+@keyframes load-more-sweep {
+  0%, 68%  { transform: translateX(-180%) skewX(-18deg); opacity: 0; }
+  72%      { opacity: 0.55; }
+  88%, 100% { transform: translateX(340%) skewX(-18deg); opacity: 0; }
+}
+@keyframes load-more-arrow-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(2px); }
+}
+.magic-load-more::before {
+  content: "";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  border-radius: 999px;
+  background: rgba(62, 207, 76, 0.32);
+  filter: blur(10px);
+  animation: load-more-breathe 3s ease-in-out infinite;
+}
+.magic-load-more__glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, rgba(62, 207, 76, 0.035), transparent 42%);
+  opacity: 0.7;
+  transition: opacity 0.35s ease;
+}
+.magic-load-more__sweep {
+  position: absolute;
+  inset: -20% auto -20% 0;
+  width: 26%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(62, 207, 76, 0.07), rgba(255,255,255,0.9), transparent);
+  animation: load-more-sweep 5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+.magic-load-more__arrow {
+  animation: load-more-arrow-float 1.8s ease-in-out infinite;
+}
+.magic-load-more:hover .magic-load-more__glow { opacity: 1; }
+.magic-load-more:hover .magic-load-more__arrow { animation-duration: 0.85s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .magic-load-more::before,
+  .magic-load-more__sweep,
+  .magic-load-more__arrow {
+    animation: none;
+  }
+}

@@ -4,6 +4,7 @@ import { Resend } from "resend";
 import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
 import { products as catalogProducts } from "@/lib/products";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
+import { calculateCouponDiscount, calculateCouponPricing } from "@/lib/coupon-pricing";
 
 // Use service role key server-side so RLS doesn't block order insertion
 const supabase = createClient(
@@ -50,15 +51,17 @@ export async function GET(req: NextRequest) {
   }
 
   // List orders filtered by customer email (for client dashboard)
-  let query = supabase.from("orders").select("id, order_number, status, total, created_at, customer, items").order("created_at", { ascending: false });
+  let query = supabase.from("orders").select("id, order_number, status, total, created_at, customer, items", { count: "exact" }).order("created_at", { ascending: false });
   const safeEmail = admin ? email : user!.email!;
   if (safeEmail) query = query.eq("customer->>email", safeEmail.toLowerCase());
   if (status && status !== "all") query = query.eq("status", status);
   if (limit) query = query.limit(parseInt(limit));
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  return NextResponse.json(data, {
+    headers: { "X-Total-Count": String(count ?? data?.length ?? 0) },
+  });
 }
 
 // POST /api/orders — create a new order
@@ -158,6 +161,10 @@ export async function POST(req: NextRequest) {
 
   const safeNotes = cleanText(notes, 1000) || null;
   const calculatedSubtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const couponPricing = calculateCouponPricing(
+    items.map((item) => ({ slug: item.slug, quantity: item.qty })),
+    productBySlug
+  );
   const { data: featureRows } = await supabase
     .from("settings")
     .select("key,value")
@@ -170,14 +177,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Les codes promotionnels sont désactivés." }, { status: 409 });
     }
     const { data: coupon } = await supabase.from("coupons").select("*").eq("id", coupon_id).eq("active", true).single();
+    const couponValue = Number(coupon?.value);
     const couponValid = coupon &&
+      ["percent", "fixed"].includes(coupon.type) &&
+      Number.isFinite(couponValue) && couponValue > 0 &&
+      (coupon.type !== "percent" || couponValue <= 100) &&
       (!coupon.expires_at || new Date(coupon.expires_at) >= new Date()) &&
       (coupon.max_uses === null || coupon.used_count < coupon.max_uses) &&
-      (coupon.min_order === null || calculatedSubtotal >= Number(coupon.min_order));
+      couponPricing.eligibleSubtotal > 0 &&
+      (coupon.min_order === null || couponPricing.eligibleSubtotal >= Number(coupon.min_order));
     if (!couponValid) return NextResponse.json({ error: "Le code promotionnel n'est plus valide." }, { status: 409 });
-    couponDiscount = coupon.type === "percent"
-      ? Math.round(calculatedSubtotal * Number(coupon.value) / 100)
-      : Math.min(Number(coupon.value), calculatedSubtotal);
+    couponDiscount = calculateCouponDiscount(
+      coupon.type,
+      couponValue,
+      couponPricing.eligibleSubtotal
+    );
   }
 
   let loyaltyPercent = 0;

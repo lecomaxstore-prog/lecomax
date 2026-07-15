@@ -22,7 +22,8 @@ const TABS = [
   { key: "femme",       label: "Femme",       icon: "M12 2a5 5 0 1 0 0 10A5 5 0 0 0 12 2zm0 10c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z" },
 ];
 
-const INITIAL_PRODUCT_COUNT = 16;
+const MOBILE_INITIAL_PRODUCT_COUNT = 8;
+const DESKTOP_INITIAL_PRODUCT_COUNT = 16;
 const PRODUCT_LOAD_STEP = 8;
 
 function useInView(threshold = 0.08) {
@@ -41,7 +42,7 @@ function useInView(threshold = 0.08) {
   return { ref, visible };
 }
 
-function ProductCard({ product, index }: { product: CardProduct; index: number }) {
+function ProductCard({ product, index, visibilityClass = "" }: { product: CardProduct; index: number; visibilityClass?: string }) {
   const hasDiscount = product.oldPrice && product.oldPrice > product.price;
   const discount = hasDiscount
     ? Math.round(((product.oldPrice! - product.price) / product.oldPrice!) * 100)
@@ -49,7 +50,7 @@ function ProductCard({ product, index }: { product: CardProduct; index: number }
 
   return (
     <div
-      className="h-full"
+      className={`h-full ${visibilityClass}`}
       style={{
         animation: `cardFadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both`,
         animationDelay: `${index * 55}ms`,
@@ -133,23 +134,86 @@ function ProductCard({ product, index }: { product: CardProduct; index: number }
 
 export default function OurProductsGrid({ products }: { products: CardProduct[] }) {
   const [active, setActive] = useState("tous");
-  const [displayed, setDisplayed] = useState(INITIAL_PRODUCT_COUNT);
+  const [mobileDisplayed, setMobileDisplayed] = useState(MOBILE_INITIAL_PRODUCT_COUNT);
+  const [desktopDisplayed, setDesktopDisplayed] = useState(DESKTOP_INITIAL_PRODUCT_COUNT);
   const { ref, visible } = useInView();
 
   const filtered = active === "tous"
     ? products
     : products.filter((p) => p.category === active);
 
-  const visibleProducts = filtered.slice(0, displayed);
-  const hasMore = filtered.length > displayed;
+  const visibleProducts = filtered.slice(0, Math.max(mobileDisplayed, desktopDisplayed));
+  const mobileHasMore = filtered.length > mobileDisplayed;
+  const desktopHasMore = filtered.length > desktopDisplayed;
 
   const handleTab = (key: string) => {
     setActive(key);
-    setDisplayed(INITIAL_PRODUCT_COUNT);
+    setMobileDisplayed(MOBILE_INITIAL_PRODUCT_COUNT);
+    setDesktopDisplayed(DESKTOP_INITIAL_PRODUCT_COUNT);
+  };
+
+  const loadMore = (mode: "mobile" | "desktop") => {
+    if (mode === "mobile") {
+      setMobileDisplayed((count) => Math.min(count + PRODUCT_LOAD_STEP, filtered.length));
+      return;
+    }
+    setDesktopDisplayed((count) => Math.min(count + PRODUCT_LOAD_STEP, filtered.length));
+  };
+
+  const loadMoreControl = (mode: "mobile" | "desktop") => {
+    const count = mode === "mobile" ? mobileDisplayed : desktopDisplayed;
+    const shown = Math.min(count, filtered.length);
+    const hasMore = mode === "mobile" ? mobileHasMore : desktopHasMore;
+    const nextBatch = Math.min(PRODUCT_LOAD_STEP, filtered.length - shown);
+    if (!hasMore) return null;
+
+    return (
+      <div className={`${mode === "mobile" ? "flex sm:hidden" : "hidden sm:flex"} mt-10 flex-col items-center sm:mt-12`}>
+        <div className="w-full max-w-[280px] px-1">
+          <div className="mb-2.5 flex items-center justify-between gap-4">
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-neutral-500">
+              {shown} affichés
+            </p>
+            <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-neutral-300">
+              {filtered.length} au total
+            </p>
+          </div>
+          <div className="h-[3px] w-full overflow-hidden rounded-full bg-neutral-200/80">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#20b83f] to-[#4ade80] shadow-[0_0_12px_rgba(62,207,76,0.35)] transition-all duration-500"
+              style={{ width: `${(shown / filtered.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => loadMore(mode)}
+          aria-label={`Afficher ${nextBatch} produit${nextBatch > 1 ? "s" : ""} supplémentaire${nextBatch > 1 ? "s" : ""}`}
+          className="magic-load-more group relative mt-5 inline-flex min-h-[68px] w-full max-w-[280px] items-center justify-between overflow-hidden rounded-xl border border-neutral-200/90 bg-white px-5 text-left text-black shadow-[0_8px_25px_rgba(0,0,0,0.055)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#3ecf4c]/45 hover:shadow-[0_14px_32px_rgba(25,135,46,0.11)] active:translate-y-0 active:scale-[0.985]"
+        >
+          <span className="magic-load-more__glow" aria-hidden="true" />
+          <span className="magic-load-more__sweep" aria-hidden="true" />
+          <span className="relative z-10 flex min-w-0 flex-col">
+            <span className="text-[11px] font-black uppercase tracking-[0.19em] text-neutral-950">
+              Voir plus
+            </span>
+            <span className="mt-1.5 text-[9px] font-semibold tracking-[0.06em] text-neutral-400 transition-colors duration-300 group-hover:text-[#269d3a]">
+              +{nextBatch} produit{nextBatch > 1 ? "s" : ""}
+            </span>
+          </span>
+          <span className="magic-load-more__arrow relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#bcefc4] bg-[#eafbed] text-[#188c2d] shadow-[0_4px_12px_rgba(38,157,58,0.12)] transition-all duration-300 group-hover:border-[#3ecf4c] group-hover:bg-[#3ecf4c] group-hover:text-black">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" aria-hidden="true">
+              <path d="M12 5v14M5 12l7 7 7-7" />
+            </svg>
+          </span>
+        </button>
+      </div>
+    );
   };
 
   return (
-    <section className="py-16 bg-neutral-50/60 border-y border-neutral-100" ref={ref}>
+    <section id="nos-produits" className="py-16 bg-neutral-50/60 border-y border-neutral-100" ref={ref}>
       <div className="max-w-7xl mx-auto px-4 md:px-6">
 
         {/* â”€â”€ Header â”€â”€ */}
@@ -192,7 +256,18 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
           }}
         >
           {visibleProducts.map((p, i) => (
-            <ProductCard key={`${active}-${p.slug}`} product={p} index={i} />
+            <ProductCard
+              key={`${active}-${p.slug}`}
+              product={p}
+              index={i}
+              visibilityClass={
+                i >= mobileDisplayed
+                  ? "hidden sm:block"
+                  : i >= desktopDisplayed
+                    ? "sm:hidden"
+                    : ""
+              }
+            />
           ))}
         </div>
 
@@ -208,32 +283,9 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
           </div>
         )}
 
-        {/* â”€â”€ Load more â”€â”€ */}
-        {hasMore && (
-          <div className="flex flex-col items-center gap-3 mt-12">
-            <p className="text-[11px] text-neutral-400 uppercase tracking-[0.2em] font-bold">
-              {visibleProducts.length} / {filtered.length} produits
-            </p>
-            {/* Progress bar */}
-            <div className="w-40 h-[3px] bg-neutral-200 overflow-hidden">
-              <div
-                className="h-full bg-[#3ecf4c] transition-all duration-500"
-                style={{ width: `${(visibleProducts.length / filtered.length) * 100}%` }}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => setDisplayed((count) => Math.min(count + PRODUCT_LOAD_STEP, filtered.length))}
-              aria-label={`Afficher ${Math.min(PRODUCT_LOAD_STEP, filtered.length - visibleProducts.length)} produits supplémentaires`}
-              className="group mt-2 inline-flex min-h-12 items-center justify-center gap-3 bg-black px-7 py-3.5 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-[0_10px_30px_rgba(0,0,0,0.10)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#3ecf4c] hover:text-black hover:shadow-[0_14px_36px_rgba(62,207,76,0.22)] active:translate-y-0 active:scale-[0.98] sm:px-9"
-            >
-              Voir plus de produits
-              <svg className="transition-transform duration-300 group-hover:translate-y-0.5" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M12 5v14M5 12l7 7 7-7" />
-              </svg>
-            </button>
-          </div>
-        )}
+        {/* â”€â”€ Responsive load more controls â”€â”€ */}
+        {loadMoreControl("mobile")}
+        {loadMoreControl("desktop")}
       </div>
 
       <style jsx>{`

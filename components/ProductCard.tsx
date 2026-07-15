@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { formatMAD, type CardProduct } from "@/lib/products";
+import { useWishlist } from "./WishlistContext";
 
 const COLOR_MAP: Record<string, string> = {
   "Noir": "#0a0a0a", "Blanc": "#f5f5f5", "Blanc casse": "#fafaf5",
@@ -29,8 +30,10 @@ export function ratingFor(slug: string) {
 }
 
 export default function ProductCard({ product }: { product: CardProduct }) {
-  const [wished, setWished] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { slugs: wishlistSlugs, pending: wishlistPending, toggle: toggleWishlist } = useWishlist();
+  const wished = wishlistSlugs.has(product.slug);
+  const wishPending = wishlistPending.has(product.slug);
   const rating = product.rating ?? 0;
   const count = product.reviewCount ?? 0;
   const displayImage = product.image || "/images/no-image.svg";
@@ -76,12 +79,15 @@ export default function ProductCard({ product }: { product: CardProduct }) {
 
         {/* Wishlist */}
         <button
-          onClick={(e) => { e.preventDefault(); setWished((w) => !w); }}
+          type="button"
+          disabled={wishPending}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); void toggleWishlist(product.slug); }}
           aria-label={wished ? "Retirer des favoris" : "Ajouter aux favoris"}
-          className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-all duration-200
+          aria-pressed={wished}
+          className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-all duration-200 disabled:cursor-wait disabled:opacity-60
             ${wished
               ? "bg-black text-white opacity-100 scale-100"
-              : "bg-white/95 text-neutral-400 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 hover:text-black"
+              : "bg-white/95 text-neutral-500 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 scale-100 sm:scale-90 sm:group-hover:scale-100 hover:text-black"
             }`}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill={wished ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
