@@ -12,6 +12,9 @@ const supabase = createClient(
 );
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://lecomax.com";
+const EMAIL_LOGO_URL = `${SITE_URL}/images/email%20image/email%20image.png`;
+const EMAIL_LOGO_CONTENT_ID = "lecomax-store-logo";
 
 function generateOrderNumber(): string {
   return `ECO-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -313,6 +316,13 @@ export async function POST(req: NextRequest) {
       replyTo: "contact@lecomax.com",
       to: customer.email,
       subject: `🧾 Votre facture ${invoiceNumber} — L'ecomax`,
+      attachments: [
+        {
+          path: EMAIL_LOGO_URL,
+          filename: "lecomax-store-logo.png",
+          contentId: EMAIL_LOGO_CONTENT_ID,
+        },
+      ],
       html: `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -328,8 +338,15 @@ export async function POST(req: NextRequest) {
   <!-- TOP ACCENT BAR -->
   <tr><td style="height:4px;background:linear-gradient(90deg,#166534,#16a34a,#3ecf4c,#4ade80);border-radius:8px 8px 0 0;font-size:0;line-height:0;">&nbsp;</td></tr>
 
+  <!-- STORE LOGO -->
+  <tr><td style="background:#0c1a12;padding:24px 44px 0;text-align:center;">
+    <a href="${SITE_URL}" style="display:inline-block;text-decoration:none;">
+      <img src="cid:${EMAIL_LOGO_CONTENT_ID}" alt="L'ecomax" width="88" height="88" style="display:block;width:88px;height:88px;border:0;border-radius:20px;object-fit:cover;" />
+    </a>
+  </td></tr>
+
   <!-- DARK HEADER -->
-  <tr><td style="background:#0c1a12;padding:36px 44px 32px;border-radius:0;">
+  <tr><td style="background:#0c1a12;padding:20px 44px 32px;border-radius:0;">
     <table width="100%" cellpadding="0" cellspacing="0"><tr>
       <td style="vertical-align:top;">
         <!-- Logo text -->

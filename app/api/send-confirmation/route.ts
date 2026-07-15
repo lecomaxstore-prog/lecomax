@@ -4,6 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://lecomax.com";
+const DEFAULT_EMAIL_LOGO_URL = `${SITE_URL}/images/email%20image/email%20image.png`;
+const EMAIL_LOGO_CONTENT_ID = "lecomax-store-logo";
 
 async function getStoreSettings(): Promise<{ name: string; email: string; banner: string }> {
   try {
@@ -22,10 +24,10 @@ async function getStoreSettings(): Promise<{ name: string; email: string; banner
       email: map.store_email || "noreply@lecomax.com",
       banner: map.email_banner_image
         ? (map.email_banner_image.startsWith("http") ? map.email_banner_image : `${SITE_URL}${map.email_banner_image}`)
-        : `${SITE_URL}/images/email%20image/email%20image.png`,
+        : DEFAULT_EMAIL_LOGO_URL,
     };
   } catch {
-    return { name: "LECOMAX", email: "noreply@lecomax.com", banner: `${SITE_URL}/images/email%20image/email%20image.png` };
+    return { name: "LECOMAX", email: "noreply@lecomax.com", banner: DEFAULT_EMAIL_LOGO_URL };
   }
 }
 
@@ -59,8 +61,12 @@ export async function POST(req: Request) {
 
         <!-- Header -->
         <tr>
-          <td style="background:linear-gradient(135deg,#111111 0%,#333333 100%);padding:0;text-align:center;">
-            <img src="${emailBannerUrl}" alt="L'ecomax" width="560" style="display:block;width:100%;max-width:560px;height:auto;" />
+          <td style="background:linear-gradient(135deg,#0c1a12 0%,#17271d 100%);padding:28px 40px;text-align:center;">
+            <a href="${SITE_URL}" style="display:inline-block;text-decoration:none;">
+              <img src="cid:${EMAIL_LOGO_CONTENT_ID}" alt="L'ecomax" width="104" height="104" style="display:block;width:104px;height:104px;border:0;border-radius:24px;object-fit:cover;" />
+            </a>
+            <p style="margin:12px 0 0;font-size:20px;font-weight:900;color:#ffffff;letter-spacing:-0.4px;">L&apos;eco<span style="color:#4ade80;">max</span></p>
+            <p style="margin:5px 0 0;font-size:9px;font-weight:700;color:rgba(255,255,255,0.45);letter-spacing:2px;text-transform:uppercase;">Boutique en ligne · Maroc</p>
           </td>
         </tr>
 
@@ -152,6 +158,13 @@ export async function POST(req: Request) {
       to: [to_email],
       subject: `Votre commande ${order_number} est confirmee - LECOMAX`,
       html,
+      attachments: [
+        {
+          path: emailBannerUrl,
+          filename: "lecomax-store-logo.png",
+          contentId: EMAIL_LOGO_CONTENT_ID,
+        },
+      ],
     });
 
     if (error) {

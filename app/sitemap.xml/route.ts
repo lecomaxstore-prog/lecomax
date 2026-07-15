@@ -11,6 +11,7 @@ const staticPages = [
   { path: "/nouveautes/", priority: 0.8, changeFreq: "weekly", lastmod: "2026-06-26" },
   { path: "/bestsellers/", priority: 0.8, changeFreq: "weekly", lastmod: "2026-06-26" },
   { path: "/promotions/", priority: 0.8, changeFreq: "daily",   lastmod: "2026-06-26" },
+  { path: "/ecomedia/", priority: 0.7, changeFreq: "daily", lastmod: "2026-07-15" },
   { path: "/guide-des-tailles/", priority: 0.6, changeFreq: "monthly", lastmod: "2026-06-26" },
   { path: "/a-propos/", priority: 0.6, changeFreq: "monthly", lastmod: "2026-06-26" },
   { path: "/aide/", priority: 0.6, changeFreq: "monthly", lastmod: "2026-06-26" },
@@ -77,6 +78,25 @@ export async function GET() {
   </url>`);
         }
       }
+    }
+
+    // Fresh Ecomedia posts give search and answer engines crawlable,
+    // date-stamped brand content with a stable canonical URL.
+    const { data: posts } = await supabase
+      .from("ecomedia_posts")
+      .select("slug, created_at, updated_at")
+      .eq("is_published", true)
+      .order("created_at", { ascending: false })
+      .limit(500);
+
+    for (const post of posts ?? []) {
+      if (!post.slug) continue;
+      entries.push(`  <url>
+    <loc>${SITE_URL}/ecomedia/${post.slug}/</loc>
+    <lastmod>${post.updated_at ?? post.created_at ?? now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`);
     }
   } catch {
     // Non-fatal — sitemap still works without product URLs

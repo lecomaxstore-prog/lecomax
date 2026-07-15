@@ -159,7 +159,11 @@ export default async function CategoryPage({
     description: dbCategory?.description || staticCategory?.description || "",
     hero: dbCategory?.image || staticCategory?.hero || "/images/pages images/homme.png",
     heroMobile: dbCategory?.image_mobile || dbCategory?.image || staticCategory?.hero || "/images/pages images/homme.png",
-    imagePosition: dbCategory?.image_position || (category === "chaussures" ? "50% 65%" : "50% 20%"),
+    imagePosition: category === "femme"
+      ? "50% 8%"
+      : category === "homme"
+        ? "50% 6%"
+        : dbCategory?.image_position || (category === "chaussures" ? "50% 65%" : "50% 20%"),
     imageMobilePosition: dbCategory?.image_mobile_position || dbCategory?.image_position || "50% 50%",
   };
 

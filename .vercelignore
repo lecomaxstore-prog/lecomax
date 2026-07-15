@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.next-broken-*/
+out/
+.git/
+!.gitignore
+.vercel/
+.agents/
+.env
+.env.*
+*.log
+*.tsbuildinfo
+lighthouse-report.json
