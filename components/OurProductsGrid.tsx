@@ -22,6 +22,9 @@ const TABS = [
   { key: "femme",       label: "Femme",       icon: "M12 2a5 5 0 1 0 0 10A5 5 0 0 0 12 2zm0 10c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z" },
 ];
 
+const INITIAL_PRODUCT_COUNT = 16;
+const PRODUCT_LOAD_STEP = 8;
+
 function useInView(threshold = 0.08) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -130,7 +133,7 @@ function ProductCard({ product, index }: { product: CardProduct; index: number }
 
 export default function OurProductsGrid({ products }: { products: CardProduct[] }) {
   const [active, setActive] = useState("tous");
-  const [displayed, setDisplayed] = useState(20);
+  const [displayed, setDisplayed] = useState(INITIAL_PRODUCT_COUNT);
   const { ref, visible } = useInView();
 
   const filtered = active === "tous"
@@ -142,7 +145,7 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
 
   const handleTab = (key: string) => {
     setActive(key);
-    setDisplayed(20);
+    setDisplayed(INITIAL_PRODUCT_COUNT);
   };
 
   return (
@@ -219,11 +222,13 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
               />
             </div>
             <button
-              onClick={() => setDisplayed((d) => d + 8)}
-              className="mt-2 inline-flex items-center gap-2.5 bg-white border border-neutral-200 px-8 py-3.5 text-[11px] font-black uppercase tracking-[0.18em] hover:border-black hover:bg-black hover:text-white active:scale-[0.97] transition-all duration-300"
+              type="button"
+              onClick={() => setDisplayed((count) => Math.min(count + PRODUCT_LOAD_STEP, filtered.length))}
+              aria-label={`Afficher ${Math.min(PRODUCT_LOAD_STEP, filtered.length - visibleProducts.length)} produits supplémentaires`}
+              className="group mt-2 inline-flex min-h-12 items-center justify-center gap-3 bg-black px-7 py-3.5 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-[0_10px_30px_rgba(0,0,0,0.10)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#3ecf4c] hover:text-black hover:shadow-[0_14px_36px_rgba(62,207,76,0.22)] active:translate-y-0 active:scale-[0.98] sm:px-9"
             >
-              Charger plus
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              Voir plus de produits
+              <svg className="transition-transform duration-300 group-hover:translate-y-0.5" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M12 5v14M5 12l7 7 7-7" />
               </svg>
             </button>
