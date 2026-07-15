@@ -83,12 +83,12 @@ function renderWithLinks(text: string) {
 }
 
 const QUICK_CHIPS = [
-  { label: "🛍️ Nos produits", msg: "Quels produits proposez-vous ?" },
-  { label: "🚚 Livraison", msg: "Quels sont les délais et frais de livraison ?" },
-  { label: "📦 Suivre ma commande", msg: "Comment suivre ma commande ?" },
-  { label: "↩️ Retours", msg: "Quelle est votre politique de retour ?" },
-  { label: "💳 Paiement", msg: "Quels modes de paiement acceptez-vous ?" },
-  { label: "🏷️ Promotions", msg: "Avez-vous des promotions ou codes promo en ce moment ?" },
+  { label: "Nos produits", msg: "Quels produits proposez-vous ?", color: "#16a34a", soft: "#ecfdf3", path: "M6 3 3 7v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-3-4H6ZM3 7h18M16 11a4 4 0 0 1-8 0" },
+  { label: "Livraison", msg: "Quels sont les délais et frais de livraison ?", color: "#d97706", soft: "#fff8e7", path: "M3 6h11v11H3V6Zm11 4h4l3 3v4h-7v-7ZM7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" },
+  { label: "Suivre ma commande", msg: "Comment suivre ma commande ?", color: "#2563eb", soft: "#eef5ff", path: "m12 3 8 4-8 4-8-4 8-4Zm8 4v10l-8 4-8-4V7m8 4v10" },
+  { label: "Retours", msg: "Quelle est votre politique de retour ?", color: "#7c3aed", soft: "#f5f0ff", path: "M9 7 4 12l5 5M4 12h10a6 6 0 0 1 6 6v1" },
+  { label: "Paiement", msg: "Quels modes de paiement acceptez-vous ?", color: "#0891b2", soft: "#ecfeff", path: "M3 5h18v14H3V5Zm0 5h18M7 15h4" },
+  { label: "Promotions", msg: "Avez-vous des promotions ou codes promo en ce moment ?", color: "#e34b78", soft: "#fff0f5", path: "m20 13-7 7a2 2 0 0 1-3 0l-8-8V3h9l9 8a2 2 0 0 1 0 2ZM7 7h.01" },
 ];
 
 export default function ChatWidget() {
@@ -485,8 +485,8 @@ export default function ChatWidget() {
       {/* Chat panel */}
       {open && (
         <div ref={panelRef}
-          className="fixed z-50 flex flex-col overflow-hidden shadow-2xl bottom-0 right-0 left-0 top-0 rounded-none w-full h-full sm:bottom-5 sm:right-5 sm:left-auto sm:top-auto sm:w-[370px] sm:h-[580px] sm:max-h-[calc(100vh-80px)] sm:rounded-3xl sm:max-w-[calc(100vw-20px)]"
-          style={{ fontFamily:"Inter,sans-serif", background:"#f5f6f8", border:"1px solid rgba(0,0,0,0.08)" }}>
+          className="chat-premium-panel fixed z-50 flex h-full w-full flex-col overflow-hidden rounded-none shadow-[0_30px_100px_rgba(0,0,0,.28)] bottom-0 right-0 left-0 top-0 sm:bottom-5 sm:right-5 sm:left-auto sm:top-auto sm:h-[640px] sm:max-h-[calc(100vh-60px)] sm:w-[390px] sm:max-w-[calc(100vw-20px)] sm:rounded-[28px]"
+          style={{ fontFamily:"Inter,sans-serif", background:"#f7f8f7", border:"1px solid rgba(15,23,18,0.1)" }}>
 
           <style>{`
             @keyframes headerFadeIn { from{opacity:0;transform:scale(0.85);} to{opacity:1;transform:scale(1);} }
@@ -498,16 +498,20 @@ export default function ChatWidget() {
             @keyframes callRipple   { 0%{transform:scale(1);opacity:1;} 100%{transform:scale(2.2);opacity:0;} }
             @keyframes callShake    { 0%,100%{transform:rotate(0deg);} 20%{transform:rotate(-15deg);} 40%{transform:rotate(15deg);} 60%{transform:rotate(-10deg);} 80%{transform:rotate(10deg);} }
             @keyframes callSlideIn  { 0%{transform:translateY(20px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+            @keyframes chatPanelIn  { from{opacity:0;transform:translateY(16px) scale(.98);} to{opacity:1;transform:translateY(0) scale(1);} }
+            @keyframes quickCardIn  { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
             .chat-msg { animation: msgIn 0.25s cubic-bezier(0.22,1,0.36,1) both; }
+            @media (min-width:640px){.chat-premium-panel{animation:chatPanelIn .4s cubic-bezier(.16,1,.3,1) both}}
+            @media (prefers-reduced-motion:reduce){.chat-msg,.chat-premium-panel,.chat-quick-card{animation:none!important}}
           `}</style>
 
           {/* Header */}
-          <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3 text-white relative overflow-hidden"
+          <div className="relative flex min-h-[76px] flex-shrink-0 items-center gap-3 overflow-hidden px-4 py-3.5 text-white"
             style={{
               background: hasAgentJoined
-                ? "linear-gradient(135deg,#0a2a0a 0%,#16a34a 100%)"
-                : "linear-gradient(135deg,#0a0a0a 0%,#1a1a1a 60%,#166534 100%)",
-              transition:"background 0.7s ease", minHeight:68,
+                ? "linear-gradient(135deg,#07150c 0%,#146b34 100%)"
+                : "linear-gradient(135deg,#080b09 0%,#111914 58%,#123d24 100%)",
+              transition:"background 0.7s ease",
             }}>
             <span style={{ position:"absolute",right:-20,top:-20,width:100,height:100,borderRadius:"50%",background:"rgba(62,207,76,0.08)",pointerEvents:"none" }} />
             <span style={{ position:"absolute",right:20,bottom:-30,width:70,height:70,borderRadius:"50%",background:"rgba(62,207,76,0.06)",pointerEvents:"none" }} />
@@ -543,7 +547,8 @@ export default function ChatWidget() {
                 </>
               ) : (
                 <>
-                  <p className="text-[14px] font-bold leading-tight tracking-tight">Eco &mdash; L&apos;ecomax</p>
+                  <p className="text-[9px] font-black uppercase tracking-[.2em] text-[#76ed8a]">Assistance L&apos;ecomax</p>
+                  <p className="mt-1 text-[14px] font-bold leading-tight tracking-tight">Eco, votre assistant</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     {status === "escalated" && callVisible ? (
                       <>
@@ -630,9 +635,8 @@ export default function ChatWidget() {
               scrollBehavior:"smooth",overscrollBehavior:"contain",
               scrollbarWidth:"thin",scrollbarColor:"#3ecf4c transparent",
               display:"flex",flexDirection:"column",gap:"10px",
-              background:"#f5f6f8",
-              backgroundImage:"radial-gradient(circle,rgba(0,0,0,0.04) 1px,transparent 1px)",
-              backgroundSize:"22px 22px",
+              background:"linear-gradient(180deg,#f7faf8 0%,#f7f8f7 45%,#f3f5f4 100%)",
+              backgroundImage:"radial-gradient(circle at 15% 5%,rgba(62,207,76,.07),transparent 28%)",
             }}>
 
             {starting && (
@@ -645,19 +649,19 @@ export default function ChatWidget() {
             {/* Welcome card */}
             {!starting && messages.length === 0 && (
               <div className="chat-msg flex flex-col gap-3">
-                <div className="rounded-3xl overflow-hidden" style={{ background:"white",border:"1px solid rgba(0,0,0,0.08)",boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
-                  <div className="flex items-center gap-3 px-4 pt-4 pb-3" style={{ background:"linear-gradient(135deg,#f0fdf4 0%,#f8fff9 60%,#fff 100%)" }}>
+                <div className="overflow-hidden rounded-[24px]" style={{ background:"white",border:"1px solid rgba(15,23,18,.08)",boxShadow:"0 14px 36px rgba(15,23,18,.07)" }}>
+                  <div className="flex items-center gap-3 px-4 pb-3 pt-4" style={{ background:"linear-gradient(135deg,#f2fff5 0%,#fbfffc 58%,#fff 100%)" }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <div className="relative flex-shrink-0">
-                      <img src="/images/chatbot logo.png?v=2" alt="Eco" width={44} height={44}
-                        className="w-11 h-11 rounded-2xl object-contain p-1 bg-white"
-                        style={{ boxShadow:"0 0 0 2px #3ecf4c, 0 2px 8px rgba(62,207,76,0.2)" }} />
+                      <img src="/images/chatbot logo.png?v=2" alt="Eco" width={46} height={46}
+                        className="h-[46px] w-[46px] rounded-2xl bg-white object-contain p-1"
+                        style={{ boxShadow:"0 0 0 1.5px #3ecf4c,0 8px 20px rgba(22,185,85,.16)" }} />
                       <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white bg-[#22c55e]"
                         style={{ boxShadow:"0 0 0 0 rgba(34,197,94,0.6)",animation:"onlinePulse 2.5s ease-in-out infinite" }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-neutral-900 text-[14px] font-bold leading-tight">Eco</p>
-                      <p className="text-neutral-400 text-[11px] mt-0.5 truncate">Assistant virtuel L&apos;ecomax</p>
+                      <p className="text-[14px] font-black leading-tight text-neutral-950">Eco</p>
+                      <p className="mt-1 truncate text-[10px] font-medium text-neutral-400">Assistant intelligent L&apos;ecomax</p>
                     </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full flex-shrink-0" style={{ background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.2)" }}>
                       <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
@@ -665,22 +669,20 @@ export default function ChatWidget() {
                     </div>
                   </div>
                   <style>{`@keyframes onlinePulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.5);}50%{box-shadow:0 0 0 4px rgba(34,197,94,0);}}`}</style>
-                  <div className="px-4 pb-3" style={{ borderTop:"1px solid #f5f5f5" }}>
-                    <p className="text-neutral-600 text-[13px] leading-relaxed pt-3">
-                      Bonjour&nbsp;! Je suis <span className="text-[#16a34a] font-semibold">Eco</span>, votre assistant L&apos;ecomax. Comment puis-je vous aider&nbsp;?
-                    </p>
+                  <div className="px-4 pb-3 pt-4" style={{ borderTop:"1px solid #f1f4f2" }}>
+                    <p className="text-[17px] font-black leading-[1.2] tracking-[-.02em] text-neutral-950">Bonjour, comment pouvons-nous vous aider&nbsp;?</p>
+                    <p className="mt-2 text-[11px] leading-[1.6] text-neutral-500">Posez votre question à Eco ou demandez un conseiller lorsque vous en avez besoin.</p>
                   </div>
-                  <div className="flex flex-wrap gap-1.5 px-4 pb-4">
-                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap" style={{ background:"#fefce8",color:"#a16207",border:"1px solid #fef08a" }}>&#11088; 5/5 Trustpilot</span>
-                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap" style={{ background:"#f0fdf4",color:"#15803d",border:"1px solid #bbf7d0" }}>&#9889; Instantan&eacute;</span>
-                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap" style={{ background:"#eff6ff",color:"#1d4ed8",border:"1px solid #bfdbfe" }}>&#128197; 7j/7</span>
+                  <div className="grid grid-cols-3 gap-1.5 px-4 pb-4">
+                    <span className="rounded-xl border border-amber-100 bg-amber-50 px-2 py-2 text-center text-[9px] font-black text-amber-700">★ Excellent</span>
+                    <span className="rounded-xl border border-green-100 bg-green-50 px-2 py-2 text-center text-[9px] font-black text-green-700">⚡ Rapide</span>
+                    <span className="rounded-xl border border-blue-100 bg-blue-50 px-2 py-2 text-center text-[9px] font-black text-blue-700">7j / 7</span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 px-1">
-                  <div className="flex-1 h-px bg-neutral-200" />
-                  <span className="text-[10px] text-neutral-400 font-medium whitespace-nowrap">Sujets fr&eacute;quents</span>
-                  <div className="flex-1 h-px bg-neutral-200" />
+                <div className="flex items-end justify-between px-1 pt-1">
+                  <div><p className="text-[9px] font-black uppercase tracking-[.18em] text-[#16a34a]">Accès rapide</p><p className="mt-1 text-[13px] font-black text-neutral-900">Que recherchez-vous&nbsp;?</p></div>
+                  <span className="text-[9px] text-neutral-400">Choisissez un sujet</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
@@ -702,16 +704,13 @@ export default function ChatWidget() {
                           if (data.status) { if (data.status === "escalated" && status !== "escalated") setCallVisible(true); setStatus(data.status); }
                         } finally { setLoading(false); }
                       }}
-                      className="flex items-center gap-2 px-2.5 py-2.5 rounded-2xl text-left transition-all duration-150 hover:shadow-md active:scale-[0.97]"
-                      style={{ background:"white",border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 1px 3px rgba(0,0,0,0.04)" }}>
-                      <span className="w-7 h-7 rounded-lg flex items-center justify-center text-[15px] flex-shrink-0"
-                        style={{ background:(["rgba(34,197,94,0.1)","rgba(251,191,36,0.1)","rgba(59,130,246,0.1)","rgba(239,68,68,0.1)","rgba(139,92,246,0.1)","rgba(249,115,22,0.1)"] as const)[QUICK_CHIPS.indexOf(chip)] ?? "rgba(0,0,0,0.04)" }}>
-                        {chip.label.split(" ")[0]}
+                      className="chat-quick-card group flex min-h-[56px] items-center gap-2.5 rounded-2xl px-3 py-2.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-[#3ecf4c]/40 hover:shadow-[0_10px_24px_rgba(15,23,18,.08)] active:scale-[0.97]"
+                      style={{ background:"white",border:"1px solid rgba(15,23,18,.07)",boxShadow:"0 3px 10px rgba(15,23,18,.035)",animation:`quickCardIn .35s cubic-bezier(.16,1,.3,1) ${QUICK_CHIPS.indexOf(chip) * 45}ms both` }}>
+                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105" style={{ background:chip.soft,color:chip.color }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={chip.path}/></svg>
                       </span>
-                      <span className="text-[11.5px] font-semibold text-neutral-800 leading-tight flex-1">
-                        {chip.label.split(" ").slice(1).join(" ")}
-                      </span>
-                      <svg className="flex-shrink-0 text-neutral-300" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6"/></svg>
+                      <span className="flex-1 text-[11px] font-bold leading-tight text-neutral-800">{chip.label}</span>
+                      <svg className="flex-shrink-0 text-neutral-300 transition-transform group-hover:translate-x-0.5 group-hover:text-[#16a34a]" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
                     </button>
                   ))}
                 </div>
@@ -914,7 +913,7 @@ export default function ChatWidget() {
                 </div>
               )
             ) : (
-              <div className="px-3 pt-2.5 pb-2.5">
+              <div className="px-3 pb-3 pt-3">
                 {/* Smart reply chips */}
                 {smartChips.length > 0 && messages.length > 0 && !input && (
                   <div style={{ animation: "slideDown 0.2s ease both" }}>
@@ -951,13 +950,16 @@ export default function ChatWidget() {
                     </div>
                   </div>
                 )}
-                <div className="flex gap-2 items-end rounded-2xl px-3.5 py-2.5 transition-all"
+                <div className="flex min-h-[56px] items-center gap-2.5 rounded-[18px] px-3 py-2.5 transition-all"
                   style={{
-                    background: "white",
-                    border: inputFocused ? "1.5px solid #3ecf4c" : "1.5px solid #e8e8e8",
-                    boxShadow: inputFocused ? "0 0 0 3px rgba(62,207,76,0.12), 0 1px 4px rgba(0,0,0,0.06)" : "0 1px 4px rgba(0,0,0,0.06)",
-                    transition: "border 0.2s ease, box-shadow 0.2s ease",
+                    background: inputFocused ? "#fff" : "#f7f8f7",
+                    border: inputFocused ? "1px solid #7ddc91" : "1px solid #e2e7e3",
+                    boxShadow: inputFocused ? "0 0 0 2px rgba(62,207,76,.09),0 5px 18px rgba(15,23,18,.06)" : "inset 0 1px 0 rgba(255,255,255,.8)",
+                    transition: "background .2s ease,border .2s ease,box-shadow .2s ease",
                   }}>
+                  <span className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl transition-colors ${inputFocused ? "bg-green-50 text-[#16a34a]" : "bg-white text-neutral-300"}`}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10Z"/></svg>
+                  </span>
                   <textarea ref={inputRef} value={input} onChange={(e) => {
                     setInput(e.target.value);
                     if (sessionId && e.target.value) {
@@ -976,25 +978,26 @@ export default function ChatWidget() {
                   }} onKeyDown={handleKey}
                     onFocus={() => setInputFocused(true)}
                     onBlur={() => setInputFocused(false)}
-                    placeholder={status === "escalated" ? "Écrivez à l'agent..." : "Posez votre question..."}
-                    rows={1} className="flex-1 resize-none bg-transparent text-[13px] focus:outline-none leading-snug text-neutral-800 placeholder-neutral-400"
+                    placeholder={status === "escalated" ? "Votre message au conseiller…" : "Comment pouvons-nous vous aider ?"}
+                    rows={1} className="flex-1 resize-none bg-transparent text-[13px] font-medium leading-snug text-neutral-800 outline-none placeholder:font-normal placeholder:text-neutral-400"
                     style={{ maxHeight: 90, overflowY: "auto" }} />
                   {input.length > 120 && (
                     <span className="text-[10px] text-neutral-300 self-center flex-shrink-0 tabular-nums">{input.length}</span>
                   )}
                   <button onClick={sendMessage} disabled={!input.trim() || loading}
-                    className="w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center active:scale-90"
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[14px] border active:scale-90 disabled:cursor-not-allowed"
                     style={{
-                      background: input.trim() && !loading ? "linear-gradient(135deg,#3ecf4c,#16b277)" : "#f0f0f0",
-                      boxShadow: input.trim() && !loading ? "0 2px 8px rgba(62,207,76,0.35)" : "none",
-                      transition: "all 0.2s ease",
+                      background: input.trim() && !loading ? "linear-gradient(135deg,#35d34a,#16a858)" : "#fff",
+                      borderColor: input.trim() && !loading ? "transparent" : "#e5e9e6",
+                      boxShadow: input.trim() && !loading ? "0 7px 18px rgba(35,190,75,.25)" : "0 2px 6px rgba(15,23,18,.04)",
+                      transition: "all .2s cubic-bezier(.16,1,.3,1)",
                     }}
                     aria-label="Envoyer">
                     {loading ? (
                       <div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                     ) : (
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                        stroke={input.trim() ? "white" : "#bbb"} strokeWidth="2.5" strokeLinecap="round">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                        stroke={input.trim() ? "white" : "#aeb6b0"} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
                       </svg>
                     )}
@@ -1024,9 +1027,10 @@ export default function ChatWidget() {
                           if (data.status) { setCallVisible(true); setStatus(data.status); }
                         } finally { setLoading(false); }
                       }}
-                      className="flex items-center gap-1 text-[10px] font-semibold text-neutral-400 hover:text-[#16a34a] transition-colors active:scale-95"
+                      className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-400 transition-colors hover:text-[#16a34a] active:scale-95"
                     >
-                      🧑 Agent humain
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
+                      Parler à un conseiller
                     </button>
                   )}
                 </div>

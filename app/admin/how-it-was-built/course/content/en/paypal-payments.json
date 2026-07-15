@@ -1,0 +1,1172 @@
+{
+  "id": "paypal-payments",
+  "order": 22,
+  "icon": "💳",
+  "color": "#003087",
+  "title": "PayPal, webhooks, refunds, and idempotency",
+  "summary": "Build payments where the server controls amounts, verifies events, and withstands retries and partial refunds.",
+  "files": [
+    {
+      "path": "app/checkout/page.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/22-payments/paypal-order.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/22-payments/paypal-webhook.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/22-payments/refund.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/22-payments/idempotency.ts",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "paypal-order-lifecycle",
+      "order": 0,
+      "title": "PayPal order lifecycle",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand minor currency units, database transactions, authenticated server calls, and that a webhook may be delivered more than once.",
+        "Be able to restate “capture” before coding: The step that turns an approved authorization into a confirmed transfer of funds.",
+        "Know how to create exercises/22-payments/paypal-order.ts, run npm run build, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Calculate the amount on the server, create a provider order, obtain customer approval, then capture and reconcile the internal reference.",
+        "Build a deterministic PayPal payload whose reference connects payment to the L’ecomax cart, then prove the result with this exact signal: the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "The payment provider confirms movement of money; the store remains responsible for price, its internal order, and the allowed state transition. In “PayPal order lifecycle”, the concrete input is a cart whose server reloads products and prices, creates an internal order, then sends PayPal an explicitly named USD amount. capture means: The step that turns an approved authorization into a confirmed transfer of funds. The model is complete only when you keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable and can observe that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Payment is like checking a ticket: the traveler’s screen is not proof; only signed validation reconciled with the record permits entry. Here the part you will actually inspect is a deterministic PayPal payload whose reference connects payment to the L’ecomax cart; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: a cart whose server reloads products and prices, creates an internal order, then sends PayPal an explicitly named USD amount. Calculate the amount on the server, create a provider order, obtain customer approval, then capture and reconcile the internal reference. The term capture is not a decorative label: The step that turns an approved authorization into a confirmed transfer of funds. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/22-payments/paypal-order.ts, the example deliberately reduces the system to a deterministic PayPal payload whose reference connects payment to the L’ecomax cart. Read each line as one responsibility, then run npm run build. The main failure to trigger is: a totalMAD field is copied into currency_code USD without conversion or commercial agreement, charging an amount in the wrong currency. It shows why the professional correction is to keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it. Apply the same evidence to order creation, PayPal capture, refunds, and stock updates, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "capture",
+                  "definition": "The step that turns an approved authorization into a confirmed transfer of funds."
+                },
+                {
+                  "term": "Reconciliation",
+                  "definition": "Comparing a provider payment with the order, currency, and amount expected by the server."
+                },
+                {
+                  "term": "Idempotency",
+                  "definition": "Property ensuring that replaying the same event does not repeat its business effect."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with a cart whose server reloads products and prices, creates an internal order, then sends PayPal an explicitly named USD amount, first write the observation “the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it”, and then implement a deterministic PayPal payload whose reference connects payment to the L’ecomax cart. Simulate a totalMAD field is copied into currency_code USD without conversion or commercial agreement, charging an amount in the wrong currency and finish only when measurement confirms this safeguard: keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/22-payments/paypal-order.ts",
+                "source": "type UsdMoney = { currency: \"USD\"; minor: number };\ntype PricedCart = { id: string; serverTotal: UsdMoney };\nconst formatUsd = (minor: number) => (minor / 100).toFixed(2);\nexport function createPayPalPayload(cart: PricedCart) {\n  if (!Number.isSafeInteger(cart.serverTotal.minor) || cart.serverTotal.minor <= 0) {\n    throw new Error(\"invalid server total\");\n  }\n  return { intent: \"CAPTURE\", purchase_units: [{\n    reference_id: cart.id,\n    amount: { currency_code: cart.serverTotal.currency, value: formatUsd(cart.serverTotal.minor) },\n  }] };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "defines the shape of data accepted at this boundary — type UsdMoney = { currency: \"USD\"; minor: number };."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "defines the shape of data accepted at this boundary — type PricedCart = { id: string; serverTotal: UsdMoney };."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "defines the shape of data accepted at this boundary — const formatUsd = (minor: number) => (minor / 100).toFixed(2);."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "opens the function that owns the stated responsibility — export function createPayPalPayload(cart: PricedCart) {."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "explicitly rejects or branches when this condition is true — if (!Number.isSafeInteger(cart.serverTotal.minor) || cart.serverTotal.minor <= 0) {."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "declares or transforms this datum for the next step — throw new Error(\"invalid server total\");."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "closes the structure opened by preceding lines — }."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "returns the produced value to calling code — return { intent: \"CAPTURE\", purchase_units: [{."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "configures this workflow or service key — reference_id: cart.id,."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "configures this workflow or service key — amount: { currency_code: cart.serverTotal.currency, value: formatUsd(cart.serverTotal…."
+                  },
+                  {
+                    "lines": "11",
+                    "label": "declares or transforms this datum for the next step — }] };."
+                  },
+                  {
+                    "lines": "12",
+                    "label": "closes the structure opened by preceding lines — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/22-payments/paypal-order.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/22-payments/paypal-order.ts and identify the input “a cart whose server reloads products and prices, creates an internal order, then sends PayPal an explicitly named USD amount” in the annotations. — code exercises/22-payments/paypal-order.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npm run build once and retain secret-free output as the baseline. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npm run build, the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it. The deliberately failing case demonstrates “a totalMAD field is copied into currency_code USD without conversion or commercial agreement, charging an amount in the wrong currency” without exposing a secret; after the safeguard—keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects order creation, PayPal capture, refunds, and stock updates. a deterministic PayPal payload whose reference connects payment to the L’ecomax cart must remain on the correct side of the trust boundary; use capture to justify validation and retain this as evidence: the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/22-payments/paypal-order.ts",
+        "npm run build"
+      ],
+      "expectedResult": "After npm run build, the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it. The deliberately failing case demonstrates “a totalMAD field is copied into currency_code USD without conversion or commercial agreement, charging an amount in the wrong currency” without exposing a secret; after the safeguard—keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "a totalMAD field is copied into currency_code USD without conversion or commercial agreement, charging an amount in the wrong currency",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply capture: The step that turns an approved authorization into a confirmed transfer of funds.",
+          "fix": "Apply this specific safeguard: keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable. Replay the case and verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it."
+        },
+        {
+          "symptom": "a deterministic PayPal payload whose reference connects payment to the L’ecomax cart appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For PayPal order lifecycle, npm run build, input data, and outcome were not connected in a deterministic reproduction; trusting a browser amount, ignoring currency, or applying a replayed event twice.",
+          "fix": "Freeze a cart whose server reloads products and prices, creates an internal order, then sends PayPal an explicitly named USD amount, run npm run build, record only the useful signal, and explicitly compare the outcome with “the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a deterministic PayPal payload whose reference connects payment to the L’ecomax cart in exercises/22-payments/paypal-order.ts, demonstrate that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it, then trigger and repair a totalMAD field is copied into currency_code USD without conversion or commercial agreement, charging an amount in the wrong currency.",
+        "steps": [
+          "Create exercises/22-payments/paypal-order.ts and identify the input “a cart whose server reloads products and prices, creates an internal order, then sends PayPal an explicitly named USD amount” in the annotations.",
+          "Run npm run build once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: a totalMAD field is copied into currency_code USD without conversion or commercial agreement, charging an amount in the wrong currency.",
+          "Implement “keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable”, rerun the command, and explain the role of capture."
+        ],
+        "hints": [
+          "Read the definition again: The step that turns an approved authorization into a confirmed transfer of funds. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it”."
+        ],
+        "solution": {
+          "explanation": "For PayPal order lifecycle, the solution keeps one authority and specifically applies “keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable”. It makes a totalMAD field is copied into currency_code USD without conversion or commercial agreement, charging an amount in the wrong currency reproducible and then controlled, and is accepted only when the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it.",
+          "code": "type UsdMoney = { currency: \"USD\"; minor: number };\ntype PricedCart = { id: string; serverTotal: UsdMoney };\nconst formatUsd = (minor: number) => (minor / 100).toFixed(2);\nexport function createPayPalPayload(cart: PricedCart) {\n  if (!Number.isSafeInteger(cart.serverTotal.minor) || cart.serverTotal.minor <= 0) {\n    throw new Error(\"invalid server total\");\n  }\n  return { intent: \"CAPTURE\", purchase_units: [{\n    reference_id: cart.id,\n    amount: { currency_code: cart.serverTotal.currency, value: formatUsd(cart.serverTotal.minor) },\n  }] };\n}",
+          "filename": "exercises/22-payments/paypal-order.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "paypal-order-lifecycle-q1",
+          "question": "Which decision actually demonstrates mastery of “PayPal order lifecycle” in this scenario?",
+          "options": [
+            "keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable, then verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it.",
+            "Ignore “a totalMAD field is copied into currency_code USD without conversion or commercial agreement, charging an amount in the wrong currency” because the normal path displays a deterministic PayPal payload whose reference connects payment to the L’ecomax cart.",
+            "Move validation into the UI and treat capture as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The step that turns an approved authorization into a confirmed transfer of funds.",
+          "answerExplanations": [
+            "This option is correct. It says « keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable, then verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The step that turns an approved authorization into a confirmed transfer of funds.",
+            "This option is incorrect. It says « Ignore “a totalMAD field is copied into currency_code USD without conversion or commercial agreement, charging an amount in the wrong currency” because the normal path displays a deterministic PayPal payload whose reference connects payment to the L’ecomax cart. ». The reference answer is « keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable, then verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The step that turns an approved authorization into a confirmed transfer of funds.",
+            "This option is incorrect. It says « Move validation into the UI and treat capture as a server detail. ». The reference answer is « keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable, then verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The step that turns an approved authorization into a confirmed transfer of funds.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable, then verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The step that turns an approved authorization into a confirmed transfer of funds."
+          ]
+        },
+        {
+          "id": "paypal-order-lifecycle-q2",
+          "question": "Which definition matches the term “capture”?",
+          "options": [
+            "Comparing a provider payment with the order, currency, and amount expected by the server.",
+            "The step that turns an approved authorization into a confirmed transfer of funds.",
+            "Property ensuring that replaying the same event does not repeat its business effect.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“capture” means: The step that turns an approved authorization into a confirmed transfer of funds.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Comparing a provider payment with the order, currency, and amount expected by the server. ». The reference answer is « The step that turns an approved authorization into a confirmed transfer of funds. ». “capture” means: The step that turns an approved authorization into a confirmed transfer of funds.",
+            "This option is correct. It says « The step that turns an approved authorization into a confirmed transfer of funds. ». “capture” means: The step that turns an approved authorization into a confirmed transfer of funds.",
+            "This option is incorrect. It says « Property ensuring that replaying the same event does not repeat its business effect. ». The reference answer is « The step that turns an approved authorization into a confirmed transfer of funds. ». “capture” means: The step that turns an approved authorization into a confirmed transfer of funds.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « The step that turns an approved authorization into a confirmed transfer of funds. ». “capture” means: The step that turns an approved authorization into a confirmed transfer of funds."
+          ]
+        },
+        {
+          "id": "paypal-order-lifecycle-q3",
+          "question": "What is the best first fix when you observe: “a totalMAD field is copied into currency_code USD without conversion or commercial agreement, charging an amount in the wrong currency”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze a cart whose server reloads products and prices, creates an internal order, then sends PayPal an explicitly named USD amount, run npm run build, record only the useful signal, and explicitly compare the outcome with “the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it”.",
+            "Apply this specific safeguard: keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable. Replay the case and verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply capture: The step that turns an approved authorization into a confirmed transfer of funds. The appropriate fix is: Apply this specific safeguard: keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable. Replay the case and verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable. Replay the case and verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply capture: The step that turns an approved authorization into a confirmed transfer of funds. The appropriate fix is: Apply this specific safeguard: keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable. Replay the case and verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it.",
+            "This option is incorrect. It says « Freeze a cart whose server reloads products and prices, creates an internal order, then sends PayPal an explicitly named USD amount, run npm run build, record only the useful signal, and explicitly compare the outcome with “the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it”. ». The reference answer is « Apply this specific safeguard: keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable. Replay the case and verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply capture: The step that turns an approved authorization into a confirmed transfer of funds. The appropriate fix is: Apply this specific safeguard: keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable. Replay the case and verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it.",
+            "This option is correct. It says « Apply this specific safeguard: keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable. Replay the case and verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply capture: The step that turns an approved authorization into a confirmed transfer of funds. The appropriate fix is: Apply this specific safeguard: keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable. Replay the case and verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable. Replay the case and verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply capture: The step that turns an approved authorization into a confirmed transfer of funds. The appropriate fix is: Apply this specific safeguard: keep amount and currency as one business value, use a PayPal currency actually configured for the account, and never convert by renaming a variable. Replay the case and verify that the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it."
+          ]
+        }
+      ],
+      "recap": [
+        "Calculate the amount on the server, create a provider order, obtain customer approval, then capture and reconcile the internal reference.",
+        "capture: The step that turns an approved authorization into a confirmed transfer of funds.",
+        "Completion evidence: the payload contains the internal reference, USD, and the two-decimal server value; changing the browser total does not change it."
+      ],
+      "next": "The next lesson cryptographically verifies webhook origin before any order transition."
+    },
+    {
+      "id": "paypal-webhook",
+      "order": 1,
+      "title": "Verify and process webhooks",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand minor currency units, database transactions, authenticated server calls, and that a webhook may be delivered more than once.",
+        "Be able to restate “webhook signature” before coding: Cryptographic evidence establishing that the received event truly came from the provider.",
+        "Know how to create exercises/22-payments/paypal-webhook.ts, run npm run build, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Verify signature and certificate against the raw body, filter accepted event types, and acknowledge quickly before deferred work.",
+        "Build a handler that accepts only verified PayPal events relevant to order status, then prove the result with this exact signal: only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "The payment provider confirms movement of money; the store remains responsible for price, its internal order, and the allowed state transition. In “Verify and process webhooks”, the concrete input is a raw HTTP body and PayPal headers sent to the official verify-webhook-signature API before business processing. webhook signature means: Cryptographic evidence establishing that the received event truly came from the provider. The model is complete only when you preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets and can observe that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Payment is like checking a ticket: the traveler’s screen is not proof; only signed validation reconciled with the record permits entry. Here the part you will actually inspect is a handler that accepts only verified PayPal events relevant to order status; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: a raw HTTP body and PayPal headers sent to the official verify-webhook-signature API before business processing. Verify signature and certificate against the raw body, filter accepted event types, and acknowledge quickly before deferred work. The term webhook signature is not a decorative label: Cryptographic evidence establishing that the received event truly came from the provider. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/22-payments/paypal-webhook.ts, the example deliberately reduces the system to a handler that accepts only verified PayPal events relevant to order status. Read each line as one responsibility, then run npm run build. The main failure to trigger is: a function named handleVerifiedWebhook accepts arbitrary JSON and its name is mistaken for signature evidence. It shows why the professional correction is to preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled. Apply the same evidence to order creation, PayPal capture, refunds, and stock updates, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "webhook signature",
+                  "definition": "Cryptographic evidence establishing that the received event truly came from the provider."
+                },
+                {
+                  "term": "Reconciliation",
+                  "definition": "Comparing a provider payment with the order, currency, and amount expected by the server."
+                },
+                {
+                  "term": "Idempotency",
+                  "definition": "Property ensuring that replaying the same event does not repeat its business effect."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with a raw HTTP body and PayPal headers sent to the official verify-webhook-signature API before business processing, first write the observation “only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled”, and then implement a handler that accepts only verified PayPal events relevant to order status. Simulate a function named handleVerifiedWebhook accepts arbitrary JSON and its name is mistaken for signature evidence and finish only when measurement confirms this safeguard: preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/22-payments/paypal-webhook.ts",
+                "source": "type PayPalHeaders = { transmissionId: string; transmissionTime: string;\n  transmissionSignature: string; certificateUrl: string; authenticationAlgorithm: string };\ntype PayPalEvent = { id: string; event_type: string; resource: { id: string } };\ntype VerifyConfig = { apiBase: \"https://api-m.paypal.com\" | \"https://api-m.sandbox.paypal.com\";\n  webhookId: string; accessToken: string };\nexport async function verifyPayPalWebhook(rawBody: string, h: PayPalHeaders, c: VerifyConfig) {\n  const webhookEvent: unknown = JSON.parse(rawBody);\n  const response = await fetch(`${c.apiBase}/v1/notifications/verify-webhook-signature`, {\n    method: \"POST\", headers: { \"content-type\": \"application/json\", authorization: `Bearer ${c.accessToken}` },\n    body: JSON.stringify({ transmission_id: h.transmissionId, transmission_time: h.transmissionTime,\n      cert_url: h.certificateUrl, auth_algo: h.authenticationAlgorithm, transmission_sig: h.transmissionSignature,\n      webhook_id: c.webhookId, webhook_event: webhookEvent }),\n  });\n  if (!response.ok) throw new Error(\"PayPal verification request failed\");\n  const result: unknown = await response.json();\n  if (!result || typeof result !== \"object\" ||\n      (result as { verification_status?: string }).verification_status !== \"SUCCESS\") {\n    throw new Error(\"PayPal webhook signature rejected\");\n  }\n  const event = webhookEvent as Partial<PayPalEvent>;\n  if (!event.id || !event.event_type || !event.resource?.id) throw new Error(\"invalid PayPal event\");\n  const accepted = new Set([\"PAYMENT.CAPTURE.COMPLETED\", \"PAYMENT.CAPTURE.DENIED\"]);\n  return accepted.has(event.event_type) ? { verified: true, event: event as PayPalEvent } : { verified: true, ignored: true };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "defines the shape of data accepted at this boundary — type PayPalHeaders = { transmissionId: string; transmissionTime: string;."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "defines the shape of data accepted at this boundary — transmissionSignature: string; certificateUrl: string; authenticationAlgorithm: strin…."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "defines the shape of data accepted at this boundary — type PayPalEvent = { id: string; event_type: string; resource: { id: string } };."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "defines the shape of data accepted at this boundary — type VerifyConfig = { apiBase: \"https://api-m.paypal.com\" | \"https://api-m.sandbox.pa…."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "defines the shape of data accepted at this boundary — webhookId: string; accessToken: string };."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "defines the shape of data accepted at this boundary — export async function verifyPayPalWebhook(rawBody: string, h: PayPalHeaders, c: Verif…."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "declares or transforms this datum for the next step — const webhookEvent: unknown = JSON.parse(rawBody);."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "waits for the asynchronous operation before continuing — const response = await fetch(`${c.apiBase}/v1/notifications/verify-webhook-signature`, {."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "configures this workflow or service key — method: \"POST\", headers: { \"content-type\": \"application/json\", authorization: `Bearer…."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "configures this workflow or service key — body: JSON.stringify({ transmission_id: h.transmissionId, transmission_time: h.transm…."
+                  },
+                  {
+                    "lines": "11",
+                    "label": "configures this workflow or service key — cert_url: h.certificateUrl, auth_algo: h.authenticationAlgorithm, transmission_sig: h…."
+                  },
+                  {
+                    "lines": "12",
+                    "label": "configures this workflow or service key — webhook_id: c.webhookId, webhook_event: webhookEvent }),."
+                  },
+                  {
+                    "lines": "13",
+                    "label": "closes the structure opened by preceding lines — });."
+                  },
+                  {
+                    "lines": "14",
+                    "label": "explicitly rejects or branches when this condition is true — if (!response.ok) throw new Error(\"PayPal verification request failed\");."
+                  },
+                  {
+                    "lines": "15",
+                    "label": "waits for the asynchronous operation before continuing — const result: unknown = await response.json();."
+                  },
+                  {
+                    "lines": "16",
+                    "label": "explicitly rejects or branches when this condition is true — if (!result || typeof result !== \"object\" ||."
+                  },
+                  {
+                    "lines": "17",
+                    "label": "defines the shape of data accepted at this boundary — (result as { verification_status?: string }).verification_status !== \"SUCCESS\") {."
+                  },
+                  {
+                    "lines": "18",
+                    "label": "declares or transforms this datum for the next step — throw new Error(\"PayPal webhook signature rejected\");."
+                  },
+                  {
+                    "lines": "19",
+                    "label": "closes the structure opened by preceding lines — }."
+                  },
+                  {
+                    "lines": "20",
+                    "label": "declares the interface element and its semantics — const event = webhookEvent as Partial<PayPalEvent>;."
+                  },
+                  {
+                    "lines": "21",
+                    "label": "explicitly rejects or branches when this condition is true — if (!event.id || !event.event_type || !event.resource?.id) throw new Error(\"invalid P…."
+                  },
+                  {
+                    "lines": "22",
+                    "label": "declares or transforms this datum for the next step — const accepted = new Set([\"PAYMENT.CAPTURE.COMPLETED\", \"PAYMENT.CAPTURE.DENIED\"]);."
+                  },
+                  {
+                    "lines": "23",
+                    "label": "returns the produced value to calling code — return accepted.has(event.event_type) ? { verified: true, event: event as PayPalEvent…."
+                  },
+                  {
+                    "lines": "24",
+                    "label": "closes the structure opened by preceding lines — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/22-payments/paypal-webhook.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/22-payments/paypal-webhook.ts and identify the input “a raw HTTP body and PayPal headers sent to the official verify-webhook-signature API before business processing” in the annotations. — code exercises/22-payments/paypal-webhook.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npm run build once and retain secret-free output as the baseline. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npm run build, only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled. The deliberately failing case demonstrates “a function named handleVerifiedWebhook accepts arbitrary JSON and its name is mistaken for signature evidence” without exposing a secret; after the safeguard—preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects order creation, PayPal capture, refunds, and stock updates. a handler that accepts only verified PayPal events relevant to order status must remain on the correct side of the trust boundary; use webhook signature to justify validation and retain this as evidence: only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/22-payments/paypal-webhook.ts",
+        "npm run build"
+      ],
+      "expectedResult": "After npm run build, only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled. The deliberately failing case demonstrates “a function named handleVerifiedWebhook accepts arbitrary JSON and its name is mistaken for signature evidence” without exposing a secret; after the safeguard—preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "a function named handleVerifiedWebhook accepts arbitrary JSON and its name is mistaken for signature evidence",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply webhook signature: Cryptographic evidence establishing that the received event truly came from the provider.",
+          "fix": "Apply this specific safeguard: preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets. Replay the case and verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled."
+        },
+        {
+          "symptom": "a handler that accepts only verified PayPal events relevant to order status appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Verify and process webhooks, npm run build, input data, and outcome were not connected in a deterministic reproduction; trusting a browser amount, ignoring currency, or applying a replayed event twice.",
+          "fix": "Freeze a raw HTTP body and PayPal headers sent to the official verify-webhook-signature API before business processing, run npm run build, record only the useful signal, and explicitly compare the outcome with “only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a handler that accepts only verified PayPal events relevant to order status in exercises/22-payments/paypal-webhook.ts, demonstrate that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled, then trigger and repair a function named handleVerifiedWebhook accepts arbitrary JSON and its name is mistaken for signature evidence.",
+        "steps": [
+          "Create exercises/22-payments/paypal-webhook.ts and identify the input “a raw HTTP body and PayPal headers sent to the official verify-webhook-signature API before business processing” in the annotations.",
+          "Run npm run build once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: a function named handleVerifiedWebhook accepts arbitrary JSON and its name is mistaken for signature evidence.",
+          "Implement “preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets”, rerun the command, and explain the role of webhook signature."
+        ],
+        "hints": [
+          "Read the definition again: Cryptographic evidence establishing that the received event truly came from the provider. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled”."
+        ],
+        "solution": {
+          "explanation": "For Verify and process webhooks, the solution keeps one authority and specifically applies “preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets”. It makes a function named handleVerifiedWebhook accepts arbitrary JSON and its name is mistaken for signature evidence reproducible and then controlled, and is accepted only when only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled.",
+          "code": "type PayPalHeaders = { transmissionId: string; transmissionTime: string;\n  transmissionSignature: string; certificateUrl: string; authenticationAlgorithm: string };\ntype PayPalEvent = { id: string; event_type: string; resource: { id: string } };\ntype VerifyConfig = { apiBase: \"https://api-m.paypal.com\" | \"https://api-m.sandbox.paypal.com\";\n  webhookId: string; accessToken: string };\nexport async function verifyPayPalWebhook(rawBody: string, h: PayPalHeaders, c: VerifyConfig) {\n  const webhookEvent: unknown = JSON.parse(rawBody);\n  const response = await fetch(`${c.apiBase}/v1/notifications/verify-webhook-signature`, {\n    method: \"POST\", headers: { \"content-type\": \"application/json\", authorization: `Bearer ${c.accessToken}` },\n    body: JSON.stringify({ transmission_id: h.transmissionId, transmission_time: h.transmissionTime,\n      cert_url: h.certificateUrl, auth_algo: h.authenticationAlgorithm, transmission_sig: h.transmissionSignature,\n      webhook_id: c.webhookId, webhook_event: webhookEvent }),\n  });\n  if (!response.ok) throw new Error(\"PayPal verification request failed\");\n  const result: unknown = await response.json();\n  if (!result || typeof result !== \"object\" ||\n      (result as { verification_status?: string }).verification_status !== \"SUCCESS\") {\n    throw new Error(\"PayPal webhook signature rejected\");\n  }\n  const event = webhookEvent as Partial<PayPalEvent>;\n  if (!event.id || !event.event_type || !event.resource?.id) throw new Error(\"invalid PayPal event\");\n  const accepted = new Set([\"PAYMENT.CAPTURE.COMPLETED\", \"PAYMENT.CAPTURE.DENIED\"]);\n  return accepted.has(event.event_type) ? { verified: true, event: event as PayPalEvent } : { verified: true, ignored: true };\n}",
+          "filename": "exercises/22-payments/paypal-webhook.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "paypal-webhook-q1",
+          "question": "Which decision actually demonstrates mastery of “Verify and process webhooks” in this scenario?",
+          "options": [
+            "preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets, then verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled.",
+            "Ignore “a function named handleVerifiedWebhook accepts arbitrary JSON and its name is mistaken for signature evidence” because the normal path displays a handler that accepts only verified PayPal events relevant to order status.",
+            "Move validation into the UI and treat webhook signature as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Cryptographic evidence establishing that the received event truly came from the provider.",
+          "answerExplanations": [
+            "This option is correct. It says « preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets, then verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Cryptographic evidence establishing that the received event truly came from the provider.",
+            "This option is incorrect. It says « Ignore “a function named handleVerifiedWebhook accepts arbitrary JSON and its name is mistaken for signature evidence” because the normal path displays a handler that accepts only verified PayPal events relevant to order status. ». The reference answer is « preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets, then verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Cryptographic evidence establishing that the received event truly came from the provider.",
+            "This option is incorrect. It says « Move validation into the UI and treat webhook signature as a server detail. ». The reference answer is « preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets, then verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Cryptographic evidence establishing that the received event truly came from the provider.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets, then verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Cryptographic evidence establishing that the received event truly came from the provider."
+          ]
+        },
+        {
+          "id": "paypal-webhook-q2",
+          "question": "Which definition matches the term “webhook signature”?",
+          "options": [
+            "Comparing a provider payment with the order, currency, and amount expected by the server.",
+            "Cryptographic evidence establishing that the received event truly came from the provider.",
+            "Property ensuring that replaying the same event does not repeat its business effect.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“webhook signature” means: Cryptographic evidence establishing that the received event truly came from the provider.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Comparing a provider payment with the order, currency, and amount expected by the server. ». The reference answer is « Cryptographic evidence establishing that the received event truly came from the provider. ». “webhook signature” means: Cryptographic evidence establishing that the received event truly came from the provider.",
+            "This option is correct. It says « Cryptographic evidence establishing that the received event truly came from the provider. ». “webhook signature” means: Cryptographic evidence establishing that the received event truly came from the provider.",
+            "This option is incorrect. It says « Property ensuring that replaying the same event does not repeat its business effect. ». The reference answer is « Cryptographic evidence establishing that the received event truly came from the provider. ». “webhook signature” means: Cryptographic evidence establishing that the received event truly came from the provider.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Cryptographic evidence establishing that the received event truly came from the provider. ». “webhook signature” means: Cryptographic evidence establishing that the received event truly came from the provider."
+          ]
+        },
+        {
+          "id": "paypal-webhook-q3",
+          "question": "What is the best first fix when you observe: “a function named handleVerifiedWebhook accepts arbitrary JSON and its name is mistaken for signature evidence”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze a raw HTTP body and PayPal headers sent to the official verify-webhook-signature API before business processing, run npm run build, record only the useful signal, and explicitly compare the outcome with “only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled”.",
+            "Apply this specific safeguard: preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets. Replay the case and verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply webhook signature: Cryptographic evidence establishing that the received event truly came from the provider. The appropriate fix is: Apply this specific safeguard: preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets. Replay the case and verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets. Replay the case and verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply webhook signature: Cryptographic evidence establishing that the received event truly came from the provider. The appropriate fix is: Apply this specific safeguard: preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets. Replay the case and verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled.",
+            "This option is incorrect. It says « Freeze a raw HTTP body and PayPal headers sent to the official verify-webhook-signature API before business processing, run npm run build, record only the useful signal, and explicitly compare the outcome with “only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled”. ». The reference answer is « Apply this specific safeguard: preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets. Replay the case and verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply webhook signature: Cryptographic evidence establishing that the received event truly came from the provider. The appropriate fix is: Apply this specific safeguard: preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets. Replay the case and verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled.",
+            "This option is correct. It says « Apply this specific safeguard: preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets. Replay the case and verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply webhook signature: Cryptographic evidence establishing that the received event truly came from the provider. The appropriate fix is: Apply this specific safeguard: preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets. Replay the case and verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets. Replay the case and verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply webhook signature: Cryptographic evidence establishing that the received event truly came from the provider. The appropriate fix is: Apply this specific safeguard: preserve exact body and headers, call PayPal verification with the server webhook_id, reject every status except SUCCESS, and log without secrets. Replay the case and verify that only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled."
+          ]
+        }
+      ],
+      "recap": [
+        "Verify signature and certificate against the raw body, filter accepted event types, and acknowledge quickly before deferred work.",
+        "webhook signature: Cryptographic evidence establishing that the received event truly came from the provider.",
+        "Completion evidence: only verification_status SUCCESS yields a typed event, after which identifier, type, resource, order, amount, and currency are reconciled."
+      ],
+      "next": "The next lesson applies the same server authority to a refund bounded by the actual refundable remainder."
+    },
+    {
+      "id": "refund-workflow",
+      "order": 2,
+      "title": "Refunds and reconciliation",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand minor currency units, database transactions, authenticated server calls, and that a webhook may be delivered more than once.",
+        "Be able to restate “reconciliation” before coding: Comparison of internal records with provider records to detect financial discrepancies.",
+        "Know how to create exercises/22-payments/refund.ts, run npx tsc --noEmit, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Validate amount and reason, link the refund to the original capture, and retain identifiers for every transition for support and accounting.",
+        "Build a bounded refund request that rejects impossible amounts before any network call, then prove the result with this exact signal: the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "The payment provider confirms movement of money; the store remains responsible for price, its internal order, and the allowed state transition. In “Refunds and reconciliation”, the concrete input is a partial-refund request tied to an existing USD capture and the sum of already confirmed refunds. reconciliation means: Comparison of internal records with provider records to detect financial discrepancies. The model is complete only when you compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit and can observe that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Payment is like checking a ticket: the traveler’s screen is not proof; only signed validation reconciled with the record permits entry. Here the part you will actually inspect is a bounded refund request that rejects impossible amounts before any network call; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: a partial-refund request tied to an existing USD capture and the sum of already confirmed refunds. Validate amount and reason, link the refund to the original capture, and retain identifiers for every transition for support and accounting. The term reconciliation is not a decorative label: Comparison of internal records with provider records to detect financial discrepancies. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/22-payments/refund.ts, the example deliberately reduces the system to a bounded refund request that rejects impossible amounts before any network call. Read each line as one responsibility, then run npx tsc --noEmit. The main failure to trigger is: two agents each refund the captured amount because validation ignores previous refunds and concurrency. It shows why the professional correction is to compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier. Apply the same evidence to order creation, PayPal capture, refunds, and stock updates, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "reconciliation",
+                  "definition": "Comparison of internal records with provider records to detect financial discrepancies."
+                },
+                {
+                  "term": "Reconciliation",
+                  "definition": "Comparing a provider payment with the order, currency, and amount expected by the server."
+                },
+                {
+                  "term": "Idempotency",
+                  "definition": "Property ensuring that replaying the same event does not repeat its business effect."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with a partial-refund request tied to an existing USD capture and the sum of already confirmed refunds, first write the observation “the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier”, and then implement a bounded refund request that rejects impossible amounts before any network call. Simulate two agents each refund the captured amount because validation ignores previous refunds and concurrency and finish only when measurement confirms this safeguard: compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/22-payments/refund.ts",
+                "source": "type RefundRequest = { captureId: string; minor: number; currency: \"USD\"; reason: string };\ntype CaptureBalance = { capturedMinor: number; refundedMinor: number; currency: \"USD\" };\nexport function validateRefund(input: RefundRequest, balance: CaptureBalance) {\n  if (!input.captureId) throw new Error(\"capture required\");\n  if (![balance.capturedMinor, balance.refundedMinor].every(Number.isSafeInteger) || balance.refundedMinor < 0) throw new Error(\"invalid capture balance\");\n  const refundableMinor = balance.capturedMinor - balance.refundedMinor;\n  if (input.currency !== balance.currency || !Number.isSafeInteger(input.minor)) throw new Error(\"invalid money\");\n  if (input.minor <= 0 || input.minor > refundableMinor) throw new Error(\"amount exceeds refundable balance\");\n  if (input.reason.trim().length < 8) throw new Error(\"reason required\");\n  return { captureId: input.captureId, amount: (input.minor / 100).toFixed(2), currency: input.currency, reason: input.reason.trim() };\n}\nconsole.log(validateRefund({ captureId: \"CAP-1\", minor: 2000, currency: \"USD\", reason: \"item returned\" },\n  { capturedMinor: 5000, refundedMinor: 1000, currency: \"USD\" }));",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "defines the shape of data accepted at this boundary — type RefundRequest = { captureId: string; minor: number; currency: \"USD\"; reason: str…."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "defines the shape of data accepted at this boundary — type CaptureBalance = { capturedMinor: number; refundedMinor: number; currency: \"USD\" };."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "opens the function that owns the stated responsibility — export function validateRefund(input: RefundRequest, balance: CaptureBalance) {."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "explicitly rejects or branches when this condition is true — if (!input.captureId) throw new Error(\"capture required\");."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "explicitly rejects or branches when this condition is true — if (![balance.capturedMinor, balance.refundedMinor].every(Number.isSafeInteger) || ba…."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "declares or transforms this datum for the next step — const refundableMinor = balance.capturedMinor - balance.refundedMinor;."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "explicitly rejects or branches when this condition is true — if (input.currency !== balance.currency || !Number.isSafeInteger(input.minor)) throw …."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "explicitly rejects or branches when this condition is true — if (input.minor <= 0 || input.minor > refundableMinor) throw new Error(\"amount exceed…."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "explicitly rejects or branches when this condition is true — if (input.reason.trim().length < 8) throw new Error(\"reason required\");."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "returns the produced value to calling code — return { captureId: input.captureId, amount: (input.minor / 100).toFixed(2), currency…."
+                  },
+                  {
+                    "lines": "11",
+                    "label": "closes the structure opened by preceding lines — }."
+                  },
+                  {
+                    "lines": "12",
+                    "label": "makes the result visible in the terminal but is not business validation — console.log(validateRefund({ captureId: \"CAP-1\", minor: 2000, currency: \"USD\", reason…."
+                  },
+                  {
+                    "lines": "13",
+                    "label": "declares or transforms this datum for the next step — { capturedMinor: 5000, refundedMinor: 1000, currency: \"USD\" }));."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/22-payments/refund.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/22-payments/refund.ts and identify the input “a partial-refund request tied to an existing USD capture and the sum of already confirmed refunds” in the annotations. — code exercises/22-payments/refund.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npx tsc --noEmit once and retain secret-free output as the baseline. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npx tsc --noEmit, the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier. The deliberately failing case demonstrates “two agents each refund the captured amount because validation ignores previous refunds and concurrency” without exposing a secret; after the safeguard—compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects order creation, PayPal capture, refunds, and stock updates. a bounded refund request that rejects impossible amounts before any network call must remain on the correct side of the trust boundary; use reconciliation to justify validation and retain this as evidence: the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/22-payments/refund.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "After npx tsc --noEmit, the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier. The deliberately failing case demonstrates “two agents each refund the captured amount because validation ignores previous refunds and concurrency” without exposing a secret; after the safeguard—compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "two agents each refund the captured amount because validation ignores previous refunds and concurrency",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply reconciliation: Comparison of internal records with provider records to detect financial discrepancies.",
+          "fix": "Apply this specific safeguard: compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit. Replay the case and verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier."
+        },
+        {
+          "symptom": "a bounded refund request that rejects impossible amounts before any network call appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Refunds and reconciliation, npx tsc --noEmit, input data, and outcome were not connected in a deterministic reproduction; trusting a browser amount, ignoring currency, or applying a replayed event twice.",
+          "fix": "Freeze a partial-refund request tied to an existing USD capture and the sum of already confirmed refunds, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a bounded refund request that rejects impossible amounts before any network call in exercises/22-payments/refund.ts, demonstrate that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier, then trigger and repair two agents each refund the captured amount because validation ignores previous refunds and concurrency.",
+        "steps": [
+          "Create exercises/22-payments/refund.ts and identify the input “a partial-refund request tied to an existing USD capture and the sum of already confirmed refunds” in the annotations.",
+          "Run npx tsc --noEmit once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: two agents each refund the captured amount because validation ignores previous refunds and concurrency.",
+          "Implement “compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit”, rerun the command, and explain the role of reconciliation."
+        ],
+        "hints": [
+          "Read the definition again: Comparison of internal records with provider records to detect financial discrepancies. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier”."
+        ],
+        "solution": {
+          "explanation": "For Refunds and reconciliation, the solution keeps one authority and specifically applies “compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit”. It makes two agents each refund the captured amount because validation ignores previous refunds and concurrency reproducible and then controlled, and is accepted only when the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier.",
+          "code": "type RefundRequest = { captureId: string; minor: number; currency: \"USD\"; reason: string };\ntype CaptureBalance = { capturedMinor: number; refundedMinor: number; currency: \"USD\" };\nexport function validateRefund(input: RefundRequest, balance: CaptureBalance) {\n  if (!input.captureId) throw new Error(\"capture required\");\n  if (![balance.capturedMinor, balance.refundedMinor].every(Number.isSafeInteger) || balance.refundedMinor < 0) throw new Error(\"invalid capture balance\");\n  const refundableMinor = balance.capturedMinor - balance.refundedMinor;\n  if (input.currency !== balance.currency || !Number.isSafeInteger(input.minor)) throw new Error(\"invalid money\");\n  if (input.minor <= 0 || input.minor > refundableMinor) throw new Error(\"amount exceeds refundable balance\");\n  if (input.reason.trim().length < 8) throw new Error(\"reason required\");\n  return { captureId: input.captureId, amount: (input.minor / 100).toFixed(2), currency: input.currency, reason: input.reason.trim() };\n}\nconsole.log(validateRefund({ captureId: \"CAP-1\", minor: 2000, currency: \"USD\", reason: \"item returned\" },\n  { capturedMinor: 5000, refundedMinor: 1000, currency: \"USD\" }));",
+          "filename": "exercises/22-payments/refund.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "refund-workflow-q1",
+          "question": "Which decision actually demonstrates mastery of “Refunds and reconciliation” in this scenario?",
+          "options": [
+            "compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit, then verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier.",
+            "Ignore “two agents each refund the captured amount because validation ignores previous refunds and concurrency” because the normal path displays a bounded refund request that rejects impossible amounts before any network call.",
+            "Move validation into the UI and treat reconciliation as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Comparison of internal records with provider records to detect financial discrepancies.",
+          "answerExplanations": [
+            "This option is correct. It says « compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit, then verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Comparison of internal records with provider records to detect financial discrepancies.",
+            "This option is incorrect. It says « Ignore “two agents each refund the captured amount because validation ignores previous refunds and concurrency” because the normal path displays a bounded refund request that rejects impossible amounts before any network call. ». The reference answer is « compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit, then verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Comparison of internal records with provider records to detect financial discrepancies.",
+            "This option is incorrect. It says « Move validation into the UI and treat reconciliation as a server detail. ». The reference answer is « compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit, then verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Comparison of internal records with provider records to detect financial discrepancies.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit, then verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Comparison of internal records with provider records to detect financial discrepancies."
+          ]
+        },
+        {
+          "id": "refund-workflow-q2",
+          "question": "Which definition matches the term “reconciliation”?",
+          "options": [
+            "Comparing a provider payment with the order, currency, and amount expected by the server.",
+            "Comparison of internal records with provider records to detect financial discrepancies.",
+            "Property ensuring that replaying the same event does not repeat its business effect.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“reconciliation” means: Comparison of internal records with provider records to detect financial discrepancies.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Comparing a provider payment with the order, currency, and amount expected by the server. ». The reference answer is « Comparison of internal records with provider records to detect financial discrepancies. ». “reconciliation” means: Comparison of internal records with provider records to detect financial discrepancies.",
+            "This option is correct. It says « Comparison of internal records with provider records to detect financial discrepancies. ». “reconciliation” means: Comparison of internal records with provider records to detect financial discrepancies.",
+            "This option is incorrect. It says « Property ensuring that replaying the same event does not repeat its business effect. ». The reference answer is « Comparison of internal records with provider records to detect financial discrepancies. ». “reconciliation” means: Comparison of internal records with provider records to detect financial discrepancies.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Comparison of internal records with provider records to detect financial discrepancies. ». “reconciliation” means: Comparison of internal records with provider records to detect financial discrepancies."
+          ]
+        },
+        {
+          "id": "refund-workflow-q3",
+          "question": "What is the best first fix when you observe: “two agents each refund the captured amount because validation ignores previous refunds and concurrency”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze a partial-refund request tied to an existing USD capture and the sum of already confirmed refunds, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier”.",
+            "Apply this specific safeguard: compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit. Replay the case and verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply reconciliation: Comparison of internal records with provider records to detect financial discrepancies. The appropriate fix is: Apply this specific safeguard: compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit. Replay the case and verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit. Replay the case and verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply reconciliation: Comparison of internal records with provider records to detect financial discrepancies. The appropriate fix is: Apply this specific safeguard: compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit. Replay the case and verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier.",
+            "This option is incorrect. It says « Freeze a partial-refund request tied to an existing USD capture and the sum of already confirmed refunds, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier”. ». The reference answer is « Apply this specific safeguard: compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit. Replay the case and verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply reconciliation: Comparison of internal records with provider records to detect financial discrepancies. The appropriate fix is: Apply this specific safeguard: compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit. Replay the case and verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier.",
+            "This option is correct. It says « Apply this specific safeguard: compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit. Replay the case and verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply reconciliation: Comparison of internal records with provider records to detect financial discrepancies. The appropriate fix is: Apply this specific safeguard: compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit. Replay the case and verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit. Replay the case and verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply reconciliation: Comparison of internal records with provider records to detect financial discrepancies. The appropriate fix is: Apply this specific safeguard: compute refundable balance in a transaction, retain capture currency, use a request key, and record an immutable audit. Replay the case and verify that the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier."
+          ]
+        }
+      ],
+      "recap": [
+        "Validate amount and reason, link the refund to the original capture, and retain identifiers for every transition for support and accounting.",
+        "reconciliation: Comparison of internal records with provider records to detect financial discrepancies.",
+        "Completion evidence: the server rejects zero, negative, and excessive values, records reason and actor, then reconciles the confirmed refund identifier."
+      ],
+      "next": "The next lesson generalizes this protection to repeated deliveries and recovery after failure."
+    },
+    {
+      "id": "payment-idempotency",
+      "order": 3,
+      "title": "Idempotency and duplicate payments",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand minor currency units, database transactions, authenticated server calls, and that a webhook may be delivered more than once.",
+        "Be able to restate “idempotency” before coding: The property where repeating the same request yields the same final state without a new side effect.",
+        "Know how to create exercises/22-payments/idempotency.ts, run npx tsc --noEmit, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Give the operation a stable key, store its result in the same business transaction, and return that result on every retry.",
+        "Build a simulation that applies an event once even when it is delivered twice, then prove the result with this exact signal: a persistent unique constraint permits one paid transition, one stock decrement, and one notification."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "The payment provider confirms movement of money; the store remains responsible for price, its internal order, and the allowed state transition. In “Idempotency and duplicate payments”, the concrete input is the same PayPal event_id delivered twice, including after the server instance restarts. idempotency means: The property where repeating the same request yields the same final state without a new side effect. The model is complete only when you insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction and can observe that a persistent unique constraint permits one paid transition, one stock decrement, and one notification."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Payment is like checking a ticket: the traveler’s screen is not proof; only signed validation reconciled with the record permits entry. Here the part you will actually inspect is a simulation that applies an event once even when it is delivered twice; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: the same PayPal event_id delivered twice, including after the server instance restarts. Give the operation a stable key, store its result in the same business transaction, and return that result on every retry. The term idempotency is not a decorative label: The property where repeating the same request yields the same final state without a new side effect. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/22-payments/idempotency.ts, the example deliberately reduces the system to a simulation that applies an event once even when it is delivered twice. Read each line as one responsibility, then run npx tsc --noEmit. The main failure to trigger is: an in-memory Map deduplicates within one process but forgets everything after redeploy or on another instance. It shows why the professional correction is to insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that a persistent unique constraint permits one paid transition, one stock decrement, and one notification. Apply the same evidence to order creation, PayPal capture, refunds, and stock updates, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "idempotency",
+                  "definition": "The property where repeating the same request yields the same final state without a new side effect."
+                },
+                {
+                  "term": "Reconciliation",
+                  "definition": "Comparing a provider payment with the order, currency, and amount expected by the server."
+                },
+                {
+                  "term": "Idempotency",
+                  "definition": "Property ensuring that replaying the same event does not repeat its business effect."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with the same PayPal event_id delivered twice, including after the server instance restarts, first write the observation “a persistent unique constraint permits one paid transition, one stock decrement, and one notification”, and then implement a simulation that applies an event once even when it is delivered twice. Simulate an in-memory Map deduplicates within one process but forgets everything after redeploy or on another instance and finish only when measurement confirms this safeguard: insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/22-payments/idempotency.ts",
+                "source": "type StoredEvent = { eventId: string; orderId: string; status: \"paid\" };\ntype EventStore = { insertOnce(event: StoredEvent): Promise<\"inserted\" | \"duplicate\"> };\nexport async function applyPayment(store: EventStore, eventId: string, orderId: string) {\n  if (!eventId || !orderId) throw new Error(\"missing payment identity\");\n  const event: StoredEvent = { eventId, orderId, status: \"paid\" };\n  const result = await store.insertOnce(event); // backed by a UNIQUE(event_id) transaction\n  return { ...event, duplicate: result === \"duplicate\" };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "defines the shape of data accepted at this boundary — type StoredEvent = { eventId: string; orderId: string; status: \"paid\" };."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "defines the shape of data accepted at this boundary — type EventStore = { insertOnce(event: StoredEvent): Promise<\"inserted\" | \"duplicate\"> };."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "defines the shape of data accepted at this boundary — export async function applyPayment(store: EventStore, eventId: string, orderId: strin…."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "explicitly rejects or branches when this condition is true — if (!eventId || !orderId) throw new Error(\"missing payment identity\");."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "declares or transforms this datum for the next step — const event: StoredEvent = { eventId, orderId, status: \"paid\" };."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "waits for the asynchronous operation before continuing — const result = await store.insertOnce(event); // backed by a UNIQUE(event_id) transac…."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "returns the produced value to calling code — return { ...event, duplicate: result === \"duplicate\" };."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "closes the structure opened by preceding lines — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/22-payments/idempotency.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/22-payments/idempotency.ts and identify the input “the same PayPal event_id delivered twice, including after the server instance restarts” in the annotations. — code exercises/22-payments/idempotency.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npx tsc --noEmit once and retain secret-free output as the baseline. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npx tsc --noEmit, a persistent unique constraint permits one paid transition, one stock decrement, and one notification. The deliberately failing case demonstrates “an in-memory Map deduplicates within one process but forgets everything after redeploy or on another instance” without exposing a secret; after the safeguard—insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects order creation, PayPal capture, refunds, and stock updates. a simulation that applies an event once even when it is delivered twice must remain on the correct side of the trust boundary; use idempotency to justify validation and retain this as evidence: a persistent unique constraint permits one paid transition, one stock decrement, and one notification."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/22-payments/idempotency.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "After npx tsc --noEmit, a persistent unique constraint permits one paid transition, one stock decrement, and one notification. The deliberately failing case demonstrates “an in-memory Map deduplicates within one process but forgets everything after redeploy or on another instance” without exposing a secret; after the safeguard—insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "an in-memory Map deduplicates within one process but forgets everything after redeploy or on another instance",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply idempotency: The property where repeating the same request yields the same final state without a new side effect.",
+          "fix": "Apply this specific safeguard: insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction. Replay the case and verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification."
+        },
+        {
+          "symptom": "a simulation that applies an event once even when it is delivered twice appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Idempotency and duplicate payments, npx tsc --noEmit, input data, and outcome were not connected in a deterministic reproduction; trusting a browser amount, ignoring currency, or applying a replayed event twice.",
+          "fix": "Freeze the same PayPal event_id delivered twice, including after the server instance restarts, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “a persistent unique constraint permits one paid transition, one stock decrement, and one notification”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a simulation that applies an event once even when it is delivered twice in exercises/22-payments/idempotency.ts, demonstrate that a persistent unique constraint permits one paid transition, one stock decrement, and one notification, then trigger and repair an in-memory Map deduplicates within one process but forgets everything after redeploy or on another instance.",
+        "steps": [
+          "Create exercises/22-payments/idempotency.ts and identify the input “the same PayPal event_id delivered twice, including after the server instance restarts” in the annotations.",
+          "Run npx tsc --noEmit once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: an in-memory Map deduplicates within one process but forgets everything after redeploy or on another instance.",
+          "Implement “insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction”, rerun the command, and explain the role of idempotency."
+        ],
+        "hints": [
+          "Read the definition again: The property where repeating the same request yields the same final state without a new side effect. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “a persistent unique constraint permits one paid transition, one stock decrement, and one notification”."
+        ],
+        "solution": {
+          "explanation": "For Idempotency and duplicate payments, the solution keeps one authority and specifically applies “insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction”. It makes an in-memory Map deduplicates within one process but forgets everything after redeploy or on another instance reproducible and then controlled, and is accepted only when a persistent unique constraint permits one paid transition, one stock decrement, and one notification.",
+          "code": "type StoredEvent = { eventId: string; orderId: string; status: \"paid\" };\ntype EventStore = { insertOnce(event: StoredEvent): Promise<\"inserted\" | \"duplicate\"> };\nexport async function applyPayment(store: EventStore, eventId: string, orderId: string) {\n  if (!eventId || !orderId) throw new Error(\"missing payment identity\");\n  const event: StoredEvent = { eventId, orderId, status: \"paid\" };\n  const result = await store.insertOnce(event); // backed by a UNIQUE(event_id) transaction\n  return { ...event, duplicate: result === \"duplicate\" };\n}",
+          "filename": "exercises/22-payments/idempotency.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "payment-idempotency-q1",
+          "question": "Which decision actually demonstrates mastery of “Idempotency and duplicate payments” in this scenario?",
+          "options": [
+            "insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction, then verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification.",
+            "Ignore “an in-memory Map deduplicates within one process but forgets everything after redeploy or on another instance” because the normal path displays a simulation that applies an event once even when it is delivered twice.",
+            "Move validation into the UI and treat idempotency as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The property where repeating the same request yields the same final state without a new side effect.",
+          "answerExplanations": [
+            "This option is correct. It says « insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction, then verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The property where repeating the same request yields the same final state without a new side effect.",
+            "This option is incorrect. It says « Ignore “an in-memory Map deduplicates within one process but forgets everything after redeploy or on another instance” because the normal path displays a simulation that applies an event once even when it is delivered twice. ». The reference answer is « insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction, then verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The property where repeating the same request yields the same final state without a new side effect.",
+            "This option is incorrect. It says « Move validation into the UI and treat idempotency as a server detail. ». The reference answer is « insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction, then verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The property where repeating the same request yields the same final state without a new side effect.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction, then verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The property where repeating the same request yields the same final state without a new side effect."
+          ]
+        },
+        {
+          "id": "payment-idempotency-q2",
+          "question": "Which definition matches the term “idempotency”?",
+          "options": [
+            "Comparing a provider payment with the order, currency, and amount expected by the server.",
+            "The property where repeating the same request yields the same final state without a new side effect.",
+            "Property ensuring that replaying the same event does not repeat its business effect.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“idempotency” means: The property where repeating the same request yields the same final state without a new side effect.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Comparing a provider payment with the order, currency, and amount expected by the server. ». The reference answer is « The property where repeating the same request yields the same final state without a new side effect. ». “idempotency” means: The property where repeating the same request yields the same final state without a new side effect.",
+            "This option is correct. It says « The property where repeating the same request yields the same final state without a new side effect. ». “idempotency” means: The property where repeating the same request yields the same final state without a new side effect.",
+            "This option is incorrect. It says « Property ensuring that replaying the same event does not repeat its business effect. ». The reference answer is « The property where repeating the same request yields the same final state without a new side effect. ». “idempotency” means: The property where repeating the same request yields the same final state without a new side effect.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « The property where repeating the same request yields the same final state without a new side effect. ». “idempotency” means: The property where repeating the same request yields the same final state without a new side effect."
+          ]
+        },
+        {
+          "id": "payment-idempotency-q3",
+          "question": "What is the best first fix when you observe: “an in-memory Map deduplicates within one process but forgets everything after redeploy or on another instance”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze the same PayPal event_id delivered twice, including after the server instance restarts, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “a persistent unique constraint permits one paid transition, one stock decrement, and one notification”.",
+            "Apply this specific safeguard: insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction. Replay the case and verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply idempotency: The property where repeating the same request yields the same final state without a new side effect. The appropriate fix is: Apply this specific safeguard: insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction. Replay the case and verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction. Replay the case and verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply idempotency: The property where repeating the same request yields the same final state without a new side effect. The appropriate fix is: Apply this specific safeguard: insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction. Replay the case and verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification.",
+            "This option is incorrect. It says « Freeze the same PayPal event_id delivered twice, including after the server instance restarts, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “a persistent unique constraint permits one paid transition, one stock decrement, and one notification”. ». The reference answer is « Apply this specific safeguard: insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction. Replay the case and verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply idempotency: The property where repeating the same request yields the same final state without a new side effect. The appropriate fix is: Apply this specific safeguard: insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction. Replay the case and verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification.",
+            "This option is correct. It says « Apply this specific safeguard: insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction. Replay the case and verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply idempotency: The property where repeating the same request yields the same final state without a new side effect. The appropriate fix is: Apply this specific safeguard: insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction. Replay the case and verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction. Replay the case and verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply idempotency: The property where repeating the same request yields the same final state without a new side effect. The appropriate fix is: Apply this specific safeguard: insert event_id into the database under a unique constraint and perform event, order, and local effects in a replay-safe transaction. Replay the case and verify that a persistent unique constraint permits one paid transition, one stock decrement, and one notification."
+          ]
+        }
+      ],
+      "recap": [
+        "Give the operation a stable key, store its result in the same business transaction, and return that result on every retry.",
+        "idempotency: The property where repeating the same request yields the same final state without a new side effect.",
+        "Completion evidence: a persistent unique constraint permits one paid transition, one stock decrement, and one notification."
+      ],
+      "next": "The next module distributes confirmed changes through channels that respect permission, preference, and frequency."
+    }
+  ]
+}

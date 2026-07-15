@@ -18,6 +18,11 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  const returnPath = () => {
+    const value = new URLSearchParams(window.location.search).get("redirect") ?? "/compte";
+    return value.startsWith("/") && !value.startsWith("//") ? value : "/compte";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -53,7 +58,7 @@ export default function RegisterPage() {
     setGoogleLoading(true);
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/compte` },
+      options: { redirectTo: `${window.location.origin}${returnPath()}` },
     });
   };
 
@@ -83,7 +88,7 @@ export default function RegisterPage() {
         {success && (
           <div className="mb-4 px-4 py-3 border border-green-200 bg-green-50 text-green-700 text-sm">
             {success}
-            <Link href="/connexion" className="block mt-3 text-center font-bold text-sm text-black underline underline-offset-2 hover:text-neutral-700 transition-colors">
+            <Link href={`/connexion?redirect=${encodeURIComponent(typeof window === "undefined" ? "/ecomedia" : returnPath())}`} className="block mt-3 text-center font-bold text-sm text-black underline underline-offset-2 hover:text-neutral-700 transition-colors">
               Aller à la page de connexion →
             </Link>
           </div>

@@ -32,7 +32,7 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
   const [user, setUser] = useState<{ id: string; email?: string; name?: string } | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
-  const [authPromptAction, setAuthPromptAction] = useState<"like" | "comment">("like");
+  const [authPromptAction, setAuthPromptAction] = useState<"like" | "comment" | "reply" | "save">("like");
 
   // Load Supabase auth
   useEffect(() => {
@@ -50,14 +50,12 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
   // Check if already liked (use user.id as stable visitor ID)
   useEffect(() => {
     if (!authChecked || !user) return;
-    fetch(`/api/ecomedia/likes?postId=${post.id}&visitorId=${encodeURIComponent(user.id)}`)
-      .then(r => r.json())
-      .then(d => { if (d.liked) setLiked(true); })
-      .catch(() => {});
-    fetch(`/api/ecomedia/saved?postId=${post.id}&userId=${encodeURIComponent(user.id)}`)
-      .then(r => r.json())
-      .then(d => { if (d.saved) setSaved(true); })
-      .catch(() => {});
+    supabase.auth.getSession().then(({ data }) => {
+      const token = data.session?.access_token;
+      if (!token) return;
+      fetch(`/api/ecomedia/likes?postId=${post.id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).then(d => { if (d.liked) setLiked(true); }).catch(() => {});
+      fetch(`/api/ecomedia/saved?postId=${post.id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).then(d => { if (d.saved) setSaved(true); }).catch(() => {});
+    });
   }, [post.id, user, authChecked]);
 
   // Close menu on outside click
@@ -72,15 +70,17 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
 
   async function handleSave() {
     if (saveLoading) return;
-    if (!user) { setAuthPromptAction("like"); setShowAuthPrompt(true); return; }
+    if (!user) { setAuthPromptAction("save"); setShowAuthPrompt(true); return; }
     setSaveLoading(true);
     const newSaved = !saved;
     setSaved(newSaved);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Session expirée");
       await fetch("/api/ecomedia/saved", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId: post.id, userId: user.id, action: newSaved ? "save" : "unsave" }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ postId: post.id, action: newSaved ? "save" : "unsave" }),
       });
     } catch { setSaved(!newSaved); }
     setSaveLoading(false);
@@ -103,17 +103,18 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
   async function handleLike() {
     if (likeLoading) return;
     if (!requireAuth("like")) return;
-    const visitorId = user!.id;
     setLikeLoading(true);
     const newLiked = !liked;
     setLiked(newLiked);
     setLikesCount(c => c + (newLiked ? 1 : -1));
     if (newLiked) { setHeartAnim(true); setTimeout(() => setHeartAnim(false), 600); }
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Session expirée");
       const res = await fetch("/api/ecomedia/likes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId: post.id, visitorId, action: newLiked ? "like" : "unlike" }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ postId: post.id, action: newLiked ? "like" : "unlike" }),
       });
       const data = await res.json();
       if (data.likes_count !== undefined) setLikesCount(data.likes_count);
@@ -151,7 +152,7 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
 
   return (
     <>
-      <article className="bg-white border-b border-neutral-100">
+      <article className="bg-white border-b border-neutral-100 lg:overflow-hidden lg:rounded-2xl lg:border lg:border-neutral-200 lg:shadow-sm">
 
         {/* â”€â”€ Instagram Header â”€â”€ */}
         <div className="flex items-center gap-3 px-3 py-2.5">
@@ -159,12 +160,12 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
           <div className="p-[2.5px] rounded-full bg-gradient-to-br from-[#3ecf4c] to-[#16b277] shrink-0">
             <div className="bg-white p-[2px] rounded-full">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/lm-icon.svg" alt="lecomax" className="w-8 h-8 rounded-full object-cover" />
+              <img src={post.author_avatar || "/images/lm-icon.svg"} alt="" className="w-8 h-8 rounded-full object-cover" />
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-black text-black leading-tight">L'ecomax</p>
-            <p className="text-[11px] text-neutral-500 leading-tight truncate">{POST_TYPE_LABELS[post.type]}{post.is_featured ? " Â· ðŸ“Œ" : ""}</p>
+            <p className="text-[13px] font-black text-black leading-tight">{post.author_name || "L'ecomax"}</p>
+            <p className="text-[11px] text-neutral-500 leading-tight truncate">{post.is_client_post ? "Membre de la communauté" : POST_TYPE_LABELS[post.type]}{post.is_featured ? " · À la une" : ""}</p>
           </div>
           {/* 3-dot post menu */}
           <div className="relative" ref={menuRef}>
@@ -235,9 +236,8 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
         <div className="relative w-full bg-neutral-100" onTouchEnd={handleMediaDoubleTap} onClick={handleMediaDoubleTap}>
           {/* Image */}
           {(post.type === "image" || post.type === "promotion" || post.type === "product") && post.media_url && (
-            <div className="relative w-full aspect-square">
-              <Image src={post.media_url} alt={post.title} fill className="object-cover"
-                sizes="(max-width: 640px) 100vw, 640px" priority={priority} loading={priority ? "eager" : "lazy"} />
+            <div className="w-full overflow-hidden bg-neutral-100">
+              <img src={post.media_url} alt={post.title} className="block h-auto max-h-[720px] w-full object-contain" loading={priority ? "eager" : "lazy"} decoding="async" />
             </div>
           )}
 
@@ -315,7 +315,7 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
                 )}
               </button>
               {/* Comment */}
-              <button onClick={() => { if (requireAuth("comment")) setShowComments(true); }} className="active:scale-90 transition-transform">
+              <button onClick={() => setShowComments(true)} className="active:scale-90 transition-transform" aria-label="Voir les commentaires">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
                 </svg>
@@ -373,7 +373,7 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
 
           {/* Caption */}
           <div className="mt-1">
-            <span className="text-[13px] font-black text-black mr-1.5">L&apos;ecomax</span>
+            <span className="text-[13px] font-black text-black mr-1.5">{post.author_name || "L'ecomax"}</span>
             <span className="text-[13px] text-black">
               {captionExpanded || (post.content ?? post.title).length < 100
                 ? (post.content ?? post.title)
@@ -399,7 +399,7 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
 
           {/* Comments count + timestamp */}
           {commentsCount > 0 && (
-            <button onClick={() => { if (requireAuth("comment")) setShowComments(true); }}
+            <button onClick={() => setShowComments(true)}
               className="text-[13px] text-neutral-400 mt-1 block">
               Voir les {commentsCount} commentaire{commentsCount > 1 ? "s" : ""}
             </button>
@@ -427,6 +427,7 @@ export default function PostCard({ post, priority = false }: PostCardProps) {
           user={user}
           onClose={() => setShowComments(false)}
           onCommentAdded={() => setCommentsCount(c => c + 1)}
+          onRequireAuth={action => { setShowComments(false); setAuthPromptAction(action); setShowAuthPrompt(true); }}
         />
       )}
     </>

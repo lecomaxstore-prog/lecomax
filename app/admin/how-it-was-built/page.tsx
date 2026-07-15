@@ -1,5 +1,28 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import dynamic from "next/dynamic";
+
+const AcademySection = dynamic(() => import("./AcademySection"), {
+  loading: () => (
+    <div role="status" aria-live="polite" aria-label="Chargement de l'Académie" className="animate-pulse space-y-3 motion-reduce:animate-none">
+      <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-7">
+        <div className="h-3 w-24 rounded-full bg-gray-100" />
+        <div className="mt-4 h-7 w-4/5 max-w-md rounded-lg bg-gray-200" />
+        <div className="mt-3 h-4 w-full max-w-2xl rounded bg-gray-100" />
+        <div className="mt-2 h-4 w-3/4 max-w-xl rounded bg-gray-100" />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-[15rem_minmax(0,1fr)]">
+        <div className="hidden h-72 rounded-2xl border border-gray-100 bg-white sm:block" />
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-7">
+          <div className="h-4 w-28 rounded bg-gray-100" />
+          <div className="mt-4 h-8 w-5/6 rounded-lg bg-gray-200" />
+          <div className="mt-6 space-y-3"><div className="h-4 rounded bg-gray-100" /><div className="h-4 rounded bg-gray-100" /><div className="h-4 w-2/3 rounded bg-gray-100" /></div>
+        </div>
+      </div>
+      <span className="sr-only">Chargement de l’Académie · Loading Academy · جارٍ تحميل الأكاديمية</span>
+    </div>
+  ),
+});
 
 // ─── Language ─────────────────────────────────────────────────────────────────
 type Lang = "fr" | "en" | "ar";
@@ -31,7 +54,7 @@ const UI: Record<Lang, {
     loading: "Chargement…", loadingTree: "Chargement de l'arbre…",
     error: "Erreur de connexion à l'API", noResults: "Aucun résultat",
     noFile: "Aucun fichier trouvé",
-    tabs: { hero: "De 0 à Héros", arch: "Architecture", files: "Explorateur", tech: "Stack", env: "Variables", pages: "Toutes les Pages", search: "Recherche", guide: "📖 Guide", debug: "🐛 Déboguer", supabase: "🗄️ Supabase", deploy: "🚀 Déployer", cours: "📚 Cours 0→100%", mentor: "🎓 Mentor" },
+    tabs: { start: "Commencer ici", academy: "Académie 0→Héros", hero: "De 0 à Héros", arch: "Architecture", files: "Explorateur", tech: "Stack", env: "Variables", pages: "Toutes les Pages", search: "Recherche", guide: "Guide", debug: "Déboguer", supabase: "Supabase", deploy: "Déployer", cours: "Cours technique", mentor: "Mentor" },
     heroTitle: "De 0 à Héros — Construction complète du site",
     heroSub: "Chaque phase : configuration → initialisation → Supabase → frontend → admin → APIs → GitHub → Vercel → Namecheap → outils de croissance → cycle commande → composants → variables env → flux de données.",
     archTitle: "Architecture complète", archSub: "Comment GitHub, Vercel, Supabase et les APIs externes s'articulent.",
@@ -57,7 +80,7 @@ const UI: Record<Lang, {
     loading: "Loading…", loadingTree: "Loading file tree…",
     error: "API connection error", noResults: "No results",
     noFile: "No files found",
-    tabs: { hero: "0 to Hero", arch: "Architecture", files: "Explorer", tech: "Stack", env: "Variables", pages: "All Pages", search: "Search", guide: "📖 Guide", debug: "🐛 Debug", supabase: "🗄️ Supabase", deploy: "🚀 Deploy", cours: "📚 Course 0→100%", mentor: "🎓 Mentor" },
+    tabs: { start: "Start here", academy: "Academy 0→Hero", hero: "0 to Hero", arch: "Architecture", files: "Explorer", tech: "Stack", env: "Variables", pages: "All Pages", search: "Search", guide: "Guide", debug: "Debug", supabase: "Supabase", deploy: "Deploy", cours: "Technical course", mentor: "Mentor" },
     heroTitle: "0 to Hero — Full Site Build",
     heroSub: "Every phase: setup → init → Supabase → frontend → admin → APIs → GitHub → Vercel → Namecheap → growth tools → order lifecycle → components → env vars → data flows.",
     archTitle: "Complete Architecture", archSub: "How GitHub, Vercel, Supabase, and external APIs connect together.",
@@ -83,7 +106,7 @@ const UI: Record<Lang, {
     loading: "جاري التحميل…", loadingTree: "تحميل شجرة الملفات…",
     error: "خطأ في الاتصال بالـ API", noResults: "لا توجد نتائج",
     noFile: "لا توجد ملفات",
-    tabs: { hero: "من الصفر", arch: "البنية", files: "المستكشف", tech: "التقنيات", env: "المتغيرات", pages: "جميع الصفحات", search: "بحث", guide: "📖 دليل", debug: "🐛 تصحيح", supabase: "🗄️ سوبابيس", deploy: "🚀 نشر", cours: "📚 دورة", mentor: "🎓 معلم" },
+    tabs: { start: "ابدأ هنا", academy: "أكاديمية من الصفر", hero: "من الصفر", arch: "البنية", files: "المستكشف", tech: "التقنيات", env: "المتغيرات", pages: "جميع الصفحات", search: "بحث", guide: "دليل", debug: "تصحيح", supabase: "سوبابيس", deploy: "نشر", cours: "دورة تقنية", mentor: "معلم" },
     heroTitle: "من الصفر إلى الاحتراف — بناء الموقع بالكامل",
     heroSub: "كل مرحلة: الإعداد → التهيئة → Supabase → الواجهة → الإدارة → APIs → GitHub → Vercel → Namecheap → أدوات النمو → دورة الطلب → المكوّنات → متغيرات البيئة → تدفقات البيانات.",
     archTitle: "البنية الكاملة", archSub: "كيف تتصل GitHub وVercel وSupabase وواجهات التطبيقات الخارجية.",
@@ -223,7 +246,8 @@ function TreeNode({ node, depth, selected, onSelect, expanded, onToggle }: {
     return (
       <div>
         <button onClick={() => onToggle(node.path)}
-          className="w-full flex items-center gap-1.5 py-[3px] pr-2 text-[12px] hover:bg-white/8 rounded text-left transition-colors"
+          aria-expanded={isOpen}
+          className="flex min-h-11 w-full items-center gap-1.5 rounded pe-2 text-start text-[13px] transition-colors hover:bg-white/8 sm:min-h-0 sm:py-[3px] sm:text-[12px]"
           style={{ paddingLeft: `${6 + depth * 14}px` }}>
           <svg className={`shrink-0 text-white/30 transition-transform ${isOpen ? "rotate-90" : ""}`} width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M9 18l6-6-6-6" /></svg>
           <FolderIcon open={isOpen} />
@@ -238,7 +262,7 @@ function TreeNode({ node, depth, selected, onSelect, expanded, onToggle }: {
   }
   return (
     <button onClick={() => onSelect(node)}
-      className={`w-full flex items-center gap-1.5 py-[3px] pr-2 text-[12px] rounded text-left transition-colors ${isSel ? "bg-[#094771] text-white" : "hover:bg-white/8 text-white/55"}`}
+      className={`flex min-h-11 w-full items-center gap-1.5 rounded pe-2 text-start text-[13px] transition-colors sm:min-h-0 sm:py-[3px] sm:text-[12px] ${isSel ? "bg-[#094771] text-white" : "hover:bg-white/8 text-white/55"}`}
       style={{ paddingLeft: `${6 + depth * 14}px` }}>
       <FileIcon ext={node.ext} binary={node.binary} />
       <span className="truncate flex-1">{node.name}</span>
@@ -298,26 +322,28 @@ function ExplorerSection() {
 
       <div className="bg-[#1e1e1e] rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl">
         {/* Mobile toggle */}
-        <div className="sm:hidden flex border-b border-white/[0.08] bg-[#252526]">
+        <div className="flex border-b border-white/[0.08] bg-[#252526] sm:hidden" role="group" aria-label="Vue de l'explorateur">
           <button onClick={() => setMobileView("tree")}
-            className={`flex-1 py-3 text-[12px] font-bold transition-all flex items-center justify-center gap-2 ${mobileView === "tree" ? "text-white bg-[#1e1e1e] border-b-2 border-b-[#3ecf4c]" : "text-white/40 hover:text-white/60"}`}>
+            aria-pressed={mobileView === "tree"}
+            className={`flex min-h-12 flex-1 items-center justify-center gap-2 text-sm font-bold transition-all ${mobileView === "tree" ? "border-b-2 border-b-[#3ecf4c] bg-[#1e1e1e] text-white" : "text-white/40 hover:text-white/60"}`}>
             📁 <span>Fichiers</span>
           </button>
           <button onClick={() => setMobileView("code")}
-            className={`flex-1 py-3 text-[12px] font-bold transition-all flex items-center justify-center gap-2 ${mobileView === "code" ? "text-white bg-[#1e1e1e] border-b-2 border-b-[#3ecf4c]" : "text-white/40 hover:text-white/60"}`}>
+            aria-pressed={mobileView === "code"}
+            className={`flex min-h-12 flex-1 items-center justify-center gap-2 text-sm font-bold transition-all ${mobileView === "code" ? "border-b-2 border-b-[#3ecf4c] bg-[#1e1e1e] text-white" : "text-white/40 hover:text-white/60"}`}>
             📄 <span className="truncate max-w-[140px]">{selected ? selected.name : "Code"}</span>
           </button>
         </div>
         {/* Tree + Code row — h- (not min-h) is required for flex-1 overflow-y-auto to scroll */}
-        <div className="flex h-[520px] sm:h-[640px]">
+        <div className="flex h-[62dvh] min-h-[420px] max-h-[540px] sm:h-[640px] sm:max-h-none">
         {/* Sidebar */}
         <div className={`${mobileView === "code" ? "hidden sm:flex" : "flex"} w-full sm:w-64 shrink-0 border-r border-white/[0.08] flex-col`}>
           <div className="px-3 py-2.5 border-b border-white/[0.08] bg-[#252526]">
             <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2">LECOMAX</p>
             <div className="relative">
-              <svg className="absolute left-2 top-1/2 -translate-y-1/2 text-white/25" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <svg className="absolute start-3 top-1/2 -translate-y-1/2 text-white/25" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
               <input value={treeQ} onChange={e => setTreeQ(e.target.value)} placeholder="Filtrer…"
-                className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg pl-6 pr-2 py-1.5 text-[11px] text-white/60 placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.09] transition-all" />
+                className="min-h-11 w-full rounded-lg border border-white/[0.08] bg-white/[0.06] ps-9 pe-2 text-base text-white/70 placeholder-white/25 transition-all focus:border-white/20 focus:bg-white/[0.09] focus:outline-none sm:min-h-0 sm:py-1.5 sm:text-[11px]" />
             </div>
           </div>
           <div className="flex-1 overflow-y-auto py-1 min-h-0">
@@ -339,7 +365,7 @@ function ExplorerSection() {
         {/* Code viewer */}
         <div className={`${mobileView === "tree" ? "hidden sm:flex" : "flex"} flex-1 min-w-0 min-h-0 flex-col`}>
           {/* File tab */}
-          <div className="flex items-center gap-0 border-b border-white/[0.08] bg-[#252526] min-h-[36px]">
+          <div className="flex min-h-11 items-center gap-0 border-b border-white/[0.08] bg-[#252526] sm:min-h-[36px]">
             {selected ? (
               <div className="flex items-center gap-1.5 px-3 py-2 bg-[#1e1e1e] border-t-2 border-t-[#007acc] min-w-0">
                 <FileIcon ext={selected.ext} />
@@ -350,7 +376,8 @@ function ExplorerSection() {
             {selected && (
               <div className="ml-auto px-2 flex items-center gap-2 shrink-0">
                 <button onClick={() => { if (code) { navigator.clipboard.writeText(code).catch(() => {}); setCopied(true); setTimeout(() => setCopied(false), 2000); }}}
-                  className="text-white/60 hover:text-white text-[10px] flex items-center gap-1 px-2 py-1.5 rounded bg-white/8 hover:bg-white/15 transition-colors">
+                  aria-label={copied ? "Code copié" : "Copier le code"}
+                  className="flex min-h-11 items-center gap-1 rounded bg-white/8 px-3 text-xs text-white/70 transition-colors hover:bg-white/15 hover:text-white sm:min-h-0 sm:px-2 sm:py-1.5 sm:text-[10px]">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
                   {copied ? "✓" : "Copier"}
                 </button>
@@ -371,7 +398,7 @@ function ExplorerSection() {
                 Chargement de {selected.name}…
               </div>
             ) : (
-              <div className="flex text-[10px] sm:text-[11.5px] font-mono">
+              <div dir="ltr" className="flex font-mono text-[12px] sm:text-[11.5px]">
                 <div className="select-none shrink-0 text-right text-white/20 bg-[#1e1e1e] px-2 sm:px-3 py-4 leading-[1.65] min-w-[32px] sm:min-w-[42px] border-r border-white/[0.06]">
                   {(code ?? "").split("\n").map((_, i) => <div key={i}>{i + 1}</div>)}
                 </div>
@@ -4536,64 +4563,65 @@ function HeroSection({ lang }: { lang: Lang }) {
       <div className="mb-4">
         <div className="flex items-start justify-between gap-3 mb-1">
           <h2 className="text-lg sm:text-xl font-black text-gray-900">{u.heroTitle}</h2>
-          <div className="flex gap-2 shrink-0">
+          <div className="hidden shrink-0 gap-2 md:flex">
             <button onClick={expandAll}
-              className="flex items-center gap-1.5 px-3 py-2 bg-[#0d0d0d] text-white text-[11px] font-bold rounded-xl hover:bg-neutral-800 transition-colors active:scale-95">
+              className="flex min-h-11 items-center gap-1.5 rounded-xl bg-[#0d0d0d] px-3 text-[11px] font-bold text-white transition-colors hover:bg-neutral-800 active:scale-95">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
               <span className="hidden sm:inline">{lang === "ar" ? "فتح الكل" : lang === "en" ? "Expand all" : "Tout ouvrir"}</span>
               <span className="sm:hidden">{lang === "ar" ? "فتح" : lang === "en" ? "Open" : "Ouvrir"}</span>
             </button>
             {allExpanded && (
               <button onClick={collapseAll}
-                className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-700 text-[11px] font-bold rounded-xl hover:bg-gray-200 transition-colors active:scale-95">
+                className="flex min-h-11 items-center gap-1.5 rounded-xl bg-gray-100 px-3 text-[11px] font-bold text-gray-700 transition-colors hover:bg-gray-200 active:scale-95">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/></svg>
                 <span className="hidden sm:inline">{lang === "ar" ? "إغلاق الكل" : lang === "en" ? "Collapse all" : "Tout fermer"}</span>
               </button>
             )}
           </div>
         </div>
-        <p className="text-xs sm:text-sm text-gray-400 leading-relaxed line-clamp-2 sm:line-clamp-none">{u.heroSub}</p>
+        <p className="text-sm leading-relaxed text-gray-500">{u.heroSub}</p>
       </div>
       <div className="relative">
-        <div className="absolute left-[19px] top-5 bottom-5 w-0.5 bg-gray-200" />
+        <div className="absolute start-[19px] bottom-5 top-5 w-0.5 bg-gray-200" />
         <div className="space-y-3">
           {PHASES.map(phase => {
             const isPhaseOpen = openPhases.has(phase.num);
             return (
-            <div key={phase.num} className="relative pl-10">
-              <div className={`absolute left-0 top-3 w-9 h-9 rounded-full ${phase.color} flex items-center justify-center text-white text-[11px] font-black shadow-sm`}>{phase.num}</div>
+            <div key={phase.num} className="relative ps-10">
+              <div className={`absolute start-0 top-3 flex h-9 w-9 items-center justify-center rounded-full ${phase.color} text-[11px] font-black text-white shadow-sm`}>{phase.num}</div>
               <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
-                <button onClick={() => togglePhase(phase.num)}
-                  className="w-full flex items-start gap-3 px-4 sm:px-5 py-4 text-left hover:bg-gray-50 transition-colors">
+                <button onClick={() => togglePhase(phase.num)} aria-expanded={isPhaseOpen} aria-controls={`course-phase-${phase.num}`}
+                  className="flex min-h-14 w-full items-start gap-3 px-4 py-4 text-start transition-colors hover:bg-gray-50 sm:px-5">
                   <div className={`w-2 h-2 rounded-full ${phase.color} shrink-0 mt-[5px]`} />
                   <p className="flex-1 font-bold text-sm text-gray-900">{getPhaseLabel(phase)}</p>
-                  <span className="text-[11px] text-gray-400 shrink-0 mt-0.5 ml-2">{phase.steps.length} {u.stepLabel}</span>
+                  <span className="ms-2 mt-0.5 hidden shrink-0 text-[11px] text-gray-400 sm:inline">{phase.steps.length} {u.stepLabel}</span>
                   <svg className={`shrink-0 text-gray-400 transition-transform ${isPhaseOpen ? "rotate-180" : ""}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6" /></svg>
                 </button>
                 {isPhaseOpen && (
-                  <div className="border-t border-gray-50 divide-y divide-gray-50">
+                  <div id={`course-phase-${phase.num}`} className="divide-y divide-gray-50 border-t border-gray-50">
                     {phase.steps.map((step, idx) => {
                       const key = `${phase.num}-${idx}`;
                       const isStepOpen = openSteps[phase.num]?.has(idx) ?? false;
                       const { title: stTitle, desc: stDesc } = getStepLabel(phase.num, idx, step);
                       return (
                         <div key={idx}>
-                          <button onClick={() => toggleStep(phase.num, idx)}
-                            className="w-full flex items-center gap-3 px-4 sm:px-5 py-3 text-left hover:bg-gray-50 transition-colors">
+                          <button onClick={() => toggleStep(phase.num, idx)} aria-expanded={isStepOpen} aria-controls={`course-step-${key}`}
+                            className="flex min-h-12 w-full items-center gap-3 px-4 py-3 text-start transition-colors hover:bg-gray-50 sm:px-5">
                             <div className="w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0" />
                             <p className="flex-1 text-[13px] font-semibold text-gray-800 leading-tight">{stTitle}</p>
                             <svg className={`shrink-0 text-gray-400 transition-transform ${isStepOpen ? "rotate-180" : ""}`} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6" /></svg>
                           </button>
                           {isStepOpen && (
-                            <div className="px-3 sm:px-5 pb-4 space-y-3">
-                              <p className="text-[12px] text-gray-600 leading-relaxed">{stDesc}</p>
+                            <div id={`course-step-${key}`} className="space-y-3 px-3 pb-4 sm:px-5">
+                              <p className="text-sm leading-relaxed text-gray-600">{stDesc}</p>
                               {lang !== "fr" && step.desc !== stDesc && (
                                 <p className="text-[11px] text-gray-400 italic leading-relaxed border-l-2 border-gray-200 pl-3">{step.desc}</p>
                               )}
                               <div className="relative group">
-                                <pre className="bg-[#0d0d0d] text-[10px] sm:text-[11px] font-mono leading-[1.7] rounded-xl p-3 sm:p-4 overflow-x-auto text-[#d4d4d4] whitespace-pre border border-white/[0.08] max-h-64 sm:max-h-80 overflow-y-auto">{step.code}</pre>
+                                <pre dir="ltr" className="max-h-64 overflow-auto whitespace-pre rounded-xl border border-white/[0.08] bg-[#0d0d0d] p-3 font-mono text-[12px] leading-[1.7] text-[#d4d4d4] sm:max-h-80 sm:p-4 sm:text-[11px]">{step.code}</pre>
                                 <button onClick={() => copy(step.code, key)}
-                                  className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity bg-white/15 hover:bg-white/25 text-white text-[9px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 border border-white/20">
+                                  aria-label={copied === key ? u.copied : u.copy}
+                                  className="absolute end-2 top-2 flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-lg border border-white/20 bg-black/70 px-2.5 text-[11px] font-bold text-white opacity-100 transition-opacity hover:bg-black/90 sm:min-h-0 sm:min-w-0 sm:bg-white/15 sm:py-1.5 sm:text-[9px] sm:opacity-0 sm:group-hover:opacity-100">
                                   {copied === key ? "✓" : u.copy}
                                 </button>
                               </div>
@@ -4649,20 +4677,20 @@ function PagesSection({ lang }: { lang: Lang }) {
 
       {/* Filter bar */}
       <div className="flex flex-col sm:flex-row gap-2">
-        <div className="flex gap-1 p-1 bg-gray-100 rounded-xl">
+        <div className="flex gap-1 rounded-xl bg-gray-100 p-1" role="group" aria-label={u.filter}>
           {(["all","public","admin"] as const).map(f => (
-            <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors ${filter === f ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+            <button key={f} onClick={() => setFilter(f)} aria-pressed={filter === f}
+              className={`min-h-11 flex-1 rounded-lg px-3 text-[13px] font-semibold transition-colors sm:min-h-0 sm:flex-none sm:py-1.5 sm:text-[12px] ${filter === f ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
               {f === "all" ? (lang === "ar" ? "الكل" : lang === "en" ? "All" : "Tout") : typeLabel(f)}
               <span className="ml-1 text-[10px] text-gray-400">{SITE_PAGES.filter(p => f === "all" || p.type === f).length}</span>
             </button>
           ))}
         </div>
         <div className="relative flex-1">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <svg className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
           <input value={q} onChange={e => setQ(e.target.value)}
             placeholder={lang === "ar" ? "ابحث في الصفحات…" : lang === "en" ? "Search pages…" : "Rechercher une page…"}
-            className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-[#3ecf4c]/30 focus:border-[#3ecf4c] transition-all" />
+            className="min-h-12 w-full rounded-xl border border-gray-200 bg-white ps-9 pe-4 text-base transition-all focus:border-[#3ecf4c] focus:outline-none focus:ring-2 focus:ring-[#3ecf4c]/30 sm:min-h-0 sm:py-2 sm:text-[13px]" />
         </div>
       </div>
 
@@ -4854,14 +4882,31 @@ function EnvSec({ lang }: { lang: Lang }) {
         <span className="text-amber-500 shrink-0">⚠️</span>
         <div><strong className="text-amber-800">{u.envRule}</strong><span className="text-amber-700"> {u.envRuleText}</span></div>
       </div>
-      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+      <div className="space-y-3 md:hidden">
+        {ENV.map(v => (
+          <article key={v.name} className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+            <div className="border-b border-gray-100 bg-gray-50/80 p-4">
+              <code dir="ltr" className="block break-all font-mono text-[13px] font-bold text-violet-700">{v.name}</code>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                <span className={`inline-flex items-center rounded-md border px-2 py-1 text-[11px] font-bold ${v.secret?"bg-red-100 text-red-700 border-red-200":"bg-green-100 text-green-700 border-green-200"}`}>{v.secret ? u.secret : "PUBLIC"}</span>
+                <span className={`inline-flex items-center rounded-md border px-2 py-1 text-[11px] font-bold ${v.req?"bg-gray-100 text-gray-600 border-gray-200":"bg-slate-50 text-slate-500 border-slate-200"}`}>{v.req ? u.req : u.opt}</span>
+              </div>
+            </div>
+            <dl className="space-y-3 p-4 text-sm">
+              <div><dt className="text-[11px] font-bold uppercase tracking-wide text-gray-400">{u.desc}</dt><dd className="mt-1 leading-relaxed text-gray-700">{v.purpose}</dd></div>
+              <div><dt className="text-[11px] font-bold uppercase tracking-wide text-gray-400">{u.file}</dt><dd dir="ltr" className="mt-1 break-all font-mono text-[12px] leading-relaxed text-gray-500">{v.where}</dd></div>
+            </dl>
+          </article>
+        ))}
+      </div>
+      <div className="hidden overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm md:block">
         <div className="overflow-x-auto">
           <table className="w-full text-[12px]">
             <thead><tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-left px-3 sm:px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Variable</th>
-              <th className="text-left px-3 sm:px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">{u.desc}</th>
-              <th className="text-left px-3 sm:px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider hidden lg:table-cell">{u.file}</th>
-              <th className="text-left px-3 sm:px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">{u.type}</th>
+              <th className="px-3 py-3 text-start text-[11px] font-bold uppercase tracking-wider text-gray-500 sm:px-4">Variable</th>
+              <th className="px-3 py-3 text-start text-[11px] font-bold uppercase tracking-wider text-gray-500 sm:px-4">{u.desc}</th>
+              <th className="hidden px-3 py-3 text-start text-[11px] font-bold uppercase tracking-wider text-gray-500 sm:px-4 lg:table-cell">{u.file}</th>
+              <th className="px-3 py-3 text-start text-[11px] font-bold uppercase tracking-wider text-gray-500 sm:px-4">{u.type}</th>
             </tr></thead>
             <tbody className="divide-y divide-gray-50">
               {ENV.map(v => (
@@ -4934,12 +4979,12 @@ function SearchSec({ lang }: { lang: Lang }) {
       <div className="mb-4"><h2 className="text-xl font-black text-gray-900">{u.searchTitle}</h2><p className="text-sm text-gray-500 mt-1">{u.searchSub} ({ITEMS.length})</p></div>
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4">
         <div className="relative">
-          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <svg className="absolute start-3.5 top-1/2 -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
           <input value={q} onChange={e => setQ(e.target.value)} placeholder={u.search_hint} autoFocus
-            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition-all" />
+            className="min-h-12 w-full rounded-xl border border-gray-200 ps-10 pe-4 text-base transition-all focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 sm:text-sm" />
         </div>
         {!q && <div className="mt-3 flex flex-wrap gap-2">{["CartContext","supabase","auth","orders","RESEND","checkout","middleware","OpenAI","PayPal","push","Vercel","/admin"].map(s => (
-          <button key={s} onClick={() => setQ(s)} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg text-[12px] font-medium transition-colors">{s}</button>
+          <button key={s} onClick={() => setQ(s)} className="min-h-11 rounded-lg bg-gray-100 px-3 text-[13px] font-medium text-gray-600 transition-colors hover:bg-gray-200 sm:min-h-0 sm:py-1.5 sm:text-[12px]">{s}</button>
         ))}</div>}
       </div>
       {q && (
@@ -4950,7 +4995,7 @@ function SearchSec({ lang }: { lang: Lang }) {
             : <div className="space-y-2">{res.map((r,i) => (
                 <div key={i} className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4 flex items-start gap-3">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border ${TB[r.type]??""} shrink-0 mt-0.5`}>{r.type}</span>
-                  <div><p className="font-semibold text-sm text-gray-900">{r.title}</p><p className="text-[12px] text-gray-500 mt-0.5">{r.desc}</p></div>
+                  <div className="min-w-0"><p className="break-words text-sm font-semibold text-gray-900">{r.title}</p><p className="mt-0.5 break-words text-[13px] leading-relaxed text-gray-500 sm:text-[12px]">{r.desc}</p></div>
                 </div>
               ))}</div>
           }
@@ -4960,51 +5005,440 @@ function SearchSec({ lang }: { lang: Lang }) {
   );
 }
 
+// ─── START HERE ────────────────────────────────────────────────────────────────
+function StartHereSection({ onNavigate }: { onNavigate: (tab: string) => void }) {
+  const [copied, setCopied] = useState("");
+  const [done, setDone] = useState<boolean[]>([false, false, false, false, false]);
+  const [activeCodeLine, setActiveCodeLine] = useState(0);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("lecomax-learning-checklist");
+      if (saved) setDone(JSON.parse(saved));
+    } catch { /* localStorage can be disabled */ }
+  }, []);
+
+  function toggleDone(index: number) {
+    setDone(current => {
+      const next = current.map((value, i) => i === index ? !value : value);
+      try { window.localStorage.setItem("lecomax-learning-checklist", JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  }
+
+  function copy(text: string, id: string) {
+    navigator.clipboard.writeText(text).catch(() => {});
+    setCopied(id);
+    window.setTimeout(() => setCopied(""), 1800);
+  }
+
+  function openCodingLab() {
+    document.getElementById("coding-lab")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  const quickStart = `# 1. Ouvre le terminal dans le dossier L'ecomax
+npm install
+
+# 2. Lance le serveur de développement
+npm run dev
+
+# 3. Ouvre le site dans ton navigateur
+# http://localhost:3000
+
+# 4. Après tes modifications, vérifie le projet
+npm run build
+
+# 5. Arrête le serveur quand tu as terminé
+# Ctrl + C`;
+
+  const example = `// app/produits/page.tsx
+// Ce fichier crée automatiquement l'URL /produits
+
+import Link from "next/link"; // composant de navigation Next.js
+
+type Product = { id: number; name: string; price: number };
+
+const products: Product[] = [
+  { id: 1, name: "Nike Air Max", price: 129.99 },
+];
+
+// Une page est un composant React exporté par défaut.
+// Sans "use client", c'est un Server Component (le choix conseillé).
+export default function ProductsPage() {
+  return (
+    <main className="min-h-screen bg-white px-6 py-12">
+      <h1 className="text-3xl font-black text-black">Nos produits</h1>
+
+      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {products.map((product) => (
+          <article key={product.id} className="border border-neutral-200 p-5">
+            <h2 className="font-bold">{product.name}</h2>
+            <p className="mt-2 text-neutral-600">{product.price.toFixed(2)} €</p>
+            <Link href={\`/produit/\${product.id}\`}
+              className="mt-4 inline-block bg-[#3ecf4c] px-4 py-2 font-bold text-black">
+              Voir le produit
+            </Link>
+          </article>
+        ))}
+      </div>
+    </main>
+  );
+}`;
+
+  const learningPath = [
+    { tab: "hero", icon: "1", title: "Construire de zéro", desc: "Installation, fichiers, frontend, API, base de données et mise en ligne.", color: "#3ecf4c" },
+    { tab: "academy", icon: "2", title: "Suivre l’Académie complète", desc: "HTML → CSS → JavaScript → React → Next.js → production, dans le bon ordre.", color: "#60a5fa" },
+    { tab: "mentor", icon: "3", title: "Comprendre vraiment", desc: "Analogies, quiz et exercices guidés comme avec un mentor.", color: "#a78bfa" },
+    { tab: "files", icon: "4", title: "Lire le vrai code", desc: "Ouvre les fichiers réels de L'ecomax et compare avec les leçons.", color: "#f59e0b" },
+    { tab: "debug", icon: "5", title: "Apprendre à réparer", desc: "Lis une erreur, trouve sa source et applique une méthode de diagnostic.", color: "#fb7185" },
+    { tab: "deploy", icon: "6", title: "Publier le site", desc: "GitHub, variables d'environnement, Vercel et domaine personnalisé.", color: "#16b277" },
+  ];
+
+  const codingLoop = [
+    { number: "01", title: "Choisis un petit résultat", desc: "Exemple : afficher un titre. Décris d’abord ce que l’utilisateur doit voir." },
+    { number: "02", title: "Trouve le bon fichier", desc: "Une page vit dans app/.../page.tsx. Un élément réutilisable vit souvent dans components/." },
+    { number: "03", title: "Écris le minimum", desc: "Commence par quelques lignes qui fonctionnent. N’ajoute le style et les données qu’ensuite." },
+    { number: "04", title: "Enregistre et observe", desc: "Ctrl+S, puis regarde le navigateur et le terminal. Le résultat est la preuve." },
+    { number: "05", title: "Change une seule chose", desc: "Modifie un texte, une couleur ou une donnée, puis compare avant et après." },
+    { number: "06", title: "Vérifie avant de garder", desc: "Teste sur mobile, lis les erreurs, puis lance npm run build quand la modification est terminée." },
+  ];
+
+  const firstComponent = [
+    {
+      code: "export default function Welcome() {",
+      short: "Créer le composant",
+      meaning: "function crée un bloc de code nommé Welcome. export default dit à Next.js que c’est le contenu principal de ce fichier.",
+      experiment: "Remplace Welcome par HomePage : le nom change dans le code, mais la page reste visible.",
+    },
+    {
+      code: "  const name = \"Zakaria\";",
+      short: "Mémoriser une valeur",
+      meaning: "const crée une variable qu’on ne réassignera pas. name est son nom et \"Zakaria\" est la valeur texte stockée.",
+      experiment: "Remplace Zakaria par ton prénom et observe le titre dans le navigateur.",
+    },
+    {
+      code: "  return (",
+      short: "Décrire l’écran",
+      meaning: "return indique ce que React doit afficher. Les parenthèses permettent d’écrire le JSX sur plusieurs lignes.",
+      experiment: "Tout élément visible doit se trouver dans ce return.",
+    },
+    {
+      code: "    <main className=\"p-8\">",
+      short: "Créer un conteneur",
+      meaning: "<main> est une balise HTML pour le contenu principal. className ajoute des classes Tailwind : p-8 crée de l’espace intérieur.",
+      experiment: "Essaie p-2 puis p-12 pour voir immédiatement la différence d’espace.",
+    },
+    {
+      code: "      <h1>Bonjour {name}</h1>",
+      short: "Afficher texte + donnée",
+      meaning: "<h1> est le titre principal. Les accolades { } quittent momentanément le HTML pour lire une valeur JavaScript.",
+      experiment: "Ajoute un point d’exclamation après {name}, puis crée une variable city et affiche-la.",
+    },
+    {
+      code: "    </main>\n  );\n}",
+      short: "Fermer proprement",
+      meaning: "</main> ferme la balise ouverte. ); termine le return et } ferme la fonction. Chaque ouverture doit avoir sa fermeture.",
+      experiment: "Supprime temporairement </main> : lis l’erreur, puis remets-le pour apprendre à la reconnaître.",
+    },
+  ];
+
+  const firstComponentSource = firstComponent.map(line => line.code).join("\n");
+
+  const checklist = [
+    "J'ai installé Node.js et vérifié node -v et npm -v",
+    "J'ai lancé npm run dev et ouvert localhost:3000",
+    "J'ai modifié un texte dans app/page.tsx et vu le résultat",
+    "J'ai créé une page test dans app/test/page.tsx",
+    "J'ai exécuté npm run build sans erreur",
+  ];
+
+  const palette = [
+    { name: "Vert action", hex: "#3ecf4c", use: "Boutons, liens importants, accent L'ecomax", text: "text-black" },
+    { name: "Vert marque", hex: "#16b277", use: "Succès, hover et identité secondaire", text: "text-white" },
+    { name: "Noir", hex: "#0d0d0d", use: "Titres, navigation et fonds premium", text: "text-white" },
+    { name: "Blanc", hex: "#ffffff", use: "Pages, cartes et contraste", text: "text-black" },
+    { name: "Gris texte", hex: "#767677", use: "Descriptions et informations secondaires", text: "text-white" },
+    { name: "Bleu info", hex: "#0071ae", use: "Liens informatifs et états neutres", text: "text-white" },
+    { name: "Orange", hex: "#f59e0b", use: "Attention et avertissements", text: "text-black" },
+    { name: "Rouge", hex: "#ef4444", use: "Erreurs et actions dangereuses", text: "text-white" },
+  ];
+
+  const progress = Math.round((done.filter(Boolean).length / done.length) * 100);
+
+  return (
+    <div className="space-y-6">
+      <section className="relative overflow-hidden rounded-3xl bg-[#0d0d0d] p-5 text-white sm:p-8">
+        <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#3ecf4c]/20 blur-3xl" />
+        <div className="relative max-w-3xl">
+          <span className="inline-flex rounded-full border border-[#3ecf4c]/30 bg-[#3ecf4c]/10 px-3 py-1 text-[10px] font-black uppercase tracking-[.2em] text-[#3ecf4c]">Commence ici</span>
+          <h2 className="mt-4 text-2xl font-black leading-tight sm:text-4xl">Apprends à construire L&apos;ecomax,<br className="hidden sm:block" /> une petite victoire à la fois.</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/55">Tu n&apos;as pas besoin de tout mémoriser. Comprends le rôle de chaque fichier, écris un petit changement, regarde le résultat, puis recommence. Cette page utilise le vrai projet comme livre d&apos;apprentissage.</p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <button onClick={openCodingLab} className="rounded-xl bg-[#3ecf4c] px-4 py-2.5 text-xs font-black text-black transition-transform active:scale-95">Apprendre à coder maintenant →</button>
+            <button onClick={() => onNavigate("academy")} className="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-bold text-white hover:bg-white/10">Ouvrir l’Académie 0→Héros</button>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#16b277]">Ordre conseillé</p><h3 className="text-lg font-black text-gray-900">Ton parcours d&apos;apprentissage</h3></div>
+          <p className="hidden text-[11px] text-gray-400 sm:block">Clique une carte pour ouvrir la leçon</p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {learningPath.map(item => (
+            <button key={item.tab} onClick={() => onNavigate(item.tab)} className="group rounded-2xl border border-gray-100 bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-gray-200 hover:shadow-md">
+              <div className="mb-3 flex items-center justify-between"><span className="flex h-8 w-8 items-center justify-center rounded-xl text-xs font-black text-black" style={{ backgroundColor: item.color }}>{item.icon}</span><span className="text-gray-300 transition-transform group-hover:translate-x-1">→</span></div>
+              <p className="text-sm font-black text-gray-900">{item.title}</p><p className="mt-1 text-[11px] leading-relaxed text-gray-500">{item.desc}</p>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section id="coding-lab" className="scroll-mt-44 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+        <div className="border-b border-gray-100 p-5 sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="max-w-2xl">
+              <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#16b277]">Ton premier atelier de code</p>
+              <h3 className="mt-1 text-xl font-black text-gray-950 sm:text-2xl">Comment coder — et comprendre ce que le code veut dire</h3>
+              <p className="mt-2 text-xs leading-relaxed text-gray-500">Coder, ce n’est pas réciter des lignes. C’est choisir un résultat, donner des instructions précises à l’ordinateur, puis vérifier ce qu’il produit.</p>
+            </div>
+            <span className="rounded-full bg-[#3ecf4c]/10 px-3 py-1.5 text-[10px] font-black text-[#128347]">DÉBUTANT · 10 MIN</span>
+          </div>
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {codingLoop.map(step => (
+              <div key={step.number} className="rounded-2xl border border-gray-100 bg-[#fafafa] p-3.5">
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-[10px] font-black text-[#16b277]">{step.number}</span>
+                  <div><p className="text-xs font-black text-gray-900">{step.title}</p><p className="mt-1 text-[10px] leading-relaxed text-gray-500">{step.desc}</p></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-[1.08fr_.92fr]">
+          <div className="bg-[#0d0d0d] p-4 sm:p-6" dir="ltr">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div><p className="text-[10px] font-black uppercase tracking-widest text-[#3ecf4c]">Clique une ligne</p><p className="mt-1 text-xs font-bold text-white">app/bienvenue/page.tsx</p></div>
+              <button onClick={() => copy(firstComponentSource, "first-component")} className="rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-[10px] font-bold text-white hover:bg-white/15">{copied === "first-component" ? "✓ Copié" : "Copier le code"}</button>
+            </div>
+            <pre className="overflow-x-auto font-mono text-[11px] leading-7 sm:text-xs"><code>
+              {firstComponent.map((line, index) => (
+                <button key={index} type="button" onClick={() => setActiveCodeLine(index)} className={`block w-full rounded-lg px-2 text-left transition ${activeCodeLine === index ? "bg-[#3ecf4c]/15 text-white ring-1 ring-[#3ecf4c]/40" : "text-white/65 hover:bg-white/5 hover:text-white"}`}>
+                  <span className="mr-4 inline-block w-4 select-none text-right text-white/25">{index + 1}</span>{line.code}
+                </button>
+              ))}
+            </code></pre>
+            <p className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3 text-[10px] leading-relaxed text-white/50"><strong className="text-white">Lis toujours de l’extérieur vers l’intérieur :</strong> fichier → fonction → return → balises → données entre accolades.</p>
+          </div>
+
+          <div className="flex min-h-[360px] flex-col p-5 sm:p-6" aria-live="polite">
+            <div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#3ecf4c] text-[11px] font-black text-black">{activeCodeLine + 1}</span><p className="text-sm font-black text-gray-950">{firstComponent[activeCodeLine].short}</p></div>
+            <div className="mt-5">
+              <p className="text-[10px] font-black uppercase tracking-wider text-gray-400">Ce que cette ligne signifie</p>
+              <p className="mt-2 text-sm leading-7 text-gray-700">{firstComponent[activeCodeLine].meaning}</p>
+            </div>
+            <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+              <p className="text-[10px] font-black uppercase tracking-wider text-blue-600">Essaie toi-même</p>
+              <p className="mt-1.5 text-xs leading-relaxed text-blue-900">{firstComponent[activeCodeLine].experiment}</p>
+            </div>
+            <div className="mt-auto pt-5">
+              <div className="mb-2 flex items-center justify-between text-[10px] font-bold text-gray-400"><span>Compréhension du composant</span><span>{activeCodeLine + 1} / {firstComponent.length}</span></div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-gray-100"><div className="h-full rounded-full bg-[#3ecf4c] transition-all" style={{ width: `${((activeCodeLine + 1) / firstComponent.length) * 100}%` }} /></div>
+              <div className="mt-3 flex gap-2">
+                <button type="button" disabled={activeCodeLine === 0} onClick={() => setActiveCodeLine(value => Math.max(0, value - 1))} className="min-h-10 flex-1 rounded-xl border border-gray-200 text-[11px] font-bold disabled:opacity-35">← Précédente</button>
+                <button type="button" disabled={activeCodeLine === firstComponent.length - 1} onClick={() => setActiveCodeLine(value => Math.min(firstComponent.length - 1, value + 1))} className="min-h-10 flex-1 rounded-xl bg-black text-[11px] font-bold text-white disabled:opacity-35">Ligne suivante →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-px bg-gray-100 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["<h1>…</h1>", "Balise", "Structure un élément visible. La balise fermante commence par /."],
+            ["{name}", "Accolades", "Insèrent une valeur JavaScript à l’intérieur du JSX."],
+            ["className=\"…\"", "Attribut", "Ajoute du style ou une information à une balise React."],
+            ["const value = …", "Variable", "Donne un nom clair à une valeur pour pouvoir la réutiliser."],
+          ].map(([syntax, name, desc]) => <div key={name} className="bg-white p-4"><code className="text-[11px] font-black text-violet-700">{syntax}</code><p className="mt-2 text-xs font-black">{name}</p><p className="mt-1 text-[10px] leading-relaxed text-gray-500">{desc}</p></div>)}
+        </div>
+      </section>
+
+      <div className="grid gap-4 lg:grid-cols-[1.25fr_.75fr]">
+        <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+            <div><p className="text-[10px] font-black uppercase tracking-wider text-[#16b277]">Terminal</p><h3 className="text-sm font-black">Lancer le projet, exactement</h3></div>
+            <button onClick={() => copy(quickStart, "run")} className="rounded-lg bg-gray-100 px-3 py-1.5 text-[10px] font-bold hover:bg-gray-200">{copied === "run" ? "✓ Copié" : "Copier tout"}</button>
+          </div>
+          <pre className="overflow-x-auto bg-[#0d0d0d] p-4 text-[11px] leading-7 text-[#d4d4d4]">{quickStart}</pre>
+          <div className="grid gap-px bg-gray-100 sm:grid-cols-3">
+            {[['npm install','Télécharge les packages de package.json'],['npm run dev','Mode travail + mise à jour automatique'],['npm run build','Vérifie le site comme en production']].map(([cmd, desc]) => <div key={cmd} className="bg-white p-3"><code className="text-[11px] font-black text-[#16b277]">{cmd}</code><p className="mt-1 text-[10px] leading-relaxed text-gray-500">{desc}</p></div>)}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-wider text-blue-500">Première mission</p><h3 className="text-sm font-black">Checklist pratique</h3></div><span className="text-xs font-black text-[#16b277]">{progress}%</span></div>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100"><div className="h-full rounded-full bg-[#3ecf4c] transition-all" style={{ width: `${progress}%` }} /></div>
+          <div className="mt-3 space-y-1.5">
+            {checklist.map((label, i) => <button key={label} onClick={() => toggleDone(i)} className="flex w-full items-start gap-2 rounded-xl p-2 text-left hover:bg-gray-50"><span className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[9px] ${done[i] ? 'border-[#16b277] bg-[#16b277] text-white' : 'border-gray-300'}`}>{done[i] ? '✓' : ''}</span><span className={`text-[11px] leading-relaxed ${done[i] ? 'text-gray-400 line-through' : 'text-gray-700'}`}>{label}</span></button>)}
+          </div>
+          <p className="mt-3 rounded-xl bg-amber-50 p-3 text-[10px] leading-relaxed text-amber-800"><strong>Important :</strong> travaille toujours sur une petite modification. Si une erreur apparaît, lis d&apos;abord la première ligne rouge dans le terminal.</p>
+        </section>
+      </div>
+
+      <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+        <p className="text-[10px] font-black uppercase tracking-wider text-violet-500">Le modèle mental Next.js</p>
+        <h3 className="mt-0.5 text-lg font-black">Un dossier devient une URL</h3>
+        <p className="mt-1 text-xs leading-relaxed text-gray-500">Avec l&apos;App Router, le nom du dossier définit la route. Les noms spéciaux ci-dessous indiquent à Next.js le rôle du fichier.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[['app/page.tsx','URL /','La page d’accueil. page.tsx rend une URL visible.'],['app/produits/page.tsx','URL /produits','Chaque dossier ajoute une partie à l’URL.'],['app/layout.tsx','Cadre partagé','Entoure les pages : polices, Header, Footer et providers.'],['app/api/products/route.ts','API /api/products','GET, POST, PUT et DELETE exécutés uniquement sur le serveur.']].map(([file, role, desc]) => <div key={file} className="rounded-xl border border-gray-100 bg-gray-50 p-3"><code className="text-[10px] font-black text-violet-700">{file}</code><p className="mt-2 text-xs font-black">{role}</p><p className="mt-1 text-[10px] leading-relaxed text-gray-500">{desc}</p></div>)}
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-blue-100 bg-blue-50 p-4"><p className="text-xs font-black text-blue-800">Server Component — par défaut</p><p className="mt-1 text-[11px] leading-relaxed text-blue-700">Peut lire la base de données et les secrets. Envoie moins de JavaScript au navigateur. Utilise-le tant que tu n&apos;as pas besoin de clics, de state ou du navigateur.</p></div>
+          <div className="rounded-xl border border-orange-100 bg-orange-50 p-4"><p className="text-xs font-black text-orange-800">Client Component — &quot;use client&quot;</p><p className="mt-1 text-[11px] leading-relaxed text-orange-700">Nécessaire pour useState, useEffect, onClick et localStorage. Il s&apos;exécute dans le navigateur : ne lui donne jamais une clé secrète.</p></div>
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3"><div><p className="text-[10px] font-black uppercase tracking-wider text-cyan-600">Exemple complet</p><h3 className="text-sm font-black">Créer une page produits</h3></div><button onClick={() => copy(example, "example")} className="rounded-lg bg-gray-100 px-3 py-1.5 text-[10px] font-bold hover:bg-gray-200">{copied === "example" ? "✓ Copié" : "Copier le code"}</button></div>
+        <div className="grid lg:grid-cols-[1.35fr_.65fr]">
+          <pre className="max-h-[520px] overflow-auto bg-[#0d0d0d] p-4 text-[10px] leading-[1.75] text-[#d4d4d4]">{example}</pre>
+          <div className="space-y-3 p-4">
+            {[['1. Crée le fichier','Dans VS Code : app → nouveau dossier produits → nouveau fichier page.tsx.'],['2. Colle le code','Enregistre avec Ctrl+S. Next.js recompile automatiquement.'],['3. Regarde le résultat','Ouvre http://localhost:3000/produits dans ton navigateur.'],['4. Expérimente','Change le texte, le prix, les couleurs et les classes grid. Une chose à la fois.'],['5. Vérifie','Quand le résultat te plaît, exécute npm run build.']].map(([title, desc]) => <div key={title}><p className="text-[11px] font-black text-gray-800">{title}</p><p className="mt-0.5 text-[10px] leading-relaxed text-gray-500">{desc}</p></div>)}
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <p className="text-[10px] font-black uppercase tracking-wider text-[#16b277]">Design system réel</p><h3 className="mt-0.5 text-lg font-black">Les couleurs de L&apos;ecomax et leur code</h3><p className="mt-1 text-xs text-gray-500">Clique une couleur pour copier son code HEX. Une couleur doit toujours avoir un rôle, pas seulement être jolie.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {palette.map(color => <button key={color.hex} onClick={() => copy(color.hex, color.hex)} className="overflow-hidden rounded-2xl border border-gray-100 bg-white text-left shadow-sm transition-transform hover:-translate-y-0.5"><div className={`flex h-20 items-end p-3 ${color.text}`} style={{ backgroundColor: color.hex }}><code className="rounded bg-black/15 px-2 py-1 text-[11px] font-black">{copied === color.hex ? '✓ Copié' : color.hex}</code></div><div className="p-3"><p className="text-xs font-black">{color.name}</p><p className="mt-1 text-[10px] leading-relaxed text-gray-500">{color.use}</p></div></button>)}
+        </div>
+        <div className="mt-3 rounded-xl bg-[#0d0d0d] p-4 font-mono text-[10px] leading-6 text-white/70"><span className="text-[#6a9955]">// HEX direct dans Tailwind</span><br />className=<span className="text-[#ce9178]">&quot;bg-[#3ecf4c] text-black hover:bg-[#16b277]&quot;</span><br /><span className="text-[#6a9955]">// Couleur du design system (tailwind.config.js)</span><br />className=<span className="text-[#ce9178]">&quot;bg-brand-500 text-white hover:bg-brand-600&quot;</span></div>
+      </section>
+
+      <section className="grid gap-3 sm:grid-cols-3">
+        {[['Tu es bloqué par une erreur ?','Ouvre la méthode de diagnostic : terminal, navigateur, réseau et base de données.','debug'],['Tu veux comprendre les données ?','Apprends tables, SQL, RLS, authentification et requêtes Supabase.','supabase'],['Tu veux explorer un vrai fichier ?','Cherche une page ou un composant et lis ses imports, son export et ses fonctions.','files']].map(([title, desc, target]) => <button key={target} onClick={() => onNavigate(target)} className="min-h-12 rounded-2xl border border-gray-100 bg-white p-4 text-start shadow-sm transition hover:border-[#3ecf4c]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16b277]"><p className="text-sm font-black sm:text-xs">{title}</p><p className="mt-1 text-[13px] leading-relaxed text-gray-500 sm:text-[11px]">{desc}</p><span className="mt-3 inline-block text-xs font-black text-[#16b277] sm:text-[10px]">Ouvrir →</span></button>)}
+      </section>
+    </div>
+  );
+}
+
 // ─── TABS ─────────────────────────────────────────────────────────────────────
-const TAB_IDS = ["hero","arch","files","tech","env","pages","search"] as const;
-const TAB_ICONS: Record<string, string> = { hero:"🚀", arch:"🏗️", files:"📁", tech:"⚙️", env:"🔐", pages:"📄", search:"🔍" };
+const TAB_IDS = ["start","academy","hero","cours","mentor","guide","debug","supabase","deploy","arch","files","tech","env","pages","search"] as const;
+type TabId = typeof TAB_IDS[number];
+
+const TAB_GROUPS: { id: "learn" | "build" | "reference"; tabs: TabId[] }[] = [
+  { id: "learn", tabs: ["start", "academy", "hero", "cours", "mentor", "guide", "debug"] },
+  { id: "build", tabs: ["supabase", "deploy", "arch"] },
+  { id: "reference", tabs: ["files", "tech", "env", "pages", "search"] },
+];
+
+function TabIcon({ id, className = "h-4 w-4" }: { id: TabId; className?: string }) {
+  const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  return (
+    <svg aria-hidden="true" className={className} viewBox="0 0 24 24" {...common}>
+      {id === "start" && <><path d="m12 3-1.2 4.1a5 5 0 0 1-3.4 3.4L3 12l4.4 1.5a5 5 0 0 1 3.4 3.4L12 21l1.2-4.1a5 5 0 0 1 3.4-3.4L21 12l-4.4-1.5a5 5 0 0 1-3.4-3.4L12 3Z"/><path d="m19 3 .3 1.2a2 2 0 0 0 1.5 1.5L22 6l-1.2.3a2 2 0 0 0-1.5 1.5L19 9l-.3-1.2a2 2 0 0 0-1.5-1.5L16 6l1.2-.3a2 2 0 0 0 1.5-1.5L19 3Z"/></>}
+      {id === "academy" && <><path d="m3 10 9-5 9 5-9 5-9-5Z"/><path d="M7 12.5V17c2.7 2 7.3 2 10 0v-4.5M21 10v6"/></>}
+      {id === "hero" && <><path d="M14.5 5.5c2.2-2.2 4.8-2.4 5.8-2.3.1 1-.1 3.6-2.3 5.8l-5.5 5.5-3-3 5-6Z"/><path d="m9.5 11.5-4.4.5-2 2 5 1M12.5 14.5l-.5 4.4-2 2-1-5M15.5 8.5h.01M5 19c1.4 0 2.5-1.1 2.5-2.5C6.1 16.5 5 17.6 5 19Z"/></>}
+      {id === "cours" && <><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/></>}
+      {id === "mentor" && <><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0M18.5 4.5 21 7l-2.5 2.5"/></>}
+      {id === "guide" && <><path d="M6 3h9l3 3v15H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v4h4M8 12h6M8 16h6"/></>}
+      {id === "debug" && <><path d="M8 9h8v7a4 4 0 0 1-8 0V9ZM9 5.5a3 3 0 0 1 6 0V9M4 13h4M16 13h4M5 8l3 2M19 8l-3 2M5 19l3-2M19 19l-3-2"/></>}
+      {id === "supabase" && <><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></>}
+      {id === "deploy" && <><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></>}
+      {id === "arch" && <><rect x="3" y="4" width="7" height="5" rx="1"/><rect x="14" y="4" width="7" height="5" rx="1"/><rect x="8.5" y="15" width="7" height="5" rx="1"/><path d="M6.5 9v3h11V9M12 12v3"/></>}
+      {id === "files" && <path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z"/>}
+      {id === "tech" && <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></>}
+      {id === "env" && <><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></>}
+      {id === "pages" && <><path d="M6 3h9l3 3v15H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v4h4"/></>}
+      {id === "search" && <><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></>}
+    </svg>
+  );
+}
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function HowItWasBuiltPage() {
-  const [tab, setTab] = useState("hero");
+  const [tab, setTab] = useState<TabId>("start");
   const [lang, setLang] = useState<Lang>("fr");
   const u = UI[lang];
-  const touchStartX = useRef<number | null>(null);
+  const tabListRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
 
   const LANG_FLAGS: Record<Lang, string> = { fr: "🇫🇷", en: "🇬🇧", ar: "🇸🇦" };
 
-  function handleTabSwipe(e: React.TouchEvent) {
-    if (touchStartX.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) < 50) return;
-    const idx = TAB_IDS.indexOf(tab as typeof TAB_IDS[number]);
-    if (dx < 0 && idx < TAB_IDS.length - 1) setTab(TAB_IDS[idx + 1]);
-    if (dx > 0 && idx > 0) setTab(TAB_IDS[idx - 1]);
-    touchStartX.current = null;
+  useEffect(() => {
+    const openDeepLinkedCourse = () => {
+      if (window.location.hash.startsWith("#academy/")) setTab("academy");
+    };
+    openDeepLinkedCourse();
+    window.addEventListener("hashchange", openDeepLinkedCourse);
+    return () => window.removeEventListener("hashchange", openDeepLinkedCourse);
+  }, []);
+
+  useEffect(() => {
+    const activeTab = document.getElementById("course-tab-" + tab);
+    if (activeTab && tabListRef.current) activeTab.scrollIntoView({ block: "nearest", inline: "center" });
+  }, [tab]);
+
+  function selectTab(id: TabId) {
+    setTab(id);
+    if (id !== "academy" && window.location.hash.startsWith("#academy/")) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+    window.requestAnimationFrame(() => {
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      panelRef.current?.scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" });
+    });
   }
 
+  function handleTabKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, id: TabId) {
+    const index = TAB_IDS.indexOf(id);
+    let nextIndex = index;
+    const visualDirection = lang === "ar" ? -1 : 1;
+    if (event.key === "ArrowRight") nextIndex = (index + visualDirection + TAB_IDS.length) % TAB_IDS.length;
+    else if (event.key === "ArrowLeft") nextIndex = (index - visualDirection + TAB_IDS.length) % TAB_IDS.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = TAB_IDS.length - 1;
+    else return;
+    event.preventDefault();
+    const next = TAB_IDS[nextIndex];
+    selectTab(next);
+    document.getElementById("course-tab-" + next)?.focus();
+  }
+
+  const activeTabIndex = TAB_IDS.indexOf(tab);
+  const shortTitle = lang === "en" ? "How it was built" : lang === "ar" ? "كيف بُني الموقع" : "Comment c'est construit";
+  const groupLabels = lang === "en"
+    ? { learn: "Learn", build: "Build L'ecomax", reference: "Explore the project" }
+    : lang === "ar"
+      ? { learn: "التعلّم", build: "بناء L'ecomax", reference: "استكشاف المشروع" }
+      : { learn: "Apprendre", build: "Construire L'ecomax", reference: "Explorer le projet" };
+  const previousLabel = lang === "en" ? "Previous section" : lang === "ar" ? "القسم السابق" : "Section précédente";
+  const nextLabel = lang === "en" ? "Next section" : lang === "ar" ? "القسم التالي" : "Section suivante";
+
   return (
-    <div className="min-h-screen bg-[#f4f4f2]">
+    <div lang={lang} dir={lang === "ar" ? "rtl" : "ltr"} className="-m-4 mb-0 min-h-full bg-[#f4f4f2] sm:m-0">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4">
+      <div id="course-page-header" className="sticky -top-4 z-40 border-b border-gray-200/80 bg-white/95 shadow-[0_8px_30px_rgba(15,23,42,0.04)] backdrop-blur-xl md:-top-6 lg:-top-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2.5 sm:px-6 sm:py-4">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#0d0d0d] flex items-center justify-center shrink-0">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0d0d0d] shadow-sm sm:h-9 sm:w-9">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </div>
             <div className="min-w-0">
-              <h1 className="text-[13px] sm:text-[15px] font-black text-gray-900 truncate">{u.title}</h1>
+              <h1 className="truncate text-sm font-black text-gray-950 sm:text-[15px]"><span className="sm:hidden">{shortTitle}</span><span className="hidden sm:inline">{u.title}</span></h1>
               <p className="text-[10px] sm:text-[11px] text-gray-400 hidden sm:block truncate">{u.subtitle}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {/* Language switcher */}
-            <div className="flex gap-0.5 p-0.5 bg-gray-100 rounded-xl">
+            <div className="flex gap-0.5 rounded-xl bg-gray-100 p-0.5" role="group" aria-label={lang === "ar" ? "اللغة" : lang === "en" ? "Language" : "Langue"}>
               {(["fr","en","ar"] as Lang[]).map(l => (
-                <button key={l} onClick={() => setLang(l)}
-                  className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-bold transition-colors ${lang === l ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
-                  <span>{LANG_FLAGS[l]}</span>
-                  <span className="hidden sm:inline uppercase">{l}</span>
+                <button key={l} aria-label={l === "fr" ? "Français" : l === "en" ? "English" : "العربية"} aria-pressed={lang === l} onClick={() => setLang(l)}
+                  className={`flex min-h-10 min-w-10 items-center justify-center gap-1 rounded-lg px-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16b277] sm:min-h-9 sm:min-w-0 ${lang === l ? "bg-white text-gray-950 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+                  <span className="hidden sm:inline" aria-hidden="true">{LANG_FLAGS[l]}</span>
+                  <span className={l === "ar" ? "" : "uppercase"}>{l === "ar" ? "ع" : l}</span>
                 </button>
               ))}
             </div>
@@ -5013,17 +5447,51 @@ export default function HowItWasBuiltPage() {
             ))}
           </div>
         </div>
-        {/* Tabs — scrollable, no swipe hint */}
-        <div className="max-w-7xl mx-auto px-1 sm:px-6 overflow-x-auto scrollbar-none overscroll-x-contain">
-          <div className="flex gap-0 sm:gap-0.5 min-w-max pb-px">
+        {/* Mobile course navigator */}
+        <div id="mobile-course-navigator" className="border-t border-gray-100 px-4 pb-3 pt-2 md:hidden">
+          <div className="mx-auto max-w-xl">
+            <div className="mb-1.5 flex items-center justify-between gap-3 text-[11px] font-bold text-gray-500">
+              <span>{lang === "en" ? "Current section" : lang === "ar" ? "القسم الحالي" : "Section actuelle"}</span>
+              <span dir="ltr" className="tabular-nums text-gray-400">{activeTabIndex + 1} / {TAB_IDS.length}</span>
+            </div>
+            <div className="flex items-stretch gap-2">
+              <button type="button" aria-label={previousLabel} title={previousLabel} disabled={activeTabIndex === 0} onClick={() => selectTab(TAB_IDS[activeTabIndex - 1])}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16b277] disabled:cursor-not-allowed disabled:opacity-30">
+                <svg aria-hidden="true" className={lang === "ar" ? "rotate-180" : ""} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <label className="relative min-w-0 flex-1">
+                <span className="sr-only">{lang === "en" ? "Choose a section" : lang === "ar" ? "اختر قسمًا" : "Choisir une section"}</span>
+                <span className="pointer-events-none absolute inset-y-0 start-3 flex items-center text-[#16b277]"><TabIcon id={tab} className="h-[18px] w-[18px]" /></span>
+                <select id="course-section-select" value={tab} onChange={event => selectTab(event.target.value as TabId)}
+                  className="h-12 w-full appearance-none truncate rounded-xl border border-gray-200 bg-white ps-10 pe-9 text-base font-extrabold text-gray-950 shadow-sm outline-none transition focus:border-[#16b277] focus:ring-2 focus:ring-[#16b277]/20">
+                  {TAB_GROUPS.map(group => (
+                    <optgroup key={group.id} label={groupLabels[group.id]}>
+                      {group.tabs.map(id => <option key={id} value={id}>{u.tabs[id]}</option>)}
+                    </optgroup>
+                  ))}
+                </select>
+                <svg aria-hidden="true" className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="m6 9 6 6 6-6"/></svg>
+              </label>
+              <button type="button" aria-label={nextLabel} title={nextLabel} disabled={activeTabIndex === TAB_IDS.length - 1} onClick={() => selectTab(TAB_IDS[activeTabIndex + 1])}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-[#0d0d0d] text-white shadow-sm transition hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16b277] disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400">
+                <svg aria-hidden="true" className={lang === "ar" ? "rotate-180" : ""} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+            <div className="mt-2 h-1 overflow-hidden rounded-full bg-gray-100" aria-hidden="true"><div className="h-full rounded-full bg-[#3ecf4c] transition-[width] duration-300" style={{ width: `${((activeTabIndex + 1) / TAB_IDS.length) * 100}%` }} /></div>
+          </div>
+        </div>
+
+        {/* Desktop/tablet tabs */}
+        <div id="course-desktop-tabs" ref={tabListRef} className="mx-auto hidden max-w-7xl overflow-x-auto px-1 no-scrollbar overscroll-x-contain md:block md:px-6">
+          <div role="tablist" aria-label={u.title} className="flex min-w-max gap-0.5 pb-px">
             {TAB_IDS.map(id => (
-              <button key={id} onClick={() => setTab(id)} active-tab={tab === id ? "true" : undefined}
-                className={`relative flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-2.5 text-[11px] sm:text-[12px] font-semibold whitespace-nowrap transition-colors active:scale-95 ${
+              <button key={id} id={"course-tab-" + id} role="tab" aria-selected={tab === id} aria-controls="course-tab-panel" tabIndex={tab === id ? 0 : -1} onKeyDown={event => handleTabKeyDown(event, id)} onClick={() => selectTab(id)}
+                className={`relative flex min-h-11 items-center gap-1.5 whitespace-nowrap px-4 text-[12px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#16b277] ${
                   tab === id
                     ? "text-gray-900"
                     : "text-gray-400 hover:text-gray-700 hover:bg-gray-50"
                 }`}>
-                <span>{TAB_ICONS[id]}</span>
+                <TabIcon id={id} />
                 <span>{u.tabs[id]}</span>
                 {tab === id && (
                   <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-[#3ecf4c] rounded-t-full" />
@@ -5036,9 +5504,16 @@ export default function HowItWasBuiltPage() {
 
       {/* Content */}
       <div
-        className="max-w-7xl mx-auto px-2 sm:px-6 py-4 sm:py-6"
+        ref={panelRef}
+        id="course-tab-panel"
+        role="tabpanel"
+        aria-labelledby={"course-tab-" + tab}
+        tabIndex={-1}
+        className="mx-auto min-w-0 max-w-7xl scroll-mt-36 px-3 py-4 outline-none sm:px-6 sm:py-6 md:scroll-mt-28"
       >
         {tab === "hero"   && <HeroSection lang={lang} />}
+        {tab === "start"  && <StartHereSection onNavigate={id => selectTab(id as TabId)} />}
+        {tab === "academy" && <AcademySection lang={lang} />}
         {tab === "arch"   && <ArchSection lang={lang} />}
         {tab === "files"  && <ExplorerSection />}
         {tab === "tech"   && <TechSec lang={lang} />}
@@ -5054,7 +5529,7 @@ export default function HowItWasBuiltPage() {
       </div>
 
       {/* Footer */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 pb-8">
+      <div className="mx-auto max-w-7xl px-3 pb-8 sm:px-6">
         <div className="bg-[#0d0d0d] rounded-2xl p-4 sm:p-5 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
             <p className="font-bold text-sm">
@@ -5068,7 +5543,18 @@ export default function HowItWasBuiltPage() {
                : "Explorateur lit directement le disque · Aucune donnée fictive · Admin-only"}
             </p>
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <details className="w-full border-t border-white/10 pt-2 sm:hidden">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-xs font-bold text-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]">
+              <span>{lang === "en" ? "Project technologies" : lang === "ar" ? "تقنيات المشروع" : "Technologies du projet"}</span>
+              <span aria-hidden="true" className="text-white/35">＋</span>
+            </summary>
+            <div className="flex flex-wrap gap-1.5 pt-2">
+              {["Next.js 15","React 19","TypeScript 5.7","Supabase","Vercel","Resend","OpenAI","web-push"].map(t => (
+                <span key={t} className="inline-flex items-center rounded-md border border-white/20 bg-white/5 px-2 py-1 text-[11px] font-semibold text-white/60">{t}</span>
+              ))}
+            </div>
+          </details>
+          <div className="hidden flex-wrap gap-1.5 sm:flex">
             {["Next.js 15","React 19","TypeScript 5.7","Supabase","Vercel","Resend","OpenAI","web-push"].map(t => (
               <span key={t} className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border border-white/20 text-white/60 bg-white/5">{t}</span>
             ))}
@@ -5273,7 +5759,9 @@ function GuideSection() {
         <div key={i} className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
           <button
             onClick={() => setOpen(open === i ? null : i)}
-            className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-neutral-50 transition-colors"
+            aria-expanded={open === i}
+            aria-controls={`guide-answer-${i}`}
+            className="flex min-h-14 w-full items-center justify-between gap-3 px-4 py-4 text-start transition-colors hover:bg-neutral-50 sm:px-5"
           >
             <div className="flex items-center gap-3">
               <span className="text-xl">{item.icon}</span>
@@ -5282,12 +5770,12 @@ function GuideSection() {
             <svg className={`w-4 h-4 text-neutral-400 transition-transform ${open === i ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
           </button>
           {open === i && (
-            <div className="px-5 pb-5 border-t border-neutral-100">
-              <p className="text-[13px] text-neutral-600 mt-4 mb-4 leading-relaxed">{item.why}</p>
-              <pre className="bg-[#1e1e1e] text-[#d4d4d4] text-[11px] leading-relaxed p-4 rounded-xl overflow-x-auto font-mono whitespace-pre-wrap"><code>{item.code}</code></pre>
+            <div id={`guide-answer-${i}`} className="border-t border-neutral-100 px-4 pb-4 sm:px-5 sm:pb-5">
+              <p className="mb-4 mt-4 text-sm leading-relaxed text-neutral-600">{item.why}</p>
+              <pre dir="ltr" className="overflow-x-auto whitespace-pre-wrap rounded-xl bg-[#1e1e1e] p-4 font-mono text-[12px] leading-[1.7] text-[#d4d4d4] sm:text-[11px]"><code>{item.code}</code></pre>
               <div className="mt-3 flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
                 <span className="text-base shrink-0">💡</span>
-                <p className="text-[12px] text-amber-800 leading-relaxed">{item.tip}</p>
+                <p className="text-[13px] leading-relaxed text-amber-800 sm:text-[12px]">{item.tip}</p>
               </div>
             </div>
           )}
@@ -5491,7 +5979,9 @@ function DebugSection() {
         <div key={i} className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
           <button
             onClick={() => setOpen(open === i ? null : i)}
-            className="w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-neutral-50 transition-colors"
+            aria-expanded={open === i}
+            aria-controls={`debug-answer-${i}`}
+            className="flex min-h-14 w-full items-center gap-3 px-4 py-3.5 text-start transition-colors hover:bg-neutral-50 sm:px-5"
           >
             <span className="text-lg">{issue.icon}</span>
             <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${colors[issue.color]}`}>{issue.tag}</span>
@@ -5500,19 +5990,19 @@ function DebugSection() {
             <svg className={`w-4 h-4 text-neutral-400 shrink-0 transition-transform ${open === i ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
           </button>
           {open === i && (
-            <div className="px-5 pb-5 border-t border-neutral-100">
+            <div id={`debug-answer-${i}`} className="border-t border-neutral-100 px-4 pb-4 sm:px-5 sm:pb-5">
               <div className="grid sm:grid-cols-2 gap-3 mt-4 mb-4">
                 <div className="bg-red-50 border border-red-100 rounded-xl p-3">
                   <p className="text-[10px] font-black text-red-600 uppercase tracking-wider mb-1">Symptôme</p>
-                  <p className="text-[12px] text-red-700">{issue.symptom}</p>
+                  <p className="text-[13px] leading-relaxed text-red-700 sm:text-[12px]">{issue.symptom}</p>
                 </div>
                 <div className="bg-orange-50 border border-orange-100 rounded-xl p-3">
                   <p className="text-[10px] font-black text-orange-600 uppercase tracking-wider mb-1">Cause</p>
-                  <p className="text-[12px] text-orange-700">{issue.cause}</p>
+                  <p className="text-[13px] leading-relaxed text-orange-700 sm:text-[12px]">{issue.cause}</p>
                 </div>
               </div>
               <p className="text-[11px] font-black text-neutral-500 uppercase tracking-wider mb-2">Solution</p>
-              <pre className="bg-[#1e1e1e] text-[#d4d4d4] text-[11px] leading-relaxed p-4 rounded-xl overflow-x-auto font-mono whitespace-pre-wrap"><code>{issue.fix}</code></pre>
+              <pre dir="ltr" className="overflow-x-auto whitespace-pre-wrap rounded-xl bg-[#1e1e1e] p-4 font-mono text-[12px] leading-[1.7] text-[#d4d4d4] sm:text-[11px]"><code>{issue.fix}</code></pre>
             </div>
           )}
         </div>
@@ -5688,20 +6178,27 @@ function SupabaseSection() {
         <h2 className="text-xl font-black text-gray-900">🗄️ Guide Supabase complet</h2>
         <p className="text-sm text-gray-500 mt-1">De la création du projet jusqu'aux triggers avancés.</p>
       </div>
+      <label className="mb-3 block space-y-1.5 sm:hidden">
+        <span className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Étape Supabase</span>
+        <select value={step} onChange={event => setStep(Number(event.target.value))}
+          className="min-h-12 w-full rounded-xl border border-gray-200 bg-white px-3 text-base font-bold text-gray-900 outline-none focus:border-[#16b277] focus:ring-2 focus:ring-[#16b277]/20">
+          {steps.map((s, i) => <option key={i} value={i}>{s.title}</option>)}
+        </select>
+      </label>
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="sm:w-44 shrink-0 flex flex-row sm:flex-col gap-1 overflow-x-auto pb-2 sm:pb-0">
+        <div className="hidden shrink-0 gap-1 overflow-x-auto pb-2 sm:flex sm:w-44 sm:flex-col sm:pb-0">
           {steps.map((s, i) => (
             <button key={i} onClick={() => setStep(i)}
-              className={`shrink-0 text-left px-3 py-2 rounded-xl text-[11px] font-semibold transition-colors ${step === i ? "bg-[#3ecf4c] text-black" : "bg-white border border-neutral-100 text-neutral-500 hover:border-neutral-300"}`}>
+              className={`min-h-11 shrink-0 rounded-xl px-3 text-start text-[11px] font-semibold transition-colors ${step === i ? "bg-[#3ecf4c] text-black" : "bg-white border border-neutral-100 text-neutral-500 hover:border-neutral-300"}`}>
               {s.title}
             </button>
           ))}
         </div>
-        <div className="flex-1 bg-white border border-neutral-100 rounded-2xl overflow-hidden">
-          <div className="px-5 py-4 border-b border-neutral-100">
+        <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-neutral-100 bg-white">
+          <div className="border-b border-neutral-100 px-4 py-4 sm:px-5">
             <h3 className="font-black text-[15px]">{steps[step].title}</h3>
           </div>
-          <pre className="bg-[#1e1e1e] text-[#d4d4d4] text-[11px] leading-relaxed p-5 m-4 rounded-xl overflow-x-auto font-mono whitespace-pre-wrap"><code>{steps[step].content}</code></pre>
+          <pre dir="ltr" className="m-3 overflow-x-auto whitespace-pre-wrap rounded-xl bg-[#1e1e1e] p-4 font-mono text-[12px] leading-[1.7] text-[#d4d4d4] sm:m-4 sm:p-5 sm:text-[11px]"><code>{steps[step].content}</code></pre>
         </div>
       </div>
     </div>
@@ -5890,15 +6387,17 @@ function DeploySection() {
         <div key={i} className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
           <button
             onClick={() => setOpen(open === i ? null : i)}
-            className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-neutral-50 transition-colors"
+            aria-expanded={open === i}
+            aria-controls={`deploy-answer-${i}`}
+            className="flex min-h-14 w-full items-center gap-3 px-4 py-4 text-start transition-colors hover:bg-neutral-50 sm:px-5"
           >
             <span className="text-xl">{s.icon}</span>
             <span className="font-black text-[14px] text-gray-900 flex-1">{s.title}</span>
             <svg className={`w-4 h-4 text-neutral-400 transition-transform ${open === i ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
           </button>
           {open === i && (
-            <div className="px-5 pb-5 border-t border-neutral-100">
-              <pre className="bg-[#1e1e1e] text-[#d4d4d4] text-[11px] leading-relaxed p-4 mt-4 rounded-xl overflow-x-auto font-mono whitespace-pre-wrap"><code>{s.content}</code></pre>
+            <div id={`deploy-answer-${i}`} className="border-t border-neutral-100 px-4 pb-4 sm:px-5 sm:pb-5">
+              <pre dir="ltr" className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-xl bg-[#1e1e1e] p-4 font-mono text-[12px] leading-[1.7] text-[#d4d4d4] sm:text-[11px]"><code>{s.content}</code></pre>
             </div>
           )}
         </div>
@@ -7173,11 +7672,28 @@ function CoursSection() {
         <p className="text-sm text-gray-500 mt-1">Maîtriser Next.js, GitHub, Supabase, Resend et Tailwind — du débutant au pro.</p>
       </div>
 
+      <div className="mb-4 grid gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm lg:hidden">
+        <label className="space-y-1.5">
+          <span className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Module</span>
+          <select value={module} onChange={event => { setModule(Number(event.target.value)); setLesson(0); }}
+            className="min-h-12 w-full rounded-xl border border-gray-200 bg-white px-3 text-base font-bold text-gray-900 outline-none focus:border-[#16b277] focus:ring-2 focus:ring-[#16b277]/20">
+            {modules.map((m, i) => <option key={m.id} value={i}>{i + 1}. {m.title}</option>)}
+          </select>
+        </label>
+        <label className="space-y-1.5">
+          <span className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Leçon</span>
+          <select value={lesson ?? 0} onChange={event => setLesson(Number(event.target.value))}
+            className="min-h-12 w-full rounded-xl border border-gray-200 bg-white px-3 text-base font-semibold text-gray-900 outline-none focus:border-[#16b277] focus:ring-2 focus:ring-[#16b277]/20">
+            {mod.lessons.map((l, i) => <option key={i} value={i}>{i + 1}. {l.title}</option>)}
+          </select>
+        </label>
+      </div>
+
       {/* Module tabs */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="mb-6 hidden flex-wrap gap-2 lg:flex">
         {modules.map((m, i) => (
           <button key={m.id} onClick={() => { setModule(i); setLesson(0); }}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[12px] font-bold transition-all ${module === i ? "text-black shadow-md" : "bg-white border border-neutral-100 text-neutral-500 hover:border-neutral-300"}`}
+            className={`flex min-h-11 items-center gap-2 rounded-2xl px-4 text-[12px] font-bold transition-all ${module === i ? "text-black shadow-md" : "bg-white border border-neutral-100 text-neutral-500 hover:border-neutral-300"}`}
             style={module === i ? { backgroundColor: m.color, color: m.id === "supabase" ? "#000" : "#fff" } : {}}>
             <span>{m.icon}</span>
             <span>{m.title.split(" — ")[0]}</span>
@@ -7187,7 +7703,7 @@ function CoursSection() {
 
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Lessons list */}
-        <div className="lg:w-56 shrink-0 space-y-1">
+        <div className="hidden shrink-0 space-y-1 lg:block lg:w-56">
           <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 px-1 mb-2">{mod.title}</p>
           <p className="text-[11px] text-neutral-400 px-1 mb-3 leading-relaxed">{mod.desc}</p>
           {mod.lessons.map((l, i) => (
@@ -7200,16 +7716,16 @@ function CoursSection() {
         </div>
 
         {/* Lesson content */}
-        <div className="flex-1 bg-white border border-neutral-100 rounded-2xl overflow-hidden">
+        <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-neutral-100 bg-white">
           {les ? (
             <>
-              <div className="px-5 py-4 border-b border-neutral-100 flex items-center justify-between">
+              <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-4 sm:px-5">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-wider mb-0.5" style={{ color: mod.color }}>{mod.title}</p>
                   <h3 className="font-black text-[15px]">{les.title}</h3>
                 </div>
               </div>
-              <pre className="bg-[#1e1e1e] text-[#d4d4d4] text-[11px] leading-relaxed p-5 m-4 rounded-xl overflow-x-auto font-mono whitespace-pre-wrap"><code>{les.content}</code></pre>
+              <pre dir="ltr" className="m-3 overflow-x-auto whitespace-pre-wrap rounded-xl bg-[#1e1e1e] p-4 font-mono text-[12px] leading-[1.7] text-[#d4d4d4] sm:m-4 sm:p-5 sm:text-[11px]"><code>{les.content}</code></pre>
             </>
           ) : (
             <div className="flex items-center justify-center h-64 text-neutral-300">
@@ -8156,9 +8672,26 @@ function MentorSection() {
         </div>
       </div>
 
+      <div className="mb-4 grid gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm lg:hidden">
+        <label className="space-y-1.5">
+          <span className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Chapitre</span>
+          <select value={chap} onChange={event => { setChap(Number(event.target.value)); setLessonIdx(0); setQuizAnswer(null); setShowAnswer(false); }}
+            className="min-h-12 w-full rounded-xl border border-gray-200 bg-white px-3 text-base font-bold text-gray-900 outline-none focus:border-[#16b277] focus:ring-2 focus:ring-[#16b277]/20">
+            {curriculum.map((c, i) => <option key={c.id} value={i}>{i + 1}. {c.title}</option>)}
+          </select>
+        </label>
+        <label className="space-y-1.5">
+          <span className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Leçon</span>
+          <select value={lessonIdx} onChange={event => { setLessonIdx(Number(event.target.value)); setQuizAnswer(null); setShowAnswer(false); }}
+            className="min-h-12 w-full rounded-xl border border-gray-200 bg-white px-3 text-base font-semibold text-gray-900 outline-none focus:border-[#16b277] focus:ring-2 focus:ring-[#16b277]/20">
+            {ch.lessons.map((l, i) => <option key={i} value={i}>{i + 1}. {l.title}</option>)}
+          </select>
+        </label>
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Curriculum sidebar */}
-        <div className="lg:w-52 shrink-0 space-y-1">
+        <div className="hidden shrink-0 space-y-1 lg:block lg:w-52">
           {curriculum.map((c, i) => (
             <button key={c.id} onClick={() => { setChap(i); setLessonIdx(0); setQuizAnswer(null); setShowAnswer(false); }}
               className={`w-full text-left px-3 py-2.5 rounded-xl transition-all ${chap === i ? "text-white shadow-md" : "bg-white border border-neutral-100 text-neutral-500 hover:border-neutral-300"}`}
@@ -8177,7 +8710,7 @@ function MentorSection() {
         {/* Main content */}
         <div className="flex-1 min-w-0">
           {/* Lesson tabs */}
-          <div className="flex gap-1 flex-wrap mb-4">
+          <div className="mb-4 hidden flex-wrap gap-1 lg:flex">
             {ch.lessons.map((l, i) => (
               <button key={i} onClick={() => { setLessonIdx(i); setQuizAnswer(null); setShowAnswer(false); }}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${lessonIdx === i ? "text-white" : "bg-white border border-neutral-100 text-neutral-500 hover:border-neutral-300"}`}
@@ -8190,20 +8723,20 @@ function MentorSection() {
           {lesson && (
             <div className="space-y-4">
               {/* Header */}
-              <div className="bg-white border border-neutral-100 rounded-2xl p-5">
+              <div className="rounded-2xl border border-neutral-100 bg-white p-4 sm:p-5">
                 <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: ch.color }}>{ch.icon} {ch.title}</p>
                 <h3 className="text-[17px] font-black mb-3">{lesson.title}</h3>
 
                 {/* WHY */}
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-3">
                   <p className="text-[10px] font-black text-blue-600 uppercase tracking-wider mb-1.5">🤔 POURQUOI ça existe ?</p>
-                  <p className="text-[13px] text-blue-900 leading-relaxed">{lesson.why}</p>
+                  <p className="text-sm leading-relaxed text-blue-900">{lesson.why}</p>
                 </div>
 
                 {/* Analogy */}
                 <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
                   <p className="text-[10px] font-black text-amber-600 uppercase tracking-wider mb-1.5">🌍 Analogie avec la vraie vie</p>
-                  <pre className="text-[12px] text-amber-900 leading-relaxed font-sans whitespace-pre-wrap">{lesson.analogy}</pre>
+                  <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-amber-900">{lesson.analogy}</pre>
                 </div>
               </div>
 

@@ -24,11 +24,13 @@ export default function OrdersPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const detailId = searchParams.get("id");
+  const requestedStatus = searchParams.get("status");
+  const initialStatus = STATUS_OPTIONS.some((option) => option.value === requestedStatus) ? requestedStatus! : "all";
 
   const [orders, setOrders]       = useState<Order[]>([]);
   const [loading, setLoading]     = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterStatus, setFilterStatus] = useState(initialStatus);
   const [search, setSearch]       = useState("");
   const [trackingInput, setTrackingInput]   = useState("");
   const [trackingSaving, setTrackingSaving] = useState(false);
@@ -64,6 +66,11 @@ export default function OrdersPage() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    const nextStatus = STATUS_OPTIONS.some((option) => option.value === requestedStatus) ? requestedStatus! : "all";
+    setFilterStatus(nextStatus);
+  }, [requestedStatus]);
 
   const detail = detailId ? orders.find((o) => o.id === detailId) ?? null : null;
 

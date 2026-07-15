@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifySessionToken } from "@/lib/admin-session";
 import { generateSlug } from "@/lib/ecomedia";
+import { notifyPublishedEcomediaPost } from "@/lib/push-notifications";
 
 const sb = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -59,5 +60,10 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await sb.from("ecomedia_posts").insert(payload).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data, { status: 201 });
+  let notification = null;
+  if (data.is_published) {
+    try { notification = await notifyPublishedEcomediaPost(data); }
+    catch (error) { console.error("Ecomedia push notification failed:", error); }
+  }
+  return NextResponse.json({ ...data, notification }, { status: 201 });
 }

@@ -1,0 +1,992 @@
+{
+  "id": "module-05-responsive-tailwind",
+  "order": 5,
+  "icon": "📱",
+  "color": "#06B6D4",
+  "title": "Responsive design, UI/UX et Tailwind",
+  "summary": "Concevoir mobile-first, choisir des breakpoints fondés sur le contenu, créer une hiérarchie claire et traduire le système en utilitaires Tailwind accessibles.",
+  "files": [
+    {
+      "path": "tailwind.config.js",
+      "mode": "existing"
+    },
+    {
+      "path": "components/ProductCard.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "academy-labs/05-responsive/card.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/05-responsive/mobile-first.css",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/05-responsive/product-card.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/05-responsive/tailwind-card.tsx",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "lesson-05-01-mobile-first",
+      "order": 0,
+      "title": "Mobile-first et breakpoints fondés sur le contenu",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Mobile-first et breakpoints fondés sur le contenu",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Mobile-first définit la disposition de base pour l’espace le plus contraint, puis ajoute des capacités lorsque le contenu dispose réellement de place. Un breakpoint répond au moment où la composition se dégrade, pas au nom d’un appareil. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "On prépare d’abord une valise cabine essentielle, puis on ajoute des objets seulement lorsqu’un bagage plus grand est disponible."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Mobile-first définit la disposition de base pour l’espace le plus contraint, puis ajoute des capacités lorsque le contenu dispose réellement de place. Un breakpoint répond au moment où la composition se dégrade, pas au nom d’un appareil. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Les règles sans media query s’appliquent partout; min-width enrichit progressivement. Les unités rem respectent le zoom et une vérification continue entre 320px et grand écran révèle les zones de rupture. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Commencez avec une colonne, agrandissez lentement la fenêtre et ajoutez la seconde colonne seulement lorsque filtre et contenu tiennent sans compression. Testez aussi texte long, zoom et orientation paysage. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "breakpoint",
+                  "definition": "Seuil où une nouvelle règle devient pertinente."
+                },
+                {
+                  "term": "mobile-first",
+                  "definition": "Base étroite enrichie avec min-width."
+                },
+                {
+                  "term": "viewport",
+                  "definition": "Zone d’affichage CSS disponible."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Testez une plage continue et ajoutez le moins de breakpoints possible, chacun justifié par un problème visuel précis."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "css",
+                "filename": "academy-labs/05-responsive/mobile-first.css",
+                "source": ".catalog { display: grid; grid-template-columns: 1fr; gap: 1rem; }\n.filters { position: static; }\n\n@media (min-width: 48rem) {\n  .catalog { grid-template-columns: 16rem minmax(0, 1fr); }\n  .filters { position: sticky; inset-block-start: 1rem; }\n}",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Entrées et préparation de « Mobile-first et breakpoints fondés sur le contenu »."
+                  },
+                  {
+                    "lines": "4-5",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "6-7",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/05-responsive/mobile-first.css et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Preuve de réussite: la page reste sans débordement à 320px et adopte deux colonnes uniquement quand chacune conserve une largeur utilisable."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Le catalogue L’ecomax garde produits et achat prioritaires sur mobile; les filtres deviennent une colonne persistante seulement dès 48rem."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npm run build"
+      ],
+      "expectedResult": "Preuve de réussite: la page reste sans débordement à 320px et adopte deux colonnes uniquement quand chacune conserve une largeur utilisable.",
+      "commonErrors": [
+        {
+          "symptom": "La tablette reçoit une version trop serrée.",
+          "cause": "Le breakpoint copie une largeur de téléphone marketing.",
+          "fix": "Déplacez le seuil à l’endroit exact où le contenu dispose de l’espace requis."
+        },
+        {
+          "symptom": "La version mobile hérite de nombreuses annulations.",
+          "cause": "Les styles desktop ont été écrits comme base.",
+          "fix": "Remettez la colonne simple en base et placez les enrichissements dans min-width."
+        }
+      ],
+      "exercise": {
+        "task": "Transformer un catalogue une colonne en composition filtre + grille à partir de son point de rupture réel.",
+        "steps": [
+          "Ouvrez academy-labs/05-responsive/mobile-first.css et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Commencez avec une colonne, agrandissez lentement la fenêtre et ajoutez la seconde colonne seulement lorsque filtre et contenu tiennent sans compression. Testez aussi texte long, zoom et orientation paysage.",
+          "code": ".catalog { display: grid; grid-template-columns: 1fr; gap: 1rem; }\n.filters { position: static; }\n\n@media (min-width: 48rem) {\n  .catalog { grid-template-columns: 16rem minmax(0, 1fr); }\n  .filters { position: sticky; inset-block-start: 1rem; }\n}",
+          "filename": "academy-labs/05-responsive/mobile-first.css",
+          "language": "css"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-05-01-mobile-first-q1",
+          "question": "Que doit représenter un breakpoint ?",
+          "options": [
+            "Un appareil précis",
+            "Une rupture du contenu",
+            "Une version de Node",
+            "Un statut HTTP"
+          ],
+          "correctIndex": 1,
+          "explanation": "Le contenu détermine quand une autre composition devient nécessaire.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Un appareil précis ». La réponse de référence est « Une rupture du contenu ». Le contenu détermine quand une autre composition devient nécessaire.",
+            "Cette option est correcte. Elle affirme « Une rupture du contenu ». Le contenu détermine quand une autre composition devient nécessaire.",
+            "Cette option est incorrecte. Elle affirme « Une version de Node ». La réponse de référence est « Une rupture du contenu ». Le contenu détermine quand une autre composition devient nécessaire.",
+            "Cette option est incorrecte. Elle affirme « Un statut HTTP ». La réponse de référence est « Une rupture du contenu ». Le contenu détermine quand une autre composition devient nécessaire."
+          ]
+        },
+        {
+          "id": "lesson-05-01-mobile-first-q2",
+          "question": "Quelle définition correspond au terme « breakpoint » ?",
+          "options": [
+            "Base étroite enrichie avec min-width.",
+            "Seuil où une nouvelle règle devient pertinente.",
+            "Zone d’affichage CSS disponible.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« breakpoint » signifie : Seuil où une nouvelle règle devient pertinente.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Base étroite enrichie avec min-width. ». La réponse de référence est « Seuil où une nouvelle règle devient pertinente. ». « breakpoint » signifie : Seuil où une nouvelle règle devient pertinente.",
+            "Cette option est correcte. Elle affirme « Seuil où une nouvelle règle devient pertinente. ». « breakpoint » signifie : Seuil où une nouvelle règle devient pertinente.",
+            "Cette option est incorrecte. Elle affirme « Zone d’affichage CSS disponible. ». La réponse de référence est « Seuil où une nouvelle règle devient pertinente. ». « breakpoint » signifie : Seuil où une nouvelle règle devient pertinente.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Seuil où une nouvelle règle devient pertinente. ». « breakpoint » signifie : Seuil où une nouvelle règle devient pertinente."
+          ]
+        },
+        {
+          "id": "lesson-05-01-mobile-first-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « La tablette reçoit une version trop serrée. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Remettez la colonne simple en base et placez les enrichissements dans min-width.",
+            "Déplacez le seuil à l’endroit exact où le contenu dispose de l’espace requis.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Le breakpoint copie une largeur de téléphone marketing. Le correctif adapté est : Déplacez le seuil à l’endroit exact où le contenu dispose de l’espace requis.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Déplacez le seuil à l’endroit exact où le contenu dispose de l’espace requis. ». Le diagnostic part de la cause suivante : Le breakpoint copie une largeur de téléphone marketing. Le correctif adapté est : Déplacez le seuil à l’endroit exact où le contenu dispose de l’espace requis.",
+            "Cette option est incorrecte. Elle affirme « Remettez la colonne simple en base et placez les enrichissements dans min-width. ». La réponse de référence est « Déplacez le seuil à l’endroit exact où le contenu dispose de l’espace requis. ». Le diagnostic part de la cause suivante : Le breakpoint copie une largeur de téléphone marketing. Le correctif adapté est : Déplacez le seuil à l’endroit exact où le contenu dispose de l’espace requis.",
+            "Cette option est correcte. Elle affirme « Déplacez le seuil à l’endroit exact où le contenu dispose de l’espace requis. ». Le diagnostic part de la cause suivante : Le breakpoint copie une largeur de téléphone marketing. Le correctif adapté est : Déplacez le seuil à l’endroit exact où le contenu dispose de l’espace requis.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Déplacez le seuil à l’endroit exact où le contenu dispose de l’espace requis. ». Le diagnostic part de la cause suivante : Le breakpoint copie une largeur de téléphone marketing. Le correctif adapté est : Déplacez le seuil à l’endroit exact où le contenu dispose de l’espace requis."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: la base sert le petit espace et chaque breakpoint ajoute une capacité justifiée par le contenu.",
+        "breakpoint: Seuil où une nouvelle règle devient pertinente.",
+        "mobile-first: Base étroite enrichie avec min-width.",
+        "viewport: Zone d’affichage CSS disponible."
+      ],
+      "next": "La prochaine leçon organise hiérarchie, rythme, affordances et retours utilisateur."
+    },
+    {
+      "id": "lesson-05-02-ui-ux",
+      "order": 1,
+      "title": "Hiérarchie visuelle, rythme et feedback",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Hiérarchie visuelle, rythme et feedback",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Une interface guide l’attention par importance, proximité, contraste et ordre. L’UX relie cette lecture à une action compréhensible, un retour immédiat et une récupération possible après erreur. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Une vitrine place le produit, le prix et l’action dans un ordre volontaire; si tout crie, rien ne guide."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Une interface guide l’attention par importance, proximité, contraste et ordre. L’UX relie cette lecture à une action compréhensible, un retour immédiat et une récupération possible après erreur. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Une échelle limitée de tailles et espacements crée un rythme prévisible. Les contrôles montrent hover, focus, pressed, loading, success et error sans déplacer brutalement le contenu. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Donnez une action primaire par zone, gardez une cible tactile d’environ 44px et testez le parcours en demandant à quelqu’un de verbaliser ce qu’il ferait ensuite. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "hierarchy",
+                  "definition": "Ordre perceptif de l’importance."
+                },
+                {
+                  "term": "affordance",
+                  "definition": "Indice indiquant comment agir sur un élément."
+                },
+                {
+                  "term": "feedback",
+                  "definition": "Réponse perceptible à une action utilisateur."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Priorisez objectif, contenu essentiel et action; retirez les accents visuels qui ne soutiennent aucune décision."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/05-responsive/product-card.tsx",
+                "source": "\"use client\";\nimport { useState } from \"react\";\n\nexport default function ProductCardPreview() {\n  const [added, setAdded] = useState(false);\n  return <article className=\"rounded-xl border bg-white p-4 shadow-sm\">\n    <p className=\"text-xs font-medium uppercase text-green-700\">Nouveau</p>\n    <h2 className=\"mt-2 text-base font-semibold text-gray-900\">Casque Bluetooth</h2>\n    <p className=\"mt-1 text-sm text-gray-600\">Livraison offerte</p><p className=\"mt-3 text-lg font-bold\">349 MAD</p>\n    <button type=\"button\" onClick={() => setAdded(true)} className=\"mt-4 min-h-11 w-full rounded-lg bg-green-600 text-white focus-visible:ring-4\">{added ? \"Ajouté\" : \"Ajouter au panier\"}</button>\n    <p className=\"mt-2 min-h-6 text-sm\" role=\"status\">{added ? \"Le produit est dans le panier.\" : \"\"}</p>\n  </article>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-5",
+                    "label": "Entrées et préparation de « Hiérarchie visuelle, rythme et feedback »."
+                  },
+                  {
+                    "lines": "6-9",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "10-13",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/05-responsive/product-card.tsx et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Preuve de réussite: un utilisateur identifie produit, prix et action en quelques secondes, avec une cible clavier et tactile visible."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans ProductCard, image et nom identifient, prix décide, livraison rassure et un seul bouton vert déclenche l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npm run build"
+      ],
+      "expectedResult": "Preuve de réussite: un utilisateur identifie produit, prix et action en quelques secondes, avec une cible clavier et tactile visible.",
+      "commonErrors": [
+        {
+          "symptom": "Tous les textes semblent également importants.",
+          "cause": "Taille, graisse, couleur et espacement ne créent aucun niveau.",
+          "fix": "Définissez trois niveaux et vérifiez la lecture en plissant les yeux."
+        },
+        {
+          "symptom": "Un clic semble ne rien faire.",
+          "cause": "Aucun état loading, succès ou erreur n’est rendu.",
+          "fix": "Affichez immédiatement un état et une issue récupérable."
+        }
+      ],
+      "exercise": {
+        "task": "Réorganiser une carte produit afin que l’action et son feedback soient évidents.",
+        "steps": [
+          "Ouvrez academy-labs/05-responsive/product-card.tsx et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Donnez une action primaire par zone, gardez une cible tactile d’environ 44px et testez le parcours en demandant à quelqu’un de verbaliser ce qu’il ferait ensuite.",
+          "code": "\"use client\";\nimport { useState } from \"react\";\n\nexport default function ProductCardPreview() {\n  const [added, setAdded] = useState(false);\n  return <article className=\"rounded-xl border bg-white p-4 shadow-sm\">\n    <p className=\"text-xs font-medium uppercase text-green-700\">Nouveau</p>\n    <h2 className=\"mt-2 text-base font-semibold text-gray-900\">Casque Bluetooth</h2>\n    <p className=\"mt-1 text-sm text-gray-600\">Livraison offerte</p><p className=\"mt-3 text-lg font-bold\">349 MAD</p>\n    <button type=\"button\" onClick={() => setAdded(true)} className=\"mt-4 min-h-11 w-full rounded-lg bg-green-600 text-white focus-visible:ring-4\">{added ? \"Ajouté\" : \"Ajouter au panier\"}</button>\n    <p className=\"mt-2 min-h-6 text-sm\" role=\"status\">{added ? \"Le produit est dans le panier.\" : \"\"}</p>\n  </article>;\n}",
+          "filename": "academy-labs/05-responsive/product-card.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-05-02-ui-ux-q1",
+          "question": "Quel élément doit dominer une carte d’achat ?",
+          "options": [
+            "Chaque détail",
+            "La décision principale et son action",
+            "Le footer",
+            "Une animation continue"
+          ],
+          "correctIndex": 1,
+          "explanation": "La hiérarchie sert l’objectif utilisateur, pas une compétition décorative.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Chaque détail ». La réponse de référence est « La décision principale et son action ». La hiérarchie sert l’objectif utilisateur, pas une compétition décorative.",
+            "Cette option est correcte. Elle affirme « La décision principale et son action ». La hiérarchie sert l’objectif utilisateur, pas une compétition décorative.",
+            "Cette option est incorrecte. Elle affirme « Le footer ». La réponse de référence est « La décision principale et son action ». La hiérarchie sert l’objectif utilisateur, pas une compétition décorative.",
+            "Cette option est incorrecte. Elle affirme « Une animation continue ». La réponse de référence est « La décision principale et son action ». La hiérarchie sert l’objectif utilisateur, pas une compétition décorative."
+          ]
+        },
+        {
+          "id": "lesson-05-02-ui-ux-q2",
+          "question": "Quelle définition correspond au terme « hierarchy » ?",
+          "options": [
+            "Indice indiquant comment agir sur un élément.",
+            "Ordre perceptif de l’importance.",
+            "Réponse perceptible à une action utilisateur.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« hierarchy » signifie : Ordre perceptif de l’importance.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Indice indiquant comment agir sur un élément. ». La réponse de référence est « Ordre perceptif de l’importance. ». « hierarchy » signifie : Ordre perceptif de l’importance.",
+            "Cette option est correcte. Elle affirme « Ordre perceptif de l’importance. ». « hierarchy » signifie : Ordre perceptif de l’importance.",
+            "Cette option est incorrecte. Elle affirme « Réponse perceptible à une action utilisateur. ». La réponse de référence est « Ordre perceptif de l’importance. ». « hierarchy » signifie : Ordre perceptif de l’importance.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Ordre perceptif de l’importance. ». « hierarchy » signifie : Ordre perceptif de l’importance."
+          ]
+        },
+        {
+          "id": "lesson-05-02-ui-ux-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Tous les textes semblent également importants. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Affichez immédiatement un état et une issue récupérable.",
+            "Définissez trois niveaux et vérifiez la lecture en plissant les yeux.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Taille, graisse, couleur et espacement ne créent aucun niveau. Le correctif adapté est : Définissez trois niveaux et vérifiez la lecture en plissant les yeux.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Définissez trois niveaux et vérifiez la lecture en plissant les yeux. ». Le diagnostic part de la cause suivante : Taille, graisse, couleur et espacement ne créent aucun niveau. Le correctif adapté est : Définissez trois niveaux et vérifiez la lecture en plissant les yeux.",
+            "Cette option est incorrecte. Elle affirme « Affichez immédiatement un état et une issue récupérable. ». La réponse de référence est « Définissez trois niveaux et vérifiez la lecture en plissant les yeux. ». Le diagnostic part de la cause suivante : Taille, graisse, couleur et espacement ne créent aucun niveau. Le correctif adapté est : Définissez trois niveaux et vérifiez la lecture en plissant les yeux.",
+            "Cette option est correcte. Elle affirme « Définissez trois niveaux et vérifiez la lecture en plissant les yeux. ». Le diagnostic part de la cause suivante : Taille, graisse, couleur et espacement ne créent aucun niveau. Le correctif adapté est : Définissez trois niveaux et vérifiez la lecture en plissant les yeux.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Définissez trois niveaux et vérifiez la lecture en plissant les yeux. ». Le diagnostic part de la cause suivante : Taille, graisse, couleur et espacement ne créent aucun niveau. Le correctif adapté est : Définissez trois niveaux et vérifiez la lecture en plissant les yeux."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: la hiérarchie dirige l’attention et le feedback confirme chaque action ou fournit une récupération.",
+        "hierarchy: Ordre perceptif de l’importance.",
+        "affordance: Indice indiquant comment agir sur un élément.",
+        "feedback: Réponse perceptible à une action utilisateur."
+      ],
+      "next": "La prochaine leçon traduit les décisions CSS en utilitaires Tailwind composables."
+    },
+    {
+      "id": "lesson-05-03-tailwind",
+      "order": 2,
+      "title": "Tailwind : utilitaires, variantes et composition",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Tailwind : utilitaires, variantes et composition",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Tailwind mappe des classes atomiques vers un système CSS contraint; les variantes préfixées décrivent état et contexte. Le HTML devient la composition locale, tandis que la configuration et les composants partagés portent les décisions globales. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Comme des briques normalisées : chaque classe a une fonction réduite, et leur ordre de composition construit un composant cohérent."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Tailwind mappe des classes atomiques vers un système CSS contraint; les variantes préfixées décrivent état et contexte. Le HTML devient la composition locale, tandis que la configuration et les composants partagés portent les décisions globales. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "p-4, gap-3 et text-sm proviennent d’échelles partagées; sm: s’active à min-width, hover: et focus-visible: génèrent des sélecteurs d’état. Le compilateur ne garde que les classes détectées statiquement. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Regroupez les classes par layout, espace, typographie, couleur et état; extrayez un composant lorsque la structure porte une responsabilité, pas seulement pour raccourcir une chaîne. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "utility class",
+                  "definition": "Classe appliquant une décision CSS ciblée."
+                },
+                {
+                  "term": "variant",
+                  "definition": "Préfixe conditionnant une utilité à un état ou contexte."
+                },
+                {
+                  "term": "responsive prefix",
+                  "definition": "Variante min-width comme sm ou lg."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Utilisez l’échelle existante, écrivez toutes les variantes nécessaires et évitez les noms de classes construits dynamiquement que le compilateur ne voit pas."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/05-responsive/tailwind-card.tsx",
+                "source": "export default function TailwindCard() {\n  return <article className=\"grid gap-3 rounded-xl border border-gray-200 bg-white p-4 sm:p-5\">\n    <h2 className=\"text-base font-semibold text-gray-900 sm:text-lg\">Produit</h2>\n    <p className=\"text-sm text-gray-600\">Description courte</p>\n    <button type=\"button\" className=\"min-h-11 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 disabled:opacity-50\">Acheter</button>\n  </article>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Entrées et préparation de « Tailwind : utilitaires, variantes et composition »."
+                  },
+                  {
+                    "lines": "4-5",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "6-7",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/05-responsive/tailwind-card.tsx et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Preuve de réussite: les utilitaires produisent une carte mobile, un padding enrichi dès sm et des états hover/focus/disabled visibles."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "ProductCard compose la grille et les états avec les tokens Tailwind verts, gris et ambre tout en gardant une cible minimale de 44px."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npm run build"
+      ],
+      "expectedResult": "Preuve de réussite: les utilitaires produisent une carte mobile, un padding enrichi dès sm et des états hover/focus/disabled visibles.",
+      "commonErrors": [
+        {
+          "symptom": "Une couleur dynamique n’apparaît pas en production.",
+          "cause": "La chaîne bg-${color}-600 n’est pas détectable statiquement.",
+          "fix": "Mappez les variantes vers des chaînes de classes complètes."
+        },
+        {
+          "symptom": "Le bouton perd son focus visible.",
+          "cause": "outline-none a été ajouté sans ring de remplacement.",
+          "fix": "Associez toujours focus-visible:ring et un contraste suffisant."
+        }
+      ],
+      "exercise": {
+        "task": "Reproduire une carte accessible uniquement avec les utilitaires de l’échelle existante.",
+        "steps": [
+          "Ouvrez academy-labs/05-responsive/tailwind-card.tsx et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Regroupez les classes par layout, espace, typographie, couleur et état; extrayez un composant lorsque la structure porte une responsabilité, pas seulement pour raccourcir une chaîne.",
+          "code": "export default function TailwindCard() {\n  return <article className=\"grid gap-3 rounded-xl border border-gray-200 bg-white p-4 sm:p-5\">\n    <h2 className=\"text-base font-semibold text-gray-900 sm:text-lg\">Produit</h2>\n    <p className=\"text-sm text-gray-600\">Description courte</p>\n    <button type=\"button\" className=\"min-h-11 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 disabled:opacity-50\">Acheter</button>\n  </article>;\n}",
+          "filename": "academy-labs/05-responsive/tailwind-card.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-05-03-tailwind-q1",
+          "question": "Que signifie sm:p-5 ?",
+          "options": [
+            "Padding dès le breakpoint sm",
+            "Petite police partout",
+            "Cinq colonnes",
+            "État souris"
+          ],
+          "correctIndex": 0,
+          "explanation": "sm est une variante min-width et p-5 l’utilité activée.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « Padding dès le breakpoint sm ». sm est une variante min-width et p-5 l’utilité activée.",
+            "Cette option est incorrecte. Elle affirme « Petite police partout ». La réponse de référence est « Padding dès le breakpoint sm ». sm est une variante min-width et p-5 l’utilité activée.",
+            "Cette option est incorrecte. Elle affirme « Cinq colonnes ». La réponse de référence est « Padding dès le breakpoint sm ». sm est une variante min-width et p-5 l’utilité activée.",
+            "Cette option est incorrecte. Elle affirme « État souris ». La réponse de référence est « Padding dès le breakpoint sm ». sm est une variante min-width et p-5 l’utilité activée."
+          ]
+        },
+        {
+          "id": "lesson-05-03-tailwind-q2",
+          "question": "Quelle définition correspond au terme « utility class » ?",
+          "options": [
+            "Préfixe conditionnant une utilité à un état ou contexte.",
+            "Classe appliquant une décision CSS ciblée.",
+            "Variante min-width comme sm ou lg.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« utility class » signifie : Classe appliquant une décision CSS ciblée.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Préfixe conditionnant une utilité à un état ou contexte. ». La réponse de référence est « Classe appliquant une décision CSS ciblée. ». « utility class » signifie : Classe appliquant une décision CSS ciblée.",
+            "Cette option est correcte. Elle affirme « Classe appliquant une décision CSS ciblée. ». « utility class » signifie : Classe appliquant une décision CSS ciblée.",
+            "Cette option est incorrecte. Elle affirme « Variante min-width comme sm ou lg. ». La réponse de référence est « Classe appliquant une décision CSS ciblée. ». « utility class » signifie : Classe appliquant une décision CSS ciblée.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Classe appliquant une décision CSS ciblée. ». « utility class » signifie : Classe appliquant une décision CSS ciblée."
+          ]
+        },
+        {
+          "id": "lesson-05-03-tailwind-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Une couleur dynamique n’apparaît pas en production. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Associez toujours focus-visible:ring et un contraste suffisant.",
+            "Mappez les variantes vers des chaînes de classes complètes.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La chaîne bg-${color}-600 n’est pas détectable statiquement. Le correctif adapté est : Mappez les variantes vers des chaînes de classes complètes.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Mappez les variantes vers des chaînes de classes complètes. ». Le diagnostic part de la cause suivante : La chaîne bg-${color}-600 n’est pas détectable statiquement. Le correctif adapté est : Mappez les variantes vers des chaînes de classes complètes.",
+            "Cette option est incorrecte. Elle affirme « Associez toujours focus-visible:ring et un contraste suffisant. ». La réponse de référence est « Mappez les variantes vers des chaînes de classes complètes. ». Le diagnostic part de la cause suivante : La chaîne bg-${color}-600 n’est pas détectable statiquement. Le correctif adapté est : Mappez les variantes vers des chaînes de classes complètes.",
+            "Cette option est correcte. Elle affirme « Mappez les variantes vers des chaînes de classes complètes. ». Le diagnostic part de la cause suivante : La chaîne bg-${color}-600 n’est pas détectable statiquement. Le correctif adapté est : Mappez les variantes vers des chaînes de classes complètes.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Mappez les variantes vers des chaînes de classes complètes. ». Le diagnostic part de la cause suivante : La chaîne bg-${color}-600 n’est pas détectable statiquement. Le correctif adapté est : Mappez les variantes vers des chaînes de classes complètes."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: Tailwind compose des décisions atomiques et ses variantes rendent contexte et états explicites.",
+        "utility class: Classe appliquant une décision CSS ciblée.",
+        "variant: Préfixe conditionnant une utilité à un état ou contexte.",
+        "responsive prefix: Variante min-width comme sm ou lg."
+      ],
+      "next": "La prochaine leçon assemble une carte produit complète et la teste sur trois tailles."
+    },
+    {
+      "id": "lesson-05-04-responsive-component",
+      "order": 3,
+      "title": "Atelier : carte produit responsive complète",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Atelier : carte produit responsive complète",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Un composant responsive protège ses invariants — ordre, cible d’action, média stable, contenu variable — dans tout conteneur. Il ne suppose ni nombre de colonnes ni longueur fixe des données. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Une brique de construction conserve ses points d’ancrage même lorsqu’elle entre dans des murs de tailles différentes."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Un composant responsive protège ses invariants — ordre, cible d’action, média stable, contenu variable — dans tout conteneur. Il ne suppose ni nombre de colonnes ni longueur fixe des données. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "aspect-square réserve le média, grid rows pousse l’action en bas et h-full aligne une rangée de cartes. motion-reduce neutralise une transition non essentielle selon la préférence système. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Testez noms d’une et six lignes, image absente, prix long, zoom 200%, clavier, reduced motion et conteneurs 160/280/420px. Corrigez le composant plutôt que chaque page hôte. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "invariant",
+                  "definition": "Propriété que le composant doit toujours préserver."
+                },
+                {
+                  "term": "aspect ratio",
+                  "definition": "Rapport stable entre largeur et hauteur."
+                },
+                {
+                  "term": "reduced motion",
+                  "definition": "Préférence demandant moins d’animations non essentielles."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Définissez les invariants, construisez avec contenu réel extrême et testez le composant dans plusieurs conteneurs plutôt que seulement plusieurs viewports."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/05-responsive/card.tsx",
+                "source": "type Product = { name: string; price: number; image: string; imageAlt: string };\n\nexport function ProductCard({ product }: { product: Product }) {\n  return <article className=\"group grid h-full grid-rows-[auto_1fr_auto] overflow-hidden rounded-xl border bg-white\">\n    <img className=\"aspect-square h-auto w-full object-cover transition group-hover:scale-[1.02] motion-reduce:transition-none\" src={product.image} alt={product.imageAlt} />\n    <div className=\"p-4\"><h2 className=\"line-clamp-2 font-semibold\">{product.name}</h2><p className=\"mt-2 text-lg font-bold\">{product.price} MAD</p></div>\n    <button type=\"button\" className=\"m-4 mt-0 min-h-11 rounded-lg bg-green-600 text-white\">Ajouter</button>\n  </article>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Entrées et préparation de « Atelier : carte produit responsive complète »."
+                  },
+                  {
+                    "lines": "4-6",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/05-responsive/card.tsx et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Preuve de réussite: la carte garde son action alignée, son média stable et son contenu lisible à 390px, tablette et desktop, y compris en RTL."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "La vraie ProductCard L’ecomax doit garder image, nom, prix et ajout utilisables dans rails, résultats et catégories, en français comme en arabe."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npm run build"
+      ],
+      "expectedResult": "Preuve de réussite: la carte garde son action alignée, son média stable et son contenu lisible à 390px, tablette et desktop, y compris en RTL.",
+      "commonErrors": [
+        {
+          "symptom": "Les boutons d’une rangée sont désalignés.",
+          "cause": "La hauteur variable du contenu n’est pas absorbée par une ligne flexible.",
+          "fix": "Utilisez une grille interne avec une ligne 1fr avant l’action."
+        },
+        {
+          "symptom": "Le zoom de l’image gêne reduced motion.",
+          "cause": "La transition ne possède aucune variante motion-reduce.",
+          "fix": "Ajoutez motion-reduce:transition-none et évitez les mouvements indispensables à la compréhension."
+        }
+      ],
+      "exercise": {
+        "task": "Implémenter et éprouver la carte avec une matrice de contenus et tailles extrêmes.",
+        "steps": [
+          "Ouvrez academy-labs/05-responsive/card.tsx et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Testez noms d’une et six lignes, image absente, prix long, zoom 200%, clavier, reduced motion et conteneurs 160/280/420px. Corrigez le composant plutôt que chaque page hôte.",
+          "code": "type Product = { name: string; price: number; image: string; imageAlt: string };\n\nexport function ProductCard({ product }: { product: Product }) {\n  return <article className=\"group grid h-full grid-rows-[auto_1fr_auto] overflow-hidden rounded-xl border bg-white\">\n    <img className=\"aspect-square h-auto w-full object-cover transition group-hover:scale-[1.02] motion-reduce:transition-none\" src={product.image} alt={product.imageAlt} />\n    <div className=\"p-4\"><h2 className=\"line-clamp-2 font-semibold\">{product.name}</h2><p className=\"mt-2 text-lg font-bold\">{product.price} MAD</p></div>\n    <button type=\"button\" className=\"m-4 mt-0 min-h-11 rounded-lg bg-green-600 text-white\">Ajouter</button>\n  </article>;\n}",
+          "filename": "academy-labs/05-responsive/card.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-05-04-responsive-component-q1",
+          "question": "Pourquoi tester la largeur du conteneur ?",
+          "options": [
+            "Un composant peut vivre dans plusieurs layouts",
+            "Pour changer Git",
+            "Pour éviter alt",
+            "Pour remplacer HTTP"
+          ],
+          "correctIndex": 0,
+          "explanation": "Le viewport ne révèle pas toutes les contraintes imposées par une grille ou une barre latérale.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « Un composant peut vivre dans plusieurs layouts ». Le viewport ne révèle pas toutes les contraintes imposées par une grille ou une barre latérale.",
+            "Cette option est incorrecte. Elle affirme « Pour changer Git ». La réponse de référence est « Un composant peut vivre dans plusieurs layouts ». Le viewport ne révèle pas toutes les contraintes imposées par une grille ou une barre latérale.",
+            "Cette option est incorrecte. Elle affirme « Pour éviter alt ». La réponse de référence est « Un composant peut vivre dans plusieurs layouts ». Le viewport ne révèle pas toutes les contraintes imposées par une grille ou une barre latérale.",
+            "Cette option est incorrecte. Elle affirme « Pour remplacer HTTP ». La réponse de référence est « Un composant peut vivre dans plusieurs layouts ». Le viewport ne révèle pas toutes les contraintes imposées par une grille ou une barre latérale."
+          ]
+        },
+        {
+          "id": "lesson-05-04-responsive-component-q2",
+          "question": "Quelle définition correspond au terme « invariant » ?",
+          "options": [
+            "Rapport stable entre largeur et hauteur.",
+            "Propriété que le composant doit toujours préserver.",
+            "Préférence demandant moins d’animations non essentielles.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« invariant » signifie : Propriété que le composant doit toujours préserver.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Rapport stable entre largeur et hauteur. ». La réponse de référence est « Propriété que le composant doit toujours préserver. ». « invariant » signifie : Propriété que le composant doit toujours préserver.",
+            "Cette option est correcte. Elle affirme « Propriété que le composant doit toujours préserver. ». « invariant » signifie : Propriété que le composant doit toujours préserver.",
+            "Cette option est incorrecte. Elle affirme « Préférence demandant moins d’animations non essentielles. ». La réponse de référence est « Propriété que le composant doit toujours préserver. ». « invariant » signifie : Propriété que le composant doit toujours préserver.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Propriété que le composant doit toujours préserver. ». « invariant » signifie : Propriété que le composant doit toujours préserver."
+          ]
+        },
+        {
+          "id": "lesson-05-04-responsive-component-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Les boutons d’une rangée sont désalignés. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajoutez motion-reduce:transition-none et évitez les mouvements indispensables à la compréhension.",
+            "Utilisez une grille interne avec une ligne 1fr avant l’action.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La hauteur variable du contenu n’est pas absorbée par une ligne flexible. Le correctif adapté est : Utilisez une grille interne avec une ligne 1fr avant l’action.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Utilisez une grille interne avec une ligne 1fr avant l’action. ». Le diagnostic part de la cause suivante : La hauteur variable du contenu n’est pas absorbée par une ligne flexible. Le correctif adapté est : Utilisez une grille interne avec une ligne 1fr avant l’action.",
+            "Cette option est incorrecte. Elle affirme « Ajoutez motion-reduce:transition-none et évitez les mouvements indispensables à la compréhension. ». La réponse de référence est « Utilisez une grille interne avec une ligne 1fr avant l’action. ». Le diagnostic part de la cause suivante : La hauteur variable du contenu n’est pas absorbée par une ligne flexible. Le correctif adapté est : Utilisez une grille interne avec une ligne 1fr avant l’action.",
+            "Cette option est correcte. Elle affirme « Utilisez une grille interne avec une ligne 1fr avant l’action. ». Le diagnostic part de la cause suivante : La hauteur variable du contenu n’est pas absorbée par une ligne flexible. Le correctif adapté est : Utilisez une grille interne avec une ligne 1fr avant l’action.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Utilisez une grille interne avec une ligne 1fr avant l’action. ». Le diagnostic part de la cause suivante : La hauteur variable du contenu n’est pas absorbée par une ligne flexible. Le correctif adapté est : Utilisez une grille interne avec une ligne 1fr avant l’action."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: un composant robuste préserve ses invariants avec données, langues, préférences et conteneurs variables.",
+        "invariant: Propriété que le composant doit toujours préserver.",
+        "aspect ratio: Rapport stable entre largeur et hauteur.",
+        "reduced motion: Préférence demandant moins d’animations non essentielles."
+      ],
+      "next": "Le module suivant apporte la logique avec les fondamentaux JavaScript."
+    }
+  ]
+}

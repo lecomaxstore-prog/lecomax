@@ -1,0 +1,1020 @@
+{
+  "id": "react-state-forms-hooks",
+  "order": 12,
+  "icon": "🪝",
+  "color": "#0891b2",
+  "title": "State, forms, effects, and hooks",
+  "summary": "Place state at the right level, control forms, synchronize external systems, and share the cart without unnecessary effects.",
+  "files": [
+    {
+      "path": "components/CartContext.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "components/CategoryFilters.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "components/ProductActions.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "academy-labs/react-state-forms-hooks/react-state-immutability.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/react-state-forms-hooks/react-controlled-forms.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/react-state-forms-hooks/react-effects-cleanup.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/react-state-forms-hooks/react-context-custom-hooks.tsx",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "react-state-immutability",
+      "order": 0,
+      "title": "Minimal state and immutability",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to open the L’ecomax project in VS Code and use its integrated terminal.",
+        "Have read the previous lesson and be able to explain the role of immutable state updates in your own words."
+      ],
+      "objectives": [
+        "Build an accurate mental model of immutable state updates.",
+        "Write and run a minimal example before integrating it into a real feature.",
+        "Recognize failure states, read their symptoms, and apply a verifiable correction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Each render receives an immutable state snapshot; calling the setter asks React for a new render with a new value. Modified objects must be recreated while unchanged ones are reused so references precisely identify changes. First draw the inputs, transformations, trust boundaries, and outputs. That map lets you predict where code runs and where each failure must be handled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "immutable state updates is like a dashboard where one gauge owns the truth and every other display is calculated. The analogy helps you remember the main journey, but running code is the evidence: inspect every value at the input, during transformation, and at the output."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values. Start with the smallest working version and inspect its real value in the terminal or DevTools before adding an abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "map creates a new array and spread creates a new object only for the targeted row; mutating item.quantity preserves a misleading reference. Then connect the rule to the contract between browser, server, and database; every boundary needs a defined input and an explicit failure."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "The functional setter receives the latest snapshot, protecting rapid clicks and updates batched by React. Finally test the normal case, a boundary input, and a deliberate failure so the behavior is proven beyond the happy path."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "immutable state updates",
+                  "definition": "Each render receives an immutable state snapshot; calling the setter asks React for a new render with a new value. Modified objects must be recreated while unchanged ones are reused so references precisely identify changes."
+                },
+                {
+                  "term": "Minimal state and immutability",
+                  "definition": "Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values."
+                },
+                {
+                  "term": "state",
+                  "definition": "Local component memory that triggers another render."
+                },
+                {
+                  "term": "controlled input",
+                  "definition": "An input whose value and onChange are driven by React."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Choose one source of truth, calculate the rest during render, and update arrays and objects with selective copies."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/react-state-forms-hooks/react-state-immutability.tsx",
+                "source": "import { useState } from \"react\";\ntype Item = { id: string; quantity: number };\nexport function QuantityDemo() {\n  const [items, setItems] = useState<Item[]>([{ id: \"bag-1\", quantity: 1 }]);\n  const increment = (id: string) => setItems((current) => current.map((item) =>\n    item.id === id ? { ...item, quantity: item.quantity + 1 } : item\n  ));\n  return <button onClick={() => increment(\"bag-1\")}>{items[0].quantity}</button>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Minimal state and immutability: the first two lines establish the contract and input data."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "This block performs the main transformation; follow values line by line and verify their types."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "The ending exposes the expected result or failure so the caller can react without guessing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/react-state-forms-hooks/react-state-immutability.tsx and isolate the exercise function or component without deleting the rest of the L’ecomax file. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Start from the first-line contract — import { useState } from \"react\"; — then type the remaining lines in order while checking every type and return value. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "In academy-labs/react-state-forms-hooks/react-state-immutability.tsx, the result must demonstrate “Minimal state and immutability” and make immutable state updates observable. npm run dev then npx tsc --noEmit completes without an error, and the behavior follows this exact rule: Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "CartContext stores lines and quantities; subtotal, discount, and item count are recalculated without duplicated state."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "In academy-labs/react-state-forms-hooks/react-state-immutability.tsx, the result must demonstrate “Minimal state and immutability” and make immutable state updates observable. npm run dev then npx tsc --noEmit completes without an error, and the behavior follows this exact rule: Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values.",
+      "commonErrors": [
+        {
+          "symptom": "The “Minimal state and immutability” example runs, but it does not demonstrate immutable state updates.",
+          "cause": "The implementation contradicts this lesson rule: Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values.",
+          "fix": "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+        },
+        {
+          "symptom": "The normal case works in academy-labs/react-state-forms-hooks/react-state-immutability.tsx, but the boundary case fails or stays silent.",
+          "cause": "The following boundary is not represented in the code yet: map creates a new array and spread creates a new object only for the targeted row; mutating item.quantity preserves a misleading reference.",
+          "fix": "Add an explicit verification case using this principle: The functional setter receives the latest snapshot, protecting rapid clicks and updates batched by React."
+        }
+      ],
+      "exercise": {
+        "task": "In academy-labs/react-state-forms-hooks/react-state-immutability.tsx, rebuild the annotated “Minimal state and immutability” example so it demonstrates immutable state updates, then verify that exact behavior with the provided commands.",
+        "steps": [
+          "Open academy-labs/react-state-forms-hooks/react-state-immutability.tsx and isolate the exercise function or component without deleting the rest of the L’ecomax file.",
+          "Start from the first-line contract — import { useState } from \"react\"; — then type the remaining lines in order while checking every type and return value.",
+          "Verify that the final instruction — } — obeys this observable rule: Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values.",
+          "Save the file, run npm run dev then npx tsc --noEmit, and test both a normal value and the boundary case described under common errors."
+        ],
+        "hints": [
+          "Start from the contract visible in academy-labs/react-state-forms-hooks/react-state-immutability.tsx, not from a new abstraction or package.",
+          "If the result diverges, reread this boundary: map creates a new array and spread creates a new object only for the targeted row; mutating item.quantity preserves a misleading reference.",
+          "Compare your version with the solution line by line and apply this correction: The functional setter receives the latest snapshot, protecting rapid clicks and updates batched by React."
+        ],
+        "solution": {
+          "explanation": "The complete academy-labs/react-state-forms-hooks/react-state-immutability.tsx solution contains 9 annotated lines. It implements immutable state updates directly, preserves the contract shown in the example, and makes the failure case explicit without adding a dependency.",
+          "code": "import { useState } from \"react\";\ntype Item = { id: string; quantity: number };\nexport function QuantityDemo() {\n  const [items, setItems] = useState<Item[]>([{ id: \"bag-1\", quantity: 1 }]);\n  const increment = (id: string) => setItems((current) => current.map((item) =>\n    item.id === id ? { ...item, quantity: item.quantity + 1 } : item\n  ));\n  return <button onClick={() => increment(\"bag-1\")}>{items[0].quantity}</button>;\n}",
+          "filename": "academy-labs/react-state-forms-hooks/react-state-immutability.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "react-state-immutability-q1",
+          "question": "Which statement applies immutable state updates correctly in a production application?",
+          "options": [
+            "Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values.",
+            "The browser can decide immutable state updates by itself because its data is always trustworthy.",
+            "immutable state updates only concerns colors and has no effect on data.",
+            "Failures related to immutable state updates may be ignored when the happy path worked once."
+          ],
+          "correctIndex": 0,
+          "explanation": "The correct answer is “Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+          "answerExplanations": [
+            "This option is correct. It says « Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values. ». The correct answer is “Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « The browser can decide immutable state updates by itself because its data is always trustworthy. ». The reference answer is « Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values. ». The correct answer is “Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « immutable state updates only concerns colors and has no effect on data. ». The reference answer is « Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values. ». The correct answer is “Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « Failures related to immutable state updates may be ignored when the happy path worked once. ». The reference answer is « Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values. ». The correct answer is “Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios."
+          ]
+        },
+        {
+          "id": "react-state-immutability-q2",
+          "question": "Which definition matches the term “immutable state updates”?",
+          "options": [
+            "Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values.",
+            "Each render receives an immutable state snapshot; calling the setter asks React for a new render with a new value. Modified objects must be recreated while unchanged ones are reused so references precisely identify changes.",
+            "Local component memory that triggers another render.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“immutable state updates” means: Each render receives an immutable state snapshot; calling the setter asks React for a new render with a new value. Modified objects must be recreated while unchanged ones are reused so references precisely identify changes.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values. ». The reference answer is « Each render receives an immutable state snapshot; calling the setter asks React for a new render with a new value. Modified objects must be recreated while unchanged ones are reused so references precisely identify changes. ». “immutable state updates” means: Each render receives an immutable state snapshot; calling the setter asks React for a new render with a new value. Modified objects must be recreated while unchanged ones are reused so references precisely identify changes.",
+            "This option is correct. It says « Each render receives an immutable state snapshot; calling the setter asks React for a new render with a new value. Modified objects must be recreated while unchanged ones are reused so references precisely identify changes. ». “immutable state updates” means: Each render receives an immutable state snapshot; calling the setter asks React for a new render with a new value. Modified objects must be recreated while unchanged ones are reused so references precisely identify changes.",
+            "This option is incorrect. It says « Local component memory that triggers another render. ». The reference answer is « Each render receives an immutable state snapshot; calling the setter asks React for a new render with a new value. Modified objects must be recreated while unchanged ones are reused so references precisely identify changes. ». “immutable state updates” means: Each render receives an immutable state snapshot; calling the setter asks React for a new render with a new value. Modified objects must be recreated while unchanged ones are reused so references precisely identify changes.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Each render receives an immutable state snapshot; calling the setter asks React for a new render with a new value. Modified objects must be recreated while unchanged ones are reused so references precisely identify changes. ». “immutable state updates” means: Each render receives an immutable state snapshot; calling the setter asks React for a new render with a new value. Modified objects must be recreated while unchanged ones are reused so references precisely identify changes."
+          ]
+        },
+        {
+          "id": "react-state-immutability-q3",
+          "question": "What is the best first fix when you observe: “The “Minimal state and immutability” example runs, but it does not demonstrate immutable state updates.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add an explicit verification case using this principle: The functional setter receives the latest snapshot, protecting rapid clicks and updates batched by React.",
+            "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation contradicts this lesson rule: Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Add an explicit verification case using this principle: The functional setter receives the latest snapshot, protecting rapid clicks and updates batched by React. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is correct. It says « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: Minimal state contains only information that changes and cannot be computed from props or other state; totals and item counts are derived values. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+          ]
+        }
+      ],
+      "recap": [
+        "You can now explain immutable state updates with an input → transformation → output diagram.",
+        "Choose one source of truth, calculate the rest during render, and update arrays and objects with selective copies.",
+        "CartContext stores lines and quantities; subtotal, discount, and item count are recalculated without duplicated state."
+      ],
+      "next": "The next lesson connects state to controlled fields, validation, and accessible submission."
+    },
+    {
+      "id": "react-controlled-forms",
+      "order": 1,
+      "title": "Controlled forms and validation",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to open the L’ecomax project in VS Code and use its integrated terminal.",
+        "Have read the previous lesson and be able to explain the role of the value → validation → submission cycle in your own words."
+      ],
+      "objectives": [
+        "Build an accurate mental model of the value → validation → submission cycle.",
+        "Write and run a minimal example before integrating it into a real feature.",
+        "Recognize failure states, read their symptoms, and apply a verifiable correction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "In a controlled field, React owns the value and every onChange proposes the next value. Validation is a function of that value; submission reads a coherent snapshot, validates again on the server, and clearly announces success or field errors. First draw the inputs, transformations, trust boundaries, and outputs. That map lets you predict where code runs and where each failure must be handled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "the value → validation → submission cycle is like a dashboard where one gauge owns the truth and every other display is calculated. The analogy helps you remember the main journey, but running code is the evidence: inspect every value at the input, during transformation, and at the output."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change. Start with the smallest working version and inspect its real value in the terminal or DevTools before adding an abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "An error derived from query needs neither state nor useEffect; it recalculates during render and cannot become stale. Then connect the rule to the contract between browser, server, and database; every boundary needs a defined input and an explicit failure."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "label, aria-describedby, and a persistent message connect the field to its error; color alone is insufficient for keyboard and screen-reader users. Finally test the normal case, a boundary input, and a deliberate failure so the behavior is proven beyond the happy path."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "the value → validation → submission cycle",
+                  "definition": "In a controlled field, React owns the value and every onChange proposes the next value. Validation is a function of that value; submission reads a coherent snapshot, validates again on the server, and clearly announces success or field errors."
+                },
+                {
+                  "term": "Controlled forms and validation",
+                  "definition": "value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change."
+                },
+                {
+                  "term": "controlled input",
+                  "definition": "An input whose value and onChange are driven by React."
+                },
+                {
+                  "term": "effect",
+                  "definition": "Post-render synchronization with a system outside React."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Store raw values only, derive errors, prevent duplicate submission, and validate the body again on the server."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/react-state-forms-hooks/react-controlled-forms.tsx",
+                "source": "import { useState } from \"react\";\nexport function SearchForm() {\n  const [query, setQuery] = useState(\"\");\n  const error = query.length > 0 && query.trim().length < 2 ? \"Deux caractères minimum\" : \"\";\n  return <form onSubmit={(event) => event.preventDefault()}>\n    <label htmlFor=\"query\">Rechercher</label>\n    <input id=\"query\" value={query} onChange={(event) => setQuery(event.target.value)} aria-describedby=\"query-error\" />\n    <p id=\"query-error\" role=\"status\">{error}</p>\n    <button disabled={Boolean(error)}>Filtrer</button>\n  </form>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Controlled forms and validation: the first two lines establish the contract and input data."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "This block performs the main transformation; follow values line by line and verify their types."
+                  },
+                  {
+                    "lines": "7-11",
+                    "label": "The ending exposes the expected result or failure so the caller can react without guessing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/react-state-forms-hooks/react-controlled-forms.tsx and isolate the exercise function or component without deleting the rest of the L’ecomax file. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Start from the first-line contract — import { useState } from \"react\"; — then type the remaining lines in order while checking every type and return value. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "In academy-labs/react-state-forms-hooks/react-controlled-forms.tsx, the result must demonstrate “Controlled forms and validation” and make the value → validation → submission cycle observable. npm run dev then npx tsc --noEmit completes without an error, and the behavior follows this exact rule: value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "The L’ecomax checkout associates each address error with its field and never treats browser validation as server proof."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "In academy-labs/react-state-forms-hooks/react-controlled-forms.tsx, the result must demonstrate “Controlled forms and validation” and make the value → validation → submission cycle observable. npm run dev then npx tsc --noEmit completes without an error, and the behavior follows this exact rule: value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change.",
+      "commonErrors": [
+        {
+          "symptom": "The “Controlled forms and validation” example runs, but it does not demonstrate the value → validation → submission cycle.",
+          "cause": "The implementation contradicts this lesson rule: value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change.",
+          "fix": "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+        },
+        {
+          "symptom": "The normal case works in academy-labs/react-state-forms-hooks/react-controlled-forms.tsx, but the boundary case fails or stays silent.",
+          "cause": "The following boundary is not represented in the code yet: An error derived from query needs neither state nor useEffect; it recalculates during render and cannot become stale.",
+          "fix": "Add an explicit verification case using this principle: label, aria-describedby, and a persistent message connect the field to its error; color alone is insufficient for keyboard and screen-reader users."
+        }
+      ],
+      "exercise": {
+        "task": "In academy-labs/react-state-forms-hooks/react-controlled-forms.tsx, rebuild the annotated “Controlled forms and validation” example so it demonstrates the value → validation → submission cycle, then verify that exact behavior with the provided commands.",
+        "steps": [
+          "Open academy-labs/react-state-forms-hooks/react-controlled-forms.tsx and isolate the exercise function or component without deleting the rest of the L’ecomax file.",
+          "Start from the first-line contract — import { useState } from \"react\"; — then type the remaining lines in order while checking every type and return value.",
+          "Verify that the final instruction — } — obeys this observable rule: value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change.",
+          "Save the file, run npm run dev then npx tsc --noEmit, and test both a normal value and the boundary case described under common errors."
+        ],
+        "hints": [
+          "Start from the contract visible in academy-labs/react-state-forms-hooks/react-controlled-forms.tsx, not from a new abstraction or package.",
+          "If the result diverges, reread this boundary: An error derived from query needs neither state nor useEffect; it recalculates during render and cannot become stale.",
+          "Compare your version with the solution line by line and apply this correction: label, aria-describedby, and a persistent message connect the field to its error; color alone is insufficient for keyboard and screen-reader users."
+        ],
+        "solution": {
+          "explanation": "The complete academy-labs/react-state-forms-hooks/react-controlled-forms.tsx solution contains 11 annotated lines. It implements the value → validation → submission cycle directly, preserves the contract shown in the example, and makes the failure case explicit without adding a dependency.",
+          "code": "import { useState } from \"react\";\nexport function SearchForm() {\n  const [query, setQuery] = useState(\"\");\n  const error = query.length > 0 && query.trim().length < 2 ? \"Deux caractères minimum\" : \"\";\n  return <form onSubmit={(event) => event.preventDefault()}>\n    <label htmlFor=\"query\">Rechercher</label>\n    <input id=\"query\" value={query} onChange={(event) => setQuery(event.target.value)} aria-describedby=\"query-error\" />\n    <p id=\"query-error\" role=\"status\">{error}</p>\n    <button disabled={Boolean(error)}>Filtrer</button>\n  </form>;\n}",
+          "filename": "academy-labs/react-state-forms-hooks/react-controlled-forms.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "react-controlled-forms-q1",
+          "question": "Which statement applies the value → validation → submission cycle correctly in a production application?",
+          "options": [
+            "The browser can decide the value → validation → submission cycle by itself because its data is always trustworthy.",
+            "value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change.",
+            "the value → validation → submission cycle only concerns colors and has no effect on data.",
+            "Failures related to the value → validation → submission cycle may be ignored when the happy path worked once."
+          ],
+          "correctIndex": 1,
+          "explanation": "The correct answer is “value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+          "answerExplanations": [
+            "This option is incorrect. It says « The browser can decide the value → validation → submission cycle by itself because its data is always trustworthy. ». The reference answer is « value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change. ». The correct answer is “value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is correct. It says « value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change. ». The correct answer is “value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « the value → validation → submission cycle only concerns colors and has no effect on data. ». The reference answer is « value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change. ». The correct answer is “value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « Failures related to the value → validation → submission cycle may be ignored when the happy path worked once. ». The reference answer is « value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change. ». The correct answer is “value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios."
+          ]
+        },
+        {
+          "id": "react-controlled-forms-q2",
+          "question": "Which definition matches the term “the value → validation → submission cycle”?",
+          "options": [
+            "value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change.",
+            "In a controlled field, React owns the value and every onChange proposes the next value. Validation is a function of that value; submission reads a coherent snapshot, validates again on the server, and clearly announces success or field errors.",
+            "An input whose value and onChange are driven by React.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“the value → validation → submission cycle” means: In a controlled field, React owns the value and every onChange proposes the next value. Validation is a function of that value; submission reads a coherent snapshot, validates again on the server, and clearly announces success or field errors.",
+          "answerExplanations": [
+            "This option is incorrect. It says « value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change. ». The reference answer is « In a controlled field, React owns the value and every onChange proposes the next value. Validation is a function of that value; submission reads a coherent snapshot, validates again on the server, and clearly announces success or field errors. ». “the value → validation → submission cycle” means: In a controlled field, React owns the value and every onChange proposes the next value. Validation is a function of that value; submission reads a coherent snapshot, validates again on the server, and clearly announces success or field errors.",
+            "This option is correct. It says « In a controlled field, React owns the value and every onChange proposes the next value. Validation is a function of that value; submission reads a coherent snapshot, validates again on the server, and clearly announces success or field errors. ». “the value → validation → submission cycle” means: In a controlled field, React owns the value and every onChange proposes the next value. Validation is a function of that value; submission reads a coherent snapshot, validates again on the server, and clearly announces success or field errors.",
+            "This option is incorrect. It says « An input whose value and onChange are driven by React. ». The reference answer is « In a controlled field, React owns the value and every onChange proposes the next value. Validation is a function of that value; submission reads a coherent snapshot, validates again on the server, and clearly announces success or field errors. ». “the value → validation → submission cycle” means: In a controlled field, React owns the value and every onChange proposes the next value. Validation is a function of that value; submission reads a coherent snapshot, validates again on the server, and clearly announces success or field errors.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « In a controlled field, React owns the value and every onChange proposes the next value. Validation is a function of that value; submission reads a coherent snapshot, validates again on the server, and clearly announces success or field errors. ». “the value → validation → submission cycle” means: In a controlled field, React owns the value and every onChange proposes the next value. Validation is a function of that value; submission reads a coherent snapshot, validates again on the server, and clearly announces success or field errors."
+          ]
+        },
+        {
+          "id": "react-controlled-forms-q3",
+          "question": "What is the best first fix when you observe: “The “Controlled forms and validation” example runs, but it does not demonstrate the value → validation → submission cycle.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add an explicit verification case using this principle: label, aria-describedby, and a persistent message connect the field to its error; color alone is insufficient for keyboard and screen-reader users.",
+            "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation contradicts this lesson rule: value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Add an explicit verification case using this principle: label, aria-describedby, and a persistent message connect the field to its error; color alone is insufficient for keyboard and screen-reader users. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is correct. It says « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: value and onChange remain paired; value without onChange makes the field read-only, while switching from undefined to string causes a controlled/uncontrolled change. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+          ]
+        }
+      ],
+      "recap": [
+        "You can now explain the value → validation → submission cycle with an input → transformation → output diagram.",
+        "Store raw values only, derive errors, prevent duplicate submission, and validate the body again on the server.",
+        "The L’ecomax checkout associates each address error with its field and never treats browser validation as server proof."
+      ],
+      "next": "The next lesson reserves useEffect for external synchronization and implements reliable cleanup."
+    },
+    {
+      "id": "react-effects-cleanup",
+      "order": 2,
+      "title": "useEffect, dependencies, and cleanup",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to open the L’ecomax project in VS Code and use its integrated terminal.",
+        "Have read the previous lesson and be able to explain the role of synchronization with an external system in your own words."
+      ],
+      "objectives": [
+        "Build an accurate mental model of synchronization with an external system.",
+        "Write and run a minimal example before integrating it into a real feature.",
+        "Recognize failure states, read their symptoms, and apply a verifiable correction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "React computes JSX and commits the DOM; only then does an effect synchronize that render with localStorage, a timer, a subscription, or an imperative API. Before the next effect or unmount, cleanup reverses exactly what the previous run installed. First draw the inputs, transformations, trust boundaries, and outputs. That map lets you predict where code runs and where each failure must be handled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "synchronization with an external system is like a dashboard where one gauge owns the truth and every other display is calculated. The analogy helps you remember the main journey, but running code is the evidence: inspect every value at the input, during transformation, and at the output."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render. Start with the smallest working version and inspect its real value in the terminal or DevTools before adding an abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "The dependency array lists every reactive value read by the effect; omitting one creates a stale closure, while inventing one often hides unstable design. Then connect the rule to the contract between browser, server, and database; every boundary needs a defined input and an explicit failure."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Timer cleanup prevents an old query from being written after the new one and makes development double mounting leak-free. Finally test the normal case, a boundary input, and a deliberate failure so the behavior is proven beyond the happy path."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "synchronization with an external system",
+                  "definition": "React computes JSX and commits the DOM; only then does an effect synchronize that render with localStorage, a timer, a subscription, or an imperative API. Before the next effect or unmount, cleanup reverses exactly what the previous run installed."
+                },
+                {
+                  "term": "useEffect, dependencies, and cleanup",
+                  "definition": "An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render."
+                },
+                {
+                  "term": "effect",
+                  "definition": "Post-render synchronization with a system outside React."
+                },
+                {
+                  "term": "Context",
+                  "definition": "A channel providing a shared value to a subtree."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "For every effect, name the external system, the synchronization action, and the cleanup’s inverse operation."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/react-state-forms-hooks/react-effects-cleanup.tsx",
+                "source": "import { useEffect, useState } from \"react\";\nexport function SavedQuery() {\n  const [query, setQuery] = useState(\"\");\n  useEffect(() => {\n    const timer = window.setTimeout(() => localStorage.setItem(\"catalog-query\", query), 250);\n    return () => window.clearTimeout(timer);\n  }, [query]);\n  return <input aria-label=\"Recherche\" value={query} onChange={(event) => setQuery(event.target.value)} />;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "useEffect, dependencies, and cleanup: the first two lines establish the contract and input data."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "This block performs the main transformation; follow values line by line and verify their types."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "The ending exposes the expected result or failure so the caller can react without guessing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/react-state-forms-hooks/react-effects-cleanup.tsx and isolate the exercise function or component without deleting the rest of the L’ecomax file. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Start from the first-line contract — import { useEffect, useState } from \"react\"; — then type the remaining lines in order while checking every type and return value. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "In academy-labs/react-state-forms-hooks/react-effects-cleanup.tsx, the result must demonstrate “useEffect, dependencies, and cleanup” and make synchronization with an external system observable. npm run dev then npx tsc --noEmit completes without an error, and the behavior follows this exact rule: An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "L’ecomax persists a filter or subscribes to Realtime with cleanup, but always calculates the cart total directly during render."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "In academy-labs/react-state-forms-hooks/react-effects-cleanup.tsx, the result must demonstrate “useEffect, dependencies, and cleanup” and make synchronization with an external system observable. npm run dev then npx tsc --noEmit completes without an error, and the behavior follows this exact rule: An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render.",
+      "commonErrors": [
+        {
+          "symptom": "The “useEffect, dependencies, and cleanup” example runs, but it does not demonstrate synchronization with an external system.",
+          "cause": "The implementation contradicts this lesson rule: An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render.",
+          "fix": "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+        },
+        {
+          "symptom": "The normal case works in academy-labs/react-state-forms-hooks/react-effects-cleanup.tsx, but the boundary case fails or stays silent.",
+          "cause": "The following boundary is not represented in the code yet: The dependency array lists every reactive value read by the effect; omitting one creates a stale closure, while inventing one often hides unstable design.",
+          "fix": "Add an explicit verification case using this principle: Timer cleanup prevents an old query from being written after the new one and makes development double mounting leak-free."
+        }
+      ],
+      "exercise": {
+        "task": "In academy-labs/react-state-forms-hooks/react-effects-cleanup.tsx, rebuild the annotated “useEffect, dependencies, and cleanup” example so it demonstrates synchronization with an external system, then verify that exact behavior with the provided commands.",
+        "steps": [
+          "Open academy-labs/react-state-forms-hooks/react-effects-cleanup.tsx and isolate the exercise function or component without deleting the rest of the L’ecomax file.",
+          "Start from the first-line contract — import { useEffect, useState } from \"react\"; — then type the remaining lines in order while checking every type and return value.",
+          "Verify that the final instruction — } — obeys this observable rule: An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render.",
+          "Save the file, run npm run dev then npx tsc --noEmit, and test both a normal value and the boundary case described under common errors."
+        ],
+        "hints": [
+          "Start from the contract visible in academy-labs/react-state-forms-hooks/react-effects-cleanup.tsx, not from a new abstraction or package.",
+          "If the result diverges, reread this boundary: The dependency array lists every reactive value read by the effect; omitting one creates a stale closure, while inventing one often hides unstable design.",
+          "Compare your version with the solution line by line and apply this correction: Timer cleanup prevents an old query from being written after the new one and makes development double mounting leak-free."
+        ],
+        "solution": {
+          "explanation": "The complete academy-labs/react-state-forms-hooks/react-effects-cleanup.tsx solution contains 9 annotated lines. It implements synchronization with an external system directly, preserves the contract shown in the example, and makes the failure case explicit without adding a dependency.",
+          "code": "import { useEffect, useState } from \"react\";\nexport function SavedQuery() {\n  const [query, setQuery] = useState(\"\");\n  useEffect(() => {\n    const timer = window.setTimeout(() => localStorage.setItem(\"catalog-query\", query), 250);\n    return () => window.clearTimeout(timer);\n  }, [query]);\n  return <input aria-label=\"Recherche\" value={query} onChange={(event) => setQuery(event.target.value)} />;\n}",
+          "filename": "academy-labs/react-state-forms-hooks/react-effects-cleanup.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "react-effects-cleanup-q1",
+          "question": "Which statement applies synchronization with an external system correctly in a production application?",
+          "options": [
+            "The browser can decide synchronization with an external system by itself because its data is always trustworthy.",
+            "synchronization with an external system only concerns colors and has no effect on data.",
+            "An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render.",
+            "Failures related to synchronization with an external system may be ignored when the happy path worked once."
+          ],
+          "correctIndex": 2,
+          "explanation": "The correct answer is “An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+          "answerExplanations": [
+            "This option is incorrect. It says « The browser can decide synchronization with an external system by itself because its data is always trustworthy. ». The reference answer is « An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render. ». The correct answer is “An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « synchronization with an external system only concerns colors and has no effect on data. ». The reference answer is « An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render. ». The correct answer is “An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is correct. It says « An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render. ». The correct answer is “An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « Failures related to synchronization with an external system may be ignored when the happy path worked once. ». The reference answer is « An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render. ». The correct answer is “An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios."
+          ]
+        },
+        {
+          "id": "react-effects-cleanup-q2",
+          "question": "Which definition matches the term “synchronization with an external system”?",
+          "options": [
+            "An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render.",
+            "React computes JSX and commits the DOM; only then does an effect synchronize that render with localStorage, a timer, a subscription, or an imperative API. Before the next effect or unmount, cleanup reverses exactly what the previous run installed.",
+            "Post-render synchronization with a system outside React.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“synchronization with an external system” means: React computes JSX and commits the DOM; only then does an effect synchronize that render with localStorage, a timer, a subscription, or an imperative API. Before the next effect or unmount, cleanup reverses exactly what the previous run installed.",
+          "answerExplanations": [
+            "This option is incorrect. It says « An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render. ». The reference answer is « React computes JSX and commits the DOM; only then does an effect synchronize that render with localStorage, a timer, a subscription, or an imperative API. Before the next effect or unmount, cleanup reverses exactly what the previous run installed. ». “synchronization with an external system” means: React computes JSX and commits the DOM; only then does an effect synchronize that render with localStorage, a timer, a subscription, or an imperative API. Before the next effect or unmount, cleanup reverses exactly what the previous run installed.",
+            "This option is correct. It says « React computes JSX and commits the DOM; only then does an effect synchronize that render with localStorage, a timer, a subscription, or an imperative API. Before the next effect or unmount, cleanup reverses exactly what the previous run installed. ». “synchronization with an external system” means: React computes JSX and commits the DOM; only then does an effect synchronize that render with localStorage, a timer, a subscription, or an imperative API. Before the next effect or unmount, cleanup reverses exactly what the previous run installed.",
+            "This option is incorrect. It says « Post-render synchronization with a system outside React. ». The reference answer is « React computes JSX and commits the DOM; only then does an effect synchronize that render with localStorage, a timer, a subscription, or an imperative API. Before the next effect or unmount, cleanup reverses exactly what the previous run installed. ». “synchronization with an external system” means: React computes JSX and commits the DOM; only then does an effect synchronize that render with localStorage, a timer, a subscription, or an imperative API. Before the next effect or unmount, cleanup reverses exactly what the previous run installed.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « React computes JSX and commits the DOM; only then does an effect synchronize that render with localStorage, a timer, a subscription, or an imperative API. Before the next effect or unmount, cleanup reverses exactly what the previous run installed. ». “synchronization with an external system” means: React computes JSX and commits the DOM; only then does an effect synchronize that render with localStorage, a timer, a subscription, or an imperative API. Before the next effect or unmount, cleanup reverses exactly what the previous run installed."
+          ]
+        },
+        {
+          "id": "react-effects-cleanup-q3",
+          "question": "What is the best first fix when you observe: “The “useEffect, dependencies, and cleanup” example runs, but it does not demonstrate synchronization with an external system.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add an explicit verification case using this principle: Timer cleanup prevents an old query from being written after the new one and makes development double mounting leak-free.",
+            "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation contradicts this lesson rule: An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Add an explicit verification case using this principle: Timer cleanup prevents an old query from being written after the new one and makes development double mounting leak-free. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is correct. It says « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: An effect is not a general place to calculate totals or filter a list; derived values belong in render and avoid an extra render. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+          ]
+        }
+      ],
+      "recap": [
+        "You can now explain synchronization with an external system with an input → transformation → output diagram.",
+        "For every effect, name the external system, the synchronization action, and the cleanup’s inverse operation.",
+        "L’ecomax persists a filter or subscribes to Realtime with cleanup, but always calculates the cart total directly during render."
+      ],
+      "next": "The next lesson shares the cart with Context and extracts a safe API into a custom hook."
+    },
+    {
+      "id": "react-context-custom-hooks",
+      "order": 3,
+      "title": "Context and custom hooks",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to open the L’ecomax project in VS Code and use its integrated terminal.",
+        "Have read the previous lesson and be able to explain the role of controlled sharing of cross-cutting state in your own words."
+      ],
+      "objectives": [
+        "Build an accurate mental model of controlled sharing of cross-cutting state.",
+        "Write and run a minimal example before integrating it into a real feature.",
+        "Recognize failure states, read their symptoms, and apply a verifiable correction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Context broadcasts a value from a Provider to descendants without manually passing every level. A custom hook encapsulates reading, verifies the Provider exists, and exposes a stable domain API rather than internal state details. First draw the inputs, transformations, trust boundaries, and outputs. That map lets you predict where code runs and where each failure must be handled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "controlled sharing of cross-cutting state is like a dashboard where one gauge owns the truth and every other display is calculated. The analogy helps you remember the main journey, but running code is the evidence: inspect every value at the input, during transformation, and at the output."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent. Start with the smallest working version and inspect its real value in the terminal or DevTools before adding an abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "A null default forces useCart to detect missing configuration instead of silently returning a fake empty cart. Then connect the rule to the contract between browser, server, and database; every boundary needs a defined input and an explicit failure."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "The hook hides useContext and protects consumers from future implementation changes; they learn add and count, not setState. Finally test the normal case, a boundary input, and a deliberate failure so the behavior is proven beyond the happy path."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "controlled sharing of cross-cutting state",
+                  "definition": "Context broadcasts a value from a Provider to descendants without manually passing every level. A custom hook encapsulates reading, verifies the Provider exists, and exposes a stable domain API rather than internal state details."
+                },
+                {
+                  "term": "Context and custom hooks",
+                  "definition": "Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent."
+                },
+                {
+                  "term": "Context",
+                  "definition": "A channel providing a shared value to a subtree."
+                },
+                {
+                  "term": "state",
+                  "definition": "Local component memory that triggers another render."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Place the Provider at the smallest common ancestor, expose domain actions, and make the hook fail clearly outside context."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/react-state-forms-hooks/react-context-custom-hooks.tsx",
+                "source": "import { createContext, useContext, useState } from \"react\";\ntype CartValue = { count: number; add(): void };\nconst CartContext = createContext<CartValue | null>(null);\nexport function CartProvider({ children }: { children: React.ReactNode }) {\n  const [count, setCount] = useState(0);\n  return <CartContext.Provider value={{ count, add: () => setCount((n) => n + 1) }}>{children}</CartContext.Provider>;\n}\nexport function useCart() {\n  const value = useContext(CartContext);\n  if (!value) throw new Error(\"useCart doit être utilisé dans CartProvider\");\n  return value;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Context and custom hooks: the first two lines establish the contract and input data."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "This block performs the main transformation; follow values line by line and verify their types."
+                  },
+                  {
+                    "lines": "7-12",
+                    "label": "The ending exposes the expected result or failure so the caller can react without guessing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/react-state-forms-hooks/react-context-custom-hooks.tsx and isolate the exercise function or component without deleting the rest of the L’ecomax file. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Start from the first-line contract — import { createContext, useContext, useState } from \"react\"; — then type the remaining lines in order while checking every type and return value. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "In academy-labs/react-state-forms-hooks/react-context-custom-hooks.tsx, the result must demonstrate “Context and custom hooks” and make controlled sharing of cross-cutting state observable. npm run dev then npx tsc --noEmit completes without an error, and the behavior follows this exact rule: Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "CartProvider wraps the L’ecomax shop; Header reads count and ProductActions calls add without importing the internal line structure."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "In academy-labs/react-state-forms-hooks/react-context-custom-hooks.tsx, the result must demonstrate “Context and custom hooks” and make controlled sharing of cross-cutting state observable. npm run dev then npx tsc --noEmit completes without an error, and the behavior follows this exact rule: Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent.",
+      "commonErrors": [
+        {
+          "symptom": "The “Context and custom hooks” example runs, but it does not demonstrate controlled sharing of cross-cutting state.",
+          "cause": "The implementation contradicts this lesson rule: Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent.",
+          "fix": "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+        },
+        {
+          "symptom": "The normal case works in academy-labs/react-state-forms-hooks/react-context-custom-hooks.tsx, but the boundary case fails or stays silent.",
+          "cause": "The following boundary is not represented in the code yet: A null default forces useCart to detect missing configuration instead of silently returning a fake empty cart.",
+          "fix": "Add an explicit verification case using this principle: The hook hides useContext and protects consumers from future implementation changes; they learn add and count, not setState."
+        }
+      ],
+      "exercise": {
+        "task": "In academy-labs/react-state-forms-hooks/react-context-custom-hooks.tsx, rebuild the annotated “Context and custom hooks” example so it demonstrates controlled sharing of cross-cutting state, then verify that exact behavior with the provided commands.",
+        "steps": [
+          "Open academy-labs/react-state-forms-hooks/react-context-custom-hooks.tsx and isolate the exercise function or component without deleting the rest of the L’ecomax file.",
+          "Start from the first-line contract — import { createContext, useContext, useState } from \"react\"; — then type the remaining lines in order while checking every type and return value.",
+          "Verify that the final instruction — } — obeys this observable rule: Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent.",
+          "Save the file, run npm run dev then npx tsc --noEmit, and test both a normal value and the boundary case described under common errors."
+        ],
+        "hints": [
+          "Start from the contract visible in academy-labs/react-state-forms-hooks/react-context-custom-hooks.tsx, not from a new abstraction or package.",
+          "If the result diverges, reread this boundary: A null default forces useCart to detect missing configuration instead of silently returning a fake empty cart.",
+          "Compare your version with the solution line by line and apply this correction: The hook hides useContext and protects consumers from future implementation changes; they learn add and count, not setState."
+        ],
+        "solution": {
+          "explanation": "The complete academy-labs/react-state-forms-hooks/react-context-custom-hooks.tsx solution contains 12 annotated lines. It implements controlled sharing of cross-cutting state directly, preserves the contract shown in the example, and makes the failure case explicit without adding a dependency.",
+          "code": "import { createContext, useContext, useState } from \"react\";\ntype CartValue = { count: number; add(): void };\nconst CartContext = createContext<CartValue | null>(null);\nexport function CartProvider({ children }: { children: React.ReactNode }) {\n  const [count, setCount] = useState(0);\n  return <CartContext.Provider value={{ count, add: () => setCount((n) => n + 1) }}>{children}</CartContext.Provider>;\n}\nexport function useCart() {\n  const value = useContext(CartContext);\n  if (!value) throw new Error(\"useCart doit être utilisé dans CartProvider\");\n  return value;\n}",
+          "filename": "academy-labs/react-state-forms-hooks/react-context-custom-hooks.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "react-context-custom-hooks-q1",
+          "question": "Which statement applies controlled sharing of cross-cutting state correctly in a production application?",
+          "options": [
+            "The browser can decide controlled sharing of cross-cutting state by itself because its data is always trustworthy.",
+            "controlled sharing of cross-cutting state only concerns colors and has no effect on data.",
+            "Failures related to controlled sharing of cross-cutting state may be ignored when the happy path worked once.",
+            "Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent."
+          ],
+          "correctIndex": 3,
+          "explanation": "The correct answer is “Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+          "answerExplanations": [
+            "This option is incorrect. It says « The browser can decide controlled sharing of cross-cutting state by itself because its data is always trustworthy. ». The reference answer is « Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent. ». The correct answer is “Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « controlled sharing of cross-cutting state only concerns colors and has no effect on data. ». The reference answer is « Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent. ». The correct answer is “Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « Failures related to controlled sharing of cross-cutting state may be ignored when the happy path worked once. ». The reference answer is « Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent. ». The correct answer is “Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is correct. It says « Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent. ». The correct answer is “Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios."
+          ]
+        },
+        {
+          "id": "react-context-custom-hooks-q2",
+          "question": "Which definition matches the term “controlled sharing of cross-cutting state”?",
+          "options": [
+            "Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent.",
+            "Context broadcasts a value from a Provider to descendants without manually passing every level. A custom hook encapsulates reading, verifies the Provider exists, and exposes a stable domain API rather than internal state details.",
+            "A channel providing a shared value to a subtree.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“controlled sharing of cross-cutting state” means: Context broadcasts a value from a Provider to descendants without manually passing every level. A custom hook encapsulates reading, verifies the Provider exists, and exposes a stable domain API rather than internal state details.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent. ». The reference answer is « Context broadcasts a value from a Provider to descendants without manually passing every level. A custom hook encapsulates reading, verifies the Provider exists, and exposes a stable domain API rather than internal state details. ». “controlled sharing of cross-cutting state” means: Context broadcasts a value from a Provider to descendants without manually passing every level. A custom hook encapsulates reading, verifies the Provider exists, and exposes a stable domain API rather than internal state details.",
+            "This option is correct. It says « Context broadcasts a value from a Provider to descendants without manually passing every level. A custom hook encapsulates reading, verifies the Provider exists, and exposes a stable domain API rather than internal state details. ». “controlled sharing of cross-cutting state” means: Context broadcasts a value from a Provider to descendants without manually passing every level. A custom hook encapsulates reading, verifies the Provider exists, and exposes a stable domain API rather than internal state details.",
+            "This option is incorrect. It says « A channel providing a shared value to a subtree. ». The reference answer is « Context broadcasts a value from a Provider to descendants without manually passing every level. A custom hook encapsulates reading, verifies the Provider exists, and exposes a stable domain API rather than internal state details. ». “controlled sharing of cross-cutting state” means: Context broadcasts a value from a Provider to descendants without manually passing every level. A custom hook encapsulates reading, verifies the Provider exists, and exposes a stable domain API rather than internal state details.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Context broadcasts a value from a Provider to descendants without manually passing every level. A custom hook encapsulates reading, verifies the Provider exists, and exposes a stable domain API rather than internal state details. ». “controlled sharing of cross-cutting state” means: Context broadcasts a value from a Provider to descendants without manually passing every level. A custom hook encapsulates reading, verifies the Provider exists, and exposes a stable domain API rather than internal state details."
+          ]
+        },
+        {
+          "id": "react-context-custom-hooks-q3",
+          "question": "What is the best first fix when you observe: “The “Context and custom hooks” example runs, but it does not demonstrate controlled sharing of cross-cutting state.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add an explicit verification case using this principle: The hook hides useContext and protects consumers from future implementation changes; they learn add and count, not setState.",
+            "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation contradicts this lesson rule: Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Add an explicit verification case using this principle: The hook hides useContext and protects consumers from future implementation changes; they learn add and count, not setState. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is correct. It says « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: Context fits truly cross-cutting values such as cart, session, or theme; state used by two nearby siblings can simply move to their parent. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+          ]
+        }
+      ],
+      "recap": [
+        "You can now explain controlled sharing of cross-cutting state with an input → transformation → output diagram.",
+        "Place the Provider at the smallest common ancestor, expose domain actions, and make the hook fail clearly outside context.",
+        "CartProvider wraps the L’ecomax shop; Header reads count and ProductActions calls add without importing the internal line structure."
+      ],
+      "next": "The next module organizes these components inside Next.js App Router routes, layouts, and conventions."
+    }
+  ]
+}

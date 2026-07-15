@@ -3,10 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "npm run generate:course",
     "dev": "next dev",
+    "prebuild": "npm run validate:course",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate:course": "node scripts/generate-course.mjs",
+    "prevalidate:course": "npm run generate:course",
+    "validate:course": "node scripts/validate-course.mjs",
+    "smoke:course-ui": "node scripts/smoke-course-ui.mjs",
+    "smoke:admin-dashboard": "node scripts/smoke-admin-dashboard-ui.mjs"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

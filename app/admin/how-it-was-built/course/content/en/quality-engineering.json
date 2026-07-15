@@ -1,0 +1,1080 @@
+{
+  "id": "quality-engineering",
+  "order": 19,
+  "icon": "🧪",
+  "color": "#7C3AED",
+  "title": "Testing, advanced Git, debugging, and refactoring",
+  "summary": "Learn to prove behavior, collaborate without losing work, diagnose methodically, and improve code without regression.",
+  "files": [
+    {
+      "path": "package.json",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/19-quality/price.test.mjs",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/19-quality/git-safe-workflow.sh",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/19-quality/debug-order.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/19-quality/refactor-total.ts",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "test-strategy",
+      "order": 0,
+      "title": "Build a testing strategy",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to run a pure function, read an assertion, and inspect a Git repository without rewriting history.",
+        "Be able to restate “test pyramid” before coding: A distribution with many fast tests, some integration tests, and few full journeys.",
+        "Know how to create exercises/19-quality/price.test.mjs, run node --test exercises/19-quality/price.test.mjs, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Distinguish unit, integration, and journey tests so each proof lives at the least expensive level.",
+        "Build a small Node suite that protects cart-line calculation, then prove the result with this exact signal: the node --test report shows two passing tests and a future invalid case fails for the intended reason."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Quality is a chain of evidence: an explicit expectation, a reproducible experiment, and a result compared with that expectation. In “Build a testing strategy”, the concrete input is cart-line total calculation for normal, zero, and invalid quantities. test pyramid means: A distribution with many fast tests, some integration tests, and few full journeys. The model is complete only when you test the pure rule with boundary values, then reserve browser journeys for contracts between components and can observe that the node --test report shows two passing tests and a future invalid case fails for the intended reason."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A test is like a marker sealed before renovation: it does not build the house, but immediately reveals whether the work moved an important wall. Here the part you will actually inspect is a small Node suite that protects cart-line calculation; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: cart-line total calculation for normal, zero, and invalid quantities. Distinguish unit, integration, and journey tests so each proof lives at the least expensive level. The term test pyramid is not a decorative label: A distribution with many fast tests, some integration tests, and few full journeys. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/19-quality/price.test.mjs, the example deliberately reduces the system to a small Node suite that protects cart-line calculation. Read each line as one responsibility, then run node --test exercises/19-quality/price.test.mjs. The main failure to trigger is: a rounding change breaks the total but no test close to the rule reports it. It shows why the professional correction is to test the pure rule with boundary values, then reserve browser journeys for contracts between components, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that the node --test report shows two passing tests and a future invalid case fails for the intended reason. Apply the same evidence to cart totals, order transitions, and administrator authorization, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "test pyramid",
+                  "definition": "A distribution with many fast tests, some integration tests, and few full journeys."
+                },
+                {
+                  "term": "Regression",
+                  "definition": "Previously correct behavior that stops working after a change."
+                },
+                {
+                  "term": "Minimal reproduction",
+                  "definition": "The smallest deterministic scenario that still triggers the defect being studied."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with cart-line total calculation for normal, zero, and invalid quantities, first write the observation “the node --test report shows two passing tests and a future invalid case fails for the intended reason”, and then implement a small Node suite that protects cart-line calculation. Simulate a rounding change breaks the total but no test close to the rule reports it and finish only when measurement confirms this safeguard: test the pure rule with boundary values, then reserve browser journeys for contracts between components."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "javascript",
+                "filename": "exercises/19-quality/price.test.mjs",
+                "source": "import test from \"node:test\";\nimport assert from \"node:assert/strict\";\nconst total = (price, quantity) => price * quantity;\ntest(\"calculates a cart line\", () => {\n  assert.equal(total(199, 2), 398);\n});\ntest(\"keeps zero quantity deterministic\", () => {\n  assert.equal(total(199, 0), 0);\n});",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "imports the named dependency without implicitly instantiating it — import test from \"node:test\";."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "imports the named dependency without implicitly instantiating it — import assert from \"node:assert/strict\";."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "opens the function that owns the stated responsibility — const total = (price, quantity) => price * quantity;."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "names an independent behavior the runner will execute — test(\"calculates a cart line\", () => {."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "compares the actual result with the precise expectation — assert.equal(total(199, 2), 398);."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "closes the structure opened by preceding lines — });."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "names an independent behavior the runner will execute — test(\"keeps zero quantity deterministic\", () => {."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "compares the actual result with the precise expectation — assert.equal(total(199, 0), 0);."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "closes the structure opened by preceding lines — });."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/19-quality/price.test.mjs\nnode --test exercises/19-quality/price.test.mjs",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/19-quality/price.test.mjs and identify the input “cart-line total calculation for normal, zero, and invalid quantities” in the annotations. — code exercises/19-quality/price.test.mjs"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run node --test exercises/19-quality/price.test.mjs once and retain secret-free output as the baseline. — node --test exercises/19-quality/price.test.mjs"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After node --test exercises/19-quality/price.test.mjs, the node --test report shows two passing tests and a future invalid case fails for the intended reason. The deliberately failing case demonstrates “a rounding change breaks the total but no test close to the rule reports it” without exposing a secret; after the safeguard—test the pure rule with boundary values, then reserve browser journeys for contracts between components—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects cart totals, order transitions, and administrator authorization. a small Node suite that protects cart-line calculation must remain on the correct side of the trust boundary; use test pyramid to justify validation and retain this as evidence: the node --test report shows two passing tests and a future invalid case fails for the intended reason."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/19-quality/price.test.mjs",
+        "node --test exercises/19-quality/price.test.mjs"
+      ],
+      "expectedResult": "After node --test exercises/19-quality/price.test.mjs, the node --test report shows two passing tests and a future invalid case fails for the intended reason. The deliberately failing case demonstrates “a rounding change breaks the total but no test close to the rule reports it” without exposing a secret; after the safeguard—test the pure rule with boundary values, then reserve browser journeys for contracts between components—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "a rounding change breaks the total but no test close to the rule reports it",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply test pyramid: A distribution with many fast tests, some integration tests, and few full journeys.",
+          "fix": "Apply this specific safeguard: test the pure rule with boundary values, then reserve browser journeys for contracts between components. Replay the case and verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason."
+        },
+        {
+          "symptom": "a small Node suite that protects cart-line calculation appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Build a testing strategy, node --test exercises/19-quality/price.test.mjs, input data, and outcome were not connected in a deterministic reproduction; changing several variables at once and attributing the result to the wrong cause.",
+          "fix": "Freeze cart-line total calculation for normal, zero, and invalid quantities, run node --test exercises/19-quality/price.test.mjs, record only the useful signal, and explicitly compare the outcome with “the node --test report shows two passing tests and a future invalid case fails for the intended reason”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a small Node suite that protects cart-line calculation in exercises/19-quality/price.test.mjs, demonstrate that the node --test report shows two passing tests and a future invalid case fails for the intended reason, then trigger and repair a rounding change breaks the total but no test close to the rule reports it.",
+        "steps": [
+          "Create exercises/19-quality/price.test.mjs and identify the input “cart-line total calculation for normal, zero, and invalid quantities” in the annotations.",
+          "Run node --test exercises/19-quality/price.test.mjs once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: a rounding change breaks the total but no test close to the rule reports it.",
+          "Implement “test the pure rule with boundary values, then reserve browser journeys for contracts between components”, rerun the command, and explain the role of test pyramid."
+        ],
+        "hints": [
+          "Read the definition again: A distribution with many fast tests, some integration tests, and few full journeys. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “the node --test report shows two passing tests and a future invalid case fails for the intended reason”."
+        ],
+        "solution": {
+          "explanation": "For Build a testing strategy, the solution keeps one authority and specifically applies “test the pure rule with boundary values, then reserve browser journeys for contracts between components”. It makes a rounding change breaks the total but no test close to the rule reports it reproducible and then controlled, and is accepted only when the node --test report shows two passing tests and a future invalid case fails for the intended reason.",
+          "code": "import test from \"node:test\";\nimport assert from \"node:assert/strict\";\nconst total = (price, quantity) => price * quantity;\ntest(\"calculates a cart line\", () => {\n  assert.equal(total(199, 2), 398);\n});\ntest(\"keeps zero quantity deterministic\", () => {\n  assert.equal(total(199, 0), 0);\n});",
+          "filename": "exercises/19-quality/price.test.mjs",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "test-strategy-q1",
+          "question": "Which decision actually demonstrates mastery of “Build a testing strategy” in this scenario?",
+          "options": [
+            "test the pure rule with boundary values, then reserve browser journeys for contracts between components, then verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason.",
+            "Ignore “a rounding change breaks the total but no test close to the rule reports it” because the normal path displays a small Node suite that protects cart-line calculation.",
+            "Move validation into the UI and treat test pyramid as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A distribution with many fast tests, some integration tests, and few full journeys.",
+          "answerExplanations": [
+            "This option is correct. It says « test the pure rule with boundary values, then reserve browser journeys for contracts between components, then verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A distribution with many fast tests, some integration tests, and few full journeys.",
+            "This option is incorrect. It says « Ignore “a rounding change breaks the total but no test close to the rule reports it” because the normal path displays a small Node suite that protects cart-line calculation. ». The reference answer is « test the pure rule with boundary values, then reserve browser journeys for contracts between components, then verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A distribution with many fast tests, some integration tests, and few full journeys.",
+            "This option is incorrect. It says « Move validation into the UI and treat test pyramid as a server detail. ». The reference answer is « test the pure rule with boundary values, then reserve browser journeys for contracts between components, then verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A distribution with many fast tests, some integration tests, and few full journeys.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « test the pure rule with boundary values, then reserve browser journeys for contracts between components, then verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A distribution with many fast tests, some integration tests, and few full journeys."
+          ]
+        },
+        {
+          "id": "test-strategy-q2",
+          "question": "Which definition matches the term “test pyramid”?",
+          "options": [
+            "Previously correct behavior that stops working after a change.",
+            "A distribution with many fast tests, some integration tests, and few full journeys.",
+            "The smallest deterministic scenario that still triggers the defect being studied.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“test pyramid” means: A distribution with many fast tests, some integration tests, and few full journeys.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Previously correct behavior that stops working after a change. ». The reference answer is « A distribution with many fast tests, some integration tests, and few full journeys. ». “test pyramid” means: A distribution with many fast tests, some integration tests, and few full journeys.",
+            "This option is correct. It says « A distribution with many fast tests, some integration tests, and few full journeys. ». “test pyramid” means: A distribution with many fast tests, some integration tests, and few full journeys.",
+            "This option is incorrect. It says « The smallest deterministic scenario that still triggers the defect being studied. ». The reference answer is « A distribution with many fast tests, some integration tests, and few full journeys. ». “test pyramid” means: A distribution with many fast tests, some integration tests, and few full journeys.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A distribution with many fast tests, some integration tests, and few full journeys. ». “test pyramid” means: A distribution with many fast tests, some integration tests, and few full journeys."
+          ]
+        },
+        {
+          "id": "test-strategy-q3",
+          "question": "What is the best first fix when you observe: “a rounding change breaks the total but no test close to the rule reports it”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze cart-line total calculation for normal, zero, and invalid quantities, run node --test exercises/19-quality/price.test.mjs, record only the useful signal, and explicitly compare the outcome with “the node --test report shows two passing tests and a future invalid case fails for the intended reason”.",
+            "Apply this specific safeguard: test the pure rule with boundary values, then reserve browser journeys for contracts between components. Replay the case and verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply test pyramid: A distribution with many fast tests, some integration tests, and few full journeys. The appropriate fix is: Apply this specific safeguard: test the pure rule with boundary values, then reserve browser journeys for contracts between components. Replay the case and verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: test the pure rule with boundary values, then reserve browser journeys for contracts between components. Replay the case and verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply test pyramid: A distribution with many fast tests, some integration tests, and few full journeys. The appropriate fix is: Apply this specific safeguard: test the pure rule with boundary values, then reserve browser journeys for contracts between components. Replay the case and verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason.",
+            "This option is incorrect. It says « Freeze cart-line total calculation for normal, zero, and invalid quantities, run node --test exercises/19-quality/price.test.mjs, record only the useful signal, and explicitly compare the outcome with “the node --test report shows two passing tests and a future invalid case fails for the intended reason”. ». The reference answer is « Apply this specific safeguard: test the pure rule with boundary values, then reserve browser journeys for contracts between components. Replay the case and verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply test pyramid: A distribution with many fast tests, some integration tests, and few full journeys. The appropriate fix is: Apply this specific safeguard: test the pure rule with boundary values, then reserve browser journeys for contracts between components. Replay the case and verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason.",
+            "This option is correct. It says « Apply this specific safeguard: test the pure rule with boundary values, then reserve browser journeys for contracts between components. Replay the case and verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply test pyramid: A distribution with many fast tests, some integration tests, and few full journeys. The appropriate fix is: Apply this specific safeguard: test the pure rule with boundary values, then reserve browser journeys for contracts between components. Replay the case and verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: test the pure rule with boundary values, then reserve browser journeys for contracts between components. Replay the case and verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply test pyramid: A distribution with many fast tests, some integration tests, and few full journeys. The appropriate fix is: Apply this specific safeguard: test the pure rule with boundary values, then reserve browser journeys for contracts between components. Replay the case and verify that the node --test report shows two passing tests and a future invalid case fails for the intended reason."
+          ]
+        }
+      ],
+      "recap": [
+        "Distinguish unit, integration, and journey tests so each proof lives at the least expensive level.",
+        "test pyramid: A distribution with many fast tests, some integration tests, and few full journeys.",
+        "Completion evidence: the node --test report shows two passing tests and a future invalid case fails for the intended reason."
+      ],
+      "next": "The next lesson places this evidence in a small, inspectable, reversible Git commit."
+    },
+    {
+      "id": "git-advanced",
+      "order": 1,
+      "title": "Advanced Git without losing work",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to run a pure function, read an assertion, and inspect a Git repository without rewriting history.",
+        "Be able to restate “Git index” before coding: The staging area that defines the exact next snapshot independently of other local edits.",
+        "Know how to create exercises/19-quality/git-safe-workflow.sh, run git diff --check, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Compose small verifiable commits, inspect the index, and prefer revert over destructive operations on a shared branch.",
+        "Build a branch-and-commit workflow that can be audited before publishing, then prove the result with this exact signal: git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Quality is a chain of evidence: an explicit expectation, a reproducible experiment, and a result compared with that expectation. In “Advanced Git without losing work”, the concrete input is a cart refactor made on a branch while other local files remain unfinished. Git index means: The staging area that defines the exact next snapshot independently of other local edits. The model is complete only when you stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch and can observe that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A test is like a marker sealed before renovation: it does not build the house, but immediately reveals whether the work moved an important wall. Here the part you will actually inspect is a branch-and-commit workflow that can be audited before publishing; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: a cart refactor made on a branch while other local files remain unfinished. Compose small verifiable commits, inspect the index, and prefer revert over destructive operations on a shared branch. The term Git index is not a decorative label: The staging area that defines the exact next snapshot independently of other local edits. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/19-quality/git-safe-workflow.sh, the example deliberately reduces the system to a branch-and-commit workflow that can be audited before publishing. Read each line as one responsibility, then run git diff --check. The main failure to trigger is: a global git add mixes secrets, generated files, and refactoring in one snapshot. It shows why the professional correction is to stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files. Apply the same evidence to cart totals, order transitions, and administrator authorization, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Git index",
+                  "definition": "The staging area that defines the exact next snapshot independently of other local edits."
+                },
+                {
+                  "term": "Regression",
+                  "definition": "Previously correct behavior that stops working after a change."
+                },
+                {
+                  "term": "Minimal reproduction",
+                  "definition": "The smallest deterministic scenario that still triggers the defect being studied."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with a cart refactor made on a branch while other local files remain unfinished, first write the observation “git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files”, and then implement a branch-and-commit workflow that can be audited before publishing. Simulate a global git add mixes secrets, generated files, and refactoring in one snapshot and finish only when measurement confirms this safeguard: stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "bash",
+                "filename": "exercises/19-quality/git-safe-workflow.sh",
+                "source": "git switch -c lesson/safe-refactor\ngit status --short\ngit add exercises/19-quality\ngit diff --cached --stat\ngit diff --cached --check\ngit commit -m \"test: protect cart totals\"\ngit log --oneline -3\ngit show --stat HEAD",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "runs a terminal step in the visible order — git switch -c lesson/safe-refactor."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "runs a terminal step in the visible order — git status --short."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "runs a terminal step in the visible order — git add exercises/19-quality."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "runs a terminal step in the visible order — git diff --cached --stat."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "runs a terminal step in the visible order — git diff --cached --check."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "runs a terminal step in the visible order — git commit -m \"test: protect cart totals\"."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "runs a terminal step in the visible order — git log --oneline -3."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "runs a terminal step in the visible order — git show --stat HEAD."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/19-quality/git-safe-workflow.sh\ngit diff --check",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/19-quality/git-safe-workflow.sh and identify the input “a cart refactor made on a branch while other local files remain unfinished” in the annotations. — code exercises/19-quality/git-safe-workflow.sh"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run git diff --check once and retain secret-free output as the baseline. — git diff --check"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After git diff --check, git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files. The deliberately failing case demonstrates “a global git add mixes secrets, generated files, and refactoring in one snapshot” without exposing a secret; after the safeguard—stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects cart totals, order transitions, and administrator authorization. a branch-and-commit workflow that can be audited before publishing must remain on the correct side of the trust boundary; use Git index to justify validation and retain this as evidence: git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/19-quality/git-safe-workflow.sh",
+        "git diff --check"
+      ],
+      "expectedResult": "After git diff --check, git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files. The deliberately failing case demonstrates “a global git add mixes secrets, generated files, and refactoring in one snapshot” without exposing a secret; after the safeguard—stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "a global git add mixes secrets, generated files, and refactoring in one snapshot",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply Git index: The staging area that defines the exact next snapshot independently of other local edits.",
+          "fix": "Apply this specific safeguard: stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch. Replay the case and verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files."
+        },
+        {
+          "symptom": "a branch-and-commit workflow that can be audited before publishing appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Advanced Git without losing work, git diff --check, input data, and outcome were not connected in a deterministic reproduction; changing several variables at once and attributing the result to the wrong cause.",
+          "fix": "Freeze a cart refactor made on a branch while other local files remain unfinished, run git diff --check, record only the useful signal, and explicitly compare the outcome with “git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a branch-and-commit workflow that can be audited before publishing in exercises/19-quality/git-safe-workflow.sh, demonstrate that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files, then trigger and repair a global git add mixes secrets, generated files, and refactoring in one snapshot.",
+        "steps": [
+          "Create exercises/19-quality/git-safe-workflow.sh and identify the input “a cart refactor made on a branch while other local files remain unfinished” in the annotations.",
+          "Run git diff --check once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: a global git add mixes secrets, generated files, and refactoring in one snapshot.",
+          "Implement “stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch”, rerun the command, and explain the role of Git index."
+        ],
+        "hints": [
+          "Read the definition again: The staging area that defines the exact next snapshot independently of other local edits. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files”."
+        ],
+        "solution": {
+          "explanation": "For Advanced Git without losing work, the solution keeps one authority and specifically applies “stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch”. It makes a global git add mixes secrets, generated files, and refactoring in one snapshot reproducible and then controlled, and is accepted only when git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files.",
+          "code": "git switch -c lesson/safe-refactor\ngit status --short\ngit add exercises/19-quality\ngit diff --cached --stat\ngit diff --cached --check\ngit commit -m \"test: protect cart totals\"\ngit log --oneline -3\ngit show --stat HEAD",
+          "filename": "exercises/19-quality/git-safe-workflow.sh",
+          "language": "bash"
+        }
+      },
+      "quiz": [
+        {
+          "id": "git-advanced-q1",
+          "question": "Which decision actually demonstrates mastery of “Advanced Git without losing work” in this scenario?",
+          "options": [
+            "stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch, then verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files.",
+            "Ignore “a global git add mixes secrets, generated files, and refactoring in one snapshot” because the normal path displays a branch-and-commit workflow that can be audited before publishing.",
+            "Move validation into the UI and treat Git index as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The staging area that defines the exact next snapshot independently of other local edits.",
+          "answerExplanations": [
+            "This option is correct. It says « stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch, then verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The staging area that defines the exact next snapshot independently of other local edits.",
+            "This option is incorrect. It says « Ignore “a global git add mixes secrets, generated files, and refactoring in one snapshot” because the normal path displays a branch-and-commit workflow that can be audited before publishing. ». The reference answer is « stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch, then verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The staging area that defines the exact next snapshot independently of other local edits.",
+            "This option is incorrect. It says « Move validation into the UI and treat Git index as a server detail. ». The reference answer is « stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch, then verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The staging area that defines the exact next snapshot independently of other local edits.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch, then verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The staging area that defines the exact next snapshot independently of other local edits."
+          ]
+        },
+        {
+          "id": "git-advanced-q2",
+          "question": "Which definition matches the term “Git index”?",
+          "options": [
+            "Previously correct behavior that stops working after a change.",
+            "The staging area that defines the exact next snapshot independently of other local edits.",
+            "The smallest deterministic scenario that still triggers the defect being studied.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Git index” means: The staging area that defines the exact next snapshot independently of other local edits.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Previously correct behavior that stops working after a change. ». The reference answer is « The staging area that defines the exact next snapshot independently of other local edits. ». “Git index” means: The staging area that defines the exact next snapshot independently of other local edits.",
+            "This option is correct. It says « The staging area that defines the exact next snapshot independently of other local edits. ». “Git index” means: The staging area that defines the exact next snapshot independently of other local edits.",
+            "This option is incorrect. It says « The smallest deterministic scenario that still triggers the defect being studied. ». The reference answer is « The staging area that defines the exact next snapshot independently of other local edits. ». “Git index” means: The staging area that defines the exact next snapshot independently of other local edits.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « The staging area that defines the exact next snapshot independently of other local edits. ». “Git index” means: The staging area that defines the exact next snapshot independently of other local edits."
+          ]
+        },
+        {
+          "id": "git-advanced-q3",
+          "question": "What is the best first fix when you observe: “a global git add mixes secrets, generated files, and refactoring in one snapshot”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze a cart refactor made on a branch while other local files remain unfinished, run git diff --check, record only the useful signal, and explicitly compare the outcome with “git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files”.",
+            "Apply this specific safeguard: stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch. Replay the case and verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Git index: The staging area that defines the exact next snapshot independently of other local edits. The appropriate fix is: Apply this specific safeguard: stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch. Replay the case and verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch. Replay the case and verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Git index: The staging area that defines the exact next snapshot independently of other local edits. The appropriate fix is: Apply this specific safeguard: stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch. Replay the case and verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files.",
+            "This option is incorrect. It says « Freeze a cart refactor made on a branch while other local files remain unfinished, run git diff --check, record only the useful signal, and explicitly compare the outcome with “git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files”. ». The reference answer is « Apply this specific safeguard: stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch. Replay the case and verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Git index: The staging area that defines the exact next snapshot independently of other local edits. The appropriate fix is: Apply this specific safeguard: stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch. Replay the case and verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files.",
+            "This option is correct. It says « Apply this specific safeguard: stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch. Replay the case and verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Git index: The staging area that defines the exact next snapshot independently of other local edits. The appropriate fix is: Apply this specific safeguard: stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch. Replay the case and verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch. Replay the case and verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Git index: The staging area that defines the exact next snapshot independently of other local edits. The appropriate fix is: Apply this specific safeguard: stage the targeted path, inspect the staged diff, then use revert instead of destructive rewriting on a shared branch. Replay the case and verify that git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files."
+          ]
+        }
+      ],
+      "recap": [
+        "Compose small verifiable commits, inspect the index, and prefer revert over destructive operations on a shared branch.",
+        "Git index: The staging area that defines the exact next snapshot independently of other local edits.",
+        "Completion evidence: git diff --cached --check reports nothing and git show --stat HEAD contains only intentional files."
+      ],
+      "next": "The next lesson uses history and observations to methodically narrow an order defect."
+    },
+    {
+      "id": "systematic-debugging",
+      "order": 2,
+      "title": "Debug with hypotheses",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to run a pure function, read an assertion, and inspect a Git repository without rewriting history.",
+        "Be able to restate “falsifiable hypothesis” before coding: An explanation precise enough for an observation to confirm or disprove it.",
+        "Know how to create exercises/19-quality/debug-order.ts, run npx tsc --noEmit, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Reproduce the defect, narrow the search area, state a measurable hypothesis, and change only one variable at a time.",
+        "Build a reproducible diagnosis with a structured domain error and no sensitive data, then prove the result with this exact signal: the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Quality is a chain of evidence: an explicit expectation, a reproducible experiment, and a result compared with that expectation. In “Debug with hypotheses”, the concrete input is an order present in storage but queried with a missing or transformed identifier. falsifiable hypothesis means: An explanation precise enough for an observation to confirm or disprove it. The model is complete only when you freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs and can observe that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A test is like a marker sealed before renovation: it does not build the house, but immediately reveals whether the work moved an important wall. Here the part you will actually inspect is a reproducible diagnosis with a structured domain error and no sensitive data; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: an order present in storage but queried with a missing or transformed identifier. Reproduce the defect, narrow the search area, state a measurable hypothesis, and change only one variable at a time. The term falsifiable hypothesis is not a decorative label: An explanation precise enough for an observation to confirm or disprove it. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/19-quality/debug-order.ts, the example deliberately reduces the system to a reproducible diagnosis with a structured domain error and no sensitive data. Read each line as one responsibility, then run npx tsc --noEmit. The main failure to trigger is: random logs and several simultaneous fixes make the symptom disappear without identifying the cause. It shows why the professional correction is to freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total. Apply the same evidence to cart totals, order transitions, and administrator authorization, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "falsifiable hypothesis",
+                  "definition": "An explanation precise enough for an observation to confirm or disprove it."
+                },
+                {
+                  "term": "Regression",
+                  "definition": "Previously correct behavior that stops working after a change."
+                },
+                {
+                  "term": "Minimal reproduction",
+                  "definition": "The smallest deterministic scenario that still triggers the defect being studied."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with an order present in storage but queried with a missing or transformed identifier, first write the observation “the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total”, and then implement a reproducible diagnosis with a structured domain error and no sensitive data. Simulate random logs and several simultaneous fixes make the symptom disappear without identifying the cause and finish only when measurement confirms this safeguard: freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/19-quality/debug-order.ts",
+                "source": "type Order = { id: string; total: number };\nconst orders: Order[] = [{ id: \"ord_1\", total: 398 }];\nconst findOrder = (id: string) => orders.find((order) => order.id === id);\nconst order = findOrder(\"ord_missing\");\nif (!order) {\n  console.error({ code: \"ORDER_NOT_FOUND\", id: \"ord_missing\" });\n} else {\n  console.log({ id: order.id, total: order.total });\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "defines the shape of data accepted at this boundary — type Order = { id: string; total: number };."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "declares or transforms this datum for the next step — const orders: Order[] = [{ id: \"ord_1\", total: 398 }];."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "defines the shape of data accepted at this boundary — const findOrder = (id: string) => orders.find((order) => order.id === id);."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "declares or transforms this datum for the next step — const order = findOrder(\"ord_missing\");."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "explicitly rejects or branches when this condition is true — if (!order) {."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "makes the result visible in the terminal but is not business validation — console.error({ code: \"ORDER_NOT_FOUND\", id: \"ord_missing\" });."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "declares or transforms this datum for the next step — } else {."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "makes the result visible in the terminal but is not business validation — console.log({ id: order.id, total: order.total });."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "closes the structure opened by preceding lines — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/19-quality/debug-order.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/19-quality/debug-order.ts and identify the input “an order present in storage but queried with a missing or transformed identifier” in the annotations. — code exercises/19-quality/debug-order.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npx tsc --noEmit once and retain secret-free output as the baseline. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npx tsc --noEmit, the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total. The deliberately failing case demonstrates “random logs and several simultaneous fixes make the symptom disappear without identifying the cause” without exposing a secret; after the safeguard—freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects cart totals, order transitions, and administrator authorization. a reproducible diagnosis with a structured domain error and no sensitive data must remain on the correct side of the trust boundary; use falsifiable hypothesis to justify validation and retain this as evidence: the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/19-quality/debug-order.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "After npx tsc --noEmit, the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total. The deliberately failing case demonstrates “random logs and several simultaneous fixes make the symptom disappear without identifying the cause” without exposing a secret; after the safeguard—freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "random logs and several simultaneous fixes make the symptom disappear without identifying the cause",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply falsifiable hypothesis: An explanation precise enough for an observation to confirm or disprove it.",
+          "fix": "Apply this specific safeguard: freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs. Replay the case and verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total."
+        },
+        {
+          "symptom": "a reproducible diagnosis with a structured domain error and no sensitive data appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Debug with hypotheses, npx tsc --noEmit, input data, and outcome were not connected in a deterministic reproduction; changing several variables at once and attributing the result to the wrong cause.",
+          "fix": "Freeze an order present in storage but queried with a missing or transformed identifier, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a reproducible diagnosis with a structured domain error and no sensitive data in exercises/19-quality/debug-order.ts, demonstrate that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total, then trigger and repair random logs and several simultaneous fixes make the symptom disappear without identifying the cause.",
+        "steps": [
+          "Create exercises/19-quality/debug-order.ts and identify the input “an order present in storage but queried with a missing or transformed identifier” in the annotations.",
+          "Run npx tsc --noEmit once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: random logs and several simultaneous fixes make the symptom disappear without identifying the cause.",
+          "Implement “freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs”, rerun the command, and explain the role of falsifiable hypothesis."
+        ],
+        "hints": [
+          "Read the definition again: An explanation precise enough for an observation to confirm or disprove it. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total”."
+        ],
+        "solution": {
+          "explanation": "For Debug with hypotheses, the solution keeps one authority and specifically applies “freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs”. It makes random logs and several simultaneous fixes make the symptom disappear without identifying the cause reproducible and then controlled, and is accepted only when the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total.",
+          "code": "type Order = { id: string; total: number };\nconst orders: Order[] = [{ id: \"ord_1\", total: 398 }];\nconst findOrder = (id: string) => orders.find((order) => order.id === id);\nconst order = findOrder(\"ord_missing\");\nif (!order) {\n  console.error({ code: \"ORDER_NOT_FOUND\", id: \"ord_missing\" });\n} else {\n  console.log({ id: order.id, total: order.total });\n}",
+          "filename": "exercises/19-quality/debug-order.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "systematic-debugging-q1",
+          "question": "Which decision actually demonstrates mastery of “Debug with hypotheses” in this scenario?",
+          "options": [
+            "freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs, then verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total.",
+            "Ignore “random logs and several simultaneous fixes make the symptom disappear without identifying the cause” because the normal path displays a reproducible diagnosis with a structured domain error and no sensitive data.",
+            "Move validation into the UI and treat falsifiable hypothesis as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; An explanation precise enough for an observation to confirm or disprove it.",
+          "answerExplanations": [
+            "This option is correct. It says « freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs, then verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; An explanation precise enough for an observation to confirm or disprove it.",
+            "This option is incorrect. It says « Ignore “random logs and several simultaneous fixes make the symptom disappear without identifying the cause” because the normal path displays a reproducible diagnosis with a structured domain error and no sensitive data. ». The reference answer is « freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs, then verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; An explanation precise enough for an observation to confirm or disprove it.",
+            "This option is incorrect. It says « Move validation into the UI and treat falsifiable hypothesis as a server detail. ». The reference answer is « freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs, then verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; An explanation precise enough for an observation to confirm or disprove it.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs, then verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; An explanation precise enough for an observation to confirm or disprove it."
+          ]
+        },
+        {
+          "id": "systematic-debugging-q2",
+          "question": "Which definition matches the term “falsifiable hypothesis”?",
+          "options": [
+            "Previously correct behavior that stops working after a change.",
+            "An explanation precise enough for an observation to confirm or disprove it.",
+            "The smallest deterministic scenario that still triggers the defect being studied.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“falsifiable hypothesis” means: An explanation precise enough for an observation to confirm or disprove it.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Previously correct behavior that stops working after a change. ». The reference answer is « An explanation precise enough for an observation to confirm or disprove it. ». “falsifiable hypothesis” means: An explanation precise enough for an observation to confirm or disprove it.",
+            "This option is correct. It says « An explanation precise enough for an observation to confirm or disprove it. ». “falsifiable hypothesis” means: An explanation precise enough for an observation to confirm or disprove it.",
+            "This option is incorrect. It says « The smallest deterministic scenario that still triggers the defect being studied. ». The reference answer is « An explanation precise enough for an observation to confirm or disprove it. ». “falsifiable hypothesis” means: An explanation precise enough for an observation to confirm or disprove it.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « An explanation precise enough for an observation to confirm or disprove it. ». “falsifiable hypothesis” means: An explanation precise enough for an observation to confirm or disprove it."
+          ]
+        },
+        {
+          "id": "systematic-debugging-q3",
+          "question": "What is the best first fix when you observe: “random logs and several simultaneous fixes make the symptom disappear without identifying the cause”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze an order present in storage but queried with a missing or transformed identifier, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total”.",
+            "Apply this specific safeguard: freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs. Replay the case and verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply falsifiable hypothesis: An explanation precise enough for an observation to confirm or disprove it. The appropriate fix is: Apply this specific safeguard: freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs. Replay the case and verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs. Replay the case and verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply falsifiable hypothesis: An explanation precise enough for an observation to confirm or disprove it. The appropriate fix is: Apply this specific safeguard: freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs. Replay the case and verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total.",
+            "This option is incorrect. It says « Freeze an order present in storage but queried with a missing or transformed identifier, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total”. ». The reference answer is « Apply this specific safeguard: freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs. Replay the case and verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply falsifiable hypothesis: An explanation precise enough for an observation to confirm or disprove it. The appropriate fix is: Apply this specific safeguard: freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs. Replay the case and verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total.",
+            "This option is correct. It says « Apply this specific safeguard: freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs. Replay the case and verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply falsifiable hypothesis: An explanation precise enough for an observation to confirm or disprove it. The appropriate fix is: Apply this specific safeguard: freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs. Replay the case and verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs. Replay the case and verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply falsifiable hypothesis: An explanation precise enough for an observation to confirm or disprove it. The appropriate fix is: Apply this specific safeguard: freeze the input, write a falsifiable hypothesis, observe one boundary at a time, and remove personal data from logs. Replay the case and verify that the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total."
+          ]
+        }
+      ],
+      "recap": [
+        "Reproduce the defect, narrow the search area, state a measurable hypothesis, and change only one variable at a time.",
+        "falsifiable hypothesis: An explanation precise enough for an observation to confirm or disprove it.",
+        "Completion evidence: the reproduction emits ORDER_NOT_FOUND with the test identifier, then the valid case prints exactly the expected total."
+      ],
+      "next": "The next lesson changes the diagnosed code through small extractions protected by an assertion."
+    },
+    {
+      "id": "safe-refactoring",
+      "order": 3,
+      "title": "Refactor without changing behavior",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to run a pure function, read an assertion, and inspect a Git repository without rewriting history.",
+        "Be able to restate “refactoring” before coding: Improving internal structure without changing observable behavior.",
+        "Know how to create exercises/19-quality/refactor-total.ts, run npx tsc --noEmit, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Lock down current behavior, extract one responsibility at a time, and verify the same contract after every small change.",
+        "Build a cart calculation split into named functions with a regression assertion, then prove the result with this exact signal: the regression assertion and existing tests produce the same values before and after every extraction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Quality is a chain of evidence: an explicit expectation, a reproducible experiment, and a result compared with that expectation. In “Refactor without changing behavior”, the concrete input is an overly compact cart calculation whose line and aggregate totals must be separated without changing 398. refactoring means: Improving internal structure without changing observable behavior. The model is complete only when you capture behavior first, rename or extract one responsibility, run the proof, and only then continue and can observe that the regression assertion and existing tests produce the same values before and after every extraction."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A test is like a marker sealed before renovation: it does not build the house, but immediately reveals whether the work moved an important wall. Here the part you will actually inspect is a cart calculation split into named functions with a regression assertion; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: an overly compact cart calculation whose line and aggregate totals must be separated without changing 398. Lock down current behavior, extract one responsibility at a time, and verify the same contract after every small change. The term refactoring is not a decorative label: Improving internal structure without changing observable behavior. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/19-quality/refactor-total.ts, the example deliberately reduces the system to a cart calculation split into named functions with a regression assertion. Read each line as one responsibility, then run npx tsc --noEmit. The main failure to trigger is: the refactor adds a discount rule at the same time, making the changed result impossible to attribute. It shows why the professional correction is to capture behavior first, rename or extract one responsibility, run the proof, and only then continue, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that the regression assertion and existing tests produce the same values before and after every extraction. Apply the same evidence to cart totals, order transitions, and administrator authorization, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "refactoring",
+                  "definition": "Improving internal structure without changing observable behavior."
+                },
+                {
+                  "term": "Regression",
+                  "definition": "Previously correct behavior that stops working after a change."
+                },
+                {
+                  "term": "Minimal reproduction",
+                  "definition": "The smallest deterministic scenario that still triggers the defect being studied."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with an overly compact cart calculation whose line and aggregate totals must be separated without changing 398, first write the observation “the regression assertion and existing tests produce the same values before and after every extraction”, and then implement a cart calculation split into named functions with a regression assertion. Simulate the refactor adds a discount rule at the same time, making the changed result impossible to attribute and finish only when measurement confirms this safeguard: capture behavior first, rename or extract one responsibility, run the proof, and only then continue."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/19-quality/refactor-total.ts",
+                "source": "type CartLine = { unitPrice: number; quantity: number };\nconst lineTotal = ({ unitPrice, quantity }: CartLine) => unitPrice * quantity;\nconst cartTotal = (lines: CartLine[]) =>\n  lines.reduce((sum, line) => sum + lineTotal(line), 0);\nconst sample = [{ unitPrice: 199, quantity: 2 }];\nconst result = cartTotal(sample);\nif (result !== 398) throw new Error(\"cart total changed\");\nconsole.log({ result });",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "defines the shape of data accepted at this boundary — type CartLine = { unitPrice: number; quantity: number };."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "opens the function that owns the stated responsibility — const lineTotal = ({ unitPrice, quantity }: CartLine) => unitPrice * quantity;."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "opens the function that owns the stated responsibility — const cartTotal = (lines: CartLine[]) =>."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "opens the function that owns the stated responsibility — lines.reduce((sum, line) => sum + lineTotal(line), 0);."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "declares or transforms this datum for the next step — const sample = [{ unitPrice: 199, quantity: 2 }];."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "declares or transforms this datum for the next step — const result = cartTotal(sample);."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "explicitly rejects or branches when this condition is true — if (result !== 398) throw new Error(\"cart total changed\");."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "makes the result visible in the terminal but is not business validation — console.log({ result });."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/19-quality/refactor-total.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/19-quality/refactor-total.ts and identify the input “an overly compact cart calculation whose line and aggregate totals must be separated without changing 398” in the annotations. — code exercises/19-quality/refactor-total.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npx tsc --noEmit once and retain secret-free output as the baseline. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npx tsc --noEmit, the regression assertion and existing tests produce the same values before and after every extraction. The deliberately failing case demonstrates “the refactor adds a discount rule at the same time, making the changed result impossible to attribute” without exposing a secret; after the safeguard—capture behavior first, rename or extract one responsibility, run the proof, and only then continue—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects cart totals, order transitions, and administrator authorization. a cart calculation split into named functions with a regression assertion must remain on the correct side of the trust boundary; use refactoring to justify validation and retain this as evidence: the regression assertion and existing tests produce the same values before and after every extraction."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/19-quality/refactor-total.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "After npx tsc --noEmit, the regression assertion and existing tests produce the same values before and after every extraction. The deliberately failing case demonstrates “the refactor adds a discount rule at the same time, making the changed result impossible to attribute” without exposing a secret; after the safeguard—capture behavior first, rename or extract one responsibility, run the proof, and only then continue—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "the refactor adds a discount rule at the same time, making the changed result impossible to attribute",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply refactoring: Improving internal structure without changing observable behavior.",
+          "fix": "Apply this specific safeguard: capture behavior first, rename or extract one responsibility, run the proof, and only then continue. Replay the case and verify that the regression assertion and existing tests produce the same values before and after every extraction."
+        },
+        {
+          "symptom": "a cart calculation split into named functions with a regression assertion appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Refactor without changing behavior, npx tsc --noEmit, input data, and outcome were not connected in a deterministic reproduction; changing several variables at once and attributing the result to the wrong cause.",
+          "fix": "Freeze an overly compact cart calculation whose line and aggregate totals must be separated without changing 398, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the regression assertion and existing tests produce the same values before and after every extraction”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a cart calculation split into named functions with a regression assertion in exercises/19-quality/refactor-total.ts, demonstrate that the regression assertion and existing tests produce the same values before and after every extraction, then trigger and repair the refactor adds a discount rule at the same time, making the changed result impossible to attribute.",
+        "steps": [
+          "Create exercises/19-quality/refactor-total.ts and identify the input “an overly compact cart calculation whose line and aggregate totals must be separated without changing 398” in the annotations.",
+          "Run npx tsc --noEmit once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: the refactor adds a discount rule at the same time, making the changed result impossible to attribute.",
+          "Implement “capture behavior first, rename or extract one responsibility, run the proof, and only then continue”, rerun the command, and explain the role of refactoring."
+        ],
+        "hints": [
+          "Read the definition again: Improving internal structure without changing observable behavior. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “the regression assertion and existing tests produce the same values before and after every extraction”."
+        ],
+        "solution": {
+          "explanation": "For Refactor without changing behavior, the solution keeps one authority and specifically applies “capture behavior first, rename or extract one responsibility, run the proof, and only then continue”. It makes the refactor adds a discount rule at the same time, making the changed result impossible to attribute reproducible and then controlled, and is accepted only when the regression assertion and existing tests produce the same values before and after every extraction.",
+          "code": "type CartLine = { unitPrice: number; quantity: number };\nconst lineTotal = ({ unitPrice, quantity }: CartLine) => unitPrice * quantity;\nconst cartTotal = (lines: CartLine[]) =>\n  lines.reduce((sum, line) => sum + lineTotal(line), 0);\nconst sample = [{ unitPrice: 199, quantity: 2 }];\nconst result = cartTotal(sample);\nif (result !== 398) throw new Error(\"cart total changed\");\nconsole.log({ result });",
+          "filename": "exercises/19-quality/refactor-total.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "safe-refactoring-q1",
+          "question": "Which decision actually demonstrates mastery of “Refactor without changing behavior” in this scenario?",
+          "options": [
+            "capture behavior first, rename or extract one responsibility, run the proof, and only then continue, then verify that the regression assertion and existing tests produce the same values before and after every extraction.",
+            "Ignore “the refactor adds a discount rule at the same time, making the changed result impossible to attribute” because the normal path displays a cart calculation split into named functions with a regression assertion.",
+            "Move validation into the UI and treat refactoring as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Improving internal structure without changing observable behavior.",
+          "answerExplanations": [
+            "This option is correct. It says « capture behavior first, rename or extract one responsibility, run the proof, and only then continue, then verify that the regression assertion and existing tests produce the same values before and after every extraction. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Improving internal structure without changing observable behavior.",
+            "This option is incorrect. It says « Ignore “the refactor adds a discount rule at the same time, making the changed result impossible to attribute” because the normal path displays a cart calculation split into named functions with a regression assertion. ». The reference answer is « capture behavior first, rename or extract one responsibility, run the proof, and only then continue, then verify that the regression assertion and existing tests produce the same values before and after every extraction. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Improving internal structure without changing observable behavior.",
+            "This option is incorrect. It says « Move validation into the UI and treat refactoring as a server detail. ». The reference answer is « capture behavior first, rename or extract one responsibility, run the proof, and only then continue, then verify that the regression assertion and existing tests produce the same values before and after every extraction. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Improving internal structure without changing observable behavior.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « capture behavior first, rename or extract one responsibility, run the proof, and only then continue, then verify that the regression assertion and existing tests produce the same values before and after every extraction. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Improving internal structure without changing observable behavior."
+          ]
+        },
+        {
+          "id": "safe-refactoring-q2",
+          "question": "Which definition matches the term “refactoring”?",
+          "options": [
+            "Previously correct behavior that stops working after a change.",
+            "Improving internal structure without changing observable behavior.",
+            "The smallest deterministic scenario that still triggers the defect being studied.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“refactoring” means: Improving internal structure without changing observable behavior.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Previously correct behavior that stops working after a change. ». The reference answer is « Improving internal structure without changing observable behavior. ». “refactoring” means: Improving internal structure without changing observable behavior.",
+            "This option is correct. It says « Improving internal structure without changing observable behavior. ». “refactoring” means: Improving internal structure without changing observable behavior.",
+            "This option is incorrect. It says « The smallest deterministic scenario that still triggers the defect being studied. ». The reference answer is « Improving internal structure without changing observable behavior. ». “refactoring” means: Improving internal structure without changing observable behavior.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Improving internal structure without changing observable behavior. ». “refactoring” means: Improving internal structure without changing observable behavior."
+          ]
+        },
+        {
+          "id": "safe-refactoring-q3",
+          "question": "What is the best first fix when you observe: “the refactor adds a discount rule at the same time, making the changed result impossible to attribute”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze an overly compact cart calculation whose line and aggregate totals must be separated without changing 398, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the regression assertion and existing tests produce the same values before and after every extraction”.",
+            "Apply this specific safeguard: capture behavior first, rename or extract one responsibility, run the proof, and only then continue. Replay the case and verify that the regression assertion and existing tests produce the same values before and after every extraction.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply refactoring: Improving internal structure without changing observable behavior. The appropriate fix is: Apply this specific safeguard: capture behavior first, rename or extract one responsibility, run the proof, and only then continue. Replay the case and verify that the regression assertion and existing tests produce the same values before and after every extraction.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: capture behavior first, rename or extract one responsibility, run the proof, and only then continue. Replay the case and verify that the regression assertion and existing tests produce the same values before and after every extraction. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply refactoring: Improving internal structure without changing observable behavior. The appropriate fix is: Apply this specific safeguard: capture behavior first, rename or extract one responsibility, run the proof, and only then continue. Replay the case and verify that the regression assertion and existing tests produce the same values before and after every extraction.",
+            "This option is incorrect. It says « Freeze an overly compact cart calculation whose line and aggregate totals must be separated without changing 398, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the regression assertion and existing tests produce the same values before and after every extraction”. ». The reference answer is « Apply this specific safeguard: capture behavior first, rename or extract one responsibility, run the proof, and only then continue. Replay the case and verify that the regression assertion and existing tests produce the same values before and after every extraction. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply refactoring: Improving internal structure without changing observable behavior. The appropriate fix is: Apply this specific safeguard: capture behavior first, rename or extract one responsibility, run the proof, and only then continue. Replay the case and verify that the regression assertion and existing tests produce the same values before and after every extraction.",
+            "This option is correct. It says « Apply this specific safeguard: capture behavior first, rename or extract one responsibility, run the proof, and only then continue. Replay the case and verify that the regression assertion and existing tests produce the same values before and after every extraction. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply refactoring: Improving internal structure without changing observable behavior. The appropriate fix is: Apply this specific safeguard: capture behavior first, rename or extract one responsibility, run the proof, and only then continue. Replay the case and verify that the regression assertion and existing tests produce the same values before and after every extraction.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: capture behavior first, rename or extract one responsibility, run the proof, and only then continue. Replay the case and verify that the regression assertion and existing tests produce the same values before and after every extraction. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply refactoring: Improving internal structure without changing observable behavior. The appropriate fix is: Apply this specific safeguard: capture behavior first, rename or extract one responsibility, run the proof, and only then continue. Replay the case and verify that the regression assertion and existing tests produce the same values before and after every extraction."
+          ]
+        }
+      ],
+      "recap": [
+        "Lock down current behavior, extract one responsibility at a time, and verify the same contract after every small change.",
+        "refactoring: Improving internal structure without changing observable behavior.",
+        "Completion evidence: the regression assertion and existing tests produce the same values before and after every extraction."
+      ],
+      "next": "The next module applies the same observable-evidence discipline to page discovery, accessibility, and speed."
+    }
+  ]
+}

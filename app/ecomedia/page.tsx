@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import EcomediaFeed from "@/components/ecomedia/EcomediaFeed";
-import type { EcomediaPost } from "@/lib/ecomedia";
+import { hydrateCommunityPost, type EcomediaPost } from "@/lib/ecomedia";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +32,7 @@ async function getInitialPosts(): Promise<EcomediaPost[]> {
       .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(9);
-    return (data ?? []) as EcomediaPost[];
+    return ((data ?? []) as EcomediaPost[]).map(hydrateCommunityPost);
   } catch { return []; }
 }
 

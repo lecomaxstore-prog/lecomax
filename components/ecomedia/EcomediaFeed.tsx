@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { EcomediaPost } from "@/lib/ecomedia";
 import PostCard from "./PostCard";
 import EcomediaStories from "./EcomediaStories";
+import CommunityComposer from "./CommunityComposer";
 
 const LIMIT = 9;
 
@@ -80,16 +81,21 @@ export default function EcomediaFeed({ initialPosts }: Props) {
   }, [filter, offset, debouncedSearch, loadingMore, hasMore]);
 
   return (
-    <div className="max-w-[470px] mx-auto">
-      {/* Stories row with filter functionality */}
-      <EcomediaStories activeFilter={filter} onFilterChange={(key) => { setFilter(key); setShowSearch(false); }} />
+    <div className="mx-auto w-full max-w-[1040px] sm:px-6 sm:py-6">
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,600px)_minmax(280px,1fr)]">
+        <div className="min-w-0 overflow-hidden bg-white sm:rounded-2xl sm:border sm:border-neutral-200 sm:shadow-sm lg:overflow-visible lg:border-0 lg:bg-transparent lg:shadow-none">
+          {/* Stories row with filter functionality */}
+          <div className="bg-white sm:rounded-t-2xl sm:border sm:border-neutral-200 sm:border-b-0">
+            <EcomediaStories activeFilter={filter} onFilterChange={(key) => { setFilter(key); setShowSearch(false); }} />
+            <CommunityComposer onPublished={post => { setPosts(current => [post, ...current]); setOffset(current => current + 1); }} />
+          </div>
 
-
-      {/* Feed */}
-      {refreshing ? (
-        <div>{[...Array(3)].map((_, i) => <SkeletonPost key={i} />)}</div>
-      ) : posts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
+          {/* Feed */}
+          <div className="lg:mt-5 lg:space-y-5">
+          {refreshing ? (
+            <div>{[...Array(3)].map((_, i) => <SkeletonPost key={i} />)}</div>
+          ) : posts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center bg-white py-20 px-8 text-center sm:rounded-2xl sm:border sm:border-neutral-200">
           <div className="w-20 h-20 rounded-full border-2 border-neutral-200 flex items-center justify-center mb-5">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-300">
               <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
@@ -97,11 +103,11 @@ export default function EcomediaFeed({ initialPosts }: Props) {
           </div>
           <p className="font-black text-xl text-black mb-2">Aucune publication</p>
           <p className="text-sm text-neutral-400">{debouncedSearch ? "Aucun rÃ©sultat pour cette recherche." : "Revenez bientÃ´t pour du nouveau contenu."}</p>
-        </div>
-      ) : (
-        <>
-          {posts.map((post, i) => <PostCard key={post.id} post={post} priority={i < 2} />)}
-          {hasMore && (
+            </div>
+          ) : (
+            <>
+              {posts.map((post, i) => <PostCard key={post.id} post={post} priority={i < 2} />)}
+              {hasMore && (
             <div className="py-6 flex justify-center">
               <button onClick={loadMore} disabled={loadingMore}
                 className="flex items-center gap-2 text-sm font-black text-black hover:text-neutral-600 transition-colors disabled:opacity-40">
@@ -113,9 +119,31 @@ export default function EcomediaFeed({ initialPosts }: Props) {
                 {loadingMore ? "Chargementâ€¦" : "Voir plus"}
               </button>
             </div>
+              )}
+            </>
           )}
-        </>
-      )}
+          </div>
+        </div>
+
+        <aside className="sticky top-24 hidden space-y-4 lg:block">
+          <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+            <div className="relative overflow-hidden bg-neutral-950 p-6 text-white"><div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-[#3ecf4c]/20 blur-3xl"/><p className="relative text-[9px] font-black uppercase tracking-[.28em] text-[#3ecf4c]">Communauté officielle</p><h2 className="relative mt-3 text-2xl font-black leading-tight">Votre espace.<br/>Votre voix.</h2><p className="relative mt-3 text-xs leading-5 text-white/50">Partagez vos découvertes, échangez avec les membres et suivez L&apos;ecomax autrement.</p></div>
+            <div className="p-5">
+              <p className="text-[10px] font-black uppercase tracking-wider text-neutral-400">Ici, vous pouvez</p>
+              <div className="mt-4 space-y-3">
+                {[
+                  ["M5 12h14M12 5v14", "Publier vos photos et vos idées"],
+                  ["M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10Z", "Commenter et répondre"],
+                  ["M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8a5.5 5.5 0 000-7.8Z", "Soutenir les publications"],
+                ].map(([path, label]) => <div key={label} className="flex items-center gap-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-green-50 text-[#16b277]"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d={path}/></svg></span><span className="text-xs font-semibold text-neutral-700">{label}</span></div>)}
+              </div>
+              <div className="mt-5 grid grid-cols-2 gap-2"><a href="/connexion?redirect=%2Fecomedia" className="rounded-xl border border-neutral-200 px-3 py-3 text-center text-[10px] font-black hover:border-black">Connexion</a><a href="/inscription?redirect=%2Fecomedia" className="rounded-xl bg-black px-3 py-3 text-center text-[10px] font-black text-white hover:bg-[#16b277]">Créer un compte</a></div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-neutral-200 bg-white p-5"><div className="flex items-center gap-2"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16b277" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg><p className="text-xs font-black">Un espace respectueux</p></div><p className="mt-2 text-[10px] leading-5 text-neutral-400">Soyez bienveillant, restez pertinent et ne partagez aucune information personnelle sensible.</p></div>
+          <p className="px-1 text-[9px] leading-4 text-neutral-400">Les visiteurs peuvent lire toutes les discussions. La participation nécessite un compte gratuit.</p>
+        </aside>
+      </div>
     </div>
   );
 }

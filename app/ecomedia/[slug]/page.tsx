@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import type { EcomediaPost } from "@/lib/ecomedia";
+import { hydrateCommunityPost, type EcomediaPost } from "@/lib/ecomedia";
 import PostCard from "@/components/ecomedia/PostCard";
 import Link from "next/link";
 
@@ -11,7 +11,7 @@ async function getPost(slug: string): Promise<EcomediaPost | null> {
   try {
     const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
     const { data } = await sb.from("ecomedia_posts").select("*").eq("slug", slug).eq("is_published", true).single();
-    return data as EcomediaPost ?? null;
+    return data ? hydrateCommunityPost(data as EcomediaPost) : null;
   } catch { return null; }
 }
 

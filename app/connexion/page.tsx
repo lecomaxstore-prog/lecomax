@@ -16,6 +16,11 @@ export default function LoginPage() {
   const [resetSent, setResetSent] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
+  const returnPath = () => {
+    const value = new URLSearchParams(window.location.search).get("redirect") ?? "/compte";
+    return value.startsWith("/") && !value.startsWith("//") ? value : "/compte";
+  };
+
   const handleForgotPassword = async () => {
     if (!email) {
       setError("Entrez votre adresse email ci-dessus, puis cliquez sur « Mot de passe oublié ».");
@@ -45,7 +50,7 @@ export default function LoginPage() {
         ? "Email ou mot de passe incorrect."
         : error.message);
     } else {
-      router.push("/compte");
+      router.push(returnPath());
     }
   };
 
@@ -53,7 +58,7 @@ export default function LoginPage() {
     setGoogleLoading(true);
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/compte` },
+      options: { redirectTo: `${window.location.origin}${returnPath()}` },
     });
   };
 

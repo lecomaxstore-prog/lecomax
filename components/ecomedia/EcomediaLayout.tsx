@@ -23,10 +23,10 @@ export default function EcomediaLayout({ children }: { children: React.ReactNode
   }, []);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-[#f7f7f5] flex flex-col">
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <header className="bg-white border-b border-neutral-100 sticky top-0 z-40">
-        <div className="max-w-[470px] mx-auto px-4 py-0 h-14 flex items-center justify-between gap-3">
+        <div className="max-w-[1040px] mx-auto px-4 sm:px-6 py-0 h-16 flex items-center justify-between gap-3">
 
           {/* ── Left: back to site ── */}
           <Link

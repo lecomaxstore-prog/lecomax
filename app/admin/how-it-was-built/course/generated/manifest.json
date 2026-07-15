@@ -1,0 +1,343 @@
+{
+  "version": 1,
+  "moduleCount": 28,
+  "lessonCount": 112,
+  "modules": [
+    {
+      "id": "module-00-learning-tools",
+      "order": 0,
+      "icon": "🧭",
+      "color": "#16A34A",
+      "lessonIds": [
+        "lesson-00-01-learning-map",
+        "lesson-00-02-terminal-files",
+        "lesson-00-03-vscode",
+        "lesson-00-04-node-npm"
+      ]
+    },
+    {
+      "id": "module-01-internet-web",
+      "order": 1,
+      "icon": "🌐",
+      "color": "#2563EB",
+      "lessonIds": [
+        "lesson-01-01-client-server",
+        "lesson-01-02-http",
+        "lesson-01-03-dns-https",
+        "lesson-01-04-api-fetch"
+      ]
+    },
+    {
+      "id": "module-02-git-github",
+      "order": 2,
+      "icon": "🌿",
+      "color": "#F97316",
+      "lessonIds": [
+        "lesson-02-01-snapshot",
+        "lesson-02-02-branches",
+        "lesson-02-03-remotes-pr",
+        "lesson-02-04-safety"
+      ]
+    },
+    {
+      "id": "module-03-html-accessibility",
+      "order": 3,
+      "icon": "🏗️",
+      "color": "#EA580C",
+      "lessonIds": [
+        "lesson-03-01-document-semantics",
+        "lesson-03-02-actions-keyboard",
+        "lesson-03-03-forms",
+        "lesson-03-04-media-tables"
+      ]
+    },
+    {
+      "id": "module-04-css",
+      "order": 4,
+      "icon": "🎨",
+      "color": "#7C3AED",
+      "lessonIds": [
+        "lesson-04-01-cascade",
+        "lesson-04-02-box-model",
+        "lesson-04-03-flex-grid",
+        "lesson-04-04-tokens-states"
+      ]
+    },
+    {
+      "id": "module-05-responsive-tailwind",
+      "order": 5,
+      "icon": "📱",
+      "color": "#06B6D4",
+      "lessonIds": [
+        "lesson-05-01-mobile-first",
+        "lesson-05-02-ui-ux",
+        "lesson-05-03-tailwind",
+        "lesson-05-04-responsive-component"
+      ]
+    },
+    {
+      "id": "module-06-javascript-foundations",
+      "order": 6,
+      "icon": "⚡",
+      "color": "#EAB308",
+      "lessonIds": [
+        "lesson-06-01-values",
+        "lesson-06-02-control-flow",
+        "lesson-06-03-strings-nullish",
+        "lesson-06-04-errors-modules"
+      ]
+    },
+    {
+      "id": "module-07-js-data-problem-solving",
+      "order": 7,
+      "icon": "🧩",
+      "color": "#A855F7",
+      "lessonIds": [
+        "lesson-07-01-functions",
+        "lesson-07-02-arrays",
+        "lesson-07-03-objects",
+        "lesson-07-04-problem-solving"
+      ]
+    },
+    {
+      "id": "module-08-dom-forms-storage",
+      "order": 8,
+      "icon": "🖱️",
+      "color": "#EC4899",
+      "lessonIds": [
+        "lesson-08-01-dom-events",
+        "lesson-08-02-form-submit",
+        "lesson-08-03-localstorage",
+        "lesson-08-04-accessible-widget"
+      ]
+    },
+    {
+      "id": "async-fetch-errors",
+      "order": 9,
+      "icon": "⏳",
+      "color": "#f59e0b",
+      "lessonIds": [
+        "async-event-loop-promises",
+        "async-await-try-catch",
+        "fetch-http-json",
+        "resilient-remote-ui"
+      ]
+    },
+    {
+      "id": "typescript-contracts",
+      "order": 10,
+      "icon": "🔷",
+      "color": "#3178c6",
+      "lessonIds": [
+        "ts-inference-primitives",
+        "ts-objects-unions",
+        "ts-generics-unknown",
+        "ts-react-api-contracts"
+      ]
+    },
+    {
+      "id": "react-fundamentals",
+      "order": 11,
+      "icon": "⚛️",
+      "color": "#61dafb",
+      "lessonIds": [
+        "react-jsx-components",
+        "react-props-composition",
+        "react-lists-conditions",
+        "react-events-data-flow"
+      ]
+    },
+    {
+      "id": "react-state-forms-hooks",
+      "order": 12,
+      "icon": "🪝",
+      "color": "#0891b2",
+      "lessonIds": [
+        "react-state-immutability",
+        "react-controlled-forms",
+        "react-effects-cleanup",
+        "react-context-custom-hooks"
+      ]
+    },
+    {
+      "id": "nextjs-app-router",
+      "order": 13,
+      "icon": "▲",
+      "color": "#111111",
+      "lessonIds": [
+        "next-files-routes-project",
+        "next-layouts-metadata",
+        "next-dynamic-routes",
+        "next-special-files-navigation"
+      ]
+    },
+    {
+      "id": "nextjs-server-data",
+      "order": 14,
+      "icon": "🖥️",
+      "color": "#334155",
+      "lessonIds": [
+        "next-server-client-boundary",
+        "next-cache-revalidation",
+        "next-route-handlers",
+        "next-middleware-cookies"
+      ]
+    },
+    {
+      "id": "sql-data-modeling",
+      "order": 15,
+      "icon": "🗃️",
+      "color": "#2563eb",
+      "lessonIds": [
+        "sql-tables-types-keys",
+        "sql-relations-normalization",
+        "sql-select-joins-aggregates",
+        "sql-transactions-indexes"
+      ]
+    },
+    {
+      "id": "supabase-platform",
+      "order": 16,
+      "icon": "⚡",
+      "color": "#16b277",
+      "lessonIds": [
+        "supabase-clients-crud",
+        "supabase-auth-sessions",
+        "supabase-rls-policies",
+        "supabase-storage-realtime"
+      ]
+    },
+    {
+      "id": "ecommerce-architecture",
+      "order": 17,
+      "icon": "🛒",
+      "color": "#a855f7",
+      "lessonIds": [
+        "commerce-catalog-variants-stock",
+        "commerce-cart-money",
+        "commerce-checkout-orders",
+        "commerce-payments-idempotency"
+      ]
+    },
+    {
+      "id": "authentication-security-privacy",
+      "order": 18,
+      "icon": "🛡️",
+      "color": "#ef4444",
+      "lessonIds": [
+        "security-authn-authz-permissions",
+        "security-validation-threats",
+        "security-cookies-secrets-headers",
+        "security-privacy-data-lifecycle"
+      ]
+    },
+    {
+      "id": "quality-engineering",
+      "order": 19,
+      "icon": "🧪",
+      "color": "#7C3AED",
+      "lessonIds": [
+        "test-strategy",
+        "git-advanced",
+        "systematic-debugging",
+        "safe-refactoring"
+      ]
+    },
+    {
+      "id": "web-quality",
+      "order": 20,
+      "icon": "♿",
+      "color": "#2563EB",
+      "lessonIds": [
+        "seo-metadata",
+        "accessible-interface",
+        "performance-core-web-vitals",
+        "quality-audit"
+      ]
+    },
+    {
+      "id": "email-systems",
+      "order": 21,
+      "icon": "✉️",
+      "color": "#DB2777",
+      "lessonIds": [
+        "resend-transactional",
+        "nodemailer-smtp",
+        "imap-inbox",
+        "emailjs-browser"
+      ]
+    },
+    {
+      "id": "paypal-payments",
+      "order": 22,
+      "icon": "💳",
+      "color": "#003087",
+      "lessonIds": [
+        "paypal-order-lifecycle",
+        "paypal-webhook",
+        "refund-workflow",
+        "payment-idempotency"
+      ]
+    },
+    {
+      "id": "notifications",
+      "order": 23,
+      "icon": "🔔",
+      "color": "#EA580C",
+      "lessonIds": [
+        "web-push-subscription",
+        "service-worker-notification",
+        "whatsapp-webhook",
+        "notification-orchestration"
+      ]
+    },
+    {
+      "id": "openai-integration",
+      "order": 24,
+      "icon": "🤖",
+      "color": "#059669",
+      "lessonIds": [
+        "openai-server-call",
+        "ai-safety",
+        "ai-cost-control",
+        "ai-output-validation"
+      ]
+    },
+    {
+      "id": "analytics-growth",
+      "order": 25,
+      "icon": "📈",
+      "color": "#0891B2",
+      "lessonIds": [
+        "analytics-event-contract",
+        "analytics-consent",
+        "funnel-analysis",
+        "ethical-growth-experiment"
+      ]
+    },
+    {
+      "id": "deployment-operations",
+      "order": 26,
+      "icon": "🚀",
+      "color": "#111827",
+      "lessonIds": [
+        "github-release-workflow",
+        "vercel-environments",
+        "namecheap-dns",
+        "monitoring-backups"
+      ]
+    },
+    {
+      "id": "final-store-capstone",
+      "order": 27,
+      "icon": "🏆",
+      "color": "#16A34A",
+      "lessonIds": [
+        "capstone-architecture",
+        "capstone-catalog",
+        "capstone-purchase",
+        "capstone-production"
+      ]
+    }
+  ]
+}

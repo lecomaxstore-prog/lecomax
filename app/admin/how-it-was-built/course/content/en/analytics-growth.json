@@ -1,0 +1,1076 @@
+{
+  "id": "analytics-growth",
+  "order": 25,
+  "icon": "📈",
+  "color": "#0891B2",
+  "title": "Analytics, consent, and growth",
+  "summary": "Measure useful intent with little data, respect customer choice, and run experiments that protect quality.",
+  "files": [
+    {
+      "path": "lib/analytics.ts",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/25-analytics/event-contract.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/25-analytics/consent-gate.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/25-analytics/funnel.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/25-analytics/experiment.ts",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "analytics-event-contract",
+      "order": 0,
+      "title": "Design an event contract",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand business events, consent states, and the difference between observed correlation and demonstrated causation.",
+        "Be able to restate “event taxonomy” before coding: A shared convention for names, properties, and meanings of measured events.",
+        "Know how to create exercises/25-analytics/event-contract.ts, run npx tsc --noEmit, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Name events after user intent, define a small set of stable properties, and exclude identity, free text, and secrets from analytics payloads.",
+        "Build a typed view_product/add_to_cart event with a timestamp and no personal information, then prove the result with this exact signal: the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Analytics is a decision instrument, not a copy of the customer: every collected property must answer a defined question and respect consent. In “Design an event contract”, the concrete input is a stable add_to_cart event containing useful product identifier and value without email, phone, or free text. event taxonomy means: A shared convention for names, properties, and meanings of measured events. The model is complete only when you centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards and can observe that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Product measurement is like a car dashboard: a few reliable indicators help you drive, while recording every movement distracts and increases risk. Here the part you will actually inspect is a typed view_product/add_to_cart event with a timestamp and no personal information; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: a stable add_to_cart event containing useful product identifier and value without email, phone, or free text. Name events after user intent, define a small set of stable properties, and exclude identity, free text, and secrets from analytics payloads. The term event taxonomy is not a decorative label: A shared convention for names, properties, and meanings of measured events. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/25-analytics/event-contract.ts, the example deliberately reduces the system to a typed view_product/add_to_cart event with a timestamp and no personal information. Read each line as one responsibility, then run npx tsc --noEmit. The main failure to trigger is: different components send cart_add, add-cart, and add_to_cart with incompatible values. It shows why the professional correction is to centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp. Apply the same evidence to product views, cart additions, purchases, and presentation experiments, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "event taxonomy",
+                  "definition": "A shared convention for names, properties, and meanings of measured events."
+                },
+                {
+                  "term": "Minimization",
+                  "definition": "Collection limited to data necessary for a stated, measurable purpose."
+                },
+                {
+                  "term": "Guardrail metric",
+                  "definition": "An independent measure that reveals harm caused by optimizing the primary metric."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with a stable add_to_cart event containing useful product identifier and value without email, phone, or free text, first write the observation “the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp”, and then implement a typed view_product/add_to_cart event with a timestamp and no personal information. Simulate different components send cart_add, add-cart, and add_to_cart with incompatible values and finish only when measurement confirms this safeguard: centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/25-analytics/event-contract.ts",
+                "source": "type CommerceEvent = { name: \"view_product\" | \"add_to_cart\"; productId: string; value?: number };\nexport function track(event: CommerceEvent) {\n  if (!event.productId) throw new Error(\"productId required\");\n  const payload = { ...event, occurredAt: new Date().toISOString() };\n  console.log(\"analytics\", payload);\n  return payload;\n}\ntrack({ name: \"add_to_cart\", productId: \"prod_1\", value: 199 });",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "defines the shape of data accepted at this boundary — type CommerceEvent = { name: \"view_product\" | \"add_to_cart\"; productId: string; value…."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "opens the function that owns the stated responsibility — export function track(event: CommerceEvent) {."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "explicitly rejects or branches when this condition is true — if (!event.productId) throw new Error(\"productId required\");."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "declares or transforms this datum for the next step — const payload = { ...event, occurredAt: new Date().toISOString() };."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "makes the result visible in the terminal but is not business validation — console.log(\"analytics\", payload);."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "returns the produced value to calling code — return payload;."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "closes the structure opened by preceding lines — }."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "declares or transforms this datum for the next step — track({ name: \"add_to_cart\", productId: \"prod_1\", value: 199 });."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/25-analytics/event-contract.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/25-analytics/event-contract.ts and identify the input “a stable add_to_cart event containing useful product identifier and value without email, phone, or free text” in the annotations. — code exercises/25-analytics/event-contract.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npx tsc --noEmit once and retain secret-free output as the baseline. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npx tsc --noEmit, the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp. The deliberately failing case demonstrates “different components send cart_add, add-cart, and add_to_cart with incompatible values” without exposing a secret; after the safeguard—centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects product views, cart additions, purchases, and presentation experiments. a typed view_product/add_to_cart event with a timestamp and no personal information must remain on the correct side of the trust boundary; use event taxonomy to justify validation and retain this as evidence: the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/25-analytics/event-contract.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "After npx tsc --noEmit, the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp. The deliberately failing case demonstrates “different components send cart_add, add-cart, and add_to_cart with incompatible values” without exposing a secret; after the safeguard—centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "different components send cart_add, add-cart, and add_to_cart with incompatible values",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply event taxonomy: A shared convention for names, properties, and meanings of measured events.",
+          "fix": "Apply this specific safeguard: centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards. Replay the case and verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp."
+        },
+        {
+          "symptom": "a typed view_product/add_to_cart event with a timestamp and no personal information appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Design an event contract, npx tsc --noEmit, input data, and outcome were not connected in a deterministic reproduction; collecting before consent, changing an event definition, or confusing movement with causal effect.",
+          "fix": "Freeze a stable add_to_cart event containing useful product identifier and value without email, phone, or free text, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a typed view_product/add_to_cart event with a timestamp and no personal information in exercises/25-analytics/event-contract.ts, demonstrate that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp, then trigger and repair different components send cart_add, add-cart, and add_to_cart with incompatible values.",
+        "steps": [
+          "Create exercises/25-analytics/event-contract.ts and identify the input “a stable add_to_cart event containing useful product identifier and value without email, phone, or free text” in the annotations.",
+          "Run npx tsc --noEmit once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: different components send cart_add, add-cart, and add_to_cart with incompatible values.",
+          "Implement “centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards”, rerun the command, and explain the role of event taxonomy."
+        ],
+        "hints": [
+          "Read the definition again: A shared convention for names, properties, and meanings of measured events. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp”."
+        ],
+        "solution": {
+          "explanation": "For Design an event contract, the solution keeps one authority and specifically applies “centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards”. It makes different components send cart_add, add-cart, and add_to_cart with incompatible values reproducible and then controlled, and is accepted only when the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp.",
+          "code": "type CommerceEvent = { name: \"view_product\" | \"add_to_cart\"; productId: string; value?: number };\nexport function track(event: CommerceEvent) {\n  if (!event.productId) throw new Error(\"productId required\");\n  const payload = { ...event, occurredAt: new Date().toISOString() };\n  console.log(\"analytics\", payload);\n  return payload;\n}\ntrack({ name: \"add_to_cart\", productId: \"prod_1\", value: 199 });",
+          "filename": "exercises/25-analytics/event-contract.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "analytics-event-contract-q1",
+          "question": "Which decision actually demonstrates mastery of “Design an event contract” in this scenario?",
+          "options": [
+            "centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards, then verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp.",
+            "Ignore “different components send cart_add, add-cart, and add_to_cart with incompatible values” because the normal path displays a typed view_product/add_to_cart event with a timestamp and no personal information.",
+            "Move validation into the UI and treat event taxonomy as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A shared convention for names, properties, and meanings of measured events.",
+          "answerExplanations": [
+            "This option is correct. It says « centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards, then verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A shared convention for names, properties, and meanings of measured events.",
+            "This option is incorrect. It says « Ignore “different components send cart_add, add-cart, and add_to_cart with incompatible values” because the normal path displays a typed view_product/add_to_cart event with a timestamp and no personal information. ». The reference answer is « centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards, then verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A shared convention for names, properties, and meanings of measured events.",
+            "This option is incorrect. It says « Move validation into the UI and treat event taxonomy as a server detail. ». The reference answer is « centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards, then verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A shared convention for names, properties, and meanings of measured events.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards, then verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A shared convention for names, properties, and meanings of measured events."
+          ]
+        },
+        {
+          "id": "analytics-event-contract-q2",
+          "question": "Which definition matches the term “event taxonomy”?",
+          "options": [
+            "Collection limited to data necessary for a stated, measurable purpose.",
+            "A shared convention for names, properties, and meanings of measured events.",
+            "An independent measure that reveals harm caused by optimizing the primary metric.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“event taxonomy” means: A shared convention for names, properties, and meanings of measured events.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Collection limited to data necessary for a stated, measurable purpose. ». The reference answer is « A shared convention for names, properties, and meanings of measured events. ». “event taxonomy” means: A shared convention for names, properties, and meanings of measured events.",
+            "This option is correct. It says « A shared convention for names, properties, and meanings of measured events. ». “event taxonomy” means: A shared convention for names, properties, and meanings of measured events.",
+            "This option is incorrect. It says « An independent measure that reveals harm caused by optimizing the primary metric. ». The reference answer is « A shared convention for names, properties, and meanings of measured events. ». “event taxonomy” means: A shared convention for names, properties, and meanings of measured events.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A shared convention for names, properties, and meanings of measured events. ». “event taxonomy” means: A shared convention for names, properties, and meanings of measured events."
+          ]
+        },
+        {
+          "id": "analytics-event-contract-q3",
+          "question": "What is the best first fix when you observe: “different components send cart_add, add-cart, and add_to_cart with incompatible values”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze a stable add_to_cart event containing useful product identifier and value without email, phone, or free text, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp”.",
+            "Apply this specific safeguard: centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards. Replay the case and verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply event taxonomy: A shared convention for names, properties, and meanings of measured events. The appropriate fix is: Apply this specific safeguard: centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards. Replay the case and verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards. Replay the case and verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply event taxonomy: A shared convention for names, properties, and meanings of measured events. The appropriate fix is: Apply this specific safeguard: centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards. Replay the case and verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp.",
+            "This option is incorrect. It says « Freeze a stable add_to_cart event containing useful product identifier and value without email, phone, or free text, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp”. ». The reference answer is « Apply this specific safeguard: centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards. Replay the case and verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply event taxonomy: A shared convention for names, properties, and meanings of measured events. The appropriate fix is: Apply this specific safeguard: centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards. Replay the case and verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp.",
+            "This option is correct. It says « Apply this specific safeguard: centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards. Replay the case and verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply event taxonomy: A shared convention for names, properties, and meanings of measured events. The appropriate fix is: Apply this specific safeguard: centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards. Replay the case and verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards. Replay the case and verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply event taxonomy: A shared convention for names, properties, and meanings of measured events. The appropriate fix is: Apply this specific safeguard: centralize a typed, versioned contract, minimize properties, and test payloads before changing dashboards. Replay the case and verify that the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp."
+          ]
+        }
+      ],
+      "recap": [
+        "Name events after user intent, define a small set of stable properties, and exclude identity, free text, and secrets from analytics payloads.",
+        "event taxonomy: A shared convention for names, properties, and meanings of measured events.",
+        "Completion evidence: the same gesture produces the same name and schema in browser, pipeline, and report, with controlled version and timestamp."
+      ],
+      "next": "The next lesson prevents this non-essential event from leaving before explicit consent."
+    },
+    {
+      "id": "analytics-consent",
+      "order": 1,
+      "title": "Consent and minimization",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand business events, consent states, and the difference between observed correlation and demonstrated causation.",
+        "Be able to restate “data minimization” before coding: Collection limited to data strictly necessary for a declared purpose.",
+        "Know how to create exercises/25-analytics/consent-gate.ts, run npx tsc --noEmit, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Block optional measurement before explicit agreement, separate necessary storage from analytics, and document retention, purpose, and withdrawal.",
+        "Build a testable consent gate where unknown and denied block all nonessential measurement, then prove the result with this exact signal: unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Analytics is a decision instrument, not a copy of the customer: every collected property must answer a defined question and respect consent. In “Consent and minimization”, the concrete input is an unknown, consenting, or refusing visitor whose marketing events remain blocked until the choice is granted. data minimization means: Collection limited to data strictly necessary for a declared purpose. The model is complete only when you load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose and can observe that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Product measurement is like a car dashboard: a few reliable indicators help you drive, while recording every movement distracts and increases risk. Here the part you will actually inspect is a testable consent gate where unknown and denied block all nonessential measurement; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: an unknown, consenting, or refusing visitor whose marketing events remain blocked until the choice is granted. Block optional measurement before explicit agreement, separate necessary storage from analytics, and document retention, purpose, and withdrawal. The term data minimization is not a decorative label: Collection limited to data strictly necessary for a declared purpose. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/25-analytics/consent-gate.ts, the example deliberately reduces the system to a testable consent gate where unknown and denied block all nonessential measurement. Read each line as one responsibility, then run npx tsc --noEmit. The main failure to trigger is: the SDK loads before the banner and mayTrack filters only events even though the provider already received a request. It shows why the professional correction is to load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls. Apply the same evidence to product views, cart additions, purchases, and presentation experiments, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "data minimization",
+                  "definition": "Collection limited to data strictly necessary for a declared purpose."
+                },
+                {
+                  "term": "Minimization",
+                  "definition": "Collection limited to data necessary for a stated, measurable purpose."
+                },
+                {
+                  "term": "Guardrail metric",
+                  "definition": "An independent measure that reveals harm caused by optimizing the primary metric."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with an unknown, consenting, or refusing visitor whose marketing events remain blocked until the choice is granted, first write the observation “unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls”, and then implement a testable consent gate where unknown and denied block all nonessential measurement. Simulate the SDK loads before the banner and mayTrack filters only events even though the provider already received a request and finish only when measurement confirms this safeguard: load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/25-analytics/consent-gate.ts",
+                "source": "type Consent = \"unknown\" | \"granted\" | \"denied\";\nexport function mayTrack(consent: Consent, necessary: boolean) {\n  if (necessary) return true;\n  return consent === \"granted\";\n}\nconsole.assert(mayTrack(\"unknown\", false) === false);\nconsole.assert(mayTrack(\"denied\", false) === false);\nconsole.assert(mayTrack(\"granted\", false) === true);",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "defines the shape of data accepted at this boundary — type Consent = \"unknown\" | \"granted\" | \"denied\";."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "defines the shape of data accepted at this boundary — export function mayTrack(consent: Consent, necessary: boolean) {."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "explicitly rejects or branches when this condition is true — if (necessary) return true;."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "returns the produced value to calling code — return consent === \"granted\";."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "closes the structure opened by preceding lines — }."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "compares the actual result with the precise expectation — console.assert(mayTrack(\"unknown\", false) === false);."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "compares the actual result with the precise expectation — console.assert(mayTrack(\"denied\", false) === false);."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "compares the actual result with the precise expectation — console.assert(mayTrack(\"granted\", false) === true);."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/25-analytics/consent-gate.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/25-analytics/consent-gate.ts and identify the input “an unknown, consenting, or refusing visitor whose marketing events remain blocked until the choice is granted” in the annotations. — code exercises/25-analytics/consent-gate.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npx tsc --noEmit once and retain secret-free output as the baseline. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npx tsc --noEmit, unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls. The deliberately failing case demonstrates “the SDK loads before the banner and mayTrack filters only events even though the provider already received a request” without exposing a secret; after the safeguard—load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects product views, cart additions, purchases, and presentation experiments. a testable consent gate where unknown and denied block all nonessential measurement must remain on the correct side of the trust boundary; use data minimization to justify validation and retain this as evidence: unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/25-analytics/consent-gate.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "After npx tsc --noEmit, unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls. The deliberately failing case demonstrates “the SDK loads before the banner and mayTrack filters only events even though the provider already received a request” without exposing a secret; after the safeguard—load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "the SDK loads before the banner and mayTrack filters only events even though the provider already received a request",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply data minimization: Collection limited to data strictly necessary for a declared purpose.",
+          "fix": "Apply this specific safeguard: load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose. Replay the case and verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls."
+        },
+        {
+          "symptom": "a testable consent gate where unknown and denied block all nonessential measurement appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Consent and minimization, npx tsc --noEmit, input data, and outcome were not connected in a deterministic reproduction; collecting before consent, changing an event definition, or confusing movement with causal effect.",
+          "fix": "Freeze an unknown, consenting, or refusing visitor whose marketing events remain blocked until the choice is granted, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a testable consent gate where unknown and denied block all nonessential measurement in exercises/25-analytics/consent-gate.ts, demonstrate that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls, then trigger and repair the SDK loads before the banner and mayTrack filters only events even though the provider already received a request.",
+        "steps": [
+          "Create exercises/25-analytics/consent-gate.ts and identify the input “an unknown, consenting, or refusing visitor whose marketing events remain blocked until the choice is granted” in the annotations.",
+          "Run npx tsc --noEmit once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: the SDK loads before the banner and mayTrack filters only events even though the provider already received a request.",
+          "Implement “load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose”, rerun the command, and explain the role of data minimization."
+        ],
+        "hints": [
+          "Read the definition again: Collection limited to data strictly necessary for a declared purpose. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls”."
+        ],
+        "solution": {
+          "explanation": "For Consent and minimization, the solution keeps one authority and specifically applies “load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose”. It makes the SDK loads before the banner and mayTrack filters only events even though the provider already received a request reproducible and then controlled, and is accepted only when unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls.",
+          "code": "type Consent = \"unknown\" | \"granted\" | \"denied\";\nexport function mayTrack(consent: Consent, necessary: boolean) {\n  if (necessary) return true;\n  return consent === \"granted\";\n}\nconsole.assert(mayTrack(\"unknown\", false) === false);\nconsole.assert(mayTrack(\"denied\", false) === false);\nconsole.assert(mayTrack(\"granted\", false) === true);",
+          "filename": "exercises/25-analytics/consent-gate.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "analytics-consent-q1",
+          "question": "Which decision actually demonstrates mastery of “Consent and minimization” in this scenario?",
+          "options": [
+            "load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose, then verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls.",
+            "Ignore “the SDK loads before the banner and mayTrack filters only events even though the provider already received a request” because the normal path displays a testable consent gate where unknown and denied block all nonessential measurement.",
+            "Move validation into the UI and treat data minimization as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Collection limited to data strictly necessary for a declared purpose.",
+          "answerExplanations": [
+            "This option is correct. It says « load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose, then verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Collection limited to data strictly necessary for a declared purpose.",
+            "This option is incorrect. It says « Ignore “the SDK loads before the banner and mayTrack filters only events even though the provider already received a request” because the normal path displays a testable consent gate where unknown and denied block all nonessential measurement. ». The reference answer is « load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose, then verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Collection limited to data strictly necessary for a declared purpose.",
+            "This option is incorrect. It says « Move validation into the UI and treat data minimization as a server detail. ». The reference answer is « load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose, then verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Collection limited to data strictly necessary for a declared purpose.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose, then verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Collection limited to data strictly necessary for a declared purpose."
+          ]
+        },
+        {
+          "id": "analytics-consent-q2",
+          "question": "Which definition matches the term “data minimization”?",
+          "options": [
+            "Collection limited to data necessary for a stated, measurable purpose.",
+            "Collection limited to data strictly necessary for a declared purpose.",
+            "An independent measure that reveals harm caused by optimizing the primary metric.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“data minimization” means: Collection limited to data strictly necessary for a declared purpose.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Collection limited to data necessary for a stated, measurable purpose. ». The reference answer is « Collection limited to data strictly necessary for a declared purpose. ». “data minimization” means: Collection limited to data strictly necessary for a declared purpose.",
+            "This option is correct. It says « Collection limited to data strictly necessary for a declared purpose. ». “data minimization” means: Collection limited to data strictly necessary for a declared purpose.",
+            "This option is incorrect. It says « An independent measure that reveals harm caused by optimizing the primary metric. ». The reference answer is « Collection limited to data strictly necessary for a declared purpose. ». “data minimization” means: Collection limited to data strictly necessary for a declared purpose.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Collection limited to data strictly necessary for a declared purpose. ». “data minimization” means: Collection limited to data strictly necessary for a declared purpose."
+          ]
+        },
+        {
+          "id": "analytics-consent-q3",
+          "question": "What is the best first fix when you observe: “the SDK loads before the banner and mayTrack filters only events even though the provider already received a request”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze an unknown, consenting, or refusing visitor whose marketing events remain blocked until the choice is granted, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls”.",
+            "Apply this specific safeguard: load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose. Replay the case and verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply data minimization: Collection limited to data strictly necessary for a declared purpose. The appropriate fix is: Apply this specific safeguard: load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose. Replay the case and verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose. Replay the case and verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply data minimization: Collection limited to data strictly necessary for a declared purpose. The appropriate fix is: Apply this specific safeguard: load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose. Replay the case and verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls.",
+            "This option is incorrect. It says « Freeze an unknown, consenting, or refusing visitor whose marketing events remain blocked until the choice is granted, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls”. ». The reference answer is « Apply this specific safeguard: load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose. Replay the case and verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply data minimization: Collection limited to data strictly necessary for a declared purpose. The appropriate fix is: Apply this specific safeguard: load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose. Replay the case and verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls.",
+            "This option is correct. It says « Apply this specific safeguard: load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose. Replay the case and verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply data minimization: Collection limited to data strictly necessary for a declared purpose. The appropriate fix is: Apply this specific safeguard: load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose. Replay the case and verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose. Replay the case and verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply data minimization: Collection limited to data strictly necessary for a declared purpose. The appropriate fix is: Apply this specific safeguard: load non-essential tools after consent, honor refusal and withdrawal, separate essential storage from optional measurement, and document purpose. Replay the case and verify that unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls."
+          ]
+        }
+      ],
+      "recap": [
+        "Block optional measurement before explicit agreement, separate necessary storage from analytics, and document retention, purpose, and withdrawal.",
+        "data minimization: Collection limited to data strictly necessary for a declared purpose.",
+        "Completion evidence: unknown and denied emit no non-essential analytics call, granted permits it, and withdrawing consent stops subsequent calls."
+      ],
+      "next": "The next lesson turns consistent, lawful events into funnel stages with explicit denominators."
+    },
+    {
+      "id": "funnel-analysis",
+      "order": 2,
+      "title": "Read a funnel without inventing causality",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand business events, consent states, and the difference between observed correlation and demonstrated causation.",
+        "Be able to restate “conversion rate” before coding: The share of people or sessions moving from a defined step to the next one.",
+        "Know how to create exercises/25-analytics/funnel.ts, run npx tsc --noEmit, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Define population and time window, calculate each transition, segment carefully, and distinguish observed correlation from causal explanation.",
+        "Build a calculation without invalid division for product, cart, and purchase transitions, then prove the result with this exact signal: viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Analytics is a decision instrument, not a copy of the customer: every collected property must answer a defined question and respect consent. In “Read a funnel without inventing causality”, the concrete input is one thousand views, 120 carts, and 30 purchases measured over the same population and window. conversion rate means: The share of people or sessions moving from a defined step to the next one. The model is complete only when you define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample and can observe that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Product measurement is like a car dashboard: a few reliable indicators help you drive, while recording every movement distracts and increases risk. Here the part you will actually inspect is a calculation without invalid division for product, cart, and purchase transitions; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: one thousand views, 120 carts, and 30 purchases measured over the same population and window. Define population and time window, calculate each transition, segment carefully, and distinguish observed correlation from causal explanation. The term conversion rate is not a decorative label: The share of people or sessions moving from a defined step to the next one. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/25-analytics/funnel.ts, the example deliberately reduces the system to a calculation without invalid division for product, cart, and purchase transitions. Read each line as one responsibility, then run npx tsc --noEmit. The main failure to trigger is: views count sessions while purchases count orders from another period, producing a meaningless rate. It shows why the professional correction is to define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period. Apply the same evidence to product views, cart additions, purchases, and presentation experiments, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "conversion rate",
+                  "definition": "The share of people or sessions moving from a defined step to the next one."
+                },
+                {
+                  "term": "Minimization",
+                  "definition": "Collection limited to data necessary for a stated, measurable purpose."
+                },
+                {
+                  "term": "Guardrail metric",
+                  "definition": "An independent measure that reveals harm caused by optimizing the primary metric."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with one thousand views, 120 carts, and 30 purchases measured over the same population and window, first write the observation “viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period”, and then implement a calculation without invalid division for product, cart, and purchase transitions. Simulate views count sessions while purchases count orders from another period, producing a meaningless rate and finish only when measurement confirms this safeguard: define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/25-analytics/funnel.ts",
+                "source": "type Funnel = { viewed: number; carted: number; purchased: number };\nconst rate = (part: number, whole: number) => whole === 0 ? 0 : part / whole;\nexport function analyze(funnel: Funnel) {\n  return {\n    viewToCart: rate(funnel.carted, funnel.viewed),\n    cartToPurchase: rate(funnel.purchased, funnel.carted),\n  };\n}\nconsole.log(analyze({ viewed: 1000, carted: 120, purchased: 30 }));",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "defines the shape of data accepted at this boundary — type Funnel = { viewed: number; carted: number; purchased: number };."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "defines the shape of data accepted at this boundary — const rate = (part: number, whole: number) => whole === 0 ? 0 : part / whole;."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "opens the function that owns the stated responsibility — export function analyze(funnel: Funnel) {."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "returns the produced value to calling code — return {."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "configures this workflow or service key — viewToCart: rate(funnel.carted, funnel.viewed),."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "configures this workflow or service key — cartToPurchase: rate(funnel.purchased, funnel.carted),."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "closes the structure opened by preceding lines — };."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "closes the structure opened by preceding lines — }."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "makes the result visible in the terminal but is not business validation — console.log(analyze({ viewed: 1000, carted: 120, purchased: 30 }));."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/25-analytics/funnel.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/25-analytics/funnel.ts and identify the input “one thousand views, 120 carts, and 30 purchases measured over the same population and window” in the annotations. — code exercises/25-analytics/funnel.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npx tsc --noEmit once and retain secret-free output as the baseline. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npx tsc --noEmit, viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period. The deliberately failing case demonstrates “views count sessions while purchases count orders from another period, producing a meaningless rate” without exposing a secret; after the safeguard—define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects product views, cart additions, purchases, and presentation experiments. a calculation without invalid division for product, cart, and purchase transitions must remain on the correct side of the trust boundary; use conversion rate to justify validation and retain this as evidence: viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/25-analytics/funnel.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "After npx tsc --noEmit, viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period. The deliberately failing case demonstrates “views count sessions while purchases count orders from another period, producing a meaningless rate” without exposing a secret; after the safeguard—define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "views count sessions while purchases count orders from another period, producing a meaningless rate",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply conversion rate: The share of people or sessions moving from a defined step to the next one.",
+          "fix": "Apply this specific safeguard: define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample. Replay the case and verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period."
+        },
+        {
+          "symptom": "a calculation without invalid division for product, cart, and purchase transitions appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Read a funnel without inventing causality, npx tsc --noEmit, input data, and outcome were not connected in a deterministic reproduction; collecting before consent, changing an event definition, or confusing movement with causal effect.",
+          "fix": "Freeze one thousand views, 120 carts, and 30 purchases measured over the same population and window, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a calculation without invalid division for product, cart, and purchase transitions in exercises/25-analytics/funnel.ts, demonstrate that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period, then trigger and repair views count sessions while purchases count orders from another period, producing a meaningless rate.",
+        "steps": [
+          "Create exercises/25-analytics/funnel.ts and identify the input “one thousand views, 120 carts, and 30 purchases measured over the same population and window” in the annotations.",
+          "Run npx tsc --noEmit once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: views count sessions while purchases count orders from another period, producing a meaningless rate.",
+          "Implement “define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample”, rerun the command, and explain the role of conversion rate."
+        ],
+        "hints": [
+          "Read the definition again: The share of people or sessions moving from a defined step to the next one. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period”."
+        ],
+        "solution": {
+          "explanation": "For Read a funnel without inventing causality, the solution keeps one authority and specifically applies “define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample”. It makes views count sessions while purchases count orders from another period, producing a meaningless rate reproducible and then controlled, and is accepted only when viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period.",
+          "code": "type Funnel = { viewed: number; carted: number; purchased: number };\nconst rate = (part: number, whole: number) => whole === 0 ? 0 : part / whole;\nexport function analyze(funnel: Funnel) {\n  return {\n    viewToCart: rate(funnel.carted, funnel.viewed),\n    cartToPurchase: rate(funnel.purchased, funnel.carted),\n  };\n}\nconsole.log(analyze({ viewed: 1000, carted: 120, purchased: 30 }));",
+          "filename": "exercises/25-analytics/funnel.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "funnel-analysis-q1",
+          "question": "Which decision actually demonstrates mastery of “Read a funnel without inventing causality” in this scenario?",
+          "options": [
+            "define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample, then verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period.",
+            "Ignore “views count sessions while purchases count orders from another period, producing a meaningless rate” because the normal path displays a calculation without invalid division for product, cart, and purchase transitions.",
+            "Move validation into the UI and treat conversion rate as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The share of people or sessions moving from a defined step to the next one.",
+          "answerExplanations": [
+            "This option is correct. It says « define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample, then verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The share of people or sessions moving from a defined step to the next one.",
+            "This option is incorrect. It says « Ignore “views count sessions while purchases count orders from another period, producing a meaningless rate” because the normal path displays a calculation without invalid division for product, cart, and purchase transitions. ». The reference answer is « define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample, then verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The share of people or sessions moving from a defined step to the next one.",
+            "This option is incorrect. It says « Move validation into the UI and treat conversion rate as a server detail. ». The reference answer is « define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample, then verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The share of people or sessions moving from a defined step to the next one.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample, then verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The share of people or sessions moving from a defined step to the next one."
+          ]
+        },
+        {
+          "id": "funnel-analysis-q2",
+          "question": "Which definition matches the term “conversion rate”?",
+          "options": [
+            "Collection limited to data necessary for a stated, measurable purpose.",
+            "The share of people or sessions moving from a defined step to the next one.",
+            "An independent measure that reveals harm caused by optimizing the primary metric.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“conversion rate” means: The share of people or sessions moving from a defined step to the next one.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Collection limited to data necessary for a stated, measurable purpose. ». The reference answer is « The share of people or sessions moving from a defined step to the next one. ». “conversion rate” means: The share of people or sessions moving from a defined step to the next one.",
+            "This option is correct. It says « The share of people or sessions moving from a defined step to the next one. ». “conversion rate” means: The share of people or sessions moving from a defined step to the next one.",
+            "This option is incorrect. It says « An independent measure that reveals harm caused by optimizing the primary metric. ». The reference answer is « The share of people or sessions moving from a defined step to the next one. ». “conversion rate” means: The share of people or sessions moving from a defined step to the next one.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « The share of people or sessions moving from a defined step to the next one. ». “conversion rate” means: The share of people or sessions moving from a defined step to the next one."
+          ]
+        },
+        {
+          "id": "funnel-analysis-q3",
+          "question": "What is the best first fix when you observe: “views count sessions while purchases count orders from another period, producing a meaningless rate”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze one thousand views, 120 carts, and 30 purchases measured over the same population and window, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period”.",
+            "Apply this specific safeguard: define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample. Replay the case and verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply conversion rate: The share of people or sessions moving from a defined step to the next one. The appropriate fix is: Apply this specific safeguard: define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample. Replay the case and verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample. Replay the case and verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply conversion rate: The share of people or sessions moving from a defined step to the next one. The appropriate fix is: Apply this specific safeguard: define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample. Replay the case and verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period.",
+            "This option is incorrect. It says « Freeze one thousand views, 120 carts, and 30 purchases measured over the same population and window, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period”. ». The reference answer is « Apply this specific safeguard: define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample. Replay the case and verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply conversion rate: The share of people or sessions moving from a defined step to the next one. The appropriate fix is: Apply this specific safeguard: define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample. Replay the case and verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period.",
+            "This option is correct. It says « Apply this specific safeguard: define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample. Replay the case and verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply conversion rate: The share of people or sessions moving from a defined step to the next one. The appropriate fix is: Apply this specific safeguard: define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample. Replay the case and verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample. Replay the case and verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply conversion rate: The share of people or sessions moving from a defined step to the next one. The appropriate fix is: Apply this specific safeguard: define population, window, unit, and event order, show volumes beside rates, and segment only with sufficient sample. Replay the case and verify that viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period."
+          ]
+        }
+      ],
+      "recap": [
+        "Define population and time window, calculate each transition, segment carefully, and distinguish observed correlation from causal explanation.",
+        "conversion rate: The share of people or sessions moving from a defined step to the next one.",
+        "Completion evidence: viewToCart is 0.12, cartToPurchase is 0.25, a zero denominator yields zero, and each stage documents unit and period."
+      ],
+      "next": "The next lesson uses this funnel to state a causal hypothesis and guardrail before experimentation."
+    },
+    {
+      "id": "ethical-growth-experiment",
+      "order": 3,
+      "title": "Responsible growth experiments",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand business events, consent states, and the difference between observed correlation and demonstrated causation.",
+        "Be able to restate “guardrail metric” before coding: A measure that stops an experiment when the main gain comes with unacceptable harm.",
+        "Know how to create exercises/25-analytics/experiment.ts, run npx tsc --noEmit, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Write the hypothesis and metric before launch, add a quality guardrail, and reject dark patterns that improve a click while harming trust or returns.",
+        "Build an experiment record that separates the primary metric from its safety guardrail, then prove the result with this exact signal: hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Analytics is a decision instrument, not a copy of the customer: every collected property must answer a defined question and respect consent. In “Responsible growth experiments”, the concrete input is a trust-copy variant targets add_to_cart_rate while monitoring product returns and accessibility. guardrail metric means: A measure that stops an experiment when the main gain comes with unacceptable harm. The model is complete only when you pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results and can observe that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Product measurement is like a car dashboard: a few reliable indicators help you drive, while recording every movement distracts and increases risk. Here the part you will actually inspect is an experiment record that separates the primary metric from its safety guardrail; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: a trust-copy variant targets add_to_cart_rate while monitoring product returns and accessibility. Write the hypothesis and metric before launch, add a quality guardrail, and reject dark patterns that improve a click while harming trust or returns. The term guardrail metric is not a decorative label: A measure that stops an experiment when the main gain comes with unacceptable harm. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/25-analytics/experiment.ts, the example deliberately reduces the system to an experiment record that separates the primary metric from its safety guardrail. Read each line as one responsibility, then run npx tsc --noEmit. The main failure to trigger is: the team checks daily and stops as soon as an increase appears, multiplying false positives and ignoring returns. It shows why the professional correction is to pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed. Apply the same evidence to product views, cart additions, purchases, and presentation experiments, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "guardrail metric",
+                  "definition": "A measure that stops an experiment when the main gain comes with unacceptable harm."
+                },
+                {
+                  "term": "Minimization",
+                  "definition": "Collection limited to data necessary for a stated, measurable purpose."
+                },
+                {
+                  "term": "Guardrail metric",
+                  "definition": "An independent measure that reveals harm caused by optimizing the primary metric."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with a trust-copy variant targets add_to_cart_rate while monitoring product returns and accessibility, first write the observation “hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed”, and then implement an experiment record that separates the primary metric from its safety guardrail. Simulate the team checks daily and stops as soon as an increase appears, multiplying false positives and ignoring returns and finish only when measurement confirms this safeguard: pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/25-analytics/experiment.ts",
+                "source": "type Experiment = { id: string; hypothesis: string; primaryMetric: string; guardrail: string };\nexport function registerExperiment(input: Experiment) {\n  if (!input.hypothesis.includes(\"because\")) throw new Error(\"state a causal hypothesis\");\n  if (input.primaryMetric === input.guardrail) throw new Error(\"guardrail must be independent\");\n  return { ...input, status: \"planned\" as const };\n}\nconsole.log(registerExperiment({ id: \"hero-copy\", hypothesis: \"Trust copy helps because it reduces uncertainty\",\n  primaryMetric: \"add_to_cart_rate\", guardrail: \"return_rate\" }));",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "defines the shape of data accepted at this boundary — type Experiment = { id: string; hypothesis: string; primaryMetric: string; guardrail:…."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "opens the function that owns the stated responsibility — export function registerExperiment(input: Experiment) {."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "explicitly rejects or branches when this condition is true — if (!input.hypothesis.includes(\"because\")) throw new Error(\"state a causal hypothesis\");."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "explicitly rejects or branches when this condition is true — if (input.primaryMetric === input.guardrail) throw new Error(\"guardrail must be indep…."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "returns the produced value to calling code — return { ...input, status: \"planned\" as const };."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "closes the structure opened by preceding lines — }."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "makes the result visible in the terminal but is not business validation — console.log(registerExperiment({ id: \"hero-copy\", hypothesis: \"Trust copy helps becau…."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "configures this workflow or service key — primaryMetric: \"add_to_cart_rate\", guardrail: \"return_rate\" }));."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/25-analytics/experiment.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/25-analytics/experiment.ts and identify the input “a trust-copy variant targets add_to_cart_rate while monitoring product returns and accessibility” in the annotations. — code exercises/25-analytics/experiment.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npx tsc --noEmit once and retain secret-free output as the baseline. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npx tsc --noEmit, hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed. The deliberately failing case demonstrates “the team checks daily and stops as soon as an increase appears, multiplying false positives and ignoring returns” without exposing a secret; after the safeguard—pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects product views, cart additions, purchases, and presentation experiments. an experiment record that separates the primary metric from its safety guardrail must remain on the correct side of the trust boundary; use guardrail metric to justify validation and retain this as evidence: hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/25-analytics/experiment.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "After npx tsc --noEmit, hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed. The deliberately failing case demonstrates “the team checks daily and stops as soon as an increase appears, multiplying false positives and ignoring returns” without exposing a secret; after the safeguard—pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "the team checks daily and stops as soon as an increase appears, multiplying false positives and ignoring returns",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply guardrail metric: A measure that stops an experiment when the main gain comes with unacceptable harm.",
+          "fix": "Apply this specific safeguard: pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results. Replay the case and verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed."
+        },
+        {
+          "symptom": "an experiment record that separates the primary metric from its safety guardrail appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Responsible growth experiments, npx tsc --noEmit, input data, and outcome were not connected in a deterministic reproduction; collecting before consent, changing an event definition, or confusing movement with causal effect.",
+          "fix": "Freeze a trust-copy variant targets add_to_cart_rate while monitoring product returns and accessibility, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement an experiment record that separates the primary metric from its safety guardrail in exercises/25-analytics/experiment.ts, demonstrate that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed, then trigger and repair the team checks daily and stops as soon as an increase appears, multiplying false positives and ignoring returns.",
+        "steps": [
+          "Create exercises/25-analytics/experiment.ts and identify the input “a trust-copy variant targets add_to_cart_rate while monitoring product returns and accessibility” in the annotations.",
+          "Run npx tsc --noEmit once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: the team checks daily and stops as soon as an increase appears, multiplying false positives and ignoring returns.",
+          "Implement “pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results”, rerun the command, and explain the role of guardrail metric."
+        ],
+        "hints": [
+          "Read the definition again: A measure that stops an experiment when the main gain comes with unacceptable harm. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed”."
+        ],
+        "solution": {
+          "explanation": "For Responsible growth experiments, the solution keeps one authority and specifically applies “pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results”. It makes the team checks daily and stops as soon as an increase appears, multiplying false positives and ignoring returns reproducible and then controlled, and is accepted only when hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed.",
+          "code": "type Experiment = { id: string; hypothesis: string; primaryMetric: string; guardrail: string };\nexport function registerExperiment(input: Experiment) {\n  if (!input.hypothesis.includes(\"because\")) throw new Error(\"state a causal hypothesis\");\n  if (input.primaryMetric === input.guardrail) throw new Error(\"guardrail must be independent\");\n  return { ...input, status: \"planned\" as const };\n}\nconsole.log(registerExperiment({ id: \"hero-copy\", hypothesis: \"Trust copy helps because it reduces uncertainty\",\n  primaryMetric: \"add_to_cart_rate\", guardrail: \"return_rate\" }));",
+          "filename": "exercises/25-analytics/experiment.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "ethical-growth-experiment-q1",
+          "question": "Which decision actually demonstrates mastery of “Responsible growth experiments” in this scenario?",
+          "options": [
+            "pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results, then verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed.",
+            "Ignore “the team checks daily and stops as soon as an increase appears, multiplying false positives and ignoring returns” because the normal path displays an experiment record that separates the primary metric from its safety guardrail.",
+            "Move validation into the UI and treat guardrail metric as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A measure that stops an experiment when the main gain comes with unacceptable harm.",
+          "answerExplanations": [
+            "This option is correct. It says « pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results, then verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A measure that stops an experiment when the main gain comes with unacceptable harm.",
+            "This option is incorrect. It says « Ignore “the team checks daily and stops as soon as an increase appears, multiplying false positives and ignoring returns” because the normal path displays an experiment record that separates the primary metric from its safety guardrail. ». The reference answer is « pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results, then verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A measure that stops an experiment when the main gain comes with unacceptable harm.",
+            "This option is incorrect. It says « Move validation into the UI and treat guardrail metric as a server detail. ». The reference answer is « pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results, then verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A measure that stops an experiment when the main gain comes with unacceptable harm.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results, then verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A measure that stops an experiment when the main gain comes with unacceptable harm."
+          ]
+        },
+        {
+          "id": "ethical-growth-experiment-q2",
+          "question": "Which definition matches the term “guardrail metric”?",
+          "options": [
+            "Collection limited to data necessary for a stated, measurable purpose.",
+            "A measure that stops an experiment when the main gain comes with unacceptable harm.",
+            "An independent measure that reveals harm caused by optimizing the primary metric.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“guardrail metric” means: A measure that stops an experiment when the main gain comes with unacceptable harm.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Collection limited to data necessary for a stated, measurable purpose. ». The reference answer is « A measure that stops an experiment when the main gain comes with unacceptable harm. ». “guardrail metric” means: A measure that stops an experiment when the main gain comes with unacceptable harm.",
+            "This option is correct. It says « A measure that stops an experiment when the main gain comes with unacceptable harm. ». “guardrail metric” means: A measure that stops an experiment when the main gain comes with unacceptable harm.",
+            "This option is incorrect. It says « An independent measure that reveals harm caused by optimizing the primary metric. ». The reference answer is « A measure that stops an experiment when the main gain comes with unacceptable harm. ». “guardrail metric” means: A measure that stops an experiment when the main gain comes with unacceptable harm.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A measure that stops an experiment when the main gain comes with unacceptable harm. ». “guardrail metric” means: A measure that stops an experiment when the main gain comes with unacceptable harm."
+          ]
+        },
+        {
+          "id": "ethical-growth-experiment-q3",
+          "question": "What is the best first fix when you observe: “the team checks daily and stops as soon as an increase appears, multiplying false positives and ignoring returns”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze a trust-copy variant targets add_to_cart_rate while monitoring product returns and accessibility, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed”.",
+            "Apply this specific safeguard: pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results. Replay the case and verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply guardrail metric: A measure that stops an experiment when the main gain comes with unacceptable harm. The appropriate fix is: Apply this specific safeguard: pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results. Replay the case and verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results. Replay the case and verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply guardrail metric: A measure that stops an experiment when the main gain comes with unacceptable harm. The appropriate fix is: Apply this specific safeguard: pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results. Replay the case and verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed.",
+            "This option is incorrect. It says « Freeze a trust-copy variant targets add_to_cart_rate while monitoring product returns and accessibility, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed”. ». The reference answer is « Apply this specific safeguard: pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results. Replay the case and verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply guardrail metric: A measure that stops an experiment when the main gain comes with unacceptable harm. The appropriate fix is: Apply this specific safeguard: pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results. Replay the case and verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed.",
+            "This option is correct. It says « Apply this specific safeguard: pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results. Replay the case and verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply guardrail metric: A measure that stops an experiment when the main gain comes with unacceptable harm. The appropriate fix is: Apply this specific safeguard: pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results. Replay the case and verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results. Replay the case and verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply guardrail metric: A measure that stops an experiment when the main gain comes with unacceptable harm. The appropriate fix is: Apply this specific safeguard: pre-register decision and guardrail, ensure stable assignment, wait for the planned sample, and publish negative as well as positive results. Replay the case and verify that hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed."
+          ]
+        }
+      ],
+      "recap": [
+        "Write the hypothesis and metric before launch, add a quality guardrail, and reject dark patterns that improve a click while harming trust or returns.",
+        "guardrail metric: A measure that stops an experiment when the main gain comes with unacceptable harm.",
+        "Completion evidence: hypothesis, population, primary metric, guardrail, duration, and stopping rule are registered before results are viewed."
+      ],
+      "next": "The next module turns the accepted change into a reproducible, monitored, recoverable deployment."
+    }
+  ]
+}

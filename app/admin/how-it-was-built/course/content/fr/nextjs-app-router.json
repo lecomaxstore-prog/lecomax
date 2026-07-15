@@ -1,0 +1,1044 @@
+{
+  "id": "nextjs-app-router",
+  "order": 13,
+  "icon": "▲",
+  "color": "#111111",
+  "title": "Next.js App Router",
+  "summary": "Transformer l’arborescence app en URLs, partager des layouts, produire des metadata et gérer routes dynamiques, chargement et absence.",
+  "files": [
+    {
+      "path": "app/page.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "app/layout.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "app/produit/[slug]/page.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "app/not-found.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "academy-labs/nextjs-app-router/next-files-routes-project.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/nextjs-app-router/next-layouts-metadata.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/nextjs-app-router/next-dynamic-routes.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/nextjs-app-router/next-special-files-navigation.tsx",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "next-files-routes-project",
+      "order": 0,
+      "title": "Projet, dossiers et routes par fichiers",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir ouvrir le projet L’ecomax dans VS Code et utiliser le terminal intégré.",
+        "Avoir lu la leçon précédente et pouvoir expliquer, avec ses propres mots, le rôle de la traduction d’un fichier en URL."
+      ],
+      "objectives": [
+        "Construire un modèle mental précis de la traduction d’un fichier en URL.",
+        "Écrire puis exécuter un exemple minimal avant de l’intégrer à une fonctionnalité réelle.",
+        "Reconnaître les états d’échec, lire leurs symptômes et appliquer une correction vérifiable."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Dans App Router, chaque dossier sous app est un segment potentiel et seul un fichier page.tsx rend ce segment publiquement visitable. Les dossiers components, lib et public organisent respectivement l’interface, la logique partagée et les ressources statiques sans créer automatiquement de routes. Dessine d’abord les entrées, les transformations, les frontières de confiance et les sorties : cette carte permet de prévoir où le code s’exécute et où une erreur doit être traitée."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "la traduction d’un fichier en URL ressemble à un immeuble dont les dossiers sont les étages, les layouts les couloirs partagés et page.tsx la pièce visitée. L’analogie aide à retenir le trajet principal, mais le code reste la preuve : observe chaque valeur à l’entrée, pendant la transformation et à la sortie."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. Commence par la version la plus petite possible et observe sa valeur réelle dans le terminal ou les DevTools avant d’ajouter une abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Un export default de composant est obligatoire pour page.tsx ; ses imports serveur peuvent lire des données sans envoyer leur code au navigateur. Relie ensuite cette règle au contrat entre navigateur, serveur et base de données ; chaque frontière doit avoir une entrée définie et une erreur explicite."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Link effectue une navigation client accessible et permet à Next de précharger ; une balise a reste utile pour un domaine externe ou un téléchargement. Enfin, vérifie le cas nominal, une entrée limite et un échec volontaire afin de prouver que le comportement ne dépend pas seulement du scénario heureux."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "la traduction d’un fichier en URL",
+                  "definition": "Dans App Router, chaque dossier sous app est un segment potentiel et seul un fichier page.tsx rend ce segment publiquement visitable. Les dossiers components, lib et public organisent respectivement l’interface, la logique partagée et les ressources statiques sans créer automatiquement de routes."
+                },
+                {
+                  "term": "Projet, dossiers et routes par fichiers",
+                  "definition": "app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite."
+                },
+                {
+                  "term": "segment",
+                  "definition": "Dossier représentant une partie de l’URL."
+                },
+                {
+                  "term": "layout",
+                  "definition": "Interface persistante qui enveloppe les segments descendants."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Avant de coder, dessine l’URL voulue puis crée exactement ses segments et un page.tsx au dernier niveau."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/nextjs-app-router/next-files-routes-project.tsx",
+                "source": "import Link from \"next/link\";\nexport default function HomePage() {\n  return <main>\n    <h1>L’ecomax</h1>\n    <nav aria-label=\"Découvrir la boutique\">\n      <Link href=\"/boutique\">Voir les produits</Link>\n    </nav>\n  </main>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Projet, dossiers et routes par fichiers : les deux premières lignes installent le contrat et les données d’entrée."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "Ce bloc réalise la transformation principale ; suis les valeurs ligne par ligne et vérifie leur type."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "La fin expose le résultat ou l’échec attendu afin que l’appelant puisse réagir sans deviner."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\ncurl.exe -I http://localhost:3000\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvre academy-labs/nextjs-app-router/next-files-routes-project.tsx et isole la fonction ou le composant de l’exercice sans supprimer le reste du fichier L’ecomax. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Commence par le contrat de la première ligne — import Link from \"next/link\"; — puis saisis les lignes suivantes dans l’ordre en contrôlant chaque type et chaque retour. — curl.exe -I http://localhost:3000"
+                  },
+                  {
+                    "lines": "3",
+                    "label": "Vérifie que la dernière instruction — } — respecte cette règle observable : app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "Dans academy-labs/nextjs-app-router/next-files-routes-project.tsx, le résultat doit démontrer « Projet, dossiers et routes par fichiers » et rendre la traduction d’un fichier en URL observable. npm run dev puis curl.exe -I http://localhost:3000 puis npx tsc --noEmit se termine sans erreur ; le comportement obtenu respecte précisément : app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Les routes /boutique, /panier et /produit/[slug] de L’ecomax sont directement lisibles dans l’arborescence app."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "curl.exe -I http://localhost:3000",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "Dans academy-labs/nextjs-app-router/next-files-routes-project.tsx, le résultat doit démontrer « Projet, dossiers et routes par fichiers » et rendre la traduction d’un fichier en URL observable. npm run dev puis curl.exe -I http://localhost:3000 puis npx tsc --noEmit se termine sans erreur ; le comportement obtenu respecte précisément : app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite.",
+      "commonErrors": [
+        {
+          "symptom": "L’exemple « Projet, dossiers et routes par fichiers » s’exécute, mais il ne démontre pas la traduction d’un fichier en URL.",
+          "cause": "L’implémentation contredit cette règle du cours : app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite.",
+          "fix": "Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon."
+        },
+        {
+          "symptom": "Le cas nominal fonctionne dans academy-labs/nextjs-app-router/next-files-routes-project.tsx, mais le cas limite échoue ou reste silencieux.",
+          "cause": "La frontière suivante n’est pas encore représentée dans le code : Un export default de composant est obligatoire pour page.tsx ; ses imports serveur peuvent lire des données sans envoyer leur code au navigateur.",
+          "fix": "Ajoute un cas de vérification explicite en t’appuyant sur ce principe : Link effectue une navigation client accessible et permet à Next de précharger ; une balise a reste utile pour un domaine externe ou un téléchargement."
+        }
+      ],
+      "exercise": {
+        "task": "Dans academy-labs/nextjs-app-router/next-files-routes-project.tsx, reconstruis l’exemple annoté « Projet, dossiers et routes par fichiers » afin qu’il démontre la traduction d’un fichier en URL, puis vérifie exactement ce comportement avec les commandes fournies.",
+        "steps": [
+          "Ouvre academy-labs/nextjs-app-router/next-files-routes-project.tsx et isole la fonction ou le composant de l’exercice sans supprimer le reste du fichier L’ecomax.",
+          "Commence par le contrat de la première ligne — import Link from \"next/link\"; — puis saisis les lignes suivantes dans l’ordre en contrôlant chaque type et chaque retour.",
+          "Vérifie que la dernière instruction — } — respecte cette règle observable : app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite.",
+          "Enregistre le fichier, exécute npm run dev puis curl.exe -I http://localhost:3000 puis npx tsc --noEmit, puis teste une valeur normale et le cas limite décrit dans les erreurs fréquentes."
+        ],
+        "hints": [
+          "Le point de départ est le contrat visible dans academy-labs/nextjs-app-router/next-files-routes-project.tsx, pas une nouvelle abstraction ni un nouveau paquet.",
+          "Si le résultat diverge, relis cette frontière : Un export default de composant est obligatoire pour page.tsx ; ses imports serveur peuvent lire des données sans envoyer leur code au navigateur.",
+          "Compare ta version ligne par ligne avec la solution et applique cette correction : Link effectue une navigation client accessible et permet à Next de précharger ; une balise a reste utile pour un domaine externe ou un téléchargement."
+        ],
+        "solution": {
+          "explanation": "La solution complète de academy-labs/nextjs-app-router/next-files-routes-project.tsx comporte 9 lignes annotées. Elle implémente directement la traduction d’un fichier en URL, conserve le contrat montré dans l’exemple et rend le cas d’échec explicite sans ajouter de dépendance.",
+          "code": "import Link from \"next/link\";\nexport default function HomePage() {\n  return <main>\n    <h1>L’ecomax</h1>\n    <nav aria-label=\"Découvrir la boutique\">\n      <Link href=\"/boutique\">Voir les produits</Link>\n    </nav>\n  </main>;\n}",
+          "filename": "academy-labs/nextjs-app-router/next-files-routes-project.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "next-files-routes-project-q1",
+          "question": "Quelle affirmation applique correctement la traduction d’un fichier en URL dans une application de production ?",
+          "options": [
+            "app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite.",
+            "Le navigateur peut décider seul de la traduction d’un fichier en URL, car ses données sont toujours fiables.",
+            "la traduction d’un fichier en URL concerne uniquement les couleurs et n’a aucun effet sur les données.",
+            "Les erreurs liées à la traduction d’un fichier en URL peuvent être ignorées si le cas nominal fonctionne une fois."
+          ],
+          "correctIndex": 0,
+          "explanation": "La bonne réponse est « app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. ». La bonne réponse est « app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+            "Cette option est incorrecte. Elle affirme « Le navigateur peut décider seul de la traduction d’un fichier en URL, car ses données sont toujours fiables. ». La réponse de référence est « app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. ». La bonne réponse est « app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+            "Cette option est incorrecte. Elle affirme « la traduction d’un fichier en URL concerne uniquement les couleurs et n’a aucun effet sur les données. ». La réponse de référence est « app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. ». La bonne réponse est « app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+            "Cette option est incorrecte. Elle affirme « Les erreurs liées à la traduction d’un fichier en URL peuvent être ignorées si le cas nominal fonctionne une fois. ». La réponse de référence est « app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. ». La bonne réponse est « app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec."
+          ]
+        },
+        {
+          "id": "next-files-routes-project-q2",
+          "question": "Quelle définition correspond au terme « la traduction d’un fichier en URL » ?",
+          "options": [
+            "app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite.",
+            "Dans App Router, chaque dossier sous app est un segment potentiel et seul un fichier page.tsx rend ce segment publiquement visitable. Les dossiers components, lib et public organisent respectivement l’interface, la logique partagée et les ressources statiques sans créer automatiquement de routes.",
+            "Dossier représentant une partie de l’URL.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« la traduction d’un fichier en URL » signifie : Dans App Router, chaque dossier sous app est un segment potentiel et seul un fichier page.tsx rend ce segment publiquement visitable. Les dossiers components, lib et public organisent respectivement l’interface, la logique partagée et les ressources statiques sans créer automatiquement de routes.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. ». La réponse de référence est « Dans App Router, chaque dossier sous app est un segment potentiel et seul un fichier page.tsx rend ce segment publiquement visitable. Les dossiers components, lib et public organisent respectivement l’interface, la logique partagée et les ressources statiques sans créer automatiquement de routes. ». « la traduction d’un fichier en URL » signifie : Dans App Router, chaque dossier sous app est un segment potentiel et seul un fichier page.tsx rend ce segment publiquement visitable. Les dossiers components, lib et public organisent respectivement l’interface, la logique partagée et les ressources statiques sans créer automatiquement de routes.",
+            "Cette option est correcte. Elle affirme « Dans App Router, chaque dossier sous app est un segment potentiel et seul un fichier page.tsx rend ce segment publiquement visitable. Les dossiers components, lib et public organisent respectivement l’interface, la logique partagée et les ressources statiques sans créer automatiquement de routes. ». « la traduction d’un fichier en URL » signifie : Dans App Router, chaque dossier sous app est un segment potentiel et seul un fichier page.tsx rend ce segment publiquement visitable. Les dossiers components, lib et public organisent respectivement l’interface, la logique partagée et les ressources statiques sans créer automatiquement de routes.",
+            "Cette option est incorrecte. Elle affirme « Dossier représentant une partie de l’URL. ». La réponse de référence est « Dans App Router, chaque dossier sous app est un segment potentiel et seul un fichier page.tsx rend ce segment publiquement visitable. Les dossiers components, lib et public organisent respectivement l’interface, la logique partagée et les ressources statiques sans créer automatiquement de routes. ». « la traduction d’un fichier en URL » signifie : Dans App Router, chaque dossier sous app est un segment potentiel et seul un fichier page.tsx rend ce segment publiquement visitable. Les dossiers components, lib et public organisent respectivement l’interface, la logique partagée et les ressources statiques sans créer automatiquement de routes.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Dans App Router, chaque dossier sous app est un segment potentiel et seul un fichier page.tsx rend ce segment publiquement visitable. Les dossiers components, lib et public organisent respectivement l’interface, la logique partagée et les ressources statiques sans créer automatiquement de routes. ». « la traduction d’un fichier en URL » signifie : Dans App Router, chaque dossier sous app est un segment potentiel et seul un fichier page.tsx rend ce segment publiquement visitable. Les dossiers components, lib et public organisent respectivement l’interface, la logique partagée et les ressources statiques sans créer automatiquement de routes."
+          ]
+        },
+        {
+          "id": "next-files-routes-project-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « L’exemple « Projet, dossiers et routes par fichiers » s’exécute, mais il ne démontre pas la traduction d’un fichier en URL. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajoute un cas de vérification explicite en t’appuyant sur ce principe : Link effectue une navigation client accessible et permet à Next de précharger ; une balise a reste utile pour un domaine externe ou un téléchargement.",
+            "Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Cette option est incorrecte. Elle affirme « Ajoute un cas de vérification explicite en t’appuyant sur ce principe : Link effectue une navigation client accessible et permet à Next de précharger ; une balise a reste utile pour un domaine externe ou un téléchargement. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Cette option est correcte. Elle affirme « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : app/page.tsx correspond à /, app/boutique/page.tsx à /boutique et l’imbrication des dossiers construit l’URL de gauche à droite. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon."
+          ]
+        }
+      ],
+      "recap": [
+        "Tu peux maintenant expliquer la traduction d’un fichier en URL avec un schéma entrée → transformation → sortie.",
+        "Avant de coder, dessine l’URL voulue puis crée exactement ses segments et un page.tsx au dernier niveau.",
+        "Les routes /boutique, /panier et /produit/[slug] de L’ecomax sont directement lisibles dans l’arborescence app."
+      ],
+      "next": "La prochaine leçon ajoute la structure partagée avec layouts et décrit chaque page avec metadata."
+    },
+    {
+      "id": "next-layouts-metadata",
+      "order": 1,
+      "title": "Layouts, metadata et structure partagée",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir ouvrir le projet L’ecomax dans VS Code et utiliser le terminal intégré.",
+        "Avoir lu la leçon précédente et pouvoir expliquer, avec ses propres mots, le rôle de l’héritage d’une interface de route."
+      ],
+      "objectives": [
+        "Construire un modèle mental précis de l’héritage d’une interface de route.",
+        "Écrire puis exécuter un exemple minimal avant de l’intégrer à une fonctionnalité réelle.",
+        "Reconnaître les états d’échec, lire leurs symptômes et appliquer une correction vérifiable."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Le root layout enveloppe toutes les pages, fournit html et body et persiste pendant les navigations. Chaque layout imbriqué ajoute une coque à son sous-arbre, tandis que metadata fusionne des informations de document adaptées au segment actif. Dessine d’abord les entrées, les transformations, les frontières de confiance et les sorties : cette carte permet de prévoir où le code s’exécute et où une erreur doit être traitée."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "l’héritage d’une interface de route ressemble à un immeuble dont les dossiers sont les étages, les layouts les couloirs partagés et page.tsx la pièce visitée. L’analogie aide à retenir le trajet principal, mais le code reste la preuve : observe chaque valeur à l’entrée, pendant la transformation et à la sortie."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. Commence par la version la plus petite possible et observe sa valeur réelle dans le terminal ou les DevTools avant d’ajouter une abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Le template de title garde la marque sans répéter la chaîne dans chaque page, mais chaque page importante fournit un titre et une description spécifiques. Relie ensuite cette règle au contrat entre navigateur, serveur et base de données ; chaque frontière doit avoir une entrée définie et une erreur explicite."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "lang sur html renseigne les technologies d’assistance et moteurs ; une interface arabe doit aussi piloter dir=rtl au niveau pertinent. Enfin, vérifie le cas nominal, une entrée limite et un échec volontaire afin de prouver que le comportement ne dépend pas seulement du scénario heureux."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "l’héritage d’une interface de route",
+                  "definition": "Le root layout enveloppe toutes les pages, fournit html et body et persiste pendant les navigations. Chaque layout imbriqué ajoute une coque à son sous-arbre, tandis que metadata fusionne des informations de document adaptées au segment actif."
+                },
+                {
+                  "term": "Layouts, metadata et structure partagée",
+                  "definition": "Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx."
+                },
+                {
+                  "term": "layout",
+                  "definition": "Interface persistante qui enveloppe les segments descendants."
+                },
+                {
+                  "term": "dynamic route",
+                  "definition": "Segment entre crochets dont la valeur vient de l’URL."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Place chaque élément dans le layout du plus petit sous-arbre qui le partage et donne aux pages une metadata unique."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/nextjs-app-router/next-layouts-metadata.tsx",
+                "source": "import type { Metadata } from \"next\";\nexport const metadata: Metadata = {\n  title: { default: \"L’ecomax\", template: \"%s | L’ecomax\" },\n  description: \"Mode responsable et sélectionnée avec soin.\"\n};\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return <html lang=\"fr\"><body><header>L’ecomax</header>{children}</body></html>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Layouts, metadata et structure partagée : les deux premières lignes installent le contrat et les données d’entrée."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "Ce bloc réalise la transformation principale ; suis les valeurs ligne par ligne et vérifie leur type."
+                  },
+                  {
+                    "lines": "7-8",
+                    "label": "La fin expose le résultat ou l’échec attendu afin que l’appelant puisse réagir sans deviner."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\ncurl.exe -s http://localhost:3000\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvre academy-labs/nextjs-app-router/next-layouts-metadata.tsx et isole la fonction ou le composant de l’exercice sans supprimer le reste du fichier L’ecomax. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Commence par le contrat de la première ligne — import type { Metadata } from \"next\"; — puis saisis les lignes suivantes dans l’ordre en contrôlant chaque type et chaque retour. — curl.exe -s http://localhost:3000"
+                  },
+                  {
+                    "lines": "3",
+                    "label": "Vérifie que la dernière instruction — } — respecte cette règle observable : Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. — npm run build"
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "Dans academy-labs/nextjs-app-router/next-layouts-metadata.tsx, le résultat doit démontrer « Layouts, metadata et structure partagée » et rendre l’héritage d’une interface de route observable. npm run dev puis curl.exe -s http://localhost:3000 puis npm run build se termine sans erreur ; le comportement obtenu respecte précisément : Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Le layout racine L’ecomax porte les éléments mondiaux, tandis que compte, ecomedia et admin possèdent leurs coques spécialisées."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "curl.exe -s http://localhost:3000",
+        "npm run build"
+      ],
+      "expectedResult": "Dans academy-labs/nextjs-app-router/next-layouts-metadata.tsx, le résultat doit démontrer « Layouts, metadata et structure partagée » et rendre l’héritage d’une interface de route observable. npm run dev puis curl.exe -s http://localhost:3000 puis npm run build se termine sans erreur ; le comportement obtenu respecte précisément : Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx.",
+      "commonErrors": [
+        {
+          "symptom": "L’exemple « Layouts, metadata et structure partagée » s’exécute, mais il ne démontre pas l’héritage d’une interface de route.",
+          "cause": "L’implémentation contredit cette règle du cours : Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx.",
+          "fix": "Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon."
+        },
+        {
+          "symptom": "Le cas nominal fonctionne dans academy-labs/nextjs-app-router/next-layouts-metadata.tsx, mais le cas limite échoue ou reste silencieux.",
+          "cause": "La frontière suivante n’est pas encore représentée dans le code : Le template de title garde la marque sans répéter la chaîne dans chaque page, mais chaque page importante fournit un titre et une description spécifiques.",
+          "fix": "Ajoute un cas de vérification explicite en t’appuyant sur ce principe : lang sur html renseigne les technologies d’assistance et moteurs ; une interface arabe doit aussi piloter dir=rtl au niveau pertinent."
+        }
+      ],
+      "exercise": {
+        "task": "Dans academy-labs/nextjs-app-router/next-layouts-metadata.tsx, reconstruis l’exemple annoté « Layouts, metadata et structure partagée » afin qu’il démontre l’héritage d’une interface de route, puis vérifie exactement ce comportement avec les commandes fournies.",
+        "steps": [
+          "Ouvre academy-labs/nextjs-app-router/next-layouts-metadata.tsx et isole la fonction ou le composant de l’exercice sans supprimer le reste du fichier L’ecomax.",
+          "Commence par le contrat de la première ligne — import type { Metadata } from \"next\"; — puis saisis les lignes suivantes dans l’ordre en contrôlant chaque type et chaque retour.",
+          "Vérifie que la dernière instruction — } — respecte cette règle observable : Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx.",
+          "Enregistre le fichier, exécute npm run dev puis curl.exe -s http://localhost:3000 puis npm run build, puis teste une valeur normale et le cas limite décrit dans les erreurs fréquentes."
+        ],
+        "hints": [
+          "Le point de départ est le contrat visible dans academy-labs/nextjs-app-router/next-layouts-metadata.tsx, pas une nouvelle abstraction ni un nouveau paquet.",
+          "Si le résultat diverge, relis cette frontière : Le template de title garde la marque sans répéter la chaîne dans chaque page, mais chaque page importante fournit un titre et une description spécifiques.",
+          "Compare ta version ligne par ligne avec la solution et applique cette correction : lang sur html renseigne les technologies d’assistance et moteurs ; une interface arabe doit aussi piloter dir=rtl au niveau pertinent."
+        ],
+        "solution": {
+          "explanation": "La solution complète de academy-labs/nextjs-app-router/next-layouts-metadata.tsx comporte 8 lignes annotées. Elle implémente directement l’héritage d’une interface de route, conserve le contrat montré dans l’exemple et rend le cas d’échec explicite sans ajouter de dépendance.",
+          "code": "import type { Metadata } from \"next\";\nexport const metadata: Metadata = {\n  title: { default: \"L’ecomax\", template: \"%s | L’ecomax\" },\n  description: \"Mode responsable et sélectionnée avec soin.\"\n};\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return <html lang=\"fr\"><body><header>L’ecomax</header>{children}</body></html>;\n}",
+          "filename": "academy-labs/nextjs-app-router/next-layouts-metadata.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "next-layouts-metadata-q1",
+          "question": "Quelle affirmation applique correctement l’héritage d’une interface de route dans une application de production ?",
+          "options": [
+            "Le navigateur peut décider seul de l’héritage d’une interface de route, car ses données sont toujours fiables.",
+            "Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx.",
+            "l’héritage d’une interface de route concerne uniquement les couleurs et n’a aucun effet sur les données.",
+            "Les erreurs liées à l’héritage d’une interface de route peuvent être ignorées si le cas nominal fonctionne une fois."
+          ],
+          "correctIndex": 1,
+          "explanation": "La bonne réponse est « Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Le navigateur peut décider seul de l’héritage d’une interface de route, car ses données sont toujours fiables. ». La réponse de référence est « Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. ». La bonne réponse est « Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+            "Cette option est correcte. Elle affirme « Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. ». La bonne réponse est « Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+            "Cette option est incorrecte. Elle affirme « l’héritage d’une interface de route concerne uniquement les couleurs et n’a aucun effet sur les données. ». La réponse de référence est « Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. ». La bonne réponse est « Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+            "Cette option est incorrecte. Elle affirme « Les erreurs liées à l’héritage d’une interface de route peuvent être ignorées si le cas nominal fonctionne une fois. ». La réponse de référence est « Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. ». La bonne réponse est « Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec."
+          ]
+        },
+        {
+          "id": "next-layouts-metadata-q2",
+          "question": "Quelle définition correspond au terme « l’héritage d’une interface de route » ?",
+          "options": [
+            "Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx.",
+            "Le root layout enveloppe toutes les pages, fournit html et body et persiste pendant les navigations. Chaque layout imbriqué ajoute une coque à son sous-arbre, tandis que metadata fusionne des informations de document adaptées au segment actif.",
+            "Interface persistante qui enveloppe les segments descendants.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« l’héritage d’une interface de route » signifie : Le root layout enveloppe toutes les pages, fournit html et body et persiste pendant les navigations. Chaque layout imbriqué ajoute une coque à son sous-arbre, tandis que metadata fusionne des informations de document adaptées au segment actif.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. ». La réponse de référence est « Le root layout enveloppe toutes les pages, fournit html et body et persiste pendant les navigations. Chaque layout imbriqué ajoute une coque à son sous-arbre, tandis que metadata fusionne des informations de document adaptées au segment actif. ». « l’héritage d’une interface de route » signifie : Le root layout enveloppe toutes les pages, fournit html et body et persiste pendant les navigations. Chaque layout imbriqué ajoute une coque à son sous-arbre, tandis que metadata fusionne des informations de document adaptées au segment actif.",
+            "Cette option est correcte. Elle affirme « Le root layout enveloppe toutes les pages, fournit html et body et persiste pendant les navigations. Chaque layout imbriqué ajoute une coque à son sous-arbre, tandis que metadata fusionne des informations de document adaptées au segment actif. ». « l’héritage d’une interface de route » signifie : Le root layout enveloppe toutes les pages, fournit html et body et persiste pendant les navigations. Chaque layout imbriqué ajoute une coque à son sous-arbre, tandis que metadata fusionne des informations de document adaptées au segment actif.",
+            "Cette option est incorrecte. Elle affirme « Interface persistante qui enveloppe les segments descendants. ». La réponse de référence est « Le root layout enveloppe toutes les pages, fournit html et body et persiste pendant les navigations. Chaque layout imbriqué ajoute une coque à son sous-arbre, tandis que metadata fusionne des informations de document adaptées au segment actif. ». « l’héritage d’une interface de route » signifie : Le root layout enveloppe toutes les pages, fournit html et body et persiste pendant les navigations. Chaque layout imbriqué ajoute une coque à son sous-arbre, tandis que metadata fusionne des informations de document adaptées au segment actif.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Le root layout enveloppe toutes les pages, fournit html et body et persiste pendant les navigations. Chaque layout imbriqué ajoute une coque à son sous-arbre, tandis que metadata fusionne des informations de document adaptées au segment actif. ». « l’héritage d’une interface de route » signifie : Le root layout enveloppe toutes les pages, fournit html et body et persiste pendant les navigations. Chaque layout imbriqué ajoute une coque à son sous-arbre, tandis que metadata fusionne des informations de document adaptées au segment actif."
+          ]
+        },
+        {
+          "id": "next-layouts-metadata-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « L’exemple « Layouts, metadata et structure partagée » s’exécute, mais il ne démontre pas l’héritage d’une interface de route. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajoute un cas de vérification explicite en t’appuyant sur ce principe : lang sur html renseigne les technologies d’assistance et moteurs ; une interface arabe doit aussi piloter dir=rtl au niveau pertinent.",
+            "Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Cette option est incorrecte. Elle affirme « Ajoute un cas de vérification explicite en t’appuyant sur ce principe : lang sur html renseigne les technologies d’assistance et moteurs ; une interface arabe doit aussi piloter dir=rtl au niveau pertinent. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Cette option est correcte. Elle affirme « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Header, Footer, providers globaux et analytics appartiennent au layout seulement s’ils sont réellement partagés ; une coque admin peut rester dans app/admin/layout.tsx. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon."
+          ]
+        }
+      ],
+      "recap": [
+        "Tu peux maintenant expliquer l’héritage d’une interface de route avec un schéma entrée → transformation → sortie.",
+        "Place chaque élément dans le layout du plus petit sous-arbre qui le partage et donne aux pages une metadata unique.",
+        "Le layout racine L’ecomax porte les éléments mondiaux, tandis que compte, ecomedia et admin possèdent leurs coques spécialisées."
+      ],
+      "next": "La prochaine leçon lit slug et searchParams pour produire une fiche dynamique ou notFound."
+    },
+    {
+      "id": "next-dynamic-routes",
+      "order": 2,
+      "title": "Routes dynamiques, params et searchParams",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir ouvrir le projet L’ecomax dans VS Code et utiliser le terminal intégré.",
+        "Avoir lu la leçon précédente et pouvoir expliquer, avec ses propres mots, le rôle de la résolution d’un segment dynamique."
+      ],
+      "objectives": [
+        "Construire un modèle mental précis de la résolution d’un segment dynamique.",
+        "Écrire puis exécuter un exemple minimal avant de l’intégrer à une fonctionnalité réelle.",
+        "Reconnaître les états d’échec, lire leurs symptômes et appliquer une correction vérifiable."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "[slug] réserve une position d’URL dont la valeur est fournie à la page dans params ; searchParams représente la requête après ?. Le segment identifie généralement la ressource, tandis que la query affine une vue sans changer son identité canonique. Dessine d’abord les entrées, les transformations, les frontières de confiance et les sorties : cette carte permet de prévoir où le code s’exécute et où une erreur doit être traitée."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "la résolution d’un segment dynamique ressemble à un immeuble dont les dossiers sont les étages, les layouts les couloirs partagés et page.tsx la pièce visitée. L’analogie aide à retenir le trajet principal, mais le code reste la preuve : observe chaque valeur à l’entrée, pendant la transformation et à la sortie."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. Commence par la version la plus petite possible et observe sa valeur réelle dans le terminal ou les DevTools avant d’ajouter une abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Le slug venant de l’URL reste une entrée non fiable : la requête doit l’échapper, gérer zéro résultat et ne jamais construire du SQL par concaténation. Relie ensuite cette règle au contrat entre navigateur, serveur et base de données ; chaque frontière doit avoir une entrée définie et une erreur explicite."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "notFound interrompt le rendu et sélectionne le plus proche not-found.tsx avec un statut 404, au lieu de retourner une page succès vide. Enfin, vérifie le cas nominal, une entrée limite et un échec volontaire afin de prouver que le comportement ne dépend pas seulement du scénario heureux."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "la résolution d’un segment dynamique",
+                  "definition": "[slug] réserve une position d’URL dont la valeur est fournie à la page dans params ; searchParams représente la requête après ?. Le segment identifie généralement la ressource, tandis que la query affine une vue sans changer son identité canonique."
+                },
+                {
+                  "term": "Routes dynamiques, params et searchParams",
+                  "definition": "Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données."
+                },
+                {
+                  "term": "dynamic route",
+                  "definition": "Segment entre crochets dont la valeur vient de l’URL."
+                },
+                {
+                  "term": "metadata",
+                  "definition": "Informations de document destinées au navigateur et aux moteurs de recherche."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Sépare identité de ressource dans params et options de présentation dans searchParams, puis valide les deux avant usage."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/nextjs-app-router/next-dynamic-routes.tsx",
+                "source": "import { notFound } from \"next/navigation\";\ntype Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ color?: string }> };\nexport default async function ProductPage({ params, searchParams }: Props) {\n  const [{ slug }, { color }] = await Promise.all([params, searchParams]);\n  const product = await getProductBySlug(slug);\n  if (!product) notFound();\n  return <main><h1>{product.name}</h1><p>Couleur : {color ?? \"défaut\"}</p></main>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Routes dynamiques, params et searchParams : les deux premières lignes installent le contrat et les données d’entrée."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "Ce bloc réalise la transformation principale ; suis les valeurs ligne par ligne et vérifie leur type."
+                  },
+                  {
+                    "lines": "7-8",
+                    "label": "La fin expose le résultat ou l’échec attendu afin que l’appelant puisse réagir sans deviner."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\ncurl.exe -i http://localhost:3000/produit/un-slug-reel\ncurl.exe -i http://localhost:3000/produit/introuvable",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvre academy-labs/nextjs-app-router/next-dynamic-routes.tsx et isole la fonction ou le composant de l’exercice sans supprimer le reste du fichier L’ecomax. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Commence par le contrat de la première ligne — import { notFound } from \"next/navigation\"; — puis saisis les lignes suivantes dans l’ordre en contrôlant chaque type et chaque retour. — curl.exe -i http://localhost:3000/produit/un-slug-reel"
+                  },
+                  {
+                    "lines": "3",
+                    "label": "Vérifie que la dernière instruction — } — respecte cette règle observable : Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. — curl.exe -i http://localhost:3000/produit/introuvable"
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "Dans academy-labs/nextjs-app-router/next-dynamic-routes.tsx, le résultat doit démontrer « Routes dynamiques, params et searchParams » et rendre la résolution d’un segment dynamique observable. npm run dev puis curl.exe -i http://localhost:3000/produit/un-slug-reel puis curl.exe -i http://localhost:3000/produit/introuvable se termine sans erreur ; le comportement obtenu respecte précisément : Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "L’ecomax charge le produit par slug, choisit éventuellement une couleur depuis la query et rend une vraie 404 si le produit est absent."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "curl.exe -i http://localhost:3000/produit/un-slug-reel",
+        "curl.exe -i http://localhost:3000/produit/introuvable"
+      ],
+      "expectedResult": "Dans academy-labs/nextjs-app-router/next-dynamic-routes.tsx, le résultat doit démontrer « Routes dynamiques, params et searchParams » et rendre la résolution d’un segment dynamique observable. npm run dev puis curl.exe -i http://localhost:3000/produit/un-slug-reel puis curl.exe -i http://localhost:3000/produit/introuvable se termine sans erreur ; le comportement obtenu respecte précisément : Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données.",
+      "commonErrors": [
+        {
+          "symptom": "L’exemple « Routes dynamiques, params et searchParams » s’exécute, mais il ne démontre pas la résolution d’un segment dynamique.",
+          "cause": "L’implémentation contredit cette règle du cours : Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données.",
+          "fix": "Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon."
+        },
+        {
+          "symptom": "Le cas nominal fonctionne dans academy-labs/nextjs-app-router/next-dynamic-routes.tsx, mais le cas limite échoue ou reste silencieux.",
+          "cause": "La frontière suivante n’est pas encore représentée dans le code : Le slug venant de l’URL reste une entrée non fiable : la requête doit l’échapper, gérer zéro résultat et ne jamais construire du SQL par concaténation.",
+          "fix": "Ajoute un cas de vérification explicite en t’appuyant sur ce principe : notFound interrompt le rendu et sélectionne le plus proche not-found.tsx avec un statut 404, au lieu de retourner une page succès vide."
+        }
+      ],
+      "exercise": {
+        "task": "Dans academy-labs/nextjs-app-router/next-dynamic-routes.tsx, reconstruis l’exemple annoté « Routes dynamiques, params et searchParams » afin qu’il démontre la résolution d’un segment dynamique, puis vérifie exactement ce comportement avec les commandes fournies.",
+        "steps": [
+          "Ouvre academy-labs/nextjs-app-router/next-dynamic-routes.tsx et isole la fonction ou le composant de l’exercice sans supprimer le reste du fichier L’ecomax.",
+          "Commence par le contrat de la première ligne — import { notFound } from \"next/navigation\"; — puis saisis les lignes suivantes dans l’ordre en contrôlant chaque type et chaque retour.",
+          "Vérifie que la dernière instruction — } — respecte cette règle observable : Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données.",
+          "Enregistre le fichier, exécute npm run dev puis curl.exe -i http://localhost:3000/produit/un-slug-reel puis curl.exe -i http://localhost:3000/produit/introuvable, puis teste une valeur normale et le cas limite décrit dans les erreurs fréquentes."
+        ],
+        "hints": [
+          "Le point de départ est le contrat visible dans academy-labs/nextjs-app-router/next-dynamic-routes.tsx, pas une nouvelle abstraction ni un nouveau paquet.",
+          "Si le résultat diverge, relis cette frontière : Le slug venant de l’URL reste une entrée non fiable : la requête doit l’échapper, gérer zéro résultat et ne jamais construire du SQL par concaténation.",
+          "Compare ta version ligne par ligne avec la solution et applique cette correction : notFound interrompt le rendu et sélectionne le plus proche not-found.tsx avec un statut 404, au lieu de retourner une page succès vide."
+        ],
+        "solution": {
+          "explanation": "La solution complète de academy-labs/nextjs-app-router/next-dynamic-routes.tsx comporte 8 lignes annotées. Elle implémente directement la résolution d’un segment dynamique, conserve le contrat montré dans l’exemple et rend le cas d’échec explicite sans ajouter de dépendance.",
+          "code": "import { notFound } from \"next/navigation\";\ntype Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ color?: string }> };\nexport default async function ProductPage({ params, searchParams }: Props) {\n  const [{ slug }, { color }] = await Promise.all([params, searchParams]);\n  const product = await getProductBySlug(slug);\n  if (!product) notFound();\n  return <main><h1>{product.name}</h1><p>Couleur : {color ?? \"défaut\"}</p></main>;\n}",
+          "filename": "academy-labs/nextjs-app-router/next-dynamic-routes.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "next-dynamic-routes-q1",
+          "question": "Quelle affirmation applique correctement la résolution d’un segment dynamique dans une application de production ?",
+          "options": [
+            "Le navigateur peut décider seul de la résolution d’un segment dynamique, car ses données sont toujours fiables.",
+            "la résolution d’un segment dynamique concerne uniquement les couleurs et n’a aucun effet sur les données.",
+            "Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données.",
+            "Les erreurs liées à la résolution d’un segment dynamique peuvent être ignorées si le cas nominal fonctionne une fois."
+          ],
+          "correctIndex": 2,
+          "explanation": "La bonne réponse est « Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Le navigateur peut décider seul de la résolution d’un segment dynamique, car ses données sont toujours fiables. ». La réponse de référence est « Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. ». La bonne réponse est « Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+            "Cette option est incorrecte. Elle affirme « la résolution d’un segment dynamique concerne uniquement les couleurs et n’a aucun effet sur les données. ». La réponse de référence est « Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. ». La bonne réponse est « Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+            "Cette option est correcte. Elle affirme « Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. ». La bonne réponse est « Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+            "Cette option est incorrecte. Elle affirme « Les erreurs liées à la résolution d’un segment dynamique peuvent être ignorées si le cas nominal fonctionne une fois. ». La réponse de référence est « Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. ». La bonne réponse est « Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec."
+          ]
+        },
+        {
+          "id": "next-dynamic-routes-q2",
+          "question": "Quelle définition correspond au terme « la résolution d’un segment dynamique » ?",
+          "options": [
+            "Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données.",
+            "[slug] réserve une position d’URL dont la valeur est fournie à la page dans params ; searchParams représente la requête après ?. Le segment identifie généralement la ressource, tandis que la query affine une vue sans changer son identité canonique.",
+            "Segment entre crochets dont la valeur vient de l’URL.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« la résolution d’un segment dynamique » signifie : [slug] réserve une position d’URL dont la valeur est fournie à la page dans params ; searchParams représente la requête après ?. Le segment identifie généralement la ressource, tandis que la query affine une vue sans changer son identité canonique.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. ». La réponse de référence est « [slug] réserve une position d’URL dont la valeur est fournie à la page dans params ; searchParams représente la requête après ?. Le segment identifie généralement la ressource, tandis que la query affine une vue sans changer son identité canonique. ». « la résolution d’un segment dynamique » signifie : [slug] réserve une position d’URL dont la valeur est fournie à la page dans params ; searchParams représente la requête après ?. Le segment identifie généralement la ressource, tandis que la query affine une vue sans changer son identité canonique.",
+            "Cette option est correcte. Elle affirme « [slug] réserve une position d’URL dont la valeur est fournie à la page dans params ; searchParams représente la requête après ?. Le segment identifie généralement la ressource, tandis que la query affine une vue sans changer son identité canonique. ». « la résolution d’un segment dynamique » signifie : [slug] réserve une position d’URL dont la valeur est fournie à la page dans params ; searchParams représente la requête après ?. Le segment identifie généralement la ressource, tandis que la query affine une vue sans changer son identité canonique.",
+            "Cette option est incorrecte. Elle affirme « Segment entre crochets dont la valeur vient de l’URL. ». La réponse de référence est « [slug] réserve une position d’URL dont la valeur est fournie à la page dans params ; searchParams représente la requête après ?. Le segment identifie généralement la ressource, tandis que la query affine une vue sans changer son identité canonique. ». « la résolution d’un segment dynamique » signifie : [slug] réserve une position d’URL dont la valeur est fournie à la page dans params ; searchParams représente la requête après ?. Le segment identifie généralement la ressource, tandis que la query affine une vue sans changer son identité canonique.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « [slug] réserve une position d’URL dont la valeur est fournie à la page dans params ; searchParams représente la requête après ?. Le segment identifie généralement la ressource, tandis que la query affine une vue sans changer son identité canonique. ». « la résolution d’un segment dynamique » signifie : [slug] réserve une position d’URL dont la valeur est fournie à la page dans params ; searchParams représente la requête après ?. Le segment identifie généralement la ressource, tandis que la query affine une vue sans changer son identité canonique."
+          ]
+        },
+        {
+          "id": "next-dynamic-routes-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « L’exemple « Routes dynamiques, params et searchParams » s’exécute, mais il ne démontre pas la résolution d’un segment dynamique. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajoute un cas de vérification explicite en t’appuyant sur ce principe : notFound interrompt le rendu et sélectionne le plus proche not-found.tsx avec un statut 404, au lieu de retourner une page succès vide.",
+            "Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Cette option est incorrecte. Elle affirme « Ajoute un cas de vérification explicite en t’appuyant sur ce principe : notFound interrompt le rendu et sélectionne le plus proche not-found.tsx avec un statut 404, au lieu de retourner une page succès vide. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Cette option est correcte. Elle affirme « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Dans Next.js 15, params et searchParams sont asynchrones dans ce contrat ; les attendre rend les valeurs disponibles avant la requête de données. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon."
+          ]
+        }
+      ],
+      "recap": [
+        "Tu peux maintenant expliquer la résolution d’un segment dynamique avec un schéma entrée → transformation → sortie.",
+        "Sépare identité de ressource dans params et options de présentation dans searchParams, puis valide les deux avant usage.",
+        "L’ecomax charge le produit par slug, choisit éventuellement une couleur depuis la query et rend une vraie 404 si le produit est absent."
+      ],
+      "next": "La prochaine leçon ajoute les interfaces loading, error et not-found ainsi que navigation et préchargement."
+    },
+    {
+      "id": "next-special-files-navigation",
+      "order": 3,
+      "title": "loading, error, not-found et navigation",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir ouvrir le projet L’ecomax dans VS Code et utiliser le terminal intégré.",
+        "Avoir lu la leçon précédente et pouvoir expliquer, avec ses propres mots, le rôle de les frontières d’attente et de récupération."
+      ],
+      "objectives": [
+        "Construire un modèle mental précis de les frontières d’attente et de récupération.",
+        "Écrire puis exécuter un exemple minimal avant de l’intégrer à une fonctionnalité réelle.",
+        "Reconnaître les états d’échec, lire leurs symptômes et appliquer une correction vérifiable."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Les fichiers spéciaux entourent un segment : loading.tsx sert de fallback pendant une suspension, error.tsx capture une erreur de rendu côté client et not-found.tsx explique une ressource absente. Chaque frontière doit préserver le contexte et fournir une prochaine action. Dessine d’abord les entrées, les transformations, les frontières de confiance et les sorties : cette carte permet de prévoir où le code s’exécute et où une erreur doit être traitée."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "les frontières d’attente et de récupération ressemble à un immeuble dont les dossiers sont les étages, les layouts les couloirs partagés et page.tsx la pièce visitée. L’analogie aide à retenir le trajet principal, mais le code reste la preuve : observe chaque valeur à l’entrée, pendant la transformation et à la sortie."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. Commence par la version la plus petite possible et observe sa valeur réelle dans le terminal ou les DevTools avant d’ajouter une abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "error.tsx doit être Client Component pour offrir reset ; il affiche un message sûr et journalise la cause sans exposer stack ou secret au visiteur. Relie ensuite cette règle au contrat entre navigateur, serveur et base de données ; chaque frontière doit avoir une entrée définie et une erreur explicite."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "La page not-found nomme ce qui manque et propose un Link pertinent ; le bouton retour navigateur ne suffit pas à un lien partagé directement. Enfin, vérifie le cas nominal, une entrée limite et un échec volontaire afin de prouver que le comportement ne dépend pas seulement du scénario heureux."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "les frontières d’attente et de récupération",
+                  "definition": "Les fichiers spéciaux entourent un segment : loading.tsx sert de fallback pendant une suspension, error.tsx capture une erreur de rendu côté client et not-found.tsx explique une ressource absente. Chaque frontière doit préserver le contexte et fournir une prochaine action."
+                },
+                {
+                  "term": "loading, error, not-found et navigation",
+                  "definition": "Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression."
+                },
+                {
+                  "term": "metadata",
+                  "definition": "Informations de document destinées au navigateur et aux moteurs de recherche."
+                },
+                {
+                  "term": "segment",
+                  "definition": "Dossier représentant une partie de l’URL."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Simule lenteur, erreur et absence pour chaque route critique, puis offre une action de récupération spécifique."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/nextjs-app-router/next-special-files-navigation.tsx",
+                "source": "import Link from \"next/link\";\nexport default function NotFound() {\n  return <main>\n    <h1>Produit introuvable</h1>\n    <p>Le lien est peut-être ancien ou le produit retiré.</p>\n    <Link href=\"/boutique\">Retourner au catalogue</Link>\n  </main>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "loading, error, not-found et navigation : les deux premières lignes installent le contrat et les données d’entrée."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "Ce bloc réalise la transformation principale ; suis les valeurs ligne par ligne et vérifie leur type."
+                  },
+                  {
+                    "lines": "7-8",
+                    "label": "La fin expose le résultat ou l’échec attendu afin que l’appelant puisse réagir sans deviner."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\ncurl.exe -i http://localhost:3000/produit/introuvable\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvre academy-labs/nextjs-app-router/next-special-files-navigation.tsx et isole la fonction ou le composant de l’exercice sans supprimer le reste du fichier L’ecomax. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Commence par le contrat de la première ligne — import Link from \"next/link\"; — puis saisis les lignes suivantes dans l’ordre en contrôlant chaque type et chaque retour. — curl.exe -i http://localhost:3000/produit/introuvable"
+                  },
+                  {
+                    "lines": "3",
+                    "label": "Vérifie que la dernière instruction — } — respecte cette règle observable : Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. — npm run build"
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "Dans academy-labs/nextjs-app-router/next-special-files-navigation.tsx, le résultat doit démontrer « loading, error, not-found et navigation » et rendre les frontières d’attente et de récupération observable. npm run dev puis curl.exe -i http://localhost:3000/produit/introuvable puis npm run build se termine sans erreur ; le comportement obtenu respecte précisément : Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Une fiche L’ecomax lente garde la galerie stable, une erreur peut être retentée et un slug supprimé renvoie au catalogue."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "curl.exe -i http://localhost:3000/produit/introuvable",
+        "npm run build"
+      ],
+      "expectedResult": "Dans academy-labs/nextjs-app-router/next-special-files-navigation.tsx, le résultat doit démontrer « loading, error, not-found et navigation » et rendre les frontières d’attente et de récupération observable. npm run dev puis curl.exe -i http://localhost:3000/produit/introuvable puis npm run build se termine sans erreur ; le comportement obtenu respecte précisément : Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression.",
+      "commonErrors": [
+        {
+          "symptom": "L’exemple « loading, error, not-found et navigation » s’exécute, mais il ne démontre pas les frontières d’attente et de récupération.",
+          "cause": "L’implémentation contredit cette règle du cours : Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression.",
+          "fix": "Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon."
+        },
+        {
+          "symptom": "Le cas nominal fonctionne dans academy-labs/nextjs-app-router/next-special-files-navigation.tsx, mais le cas limite échoue ou reste silencieux.",
+          "cause": "La frontière suivante n’est pas encore représentée dans le code : error.tsx doit être Client Component pour offrir reset ; il affiche un message sûr et journalise la cause sans exposer stack ou secret au visiteur.",
+          "fix": "Ajoute un cas de vérification explicite en t’appuyant sur ce principe : La page not-found nomme ce qui manque et propose un Link pertinent ; le bouton retour navigateur ne suffit pas à un lien partagé directement."
+        }
+      ],
+      "exercise": {
+        "task": "Dans academy-labs/nextjs-app-router/next-special-files-navigation.tsx, reconstruis l’exemple annoté « loading, error, not-found et navigation » afin qu’il démontre les frontières d’attente et de récupération, puis vérifie exactement ce comportement avec les commandes fournies.",
+        "steps": [
+          "Ouvre academy-labs/nextjs-app-router/next-special-files-navigation.tsx et isole la fonction ou le composant de l’exercice sans supprimer le reste du fichier L’ecomax.",
+          "Commence par le contrat de la première ligne — import Link from \"next/link\"; — puis saisis les lignes suivantes dans l’ordre en contrôlant chaque type et chaque retour.",
+          "Vérifie que la dernière instruction — } — respecte cette règle observable : Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression.",
+          "Enregistre le fichier, exécute npm run dev puis curl.exe -i http://localhost:3000/produit/introuvable puis npm run build, puis teste une valeur normale et le cas limite décrit dans les erreurs fréquentes."
+        ],
+        "hints": [
+          "Le point de départ est le contrat visible dans academy-labs/nextjs-app-router/next-special-files-navigation.tsx, pas une nouvelle abstraction ni un nouveau paquet.",
+          "Si le résultat diverge, relis cette frontière : error.tsx doit être Client Component pour offrir reset ; il affiche un message sûr et journalise la cause sans exposer stack ou secret au visiteur.",
+          "Compare ta version ligne par ligne avec la solution et applique cette correction : La page not-found nomme ce qui manque et propose un Link pertinent ; le bouton retour navigateur ne suffit pas à un lien partagé directement."
+        ],
+        "solution": {
+          "explanation": "La solution complète de academy-labs/nextjs-app-router/next-special-files-navigation.tsx comporte 8 lignes annotées. Elle implémente directement les frontières d’attente et de récupération, conserve le contrat montré dans l’exemple et rend le cas d’échec explicite sans ajouter de dépendance.",
+          "code": "import Link from \"next/link\";\nexport default function NotFound() {\n  return <main>\n    <h1>Produit introuvable</h1>\n    <p>Le lien est peut-être ancien ou le produit retiré.</p>\n    <Link href=\"/boutique\">Retourner au catalogue</Link>\n  </main>;\n}",
+          "filename": "academy-labs/nextjs-app-router/next-special-files-navigation.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "next-special-files-navigation-q1",
+          "question": "Quelle affirmation applique correctement les frontières d’attente et de récupération dans une application de production ?",
+          "options": [
+            "Le navigateur peut décider seul de les frontières d’attente et de récupération, car ses données sont toujours fiables.",
+            "les frontières d’attente et de récupération concerne uniquement les couleurs et n’a aucun effet sur les données.",
+            "Les erreurs liées à les frontières d’attente et de récupération peuvent être ignorées si le cas nominal fonctionne une fois.",
+            "Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression."
+          ],
+          "correctIndex": 3,
+          "explanation": "La bonne réponse est « Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Le navigateur peut décider seul de les frontières d’attente et de récupération, car ses données sont toujours fiables. ». La réponse de référence est « Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. ». La bonne réponse est « Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+            "Cette option est incorrecte. Elle affirme « les frontières d’attente et de récupération concerne uniquement les couleurs et n’a aucun effet sur les données. ». La réponse de référence est « Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. ». La bonne réponse est « Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+            "Cette option est incorrecte. Elle affirme « Les erreurs liées à les frontières d’attente et de récupération peuvent être ignorées si le cas nominal fonctionne une fois. ». La réponse de référence est « Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. ». La bonne réponse est « Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+            "Cette option est correcte. Elle affirme « Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. ». La bonne réponse est « Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec."
+          ]
+        },
+        {
+          "id": "next-special-files-navigation-q2",
+          "question": "Quelle définition correspond au terme « les frontières d’attente et de récupération » ?",
+          "options": [
+            "Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression.",
+            "Les fichiers spéciaux entourent un segment : loading.tsx sert de fallback pendant une suspension, error.tsx capture une erreur de rendu côté client et not-found.tsx explique une ressource absente. Chaque frontière doit préserver le contexte et fournir une prochaine action.",
+            "Informations de document destinées au navigateur et aux moteurs de recherche.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« les frontières d’attente et de récupération » signifie : Les fichiers spéciaux entourent un segment : loading.tsx sert de fallback pendant une suspension, error.tsx capture une erreur de rendu côté client et not-found.tsx explique une ressource absente. Chaque frontière doit préserver le contexte et fournir une prochaine action.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. ». La réponse de référence est « Les fichiers spéciaux entourent un segment : loading.tsx sert de fallback pendant une suspension, error.tsx capture une erreur de rendu côté client et not-found.tsx explique une ressource absente. Chaque frontière doit préserver le contexte et fournir une prochaine action. ». « les frontières d’attente et de récupération » signifie : Les fichiers spéciaux entourent un segment : loading.tsx sert de fallback pendant une suspension, error.tsx capture une erreur de rendu côté client et not-found.tsx explique une ressource absente. Chaque frontière doit préserver le contexte et fournir une prochaine action.",
+            "Cette option est correcte. Elle affirme « Les fichiers spéciaux entourent un segment : loading.tsx sert de fallback pendant une suspension, error.tsx capture une erreur de rendu côté client et not-found.tsx explique une ressource absente. Chaque frontière doit préserver le contexte et fournir une prochaine action. ». « les frontières d’attente et de récupération » signifie : Les fichiers spéciaux entourent un segment : loading.tsx sert de fallback pendant une suspension, error.tsx capture une erreur de rendu côté client et not-found.tsx explique une ressource absente. Chaque frontière doit préserver le contexte et fournir une prochaine action.",
+            "Cette option est incorrecte. Elle affirme « Informations de document destinées au navigateur et aux moteurs de recherche. ». La réponse de référence est « Les fichiers spéciaux entourent un segment : loading.tsx sert de fallback pendant une suspension, error.tsx capture une erreur de rendu côté client et not-found.tsx explique une ressource absente. Chaque frontière doit préserver le contexte et fournir une prochaine action. ». « les frontières d’attente et de récupération » signifie : Les fichiers spéciaux entourent un segment : loading.tsx sert de fallback pendant une suspension, error.tsx capture une erreur de rendu côté client et not-found.tsx explique une ressource absente. Chaque frontière doit préserver le contexte et fournir une prochaine action.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Les fichiers spéciaux entourent un segment : loading.tsx sert de fallback pendant une suspension, error.tsx capture une erreur de rendu côté client et not-found.tsx explique une ressource absente. Chaque frontière doit préserver le contexte et fournir une prochaine action. ». « les frontières d’attente et de récupération » signifie : Les fichiers spéciaux entourent un segment : loading.tsx sert de fallback pendant une suspension, error.tsx capture une erreur de rendu côté client et not-found.tsx explique une ressource absente. Chaque frontière doit préserver le contexte et fournir une prochaine action."
+          ]
+        },
+        {
+          "id": "next-special-files-navigation-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « L’exemple « loading, error, not-found et navigation » s’exécute, mais il ne démontre pas les frontières d’attente et de récupération. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajoute un cas de vérification explicite en t’appuyant sur ce principe : La page not-found nomme ce qui manque et propose un Link pertinent ; le bouton retour navigateur ne suffit pas à un lien partagé directement.",
+            "Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Cette option est incorrecte. Elle affirme « Ajoute un cas de vérification explicite en t’appuyant sur ce principe : La page not-found nomme ce qui manque et propose un Link pertinent ; le bouton retour navigateur ne suffit pas à un lien partagé directement. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Cette option est correcte. Elle affirme « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : Un skeleton de loading réserve les dimensions finales pour éviter le décalage de mise en page et annonce l’attente sans fausse progression. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon."
+          ]
+        }
+      ],
+      "recap": [
+        "Tu peux maintenant expliquer les frontières d’attente et de récupération avec un schéma entrée → transformation → sortie.",
+        "Simule lenteur, erreur et absence pour chaque route critique, puis offre une action de récupération spécifique.",
+        "Une fiche L’ecomax lente garde la galerie stable, une erreur peut être retentée et un slug supprimé renvoie au catalogue."
+      ],
+      "next": "Le module suivant explique où le code Next s’exécute, comment les données sont cachées et comment écrire routes et middleware."
+    }
+  ]
+}

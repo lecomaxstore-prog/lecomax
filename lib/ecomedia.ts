@@ -26,6 +26,10 @@ export interface EcomediaPost {
   comments_count: number;
   created_at: string;
   updated_at: string;
+  author_id?: string | null;
+  author_name?: string | null;
+  author_avatar?: string | null;
+  is_client_post?: boolean;
 }
 
 export interface EcomediaComment {
@@ -36,6 +40,9 @@ export interface EcomediaComment {
   content: string;
   is_approved: boolean;
   created_at: string;
+  user_id?: string | null;
+  parent_id?: string | null;
+  replies?: EcomediaComment[];
 }
 
 export interface EcomediaLike {
@@ -43,6 +50,20 @@ export interface EcomediaLike {
   post_id: string;
   visitor_id: string;
   created_at: string;
+}
+
+const COMMUNITY_AUTHOR_PREFIX = "__ECOMEDIA_MEMBER__:";
+
+export function encodeCommunityAuthor(author: { id: string; name: string; avatar: string | null }): string {
+  return COMMUNITY_AUTHOR_PREFIX + encodeURIComponent(JSON.stringify(author));
+}
+
+export function hydrateCommunityPost(post: EcomediaPost): EcomediaPost {
+  if (!post.cta_text?.startsWith(COMMUNITY_AUTHOR_PREFIX)) return post;
+  try {
+    const author = JSON.parse(decodeURIComponent(post.cta_text.slice(COMMUNITY_AUTHOR_PREFIX.length))) as { id?: string; name?: string; avatar?: string | null };
+    return { ...post, cta_text: null, author_id: author.id ?? null, author_name: author.name ?? "Membre", author_avatar: author.avatar ?? null, is_client_post: true };
+  } catch { return post; }
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -116,12 +137,12 @@ export function formatRelativeTime(dateStr: string): string {
 
 /** Type display label */
 export const POST_TYPE_LABELS: Record<PostType, string> = {
-  image: "📷 Image",
-  video_upload: "🎥 Vidéo",
-  video_url: "▶️ Vidéo URL",
-  text: "📝 Texte",
-  product: "🛍️ Produit",
-  promotion: "🏷️ Promo",
+  image: "Photo",
+  video_upload: "Vidéo",
+  video_url: "Vidéo",
+  text: "Publication",
+  product: "Produit",
+  promotion: "Offre",
 };
 
 export const POST_TYPE_COLORS: Record<PostType, string> = {

@@ -1,0 +1,1044 @@
+{
+  "id": "nextjs-app-router",
+  "order": 13,
+  "icon": "▲",
+  "color": "#111111",
+  "title": "Next.js App Router",
+  "summary": "تحويل شجرة app إلى روابط ومشاركة layouts وإنتاج metadata ومعالجة routes الديناميكية والتحميل والمحتوى المفقود.",
+  "files": [
+    {
+      "path": "app/page.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "app/layout.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "app/produit/[slug]/page.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "app/not-found.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "academy-labs/nextjs-app-router/next-files-routes-project.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/nextjs-app-router/next-layouts-metadata.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/nextjs-app-router/next-dynamic-routes.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/nextjs-app-router/next-special-files-navigation.tsx",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "next-files-routes-project",
+      "order": 0,
+      "title": "المشروع والمجلدات وroutes المعتمدة على الملفات",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "معرفة فتح مشروع L’ecomax في VS Code واستخدام الطرفية المدمجة فيه.",
+        "قراءة الدرس السابق والقدرة على شرح دور تحويل الملف إلى رابط بكلماتك الخاصة."
+      ],
+      "objectives": [
+        "بناء نموذج ذهني دقيق لـ تحويل الملف إلى رابط.",
+        "كتابة مثال صغير وتشغيله قبل دمجه في ميزة حقيقية.",
+        "تمييز حالات الفشل وقراءة أعراضها وتطبيق إصلاح يمكن التحقق منه."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "النموذج الذهني",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "في App Router يكون كل مجلد تحت app ‏segment محتملاً، ولا يجعل segment قابلاً للزيارة علناً إلا ملف page.tsx. تنظم مجلدات components وlib وpublic الواجهة والمنطق المشترك والموارد الثابتة من دون إنشاء routes تلقائياً. ارسم أولاً المدخلات والتحويلات وحدود الثقة والمخرجات؛ فهذه الخريطة تجعلك تتوقع مكان تنفيذ الشيفرة والمكان الصحيح لمعالجة كل خطأ."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "تشبيه بسيط",
+              "text": "تحويل الملف إلى رابط يشبه مبنى تمثل فيه المجلدات الطوابق وlayouts الممرات المشتركة وpage.tsx الغرفة التي تزورها. يساعدك التشبيه على تذكر المسار الرئيسي، لكن تشغيل الشيفرة هو الدليل: راقب كل قيمة عند الإدخال وأثناء التحويل وعند الإخراج."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "الفهم المتعمق",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين. ابدأ بأصغر نسخة عاملة وراقب قيمتها الحقيقية في الطرفية أو أدوات المطور قبل إضافة أي طبقة تجريد."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "يلزم export default لمكوّن في page.tsx؛ ويمكن لاستيراداته على الخادم قراءة البيانات بلا إرسال شيفرتها إلى المتصفح. ثم اربط القاعدة بالعقد بين المتصفح والخادم وقاعدة البيانات؛ فكل حد يحتاج إلى مدخل محدد وفشل صريح."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "ينفذ Link تنقلاً ميسراً في العميل ويسمح لـ Next بالتحميل المسبق؛ وتبقى a مفيدة لنطاق خارجي أو تنزيل. وأخيراً اختبر الحالة العادية وقيمة حدّية وفشلاً متعمداً حتى تثبت السلوك خارج المسار الناجح فقط."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "تحويل الملف إلى رابط",
+                  "definition": "في App Router يكون كل مجلد تحت app ‏segment محتملاً، ولا يجعل segment قابلاً للزيارة علناً إلا ملف page.tsx. تنظم مجلدات components وlib وpublic الواجهة والمنطق المشترك والموارد الثابتة من دون إنشاء routes تلقائياً."
+                },
+                {
+                  "term": "المشروع والمجلدات وroutes المعتمدة على الملفات",
+                  "definition": "يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين."
+                },
+                {
+                  "term": "segment",
+                  "definition": "مجلد يمثل جزءاً من الرابط."
+                },
+                {
+                  "term": "layout",
+                  "definition": "واجهة مستمرة تغلف segments الأبناء."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "مثال مشروح",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "تطبيق عام",
+              "text": "قبل البرمجة ارسم الرابط المطلوب ثم أنشئ segments المطابقة وpage.tsx في المستوى الأخير."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "مثال مشروح",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/nextjs-app-router/next-files-routes-project.tsx",
+                "source": "import Link from \"next/link\";\nexport default function HomePage() {\n  return <main>\n    <h1>L’ecomax</h1>\n    <nav aria-label=\"Découvrir la boutique\">\n      <Link href=\"/boutique\">Voir les produits</Link>\n    </nav>\n  </main>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "المشروع والمجلدات وroutes المعتمدة على الملفات: يثبت السطران الأولان العقد وبيانات الإدخال."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "تنفذ هذه الكتلة التحويل الرئيسي؛ تتبع القيم سطراً بسطر وتحقق من أنواعها."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "تكشف النهاية النتيجة المتوقعة أو الفشل حتى يتصرف المستدعي من دون تخمين."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "المثال الثاني — التشغيل والتحقق",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\ncurl.exe -I http://localhost:3000\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "افتح academy-labs/nextjs-app-router/next-files-routes-project.tsx واعزل دالة التمرين أو مكوّنه من دون حذف بقية ملف L’ecomax. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "ابدأ بعقد السطر الأول — import Link from \"next/link\"; — ثم اكتب بقية الأسطر بالترتيب مع فحص كل نوع وقيمة إرجاع. — curl.exe -I http://localhost:3000"
+                  },
+                  {
+                    "lines": "3",
+                    "label": "تحقق من أن التعليمة الأخيرة — } — تطبق القاعدة الملحوظة التالية: يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "في academy-labs/nextjs-app-router/next-files-routes-project.tsx يجب أن تثبت النتيجة «المشروع والمجلدات وroutes المعتمدة على الملفات» وتجعل تحويل الملف إلى رابط قابلة للملاحظة. يكتمل npm run dev ثم curl.exe -I http://localhost:3000 ثم npx tsc --noEmit بلا خطأ ويطبق السلوك هذه القاعدة بدقة: يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "التطبيق في L’ecomax",
+              "text": "يمكن قراءة routes ‏/boutique و/panier و/produit/[slug] في L’ecomax مباشرة من شجرة app."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "curl.exe -I http://localhost:3000",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "في academy-labs/nextjs-app-router/next-files-routes-project.tsx يجب أن تثبت النتيجة «المشروع والمجلدات وroutes المعتمدة على الملفات» وتجعل تحويل الملف إلى رابط قابلة للملاحظة. يكتمل npm run dev ثم curl.exe -I http://localhost:3000 ثم npx tsc --noEmit بلا خطأ ويطبق السلوك هذه القاعدة بدقة: يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين.",
+      "commonErrors": [
+        {
+          "symptom": "يعمل مثال «المشروع والمجلدات وroutes المعتمدة على الملفات» لكنه لا يثبت تحويل الملف إلى رابط.",
+          "cause": "يخالف التنفيذ قاعدة الدرس التالية: يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين.",
+          "fix": "ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة."
+        },
+        {
+          "symptom": "تعمل الحالة العادية في academy-labs/nextjs-app-router/next-files-routes-project.tsx لكن الحالة الحدية تفشل أو تبقى صامتة.",
+          "cause": "لم يمثل الكود الحد التالي بعد: يلزم export default لمكوّن في page.tsx؛ ويمكن لاستيراداته على الخادم قراءة البيانات بلا إرسال شيفرتها إلى المتصفح.",
+          "fix": "أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: ينفذ Link تنقلاً ميسراً في العميل ويسمح لـ Next بالتحميل المسبق؛ وتبقى a مفيدة لنطاق خارجي أو تنزيل."
+        }
+      ],
+      "exercise": {
+        "task": "في academy-labs/nextjs-app-router/next-files-routes-project.tsx أعد بناء المثال المشروح «المشروع والمجلدات وroutes المعتمدة على الملفات» بحيث يثبت تحويل الملف إلى رابط، ثم تحقق من السلوك نفسه بالأوامر المقدمة.",
+        "steps": [
+          "افتح academy-labs/nextjs-app-router/next-files-routes-project.tsx واعزل دالة التمرين أو مكوّنه من دون حذف بقية ملف L’ecomax.",
+          "ابدأ بعقد السطر الأول — import Link from \"next/link\"; — ثم اكتب بقية الأسطر بالترتيب مع فحص كل نوع وقيمة إرجاع.",
+          "تحقق من أن التعليمة الأخيرة — } — تطبق القاعدة الملحوظة التالية: يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين.",
+          "احفظ الملف وشغّل npm run dev ثم curl.exe -I http://localhost:3000 ثم npx tsc --noEmit ثم اختبر قيمة عادية والحالة الحدية المذكورة في الأخطاء الشائعة."
+        ],
+        "hints": [
+          "ابدأ من العقد الظاهر في academy-labs/nextjs-app-router/next-files-routes-project.tsx لا من طبقة تجريد أو حزمة جديدة.",
+          "إذا اختلفت النتيجة فأعد قراءة هذا الحد: يلزم export default لمكوّن في page.tsx؛ ويمكن لاستيراداته على الخادم قراءة البيانات بلا إرسال شيفرتها إلى المتصفح.",
+          "قارن نسختك بالحل سطراً بسطر وطبق هذا التصحيح: ينفذ Link تنقلاً ميسراً في العميل ويسمح لـ Next بالتحميل المسبق؛ وتبقى a مفيدة لنطاق خارجي أو تنزيل."
+        ],
+        "solution": {
+          "explanation": "يتكون الحل الكامل في academy-labs/nextjs-app-router/next-files-routes-project.tsx من 9 سطراً مشروحاً. وهو ينفذ تحويل الملف إلى رابط مباشرة ويحافظ على العقد الظاهر في المثال ويجعل حالة الفشل صريحة بلا حزمة إضافية.",
+          "code": "import Link from \"next/link\";\nexport default function HomePage() {\n  return <main>\n    <h1>L’ecomax</h1>\n    <nav aria-label=\"Découvrir la boutique\">\n      <Link href=\"/boutique\">Voir les produits</Link>\n    </nav>\n  </main>;\n}",
+          "filename": "academy-labs/nextjs-app-router/next-files-routes-project.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "next-files-routes-project-q1",
+          "question": "أي عبارة تطبق تحويل الملف إلى رابط بصورة صحيحة في تطبيق إنتاجي؟",
+          "options": [
+            "يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين.",
+            "يمكن للمتصفح أن يقرر تحويل الملف إلى رابط وحده لأن بياناته موثوقة دائماً.",
+            "تحويل الملف إلى رابط تخص الألوان فقط ولا تؤثر في البيانات.",
+            "يمكن تجاهل الأخطاء المتعلقة بـ تحويل الملف إلى رابط إذا نجح المسار العادي مرة واحدة."
+          ],
+          "correctIndex": 0,
+          "explanation": "الإجابة الصحيحة هي «يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+          "answerExplanations": [
+            "هذا الخيار صحيح، وهو يقول « يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين. ». الإجابة الصحيحة هي «يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+            "هذا الخيار غير صحيح، وهو يقول « يمكن للمتصفح أن يقرر تحويل الملف إلى رابط وحده لأن بياناته موثوقة دائماً. ». الإجابة المرجعية هي « يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين. ». الإجابة الصحيحة هي «يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+            "هذا الخيار غير صحيح، وهو يقول « تحويل الملف إلى رابط تخص الألوان فقط ولا تؤثر في البيانات. ». الإجابة المرجعية هي « يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين. ». الإجابة الصحيحة هي «يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+            "هذا الخيار غير صحيح، وهو يقول « يمكن تجاهل الأخطاء المتعلقة بـ تحويل الملف إلى رابط إذا نجح المسار العادي مرة واحدة. ». الإجابة المرجعية هي « يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين. ». الإجابة الصحيحة هي «يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل."
+          ]
+        },
+        {
+          "id": "next-files-routes-project-q2",
+          "question": "أي تعريف يطابق المصطلح «تحويل الملف إلى رابط»؟",
+          "options": [
+            "يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين.",
+            "في App Router يكون كل مجلد تحت app ‏segment محتملاً، ولا يجعل segment قابلاً للزيارة علناً إلا ملف page.tsx. تنظم مجلدات components وlib وpublic الواجهة والمنطق المشترك والموارد الثابتة من دون إنشاء routes تلقائياً.",
+            "مجلد يمثل جزءاً من الرابط.",
+            "ليس لهذا المصطلح تعريف تقني دقيق."
+          ],
+          "correctIndex": 1,
+          "explanation": "يعني المصطلح «تحويل الملف إلى رابط»: في App Router يكون كل مجلد تحت app ‏segment محتملاً، ولا يجعل segment قابلاً للزيارة علناً إلا ملف page.tsx. تنظم مجلدات components وlib وpublic الواجهة والمنطق المشترك والموارد الثابتة من دون إنشاء routes تلقائياً.",
+          "answerExplanations": [
+            "هذا الخيار غير صحيح، وهو يقول « يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين. ». الإجابة المرجعية هي « في App Router يكون كل مجلد تحت app ‏segment محتملاً، ولا يجعل segment قابلاً للزيارة علناً إلا ملف page.tsx. تنظم مجلدات components وlib وpublic الواجهة والمنطق المشترك والموارد الثابتة من دون إنشاء routes تلقائياً. ». يعني المصطلح «تحويل الملف إلى رابط»: في App Router يكون كل مجلد تحت app ‏segment محتملاً، ولا يجعل segment قابلاً للزيارة علناً إلا ملف page.tsx. تنظم مجلدات components وlib وpublic الواجهة والمنطق المشترك والموارد الثابتة من دون إنشاء routes تلقائياً.",
+            "هذا الخيار صحيح، وهو يقول « في App Router يكون كل مجلد تحت app ‏segment محتملاً، ولا يجعل segment قابلاً للزيارة علناً إلا ملف page.tsx. تنظم مجلدات components وlib وpublic الواجهة والمنطق المشترك والموارد الثابتة من دون إنشاء routes تلقائياً. ». يعني المصطلح «تحويل الملف إلى رابط»: في App Router يكون كل مجلد تحت app ‏segment محتملاً، ولا يجعل segment قابلاً للزيارة علناً إلا ملف page.tsx. تنظم مجلدات components وlib وpublic الواجهة والمنطق المشترك والموارد الثابتة من دون إنشاء routes تلقائياً.",
+            "هذا الخيار غير صحيح، وهو يقول « مجلد يمثل جزءاً من الرابط. ». الإجابة المرجعية هي « في App Router يكون كل مجلد تحت app ‏segment محتملاً، ولا يجعل segment قابلاً للزيارة علناً إلا ملف page.tsx. تنظم مجلدات components وlib وpublic الواجهة والمنطق المشترك والموارد الثابتة من دون إنشاء routes تلقائياً. ». يعني المصطلح «تحويل الملف إلى رابط»: في App Router يكون كل مجلد تحت app ‏segment محتملاً، ولا يجعل segment قابلاً للزيارة علناً إلا ملف page.tsx. تنظم مجلدات components وlib وpublic الواجهة والمنطق المشترك والموارد الثابتة من دون إنشاء routes تلقائياً.",
+            "هذا الخيار غير صحيح، وهو يقول « ليس لهذا المصطلح تعريف تقني دقيق. ». الإجابة المرجعية هي « في App Router يكون كل مجلد تحت app ‏segment محتملاً، ولا يجعل segment قابلاً للزيارة علناً إلا ملف page.tsx. تنظم مجلدات components وlib وpublic الواجهة والمنطق المشترك والموارد الثابتة من دون إنشاء routes تلقائياً. ». يعني المصطلح «تحويل الملف إلى رابط»: في App Router يكون كل مجلد تحت app ‏segment محتملاً، ولا يجعل segment قابلاً للزيارة علناً إلا ملف page.tsx. تنظم مجلدات components وlib وpublic الواجهة والمنطق المشترك والموارد الثابتة من دون إنشاء routes تلقائياً."
+          ]
+        },
+        {
+          "id": "next-files-routes-project-q3",
+          "question": "ما أول تصحيح مناسب عند ملاحظة: «يعمل مثال «المشروع والمجلدات وroutes المعتمدة على الملفات» لكنه لا يثبت تحويل الملف إلى رابط.»؟",
+          "options": [
+            "تكرار الإجراء نفسه من دون قراءة أول رسالة خطأ.",
+            "أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: ينفذ Link تنقلاً ميسراً في العميل ويسمح لـ Next بالتحميل المسبق؛ وتبقى a مفيدة لنطاق خارجي أو تنزيل.",
+            "ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "إخفاء الخطأ في الواجهة واعتبار المشكلة محلولة."
+          ],
+          "correctIndex": 2,
+          "explanation": "يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+          "answerExplanations": [
+            "هذا الخيار غير صحيح، وهو يقول « تكرار الإجراء نفسه من دون قراءة أول رسالة خطأ. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "هذا الخيار غير صحيح، وهو يقول « أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: ينفذ Link تنقلاً ميسراً في العميل ويسمح لـ Next بالتحميل المسبق؛ وتبقى a مفيدة لنطاق خارجي أو تنزيل. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "هذا الخيار صحيح، وهو يقول « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "هذا الخيار غير صحيح، وهو يقول « إخفاء الخطأ في الواجهة واعتبار المشكلة محلولة. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يقابل app/page.tsx الرابط / ويقابل app/boutique/page.tsx الرابط /boutique وتبني المجلدات المتداخلة الرابط من اليسار إلى اليمين. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة."
+          ]
+        }
+      ],
+      "recap": [
+        "يمكنك الآن شرح تحويل الملف إلى رابط برسم مدخلات ← تحويل ← مخرجات.",
+        "قبل البرمجة ارسم الرابط المطلوب ثم أنشئ segments المطابقة وpage.tsx في المستوى الأخير.",
+        "يمكن قراءة routes ‏/boutique و/panier و/produit/[slug] في L’ecomax مباشرة من شجرة app."
+      ],
+      "next": "يضيف الدرس التالي البنية المشتركة عبر layouts ويصف كل صفحة باستخدام metadata."
+    },
+    {
+      "id": "next-layouts-metadata",
+      "order": 1,
+      "title": "Layouts وmetadata والبنية المشتركة",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "معرفة فتح مشروع L’ecomax في VS Code واستخدام الطرفية المدمجة فيه.",
+        "قراءة الدرس السابق والقدرة على شرح دور وراثة واجهة route بكلماتك الخاصة."
+      ],
+      "objectives": [
+        "بناء نموذج ذهني دقيق لـ وراثة واجهة route.",
+        "كتابة مثال صغير وتشغيله قبل دمجه في ميزة حقيقية.",
+        "تمييز حالات الفشل وقراءة أعراضها وتطبيق إصلاح يمكن التحقق منه."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "النموذج الذهني",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "يغلف root layout كل الصفحات ويوفر html وbody ويستمر أثناء التنقل. يضيف كل layout متداخل غلافاً لشجرته الفرعية، بينما تدمج metadata معلومات المستند الملائمة لـ segment النشط. ارسم أولاً المدخلات والتحويلات وحدود الثقة والمخرجات؛ فهذه الخريطة تجعلك تتوقع مكان تنفيذ الشيفرة والمكان الصحيح لمعالجة كل خطأ."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "تشبيه بسيط",
+              "text": "وراثة واجهة route يشبه مبنى تمثل فيه المجلدات الطوابق وlayouts الممرات المشتركة وpage.tsx الغرفة التي تزورها. يساعدك التشبيه على تذكر المسار الرئيسي، لكن تشغيل الشيفرة هو الدليل: راقب كل قيمة عند الإدخال وأثناء التحويل وعند الإخراج."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "الفهم المتعمق",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx. ابدأ بأصغر نسخة عاملة وراقب قيمتها الحقيقية في الطرفية أو أدوات المطور قبل إضافة أي طبقة تجريد."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "يحفظ template الخاص بـ title العلامة بلا تكرار السلسلة في كل صفحة، بينما توفر كل صفحة مهمة عنواناً ووصفاً محددين. ثم اربط القاعدة بالعقد بين المتصفح والخادم وقاعدة البيانات؛ فكل حد يحتاج إلى مدخل محدد وفشل صريح."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "تخبر lang على html تقنيات المساعدة ومحركات البحث؛ ويجب أن تتحكم الواجهة العربية أيضاً في dir=rtl عند المستوى المناسب. وأخيراً اختبر الحالة العادية وقيمة حدّية وفشلاً متعمداً حتى تثبت السلوك خارج المسار الناجح فقط."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "وراثة واجهة route",
+                  "definition": "يغلف root layout كل الصفحات ويوفر html وbody ويستمر أثناء التنقل. يضيف كل layout متداخل غلافاً لشجرته الفرعية، بينما تدمج metadata معلومات المستند الملائمة لـ segment النشط."
+                },
+                {
+                  "term": "Layouts وmetadata والبنية المشتركة",
+                  "definition": "تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx."
+                },
+                {
+                  "term": "layout",
+                  "definition": "واجهة مستمرة تغلف segments الأبناء."
+                },
+                {
+                  "term": "dynamic route",
+                  "definition": "segment بين أقواس تأتي قيمته من الرابط."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "مثال مشروح",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "تطبيق عام",
+              "text": "ضع كل عنصر في layout لأصغر شجرة فرعية تشاركه وأعط الصفحات metadata فريدة."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "مثال مشروح",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/nextjs-app-router/next-layouts-metadata.tsx",
+                "source": "import type { Metadata } from \"next\";\nexport const metadata: Metadata = {\n  title: { default: \"L’ecomax\", template: \"%s | L’ecomax\" },\n  description: \"Mode responsable et sélectionnée avec soin.\"\n};\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return <html lang=\"fr\"><body><header>L’ecomax</header>{children}</body></html>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Layouts وmetadata والبنية المشتركة: يثبت السطران الأولان العقد وبيانات الإدخال."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "تنفذ هذه الكتلة التحويل الرئيسي؛ تتبع القيم سطراً بسطر وتحقق من أنواعها."
+                  },
+                  {
+                    "lines": "7-8",
+                    "label": "تكشف النهاية النتيجة المتوقعة أو الفشل حتى يتصرف المستدعي من دون تخمين."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "المثال الثاني — التشغيل والتحقق",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\ncurl.exe -s http://localhost:3000\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "افتح academy-labs/nextjs-app-router/next-layouts-metadata.tsx واعزل دالة التمرين أو مكوّنه من دون حذف بقية ملف L’ecomax. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "ابدأ بعقد السطر الأول — import type { Metadata } from \"next\"; — ثم اكتب بقية الأسطر بالترتيب مع فحص كل نوع وقيمة إرجاع. — curl.exe -s http://localhost:3000"
+                  },
+                  {
+                    "lines": "3",
+                    "label": "تحقق من أن التعليمة الأخيرة — } — تطبق القاعدة الملحوظة التالية: تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx. — npm run build"
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "في academy-labs/nextjs-app-router/next-layouts-metadata.tsx يجب أن تثبت النتيجة «Layouts وmetadata والبنية المشتركة» وتجعل وراثة واجهة route قابلة للملاحظة. يكتمل npm run dev ثم curl.exe -s http://localhost:3000 ثم npm run build بلا خطأ ويطبق السلوك هذه القاعدة بدقة: تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "التطبيق في L’ecomax",
+              "text": "يحمل root layout في L’ecomax العناصر العامة، بينما تملك account وecomedia وadmin أغلفتها المتخصصة."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "curl.exe -s http://localhost:3000",
+        "npm run build"
+      ],
+      "expectedResult": "في academy-labs/nextjs-app-router/next-layouts-metadata.tsx يجب أن تثبت النتيجة «Layouts وmetadata والبنية المشتركة» وتجعل وراثة واجهة route قابلة للملاحظة. يكتمل npm run dev ثم curl.exe -s http://localhost:3000 ثم npm run build بلا خطأ ويطبق السلوك هذه القاعدة بدقة: تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx.",
+      "commonErrors": [
+        {
+          "symptom": "يعمل مثال «Layouts وmetadata والبنية المشتركة» لكنه لا يثبت وراثة واجهة route.",
+          "cause": "يخالف التنفيذ قاعدة الدرس التالية: تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx.",
+          "fix": "ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة."
+        },
+        {
+          "symptom": "تعمل الحالة العادية في academy-labs/nextjs-app-router/next-layouts-metadata.tsx لكن الحالة الحدية تفشل أو تبقى صامتة.",
+          "cause": "لم يمثل الكود الحد التالي بعد: يحفظ template الخاص بـ title العلامة بلا تكرار السلسلة في كل صفحة، بينما توفر كل صفحة مهمة عنواناً ووصفاً محددين.",
+          "fix": "أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: تخبر lang على html تقنيات المساعدة ومحركات البحث؛ ويجب أن تتحكم الواجهة العربية أيضاً في dir=rtl عند المستوى المناسب."
+        }
+      ],
+      "exercise": {
+        "task": "في academy-labs/nextjs-app-router/next-layouts-metadata.tsx أعد بناء المثال المشروح «Layouts وmetadata والبنية المشتركة» بحيث يثبت وراثة واجهة route، ثم تحقق من السلوك نفسه بالأوامر المقدمة.",
+        "steps": [
+          "افتح academy-labs/nextjs-app-router/next-layouts-metadata.tsx واعزل دالة التمرين أو مكوّنه من دون حذف بقية ملف L’ecomax.",
+          "ابدأ بعقد السطر الأول — import type { Metadata } from \"next\"; — ثم اكتب بقية الأسطر بالترتيب مع فحص كل نوع وقيمة إرجاع.",
+          "تحقق من أن التعليمة الأخيرة — } — تطبق القاعدة الملحوظة التالية: تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx.",
+          "احفظ الملف وشغّل npm run dev ثم curl.exe -s http://localhost:3000 ثم npm run build ثم اختبر قيمة عادية والحالة الحدية المذكورة في الأخطاء الشائعة."
+        ],
+        "hints": [
+          "ابدأ من العقد الظاهر في academy-labs/nextjs-app-router/next-layouts-metadata.tsx لا من طبقة تجريد أو حزمة جديدة.",
+          "إذا اختلفت النتيجة فأعد قراءة هذا الحد: يحفظ template الخاص بـ title العلامة بلا تكرار السلسلة في كل صفحة، بينما توفر كل صفحة مهمة عنواناً ووصفاً محددين.",
+          "قارن نسختك بالحل سطراً بسطر وطبق هذا التصحيح: تخبر lang على html تقنيات المساعدة ومحركات البحث؛ ويجب أن تتحكم الواجهة العربية أيضاً في dir=rtl عند المستوى المناسب."
+        ],
+        "solution": {
+          "explanation": "يتكون الحل الكامل في academy-labs/nextjs-app-router/next-layouts-metadata.tsx من 8 سطراً مشروحاً. وهو ينفذ وراثة واجهة route مباشرة ويحافظ على العقد الظاهر في المثال ويجعل حالة الفشل صريحة بلا حزمة إضافية.",
+          "code": "import type { Metadata } from \"next\";\nexport const metadata: Metadata = {\n  title: { default: \"L’ecomax\", template: \"%s | L’ecomax\" },\n  description: \"Mode responsable et sélectionnée avec soin.\"\n};\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return <html lang=\"fr\"><body><header>L’ecomax</header>{children}</body></html>;\n}",
+          "filename": "academy-labs/nextjs-app-router/next-layouts-metadata.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "next-layouts-metadata-q1",
+          "question": "أي عبارة تطبق وراثة واجهة route بصورة صحيحة في تطبيق إنتاجي؟",
+          "options": [
+            "يمكن للمتصفح أن يقرر وراثة واجهة route وحده لأن بياناته موثوقة دائماً.",
+            "تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx.",
+            "وراثة واجهة route تخص الألوان فقط ولا تؤثر في البيانات.",
+            "يمكن تجاهل الأخطاء المتعلقة بـ وراثة واجهة route إذا نجح المسار العادي مرة واحدة."
+          ],
+          "correctIndex": 1,
+          "explanation": "الإجابة الصحيحة هي «تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+          "answerExplanations": [
+            "هذا الخيار غير صحيح، وهو يقول « يمكن للمتصفح أن يقرر وراثة واجهة route وحده لأن بياناته موثوقة دائماً. ». الإجابة المرجعية هي « تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx. ». الإجابة الصحيحة هي «تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+            "هذا الخيار صحيح، وهو يقول « تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx. ». الإجابة الصحيحة هي «تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+            "هذا الخيار غير صحيح، وهو يقول « وراثة واجهة route تخص الألوان فقط ولا تؤثر في البيانات. ». الإجابة المرجعية هي « تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx. ». الإجابة الصحيحة هي «تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+            "هذا الخيار غير صحيح، وهو يقول « يمكن تجاهل الأخطاء المتعلقة بـ وراثة واجهة route إذا نجح المسار العادي مرة واحدة. ». الإجابة المرجعية هي « تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx. ». الإجابة الصحيحة هي «تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل."
+          ]
+        },
+        {
+          "id": "next-layouts-metadata-q2",
+          "question": "أي تعريف يطابق المصطلح «وراثة واجهة route»؟",
+          "options": [
+            "تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx.",
+            "يغلف root layout كل الصفحات ويوفر html وbody ويستمر أثناء التنقل. يضيف كل layout متداخل غلافاً لشجرته الفرعية، بينما تدمج metadata معلومات المستند الملائمة لـ segment النشط.",
+            "واجهة مستمرة تغلف segments الأبناء.",
+            "ليس لهذا المصطلح تعريف تقني دقيق."
+          ],
+          "correctIndex": 1,
+          "explanation": "يعني المصطلح «وراثة واجهة route»: يغلف root layout كل الصفحات ويوفر html وbody ويستمر أثناء التنقل. يضيف كل layout متداخل غلافاً لشجرته الفرعية، بينما تدمج metadata معلومات المستند الملائمة لـ segment النشط.",
+          "answerExplanations": [
+            "هذا الخيار غير صحيح، وهو يقول « تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx. ». الإجابة المرجعية هي « يغلف root layout كل الصفحات ويوفر html وbody ويستمر أثناء التنقل. يضيف كل layout متداخل غلافاً لشجرته الفرعية، بينما تدمج metadata معلومات المستند الملائمة لـ segment النشط. ». يعني المصطلح «وراثة واجهة route»: يغلف root layout كل الصفحات ويوفر html وbody ويستمر أثناء التنقل. يضيف كل layout متداخل غلافاً لشجرته الفرعية، بينما تدمج metadata معلومات المستند الملائمة لـ segment النشط.",
+            "هذا الخيار صحيح، وهو يقول « يغلف root layout كل الصفحات ويوفر html وbody ويستمر أثناء التنقل. يضيف كل layout متداخل غلافاً لشجرته الفرعية، بينما تدمج metadata معلومات المستند الملائمة لـ segment النشط. ». يعني المصطلح «وراثة واجهة route»: يغلف root layout كل الصفحات ويوفر html وbody ويستمر أثناء التنقل. يضيف كل layout متداخل غلافاً لشجرته الفرعية، بينما تدمج metadata معلومات المستند الملائمة لـ segment النشط.",
+            "هذا الخيار غير صحيح، وهو يقول « واجهة مستمرة تغلف segments الأبناء. ». الإجابة المرجعية هي « يغلف root layout كل الصفحات ويوفر html وbody ويستمر أثناء التنقل. يضيف كل layout متداخل غلافاً لشجرته الفرعية، بينما تدمج metadata معلومات المستند الملائمة لـ segment النشط. ». يعني المصطلح «وراثة واجهة route»: يغلف root layout كل الصفحات ويوفر html وbody ويستمر أثناء التنقل. يضيف كل layout متداخل غلافاً لشجرته الفرعية، بينما تدمج metadata معلومات المستند الملائمة لـ segment النشط.",
+            "هذا الخيار غير صحيح، وهو يقول « ليس لهذا المصطلح تعريف تقني دقيق. ». الإجابة المرجعية هي « يغلف root layout كل الصفحات ويوفر html وbody ويستمر أثناء التنقل. يضيف كل layout متداخل غلافاً لشجرته الفرعية، بينما تدمج metadata معلومات المستند الملائمة لـ segment النشط. ». يعني المصطلح «وراثة واجهة route»: يغلف root layout كل الصفحات ويوفر html وbody ويستمر أثناء التنقل. يضيف كل layout متداخل غلافاً لشجرته الفرعية، بينما تدمج metadata معلومات المستند الملائمة لـ segment النشط."
+          ]
+        },
+        {
+          "id": "next-layouts-metadata-q3",
+          "question": "ما أول تصحيح مناسب عند ملاحظة: «يعمل مثال «Layouts وmetadata والبنية المشتركة» لكنه لا يثبت وراثة واجهة route.»؟",
+          "options": [
+            "تكرار الإجراء نفسه من دون قراءة أول رسالة خطأ.",
+            "أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: تخبر lang على html تقنيات المساعدة ومحركات البحث؛ ويجب أن تتحكم الواجهة العربية أيضاً في dir=rtl عند المستوى المناسب.",
+            "ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "إخفاء الخطأ في الواجهة واعتبار المشكلة محلولة."
+          ],
+          "correctIndex": 2,
+          "explanation": "يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+          "answerExplanations": [
+            "هذا الخيار غير صحيح، وهو يقول « تكرار الإجراء نفسه من دون قراءة أول رسالة خطأ. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "هذا الخيار غير صحيح، وهو يقول « أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: تخبر lang على html تقنيات المساعدة ومحركات البحث؛ ويجب أن تتحكم الواجهة العربية أيضاً في dir=rtl عند المستوى المناسب. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "هذا الخيار صحيح، وهو يقول « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "هذا الخيار غير صحيح، وهو يقول « إخفاء الخطأ في الواجهة واعتبار المشكلة محلولة. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: تنتمي Header وFooter وproviders العامة وanalytics إلى layout فقط إن كانت مشتركة فعلاً؛ ويمكن أن يبقى غلاف الإدارة في app/admin/layout.tsx. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة."
+          ]
+        }
+      ],
+      "recap": [
+        "يمكنك الآن شرح وراثة واجهة route برسم مدخلات ← تحويل ← مخرجات.",
+        "ضع كل عنصر في layout لأصغر شجرة فرعية تشاركه وأعط الصفحات metadata فريدة.",
+        "يحمل root layout في L’ecomax العناصر العامة، بينما تملك account وecomedia وadmin أغلفتها المتخصصة."
+      ],
+      "next": "يقرأ الدرس التالي slug وsearchParams لإنتاج صفحة ديناميكية أو notFound."
+    },
+    {
+      "id": "next-dynamic-routes",
+      "order": 2,
+      "title": "Routes الديناميكية وparams وsearchParams",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "معرفة فتح مشروع L’ecomax في VS Code واستخدام الطرفية المدمجة فيه.",
+        "قراءة الدرس السابق والقدرة على شرح دور حل segment ديناميكي بكلماتك الخاصة."
+      ],
+      "objectives": [
+        "بناء نموذج ذهني دقيق لـ حل segment ديناميكي.",
+        "كتابة مثال صغير وتشغيله قبل دمجه في ميزة حقيقية.",
+        "تمييز حالات الفشل وقراءة أعراضها وتطبيق إصلاح يمكن التحقق منه."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "النموذج الذهني",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "يحجز [slug] موضعاً في الرابط تصل قيمته إلى الصفحة عبر params؛ وتمثل searchParams الاستعلام بعد ?. يحدد segment المورد عادة، بينما يحسن query العرض من دون تغيير هويته الأساسية. ارسم أولاً المدخلات والتحويلات وحدود الثقة والمخرجات؛ فهذه الخريطة تجعلك تتوقع مكان تنفيذ الشيفرة والمكان الصحيح لمعالجة كل خطأ."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "تشبيه بسيط",
+              "text": "حل segment ديناميكي يشبه مبنى تمثل فيه المجلدات الطوابق وlayouts الممرات المشتركة وpage.tsx الغرفة التي تزورها. يساعدك التشبيه على تذكر المسار الرئيسي، لكن تشغيل الشيفرة هو الدليل: راقب كل قيمة عند الإدخال وأثناء التحويل وعند الإخراج."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "الفهم المتعمق",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات. ابدأ بأصغر نسخة عاملة وراقب قيمتها الحقيقية في الطرفية أو أدوات المطور قبل إضافة أي طبقة تجريد."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "يبقى slug القادم من الرابط مدخلاً غير موثوق؛ فيجب أن تهربه query وتعالج انعدام الصفوف وألا تبني SQL بالوصل. ثم اربط القاعدة بالعقد بين المتصفح والخادم وقاعدة البيانات؛ فكل حد يحتاج إلى مدخل محدد وفشل صريح."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "توقف notFound العرض وتختار أقرب not-found.tsx بحالة 404 بدلاً من إعادة صفحة نجاح فارغة. وأخيراً اختبر الحالة العادية وقيمة حدّية وفشلاً متعمداً حتى تثبت السلوك خارج المسار الناجح فقط."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "حل segment ديناميكي",
+                  "definition": "يحجز [slug] موضعاً في الرابط تصل قيمته إلى الصفحة عبر params؛ وتمثل searchParams الاستعلام بعد ?. يحدد segment المورد عادة، بينما يحسن query العرض من دون تغيير هويته الأساسية."
+                },
+                {
+                  "term": "Routes الديناميكية وparams وsearchParams",
+                  "definition": "في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات."
+                },
+                {
+                  "term": "dynamic route",
+                  "definition": "segment بين أقواس تأتي قيمته من الرابط."
+                },
+                {
+                  "term": "metadata",
+                  "definition": "معلومات المستند للمتصفح ومحركات البحث."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "مثال مشروح",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "تطبيق عام",
+              "text": "افصل هوية المورد في params عن خيارات العرض في searchParams ثم تحقق من الاثنين قبل الاستخدام."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "مثال مشروح",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/nextjs-app-router/next-dynamic-routes.tsx",
+                "source": "import { notFound } from \"next/navigation\";\ntype Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ color?: string }> };\nexport default async function ProductPage({ params, searchParams }: Props) {\n  const [{ slug }, { color }] = await Promise.all([params, searchParams]);\n  const product = await getProductBySlug(slug);\n  if (!product) notFound();\n  return <main><h1>{product.name}</h1><p>Couleur : {color ?? \"défaut\"}</p></main>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Routes الديناميكية وparams وsearchParams: يثبت السطران الأولان العقد وبيانات الإدخال."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "تنفذ هذه الكتلة التحويل الرئيسي؛ تتبع القيم سطراً بسطر وتحقق من أنواعها."
+                  },
+                  {
+                    "lines": "7-8",
+                    "label": "تكشف النهاية النتيجة المتوقعة أو الفشل حتى يتصرف المستدعي من دون تخمين."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "المثال الثاني — التشغيل والتحقق",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\ncurl.exe -i http://localhost:3000/produit/un-slug-reel\ncurl.exe -i http://localhost:3000/produit/introuvable",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "افتح academy-labs/nextjs-app-router/next-dynamic-routes.tsx واعزل دالة التمرين أو مكوّنه من دون حذف بقية ملف L’ecomax. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "ابدأ بعقد السطر الأول — import { notFound } from \"next/navigation\"; — ثم اكتب بقية الأسطر بالترتيب مع فحص كل نوع وقيمة إرجاع. — curl.exe -i http://localhost:3000/produit/un-slug-reel"
+                  },
+                  {
+                    "lines": "3",
+                    "label": "تحقق من أن التعليمة الأخيرة — } — تطبق القاعدة الملحوظة التالية: في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات. — curl.exe -i http://localhost:3000/produit/introuvable"
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "في academy-labs/nextjs-app-router/next-dynamic-routes.tsx يجب أن تثبت النتيجة «Routes الديناميكية وparams وsearchParams» وتجعل حل segment ديناميكي قابلة للملاحظة. يكتمل npm run dev ثم curl.exe -i http://localhost:3000/produit/un-slug-reel ثم curl.exe -i http://localhost:3000/produit/introuvable بلا خطأ ويطبق السلوك هذه القاعدة بدقة: في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "التطبيق في L’ecomax",
+              "text": "يحمل L’ecomax المنتج عبر slug ويختار لوناً اختيارياً من query ويعرض 404 حقيقية عند غياب المنتج."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "curl.exe -i http://localhost:3000/produit/un-slug-reel",
+        "curl.exe -i http://localhost:3000/produit/introuvable"
+      ],
+      "expectedResult": "في academy-labs/nextjs-app-router/next-dynamic-routes.tsx يجب أن تثبت النتيجة «Routes الديناميكية وparams وsearchParams» وتجعل حل segment ديناميكي قابلة للملاحظة. يكتمل npm run dev ثم curl.exe -i http://localhost:3000/produit/un-slug-reel ثم curl.exe -i http://localhost:3000/produit/introuvable بلا خطأ ويطبق السلوك هذه القاعدة بدقة: في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات.",
+      "commonErrors": [
+        {
+          "symptom": "يعمل مثال «Routes الديناميكية وparams وsearchParams» لكنه لا يثبت حل segment ديناميكي.",
+          "cause": "يخالف التنفيذ قاعدة الدرس التالية: في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات.",
+          "fix": "ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة."
+        },
+        {
+          "symptom": "تعمل الحالة العادية في academy-labs/nextjs-app-router/next-dynamic-routes.tsx لكن الحالة الحدية تفشل أو تبقى صامتة.",
+          "cause": "لم يمثل الكود الحد التالي بعد: يبقى slug القادم من الرابط مدخلاً غير موثوق؛ فيجب أن تهربه query وتعالج انعدام الصفوف وألا تبني SQL بالوصل.",
+          "fix": "أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: توقف notFound العرض وتختار أقرب not-found.tsx بحالة 404 بدلاً من إعادة صفحة نجاح فارغة."
+        }
+      ],
+      "exercise": {
+        "task": "في academy-labs/nextjs-app-router/next-dynamic-routes.tsx أعد بناء المثال المشروح «Routes الديناميكية وparams وsearchParams» بحيث يثبت حل segment ديناميكي، ثم تحقق من السلوك نفسه بالأوامر المقدمة.",
+        "steps": [
+          "افتح academy-labs/nextjs-app-router/next-dynamic-routes.tsx واعزل دالة التمرين أو مكوّنه من دون حذف بقية ملف L’ecomax.",
+          "ابدأ بعقد السطر الأول — import { notFound } from \"next/navigation\"; — ثم اكتب بقية الأسطر بالترتيب مع فحص كل نوع وقيمة إرجاع.",
+          "تحقق من أن التعليمة الأخيرة — } — تطبق القاعدة الملحوظة التالية: في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات.",
+          "احفظ الملف وشغّل npm run dev ثم curl.exe -i http://localhost:3000/produit/un-slug-reel ثم curl.exe -i http://localhost:3000/produit/introuvable ثم اختبر قيمة عادية والحالة الحدية المذكورة في الأخطاء الشائعة."
+        ],
+        "hints": [
+          "ابدأ من العقد الظاهر في academy-labs/nextjs-app-router/next-dynamic-routes.tsx لا من طبقة تجريد أو حزمة جديدة.",
+          "إذا اختلفت النتيجة فأعد قراءة هذا الحد: يبقى slug القادم من الرابط مدخلاً غير موثوق؛ فيجب أن تهربه query وتعالج انعدام الصفوف وألا تبني SQL بالوصل.",
+          "قارن نسختك بالحل سطراً بسطر وطبق هذا التصحيح: توقف notFound العرض وتختار أقرب not-found.tsx بحالة 404 بدلاً من إعادة صفحة نجاح فارغة."
+        ],
+        "solution": {
+          "explanation": "يتكون الحل الكامل في academy-labs/nextjs-app-router/next-dynamic-routes.tsx من 8 سطراً مشروحاً. وهو ينفذ حل segment ديناميكي مباشرة ويحافظ على العقد الظاهر في المثال ويجعل حالة الفشل صريحة بلا حزمة إضافية.",
+          "code": "import { notFound } from \"next/navigation\";\ntype Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ color?: string }> };\nexport default async function ProductPage({ params, searchParams }: Props) {\n  const [{ slug }, { color }] = await Promise.all([params, searchParams]);\n  const product = await getProductBySlug(slug);\n  if (!product) notFound();\n  return <main><h1>{product.name}</h1><p>Couleur : {color ?? \"défaut\"}</p></main>;\n}",
+          "filename": "academy-labs/nextjs-app-router/next-dynamic-routes.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "next-dynamic-routes-q1",
+          "question": "أي عبارة تطبق حل segment ديناميكي بصورة صحيحة في تطبيق إنتاجي؟",
+          "options": [
+            "يمكن للمتصفح أن يقرر حل segment ديناميكي وحده لأن بياناته موثوقة دائماً.",
+            "حل segment ديناميكي تخص الألوان فقط ولا تؤثر في البيانات.",
+            "في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات.",
+            "يمكن تجاهل الأخطاء المتعلقة بـ حل segment ديناميكي إذا نجح المسار العادي مرة واحدة."
+          ],
+          "correctIndex": 2,
+          "explanation": "الإجابة الصحيحة هي «في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+          "answerExplanations": [
+            "هذا الخيار غير صحيح، وهو يقول « يمكن للمتصفح أن يقرر حل segment ديناميكي وحده لأن بياناته موثوقة دائماً. ». الإجابة المرجعية هي « في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات. ». الإجابة الصحيحة هي «في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+            "هذا الخيار غير صحيح، وهو يقول « حل segment ديناميكي تخص الألوان فقط ولا تؤثر في البيانات. ». الإجابة المرجعية هي « في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات. ». الإجابة الصحيحة هي «في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+            "هذا الخيار صحيح، وهو يقول « في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات. ». الإجابة الصحيحة هي «في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+            "هذا الخيار غير صحيح، وهو يقول « يمكن تجاهل الأخطاء المتعلقة بـ حل segment ديناميكي إذا نجح المسار العادي مرة واحدة. ». الإجابة المرجعية هي « في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات. ». الإجابة الصحيحة هي «في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل."
+          ]
+        },
+        {
+          "id": "next-dynamic-routes-q2",
+          "question": "أي تعريف يطابق المصطلح «حل segment ديناميكي»؟",
+          "options": [
+            "في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات.",
+            "يحجز [slug] موضعاً في الرابط تصل قيمته إلى الصفحة عبر params؛ وتمثل searchParams الاستعلام بعد ?. يحدد segment المورد عادة، بينما يحسن query العرض من دون تغيير هويته الأساسية.",
+            "segment بين أقواس تأتي قيمته من الرابط.",
+            "ليس لهذا المصطلح تعريف تقني دقيق."
+          ],
+          "correctIndex": 1,
+          "explanation": "يعني المصطلح «حل segment ديناميكي»: يحجز [slug] موضعاً في الرابط تصل قيمته إلى الصفحة عبر params؛ وتمثل searchParams الاستعلام بعد ?. يحدد segment المورد عادة، بينما يحسن query العرض من دون تغيير هويته الأساسية.",
+          "answerExplanations": [
+            "هذا الخيار غير صحيح، وهو يقول « في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات. ». الإجابة المرجعية هي « يحجز [slug] موضعاً في الرابط تصل قيمته إلى الصفحة عبر params؛ وتمثل searchParams الاستعلام بعد ?. يحدد segment المورد عادة، بينما يحسن query العرض من دون تغيير هويته الأساسية. ». يعني المصطلح «حل segment ديناميكي»: يحجز [slug] موضعاً في الرابط تصل قيمته إلى الصفحة عبر params؛ وتمثل searchParams الاستعلام بعد ?. يحدد segment المورد عادة، بينما يحسن query العرض من دون تغيير هويته الأساسية.",
+            "هذا الخيار صحيح، وهو يقول « يحجز [slug] موضعاً في الرابط تصل قيمته إلى الصفحة عبر params؛ وتمثل searchParams الاستعلام بعد ?. يحدد segment المورد عادة، بينما يحسن query العرض من دون تغيير هويته الأساسية. ». يعني المصطلح «حل segment ديناميكي»: يحجز [slug] موضعاً في الرابط تصل قيمته إلى الصفحة عبر params؛ وتمثل searchParams الاستعلام بعد ?. يحدد segment المورد عادة، بينما يحسن query العرض من دون تغيير هويته الأساسية.",
+            "هذا الخيار غير صحيح، وهو يقول « segment بين أقواس تأتي قيمته من الرابط. ». الإجابة المرجعية هي « يحجز [slug] موضعاً في الرابط تصل قيمته إلى الصفحة عبر params؛ وتمثل searchParams الاستعلام بعد ?. يحدد segment المورد عادة، بينما يحسن query العرض من دون تغيير هويته الأساسية. ». يعني المصطلح «حل segment ديناميكي»: يحجز [slug] موضعاً في الرابط تصل قيمته إلى الصفحة عبر params؛ وتمثل searchParams الاستعلام بعد ?. يحدد segment المورد عادة، بينما يحسن query العرض من دون تغيير هويته الأساسية.",
+            "هذا الخيار غير صحيح، وهو يقول « ليس لهذا المصطلح تعريف تقني دقيق. ». الإجابة المرجعية هي « يحجز [slug] موضعاً في الرابط تصل قيمته إلى الصفحة عبر params؛ وتمثل searchParams الاستعلام بعد ?. يحدد segment المورد عادة، بينما يحسن query العرض من دون تغيير هويته الأساسية. ». يعني المصطلح «حل segment ديناميكي»: يحجز [slug] موضعاً في الرابط تصل قيمته إلى الصفحة عبر params؛ وتمثل searchParams الاستعلام بعد ?. يحدد segment المورد عادة، بينما يحسن query العرض من دون تغيير هويته الأساسية."
+          ]
+        },
+        {
+          "id": "next-dynamic-routes-q3",
+          "question": "ما أول تصحيح مناسب عند ملاحظة: «يعمل مثال «Routes الديناميكية وparams وsearchParams» لكنه لا يثبت حل segment ديناميكي.»؟",
+          "options": [
+            "تكرار الإجراء نفسه من دون قراءة أول رسالة خطأ.",
+            "أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: توقف notFound العرض وتختار أقرب not-found.tsx بحالة 404 بدلاً من إعادة صفحة نجاح فارغة.",
+            "ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "إخفاء الخطأ في الواجهة واعتبار المشكلة محلولة."
+          ],
+          "correctIndex": 2,
+          "explanation": "يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+          "answerExplanations": [
+            "هذا الخيار غير صحيح، وهو يقول « تكرار الإجراء نفسه من دون قراءة أول رسالة خطأ. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "هذا الخيار غير صحيح، وهو يقول « أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: توقف notFound العرض وتختار أقرب not-found.tsx بحالة 404 بدلاً من إعادة صفحة نجاح فارغة. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "هذا الخيار صحيح، وهو يقول « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "هذا الخيار غير صحيح، وهو يقول « إخفاء الخطأ في الواجهة واعتبار المشكلة محلولة. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: في عقد Next.js 15 هذا تكون params وsearchParams غير متزامنة؛ ويجعل انتظارها القيم متاحة قبل جلب البيانات. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة."
+          ]
+        }
+      ],
+      "recap": [
+        "يمكنك الآن شرح حل segment ديناميكي برسم مدخلات ← تحويل ← مخرجات.",
+        "افصل هوية المورد في params عن خيارات العرض في searchParams ثم تحقق من الاثنين قبل الاستخدام.",
+        "يحمل L’ecomax المنتج عبر slug ويختار لوناً اختيارياً من query ويعرض 404 حقيقية عند غياب المنتج."
+      ],
+      "next": "يضيف الدرس التالي واجهات loading وerror وnot-found مع التنقل والتحميل المسبق."
+    },
+    {
+      "id": "next-special-files-navigation",
+      "order": 3,
+      "title": "loading وerror وnot-found والتنقل",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "معرفة فتح مشروع L’ecomax في VS Code واستخدام الطرفية المدمجة فيه.",
+        "قراءة الدرس السابق والقدرة على شرح دور حدود الانتظار والاستعادة بكلماتك الخاصة."
+      ],
+      "objectives": [
+        "بناء نموذج ذهني دقيق لـ حدود الانتظار والاستعادة.",
+        "كتابة مثال صغير وتشغيله قبل دمجه في ميزة حقيقية.",
+        "تمييز حالات الفشل وقراءة أعراضها وتطبيق إصلاح يمكن التحقق منه."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "النموذج الذهني",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "تحيط الملفات الخاصة بـ segment؛ يعمل loading.tsx كواجهة مؤقتة أثناء التعليق، ويلتقط error.tsx فشل العرض على العميل، ويشرح not-found.tsx غياب المورد. يجب أن يحفظ كل حد السياق ويقدم إجراء تالياً. ارسم أولاً المدخلات والتحويلات وحدود الثقة والمخرجات؛ فهذه الخريطة تجعلك تتوقع مكان تنفيذ الشيفرة والمكان الصحيح لمعالجة كل خطأ."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "تشبيه بسيط",
+              "text": "حدود الانتظار والاستعادة يشبه مبنى تمثل فيه المجلدات الطوابق وlayouts الممرات المشتركة وpage.tsx الغرفة التي تزورها. يساعدك التشبيه على تذكر المسار الرئيسي، لكن تشغيل الشيفرة هو الدليل: راقب كل قيمة عند الإدخال وأثناء التحويل وعند الإخراج."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "الفهم المتعمق",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي. ابدأ بأصغر نسخة عاملة وراقب قيمتها الحقيقية في الطرفية أو أدوات المطور قبل إضافة أي طبقة تجريد."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "يجب أن يكون error.tsx ‏Client Component لتقديم reset؛ ويعرض رسالة آمنة ويسجل السبب بلا كشف stack أو سر للزائر. ثم اربط القاعدة بالعقد بين المتصفح والخادم وقاعدة البيانات؛ فكل حد يحتاج إلى مدخل محدد وفشل صريح."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "تسمي صفحة not-found ما هو مفقود وتقدم Link مناسباً؛ ولا يكفي زر رجوع المتصفح لرابط تمت مشاركته مباشرة. وأخيراً اختبر الحالة العادية وقيمة حدّية وفشلاً متعمداً حتى تثبت السلوك خارج المسار الناجح فقط."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "حدود الانتظار والاستعادة",
+                  "definition": "تحيط الملفات الخاصة بـ segment؛ يعمل loading.tsx كواجهة مؤقتة أثناء التعليق، ويلتقط error.tsx فشل العرض على العميل، ويشرح not-found.tsx غياب المورد. يجب أن يحفظ كل حد السياق ويقدم إجراء تالياً."
+                },
+                {
+                  "term": "loading وerror وnot-found والتنقل",
+                  "definition": "يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي."
+                },
+                {
+                  "term": "metadata",
+                  "definition": "معلومات المستند للمتصفح ومحركات البحث."
+                },
+                {
+                  "term": "segment",
+                  "definition": "مجلد يمثل جزءاً من الرابط."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "مثال مشروح",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "تطبيق عام",
+              "text": "حاك البطء والفشل والغياب لكل route حرجة ثم قدم إجراء استعادة محدداً."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "مثال مشروح",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/nextjs-app-router/next-special-files-navigation.tsx",
+                "source": "import Link from \"next/link\";\nexport default function NotFound() {\n  return <main>\n    <h1>Produit introuvable</h1>\n    <p>Le lien est peut-être ancien ou le produit retiré.</p>\n    <Link href=\"/boutique\">Retourner au catalogue</Link>\n  </main>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "loading وerror وnot-found والتنقل: يثبت السطران الأولان العقد وبيانات الإدخال."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "تنفذ هذه الكتلة التحويل الرئيسي؛ تتبع القيم سطراً بسطر وتحقق من أنواعها."
+                  },
+                  {
+                    "lines": "7-8",
+                    "label": "تكشف النهاية النتيجة المتوقعة أو الفشل حتى يتصرف المستدعي من دون تخمين."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "المثال الثاني — التشغيل والتحقق",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\ncurl.exe -i http://localhost:3000/produit/introuvable\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "افتح academy-labs/nextjs-app-router/next-special-files-navigation.tsx واعزل دالة التمرين أو مكوّنه من دون حذف بقية ملف L’ecomax. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "ابدأ بعقد السطر الأول — import Link from \"next/link\"; — ثم اكتب بقية الأسطر بالترتيب مع فحص كل نوع وقيمة إرجاع. — curl.exe -i http://localhost:3000/produit/introuvable"
+                  },
+                  {
+                    "lines": "3",
+                    "label": "تحقق من أن التعليمة الأخيرة — } — تطبق القاعدة الملحوظة التالية: يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي. — npm run build"
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "في academy-labs/nextjs-app-router/next-special-files-navigation.tsx يجب أن تثبت النتيجة «loading وerror وnot-found والتنقل» وتجعل حدود الانتظار والاستعادة قابلة للملاحظة. يكتمل npm run dev ثم curl.exe -i http://localhost:3000/produit/introuvable ثم npm run build بلا خطأ ويطبق السلوك هذه القاعدة بدقة: يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "التطبيق في L’ecomax",
+              "text": "تحافظ صفحة منتج L’ecomax البطيئة على ثبات المعرض، ويمكن إعادة محاولة الخطأ، ويعيد slug المحذوف إلى الكتالوج."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "curl.exe -i http://localhost:3000/produit/introuvable",
+        "npm run build"
+      ],
+      "expectedResult": "في academy-labs/nextjs-app-router/next-special-files-navigation.tsx يجب أن تثبت النتيجة «loading وerror وnot-found والتنقل» وتجعل حدود الانتظار والاستعادة قابلة للملاحظة. يكتمل npm run dev ثم curl.exe -i http://localhost:3000/produit/introuvable ثم npm run build بلا خطأ ويطبق السلوك هذه القاعدة بدقة: يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي.",
+      "commonErrors": [
+        {
+          "symptom": "يعمل مثال «loading وerror وnot-found والتنقل» لكنه لا يثبت حدود الانتظار والاستعادة.",
+          "cause": "يخالف التنفيذ قاعدة الدرس التالية: يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي.",
+          "fix": "ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة."
+        },
+        {
+          "symptom": "تعمل الحالة العادية في academy-labs/nextjs-app-router/next-special-files-navigation.tsx لكن الحالة الحدية تفشل أو تبقى صامتة.",
+          "cause": "لم يمثل الكود الحد التالي بعد: يجب أن يكون error.tsx ‏Client Component لتقديم reset؛ ويعرض رسالة آمنة ويسجل السبب بلا كشف stack أو سر للزائر.",
+          "fix": "أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: تسمي صفحة not-found ما هو مفقود وتقدم Link مناسباً؛ ولا يكفي زر رجوع المتصفح لرابط تمت مشاركته مباشرة."
+        }
+      ],
+      "exercise": {
+        "task": "في academy-labs/nextjs-app-router/next-special-files-navigation.tsx أعد بناء المثال المشروح «loading وerror وnot-found والتنقل» بحيث يثبت حدود الانتظار والاستعادة، ثم تحقق من السلوك نفسه بالأوامر المقدمة.",
+        "steps": [
+          "افتح academy-labs/nextjs-app-router/next-special-files-navigation.tsx واعزل دالة التمرين أو مكوّنه من دون حذف بقية ملف L’ecomax.",
+          "ابدأ بعقد السطر الأول — import Link from \"next/link\"; — ثم اكتب بقية الأسطر بالترتيب مع فحص كل نوع وقيمة إرجاع.",
+          "تحقق من أن التعليمة الأخيرة — } — تطبق القاعدة الملحوظة التالية: يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي.",
+          "احفظ الملف وشغّل npm run dev ثم curl.exe -i http://localhost:3000/produit/introuvable ثم npm run build ثم اختبر قيمة عادية والحالة الحدية المذكورة في الأخطاء الشائعة."
+        ],
+        "hints": [
+          "ابدأ من العقد الظاهر في academy-labs/nextjs-app-router/next-special-files-navigation.tsx لا من طبقة تجريد أو حزمة جديدة.",
+          "إذا اختلفت النتيجة فأعد قراءة هذا الحد: يجب أن يكون error.tsx ‏Client Component لتقديم reset؛ ويعرض رسالة آمنة ويسجل السبب بلا كشف stack أو سر للزائر.",
+          "قارن نسختك بالحل سطراً بسطر وطبق هذا التصحيح: تسمي صفحة not-found ما هو مفقود وتقدم Link مناسباً؛ ولا يكفي زر رجوع المتصفح لرابط تمت مشاركته مباشرة."
+        ],
+        "solution": {
+          "explanation": "يتكون الحل الكامل في academy-labs/nextjs-app-router/next-special-files-navigation.tsx من 8 سطراً مشروحاً. وهو ينفذ حدود الانتظار والاستعادة مباشرة ويحافظ على العقد الظاهر في المثال ويجعل حالة الفشل صريحة بلا حزمة إضافية.",
+          "code": "import Link from \"next/link\";\nexport default function NotFound() {\n  return <main>\n    <h1>Produit introuvable</h1>\n    <p>Le lien est peut-être ancien ou le produit retiré.</p>\n    <Link href=\"/boutique\">Retourner au catalogue</Link>\n  </main>;\n}",
+          "filename": "academy-labs/nextjs-app-router/next-special-files-navigation.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "next-special-files-navigation-q1",
+          "question": "أي عبارة تطبق حدود الانتظار والاستعادة بصورة صحيحة في تطبيق إنتاجي؟",
+          "options": [
+            "يمكن للمتصفح أن يقرر حدود الانتظار والاستعادة وحده لأن بياناته موثوقة دائماً.",
+            "حدود الانتظار والاستعادة تخص الألوان فقط ولا تؤثر في البيانات.",
+            "يمكن تجاهل الأخطاء المتعلقة بـ حدود الانتظار والاستعادة إذا نجح المسار العادي مرة واحدة.",
+            "يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي."
+          ],
+          "correctIndex": 3,
+          "explanation": "الإجابة الصحيحة هي «يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+          "answerExplanations": [
+            "هذا الخيار غير صحيح، وهو يقول « يمكن للمتصفح أن يقرر حدود الانتظار والاستعادة وحده لأن بياناته موثوقة دائماً. ». الإجابة المرجعية هي « يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي. ». الإجابة الصحيحة هي «يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+            "هذا الخيار غير صحيح، وهو يقول « حدود الانتظار والاستعادة تخص الألوان فقط ولا تؤثر في البيانات. ». الإجابة المرجعية هي « يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي. ». الإجابة الصحيحة هي «يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+            "هذا الخيار غير صحيح، وهو يقول « يمكن تجاهل الأخطاء المتعلقة بـ حدود الانتظار والاستعادة إذا نجح المسار العادي مرة واحدة. ». الإجابة المرجعية هي « يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي. ». الإجابة الصحيحة هي «يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+            "هذا الخيار صحيح، وهو يقول « يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي. ». الإجابة الصحيحة هي «يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل."
+          ]
+        },
+        {
+          "id": "next-special-files-navigation-q2",
+          "question": "أي تعريف يطابق المصطلح «حدود الانتظار والاستعادة»؟",
+          "options": [
+            "يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي.",
+            "تحيط الملفات الخاصة بـ segment؛ يعمل loading.tsx كواجهة مؤقتة أثناء التعليق، ويلتقط error.tsx فشل العرض على العميل، ويشرح not-found.tsx غياب المورد. يجب أن يحفظ كل حد السياق ويقدم إجراء تالياً.",
+            "معلومات المستند للمتصفح ومحركات البحث.",
+            "ليس لهذا المصطلح تعريف تقني دقيق."
+          ],
+          "correctIndex": 1,
+          "explanation": "يعني المصطلح «حدود الانتظار والاستعادة»: تحيط الملفات الخاصة بـ segment؛ يعمل loading.tsx كواجهة مؤقتة أثناء التعليق، ويلتقط error.tsx فشل العرض على العميل، ويشرح not-found.tsx غياب المورد. يجب أن يحفظ كل حد السياق ويقدم إجراء تالياً.",
+          "answerExplanations": [
+            "هذا الخيار غير صحيح، وهو يقول « يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي. ». الإجابة المرجعية هي « تحيط الملفات الخاصة بـ segment؛ يعمل loading.tsx كواجهة مؤقتة أثناء التعليق، ويلتقط error.tsx فشل العرض على العميل، ويشرح not-found.tsx غياب المورد. يجب أن يحفظ كل حد السياق ويقدم إجراء تالياً. ». يعني المصطلح «حدود الانتظار والاستعادة»: تحيط الملفات الخاصة بـ segment؛ يعمل loading.tsx كواجهة مؤقتة أثناء التعليق، ويلتقط error.tsx فشل العرض على العميل، ويشرح not-found.tsx غياب المورد. يجب أن يحفظ كل حد السياق ويقدم إجراء تالياً.",
+            "هذا الخيار صحيح، وهو يقول « تحيط الملفات الخاصة بـ segment؛ يعمل loading.tsx كواجهة مؤقتة أثناء التعليق، ويلتقط error.tsx فشل العرض على العميل، ويشرح not-found.tsx غياب المورد. يجب أن يحفظ كل حد السياق ويقدم إجراء تالياً. ». يعني المصطلح «حدود الانتظار والاستعادة»: تحيط الملفات الخاصة بـ segment؛ يعمل loading.tsx كواجهة مؤقتة أثناء التعليق، ويلتقط error.tsx فشل العرض على العميل، ويشرح not-found.tsx غياب المورد. يجب أن يحفظ كل حد السياق ويقدم إجراء تالياً.",
+            "هذا الخيار غير صحيح، وهو يقول « معلومات المستند للمتصفح ومحركات البحث. ». الإجابة المرجعية هي « تحيط الملفات الخاصة بـ segment؛ يعمل loading.tsx كواجهة مؤقتة أثناء التعليق، ويلتقط error.tsx فشل العرض على العميل، ويشرح not-found.tsx غياب المورد. يجب أن يحفظ كل حد السياق ويقدم إجراء تالياً. ». يعني المصطلح «حدود الانتظار والاستعادة»: تحيط الملفات الخاصة بـ segment؛ يعمل loading.tsx كواجهة مؤقتة أثناء التعليق، ويلتقط error.tsx فشل العرض على العميل، ويشرح not-found.tsx غياب المورد. يجب أن يحفظ كل حد السياق ويقدم إجراء تالياً.",
+            "هذا الخيار غير صحيح، وهو يقول « ليس لهذا المصطلح تعريف تقني دقيق. ». الإجابة المرجعية هي « تحيط الملفات الخاصة بـ segment؛ يعمل loading.tsx كواجهة مؤقتة أثناء التعليق، ويلتقط error.tsx فشل العرض على العميل، ويشرح not-found.tsx غياب المورد. يجب أن يحفظ كل حد السياق ويقدم إجراء تالياً. ». يعني المصطلح «حدود الانتظار والاستعادة»: تحيط الملفات الخاصة بـ segment؛ يعمل loading.tsx كواجهة مؤقتة أثناء التعليق، ويلتقط error.tsx فشل العرض على العميل، ويشرح not-found.tsx غياب المورد. يجب أن يحفظ كل حد السياق ويقدم إجراء تالياً."
+          ]
+        },
+        {
+          "id": "next-special-files-navigation-q3",
+          "question": "ما أول تصحيح مناسب عند ملاحظة: «يعمل مثال «loading وerror وnot-found والتنقل» لكنه لا يثبت حدود الانتظار والاستعادة.»؟",
+          "options": [
+            "تكرار الإجراء نفسه من دون قراءة أول رسالة خطأ.",
+            "أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: تسمي صفحة not-found ما هو مفقود وتقدم Link مناسباً؛ ولا يكفي زر رجوع المتصفح لرابط تمت مشاركته مباشرة.",
+            "ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "إخفاء الخطأ في الواجهة واعتبار المشكلة محلولة."
+          ],
+          "correctIndex": 2,
+          "explanation": "يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+          "answerExplanations": [
+            "هذا الخيار غير صحيح، وهو يقول « تكرار الإجراء نفسه من دون قراءة أول رسالة خطأ. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "هذا الخيار غير صحيح، وهو يقول « أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: تسمي صفحة not-found ما هو مفقود وتقدم Link مناسباً؛ ولا يكفي زر رجوع المتصفح لرابط تمت مشاركته مباشرة. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "هذا الخيار صحيح، وهو يقول « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+            "هذا الخيار غير صحيح، وهو يقول « إخفاء الخطأ في الواجهة واعتبار المشكلة محلولة. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يحجز skeleton التحميل الأبعاد النهائية لمنع تغير التخطيط ويعلن الانتظار من دون تقدم وهمي. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة."
+          ]
+        }
+      ],
+      "recap": [
+        "يمكنك الآن شرح حدود الانتظار والاستعادة برسم مدخلات ← تحويل ← مخرجات.",
+        "حاك البطء والفشل والغياب لكل route حرجة ثم قدم إجراء استعادة محدداً.",
+        "تحافظ صفحة منتج L’ecomax البطيئة على ثبات المعرض، ويمكن إعادة محاولة الخطأ، ويعيد slug المحذوف إلى الكتالوج."
+      ],
+      "next": "تشرح الوحدة التالية مكان تنفيذ شيفرة Next وكيف تُخزن البيانات مؤقتاً وكيف تُكتب routes وmiddleware."
+    }
+  ]
+}

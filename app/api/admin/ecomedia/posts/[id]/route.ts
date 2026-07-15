@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifySessionToken } from "@/lib/admin-session";
+import { notifyPublishedEcomediaPost } from "@/lib/push-notifications";
 
 const sb = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,6 +30,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
+  const { data: previous } = await sb
+    .from("ecomedia_posts")
+    .select("is_published")
+    .eq("id", id)
+    .maybeSingle();
   const { data, error } = await sb
     .from("ecomedia_posts")
     .update({ ...body, updated_at: new Date().toISOString() })
@@ -37,7 +43,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  let notification = null;
+  if (!previous?.is_published && data.is_published) {
+    try { notification = await notifyPublishedEcomediaPost(data); }
+    catch (error) { console.error("Ecomedia push notification failed:", error); }
+  }
+  return NextResponse.json({ ...data, notification });
 }
 
 // DELETE /api/admin/ecomedia/posts/[id]

@@ -61,7 +61,7 @@ export default function ComptePage() {
       setAddressCount(Array.isArray(saved) ? saved.length : 0);
       // Fetch saved Ecomedia posts
       setSavedLoading(true);
-      fetch(`/api/ecomedia/saved?userId=${encodeURIComponent(u.id)}`)
+      supabase.auth.getSession().then(({ data }) => fetch("/api/ecomedia/saved", { headers: data.session ? { Authorization: `Bearer ${data.session.access_token}` } : {} }))
         .then(r => r.json())
         .then(d => { if (Array.isArray(d.posts)) setSavedPosts(d.posts); })
         .catch(() => {})

@@ -1,0 +1,972 @@
+{
+  "id": "module-06-javascript-foundations",
+  "order": 6,
+  "icon": "⚡",
+  "color": "#EAB308",
+  "title": "JavaScript fundamentals",
+  "summary": "Master values, variables, operators, branching, loops, strings, nullish values, errors, and modules with evidence in Node and DevTools.",
+  "files": [
+    {
+      "path": "package.json",
+      "mode": "existing"
+    },
+    {
+      "path": "academy-labs/06-javascript/fundamentals.js",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/06-javascript/values.js",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/06-javascript/control-flow.js",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/06-javascript/strings.js",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/06-javascript/price.mjs",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "lesson-06-01-values",
+      "order": 0,
+      "title": "Values, variables, types, and operators",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to use a keyboard and mouse; no programming experience is assumed. The first module installs the tools and opens the project step by step.",
+        "Have completed the previous lesson and know how to run npm run dev."
+      ],
+      "objectives": [
+        "By the end, you will be able to explain and apply the mental model behind Values, variables, types, and operators",
+        "By the end, you will be able to explain and apply a minimal implementation verified by evidence"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A variable binds a name to a value; the type belongs to the value and determines meaningful operations. const protects the binding from reassignment, while calculation produces new values without changing inputs. Always separate the intention, the incoming data, the transformation being performed, and the observable result. This separation lets you predict behavior before running code and diagnose an error precisely."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A label points to box contents; type describes what can reasonably be done with them."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "A variable binds a name to a value; the type belongs to the value and determines meaningful operations. const protects the binding from reassignment, while calculation produces new values without changing inputs. Read the example from top to bottom, identify every input, and predict the output before running the command. This habit turns memorized syntax into reusable understanding."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation. In a real project, verify this mechanism with the browser, terminal, or DevTools instead of assuming it works. Observable evidence is more reliable than intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Name units, default to const, add parentheses for intent, and format only at the display boundary so calculations remain numeric. Finally apply the concept through one small isolated change, check the result, and revert if needed. Short changes make cause and effect easy to connect."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "primitive",
+                  "definition": "Simple value such as number, string, or boolean."
+                },
+                {
+                  "term": "coercion",
+                  "definition": "Implicit conversion from one type to another."
+                },
+                {
+                  "term": "expression",
+                  "definition": "Code evaluated into a value."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Write a cart calculation validating numbers and returning subtotal, discount, and total without mutation."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/values.js",
+                "source": "const unitPrice = 349;\nconst quantity = 2;\nconst discountRate = 0.1;\n\nconst subtotal = unitPrice * quantity;\nconst total = subtotal * (1 - discountRate);\nconst label = `Total: ${total.toFixed(2)} MAD`;\nconsole.log({ subtotal, total, label });",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Inputs and setup for “Values, variables, types, and operators.”"
+                  },
+                  {
+                    "lines": "4-6",
+                    "label": "The central rule to trace and predict."
+                  },
+                  {
+                    "lines": "7-8",
+                    "label": "The observable output that proves the behavior."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "node academy-labs/06-javascript/values.js",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/06-javascript/values.js and predict the example output. — node academy-labs/06-javascript/values.js"
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Evidence of success: the console prints subtotal 698, total 628.2, and a two-decimal label."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "L’ecomax keeps price and quantity numeric; “MAD” is added only in the display component."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "node academy-labs/06-javascript/values.js"
+      ],
+      "expectedResult": "Evidence of success: the console prints subtotal 698, total 628.2, and a two-decimal label.",
+      "commonErrors": [
+        {
+          "symptom": "The total becomes 3492.",
+          "cause": "The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation.",
+          "fix": "Explicitly convert text input with Number and validate it."
+        },
+        {
+          "symptom": "The total is NaN.",
+          "cause": "The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation.",
+          "fix": "Log each operand with typeof and Number.isFinite before calculating."
+        }
+      ],
+      "exercise": {
+        "task": "Write a cart calculation validating numbers and returning subtotal, discount, and total without mutation.",
+        "steps": [
+          "Open academy-labs/06-javascript/values.js and predict the example output.",
+          "Reproduce the example in the exercise file without copying the solution.",
+          "Run the listed command, compare the expected result, and explain any difference."
+        ],
+        "hints": [
+          "Start with inputs, then follow one transformation at a time.",
+          "Use the first error message and indicated line as diagnostic evidence."
+        ],
+        "solution": {
+          "explanation": "Name units, default to const, add parentheses for intent, and format only at the display boundary so calculations remain numeric.",
+          "code": "const unitPrice = 349;\nconst quantity = 2;\nconst discountRate = 0.1;\n\nconst subtotal = unitPrice * quantity;\nconst total = subtotal * (1 - discountRate);\nconst label = `Total: ${total.toFixed(2)} MAD`;\nconsole.log({ subtotal, total, label });",
+          "filename": "academy-labs/06-javascript/values.js",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-06-01-values-q1",
+          "question": "Why keep price as a number?",
+          "options": [
+            "To calculate before formatting",
+            "To avoid const",
+            "To replace CSS",
+            "To create DNS"
+          ],
+          "correctIndex": 0,
+          "explanation": "Currency symbols belong to presentation; domain logic calculates numbers.",
+          "answerExplanations": [
+            "This option is correct. It says « To calculate before formatting ». Currency symbols belong to presentation; domain logic calculates numbers.",
+            "This option is incorrect. It says « To avoid const ». The reference answer is « To calculate before formatting ». Currency symbols belong to presentation; domain logic calculates numbers.",
+            "This option is incorrect. It says « To replace CSS ». The reference answer is « To calculate before formatting ». Currency symbols belong to presentation; domain logic calculates numbers.",
+            "This option is incorrect. It says « To create DNS ». The reference answer is « To calculate before formatting ». Currency symbols belong to presentation; domain logic calculates numbers."
+          ]
+        },
+        {
+          "id": "lesson-06-01-values-q2",
+          "question": "Which definition matches the term “primitive”?",
+          "options": [
+            "Implicit conversion from one type to another.",
+            "Simple value such as number, string, or boolean.",
+            "Code evaluated into a value.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“primitive” means: Simple value such as number, string, or boolean.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Implicit conversion from one type to another. ». The reference answer is « Simple value such as number, string, or boolean. ». “primitive” means: Simple value such as number, string, or boolean.",
+            "This option is correct. It says « Simple value such as number, string, or boolean. ». “primitive” means: Simple value such as number, string, or boolean.",
+            "This option is incorrect. It says « Code evaluated into a value. ». The reference answer is « Simple value such as number, string, or boolean. ». “primitive” means: Simple value such as number, string, or boolean.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Simple value such as number, string, or boolean. ». “primitive” means: Simple value such as number, string, or boolean."
+          ]
+        },
+        {
+          "id": "lesson-06-01-values-q3",
+          "question": "What is the best first fix when you observe: “The total becomes 3492.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Log each operand with typeof and Number.isFinite before calculating.",
+            "Explicitly convert text input with Number and validate it.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation. The appropriate fix is: Explicitly convert text input with Number and validate it.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Explicitly convert text input with Number and validate it. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation. The appropriate fix is: Explicitly convert text input with Number and validate it.",
+            "This option is incorrect. It says « Log each operand with typeof and Number.isFinite before calculating. ». The reference answer is « Explicitly convert text input with Number and validate it. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation. The appropriate fix is: Explicitly convert text input with Number and validate it.",
+            "This option is correct. It says « Explicitly convert text input with Number and validate it. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation. The appropriate fix is: Explicitly convert text input with Number and validate it.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Explicitly convert text input with Number and validate it. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation. The appropriate fix is: Explicitly convert text input with Number and validate it."
+          ]
+        }
+      ],
+      "recap": [
+        "Core idea: A variable binds a name to a value; the type belongs to the value and determines meaningful operations. const protects the binding from reassignment, while calculation produces new values without changing inputs.",
+        "primitive: Simple value such as number, string, or boolean.",
+        "coercion: Implicit conversion from one type to another.",
+        "expression: Code evaluated into a value."
+      ],
+      "next": "The next lesson controls execution flow with conditions and loops."
+    },
+    {
+      "id": "lesson-06-02-control-flow",
+      "order": 1,
+      "title": "Conditions, comparisons, and loops",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to use a keyboard and mouse; no programming experience is assumed. The first module installs the tools and opens the project step by step.",
+        "Have completed the previous lesson and know how to run npm run dev."
+      ],
+      "objectives": [
+        "By the end, you will be able to explain and apply the mental model behind Conditions, comparisons, and loops",
+        "By the end, you will be able to explain and apply a minimal implementation verified by evidence"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Execution flow chooses paths from Boolean expressions and repeats a block over a collection. A correct condition expresses an exhaustive business rule rather than an approximate truth. Always separate the intention, the incoming data, the transformation being performed, and the observable result. This separation lets you predict behavior before running code and diagnose an error precisely."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A switch chooses a track from a signal; a loop inspects every carriage with one procedure."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Execution flow chooses paths from Boolean expressions and repeats a block over a collection. A correct condition expresses an exhaustive business rule rather than an approximate truth. Read the example from top to bottom, identify every input, and predict the output before running the command. This habit turns memorized syntax into reusable understanding."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "=== avoids implicit conversion, && requires both conditions, || accepts an alternative, and ! negates. return ends a function, break a loop, and continue advances immediately. In a real project, verify this mechanism with the browser, terminal, or DevTools instead of assuming it works. Observable evidence is more reliable than intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Enumerate zero, one, and many stock cases before writing if; use for...of when order and early exits matter, then test every boundary. Finally apply the concept through one small isolated change, check the result, and revert if needed. Short changes make cause and effect easy to connect."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "boolean",
+                  "definition": "true or false value driving a decision."
+                },
+                {
+                  "term": "branch",
+                  "definition": "Conditional program path."
+                },
+                {
+                  "term": "iteration",
+                  "definition": "One execution of a loop body."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Implement stock labels for zero, one, and many items and verify boundary values."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/control-flow.js",
+                "source": "const stockBySize = { S: 0, M: 4, L: 2 };\nfor (const [size, stock] of Object.entries(stockBySize)) {\n  if (stock <= 0) { console.log(size, \"épuisé\"); continue; }\n  const label = stock === 1 ? \"dernier article\" : `${stock} articles`;\n  console.log(size, label);\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Inputs and setup for “Conditions, comparisons, and loops.”"
+                  },
+                  {
+                    "lines": "3-4",
+                    "label": "The central rule to trace and predict."
+                  },
+                  {
+                    "lines": "5-6",
+                    "label": "The observable output that proves the behavior."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "node academy-labs/06-javascript/control-flow.js",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/06-javascript/control-flow.js and predict the example output. — node academy-labs/06-javascript/control-flow.js"
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Evidence of success: S is sold out, M shows four items, and L two, with S skipped afterward."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "Sold-out variants are disabled; the last item shows textual urgency without misrepresenting availability."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "node academy-labs/06-javascript/control-flow.js"
+      ],
+      "expectedResult": "Evidence of success: S is sold out, M shows four items, and L two, with S skipped afterward.",
+      "commonErrors": [
+        {
+          "symptom": "The string “0” is treated as available.",
+          "cause": "The symptom contradicts the expected mechanism: === avoids implicit conversion, && requires both conditions, || accepts an alternative, and ! negates. return ends a function, break a loop, and continue advances immediately.",
+          "fix": "Normalize stock to a number and compare with <= 0."
+        },
+        {
+          "symptom": "The loop never ends.",
+          "cause": "The symptom contradicts the expected mechanism: === avoids implicit conversion, && requires both conditions, || accepts an alternative, and ! negates. return ends a function, break a loop, and continue advances immediately.",
+          "fix": "Verify repetition state advances on every iteration."
+        }
+      ],
+      "exercise": {
+        "task": "Implement stock labels for zero, one, and many items and verify boundary values.",
+        "steps": [
+          "Open academy-labs/06-javascript/control-flow.js and predict the example output.",
+          "Reproduce the example in the exercise file without copying the solution.",
+          "Run the listed command, compare the expected result, and explain any difference."
+        ],
+        "hints": [
+          "Start with inputs, then follow one transformation at a time.",
+          "Use the first error message and indicated line as diagnostic evidence."
+        ],
+        "solution": {
+          "explanation": "Enumerate zero, one, and many stock cases before writing if; use for...of when order and early exits matter, then test every boundary.",
+          "code": "const stockBySize = { S: 0, M: 4, L: 2 };\nfor (const [size, stock] of Object.entries(stockBySize)) {\n  if (stock <= 0) { console.log(size, \"épuisé\"); continue; }\n  const label = stock === 1 ? \"dernier article\" : `${stock} articles`;\n  console.log(size, label);\n}",
+          "filename": "academy-labs/06-javascript/control-flow.js",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-06-02-control-flow-q1",
+          "question": "Which operator compares without coercion?",
+          "options": [
+            "===",
+            "=",
+            "==",
+            "=>"
+          ],
+          "correctIndex": 0,
+          "explanation": "=== compares type and value without implicit conversion.",
+          "answerExplanations": [
+            "This option is correct. It says « === ». === compares type and value without implicit conversion.",
+            "This option is incorrect. It says « = ». The reference answer is « === ». === compares type and value without implicit conversion.",
+            "This option is incorrect. It says « == ». The reference answer is « === ». === compares type and value without implicit conversion.",
+            "This option is incorrect. It says « => ». The reference answer is « === ». === compares type and value without implicit conversion."
+          ]
+        },
+        {
+          "id": "lesson-06-02-control-flow-q2",
+          "question": "Which definition matches the term “boolean”?",
+          "options": [
+            "Conditional program path.",
+            "true or false value driving a decision.",
+            "One execution of a loop body.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“boolean” means: true or false value driving a decision.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Conditional program path. ». The reference answer is « true or false value driving a decision. ». “boolean” means: true or false value driving a decision.",
+            "This option is correct. It says « true or false value driving a decision. ». “boolean” means: true or false value driving a decision.",
+            "This option is incorrect. It says « One execution of a loop body. ». The reference answer is « true or false value driving a decision. ». “boolean” means: true or false value driving a decision.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « true or false value driving a decision. ». “boolean” means: true or false value driving a decision."
+          ]
+        },
+        {
+          "id": "lesson-06-02-control-flow-q3",
+          "question": "What is the best first fix when you observe: “The string “0” is treated as available.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Verify repetition state advances on every iteration.",
+            "Normalize stock to a number and compare with <= 0.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The symptom contradicts the expected mechanism: === avoids implicit conversion, && requires both conditions, || accepts an alternative, and ! negates. return ends a function, break a loop, and continue advances immediately. The appropriate fix is: Normalize stock to a number and compare with <= 0.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Normalize stock to a number and compare with <= 0. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: === avoids implicit conversion, && requires both conditions, || accepts an alternative, and ! negates. return ends a function, break a loop, and continue advances immediately. The appropriate fix is: Normalize stock to a number and compare with <= 0.",
+            "This option is incorrect. It says « Verify repetition state advances on every iteration. ». The reference answer is « Normalize stock to a number and compare with <= 0. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: === avoids implicit conversion, && requires both conditions, || accepts an alternative, and ! negates. return ends a function, break a loop, and continue advances immediately. The appropriate fix is: Normalize stock to a number and compare with <= 0.",
+            "This option is correct. It says « Normalize stock to a number and compare with <= 0. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: === avoids implicit conversion, && requires both conditions, || accepts an alternative, and ! negates. return ends a function, break a loop, and continue advances immediately. The appropriate fix is: Normalize stock to a number and compare with <= 0.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Normalize stock to a number and compare with <= 0. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: === avoids implicit conversion, && requires both conditions, || accepts an alternative, and ! negates. return ends a function, break a loop, and continue advances immediately. The appropriate fix is: Normalize stock to a number and compare with <= 0."
+          ]
+        }
+      ],
+      "recap": [
+        "Core idea: Execution flow chooses paths from Boolean expressions and repeats a block over a collection. A correct condition expresses an exhaustive business rule rather than an approximate truth.",
+        "boolean: true or false value driving a decision.",
+        "branch: Conditional program path.",
+        "iteration: One execution of a loop body."
+      ],
+      "next": "The next lesson handles strings, missing values, and display formats."
+    },
+    {
+      "id": "lesson-06-03-strings-nullish",
+      "order": 2,
+      "title": "Strings, templates, and nullish values",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to use a keyboard and mouse; no programming experience is assumed. The first module installs the tools and opens the project step by step.",
+        "Have completed the previous lesson and know how to run npm run dev."
+      ],
+      "objectives": [
+        "By the end, you will be able to explain and apply the mental model behind Strings, templates, and nullish values",
+        "By the end, you will be able to explain and apply a minimal implementation verified by evidence"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A string is an immutable sequence whose methods return new strings. undefined often means not supplied and null explicit absence; code must decide which is acceptable at each boundary. Always separate the intention, the incoming data, the transformation being performed, and the observable result. This separation lets you predict behavior before running code and diagnose an error precisely."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A template assembles labels; optional chaining looks inside a box only if it exists."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "A string is an immutable sequence whose methods return new strings. undefined often means not supplied and null explicit absence; code must decide which is acceptable at each boundary. Read the example from top to bottom, identify every input, and predict the output before running the command. This habit turns memorized syntax into reusable understanding."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "?. stops access on null/undefined; ?? falls back only for those two values, while || also replaces empty string, zero, and false. Template literals interpolate expressions without ambiguous concatenation. In a real project, verify this mechanism with the browser, terminal, or DevTools instead of assuming it works. Observable evidence is more reliable than intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Define allowed missing values, normalize trim/case once at input, and do not replace zero or false when meaningful. Finally apply the concept through one small isolated change, check the result, and revert if needed. Short changes make cause and effect easy to connect."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "immutable",
+                  "definition": "Value not modified in place."
+                },
+                {
+                  "term": "nullish",
+                  "definition": "null or undefined."
+                },
+                {
+                  "term": "template literal",
+                  "definition": "Backtick string supporting interpolation."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Build a robust label for partial data without hiding valid business values."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/strings.js",
+                "source": "function productLabel(product) {\n  const name = product.name?.trim() || \"Produit sans nom\";\n  const color = product.variant?.color ?? \"couleur standard\";\n  return `${name} — ${color}`;\n}\nconsole.log(productLabel({ name: \"  Casque \", variant: null }));",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Inputs and setup for “Strings, templates, and nullish values.”"
+                  },
+                  {
+                    "lines": "3-4",
+                    "label": "The central rule to trace and predict."
+                  },
+                  {
+                    "lines": "5-6",
+                    "label": "The observable output that proves the behavior."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "node academy-labs/06-javascript/strings.js",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/06-javascript/strings.js and predict the example output. — node academy-labs/06-javascript/strings.js"
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Evidence of success: the console prints “Casque — standard color” without TypeError."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "Optional product variants show a translated fallback while zero stock remains zero."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "node academy-labs/06-javascript/strings.js"
+      ],
+      "expectedResult": "Evidence of success: the console prints “Casque — standard color” without TypeError.",
+      "commonErrors": [
+        {
+          "symptom": "Cannot read properties of null.",
+          "cause": "The symptom contradicts the expected mechanism: ?. stops access on null/undefined; ?? falls back only for those two values, while || also replaces empty string, zero, and false. Template literals interpolate expressions without ambiguous concatenation.",
+          "fix": "Use optional chaining at the genuinely optional boundary."
+        },
+        {
+          "symptom": "Zero stock becomes “unknown.”",
+          "cause": "The symptom contradicts the expected mechanism: ?. stops access on null/undefined; ?? falls back only for those two values, while || also replaces empty string, zero, and false. Template literals interpolate expressions without ambiguous concatenation.",
+          "fix": "Use ?? rather than || to preserve zero and false."
+        }
+      ],
+      "exercise": {
+        "task": "Build a robust label for partial data without hiding valid business values.",
+        "steps": [
+          "Open academy-labs/06-javascript/strings.js and predict the example output.",
+          "Reproduce the example in the exercise file without copying the solution.",
+          "Run the listed command, compare the expected result, and explain any difference."
+        ],
+        "hints": [
+          "Start with inputs, then follow one transformation at a time.",
+          "Use the first error message and indicated line as diagnostic evidence."
+        ],
+        "solution": {
+          "explanation": "Define allowed missing values, normalize trim/case once at input, and do not replace zero or false when meaningful.",
+          "code": "function productLabel(product) {\n  const name = product.name?.trim() || \"Produit sans nom\";\n  const color = product.variant?.color ?? \"couleur standard\";\n  return `${name} — ${color}`;\n}\nconsole.log(productLabel({ name: \"  Casque \", variant: null }));",
+          "filename": "academy-labs/06-javascript/strings.js",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-06-03-strings-nullish-q1",
+          "question": "Which fallback operator preserves zero?",
+          "options": [
+            "??",
+            "||",
+            "=",
+            "++"
+          ],
+          "correctIndex": 0,
+          "explanation": "?? falls back only for null or undefined.",
+          "answerExplanations": [
+            "This option is correct. It says « ?? ». ?? falls back only for null or undefined.",
+            "This option is incorrect. It says « || ». The reference answer is « ?? ». ?? falls back only for null or undefined.",
+            "This option is incorrect. It says « = ». The reference answer is « ?? ». ?? falls back only for null or undefined.",
+            "This option is incorrect. It says « ++ ». The reference answer is « ?? ». ?? falls back only for null or undefined."
+          ]
+        },
+        {
+          "id": "lesson-06-03-strings-nullish-q2",
+          "question": "Which definition matches the term “immutable”?",
+          "options": [
+            "null or undefined.",
+            "Value not modified in place.",
+            "Backtick string supporting interpolation.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“immutable” means: Value not modified in place.",
+          "answerExplanations": [
+            "This option is incorrect. It says « null or undefined. ». The reference answer is « Value not modified in place. ». “immutable” means: Value not modified in place.",
+            "This option is correct. It says « Value not modified in place. ». “immutable” means: Value not modified in place.",
+            "This option is incorrect. It says « Backtick string supporting interpolation. ». The reference answer is « Value not modified in place. ». “immutable” means: Value not modified in place.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Value not modified in place. ». “immutable” means: Value not modified in place."
+          ]
+        },
+        {
+          "id": "lesson-06-03-strings-nullish-q3",
+          "question": "What is the best first fix when you observe: “Cannot read properties of null.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Use ?? rather than || to preserve zero and false.",
+            "Use optional chaining at the genuinely optional boundary.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The symptom contradicts the expected mechanism: ?. stops access on null/undefined; ?? falls back only for those two values, while || also replaces empty string, zero, and false. Template literals interpolate expressions without ambiguous concatenation. The appropriate fix is: Use optional chaining at the genuinely optional boundary.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Use optional chaining at the genuinely optional boundary. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: ?. stops access on null/undefined; ?? falls back only for those two values, while || also replaces empty string, zero, and false. Template literals interpolate expressions without ambiguous concatenation. The appropriate fix is: Use optional chaining at the genuinely optional boundary.",
+            "This option is incorrect. It says « Use ?? rather than || to preserve zero and false. ». The reference answer is « Use optional chaining at the genuinely optional boundary. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: ?. stops access on null/undefined; ?? falls back only for those two values, while || also replaces empty string, zero, and false. Template literals interpolate expressions without ambiguous concatenation. The appropriate fix is: Use optional chaining at the genuinely optional boundary.",
+            "This option is correct. It says « Use optional chaining at the genuinely optional boundary. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: ?. stops access on null/undefined; ?? falls back only for those two values, while || also replaces empty string, zero, and false. Template literals interpolate expressions without ambiguous concatenation. The appropriate fix is: Use optional chaining at the genuinely optional boundary.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Use optional chaining at the genuinely optional boundary. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: ?. stops access on null/undefined; ?? falls back only for those two values, while || also replaces empty string, zero, and false. Template literals interpolate expressions without ambiguous concatenation. The appropriate fix is: Use optional chaining at the genuinely optional boundary."
+          ]
+        }
+      ],
+      "recap": [
+        "Core idea: A string is an immutable sequence whose methods return new strings. undefined often means not supplied and null explicit absence; code must decide which is acceptable at each boundary.",
+        "immutable: Value not modified in place.",
+        "nullish: null or undefined.",
+        "template literal: Backtick string supporting interpolation."
+      ],
+      "next": "The next lesson reads errors and organizes code into modules."
+    },
+    {
+      "id": "lesson-06-04-errors-modules",
+      "order": 3,
+      "title": "Errors, stack traces, and modules",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to use a keyboard and mouse; no programming experience is assumed. The first module installs the tools and opens the project step by step.",
+        "Have completed the previous lesson and know how to run npm run dev."
+      ],
+      "objectives": [
+        "By the end, you will be able to explain and apply the mental model behind Errors, stack traces, and modules",
+        "By the end, you will be able to explain and apply a minimal implementation verified by evidence"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "An error is a structured outcome signaling a contract cannot be honored. The stack trace links failure to preceding calls; modules make contracts explicit through imports and exports. Always separate the intention, the incoming data, the transformation being performed, and the observable result. This separation lets you predict behavior before running code and diagnose an error precisely."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A named alarm identifies the sensor and the log traces the path to it; a module is a room with declared entrances."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "An error is a structured outcome signaling a contract cannot be honored. The stack trace links failure to preceding calls; modules make contracts explicit through imports and exports. Read the example from top to bottom, identify every input, and predict the output before running the command. This habit turns memorized syntax into reusable understanding."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "throw interrupts normal flow; catch should recover meaningfully or enrich and rethrow. The first stack frame belonging to the project is often the best diagnostic start. In a real project, verify this mechanism with the browser, terminal, or DevTools instead of assuming it works. Observable evidence is more reliable than intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Validate arguments at entry, choose precise TypeError or RangeError, avoid silent catches, and export small testable functions without global effects. Finally apply the concept through one small isolated change, check the result, and revert if needed. Short changes make cause and effect easy to connect."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "exception",
+                  "definition": "Object propagated outside normal flow."
+                },
+                {
+                  "term": "stack trace",
+                  "definition": "Sequence of calls leading to an error."
+                },
+                {
+                  "term": "module",
+                  "definition": "File with its own scope and import/export interface."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Create a total function that fails explicitly for invalid types or ranges and read its stack."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/price.mjs",
+                "source": "export function calculateTotal(price, quantity) {\n  if (!Number.isFinite(price)) throw new TypeError(\"price must be finite\");\n  if (!Number.isInteger(quantity) || quantity < 1) throw new RangeError(\"quantity must be positive\");\n  return price * quantity;\n}\n\nconsole.log(\"valid total\", calculateTotal(349, 2));\ntry { calculateTotal(349, 0); }\ncatch (error) { console.error(error.name, error.message); console.error(error.stack); }",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Inputs and setup for “Errors, stack traces, and modules.”"
+                  },
+                  {
+                    "lines": "4-6",
+                    "label": "The central rule to trace and predict."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "The observable output that proves the behavior."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "node academy-labs/06-javascript/price.mjs",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/06-javascript/price.mjs and predict the example output. — node academy-labs/06-javascript/price.mjs"
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Evidence of success: 698 prints for valid data, then RangeError and its stack prove quantity=0 was rejected."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "Cart calculations reject impossible data before payment; logs preserve name and context without exposing secrets."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "node academy-labs/06-javascript/price.mjs"
+      ],
+      "expectedResult": "Evidence of success: 698 prints for valid data, then RangeError and its stack prove quantity=0 was rejected.",
+      "commonErrors": [
+        {
+          "symptom": "An error is swallowed and total becomes undefined.",
+          "cause": "The symptom contradicts the expected mechanism: throw interrupts normal flow; catch should recover meaningfully or enrich and rethrow. The first stack frame belonging to the project is often the best diagnostic start.",
+          "fix": "Catch only to recover; otherwise propagate or rethrow with cause."
+        },
+        {
+          "symptom": "Import causes an unexpected effect.",
+          "cause": "The symptom contradicts the expected mechanism: throw interrupts normal flow; catch should recover meaningfully or enrich and rethrow. The first stack frame belonging to the project is often the best diagnostic start.",
+          "fix": "Keep demo execution outside the exported-function module."
+        }
+      ],
+      "exercise": {
+        "task": "Create a total function that fails explicitly for invalid types or ranges and read its stack.",
+        "steps": [
+          "Open academy-labs/06-javascript/price.mjs and predict the example output.",
+          "Reproduce the example in the exercise file without copying the solution.",
+          "Run the listed command, compare the expected result, and explain any difference."
+        ],
+        "hints": [
+          "Start with inputs, then follow one transformation at a time.",
+          "Use the first error message and indicated line as diagnostic evidence."
+        ],
+        "solution": {
+          "explanation": "Validate arguments at entry, choose precise TypeError or RangeError, avoid silent catches, and export small testable functions without global effects.",
+          "code": "export function calculateTotal(price, quantity) {\n  if (!Number.isFinite(price)) throw new TypeError(\"price must be finite\");\n  if (!Number.isInteger(quantity) || quantity < 1) throw new RangeError(\"quantity must be positive\");\n  return price * quantity;\n}\n\nconsole.log(\"valid total\", calculateTotal(349, 2));\ntry { calculateTotal(349, 0); }\ncatch (error) { console.error(error.name, error.message); console.error(error.stack); }",
+          "filename": "academy-labs/06-javascript/price.mjs",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-06-04-errors-modules-q1",
+          "question": "Where should stack inspection start?",
+          "options": [
+            "The first relevant project frame",
+            "A random final line",
+            "CSS",
+            "DNS"
+          ],
+          "correctIndex": 0,
+          "explanation": "That frame locates controlled code that triggered or propagated the error.",
+          "answerExplanations": [
+            "This option is correct. It says « The first relevant project frame ». That frame locates controlled code that triggered or propagated the error.",
+            "This option is incorrect. It says « A random final line ». The reference answer is « The first relevant project frame ». That frame locates controlled code that triggered or propagated the error.",
+            "This option is incorrect. It says « CSS ». The reference answer is « The first relevant project frame ». That frame locates controlled code that triggered or propagated the error.",
+            "This option is incorrect. It says « DNS ». The reference answer is « The first relevant project frame ». That frame locates controlled code that triggered or propagated the error."
+          ]
+        },
+        {
+          "id": "lesson-06-04-errors-modules-q2",
+          "question": "Which definition matches the term “exception”?",
+          "options": [
+            "Sequence of calls leading to an error.",
+            "Object propagated outside normal flow.",
+            "File with its own scope and import/export interface.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“exception” means: Object propagated outside normal flow.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Sequence of calls leading to an error. ». The reference answer is « Object propagated outside normal flow. ». “exception” means: Object propagated outside normal flow.",
+            "This option is correct. It says « Object propagated outside normal flow. ». “exception” means: Object propagated outside normal flow.",
+            "This option is incorrect. It says « File with its own scope and import/export interface. ». The reference answer is « Object propagated outside normal flow. ». “exception” means: Object propagated outside normal flow.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Object propagated outside normal flow. ». “exception” means: Object propagated outside normal flow."
+          ]
+        },
+        {
+          "id": "lesson-06-04-errors-modules-q3",
+          "question": "What is the best first fix when you observe: “An error is swallowed and total becomes undefined.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Keep demo execution outside the exported-function module.",
+            "Catch only to recover; otherwise propagate or rethrow with cause.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The symptom contradicts the expected mechanism: throw interrupts normal flow; catch should recover meaningfully or enrich and rethrow. The first stack frame belonging to the project is often the best diagnostic start. The appropriate fix is: Catch only to recover; otherwise propagate or rethrow with cause.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Catch only to recover; otherwise propagate or rethrow with cause. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: throw interrupts normal flow; catch should recover meaningfully or enrich and rethrow. The first stack frame belonging to the project is often the best diagnostic start. The appropriate fix is: Catch only to recover; otherwise propagate or rethrow with cause.",
+            "This option is incorrect. It says « Keep demo execution outside the exported-function module. ». The reference answer is « Catch only to recover; otherwise propagate or rethrow with cause. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: throw interrupts normal flow; catch should recover meaningfully or enrich and rethrow. The first stack frame belonging to the project is often the best diagnostic start. The appropriate fix is: Catch only to recover; otherwise propagate or rethrow with cause.",
+            "This option is correct. It says « Catch only to recover; otherwise propagate or rethrow with cause. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: throw interrupts normal flow; catch should recover meaningfully or enrich and rethrow. The first stack frame belonging to the project is often the best diagnostic start. The appropriate fix is: Catch only to recover; otherwise propagate or rethrow with cause.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Catch only to recover; otherwise propagate or rethrow with cause. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: throw interrupts normal flow; catch should recover meaningfully or enrich and rethrow. The first stack frame belonging to the project is often the best diagnostic start. The appropriate fix is: Catch only to recover; otherwise propagate or rethrow with cause."
+          ]
+        }
+      ],
+      "recap": [
+        "Core idea: An error is a structured outcome signaling a contract cannot be honored. The stack trace links failure to preceding calls; modules make contracts explicit through imports and exports.",
+        "exception: Object propagated outside normal flow.",
+        "stack trace: Sequence of calls leading to an error.",
+        "module: File with its own scope and import/export interface."
+      ],
+      "next": "The next module transforms data with functions, arrays, and objects."
+    }
+  ]
+}

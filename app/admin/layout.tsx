@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -282,6 +282,17 @@ const nav = [
     ),
   },
   {
+    label: "Base du chatbot",
+    href: "/admin/chat-kb",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        <path d="M9 7h6M9 11h6" />
+      </svg>
+    ),
+  },
+  {
     label: "Retours",
     href: "/admin/returns",
     icon: (
@@ -346,7 +357,7 @@ const navSections: { title: string; hrefs: string[] }[] = [
   { title: "DÉVELOPPEUR", hrefs: ["/admin/how-it-was-built"] },
   { title: "CATALOGUE",   hrefs: ["/admin/products", "/admin/categories", "/admin/stock", "/admin/pages", "/admin/banners", "/admin/media", "/admin/studio"] },
   { title: "CLIENTS",     hrefs: ["/admin/customers", "/admin/client-data", "/admin/loyalty", "/admin/abandoned-carts"] },
-  { title: "MARKETING",   hrefs: ["/admin/promotions", "/admin/ads", "/admin/push", "/admin/newsletter", "/admin/coupons", "/admin/announcement", "/admin/broadcast"] },
+  { title: "MARKETING",   hrefs: ["/admin/ecomedia", "/admin/promotions", "/admin/ads", "/admin/push", "/admin/newsletter", "/admin/coupons", "/admin/announcement", "/admin/broadcast"] },
   { title: "SAV",         hrefs: ["/admin/messages", "/admin/chat-kb", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
   { title: "LOGISTIQUE",  hrefs: ["/admin/shipping", "/admin/size-guide"] },
   { title: "CONFIG",      hrefs: ["/admin/settings"] },
@@ -359,7 +370,7 @@ const navSections: { title: string; hrefs: string[] }[] = [
 // "slug" → visible if staff has that permission
 const NAV_PERMISSIONS: Record<string, string | null | undefined> = {
   "/admin/dashboard":             null,
-  "/admin/ecomedia":              null,  // visible to all admins
+  "/admin/ecomedia":              undefined, // owner-only (matches the route guard)
   "/admin/analytics":      "analytics.view",
   "/admin/recordings":     "recordings.view",
   "/admin/products":       "products.view",
@@ -386,7 +397,7 @@ const NAV_PERMISSIONS: Record<string, string | null | undefined> = {
   "/admin/newsletter":     "newsletter.edit",
   "/admin/coupons":        "promotions.edit",
   "/admin/messages":       "messages.view",
-  "/admin/chat-kb":        "messages.view",
+  "/admin/chat-kb":        undefined,
   "/admin/returns":        "returns.edit",
   "/admin/settings":       "settings.edit",
   "/admin/roles":          "roles.manage",
@@ -431,8 +442,10 @@ function ScrollToTop() {
 
   return (
     <button
+      type="button"
       onClick={() => document.getElementById("admin-main")?.scrollTo({ top: 0, behavior: "smooth" })}
-      className="fixed bottom-6 right-6 z-50 w-10 h-10 rounded-2xl bg-black text-white shadow-lg flex items-center justify-center hover:bg-neutral-800 transition-all hover:scale-110 active:scale-95"
+      aria-label="Retour en haut de la page"
+      className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-20 flex h-11 w-11 items-center justify-center rounded-2xl bg-black text-white shadow-lg transition-all hover:bg-neutral-800 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] focus-visible:ring-offset-2 lg:bottom-6 lg:right-6"
       title="Retour en haut"
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -450,8 +463,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [search, setSearch] = useState("");
   const [badges, setBadges] = useState<Record<string, number>>({ orders: 0, stock: 0, messages: 0, approvals: 0 });
   const [now, setNow] = useState("");
-  // null = owner (no restriction), string[] = staff permissions list
-  const [staffPermissions, setStaffPermissions] = useState<string[] | null>(null);
+  const [permissionState, setPermissionState] = useState<
+    | { status: "loading" }
+    | { status: "owner" }
+    | { status: "staff"; permissions: string[] }
+    | { status: "error" }
+  >({ status: "loading" });
+  const [permissionRetry, setPermissionRetry] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const drawerRef = useRef<HTMLElement>(null);
+  const drawerTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const isLoginRoute = pathname.replace(/\/+$/, "") === "/admin";
 
   // ── Set admin-specific document title ──────────────────────────────────
   useEffect(() => {
@@ -501,21 +524,121 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [pathname]);
 
   useEffect(() => {
+    if (isLoginRoute) return;
+    let cancelled = false;
+
     async function loadPermissions() {
+      setPermissionState({ status: "loading" });
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user?.email) return;
-        const res = await fetch(`/api/admin/staff/permissions?email=${encodeURIComponent(user.email)}`);
-        if (!res.ok) return;
-        const { isStaff, permissions } = await res.json();
-        if (isStaff) {
-          setStaffPermissions(permissions as string[]); // [] = dashboard only
+        // Prefer the signed admin cookie: it is the same source of truth used by
+        // the route guard. Supabase is retained as a fallback for legacy sessions.
+        const verifyRes = await fetch("/api/admin/auth/verify", { method: "GET" });
+        let email: string | null = null;
+        if (verifyRes.ok) {
+          const verified = await verifyRes.json() as { email?: unknown };
+          if (typeof verified.email === "string") email = verified.email;
         }
-        // else: owner → stays null → sees everything
-      } catch { /* silently keep null = owner mode */ }
+        if (!email) {
+          const { data: { user } } = await supabase.auth.getUser();
+          email = user?.email ?? null;
+        }
+        if (!email) throw new Error("Unable to identify the admin session");
+
+        const res = await fetch(`/api/admin/staff/permissions?email=${encodeURIComponent(email)}`);
+        if (!res.ok) throw new Error("Unable to load permissions");
+        const result = await res.json() as { isStaff?: unknown; permissions?: unknown };
+        if (cancelled) return;
+
+        if (result.isStaff === true) {
+          const permissions = Array.isArray(result.permissions)
+            ? result.permissions.filter((permission): permission is string => typeof permission === "string")
+            : [];
+          setPermissionState({ status: "staff", permissions });
+        } else {
+          setPermissionState({ status: "owner" });
+        }
+      } catch {
+        // Unknown must never be interpreted as owner. Keep public admin routes
+        // available and offer an explicit retry in the drawer.
+        if (!cancelled) setPermissionState({ status: "error" });
+      }
     }
-    loadPermissions();
+
+    void loadPermissions();
+    return () => { cancelled = true; };
+  }, [isLoginRoute, permissionRetry]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1024px)");
+    const update = () => {
+      setIsDesktop(media.matches);
+      if (media.matches) setOpen(false);
+    };
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
   }, []);
+
+  useEffect(() => {
+    setOpen(false);
+    setSearch("");
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open || isDesktop) return;
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+
+    const bodyOverflow = document.body.style.overflow;
+    const htmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    const getFocusable = () => Array.from(
+      drawer.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(element => element.getClientRects().length > 0);
+
+    // Delay focus until after the click event has finished. This avoids the
+    // trigger reclaiming focus in mobile browsers while the drawer starts its
+    // transform transition.
+    const focusTimer = window.setTimeout(() => {
+      searchInputRef.current?.focus({ preventScroll: true });
+    }, 80);
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = getFocusable();
+      if (focusable.length === 0) {
+        event.preventDefault();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.clearTimeout(focusTimer);
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = bodyOverflow;
+      document.documentElement.style.overflow = htmlOverflow;
+      drawerTriggerRef.current?.focus();
+    };
+  }, [isDesktop, open]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -581,8 +704,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [pathname]);
 
   // login page — no shell (strip trailing slash before comparing)
-  const isLoginPage = pathname.replace(/\/+$/, "") === "/admin" || pathname === "/admin";
-  if (isLoginPage) return <>{children}</>;
+  if (isLoginRoute) return <>{children}</>;
   if (checking) return (
     <div className="min-h-screen flex items-center justify-center bg-[#f6f6f4]">
       <div className="flex flex-col items-center gap-3">
@@ -607,22 +729,68 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     router.replace("/admin");
   }
 
-  // Returns true if this nav href should be visible to the current user
-  function canSee(href: string): boolean {
-    if (staffPermissions === null) return true; // owner — see everything
-    const perm = NAV_PERMISSIONS[href];
-    if (perm === null) return true;       // always visible (dashboard)
-    if (perm === undefined) return false; // owner-only section
-    return staffPermissions.includes(perm);
+  function openDrawer(trigger: HTMLButtonElement) {
+    drawerTriggerRef.current = trigger;
+    setOpen(true);
   }
 
-  const totalAlerts = (badges.orders || 0) + (badges.messages || 0);
+  function closeDrawer() {
+    setOpen(false);
+  }
+
+  // Returns true if this nav href should be visible to the current user
+  function canSee(href: string): boolean {
+    const perm = NAV_PERMISSIONS[href];
+    if (perm === null) return true; // always visible (dashboard)
+    if (permissionState.status === "owner") return true;
+    if (permissionState.status !== "staff") return false;
+    if (perm === undefined) return false; // owner-only section
+    return permissionState.permissions.includes(perm);
+  }
+
+  const totalAlerts =
+    (canSee("/admin/orders") ? badges.orders || 0 : 0) +
+    (canSee("/admin/messages") ? badges.messages || 0 : 0);
+  const mobileNavItems = [
+    {
+      href: "/admin/dashboard",
+      activePath: "/admin/dashboard",
+      label: "Accueil",
+      icon: <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>,
+    },
+    canSee("/admin/orders") ? {
+      href: "/admin/orders",
+      activePath: "/admin/orders",
+      label: "Commandes",
+      badge: "orders" as const,
+      icon: <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>,
+    } : null,
+    canSee("/admin/products") ? {
+      href: "/admin/products?new=1",
+      activePath: "/admin/products",
+      label: "Ajouter",
+      primary: true,
+      icon: <svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>,
+    } : null,
+    canSee("/admin/messages") ? {
+      href: "/admin/messages",
+      activePath: "/admin/messages",
+      label: "Messages",
+      badge: "messages" as const,
+      icon: <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+    } : null,
+  ].filter((item): item is NonNullable<typeof item> => item !== null);
 
   return (
-    <div className="min-h-screen flex bg-[#f4f4f2]">
+    <div className="flex h-dvh min-h-0 overflow-hidden bg-[#f4f4f2]">
       {/* ──────────────── SIDEBAR ──────────────── */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-[260px] bg-[#0d0d0d] text-white flex flex-col transition-transform duration-300 ease-out
-        ${open ? "translate-x-0 shadow-2xl" : "-translate-x-full"} lg:translate-x-0 lg:static lg:flex`}>
+      <aside
+        id="admin-sidebar"
+        ref={drawerRef}
+        aria-label="Navigation de l’administration"
+        aria-hidden={!isDesktop && !open}
+        className={`fixed inset-y-0 left-0 z-50 flex h-dvh max-h-dvh w-[min(86vw,300px)] flex-col bg-[#0d0d0d] pt-[env(safe-area-inset-top)] text-white transition-[transform,visibility] duration-300 ease-out lg:static lg:z-40 lg:h-auto lg:max-h-none lg:w-[260px] lg:translate-x-0 lg:pt-0
+          ${open ? "visible translate-x-0 shadow-2xl" : "invisible -translate-x-full pointer-events-none"} lg:visible lg:pointer-events-auto`}>
 
         {/* Brand header */}
         <div className="px-4 py-4 border-b border-white/[0.07] flex items-center gap-3 shrink-0">
@@ -640,31 +808,52 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <p className="text-white/30 text-[10px] font-medium">Panel Admin · {now}</p>
             </div>
           </div>
-          <button onClick={() => setOpen(false)} className="lg:hidden text-white/30 hover:text-white p-1.5 rounded-lg hover:bg-white/8 transition-colors shrink-0">
+          <button
+            type="button"
+            onClick={closeDrawer}
+            aria-label="Fermer le menu"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white/45 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] lg:hidden"
+          >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
 
         {/* Search */}
         <div className="px-3 pt-3 pb-2 shrink-0">
+          <label htmlFor="admin-navigation-search" className="sr-only">Rechercher dans la navigation</label>
           <div className="relative">
-            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/20" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <svg aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/25" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             <input
+              id="admin-navigation-search"
+              ref={searchInputRef}
               type="text"
               placeholder="Rechercher…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full bg-white/[0.06] border border-white/[0.06] rounded-xl pl-8 pr-3 py-2 text-[12px] text-white/70 placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.08] transition-all"
+              className="min-h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.06] pl-9 pr-3 text-[13px] text-white/80 placeholder-white/25 transition-all focus:border-[#3ecf4c]/60 focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-[#3ecf4c]/20"
             />
           </div>
+          {permissionState.status === "error" && (
+            <div role="alert" className="mt-2 flex items-center gap-2 rounded-xl border border-amber-400/20 bg-amber-400/10 p-2 text-[11px] leading-4 text-amber-100">
+              <span className="flex-1">Navigation limitée : les accès n’ont pas pu être vérifiés.</span>
+              <button
+                type="button"
+                onClick={() => setPermissionRetry(value => value + 1)}
+                className="min-h-11 shrink-0 rounded-lg px-2 font-bold text-amber-300 hover:bg-amber-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+              >
+                Réessayer
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Quick actions */}
-        {!search && (
+        {!search && (canSee("/admin/orders") || canSee("/admin/messages")) && (
           <div className="px-3 pb-2 shrink-0">
-            <div className="grid grid-cols-2 gap-1.5">
-              <Link href="/admin/orders" onClick={() => setOpen(false)}
-                className="flex items-center gap-2 bg-white/[0.05] hover:bg-white/10 border border-white/[0.07] rounded-xl px-3 py-2.5 transition-all group">
+            <div className={`grid gap-1.5 ${canSee("/admin/orders") && canSee("/admin/messages") ? "grid-cols-2" : "grid-cols-1"}`}>
+              {canSee("/admin/orders") && <Link href="/admin/orders" onClick={closeDrawer}
+                aria-current={pathname.startsWith("/admin/orders") ? "page" : undefined}
+                className="group flex min-h-12 items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.05] px-3 py-2.5 transition-all hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]">
                 <div className="w-6 h-6 rounded-lg bg-orange-500/20 flex items-center justify-center shrink-0">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round"><path d="M9 11l3 3L22 4"/></svg>
                 </div>
@@ -675,9 +864,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     : <p className="text-[11px] font-bold text-white/60">À jour</p>
                   }
                 </div>
-              </Link>
-              <Link href="/admin/messages" onClick={() => setOpen(false)}
-                className="flex items-center gap-2 bg-white/[0.05] hover:bg-white/10 border border-white/[0.07] rounded-xl px-3 py-2.5 transition-all group">
+              </Link>}
+              {canSee("/admin/messages") && <Link href="/admin/messages" onClick={closeDrawer}
+                aria-current={pathname.startsWith("/admin/messages") ? "page" : undefined}
+                className="group flex min-h-12 items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.05] px-3 py-2.5 transition-all hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]">
                 <div className="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                 </div>
@@ -688,13 +878,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     : <p className="text-[11px] font-bold text-white/60">Aucun</p>
                   }
                 </div>
-              </Link>
+              </Link>}
             </div>
           </div>
         )}
 
         {/* Nav */}
-        <nav className="flex-1 px-3 overflow-y-auto py-1 space-y-0">
+        <nav aria-label="Sections de l’administration" aria-busy={permissionState.status === "loading"} className="min-h-0 flex-1 space-y-0 overflow-y-auto overscroll-contain px-3 py-1">
           {search ? (
             <div className="space-y-0.5 py-1">
               {allNavItems.length === 0 && (
@@ -704,8 +894,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 const active = pathname.startsWith(item.href);
                 const badgeCount = item.badge ? (badges[item.badge] ?? 0) : 0;
                 return (
-                  <Link key={item.href} href={item.href} onClick={() => { setOpen(false); setSearch(""); }}
-                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all
+                  <Link key={item.href} href={item.href} onClick={() => { closeDrawer(); setSearch(""); }}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]
                       ${active ? "bg-white text-black" : "text-white/55 hover:text-white hover:bg-white/8"}`}>
                     <span className={`shrink-0 ${active ? "text-black" : "text-white/35"}`}>{item.icon}</span>
                     <span className="flex-1 truncate">{item.label}</span>
@@ -732,8 +923,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     const active = pathname.startsWith(item.href);
                     const badgeCount = item.badge ? (badges[item.badge] ?? 0) : 0;
                     return (
-                      <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
-                        className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150
+                      <Link key={item.href} href={item.href} onClick={closeDrawer}
+                        aria-current={active ? "page" : undefined}
+                        className={`flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]
                           ${active ? "bg-white text-black shadow-sm" : "text-white/50 hover:text-white hover:bg-white/8"}`}>
                         <span className={`shrink-0 ${active ? "text-black" : "text-white/35"}`}>{item.icon}</span>
                         <span className="flex-1 truncate">{item.label}</span>
@@ -753,14 +945,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Footer */}
-        <div className="px-3 py-3 border-t border-white/[0.07] shrink-0 space-y-1">
-          <Link href="/" target="_blank"
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[12px] text-white/35 hover:text-white hover:bg-white/8 transition-colors font-medium">
+        <div className="shrink-0 space-y-1 border-t border-white/[0.07] px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:pb-3">
+          <Link href="/" target="_blank" rel="noreferrer"
+            className="flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2.5 text-[12px] font-medium text-white/45 transition-colors hover:bg-white/8 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             Voir le site
           </Link>
-          <button onClick={logout}
-            className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-[12px] text-white/35 hover:text-red-400 hover:bg-red-500/8 transition-colors font-medium">
+          <button type="button" onClick={logout}
+            className="flex min-h-11 w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[12px] font-medium text-white/45 transition-colors hover:bg-red-500/10 hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
@@ -771,18 +963,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Mobile overlay */}
       {open && (
-        <div className="fixed inset-0 bg-black/70 z-30 lg:hidden" onClick={() => setOpen(false)}
-          style={{ backdropFilter: "blur(3px)" }} />
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-label="Fermer le menu de navigation"
+          aria-controls="admin-sidebar"
+          className="fixed inset-0 z-40 cursor-default bg-black/70 lg:hidden"
+          onClick={closeDrawer}
+          style={{ backdropFilter: "blur(3px)" }}
+        />
       )}
 
       {/* ──────────────── MAIN ──────────────── */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+      <div className="flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
 
         {/* Top bar */}
-        <header className="h-14 bg-white border-b border-neutral-100 flex items-center px-3 md:px-6 gap-3 sticky top-0 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+        <header className="sticky top-0 z-20 flex h-[calc(3.5rem+env(safe-area-inset-top))] min-h-14 shrink-0 items-center gap-2 border-b border-neutral-100 bg-white px-3 pt-[env(safe-area-inset-top)] shadow-[0_1px_3px_rgba(0,0,0,0.05)] md:gap-3 md:px-6 lg:h-14 lg:pt-0">
           {/* Hamburger */}
-          <button onClick={() => setOpen(true)}
-            className="lg:hidden relative p-2 -ml-1 text-neutral-600 hover:text-black hover:bg-neutral-100 rounded-xl transition-colors shrink-0">
+          <button
+            type="button"
+            onClick={event => openDrawer(event.currentTarget)}
+            aria-label="Ouvrir le menu de navigation"
+            aria-controls="admin-sidebar"
+            aria-expanded={open}
+            className="relative -ml-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] focus-visible:ring-offset-1 lg:hidden"
+          >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
@@ -809,16 +1014,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Right actions */}
           <div className="flex items-center gap-2 shrink-0">
             {/* Alert pill — mobile */}
-            {badges.orders > 0 && (
+            {canSee("/admin/orders") && badges.orders > 0 && (
               <Link href="/admin/orders"
-                className="flex items-center gap-1.5 text-[11px] font-bold bg-orange-50 text-orange-600 border border-orange-200 px-2.5 py-1.5 rounded-lg hover:bg-orange-100 transition-colors">
+                aria-label={`${badges.orders} commande${badges.orders > 1 ? "s" : ""} en attente`}
+                className="flex min-h-11 items-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 px-2.5 text-[11px] font-bold text-orange-600 transition-colors hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse shrink-0" />
                 <span className="hidden sm:inline">{badges.orders} en attente</span>
                 <span className="sm:hidden">{badges.orders}</span>
               </Link>
             )}
             {/* View site — desktop */}
-            <Link href="/" target="_blank"
+            <Link href="/" target="_blank" rel="noreferrer"
               className="hidden md:flex text-xs text-neutral-500 hover:text-black items-center gap-1.5 border border-neutral-200 px-3 py-1.5 rounded-lg hover:border-black transition-colors font-medium">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               Voir le site
@@ -833,87 +1039,63 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Page content */}
-        <main id="admin-main" className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto pb-24 lg:pb-8">
+        <main id="admin-main" tabIndex={-1} className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-4 pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:p-6 md:pb-[calc(5.75rem+env(safe-area-inset-bottom))] lg:p-8 lg:pb-8">
           {children}
           <ScrollToTop />
         </main>
 
         {/* ──────────────── MOBILE BOTTOM NAV ──────────────── */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-neutral-100 shadow-[0_-2px_20px_rgba(0,0,0,0.08)]"
-          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-          <div className="flex items-center justify-around h-[60px] px-1">
-
-            {/* Left pair */}
-            {[
-              {
-                href: "/admin/dashboard", label: "Accueil",
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-              },
-              {
-                href: "/admin/orders", label: "Commandes", badge: "orders",
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-              },
-            ].map((item) => {
-              const active = pathname.startsWith(item.href);
-              const badgeCount = item.badge ? (badges[item.badge as keyof typeof badges] ?? 0) : 0;
+        <nav
+          aria-label="Navigation admin mobile"
+          className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-200/80 bg-white/95 shadow-[0_-2px_20px_rgba(0,0,0,0.08)] backdrop-blur-md lg:hidden"
+          style={{
+            paddingBottom: "env(safe-area-inset-bottom)",
+            paddingLeft: "env(safe-area-inset-left)",
+            paddingRight: "env(safe-area-inset-right)",
+          }}
+        >
+          <div className="flex h-16 items-stretch px-1">
+            {mobileNavItems.map(item => {
+              const active = pathname.startsWith(item.activePath);
+              const badgeKey = "badge" in item ? item.badge : undefined;
+              const badgeCount = badgeKey ? (badges[badgeKey] ?? 0) : 0;
+              const primary = "primary" in item && item.primary;
               return (
-                <Link key={item.href} href={item.href}
-                  className={`relative flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all duration-150 active:scale-90
-                    ${active ? "text-black" : "text-neutral-400"}`}>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl transition-all duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] focus-visible:ring-inset ${active ? "text-black" : "text-neutral-500"}`}
+                >
                   {badgeCount > 0 && (
-                    <span className="absolute top-1.5 right-[calc(50%-16px)] w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center shadow-sm z-10">
+                    <span aria-label={`${badgeCount} notification${badgeCount > 1 ? "s" : ""}`} className="absolute right-[calc(50%-20px)] top-1 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-orange-500 px-1 text-[9px] font-black text-white shadow-sm">
                       {badgeCount > 9 ? "9+" : badgeCount}
                     </span>
                   )}
-                  <span className={active ? "text-black" : "text-neutral-400"}>{item.icon}</span>
-                  <span className={`text-[9px] font-bold tracking-wide ${active ? "text-black" : "text-neutral-400"}`}>{item.label}</span>
-                  {active && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-[#3ecf4c] rounded-full" />}
+                  <span className={primary ? "flex h-10 w-10 items-center justify-center rounded-2xl bg-black text-white shadow-md" : active ? "text-black" : "text-neutral-500"}>
+                    {item.icon}
+                  </span>
+                  <span className={`max-w-full truncate px-0.5 text-[10px] font-bold leading-3 ${active || primary ? "text-black" : "text-neutral-500"}`}>{item.label}</span>
+                  {active && !primary && <span aria-hidden="true" className="absolute bottom-0.5 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-[#3ecf4c]" />}
                 </Link>
               );
             })}
-
-            {/* Centre FAB — Ecomedia */}
-            <div className="flex-1 flex items-center justify-center">
-              <Link href="/admin/ecomedia"
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition-all ${
-                  pathname.startsWith("/admin/ecomedia") ? "bg-[#3ecf4c] text-black" : "bg-black text-white hover:bg-neutral-800"
-                }`}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                  <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-                </svg>
-              </Link>
-            </div>
-
-            {/* Right pair */}
-            {[
-              {
-                href: "/admin/messages", label: "Messages", badge: "messages",
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-              },
-              {
-                href: "/admin/products", label: "Produits",
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-              },
-            ].map((item) => {
-              const active = pathname.startsWith(item.href);
-              const badgeCount = item.badge ? (badges[item.badge as keyof typeof badges] ?? 0) : 0;
-              return (
-                <Link key={item.href} href={item.href}
-                  className={`relative flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all duration-150 active:scale-90
-                    ${active ? "text-black" : "text-neutral-400"}`}>
-                  {badgeCount > 0 && (
-                    <span className="absolute top-1.5 right-[calc(50%-16px)] w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center shadow-sm z-10">
-                      {badgeCount > 9 ? "9+" : badgeCount}
-                    </span>
-                  )}
-                  <span className={active ? "text-black" : "text-neutral-400"}>{item.icon}</span>
-                  <span className={`text-[9px] font-bold tracking-wide ${active ? "text-black" : "text-neutral-400"}`}>{item.label}</span>
-                  {active && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-[#3ecf4c] rounded-full" />}
-                </Link>
-              );
-            })}
+            <button
+              type="button"
+              onClick={event => openDrawer(event.currentTarget)}
+              aria-label="Ouvrir tous les outils d’administration"
+              aria-controls="admin-sidebar"
+              aria-expanded={open}
+              className="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl text-neutral-500 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] focus-visible:ring-inset"
+            >
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+              <span className="text-[10px] font-bold leading-3">Menu</span>
+              {totalAlerts > 0 && (
+                <span aria-label={`${totalAlerts} alerte${totalAlerts > 1 ? "s" : ""}`} className="absolute right-[calc(50%-20px)] top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-orange-500 px-1 text-[9px] font-black text-white shadow-sm">
+                  {totalAlerts > 9 ? "9+" : totalAlerts}
+                </span>
+              )}
+            </button>
           </div>
         </nav>
       </div>
