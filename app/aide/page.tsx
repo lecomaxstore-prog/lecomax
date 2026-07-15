@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSettings, getWhatsAppHref } from "@/lib/use-settings";
+import { shippingConfigFromSettings, formatShippingAmount } from "@/lib/shipping-config";
 
 const CartIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -104,6 +105,7 @@ const faqGroups = [
 
 export default function AidePage() {
   const siteSettings = useSettings();
+  const shippingConfig = shippingConfigFromSettings(siteSettings);
   const [activeGroup, setActiveGroup] = useState("commandes");
   const [openFaq, setOpenFaq] = useState<string | null>(null);
 
@@ -113,7 +115,7 @@ export default function AidePage() {
       ...group,
       faqs: group.faqs.map((faq) => faq.q !== "Quels sont les délais de livraison ?" ? faq : {
         ...faq,
-        a: `La livraison standard prend 3 à 5 jours ouvrables partout au Maroc. Les frais de livraison sont de ${siteSettings.shipping_cost || "35"} MAD (offerts dès ${siteSettings.free_shipping_threshold || "500"} MAD d'achats).`,
+        a: `La livraison standard prend ${shippingConfig.estimatedDays} partout au Maroc. Les frais de livraison sont de ${formatShippingAmount(shippingConfig.cost)} MAD${shippingConfig.freeThreshold > 0 ? ` (offerts dès ${formatShippingAmount(shippingConfig.freeThreshold)} MAD d'achats)` : ""}.`,
       }),
     });
   const current = visibleFaqGroups.find((g) => g.id === activeGroup) ?? visibleFaqGroups[0];

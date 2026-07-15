@@ -6,6 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import SessionExpiredModal from "@/components/SessionExpiredModal";
 import { CUSTOMER_SESSION_EXPIRED_EVENT, CUSTOMER_SESSION_KEY, customerApiFetch } from "@/lib/customer-api";
+import { useShippingConfig } from "@/lib/use-settings";
+import { formatShippingAmount } from "@/lib/shipping-config";
 
 const nav = [
   {
@@ -63,6 +65,7 @@ const TIER_COLORS: Record<string, string> = {
 };
 
 export default function CompteLayout({ children }: { children: React.ReactNode }) {
+  const shippingConfig = useShippingConfig();
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<{ email?: string; full_name?: string } | null>(null);
@@ -279,9 +282,13 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
           <div className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-2">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="1.75"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-              <p className="font-black text-[11px] text-green-700">35 MAD partout au Maroc</p>
+              <p className="font-black text-[11px] text-green-700">{formatShippingAmount(shippingConfig.cost)} MAD partout au Maroc</p>
             </div>
-            <p className="text-[10px] text-green-600 leading-relaxed">Livraison gratuite dès 500 MAD d&apos;achats</p>
+            <p className="text-[10px] text-green-600 leading-relaxed">
+              {shippingConfig.freeThreshold > 0
+                ? <>Livraison gratuite dès {formatShippingAmount(shippingConfig.freeThreshold)} MAD d&apos;achats</>
+                : "Tarif fixe sur toutes les commandes"}
+            </p>
           </div>
         </aside>
 

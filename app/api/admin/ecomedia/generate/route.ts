@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { verifySessionToken } from "@/lib/admin-session";
 import { NextRequest } from "next/server";
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { shippingSummary } from "@/lib/shipping-config";
 
 const groq = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
@@ -35,12 +37,13 @@ export async function POST(req: NextRequest) {
   const typeContext = type && typeHints[type] ? `Type de post : ${typeHints[type]}.` : "";
 
   try {
+    const shippingConfig = await getServerShippingConfig();
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [
         {
           role: "system",
-          content: `Tu es un expert en marketing digital et community manager pour L'ecomax, une boutique en ligne marocaine vendant chaussures de sport, vêtements, écouteurs Bluetooth, enceintes et accessoires gaming. Livraison 35 MAD au Maroc, paiement à la livraison.
+          content: `Tu es un expert en marketing digital et community manager pour L'ecomax, une boutique en ligne marocaine vendant chaussures de sport, vêtements, écouteurs Bluetooth, enceintes et accessoires gaming. ${shippingSummary(shippingConfig)} Paiement à la livraison.
 
 Tu vas créer du contenu pour Ecomedia — la plateforme communautaire de L'ecomax (style Instagram/TikTok).
 

@@ -12,6 +12,8 @@ import {
 import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import CategoryFilters from "@/components/CategoryFilters";
 import { sanitizePageHtml } from "@/lib/site-pages";
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { formatShippingAmount } from "@/lib/shipping-config";
 
 const valid = new Set(categories.map((c) => c.slug));
 
@@ -87,6 +89,8 @@ export async function generateMetadata({
   params: Promise<{ category: string }>;
 }): Promise<Metadata> {
   const { category } = await params;
+  const shippingConfig = await getServerShippingConfig();
+  const shippingAmount = `${formatShippingAmount(shippingConfig.cost)} MAD`;
   const staticCategory = categories.find((c) => c.slug === category);
   const dbCategory = await getDbCategory(category);
   const cat = dbCategory ? { label: dbCategory.label, description: dbCategory.description || staticCategory?.description || "", hero: dbCategory.image || staticCategory?.hero || "" } : staticCategory;
@@ -106,9 +110,10 @@ export async function generateMetadata({
     description: cat.description,
     keywords: [],
   };
+  const description = meta.description.replace(/35 MAD/g, shippingAmount);
   return {
     title: meta.title,
-    description: meta.description,
+    description,
     keywords: meta.keywords,
     alternates: { canonical: `${SITE_URL}/${category}/` },
     openGraph: {
@@ -116,13 +121,13 @@ export async function generateMetadata({
       locale: "fr_MA",
       url: `${SITE_URL}/${category}/`,
       title: meta.title,
-      description: meta.description,
+      description,
       images: [{ url: cat.hero.startsWith("http") ? cat.hero : `${SITE_URL}${cat.hero}`, width: 1200, height: 630, alt: cat.label }],
     },
     twitter: {
       card: "summary_large_image",
       title: meta.title,
-      description: meta.description,
+      description,
     },
   };
 }
@@ -139,6 +144,8 @@ export default async function CategoryPage({
   params: Promise<{ category: string }>;
 }) {
   const { category } = await params;
+  const shippingConfig = await getServerShippingConfig();
+  const shippingAmount = `${formatShippingAmount(shippingConfig.cost)} MAD`;
   const staticCategory = categories.find((item) => item.slug === category);
   const dbCategory = await getDbCategory(category);
 
@@ -205,7 +212,7 @@ export default async function CategoryPage({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": categoryMeta[category]?.title ?? `${cat.label} | L'ecomax`,
-    "description": categoryMeta[category]?.description ?? cat.description,
+    "description": (categoryMeta[category]?.description ?? cat.description).replace(/35 MAD/g, shippingAmount),
     "url": `${SITE_URL}/${category}/`,
     "inLanguage": "fr-MA",
     "numberOfItems": list.length,
@@ -296,7 +303,7 @@ export default async function CategoryPage({
             {categorySeoContent[category].heading}
           </h2>
           <p className="text-neutral-500 text-[14px] leading-relaxed">
-            {categorySeoContent[category].body}
+            {categorySeoContent[category].body.replace(/35 MAD/g, shippingAmount)}
           </p>
         </section>
       )}

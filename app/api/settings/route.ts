@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifySessionToken } from "@/lib/admin-session";
 import { revalidatePath } from "next/cache";
+import { shippingConfigFromSettings } from "@/lib/shipping-config";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,6 +39,9 @@ export async function POST(req: NextRequest) {
   if ("free_shipping_threshold" in values && (!Number.isFinite(freeThreshold) || freeThreshold < 0)) {
     return NextResponse.json({ error: "Le seuil de livraison gratuite doit être un nombre positif." }, { status: 400 });
   }
+  if ("shipping_estimated_days" in values && (typeof values.shipping_estimated_days !== "string" || !values.shipping_estimated_days.trim() || values.shipping_estimated_days.length > 80)) {
+    return NextResponse.json({ error: "Le délai de livraison doit contenir entre 1 et 80 caractères." }, { status: 400 });
+  }
   const rows = Object.entries(values).map(([key, value]) => ({
     key,
     value: String(value ?? ""),
@@ -46,5 +50,5 @@ export async function POST(req: NextRequest) {
   const { error } = await supabase.from("settings").upsert(rows, { onConflict: "key" });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   revalidatePath("/", "layout");
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, shipping: shippingConfigFromSettings(values) });
 }

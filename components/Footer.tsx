@@ -147,7 +147,9 @@ export default function Footer() {
                     ? `Livraison ${shippingCost} MAD`
                     : b.label}
                 </p>
-                <p className="text-[11px] text-white/40 mt-0.5">{b.dynamicLabel === "shipping" ? `Gratuite dès ${freeShippingThreshold} MAD` : b.sub}</p>
+                <p className="text-[11px] text-white/40 mt-0.5">{b.dynamicLabel === "shipping"
+                  ? Number(freeShippingThreshold) > 0 ? `Gratuite dès ${freeShippingThreshold} MAD` : "Tarif fixe partout au Maroc"
+                  : b.sub}</p>
               </div>
             </div>
           ))}

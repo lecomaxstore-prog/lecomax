@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { shippingConfigFromSettings } from "@/lib/shipping-config";
 
 export type SettingsMap = Record<string, string>;
 
@@ -74,6 +75,10 @@ export function useSettings() {
   }, []);
 
   return settings;
+}
+
+export function useShippingConfig() {
+  return shippingConfigFromSettings(useSettings());
 }
 
 export function getWhatsAppHref(settings: SettingsMap, message?: string) {

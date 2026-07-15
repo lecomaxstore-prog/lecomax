@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { formatShippingAmount } from "@/lib/shipping-config";
 
 export const metadata: Metadata = {
   title: "Aide & FAQ | L'ecomax — Questions Fréquentes",
@@ -21,7 +23,7 @@ export const metadata: Metadata = {
   },
 };
 
-const faqSchema = {
+const baseFaqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
@@ -78,11 +80,22 @@ const faqSchema = {
   ],
 };
 
-export default function AideLayout({
+export default async function AideLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const shippingConfig = await getServerShippingConfig();
+  const faqSchema = {
+    ...baseFaqSchema,
+    mainEntity: baseFaqSchema.mainEntity.map((item) => item.name !== "Quels sont les délais de livraison au Maroc ?" ? item : {
+      ...item,
+      acceptedAnswer: {
+        ...item.acceptedAnswer,
+        text: `La livraison standard prend ${shippingConfig.estimatedDays} partout au Maroc. Les frais de livraison sont de ${formatShippingAmount(shippingConfig.cost)} MAD${shippingConfig.freeThreshold > 0 ? ` (offerts dès ${formatShippingAmount(shippingConfig.freeThreshold)} MAD d'achats)` : ""}.`,
+      },
+    }),
+  };
   return (
     <>
       <script

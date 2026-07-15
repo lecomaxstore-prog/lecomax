@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 import { useSettings } from "@/lib/use-settings";
+import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
 
 /** Slug → color → image path — used to heal stale cart images */
 const COLOR_IMAGES: Record<string, Record<string, string>> = {
@@ -23,9 +24,10 @@ const COLOR_IMAGES: Record<string, Record<string, string>> = {
 export default function CartPage() {
   const { items, total, count, setQty, remove, clear } = useCart();
   const siteSettings = useSettings();
-  const shippingCost = Number(siteSettings.shipping_cost ?? 35);
-  const freeShippingThreshold = Number(siteSettings.free_shipping_threshold ?? 500);
-  const shipping = total >= freeShippingThreshold ? 0 : shippingCost;
+  const shippingConfig = shippingConfigFromSettings(siteSettings);
+  const shippingCost = shippingConfig.cost;
+  const freeShippingThreshold = shippingConfig.freeThreshold;
+  const shipping = calculateShipping(total, shippingConfig);
 
   const [promoInput, setPromoInput] = useState("");
   const [promoApplied, setPromoApplied] = useState<null | {
@@ -262,7 +264,11 @@ export default function CartPage() {
               {/* Shipping info */}
               <div className="px-6 py-3 bg-[#f0fdf4] border-b border-[#3ecf4c]/20 flex items-center gap-2 text-[11px] font-black text-[#16a34a] uppercase tracking-wider">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                  {total >= freeShippingThreshold ? "Livraison gratuite 🎉" : `Livraison ${shippingCost} MAD — gratuite dès ${freeShippingThreshold} MAD`}
+                  {shipping === 0
+                    ? "Livraison gratuite 🎉"
+                    : freeShippingThreshold > 0
+                      ? `Livraison ${shippingCost} MAD — gratuite dès ${freeShippingThreshold} MAD`
+                      : `Livraison ${shippingCost} MAD partout au Maroc`}
               </div>
 
               {/* Column headers */}
@@ -508,7 +514,7 @@ export default function CartPage() {
 
                   <p className="text-center text-[11px] text-neutral-400 mt-3 flex items-center justify-center gap-1.5">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#3ecf4c]"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    Paiement sécurisé · Livraison gratuite dès {freeShippingThreshold} MAD
+                    Paiement sécurisé · {freeShippingThreshold > 0 ? `Livraison gratuite dès ${freeShippingThreshold} MAD` : `Livraison ${shippingCost} MAD`}
                   </p>
                 </div>
               </div>
