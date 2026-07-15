@@ -9,6 +9,7 @@ import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 import { useSettings } from "@/lib/use-settings";
 import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
+import { supabase } from "@/lib/supabase";
 
 type Field = {
   prenom: string; nom: string; email: string; telephone: string;
@@ -20,41 +21,114 @@ const empty: Field = {
   adresse: "", ville: "", codePostal: "",
 };
 
+type SavedAddress = {
+  id: string;
+  label: string;
+  fullName: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  zip?: string;
+  country?: string;
+  phone?: string;
+  isDefault?: boolean;
+};
+
+function getEmailError(value: string): string | undefined {
+  const email = value.trim();
+  if (!email) return "L’adresse e-mail est obligatoire.";
+  if (
+    email.length > 254 ||
+    email.includes("..") ||
+    !/^[^\s@.][^\s@]*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,63}$/.test(email)
+  ) {
+    return "Saisissez une adresse e-mail valide, par exemple nom@gmail.com.";
+  }
+  return undefined;
+}
+
+function getPhoneError(value: string): string | undefined {
+  const raw = value.trim();
+  if (!raw) return "Le numéro de téléphone est obligatoire.";
+
+  let normalized = raw.replace(/[\s().-]/g, "");
+  if (normalized.startsWith("+212")) normalized = `0${normalized.slice(4)}`;
+  else if (normalized.startsWith("00212")) normalized = `0${normalized.slice(5)}`;
+  else if (normalized.startsWith("212")) normalized = `0${normalized.slice(3)}`;
+
+  if (/^0?[67]?\d*$/.test(normalized) && normalized.length < 10) {
+    return "Numéro incomplet — saisissez les 10 chiffres.";
+  }
+  if (!/^0[67]\d{8}$/.test(normalized)) {
+    return "Saisissez un numéro marocain valide, par exemple 06 12 34 56 78.";
+  }
+  return undefined;
+}
+
 
 
 
 
 function Input({
-  label, name, value, error, type = "text", placeholder, icon, onChange,
+  label, name, value, error, type = "text", placeholder, icon, onChange, onBlur,
 }: {
   label: string; name: keyof Field; value: string; error?: string;
   type?: string; placeholder?: string; icon?: React.ReactNode;
   onChange: (k: keyof Field, v: string) => void;
+  onBlur?: (k: keyof Field, v: string) => void;
 }) {
+  const required = label.trim().endsWith("*");
+  const cleanLabel = label.replace(/\s*\*\s*$/, "");
+  const autoComplete: Partial<Record<keyof Field, string>> = {
+    prenom: "given-name",
+    nom: "family-name",
+    email: "email",
+    telephone: "tel",
+    adresse: "street-address",
+    ville: "address-level2",
+    codePostal: "postal-code",
+  };
+  const canShowSuccess = !!value && !error &&
+    (name !== "email" || !getEmailError(value)) &&
+    (name !== "telephone" || !getPhoneError(value));
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-[10px] font-black uppercase tracking-[0.12em] text-neutral-400">
-        {label}
+    <div className="flex flex-col gap-2">
+      <label htmlFor={`checkout-${name}`} className="text-[10px] font-black uppercase tracking-[0.14em] text-neutral-600">
+        {cleanLabel}{required && <span className="ml-1 text-[#27bd3b]">*</span>}
       </label>
       <div className="relative">
         {icon && (
-          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none">
+          <div className="absolute left-4 top-6 -translate-y-1/2 text-neutral-400 pointer-events-none">
             {icon}
           </div>
         )}
         <input
+          id={`checkout-${name}`}
+          name={name}
           type={type}
           value={value}
           placeholder={placeholder}
+          autoComplete={autoComplete[name]}
+          inputMode={name === "telephone" ? "tel" : name === "codePostal" ? "numeric" : undefined}
+          maxLength={name === "telephone" ? 20 : undefined}
+          aria-invalid={!!error}
+          aria-describedby={error ? `checkout-${name}-error` : undefined}
+          required={required}
           onChange={(e) => onChange(name, e.target.value)}
-          className={`w-full ${icon ? "pl-10" : "pl-3.5"} pr-4 h-11 text-[13px] border outline-none transition-all duration-150
+          onBlur={() => onBlur?.(name, value)}
+          className={`w-full ${icon ? "pl-11" : "pl-4"} ${canShowSuccess ? "pr-11" : "pr-4"} h-12 rounded-xl text-[13px] font-medium border outline-none transition-all duration-200 placeholder:text-neutral-300
             ${error
-              ? "border-red-300 bg-red-50/40 focus:border-red-400"
-              : "border-neutral-200 bg-white hover:border-neutral-300 focus:border-[#3ecf4c] focus:ring-2 focus:ring-[#3ecf4c]/10"
+              ? "border-red-300 bg-red-50/50 focus:border-red-400 focus:ring-4 focus:ring-red-100"
+              : "border-neutral-200 bg-neutral-50/70 hover:border-neutral-300 hover:bg-white focus:border-[#3ecf4c] focus:bg-white focus:ring-4 focus:ring-[#3ecf4c]/10"
             }`}
         />
+        {canShowSuccess && (
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-[#27bd3b] pointer-events-none">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 4 4L19 6"/></svg>
+          </span>
+        )}
         {error && (
-          <p className="mt-1 text-[10px] text-red-500 font-semibold flex items-center gap-1" data-field-error="true">
+          <p id={`checkout-${name}-error`} className="mt-1.5 text-[10px] text-red-500 font-semibold flex items-center gap-1" data-field-error="true">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
             {error}
           </p>
@@ -94,26 +168,31 @@ function CityInput({ value, error, onChange }: { value: string; error?: string; 
   }, []);
 
   return (
-    <div className="flex flex-col gap-1.5" ref={ref}>
-      <label className="text-[10px] font-black uppercase tracking-[0.12em] text-neutral-400">Ville *</label>
+    <div className="flex flex-col gap-2" ref={ref}>
+      <label htmlFor="checkout-ville" className="text-[10px] font-black uppercase tracking-[0.14em] text-neutral-600">Ville <span className="text-[#27bd3b]">*</span></label>
       <div className="relative">
-        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none">
+        <div className="absolute left-4 top-6 -translate-y-1/2 text-neutral-400 pointer-events-none">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         </div>
         <input
+          id="checkout-ville"
+          name="ville"
           type="text"
           value={value}
           placeholder="Ex: Casablanca"
-          autoComplete="off"
+          autoComplete="address-level2"
+          required
+          aria-invalid={!!error}
+          aria-describedby={error ? "checkout-ville-error" : undefined}
           onChange={e => { onChange(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
-          className={`w-full pl-10 pr-4 h-11 text-[13px] border outline-none transition-all duration-150 ${
-            error ? "border-red-300 bg-red-50/40 focus:border-red-400"
-                  : "border-neutral-200 bg-white hover:border-neutral-300 focus:border-[#3ecf4c] focus:ring-2 focus:ring-[#3ecf4c]/10"
+          className={`w-full pl-11 pr-4 h-12 rounded-xl text-[13px] font-medium border outline-none transition-all duration-200 placeholder:text-neutral-300 ${
+            error ? "border-red-300 bg-red-50/50 focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                  : "border-neutral-200 bg-neutral-50/70 hover:border-neutral-300 hover:bg-white focus:border-[#3ecf4c] focus:bg-white focus:ring-4 focus:ring-[#3ecf4c]/10"
           }`}
         />
         {open && suggestions.length > 0 && (
-          <ul className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-neutral-200 shadow-lg overflow-hidden" style={{ borderRadius: 8 }}>
+          <ul className="absolute z-50 top-full left-0 right-0 mt-2 rounded-xl bg-white border border-neutral-200 shadow-[0_16px_40px_rgba(0,0,0,0.14)] overflow-hidden">
             {suggestions.map(city => (
               <li
                 key={city}
@@ -128,7 +207,7 @@ function CityInput({ value, error, onChange }: { value: string; error?: string; 
         )}
       </div>
       {error && (
-        <p className="mt-1 text-[10px] text-red-500 font-semibold flex items-center gap-1">
+        <p id="checkout-ville-error" className="mt-1 text-[10px] text-red-500 font-semibold flex items-center gap-1">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
           {error}
         </p>
@@ -137,18 +216,22 @@ function CityInput({ value, error, onChange }: { value: string; error?: string; 
   );
 }
 
-function Section({ step, title, icon, children }: { step: number; title: string; icon: React.ReactNode; children: React.ReactNode }) {
+function Section({ step, title, subtitle, icon, children }: { step: number; title: string; subtitle?: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-neutral-200" style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-      <div className="flex items-center gap-3.5 px-5 py-4 border-b border-neutral-100" style={{ borderLeft: "3px solid #3ecf4c" }}>
-        <div className="w-6 h-6 flex items-center justify-center shrink-0 font-black text-[11px]" style={{ background: "#3ecf4c", color: "#000" }}>
+    <section className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-[0_10px_35px_rgba(15,23,42,0.06)] transition-shadow duration-300 hover:shadow-[0_14px_42px_rgba(15,23,42,0.09)]">
+      <div className="relative flex items-center gap-3.5 border-b border-neutral-100 bg-gradient-to-r from-emerald-50/70 via-white to-white px-5 py-4 sm:px-6 sm:py-5">
+        <div className="absolute inset-y-0 left-0 w-1 bg-[#3ecf4c]" />
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-black text-[12px] shadow-sm" style={{ background: "#3ecf4c", color: "#071108" }}>
           {step}
         </div>
-        <h2 className="font-black text-[13px] uppercase tracking-[0.1em] text-neutral-800">{title}</h2>
-        <div className="ml-auto text-neutral-300">{icon}</div>
+        <div className="min-w-0">
+          <h2 className="font-black text-[13px] sm:text-[14px] uppercase tracking-[0.1em] text-neutral-900">{title}</h2>
+          {subtitle && <p className="mt-0.5 text-[10px] sm:text-[11px] font-medium text-neutral-400">{subtitle}</p>}
+        </div>
+        <div className="ml-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-neutral-900 shadow-sm">{icon}</div>
       </div>
       <div className="p-5 sm:p-6">{children}</div>
-    </div>
+    </section>
   );
 }
 
@@ -157,10 +240,22 @@ export default function CheckoutPage() {
   const { items, total, clear } = useCart();
   const [form, setForm] = useState<Field>(empty);
   const [errors, setErrors] = useState<Partial<Field>>({});
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [addressMode, setAddressMode] = useState<"saved" | "new">("new");
+  const [accountDetailsLoaded, setAccountDetailsLoaded] = useState(false);
   const [payment, setPayment] = useState<"livraison" | "paypal">("livraison");
   const [loading, setLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
-  const [couponApplied, setCouponApplied] = useState<{ id: string; code: string; type: string; value: number; discount: number } | null>(null);
+  const [couponApplied, setCouponApplied] = useState<{
+    id: string;
+    code: string;
+    type: string;
+    value: number;
+    discount: number;
+    excludedItemsCount: number;
+    excludedSubtotal: number;
+  } | null>(null);
   const [couponError, setCouponError] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
   // EcoClub loyalty discount
@@ -176,6 +271,76 @@ export default function CheckoutPage() {
   const paypalDataRef = useRef({ form, items, grandTotal: 0, shipping: 0, couponApplied, discount: 0 });
   // Track if error originated from form validation (not from PayPal itself)
   const paypalFormErrorRef = useRef(false);
+
+  const applySavedAddress = (address: SavedAddress) => {
+    const fullNameParts = address.fullName.trim().split(/\s+/).filter(Boolean);
+    setSelectedAddressId(address.id);
+    setAddressMode("saved");
+    setForm((current) => ({
+      ...current,
+      prenom: fullNameParts[0] || current.prenom,
+      nom: fullNameParts.slice(1).join(" ") || current.nom,
+      telephone: address.phone || current.telephone,
+      adresse: [address.line1, address.line2].filter(Boolean).join(", "),
+      ville: address.city,
+      codePostal: address.zip || "",
+    }));
+    setErrors((current) => ({
+      ...current,
+      prenom: undefined,
+      nom: undefined,
+      telephone: undefined,
+      adresse: undefined,
+      ville: undefined,
+      codePostal: undefined,
+    }));
+  };
+
+  const chooseNewAddress = () => {
+    setSelectedAddressId(null);
+    setAddressMode("new");
+    setForm((current) => ({ ...current, adresse: "", ville: "", codePostal: "" }));
+    setErrors((current) => ({ ...current, adresse: undefined, ville: undefined, codePostal: undefined }));
+  };
+
+  // Signed-in customers get their profile and default delivery address prefilled.
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!active) return;
+      if (!session) {
+        setAccountDetailsLoaded(true);
+        return;
+      }
+
+      const metadata = session.user.user_metadata ?? {};
+      const profileName = String(metadata.full_name || metadata.name || "").trim();
+      const profileParts = profileName.split(/\s+/).filter(Boolean);
+      const addresses = Array.isArray(metadata.addresses)
+        ? (metadata.addresses as SavedAddress[]).filter((address) =>
+            address && typeof address.id === "string" && typeof address.fullName === "string" &&
+            typeof address.line1 === "string" && typeof address.city === "string" &&
+            (!address.country || (typeof address.country === "string" && address.country.toLowerCase() === "maroc"))
+          )
+        : [];
+
+      setSavedAddresses(addresses);
+      setForm((current) => ({
+        ...current,
+        prenom: current.prenom || metadata.prenom || profileParts[0] || "",
+        nom: current.nom || metadata.nom || profileParts.slice(1).join(" ") || "",
+        email: current.email || session.user.email || "",
+        telephone: current.telephone || metadata.phone || "",
+      }));
+
+      const preferred = addresses.find((address) => address.isDefault) ?? addresses[0];
+      if (preferred) applySavedAddress(preferred);
+      setAccountDetailsLoaded(true);
+    }).catch(() => setAccountDetailsLoaded(true));
+    return () => { active = false; };
+  // The profile should hydrate once when checkout opens.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fire begin_checkout once when user lands on checkout with items
   useEffect(() => {
@@ -242,6 +407,7 @@ export default function CheckoutPage() {
   const loyaltyDiscountAmount = effectiveLoyaltyDiscountPct > 0 ? Math.round(((total - couponDiscount) * effectiveLoyaltyDiscountPct) / 100) : 0;
   const discount = couponDiscount + loyaltyDiscountAmount;
   const grandTotal = Math.max(0, total + shipping - discount);
+  const selectedAddress = savedAddresses.find((address) => address.id === selectedAddressId) ?? null;
 
   // Keep paypalDataRef in sync with latest state so PayPal callbacks are never stale
   paypalDataRef.current = { form, items, grandTotal, shipping, couponApplied, discount };
@@ -349,29 +515,52 @@ export default function CheckoutPage() {
     setCouponLoading(true);
     setCouponError("");
     setCouponApplied(null);
-    const res = await fetch("/api/coupons/validate", {
+    const res = await fetch("/api/coupons/validate/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: couponCode.trim(), order_total: total + shipping }),
+      body: JSON.stringify({
+        code: couponCode.trim(),
+        items: items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
+      }),
     });
     const data = await res.json();
     setCouponLoading(false);
     if (!res.ok) setCouponError(data.error ?? "Code invalide");
-    else setCouponApplied(data);
+    else setCouponApplied({
+      ...data,
+      excludedItemsCount: data.excluded_items_count ?? 0,
+      excludedSubtotal: data.excluded_subtotal ?? 0,
+    });
   };
 
   const set = (k: keyof Field, v: string) => {
     setForm((f) => ({ ...f, [k]: v }));
-    setErrors((e) => ({ ...e, [k]: undefined }));
+    setErrors((current) => ({
+      ...current,
+      [k]: k === "email" && current.email
+        ? getEmailError(v)
+        : k === "telephone" && v.trim()
+          ? getPhoneError(v)
+          : undefined,
+    }));
+  };
+
+  const validateField = (k: keyof Field, value: string) => {
+    if (k === "email") {
+      setErrors((current) => ({ ...current, email: getEmailError(value) }));
+    } else if (k === "telephone") {
+      setErrors((current) => ({ ...current, telephone: getPhoneError(value) }));
+    }
   };
 
   const validate = (f: Field = form): Partial<Field> => {
     const e: Partial<Field> = {};
     if (!f.prenom.trim()) e.prenom = "Requis";
     if (!f.nom.trim()) e.nom = "Requis";
-    if (!f.email.trim()) e.email = "Requis";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) e.email = "Email invalide";
-    if (!/^[0-9+\s\-()]{8,15}$/.test(f.telephone)) e.telephone = "Numéro invalide";
+    const emailError = getEmailError(f.email);
+    if (emailError) e.email = emailError;
+    const phoneError = getPhoneError(f.telephone);
+    if (phoneError) e.telephone = phoneError;
     if (!f.adresse.trim()) e.adresse = "Requis";
     if (!f.ville.trim()) e.ville = "Requis";
     return e;
@@ -572,47 +761,107 @@ export default function CheckoutPage() {
           <div className="flex flex-col gap-4">
 
             {/* Section 1 */}
-            <Section step={1} title="Vos coordonnées" icon={
+            <Section step={1} title="Vos coordonnées" subtitle="Pour vous contacter au sujet de votre commande" icon={
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             }>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-4">
                 <Input label="Prénom *" name="prenom" value={form.prenom} error={errors.prenom} onChange={set} placeholder="Mohammed"
                   icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>} />
                 <Input label="Nom *" name="nom" value={form.nom} error={errors.nom} onChange={set} placeholder="El Idrissi" />
               </div>
-              <div className="mt-4 grid grid-cols-1 gap-4">
-                <Input label="Adresse email" name="email" value={form.email} error={errors.email} type="email" onChange={set} placeholder="exemple@gmail.com"
+              <div className="mt-5 grid grid-cols-1 gap-5">
+                <Input label="Adresse email *" name="email" value={form.email} error={errors.email} type="email" onChange={set} onBlur={validateField} placeholder="exemple@gmail.com"
                   icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>} />
-                <Input label="Téléphone *" name="telephone" value={form.telephone} error={errors.telephone} type="tel" onChange={set} placeholder="06 12 34 56 78"
+                <Input label="Téléphone *" name="telephone" value={form.telephone} error={errors.telephone} type="tel" onChange={set} onBlur={validateField} placeholder="06 12 34 56 78"
                   icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.39 2 2 0 0 1 3.59 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.97-.97a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>} />
               </div>
             </Section>
 
             {/* Section 2 */}
-            <Section step={2} title="Adresse de livraison" icon={
+            <Section step={2} title="Adresse de livraison" subtitle="Indiquez précisément où recevoir votre colis" icon={
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             }>
-              <div className="flex flex-col gap-4">
-                <Input label="Adresse complète *" name="adresse" value={form.adresse} error={errors.adresse} onChange={set} placeholder="Rue, numéro, quartier…"
-                  icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>} />
-                <div className="grid grid-cols-2 gap-4">
-                  <CityInput value={form.ville} error={errors.ville} onChange={v => set("ville", v)} />
-                  <Input label="Code postal" name="codePostal" value={form.codePostal} onChange={set} placeholder="24350" />
+              {!accountDetailsLoaded ? (
+                <div className="flex items-center gap-3 rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-5 text-neutral-400">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-200 border-t-[#3ecf4c]" />
+                  <span className="text-[11px] font-bold">Recherche de vos adresses enregistrées…</span>
                 </div>
-                {/* Country */}
-                <div>
-                  <label className="text-[11px] font-bold uppercase tracking-[0.1em] text-neutral-400 block mb-1">Pays</label>
-                  <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 border border-neutral-200">
-                    <span className="text-base">🇲🇦</span>
-                    <span className="text-[13px] font-semibold text-neutral-600">Maroc</span>
-                    <span className="ml-auto text-[10px] text-neutral-400 uppercase tracking-wider font-bold">Uniquement</span>
-                  </div>
+              ) : (
+                <div className="flex flex-col gap-5">
+                  {savedAddresses.length > 0 && (
+                    <div>
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-[11px] font-black text-neutral-900">Quelle adresse souhaitez-vous utiliser ?</p>
+                          <p className="mt-0.5 text-[10px] text-neutral-400">Votre adresse par défaut est présélectionnée.</p>
+                        </div>
+                        <Link href="/compte/adresses" className="shrink-0 text-[9px] font-black uppercase tracking-wider text-neutral-400 hover:text-black">Gérer</Link>
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {savedAddresses.map((address) => {
+                          const selected = addressMode === "saved" && selectedAddressId === address.id;
+                          return (
+                            <button
+                              key={address.id}
+                              type="button"
+                              aria-pressed={selected}
+                              onClick={() => applySavedAddress(address)}
+                              className={`relative rounded-xl border-2 p-4 text-left transition-all ${selected ? "border-[#3ecf4c] bg-emerald-50/60 shadow-[0_8px_22px_rgba(62,207,76,0.10)]" : "border-neutral-200 bg-white hover:border-neutral-300"}`}
+                            >
+                              <div className="mb-2 flex items-center gap-2 pr-6">
+                                <span className="font-black text-[11px] uppercase tracking-wider text-neutral-900">{address.label || "Adresse"}</span>
+                                {address.isDefault && <span className="rounded-full bg-black px-2 py-0.5 text-[8px] font-black uppercase tracking-wider text-white">Par défaut</span>}
+                              </div>
+                              <p className="text-[11px] font-semibold text-neutral-700">{address.fullName}</p>
+                              <p className="mt-1 text-[10px] leading-relaxed text-neutral-500">{address.line1}{address.line2 ? `, ${address.line2}` : ""}<br />{address.zip ? `${address.zip} ` : ""}{address.city}</p>
+                              <span className={`absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full border-2 ${selected ? "border-[#3ecf4c] bg-[#3ecf4c] text-black" : "border-neutral-300 text-transparent"}`}>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m5 12 4 4L19 6"/></svg>
+                              </span>
+                            </button>
+                          );
+                        })}
+                        <button
+                          type="button"
+                          aria-pressed={addressMode === "new"}
+                          onClick={chooseNewAddress}
+                          className={`flex min-h-[116px] items-center gap-3 rounded-xl border-2 border-dashed p-4 text-left transition-all ${addressMode === "new" ? "border-black bg-neutral-50" : "border-neutral-200 bg-white hover:border-neutral-400"}`}
+                        >
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black text-white"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg></span>
+                          <span><strong className="block text-[11px] font-black text-neutral-900">Utiliser une nouvelle adresse</strong><span className="mt-1 block text-[10px] leading-relaxed text-neutral-400">Saisir une autre destination pour cette commande</span></span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {addressMode === "saved" && selectedAddress ? (
+                    <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3.5">
+                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#3ecf4c] text-black"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m5 12 4 4L19 6"/></svg></span>
+                      <div><p className="text-[11px] font-black text-emerald-900">Adresse renseignée automatiquement</p><p className="mt-0.5 text-[10px] leading-relaxed text-emerald-700">Votre colis sera livré à l&apos;adresse « {selectedAddress.label || "enregistrée"} ».</p></div>
+                    </div>
+                  ) : (
+                    <>
+                      <Input label="Adresse complète *" name="adresse" value={form.adresse} error={errors.adresse} onChange={set} placeholder="Rue, numéro, quartier…"
+                        icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>} />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-4">
+                        <CityInput value={form.ville} error={errors.ville} onChange={v => set("ville", v)} />
+                        <Input label="Code postal" name="codePostal" value={form.codePostal} onChange={set} placeholder="24350" />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black uppercase tracking-[0.14em] text-neutral-600 block mb-2">Pays</label>
+                        <div className="flex h-12 items-center gap-3 rounded-xl border border-neutral-200 bg-neutral-50/70 px-4">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-base shadow-sm">🇲🇦</span>
+                          <span className="text-[13px] font-bold text-neutral-700">Maroc</span>
+                          <span className="ml-auto rounded-full bg-neutral-200/70 px-2.5 py-1 text-[9px] text-neutral-500 uppercase tracking-wider font-black">Livraison nationale</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
+              )}
             </Section>
 
             {/* Section 3 */}
-            <Section step={3} title="Mode de paiement" icon={
+            <Section step={3} title="Mode de paiement" subtitle="Choisissez votre option de règlement" icon={
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
             }>
               <div className="flex flex-col gap-3">
@@ -620,14 +869,14 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPayment("livraison")}
-                  className={`group relative flex items-center gap-4 p-4 border-2 text-left transition-all duration-150 ${
+                  className={`group relative flex items-center gap-4 rounded-xl p-4 border-2 text-left transition-all duration-150 ${
                     payment === "livraison"
                       ? "border-[#3ecf4c] text-black"
                       : "border-neutral-200 bg-white hover:border-neutral-300"
                   }`}
                   style={payment === "livraison" ? { background: "#f0fdf4" } : {}}
                 >
-                  <div className={`w-11 h-11 flex items-center justify-center shrink-0 transition-colors ${
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                     payment === "livraison" ? "bg-[#3ecf4c]/15" : "bg-neutral-100"
                   }`}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={payment === "livraison" ? "#16a34a" : "#555"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -657,14 +906,14 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPayment("paypal")}
-                  className={`group relative flex items-center gap-4 p-4 border-2 text-left transition-all duration-150 ${
+                  className={`group relative flex items-center gap-4 rounded-xl p-4 border-2 text-left transition-all duration-150 ${
                     payment === "paypal"
                       ? "border-[#0070ba]"
                       : "border-neutral-200 bg-white hover:border-neutral-300"
                   }`}
                   style={payment === "paypal" ? { background: "#f0f7ff" } : {}}
                 >
-                  <div className={`w-11 h-11 flex items-center justify-center shrink-0 transition-colors ${
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                     payment === "paypal" ? "bg-[#0070ba]/10" : "bg-neutral-100"
                   }`}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 46" width="22" height="28">
@@ -789,8 +1038,20 @@ export default function CheckoutPage() {
                         {couponLoading ? "..." : "Appliquer"}
                       </button>
                     </div>
+                    <p className="mt-2 text-[10px] font-medium leading-relaxed text-neutral-400">
+                      Non cumulable avec les promotions déjà appliquées aux produits.
+                    </p>
                     {couponError && <p className="mt-2 text-[11px] font-semibold text-red-600">{couponError}</p>}
-                    {couponApplied && <p className="mt-2 text-[11px] font-bold text-emerald-600">✓ {couponApplied.code} appliqué : − {formatMAD(couponApplied.discount)}</p>}
+                    {couponApplied && (
+                      <div className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2">
+                        <p className="text-[11px] font-bold text-emerald-700">✓ {couponApplied.code} appliqué : − {formatMAD(couponApplied.discount)}</p>
+                        {couponApplied.excludedItemsCount > 0 && (
+                          <p className="mt-1 text-[10px] font-semibold leading-relaxed text-amber-700">
+                            Les articles déjà en promotion ({formatMAD(couponApplied.excludedSubtotal)}) ne bénéficient pas du code.
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
                 <div className="flex justify-between text-sm text-neutral-500">

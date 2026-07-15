@@ -185,11 +185,15 @@ export async function middleware(req: NextRequest) {
   const isAdminApiWrite =
     req.method !== "GET" &&
     !pathname.startsWith("/api/admin/auth/") &&
+    !pathname.startsWith("/api/coupons/validate") &&
     /^\/api\/(products|coupons|promotions|categories|settings|announcements|shipping|size-guide|newsletter|admin\/)/.test(
       pathname
     );
+  const isCouponManagementApi =
+    pathname.startsWith("/api/coupons") &&
+    !pathname.startsWith("/api/coupons/validate");
 
-  if (isAdminApiWrite) {
+  if (isAdminApiWrite || isCouponManagementApi) {
     // Reject cross-origin write requests (CSRF defence in depth)
     if (!isSameOrigin(req)) {
       return NextResponse.json({ error: "Origine non autorisée" }, { status: 403 });
