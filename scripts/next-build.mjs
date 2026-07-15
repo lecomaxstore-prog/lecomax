@@ -13,6 +13,7 @@ const buildFallbacks = {
   NEXT_PUBLIC_SUPABASE_URL: "https://preview-build-placeholder.supabase.co",
   NEXT_PUBLIC_SUPABASE_ANON_KEY: "preview-build-placeholder-anon-key",
   SUPABASE_SERVICE_ROLE_KEY: "preview-build-placeholder-service-key",
+  RESEND_API_KEY: "re_preview_build_placeholder",
 };
 
 const missing = [];
