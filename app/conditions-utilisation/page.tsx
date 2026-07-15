@@ -1,5 +1,7 @@
 ﻿import Link from "next/link";
 
+import ShippingTermsItem from "@/components/ShippingTermsItem";
+
 export const metadata = {
   title: "Conditions d'utilisation | L'ecomax",
   description: "Les conditions générales d'utilisation du site L'ecomax.",
@@ -45,7 +47,7 @@ const sections = [
     title: "Livraison",
     items: [
       "Délai de livraison estimé : 3 à 5 jours ouvrables sur l'ensemble du territoire marocain",
-      "Frais de livraison : 35 MAD — offerts à partir de 500 MAD d'achats",
+      <ShippingTermsItem key="shipping-terms" />,
       "L'ecomax ne saurait être tenu responsable des retards imputables aux transporteurs",
       "Service disponible dans toutes les régions du Maroc",
     ],
@@ -209,8 +211,8 @@ export default function ConditionsUtilisationPage() {
 
                   {s.items && (
                     <ul className="space-y-3 pl-[calc(2.75rem)]">
-                      {s.items.map((item: string) => (
-                        <li key={item} className="flex items-start gap-3 text-[14px] text-neutral-500 leading-relaxed">
+                      {s.items.map((item, index) => (
+                        <li key={`${s.id}-${index}`} className="flex items-start gap-3 text-[14px] text-neutral-500 leading-relaxed">
                           <span className="mt-2.5 w-4 h-px bg-[#3ecf4c] shrink-0" />
                           {item}
                         </li>

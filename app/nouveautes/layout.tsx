@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { withShippingMetadata } from "@/lib/shipping-config-server";
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: "Nouveautés | L'ecomax — Dernières Arrivées au Maroc",
   description:
     "Découvrez les dernières nouveautés L'ecomax : chaussures, vêtements et accessoires tech en édition limitée. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
@@ -34,6 +35,8 @@ export const metadata: Metadata = {
     description: "Découvrez les dernières arrivées L'ecomax au Maroc.",
   },
 };
+
+export function generateMetadata() { return withShippingMetadata(baseMetadata); }
 
 export default function NouveautesLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;

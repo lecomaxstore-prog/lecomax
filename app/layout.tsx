@@ -20,6 +20,8 @@ import AdsDisplay from "@/components/AdsDisplay";
 import PushPrompt from "@/components/PushPrompt";
 import ChatWidget from "@/components/ChatWidget";
 import { createClient } from "@supabase/supabase-js";
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { formatShippingAmount, shippingConfigFromSettings } from "@/lib/shipping-config";
 
 
 const inter = Inter({
@@ -135,7 +137,7 @@ export async function generateMetadata(): Promise<Metadata> {
       process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
     const { data } = await supabase.from("settings").select("key,value").in("key", [
-      "store_name", "seo_title", "seo_description", "favicon_image", "og_image",
+      "store_name", "seo_title", "seo_description", "favicon_image", "og_image", "shipping_cost", "free_shipping_threshold", "shipping_estimated_days",
     ]);
     const settings = Object.fromEntries((data ?? []).map((row) => [row.key, String(row.value ?? "")]));
     const storeName = settings.store_name || "L'ecomax";
@@ -143,24 +145,28 @@ export async function generateMetadata(): Promise<Metadata> {
     const seoDescription = settings.seo_description?.trim();
     const favicon = settings.favicon_image?.trim();
     const ogImage = settings.og_image?.trim();
+    const shippingConfig = shippingConfigFromSettings(settings);
+    const replaceShipping = (value: unknown) => typeof value === "string"
+      ? value.replace(/35 MAD/g, `${formatShippingAmount(shippingConfig.cost)} MAD`)
+      : value;
 
     return {
       ...defaultMetadata,
       applicationName: storeName,
       title: seoTitle ? { default: seoTitle, template: `%s · ${storeName}` } : defaultMetadata.title,
-      description: seoDescription || defaultMetadata.description,
+      description: seoDescription || replaceShipping(defaultMetadata.description),
       icons: favicon ? { icon: favicon, shortcut: favicon, apple: favicon } : defaultMetadata.icons,
       openGraph: {
         ...defaultMetadata.openGraph,
         siteName: storeName,
         title: seoTitle || defaultMetadata.openGraph?.title,
-        description: seoDescription || defaultMetadata.openGraph?.description,
+        description: seoDescription || replaceShipping(defaultMetadata.openGraph?.description),
         images: ogImage ? [{ url: ogImage, alt: storeName }] : defaultMetadata.openGraph?.images,
       },
       twitter: {
         ...defaultMetadata.twitter,
         title: seoTitle || defaultMetadata.twitter?.title,
-        description: seoDescription || defaultMetadata.twitter?.description,
+        description: seoDescription || replaceShipping(defaultMetadata.twitter?.description),
         images: ogImage ? [ogImage] : defaultMetadata.twitter?.images,
       },
     };
@@ -169,11 +175,12 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const shippingConfig = await getServerShippingConfig();
   return (
     <html lang="fr" className={`${inter.variable} ${sora.variable}`}>
       <head>
@@ -213,7 +220,7 @@ export default function RootLayout({
       "url": "${SITE_URL}",
       "foundingLocation": { "@type": "Place", "name": "Sidi Bennour, Maroc" },
       "logo": { "@type": "ImageObject", "url": "${SITE_URL}/images/lecomax%20logo.png" },
-      "description": "L'ecomax est une boutique en ligne marocaine fondée à Sidi Bennour, spécialisée dans les chaussures de sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc.",
+      "description": "L'ecomax est une boutique en ligne marocaine fondée à Sidi Bennour, spécialisée dans les chaussures de sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison ${formatShippingAmount(shippingConfig.cost)} MAD partout au Maroc.",
       "areaServed": { "@type": "Country", "name": "Maroc" },
       "contactPoint": { "@type": "ContactPoint", "contactType": "customer service", "telephone": "+212-699-289-568", "availableLanguage": ["French", "Arabic"] },
       "sameAs": ["https://www.instagram.com/lecomaxcom", "https://www.tiktok.com/@lecomaxcom", "https://www.facebook.com/lecomaxcom"]
@@ -234,7 +241,7 @@ export default function RootLayout({
       "name": "L'ecomax",
       "url": "${SITE_URL}",
       "image": "${SITE_URL}/ecomax-hero-banner.jpg.png",
-      "description": "L'ecomax — boutique en ligne au Maroc : chaussures sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc, paiement à la livraison.",
+      "description": "L'ecomax — boutique en ligne au Maroc : chaussures sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison ${formatShippingAmount(shippingConfig.cost)} MAD partout au Maroc, paiement à la livraison.",
       "priceRange": "69 MAD - 849 MAD",
       "currenciesAccepted": "MAD",
       "paymentAccepted": "Paiement à la livraison, Carte bancaire, PayPal",

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { withShippingMetadata } from "@/lib/shipping-config-server";
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: "Promotions & Soldes | L'ecomax — Maroc",
   description:
     "Profitez des meilleures promotions et soldes L'ecomax : chaussures, vêtements et accessoires tech à prix réduits. Livraison 35 MAD. Paiement à la livraison.",
@@ -33,6 +34,8 @@ export const metadata: Metadata = {
     description: "Meilleures promotions L'ecomax au Maroc.",
   },
 };
+
+export function generateMetadata() { return withShippingMetadata(baseMetadata); }
 
 export default function PromotionsLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;

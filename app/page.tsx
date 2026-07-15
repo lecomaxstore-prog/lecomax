@@ -15,10 +15,12 @@ const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
 import { products as staticProducts, type CardProduct } from "@/lib/products";
 import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import type { HeroBannerRecord } from "@/lib/hero-banners";
+import { shippingConfigFromSettings, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
 
 const SITE_URL_PAGE = "https://lecomax.com";
 
-export const metadata: Metadata = {
+const defaultHomeMetadata: Metadata = {
   title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
   description:
     "L'ecomax : boutique en ligne au Maroc — chaussures running, vêtements tendance, écouteurs Bluetooth, enceintes HiFi et manettes gaming. Livraison 35 MAD partout au Maroc. Paiement à la livraison. Retours gratuits 30 jours.",
@@ -61,12 +63,31 @@ export const metadata: Metadata = {
   },
 };
 
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getServerShippingConfig();
+  const replaceShipping = (value: unknown): string | undefined => typeof value === "string"
+    ? value.replace(/35 MAD/g, `${formatShippingAmount(config.cost)} MAD`)
+    : undefined;
+  return {
+    ...defaultHomeMetadata,
+    description: replaceShipping(defaultHomeMetadata.description),
+    openGraph: {
+      ...defaultHomeMetadata.openGraph,
+      description: replaceShipping(defaultHomeMetadata.openGraph?.description),
+    },
+    twitter: {
+      ...defaultHomeMetadata.twitter,
+      description: replaceShipping(defaultHomeMetadata.twitter?.description),
+    },
+  };
+}
+
 export const revalidate = 60; // ISR — revalidate every 60 seconds
 
 async function getHeroImages() {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/settings?key=in.(hero_image,hero_image_mobile,shipping_cost)&select=key,value`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/settings?key=in.(hero_image,hero_image_mobile,shipping_cost,free_shipping_threshold,shipping_estimated_days)&select=key,value`,
       {
         headers: {
           apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -101,6 +122,7 @@ export default async function HomePage() {
     getHeroBanners(),
     getReviewStats(),
   ]);
+  const shippingConfig = shippingConfigFromSettings(heroImages);
 
   // Fetch only the latest official admin post for the homepage teaser.
   let latestPost: { id: string; title: string; content?: string; slug: string; media_url?: string; thumbnail_url?: string; likes_count: number; comments_count: number } | null = null;
@@ -166,7 +188,7 @@ export default async function HomePage() {
         "name": "Quels sont les frais de livraison au Maroc ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "La livraison est à 35 MAD partout au Maroc, quel que soit le montant de la commande. Les commandes sont expédiées sous 24h et livrées en 2 à 5 jours ouvrables."
+          "text": `${shippingSummary(shippingConfig)} Les commandes sont expédiées sous 24h et livrées en ${shippingConfig.estimatedDays}.`
         }
       },
       {
@@ -218,7 +240,7 @@ export default async function HomePage() {
     "@id": `${SITE_URL_PAGE}/#webpage`,
     "url": SITE_URL_PAGE,
     "name": "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
-    "description": "Boutique en ligne au Maroc — chaussures running, vêtements tendance, écouteurs Bluetooth, enceintes HiFi et accessoires gaming. Livraison 35 MAD partout au Maroc.",
+    "description": `Boutique en ligne au Maroc — chaussures running, vêtements tendance, écouteurs Bluetooth, enceintes HiFi et accessoires gaming. Livraison ${formatShippingAmount(shippingConfig.cost)} MAD partout au Maroc.`,
     "isPartOf": { "@id": `${SITE_URL_PAGE}/#website` },
     "about": { "@id": `${SITE_URL_PAGE}/#organization` },
     "inLanguage": "fr-MA",
@@ -552,7 +574,7 @@ export default async function HomePage() {
           </div>
           <div>
             <p>
-              Nous livrons partout au Maroc — Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir, Meknès, Oujda et toutes les villes — à seulement 35 MAD. Paiement à la livraison disponible sur toutes les commandes. Retours gratuits sous 30 jours. Commandez en toute confiance sur lecomax.com.
+              Nous livrons partout au Maroc — Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir, Meknès, Oujda et toutes les villes — à seulement {formatShippingAmount(shippingConfig.cost)} MAD. {shippingConfig.freeThreshold > 0 && <>Livraison offerte dès {formatShippingAmount(shippingConfig.freeThreshold)} MAD d&apos;achats. </>}Paiement à la livraison disponible sur toutes les commandes. Retours gratuits sous 30 jours. Commandez en toute confiance sur lecomax.com.
             </p>
           </div>
         </div>

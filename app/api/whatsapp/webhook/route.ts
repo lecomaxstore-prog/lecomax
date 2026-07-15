@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { shippingSummary } from "@/lib/shipping-config";
 
 // ─── Clients ────────────────────────────────────────────────────────────────
 const supabase = createClient(
@@ -53,10 +55,11 @@ async function getAIReply(
   userMessage: string,
   history: { role: "user" | "assistant"; content: string }[]
 ): Promise<string> {
+  const shippingConfig = await getServerShippingConfig();
   const systemPrompt = `You are Eco, the friendly AI assistant for L'ecomax — a Moroccan online store (lecomax.com) selling fashion, sports shoes, clothing, earphones, Bluetooth speakers, and gaming accessories.
 
 Store info:
-- Delivery: 35 MAD anywhere in Morocco, cash on delivery (COD)
+- ${shippingSummary(shippingConfig)} Estimated delivery: ${shippingConfig.estimatedDays}. Cash on delivery (COD)
 - Free returns within 30 days
 - WhatsApp: +212699289568 | Email: contact@lecomax.com
 - Working hours: 9h–20h

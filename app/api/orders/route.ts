@@ -5,6 +5,7 @@ import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
 import { products as catalogProducts } from "@/lib/products";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
 import { calculateCouponDiscount, calculateCouponPricing } from "@/lib/coupon-pricing";
+import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
 
 // Use service role key server-side so RLS doesn't block order insertion
 const supabase = createClient(
@@ -205,17 +206,20 @@ export async function POST(req: NextRequest) {
   const safeDiscount = couponDiscount + loyaltyDiscount;
 
   const [{ data: zones }, { data: settingRows }] = await Promise.all([
-    supabase.from("shipping_zones").select("base_rate, rate, free_above, min_order").order("sort_order").limit(1),
+    supabase.from("shipping_zones").select("standard_rate, free_threshold").eq("active", true).order("sort_order").limit(1),
     supabase.from("settings").select("key, value").in("key", ["shipping_cost", "free_shipping_threshold"]),
   ]);
   const settings = Object.fromEntries((settingRows ?? []).map((row) => [row.key, row.value]));
   const zone = zones?.[0];
   // Global Settings are authoritative. Shipping zones are retained only as a
   // fallback for stores that have not configured the global values yet.
-  const shippingRate = Number(settings.shipping_cost ?? zone?.base_rate ?? zone?.rate ?? 35);
-  const freeAbove = Number(settings.free_shipping_threshold ?? zone?.free_above ?? zone?.min_order ?? 500);
+  const shippingConfig = shippingConfigFromSettings({
+    shipping_cost: settings.shipping_cost ?? zone?.standard_rate,
+    free_shipping_threshold: settings.free_shipping_threshold ?? zone?.free_threshold,
+  });
+  const shippingRate = shippingConfig.cost;
   const isLocalDelivery = customer.city.toLowerCase().replace(/[-\s]/g, "") === "sidibennour";
-  const safeShipping = isLocalDelivery || calculatedSubtotal >= freeAbove ? 0 : shippingRate;
+  const safeShipping = isLocalDelivery ? 0 : calculateShipping(calculatedSubtotal, shippingConfig);
 
   if (Math.abs(Number(shipping ?? 0) - safeShipping) > 0.01 || Math.abs(Number(discount ?? 0) - safeDiscount) > 0.01) {
     return NextResponse.json({ error: "Les frais ou la remise ont changé. Actualisez la page puis réessayez." }, { status: 409 });

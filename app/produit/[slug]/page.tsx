@@ -11,6 +11,8 @@ import ReviewSection from "@/components/ReviewSection";
 import ProductAccordion from "@/components/ProductAccordion";
 import ShareButtons from "@/components/ShareButtons";
 import NewsletterSection from "@/components/NewsletterSection";
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
 
 
 export const dynamic = "force-dynamic";
@@ -19,12 +21,13 @@ const PRODUCT_SITE_URL = "https://lecomax.com";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const shippingConfig = await getServerShippingConfig();
   const product = getProduct(slug);
   if (product) {
     const name = product.displayName ?? product.name;
     const desc = product.description
       ? product.description.slice(0, 155) + (product.description.length > 155 ? "…" : "")
-      : `Achetez ${name} sur L'ecomax. Livraison 35 MAD partout au Maroc. Paiement à la livraison.`;
+      : `Achetez ${name} sur L'ecomax. ${shippingSummary(shippingConfig)} Paiement à la livraison.`;
     const imgUrl = product.image
       ? product.image.startsWith("http")
         ? product.image
@@ -63,7 +66,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         : `${PRODUCT_SITE_URL}/ecomax-hero-banner.jpg.png`;
       const desc = dbProd.description
         ? dbProd.description.slice(0, 155) + (dbProd.description.length > 155 ? "…" : "")
-        : `Achetez ${dbProd.name} sur L'ecomax. Livraison 35 MAD partout au Maroc. Paiement à la livraison.`;
+        : `Achetez ${dbProd.name} sur L'ecomax. ${shippingSummary(shippingConfig)} Paiement à la livraison.`;
       const dbTitle = `${dbProd.name} — Acheter au Maroc | L'ecomax`;
       return {
         title: dbTitle,
@@ -231,6 +234,7 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const shippingConfig = await getServerShippingConfig();
 
   // Try static first, then fall back to DB
   let product: Product | null = getProduct(slug) ?? null;
@@ -355,7 +359,7 @@ export default async function ProductPage({
         "@type": "OfferShippingDetails",
         "shippingRate": {
           "@type": "MonetaryAmount",
-          "value": 35,
+          "value": shippingConfig.cost,
           "currency": "MAD",
         },
         "shippingDestination": {
@@ -569,7 +573,7 @@ export default async function ProductPage({
             )}
           </div>
           <p className="text-[11px] text-neutral-400 mt-1">
-            Taxes incluses · Livraison 35 MAD partout au Maroc
+            Taxes incluses · Livraison {formatShippingAmount(shippingConfig.cost)} MAD partout au Maroc
           </p>
 
           <div className="w-full h-px bg-neutral-100 my-6" />
@@ -600,8 +604,8 @@ export default async function ProductPage({
                 <path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
               </svg>
               <div>
-                <p className="font-black text-[12px] uppercase">Livraison 35 MAD</p>
-                <p className="text-neutral-400 text-[11px] mt-0.5">Partout au Maroc · 2-4 jours</p>
+                <p className="font-black text-[12px] uppercase">Livraison {formatShippingAmount(shippingConfig.cost)} MAD</p>
+                <p className="text-neutral-400 text-[11px] mt-0.5">Partout au Maroc · {shippingConfig.estimatedDays}</p>
               </div>
             </div>
             <div className="flex items-start gap-2.5 bg-neutral-50 rounded-xl p-3.5">

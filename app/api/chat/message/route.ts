@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { shippingSummary } from "@/lib/shipping-config";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,11 +50,11 @@ const STORE_CONTEXT = `You are Eco, the professional and friendly AI assistant f
 - Response time: within a few hours on business days
 
 ## DELIVERY & SHIPPING
-- Flat rate: 35 MAD anywhere in Morocco — no minimum order
+- Shipping rates are loaded from the live store configuration below
 - Payment method: Cash on delivery (COD) ONLY — customer pays when package arrives, zero prepayment
 - Estimated delivery: 2–5 business days
 - Tracking: lecomax.com/suivre-commande (enter order number + phone)
-- Free shipping is NOT available (always 35 MAD)
+- Never invent a shipping price or free-shipping threshold
 - We ship to ALL cities in Morocco
 
 ## RETURNS & GUARANTEE
@@ -152,6 +154,7 @@ async function buildKbSection(): Promise<string> {
 }
 
 async function buildSystemPrompt(): Promise<string> {
+  const shippingConfig = await getServerShippingConfig();
   const now = Date.now();
   const [kbSection] = await Promise.all([buildKbSection()]);
 
@@ -192,7 +195,8 @@ async function buildSystemPrompt(): Promise<string> {
     cacheTime = now;
   }
 
-  return STORE_CONTEXT + kbSection + cachedProducts;
+  const shippingSection = `\n\n## LIVE SHIPPING CONFIGURATION\n- ${shippingSummary(shippingConfig)}\n- Estimated delivery: ${shippingConfig.estimatedDays}\nAlways use these live values when answering delivery questions.\n`;
+  return STORE_CONTEXT + shippingSection + kbSection + cachedProducts;
 }
 
 /** POST /api/chat/message — visitor sends a message */

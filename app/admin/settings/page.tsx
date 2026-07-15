@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS: SettingsMap = {
   tiktok_url: "https://www.tiktok.com/@lecomaxcom",
   free_shipping_threshold: "500",
   shipping_cost: "35",
+  shipping_estimated_days: "2-5 jours ouvrables",
   maintenance_mode: "false",
   enable_reviews: "true",
   enable_coupons: "true",
@@ -109,16 +110,25 @@ export default function SettingsPage() {
     e?.preventDefault();
     setSaving(true);
     setMsg(null);
+    const threshold = settings.free_shipping_threshold || "0";
+    const syncedAnnouncement = settings.announcement_1?.replace(
+      /(LIVRAISON\s+GRATUITE\s+D[ÈE]S\s+)\d+(?:[.,]\d+)?(\s+MAD)/i,
+      `$1${threshold}$2`,
+    );
+    const settingsToSave = syncedAnnouncement && syncedAnnouncement !== settings.announcement_1
+      ? { ...settings, announcement_1: syncedAnnouncement }
+      : settings;
     try {
       const res = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(settingsToSave),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Erreur inconnue");
-      publishSettings(settings);
-      savedSettingsRef.current = { ...settings };
+      setSettings(settingsToSave);
+      publishSettings(settingsToSave);
+      savedSettingsRef.current = { ...settingsToSave };
       setMsg({ type: "ok", text: "Paramètres enregistrés et appliqués sur le site ✓" });
     } catch (error) {
       setMsg({ type: "err", text: error instanceof Error ? error.message : "Erreur réseau" });
@@ -374,6 +384,15 @@ export default function SettingsPage() {
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-bold">MAD</span>
                 </div>
               </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1.5">Délai affiché</label>
+              <input
+                value={settings.shipping_estimated_days ?? "2-5 jours ouvrables"}
+                onChange={e => setSettings(s => ({ ...s, shipping_estimated_days: e.target.value }))}
+                placeholder="Ex. 2-5 jours ouvrables"
+                className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm outline-none transition focus:border-black focus:bg-white"
+              />
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">

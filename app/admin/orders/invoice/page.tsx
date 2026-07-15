@@ -317,7 +317,7 @@ export default function InvoicePage() {
             <div style={{ height: 1, background: "#e5e7eb", margin: "0 0 14px" }} />
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", gap: 20 }}>
-                {["Retours acceptés sous 30 jours", "Livraison 35 MAD partout au Maroc", "Paiement sécurisé"].map((t) => (
+                {["Retours acceptés sous 30 jours", delivery === 0 ? "Livraison gratuite" : `Livraison ${delivery.toFixed(0)} MAD partout au Maroc`, "Paiement sécurisé"].map((t) => (
                   <span key={t} style={{ fontSize: 10.5, color: "#9ca3af", fontWeight: 500 }}>✓ {t}</span>
                 ))}
               </div>
