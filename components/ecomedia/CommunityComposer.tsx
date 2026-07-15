@@ -69,6 +69,7 @@ export default function CommunityComposer({ onPublished }: { onPublished: (post:
       if (file) {
         const form = new FormData();
         form.append("file", file);
+        form.append("scope", "community");
         const upload = await fetch("/api/ecomedia/upload/", {
           method: "POST",
           headers: { Authorization: `Bearer ${session.access_token}` },

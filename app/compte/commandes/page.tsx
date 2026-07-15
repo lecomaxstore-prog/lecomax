@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { customerApiFetch } from "@/lib/customer-api";
 
 const TABS = ["Toutes", "En cours", "Livrées", "Annulées"] as const;
 type Tab = typeof TABS[number];
@@ -45,7 +46,7 @@ export default function CommandesPage() {
       if (!session) { setLoading(false); return; }
       const userEmail = session.user.email ?? "";
       setEmail(userEmail);
-      fetch(`/api/orders?email=${encodeURIComponent(userEmail)}`)
+      customerApiFetch(`/api/orders?email=${encodeURIComponent(userEmail)}`)
         .then(r => r.json())
         .then((data: Order[]) => {
           setOrders(Array.isArray(data) ? data : []);

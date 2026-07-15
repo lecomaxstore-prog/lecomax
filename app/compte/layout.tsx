@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import SessionExpiredModal from "@/components/SessionExpiredModal";
+import { CUSTOMER_SESSION_EXPIRED_EVENT, CUSTOMER_SESSION_KEY, customerApiFetch } from "@/lib/customer-api";
 
 const nav = [
   {
@@ -65,18 +67,29 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
   const router = useRouter();
   const [user, setUser] = useState<{ email?: string; full_name?: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionExpired, setSessionExpired] = useState(false);
   const [points, setPoints] = useState(0);
   const [tierName, setTierName] = useState("Bronze");
   const [tierNext, setTierNext] = useState<number | null>(500);
   const [tierNextLabel, setTierNextLabel] = useState<string | null>("Silver");
 
   useEffect(() => {
+    let mounted = true;
+    const showExpired = () => {
+      if (!mounted) return;
+      setSessionExpired(true);
+      setLoading(false);
+    };
+    window.addEventListener(CUSTOMER_SESSION_EXPIRED_EVENT, showExpired);
+
     // Read the persisted session immediately
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
-        router.replace("/connexion");
+        if (window.localStorage.getItem(CUSTOMER_SESSION_KEY)) showExpired();
+        else router.replace(`/connexion?redirect=${encodeURIComponent(pathname)}`);
         return;
       }
+      window.localStorage.setItem(CUSTOMER_SESSION_KEY, "1");
       const email = session.user.email ?? "";
       setUser({
         email,
@@ -85,7 +98,7 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
       setLoading(false);
       // Fetch points
       if (email) {
-        fetch(`/api/points?email=${encodeURIComponent(email)}`)
+        customerApiFetch(`/api/points?email=${encodeURIComponent(email)}`)
           .then(r => r.json())
           .then(d => {
             if (typeof d.points === "number") {
@@ -102,9 +115,12 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
     // Keep session in sync across tabs and on token refresh
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) {
-        router.replace("/connexion");
+        if (window.localStorage.getItem(CUSTOMER_SESSION_KEY)) showExpired();
+        else router.replace(`/connexion?redirect=${encodeURIComponent(pathname)}`);
         return;
       }
+      window.localStorage.setItem(CUSTOMER_SESSION_KEY, "1");
+      setSessionExpired(false);
       setUser({
         email: session.user.email,
         full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || "",
@@ -112,13 +128,20 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, [router]);
+    return () => {
+      mounted = false;
+      window.removeEventListener(CUSTOMER_SESSION_EXPIRED_EVENT, showExpired);
+      subscription.unsubscribe();
+    };
+  }, [pathname, router]);
 
   const handleSignOut = async () => {
+    window.localStorage.removeItem(CUSTOMER_SESSION_KEY);
     await supabase.auth.signOut();
     router.replace("/connexion");
   };
+
+  if (sessionExpired) return <SessionExpiredModal returnTo={pathname} />;
 
   if (loading) {
     return (

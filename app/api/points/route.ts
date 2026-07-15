@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
 
 /*
   Required Supabase table (run once in your SQL editor):
@@ -30,7 +31,12 @@ function getTier(points: number) {
 
 // GET /api/points?email=xxx
 export async function GET(req: NextRequest) {
-  const email = new URL(req.url).searchParams.get("email");
+  const admin = await isAdminRequest(req);
+  const user = admin ? null : await getCustomerUser(req);
+  if (!admin && !user?.email) return NextResponse.json({ error: "Session expirée ou non autorisée." }, { status: 401 });
+  const requestedEmail = new URL(req.url).searchParams.get("email")?.trim().toLowerCase();
+  const email = admin ? requestedEmail : user!.email!.toLowerCase();
+  if (!admin && requestedEmail && requestedEmail !== email) return NextResponse.json({ error: "Accès interdit." }, { status: 403 });
   if (!email) return NextResponse.json({ error: "email required" }, { status: 400 });
 
   const { data, error } = await supabase
@@ -52,6 +58,7 @@ export async function GET(req: NextRequest) {
 // POST /api/points — add POINTS_PER_ORDER to a user's balance
 // Body: { email: string, amount?: number }
 export async function POST(req: NextRequest) {
+  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   let body: { email?: string; amount?: number };
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 

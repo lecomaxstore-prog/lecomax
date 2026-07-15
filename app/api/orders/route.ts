@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
+import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
+import { products as catalogProducts } from "@/lib/products";
 
 // Use service role key server-side so RLS doesn't block order insertion
 const supabase = createClient(
@@ -14,8 +16,17 @@ function generateOrderNumber(): string {
   return `ECO-${Math.floor(100000 + Math.random() * 900000)}`;
 }
 
+function cleanText(value: unknown, maxLength: number): string {
+  return typeof value === "string"
+    ? value.replace(/[<>\u0000-\u001F\u007F]/g, "").trim().slice(0, maxLength)
+    : "";
+}
+
 // GET /api/orders — list all orders (admin), or GET /api/orders?order_number=ECO-XXXXXX (single order lookup)
 export async function GET(req: NextRequest) {
+  const admin = await isAdminRequest(req);
+  const user = admin ? null : await getCustomerUser(req);
+  if (!admin && !user?.email) return NextResponse.json({ error: "Session expirée ou non autorisée." }, { status: 401 });
   const { searchParams } = new URL(req.url);
   const order_number = searchParams.get("order_number");
   const email = searchParams.get("email");
@@ -24,6 +35,7 @@ export async function GET(req: NextRequest) {
 
   // Single order lookup by order_number
   if (order_number) {
+    if (!admin) return NextResponse.json({ error: "Utilisez le suivi de commande avec votre numéro et votre e-mail." }, { status: 403 });
     const { data, error } = await supabase
       .from("orders")
       .select("id, order_number, status, tracking_number, total, created_at, customer, items")
@@ -35,7 +47,8 @@ export async function GET(req: NextRequest) {
 
   // List orders filtered by customer email (for client dashboard)
   let query = supabase.from("orders").select("id, order_number, status, total, created_at, customer, items").order("created_at", { ascending: false });
-  if (email) query = query.eq("customer->>email", email);
+  const safeEmail = admin ? email : user!.email!;
+  if (safeEmail) query = query.eq("customer->>email", safeEmail.toLowerCase());
   if (status && status !== "all") query = query.eq("status", status);
   if (limit) query = query.limit(parseInt(limit));
 
@@ -78,12 +91,110 @@ export async function POST(req: NextRequest) {
     notes?: string;
   };
 
-  // Basic validation
+  // Validate and normalize all browser-provided order data.
   if (!customer?.name || !customer?.phone || !customer?.city || !Array.isArray(items) || items.length === 0) {
     return NextResponse.json({ error: "Champs manquants (customer, items)." }, { status: 400 });
   }
-  if (typeof total !== "number" || total <= 0) {
+  if (!Number.isFinite(total) || total <= 0 || total > 1_000_000) {
     return NextResponse.json({ error: "Total invalide." }, { status: 400 });
+  }
+  if (items.length > 50 || items.some((item) =>
+    !item || !cleanText(item.slug, 160) || !cleanText(item.name, 200) ||
+    !Number.isFinite(item.price) || item.price <= 0 || item.price > 1_000_000 ||
+    !Number.isInteger(item.qty) || item.qty < 1 || item.qty > 20
+  )) {
+    return NextResponse.json({ error: "Un ou plusieurs articles sont invalides." }, { status: 400 });
+  }
+
+  customer.name = cleanText(customer.name, 100);
+  customer.phone = cleanText(customer.phone, 30);
+  customer.email = cleanText(customer.email, 254).toLowerCase();
+  customer.city = cleanText(customer.city, 100);
+  customer.address = cleanText(customer.address, 300);
+  if (customer.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)) {
+    return NextResponse.json({ error: "Adresse e-mail invalide." }, { status: 400 });
+  }
+  for (const item of items) {
+    item.slug = cleanText(item.slug, 160);
+    item.name = cleanText(item.name, 200);
+    item.image = cleanText(item.image, 500);
+    item.size = cleanText(item.size, 50) || undefined;
+    item.color = cleanText(item.color, 50) || undefined;
+  }
+
+  // Re-read products server-side. Prices and stock sent by a browser are never authoritative.
+  const slugs = [...new Set(items.map((item) => item.slug))];
+  const { data: databaseProducts, error: productsError } = await supabase
+    .from("products")
+    .select("*")
+    .in("slug", slugs);
+  if (productsError) {
+    console.error("Order product verification error:", productsError);
+    return NextResponse.json({ error: "Impossible de vérifier les articles pour le moment." }, { status: 503 });
+  }
+  const productBySlug = new Map<string, Record<string, unknown>>();
+  for (const product of catalogProducts) productBySlug.set(product.slug, product as unknown as Record<string, unknown>);
+  for (const product of databaseProducts ?? []) productBySlug.set(String(product.slug), product as Record<string, unknown>);
+
+  for (const item of items) {
+    const product = productBySlug.get(item.slug);
+    const authoritativePrice = Number(product?.price);
+    if (!product || !Number.isFinite(authoritativePrice) || authoritativePrice <= 0) {
+      return NextResponse.json({ error: `L'article « ${item.name} » n'est plus disponible.` }, { status: 409 });
+    }
+    const stock = Number(product.stock);
+    if (Number.isFinite(stock) && stock >= 0 && item.qty > stock) {
+      return NextResponse.json({ error: `Stock insuffisant pour « ${item.name} ».` }, { status: 409 });
+    }
+    item.price = authoritativePrice;
+    item.name = cleanText(product.name, 200) || item.name;
+    const serverImage = cleanText(product.image, 500) || (Array.isArray(product.images) ? cleanText(product.images[0], 500) : "");
+    if (serverImage) item.image = serverImage;
+  }
+
+  const safeNotes = cleanText(notes, 1000) || null;
+  const calculatedSubtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+  let couponDiscount = 0;
+  if (coupon_id) {
+    const { data: coupon } = await supabase.from("coupons").select("*").eq("id", coupon_id).eq("active", true).single();
+    const couponValid = coupon &&
+      (!coupon.expires_at || new Date(coupon.expires_at) >= new Date()) &&
+      (coupon.max_uses === null || coupon.used_count < coupon.max_uses) &&
+      (coupon.min_order === null || calculatedSubtotal >= Number(coupon.min_order));
+    if (!couponValid) return NextResponse.json({ error: "Le code promotionnel n'est plus valide." }, { status: 409 });
+    couponDiscount = coupon.type === "percent"
+      ? Math.round(calculatedSubtotal * Number(coupon.value) / 100)
+      : Math.min(Number(coupon.value), calculatedSubtotal);
+  }
+
+  let loyaltyPercent = 0;
+  const customerUser = await getCustomerUser(req);
+  if (customerUser?.email?.toLowerCase() === customer.email) {
+    const { data: pointRecord } = await supabase.from("user_points").select("points").eq("email", customer.email).single();
+    const points = Number(pointRecord?.points ?? 0);
+    loyaltyPercent = points >= 1000 ? 50 : points >= 500 ? 30 : 0;
+  }
+  const loyaltyDiscount = Math.round((calculatedSubtotal - couponDiscount) * loyaltyPercent / 100);
+  const safeDiscount = couponDiscount + loyaltyDiscount;
+
+  const [{ data: zones }, { data: settingRows }] = await Promise.all([
+    supabase.from("shipping_zones").select("base_rate, rate, free_above, min_order").order("sort_order").limit(1),
+    supabase.from("settings").select("key, value").in("key", ["shipping_cost", "free_shipping_threshold"]),
+  ]);
+  const settings = Object.fromEntries((settingRows ?? []).map((row) => [row.key, row.value]));
+  const zone = zones?.[0];
+  const shippingRate = Number(zone?.base_rate ?? zone?.rate ?? settings.shipping_cost ?? 35);
+  const freeAbove = Number(zone?.free_above ?? zone?.min_order ?? settings.free_shipping_threshold ?? 500);
+  const isLocalDelivery = customer.city.toLowerCase().replace(/[-\s]/g, "") === "sidibennour";
+  const safeShipping = isLocalDelivery || calculatedSubtotal >= freeAbove ? 0 : shippingRate;
+
+  if (Math.abs(Number(shipping ?? 0) - safeShipping) > 0.01 || Math.abs(Number(discount ?? 0) - safeDiscount) > 0.01) {
+    return NextResponse.json({ error: "Les frais ou la remise ont changé. Actualisez la page puis réessayez." }, { status: 409 });
+  }
+  const expectedTotal = Math.max(0, calculatedSubtotal + safeShipping - safeDiscount);
+  if (Math.abs(expectedTotal - total) > 0.01) {
+    return NextResponse.json({ error: "Le total de la commande a changé. Actualisez la page puis réessayez." }, { status: 409 });
   }
 
   const order_number = generateOrderNumber();
@@ -97,7 +208,7 @@ export async function POST(req: NextRequest) {
     payment_method: payment_method || "Paiement à la livraison",
     status: isPayPal ? "confirmed" : "pending",
     tracking_number: null,
-    notes: notes ?? null,
+    notes: safeNotes,
     created_at: new Date().toISOString(),
   }).select("id, order_number").single();
 

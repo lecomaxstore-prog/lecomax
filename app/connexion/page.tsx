@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { supabase } from "@/lib/supabase";
+import { CUSTOMER_SESSION_KEY } from "@/lib/customer-api";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [sessionExpired, setSessionExpired] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -15,6 +17,12 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+
+  useEffect(() => {
+    const expired = new URLSearchParams(window.location.search).get("reason") === "session_expired";
+    setSessionExpired(expired);
+    if (expired) window.localStorage.removeItem(CUSTOMER_SESSION_KEY);
+  }, []);
 
   const returnPath = () => {
     const value = new URLSearchParams(window.location.search).get("redirect") ?? "/compte";
@@ -50,6 +58,7 @@ export default function LoginPage() {
         ? "Email ou mot de passe incorrect."
         : error.message);
     } else {
+      window.localStorage.setItem(CUSTOMER_SESSION_KEY, "1");
       router.push(returnPath());
     }
   };
@@ -78,6 +87,13 @@ export default function LoginPage() {
         <p className="text-sm text-neutral-500 text-center mb-8">
           Accédez à votre espace L&apos;ecomax
         </p>
+
+        {sessionExpired && (
+          <div className="mb-5 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3.5 text-amber-950">
+            <svg className="mt-0.5 shrink-0" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M12 7v6M12 17h.01" /></svg>
+            <div><p className="text-xs font-bold">Session expirée pour votre sécurité</p><p className="mt-1 text-[11px] leading-4 text-amber-800">Reconnectez-vous pour reprendre votre navigation. Votre panier a été conservé.</p></div>
+          </div>
+        )}
 
         {/* Error */}
         {error && (

@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     const isCustomerPhoto = mediaUrl.startsWith(`${storageBase}ecomedia/community/${user.id}/images/`)
       || mediaUrl.startsWith(`${storageBase}product-images/ecomedia/community/${user.id}/images/`);
     if (!isCustomerPhoto || mediaUrl.length > 1000) {
-      return NextResponse.json({ error: "La publication client accepte uniquement une photo importée depuis Ecomedia." }, { status: 400 });
+      return NextResponse.json({ error: "Cette photo n'a pas été envoyée depuis votre appareil. Choisissez-la à nouveau." }, { status: 400 });
     }
   }
   const title = (content || "Nouvelle publication de la communauté").slice(0, 100);

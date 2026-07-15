@@ -11,10 +11,14 @@ const MAX_IMAGE_SIZE = 15 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
 
 async function getActor(req: NextRequest) {
+  // A Bearer token means this came from the public community composer.
+  // Prefer it when the same browser also has an admin cookie.
+  const user = await getEcomediaUser(req);
+  if (user) return { id: user.id, isAdmin: false };
+
   const adminToken = req.cookies.get("admin_session")?.value;
   if (adminToken && await verifySessionToken(adminToken)) return { id: "admin", isAdmin: true };
-  const user = await getEcomediaUser(req);
-  return user ? { id: user.id, isAdmin: false } : null;
+  return null;
 }
 
 export async function POST(req: NextRequest) {

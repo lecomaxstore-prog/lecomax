@@ -238,7 +238,7 @@ export default function CheckoutPage() {
       supabase.auth.getSession().then(({ data: { session } }) => {
         const email = session?.user?.email;
         if (!email) return;
-        fetch(`/api/points?email=${encodeURIComponent(email)}`)
+        import("@/lib/customer-api").then(({ customerApiFetch }) => customerApiFetch(`/api/points?email=${encodeURIComponent(email)}`))
           .then(r => r.json())
           .then(d => {
             if (d.tier === "Silver") { setLoyaltyTier("Silver"); setLoyaltyDiscountPct(30); }

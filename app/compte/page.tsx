@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { products, formatMAD } from "@/lib/products";
+import { customerApiFetch } from "@/lib/customer-api";
 
 type UserInfo = {
   email: string;
@@ -67,7 +68,7 @@ export default function ComptePage() {
         .catch(() => {})
         .finally(() => setSavedLoading(false));
       // Fetch recent orders by email
-      fetch(`/api/orders?email=${encodeURIComponent(email)}&limit=3`)
+      customerApiFetch(`/api/orders?email=${encodeURIComponent(email)}&limit=3`)
         .then(r => r.json())
         .then((data: RecentOrder[]) => {
           setOrders(Array.isArray(data) ? data : []);
@@ -76,7 +77,7 @@ export default function ComptePage() {
         .catch(() => setOrdersLoading(false));
       // Fetch EcoClub points
       if (email) {
-        fetch(`/api/points?email=${encodeURIComponent(email)}`)
+        customerApiFetch(`/api/points?email=${encodeURIComponent(email)}`)
           .then(r => r.json())
           .then(d => {
             if (typeof d.points === "number") { setPoints(d.points); setTierName(d.tier ?? "Bronze"); setTierNext(d.next ?? null); setTierNextLabel(d.nextLabel ?? null); }
