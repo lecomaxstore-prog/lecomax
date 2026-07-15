@@ -92,21 +92,21 @@ export default function NousContacterPage() {
         </div>
       ) : (
         /* ── FORM ──────────────────────────────────── */
-        <form onSubmit={handleSubmit} className="rounded-3xl overflow-hidden"
-          style={{ background: "#ffffff", boxShadow: "0 0 0 1px rgba(0,0,0,0.07), 0 8px 32px rgba(0,0,0,0.12)" }}>
+        <form onSubmit={handleSubmit} className="w-full min-w-0 max-w-full rounded-[28px] sm:rounded-3xl overflow-hidden"
+          style={{ background: "#ffffff", boxShadow: "0 0 0 1px rgba(62,207,76,0.10), 0 18px 55px rgba(0,0,0,0.22)" }}>
 
           {/* Top shimmer bar */}
           <div className="h-[2px]" style={{ background: "linear-gradient(to right,transparent 5%,#3ecf4c 45%,#2db83a 55%,transparent 95%)" }} />
 
           {/* Header */}
-          <div className="pt-6 pb-5 px-6 sm:px-7 flex items-center justify-between" style={{ borderBottom: "1px solid #f0f0f0" }}>
-            <div>
-              <h2 className="font-black text-[17px] sm:text-[18px] uppercase tracking-tight text-neutral-900 leading-tight">
+          <div className="pt-7 pb-5 px-5 sm:px-7 flex items-center justify-between gap-4" style={{ borderBottom: "1px solid #f0f0f0" }}>
+            <div className="min-w-0">
+              <h2 className="font-black text-[16px] min-[390px]:text-[18px] uppercase tracking-tight text-neutral-900 leading-tight">
                 Formulaire de <span className="text-[#3ecf4c]">Contact</span>
               </h2>
-              <p className="text-neutral-400 text-[10px] mt-0.5 tracking-wider font-medium">Tous les champs sont obligatoires</p>
+              <p className="text-neutral-400 text-[11px] mt-1 tracking-wide font-medium">Tous les champs sont obligatoires</p>
             </div>
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-[#3ecf4c] shrink-0"
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-[#3ecf4c] shrink-0"
               style={{ background: "rgba(62,207,76,0.08)", border: "1px solid rgba(62,207,76,0.2)" }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
@@ -115,20 +115,20 @@ export default function NousContacterPage() {
           </div>
 
           {/* Fields */}
-          <div className="px-6 sm:px-7 pt-5 pb-6 space-y-3.5">
+          <div className="px-5 sm:px-7 pt-6 pb-7 space-y-5 sm:space-y-4">
 
             {/* Row 1: Name + Email side by side */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-3">
               {/* Name */}
               <div>
-                <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-neutral-500 mb-1.5">
+                <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.15em] text-neutral-600 mb-2">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   Nom
                 </label>
                 <div className="relative">
                   <input type="text" value={form.name} onChange={(e) => set("name", e.target.value)}
                     placeholder="Youssef Alami" required
-                    className="w-full rounded-xl pl-3.5 pr-8 py-3 text-neutral-900 text-[13px] placeholder-neutral-300 focus:outline-none"
+                    className="w-full min-h-12 rounded-xl pl-4 pr-9 py-3.5 text-neutral-900 text-sm placeholder-neutral-300 focus:outline-none"
                     style={baseInputStyle(!!form.name)}
                     onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                     onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle(!!form.name))}
@@ -138,14 +138,14 @@ export default function NousContacterPage() {
               </div>
               {/* Email */}
               <div>
-                <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-neutral-500 mb-1.5">
+                <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.15em] text-neutral-600 mb-2">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                   Email
                 </label>
                 <div className="relative">
                   <input type="email" value={form.email} onChange={(e) => set("email", e.target.value)}
                     placeholder="vous@email.com" required
-                    className="w-full rounded-xl pl-3.5 pr-8 py-3 text-neutral-900 text-[13px] placeholder-neutral-300 focus:outline-none"
+                    className="w-full min-h-12 rounded-xl pl-4 pr-9 py-3.5 text-neutral-900 text-sm placeholder-neutral-300 focus:outline-none"
                     style={baseInputStyle(!!form.email)}
                     onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                     onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle(!!form.email))}
@@ -157,13 +157,13 @@ export default function NousContacterPage() {
 
             {/* Subject */}
             <div>
-              <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-neutral-500 mb-1.5">
+              <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.15em] text-neutral-600 mb-2">
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
                 Sujet
               </label>
               <div className="relative">
                 <select value={form.subject} onChange={(e) => set("subject", e.target.value)} required
-                  className="w-full rounded-xl px-4 py-3 text-[13px] focus:outline-none appearance-none cursor-pointer"
+                  className="w-full min-h-12 rounded-xl px-4 py-3.5 text-sm focus:outline-none appearance-none cursor-pointer"
                   style={{ ...baseInputStyle(!!form.subject), color: form.subject ? "#111827" : "#9ca3af" }}
                   onFocus={(e) => Object.assign(e.currentTarget.style, { ...focusStyle, color: form.subject ? "#111827" : "#9ca3af" })}
                   onBlur={(e) => Object.assign(e.currentTarget.style, { ...blurStyle(!!form.subject), color: form.subject ? "#111827" : "#9ca3af" })}>
@@ -172,7 +172,7 @@ export default function NousContacterPage() {
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: form.subject ? "#3ecf4c" : "rgba(255,255,255,0.3)" }}>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: form.subject ? "#3ecf4c" : "#9ca3af" }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </span>
               </div>
@@ -180,8 +180,8 @@ export default function NousContacterPage() {
 
             {/* Message */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-neutral-500">
+              <div className="flex items-center justify-between mb-2">
+                <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.15em] text-neutral-600">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                   Message
                 </label>
@@ -192,7 +192,7 @@ export default function NousContacterPage() {
               <div className="relative">
                 <textarea value={form.message} onChange={(e) => set("message", e.target.value.slice(0, MSG_MAX))}
                   placeholder="Décrivez votre demande en détail…" required rows={5}
-                  className="w-full rounded-xl px-4 py-3 text-neutral-900 text-[13px] placeholder-neutral-300 focus:outline-none resize-none"
+                  className="w-full min-h-[152px] rounded-xl px-4 py-3.5 text-neutral-900 text-sm leading-relaxed placeholder-neutral-300 focus:outline-none resize-none"
                   style={baseInputStyle(!!form.message)}
                   onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                   onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle(!!form.message))}
@@ -215,7 +215,7 @@ export default function NousContacterPage() {
 
             {/* Submit */}
             <button type="submit" disabled={status === "loading"}
-              className="relative w-full text-black font-black text-[12px] uppercase tracking-widest py-4 rounded-xl disabled:opacity-60 transition-all flex items-center justify-center gap-2 overflow-hidden group hover:scale-[1.01] active:scale-[0.99]"
+              className="relative w-full text-black font-black text-[12px] uppercase tracking-widest py-[17px] rounded-2xl disabled:opacity-60 transition-all flex items-center justify-center gap-2 overflow-hidden group hover:scale-[1.01] active:scale-[0.99]"
               style={{ background: "linear-gradient(135deg,#3ecf4c 0%,#2db83a 100%)", boxShadow: "0 4px 24px rgba(62,207,76,0.35), 0 1px 0 rgba(255,255,255,0.15) inset" }}>
               {/* Shimmer overlay */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -245,12 +245,12 @@ export default function NousContacterPage() {
   );
 
   return (
-    <main className="bg-[#0a0a0a]">
+    <main className="bg-[#0a0a0a] overflow-x-hidden">
 
       {/* ══════════════════════════════════════════════════════
           MOBILE LAYOUT (hidden on sm+)
       ══════════════════════════════════════════════════════ */}
-      <div className="sm:hidden">
+      <div className="sm:hidden w-screen max-w-[100vw] overflow-x-hidden">
         {/* Hero photo strip — shows the store */}
         <div className="relative h-56 overflow-hidden">
           <Image
@@ -279,18 +279,18 @@ export default function NousContacterPage() {
         </div>
 
         {/* Dark content zone */}
-        <div className="px-4 pb-16" style={{ background: "#0a0a0a" }}>
+        <div className="w-screen min-w-0 max-w-[100vw] px-3.5 pb-20" style={{ background: "linear-gradient(180deg,#0a0a0a 0%,#07120a 100%)" }}>
           {/* 3 contact quick-action pills */}
-          <div className="flex gap-2 py-4">
+          <div className="flex gap-2 py-5">
             <a href={getWhatsAppHref(siteSettings)} target="_blank" rel="noopener noreferrer"
-              className="flex-1 flex flex-col items-center gap-1.5 py-3.5 rounded-2xl"
+              className="basis-0 min-w-0 flex-1 flex flex-col items-center gap-1.5 py-3.5 rounded-2xl overflow-hidden"
               style={{ background: "rgba(37,211,102,0.09)", border: "1px solid rgba(37,211,102,0.28)" }}>
               <div className="w-8 h-8 rounded-xl bg-[#25D366]/20 flex items-center justify-center">{WHATSAPP_ICON}</div>
               <span className="text-[#25D366] text-[9px] font-black uppercase tracking-wider">WhatsApp</span>
               <span className="text-white/30 text-[8px]">Réponse &lt; 2h</span>
             </a>
             <a href="mailto:contact@lecomax.com"
-              className="flex-1 flex flex-col items-center gap-1.5 py-3.5 rounded-2xl"
+              className="basis-0 min-w-0 flex-1 flex flex-col items-center gap-1.5 py-3.5 rounded-2xl overflow-hidden"
               style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}>
               <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-white">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
@@ -298,7 +298,7 @@ export default function NousContacterPage() {
               <span className="text-white/60 text-[9px] font-black uppercase tracking-wider">E-mail</span>
               <span className="text-white/25 text-[8px]">Réponse rapide</span>
             </a>
-            <div className="flex-1 flex flex-col items-center gap-1.5 py-3.5 rounded-2xl"
+            <div className="basis-0 min-w-0 flex-1 flex flex-col items-center gap-1.5 py-3.5 rounded-2xl overflow-hidden"
               style={{ background: "rgba(62,207,76,0.06)", border: "1px solid rgba(62,207,76,0.2)" }}>
               <div className="w-8 h-8 rounded-xl bg-[#3ecf4c]/15 flex items-center justify-center text-[#3ecf4c]">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>

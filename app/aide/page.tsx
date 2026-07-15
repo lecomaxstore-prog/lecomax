@@ -175,14 +175,12 @@ export default function AidePage() {
               Consulter la FAQ
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
-            <a
-              href={getWhatsAppHref(siteSettings)}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/nous-contacter/"
               className="inline-flex items-center gap-2 bg-white/[0.08] border border-white/20 text-white font-black text-[13px] uppercase tracking-widest px-7 py-3.5 rounded-full hover:bg-white/14 transition-colors"
             >
               Nous contacter
-            </a>
+            </Link>
           </div>
         </div>
 

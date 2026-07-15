@@ -7,8 +7,41 @@ import { useProductColor } from "./ProductColorContext";
 import SizeGuideModal from "./SizeGuideModal";
 import type { Product } from "@/lib/products";
 import { trackAddToCart } from "@/lib/analytics";
+import { useWishlist } from "./WishlistContext";
 
 /* ── Cart fly animation (pure DOM, Web Animations API) ── */
+function celebrateCart(cartEl: HTMLElement | null, x: number, y: number) {
+  if (cartEl) {
+    cartEl.classList.remove("cart-pulse");
+    void cartEl.offsetWidth;
+    cartEl.classList.add("cart-pulse");
+    setTimeout(() => cartEl.classList.remove("cart-pulse"), 750);
+  }
+
+  const ring = document.createElement("span");
+  ring.style.cssText = `position:fixed;left:${x - 17}px;top:${y - 17}px;width:34px;height:34px;border:2px solid #3ecf4c;border-radius:999px;z-index:100000;pointer-events:none;`;
+  document.body.appendChild(ring);
+  ring.animate(
+    [{ transform: "scale(.35)", opacity: 0.95 }, { transform: "scale(1.9)", opacity: 0 }],
+    { duration: 480, easing: "cubic-bezier(.16,1,.3,1)" }
+  ).onfinish = () => ring.remove();
+
+  [0, 60, 120, 180, 240, 300].forEach((angle, index) => {
+    const particle = document.createElement("span");
+    const radians = angle * Math.PI / 180;
+    const distance = 18 + (index % 2) * 7;
+    particle.style.cssText = `position:fixed;left:${x - 3}px;top:${y - 3}px;width:6px;height:6px;border-radius:999px;background:${index % 2 ? "#111" : "#3ecf4c"};z-index:100001;pointer-events:none;`;
+    document.body.appendChild(particle);
+    particle.animate(
+      [
+        { transform: "translate(0,0) scale(1)", opacity: 1 },
+        { transform: `translate(${Math.cos(radians) * distance}px,${Math.sin(radians) * distance}px) scale(.15)`, opacity: 0 },
+      ],
+      { duration: 430, delay: index * 18, easing: "cubic-bezier(.16,1,.3,1)" }
+    ).onfinish = () => particle.remove();
+  });
+}
+
 function flyImageToCart(imgSrc: string, btnEl: HTMLElement) {
   // Pick the visible cart icon (header on desktop, bottom nav on mobile)
   const allCartEls = document.querySelectorAll("[data-cart-icon]");
@@ -21,7 +54,7 @@ function flyImageToCart(imgSrc: string, btnEl: HTMLElement) {
   const isMobile = window.innerWidth < 768;
 
   // Bubble starts centered on the button, already small
-  const size = isMobile ? 54 : 64;
+  const size = isMobile ? 62 : 72;
   const startX = from.left + from.width / 2 - size / 2;
   const startY = from.top  + from.height / 2 - size / 2;
 
@@ -29,14 +62,24 @@ function flyImageToCart(imgSrc: string, btnEl: HTMLElement) {
   const endCX = cartRect ? cartRect.left + cartRect.width / 2  : (isMobile ? window.innerWidth / 2 : window.innerWidth - 48);
   const endCY = cartRect ? cartRect.top  + cartRect.height / 2 : (isMobile ? window.innerHeight - 40 : 30);
 
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    showCartToast();
+    return;
+  }
+
   // delta from bubble center to cart center
   const dx = endCX - (startX + size / 2);
   const dy = endCY - (startY + size / 2);
 
   // Arc midpoint: halfway along path, pulled upward
   const arcLift = Math.min(Math.abs(dx) * 0.18 + 60, 140);
-  const midX = dx * 0.45;
-  const midY = dy * 0.35 - arcLift;
+  const midX = dx * 0.48;
+  const midY = dy * 0.38 - arcLift;
+
+  btnEl.animate(
+    [{ transform: "scale(1)" }, { transform: "scale(.975)" }, { transform: "scale(1)" }],
+    { duration: 240, easing: "ease-out" }
+  );
 
   // Flying image bubble
   const fly = document.createElement("div");
@@ -48,34 +91,57 @@ function flyImageToCart(imgSrc: string, btnEl: HTMLElement) {
     "height:" + size + "px",
     "z-index:99999",
     "pointer-events:none",
-    "border-radius:14px",
-    "overflow:hidden",
-    "box-shadow:0 8px 28px rgba(0,0,0,0.28)",
+    "border-radius:18px",
+    "overflow:visible",
+    "padding:3px",
+    "background:#fff",
+    "border:2px solid #3ecf4c",
+    "box-shadow:0 14px 38px rgba(0,0,0,.28),0 0 0 7px rgba(62,207,76,.16)",
     "will-change:transform,opacity",
   ].join(";");
   const img = document.createElement("img");
   img.src = imgSrc;
-  img.style.cssText = "width:100%;height:100%;object-fit:cover;display:block;";
+  img.alt = "";
+  img.style.cssText = "width:100%;height:100%;object-fit:cover;display:block;border-radius:13px;background:#f5f5f5;";
   img.draggable = false;
   fly.appendChild(img);
+  const plus = document.createElement("span");
+  plus.textContent = "+1";
+  plus.style.cssText = "position:absolute;right:-9px;top:-10px;min-width:27px;height:27px;padding:0 5px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#3ecf4c;color:#071108;font:900 11px/1 Arial,sans-serif;box-shadow:0 5px 14px rgba(62,207,76,.45);";
+  fly.appendChild(plus);
   document.body.appendChild(fly);
+
+  const trails = [0, 1].map((index) => {
+    const dot = document.createElement("span");
+    dot.style.cssText = `position:fixed;left:${startX + size / 2 - 5}px;top:${startY + size / 2 - 5}px;width:10px;height:10px;border-radius:999px;background:#3ecf4c;z-index:99998;pointer-events:none;filter:blur(${index ? 1 : 0}px);will-change:transform,opacity;`;
+    document.body.appendChild(dot);
+    dot.animate(
+      [
+        { transform: "translate(0,0) scale(.6)", opacity: 0 },
+        { transform: `translate(${midX}px,${midY}px) scale(1)`, opacity: 0.5, offset: 0.48 },
+        { transform: `translate(${dx}px,${dy}px) scale(.15)`, opacity: 0 },
+      ],
+      { duration: isMobile ? 760 : 860, delay: 90 + index * 75, easing: "cubic-bezier(.22,.75,.25,1)", fill: "forwards" }
+    ).onfinish = () => dot.remove();
+    return dot;
+  });
 
   // Web Animations API — curved arc path
   const anim = fly.animate(
     [
-      { transform: "translate(0,0) scale(1)",                                             opacity: "1",   offset: 0 },
-      { transform: `translate(${midX}px,${midY}px) scale(0.85)`,                          opacity: "1",   offset: 0.42 },
-      { transform: `translate(${dx}px,${dy}px) scale(0.18)`,                              opacity: "0",   offset: 1 },
+      { transform: "translate(0,0) rotate(-4deg) scale(.2)", opacity: "0", offset: 0 },
+      { transform: "translate(0,0) rotate(0deg) scale(1.08)", opacity: "1", offset: 0.12 },
+      { transform: `translate(${midX}px,${midY}px) rotate(8deg) scale(.88)`, opacity: "1", offset: 0.5 },
+      { transform: `translate(${dx}px,${dy}px) rotate(15deg) scale(.16)`, opacity: "0.7", offset: 0.94 },
+      { transform: `translate(${dx}px,${dy}px) rotate(15deg) scale(.05)`, opacity: "0", offset: 1 },
     ],
-    { duration: isMobile ? 620 : 720, easing: "cubic-bezier(0.25,0.46,0.45,0.94)", fill: "forwards" }
+    { duration: isMobile ? 760 : 860, easing: "cubic-bezier(.22,.75,.25,1)", fill: "forwards" }
   );
 
   anim.onfinish = () => {
     fly.remove();
-    if (cartEl) {
-      cartEl.classList.add("cart-pulse");
-      setTimeout(() => cartEl.classList.remove("cart-pulse"), 700);
-    }
+    trails.forEach((trail) => trail.remove());
+    celebrateCart(cartEl, endCX, endCY);
     showCartToast();
   };
 }
@@ -195,6 +261,8 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const { add } = useCart();
+  const { slugs: wishlistSlugs, pending: wishlistPending, toggle: toggleWishlist } = useWishlist();
+  const wished = wishlistSlugs.has(product.slug);
   const router = useRouter();
 
   // Reset size when color changes if current size is no longer available
@@ -508,6 +576,16 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
         }`}
       >
         Acheter maintenant
+      </button>
+      <button
+        type="button"
+        onClick={() => void toggleWishlist(product.slug)}
+        disabled={wishlistPending.has(product.slug)}
+        aria-pressed={wished}
+        className={`mt-2 w-full border py-3.5 font-black uppercase text-[11px] tracking-[0.14em] transition-all inline-flex items-center justify-center gap-2 disabled:opacity-60 ${wished ? "border-rose-200 bg-rose-50 text-rose-600" : "border-neutral-200 bg-white text-neutral-600 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"}`}
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill={wished ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8a5.5 5.5 0 0 0 1-7.8Z"/></svg>
+        {wished ? "Enregistré dans mes favoris" : "Ajouter aux favoris"}
       </button>
 
       {/* Payment methods */}

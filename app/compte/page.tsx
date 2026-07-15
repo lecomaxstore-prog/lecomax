@@ -7,6 +7,7 @@ import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { products, formatMAD } from "@/lib/products";
 import { customerApiFetch } from "@/lib/customer-api";
+import { useWishlist } from "@/components/WishlistContext";
 
 type UserInfo = {
   email: string;
@@ -35,8 +36,10 @@ const STATUS_LABEL: Record<string, { label: string; color: string }> = {
 const recommended = products.slice(0, 2);
 
 export default function ComptePage() {
+  const { count: wishlistCount } = useWishlist();
   const [user, setUser] = useState<UserInfo | null>(null);
   const [orders, setOrders] = useState<RecentOrder[]>([]);
+  const [orderCount, setOrderCount] = useState<number | null>(null);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [points, setPoints] = useState(0);
   const [tierName, setTierName] = useState("Bronze");
@@ -69,7 +72,11 @@ export default function ComptePage() {
         .finally(() => setSavedLoading(false));
       // Fetch recent orders by email
       customerApiFetch(`/api/orders?email=${encodeURIComponent(email)}&limit=3`)
-        .then(r => r.json())
+        .then(async r => {
+          const total = Number(r.headers.get("X-Total-Count"));
+          if (Number.isFinite(total)) setOrderCount(total);
+          return r.json();
+        })
         .then((data: RecentOrder[]) => {
           setOrders(Array.isArray(data) ? data : []);
           setOrdersLoading(false);
@@ -95,26 +102,23 @@ export default function ComptePage() {
   const hasFullName = !!(user?.full_name?.trim());
   const today = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/";
-  };
-
   return (
     <div className="flex flex-col gap-6">
 
       {/* ─── Hero welcome banner ─── */}
-      <div className="relative bg-black text-white overflow-hidden rounded-2xl">
+      <div className="relative bg-[#050806] text-white overflow-hidden rounded-[24px] border border-white/10 shadow-[0_22px_60px_rgba(0,0,0,0.18)]">
         {/* subtle grid pattern */}
-        <div aria-hidden className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 80% 50%, rgba(62,207,76,0.08) 0%, transparent 60%), repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 0, transparent 50%)", backgroundSize: "auto, 14px 14px" }} />
-        <div className="relative px-6 sm:px-10 py-10 sm:py-12 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
+        <div aria-hidden className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 82% 30%, rgba(62,207,76,0.20) 0%, transparent 38%), repeating-linear-gradient(45deg, rgba(255,255,255,0.025) 0, rgba(255,255,255,0.025) 1px, transparent 0, transparent 50%)", backgroundSize: "auto, 14px 14px" }} />
+        <div aria-hidden className="absolute -right-12 -top-16 h-48 w-48 rounded-full border border-[#3ecf4c]/20" />
+        <div className="relative px-6 sm:px-10 py-8 sm:py-11 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-8">
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.5em] text-neutral-500 mb-4">
+            <p className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.28em] sm:tracking-[0.4em] text-neutral-500 mb-3">
               {today.charAt(0).toUpperCase() + today.slice(1)}
             </p>
-            <h1 className="font-black text-[28px] sm:text-[36px] leading-none mb-5">
+            <h1 className="font-black text-[27px] sm:text-[36px] leading-[1.05] tracking-[-0.03em] mb-2.5">
               Bonjour, <span className="text-[#3ecf4c]">{firstName} 👋</span>
             </h1>
+            <p className="max-w-md text-[11px] sm:text-[12px] leading-relaxed text-neutral-400 mb-5">Retrouvez vos commandes, vos avantages et toutes vos informations au même endroit.</p>
             <div className="flex items-center gap-2 flex-wrap">
               {memberSince && (
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-neutral-400 border border-white/10 rounded-full px-3 py-1">
@@ -128,21 +132,19 @@ export default function ComptePage() {
               </span>
             </div>
           </div>
-          <div className="flex flex-col gap-2 shrink-0">
-            <Link href="/nouveautes" className="inline-flex items-center justify-center gap-2 bg-[#3ecf4c] text-black font-black text-[11px] uppercase tracking-[0.15em] px-6 py-3.5 rounded-xl hover:bg-[#2db83a] transition-colors whitespace-nowrap group">
-              Découvrir
+          <div className="grid grid-cols-2 sm:flex sm:flex-col gap-2 shrink-0">
+            <Link href="/compte/commandes" className="inline-flex items-center justify-center gap-2 bg-[#3ecf4c] text-black font-black text-[9px] sm:text-[11px] uppercase tracking-[0.1em] sm:tracking-[0.15em] px-3 sm:px-6 py-3.5 rounded-xl hover:bg-[#2db83a] hover:-translate-y-0.5 transition-all whitespace-nowrap group shadow-[0_10px_28px_rgba(62,207,76,0.22)]">
+              Mes commandes
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="group-hover:translate-x-0.5 transition-transform"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </Link>
-            <button onClick={handleSignOut} className="text-[10px] font-medium text-neutral-500 hover:text-white transition-colors text-center py-1">
-              Se déconnecter
-            </button>
+            <Link href="/nouveautes" className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] px-3 sm:px-6 py-3.5 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.1em] text-white transition-all hover:bg-white/10 hover:border-white/25 whitespace-nowrap">Nouveautés</Link>
           </div>
         </div>
       </div>
 
       {/* ─── Profile completion nudge ─── */}
       {!hasFullName && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 flex items-center justify-between gap-4">
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50/60 border border-amber-200 rounded-2xl px-5 py-4 flex flex-col min-[460px]:flex-row min-[460px]:items-center justify-between gap-4 shadow-[0_8px_24px_rgba(245,158,11,0.07)]">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-600"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -152,19 +154,19 @@ export default function ComptePage() {
               <p className="text-[11px] text-amber-600 mt-0.5">Ajoutez votre nom pour personnaliser votre expérience.</p>
             </div>
           </div>
-          <Link href="/compte/profil" className="shrink-0 text-[10px] font-black uppercase tracking-widest bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors whitespace-nowrap">
+          <Link href="/compte/profil" className="w-full min-[460px]:w-auto shrink-0 text-center text-[10px] font-black uppercase tracking-widest bg-amber-500 text-white px-5 py-2.5 rounded-xl hover:bg-amber-600 hover:-translate-y-0.5 transition-all whitespace-nowrap shadow-sm">
             Compléter →
           </Link>
         </div>
       )}
 
       {/* ─── Stats cards ─── */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-3 gap-3">
         {[
           {
             label: "Commandes",
-            value: ordersLoading ? "—" : String(orders.length),
-            sub: "total passées",
+            value: ordersLoading || orderCount === null ? "—" : String(orderCount),
+            sub: "au total",
             href: "/compte/commandes",
             bg: "bg-white",
             icon: (
@@ -195,12 +197,13 @@ export default function ComptePage() {
             color: tierName === "Gold" ? "#fbbf24" : tierName === "Silver" ? "#a8a9ad" : "#f59e0b",
           },
         ].map((s) => (
-          <Link key={s.label} href={s.href} className={`group ${s.bg} border border-neutral-100 hover:border-neutral-300 hover:shadow-lg transition-all duration-200 rounded-2xl p-4 sm:p-5 flex flex-col gap-3`}>
-            <div className="w-9 h-9 rounded-xl bg-neutral-50 group-hover:bg-neutral-100 flex items-center justify-center text-neutral-400 group-hover:text-black transition-all">
+          <Link key={s.label} href={s.href} className={`group min-w-0 ${s.bg} relative overflow-hidden border border-neutral-200/70 hover:border-neutral-300 hover:-translate-y-0.5 hover:shadow-[0_14px_35px_rgba(15,23,42,0.09)] transition-all duration-200 rounded-2xl p-4 sm:p-5 flex min-[420px]:flex-col items-center min-[420px]:items-stretch gap-4 min-[420px]:gap-3`}>
+            <span className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#3ecf4c] to-emerald-300 opacity-0 transition-opacity group-hover:opacity-100" />
+            <div className="w-10 h-10 rounded-xl bg-neutral-50 group-hover:bg-neutral-100 flex items-center justify-center text-neutral-400 group-hover:text-black transition-all shrink-0">
               {s.icon}
             </div>
-            <div>
-              <p className="font-black text-[24px] sm:text-[28px] leading-none tracking-tight" style={{ color: s.color }}>{s.value}</p>
+            <div className="min-w-0 flex-1">
+              <p className="font-black text-[23px] sm:text-[28px] leading-none tracking-tight truncate" style={{ color: s.color }}>{s.value}</p>
               <p className="text-[10px] font-semibold text-neutral-400 mt-1 uppercase tracking-wider">{s.label}</p>
               <p className="text-[10px] text-neutral-300 mt-0.5">{s.sub}</p>
             </div>
@@ -351,8 +354,9 @@ export default function ComptePage() {
       {/* ─── Quick actions ─── */}
       <div>
         <p className="font-black text-[11px] uppercase tracking-[0.3em] text-neutral-400 mb-3">Accès rapide</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {[
+            { href: "/wishlist", label: "Mes favoris", sub: `${wishlistCount} enregistré${wishlistCount > 1 ? "s" : ""}`, color: "bg-rose-50 text-rose-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8a5.5 5.5 0 001-7.8Z"/></svg> },
             { href: "/compte/profil", label: "Mon profil", sub: "Infos personnelles", color: "bg-blue-50 text-blue-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
             { href: "/compte/adresses", label: "Mes adresses", sub: "Livraison", color: "bg-emerald-50 text-emerald-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> },
             { href: "/suivre-commande", label: "Suivre un colis", sub: "Ma commande", color: "bg-purple-50 text-purple-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },

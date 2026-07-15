@@ -159,12 +159,12 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
   const displayName = user?.full_name || user?.email?.split("@")[0] || "Mon compte";
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f7f8f8_0%,#ffffff_55%,#f4fbf5_100%)]">
 
       {/* ── Mobile top bar ── */}
-      <div className="lg:hidden bg-black text-white px-4 py-3.5 flex items-center justify-between sticky top-0 z-20">
+      <div className="lg:hidden bg-[#080b09] text-white px-4 py-3.5 flex items-center justify-between sticky top-0 z-20 border-b border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-white text-black flex items-center justify-center text-[10px] font-black shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-white text-black flex items-center justify-center text-[10px] font-black shrink-0 shadow-sm ring-1 ring-white/20">
             {initials}
           </div>
           <div>
@@ -184,7 +184,7 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
         </button>
       </div>
 
-      <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-6 lg:py-10 flex gap-0 lg:gap-8">
+      <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-5 lg:py-10 flex gap-0 lg:gap-8">
 
         {/* ─────────── Sidebar ─────────── */}
         <aside className="hidden lg:flex flex-col w-[240px] shrink-0 gap-4">
@@ -289,24 +289,25 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
         <main className="flex-1 min-w-0">
 
           {/* Mobile nav */}
-          <div className="lg:hidden mb-5 overflow-x-auto bg-white border border-neutral-200 rounded-xl">
-            <div className="flex min-w-max">
+          <div className="lg:hidden mb-5 overflow-hidden bg-white/95 border border-neutral-200/80 rounded-2xl shadow-[0_8px_28px_rgba(15,23,42,0.06)] backdrop-blur">
+            <div className="grid grid-cols-4">
               {nav.map((item) => {
                 const active = isActive(item.href, item.exact, pathname);
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex flex-col items-center gap-1.5 px-5 py-3.5 shrink-0 border-b-2 transition-colors duration-150 ${
+                    className={`relative min-w-0 flex flex-col items-center justify-center gap-1.5 px-1 py-3.5 transition-all duration-200 ${
                       active
-                        ? "border-black text-black"
-                        : "border-transparent text-neutral-400 hover:text-neutral-600 hover:border-neutral-300"
+                        ? "bg-emerald-50/70 text-black"
+                        : "text-neutral-400 hover:bg-neutral-50 hover:text-neutral-700"
                     }`}
                   >
-                    {item.icon}
-                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">
+                    <span className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${active ? "bg-black text-white shadow-sm" : "bg-neutral-50"}`}>{item.icon}</span>
+                    <span className="max-w-full truncate text-[8px] min-[400px]:text-[9px] font-black uppercase tracking-[0.08em] min-[400px]:tracking-[0.12em]">
                       {item.label}
                     </span>
+                    {active && <span className="absolute inset-x-3 bottom-0 h-[3px] rounded-t-full bg-[#3ecf4c]" />}
                   </Link>
                 );
               })}
