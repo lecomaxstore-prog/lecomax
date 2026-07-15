@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { withShippingMetadata } from "@/lib/shipping-config-server";
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: "Bestsellers | L'ecomax — Les Plus Vendus au Maroc",
   description:
     "Les produits les plus populaires de L'ecomax : chaussures, vêtements et accessoires tech bestsellers. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
@@ -33,6 +34,8 @@ export const metadata: Metadata = {
     description: "Les produits bestsellers de L'ecomax au Maroc.",
   },
 };
+
+export function generateMetadata() { return withShippingMetadata(baseMetadata); }
 
 export default function BestsellersLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;

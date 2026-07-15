@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { formatShippingAmount } from "@/lib/shipping-config";
 
 const SITE_URL = "https://lecomax.com";
 const SHOP_NAME = "L'ecomax";
@@ -36,6 +38,7 @@ function price(val: number) {
 export const revalidate = 3600; // regenerate every hour
 
 export async function GET() {
+  const shippingConfig = await getServerShippingConfig();
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -99,7 +102,7 @@ export async function GET() {
       <g:shipping>
         <g:country>MA</g:country>
         <g:service>Standard</g:service>
-        <g:price>35.00 ${CURRENCY}</g:price>
+        <g:price>${shippingConfig.cost.toFixed(2)} ${CURRENCY}</g:price>
       </g:shipping>
     </item>`;
 
@@ -111,7 +114,7 @@ export async function GET() {
   <channel>
     <title>${SHOP_NAME} — Boutique en ligne Maroc</title>
     <link>${SITE_URL}</link>
-    <description>Chaussures de sport, vêtements tendance, écouteurs sans fil et accessoires gaming. Livraison 35 MAD partout au Maroc.</description>
+    <description>Chaussures de sport, vêtements tendance, écouteurs sans fil et accessoires gaming. Livraison ${formatShippingAmount(shippingConfig.cost)} MAD partout au Maroc.</description>
 ${items.join("\n")}
   </channel>
 </rss>`;

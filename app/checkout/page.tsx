@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 import { useSettings } from "@/lib/use-settings";
+import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
 import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
 import { supabase } from "@/lib/supabase";
 
@@ -397,10 +398,10 @@ export default function CheckoutPage() {
     });
   }, []);
 
-  const defaultShippingCost = Number(siteSettings.shipping_cost ?? 35);
-  const defaultFreeAbove = Number(siteSettings.free_shipping_threshold ?? 500);
+  const shippingConfig = shippingConfigFromSettings(siteSettings);
+  const defaultFreeAbove = shippingConfig.freeThreshold;
   const isSidiBennour = form.ville.trim().toLowerCase().replace(/[-\s]/g, "") === "sidibennour";
-  const shipping = isSidiBennour || total >= defaultFreeAbove ? 0 : defaultShippingCost;
+  const shipping = isSidiBennour ? 0 : calculateShipping(total, shippingConfig);
   const couponDiscount = couponApplied?.discount ?? 0;
   const effectiveLoyaltyDiscountPct = siteSettings.enable_ecoclub === "false" ? 0 : loyaltyDiscountPct;
   // Loyalty discount applies on subtotal (after coupon); Silver 30%, Gold 50%
@@ -1064,7 +1065,7 @@ export default function CheckoutPage() {
                     {shipping === 0 ? "Gratuite 🎉" : formatMAD(shipping)}
                   </span>
                 </div>
-                {shipping > 0 && (
+                {shipping > 0 && defaultFreeAbove > 0 && (
                   <p className="text-[10px] text-neutral-400 bg-neutral-100 px-3 py-2">
                     Livraison <strong>gratuite</strong> dès <strong>{defaultFreeAbove} MAD</strong> d&apos;achats
                   </p>
