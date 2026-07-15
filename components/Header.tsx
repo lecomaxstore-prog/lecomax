@@ -7,6 +7,7 @@ import { categories } from "@/lib/products";
 import Logo from "./Logo";
 import { supabase } from "@/lib/supabase";
 import SearchOverlay from "./SearchOverlay";
+import { useSettings } from "@/lib/use-settings";
 
 const utilLinks = [
   { label: "Aide", href: "/aide", icon: <HelpIcon /> },
@@ -22,11 +23,20 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [navCategories, setNavCategories] = useState<{ slug: string; label: string }[]>(categories.map(({ slug, label }) => ({ slug, label })));
+  const siteSettings = useSettings();
+  const visibleUtilLinks = utilLinks.filter((link) => link.href !== "/ecoclub" || siteSettings.enable_ecoclub !== "false");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/categories", { cache: "no-store" }).then((response) => response.json()).then((data) => {
+      if (Array.isArray(data) && data.length) setNavCategories(data.filter((category) => category.active !== false).map((category) => ({ slug: category.slug, label: category.label })));
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -54,7 +64,7 @@ export default function Header() {
 
           {/* Right: utility links */}
           <div className="flex items-center divide-x divide-white/10">
-            {utilLinks.map((u) => (
+            {visibleUtilLinks.map((u) => (
               <Link
                 key={u.label}
                 href={u.href}
@@ -89,7 +99,7 @@ export default function Header() {
           </button>
 
           <Link href="/" aria-label="L'ecomax — Accueil" className="flex items-center gap-3">
-            <Logo />
+            <Logo showWordmark />
           </Link>
         </div>
 
@@ -103,7 +113,7 @@ export default function Header() {
             <span className="relative z-10 transition-colors duration-200">Accueil</span>
             <span className="absolute inset-x-3.5 bottom-0.5 h-[2px] bg-[#3ecf4c] scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]" />
           </Link>
-          {categories.map((c) => (
+          {navCategories.map((c) => (
             <Link
               key={c.slug}
               href={`/${c.slug}`}
@@ -148,9 +158,9 @@ export default function Header() {
           <IconBtn href={isLoggedIn ? "/compte" : "/connexion"} label="Mon compte">
             <UserIcon />
           </IconBtn>
-          <IconBtn href={isLoggedIn ? "/compte" : "/connexion"} label="Mes favoris">
+          {siteSettings.enable_wishlist !== "false" && <IconBtn href={isLoggedIn ? "/compte" : "/connexion"} label="Mes favoris">
             <HeartIcon />
-          </IconBtn>
+          </IconBtn>}
           <IconBtn href="/panier" label="Panier">
             <span
               data-cart-icon
@@ -185,7 +195,7 @@ export default function Header() {
         <div className={`flex items-center justify-between px-5 h-[60px] shrink-0 ${open ? "drawer-item" : ""}`}
           style={{ borderBottom: "1.5px solid #f0f0f0", animationDelay: "20ms" }}>
           <Link href="/" onClick={() => setOpen(false)}>
-            <Logo />
+            <Logo showWordmark />
           </Link>
           <button
             aria-label="Fermer"
@@ -301,7 +311,7 @@ export default function Header() {
           <div className={`px-4 mt-4 mb-6 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "440ms" }}>
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-neutral-300 mb-2 px-1">Aide & Services</p>
             <div className="grid grid-cols-2 gap-2">
-              {utilLinks.map((u) => (
+              {visibleUtilLinks.map((u) => (
                 <Link key={u.label} href={u.href} onClick={() => setOpen(false)}
                   className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl active:bg-neutral-50 transition-colors"
                   style={{ border: "1.5px solid #f0f0f0" }}>

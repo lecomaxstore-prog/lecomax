@@ -16,6 +16,8 @@ export type PushPayload = {
 
 export type PushResult = { sent: number; failed: number; total: number };
 
+export const ADMIN_PUSH_USER_AGENT_PREFIX = "[LECOMAX_ADMIN] ";
+
 function getSupabase() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 }
@@ -45,6 +47,63 @@ export async function broadcastPushNotification(payload: PushPayload): Promise<P
     image: payload.image,
     url: payload.url ?? "/ecomedia/",
     tag: payload.tag ?? "ecomedia-new-post",
+    requireInteraction: payload.requireInteraction ?? false,
+  });
+
+  let sent = 0;
+  let failed = 0;
+  const expiredEndpoints: string[] = [];
+  await Promise.allSettled(subscriptions.map(async (subscription) => {
+    try {
+      await webpush.sendNotification(
+        { endpoint: subscription.endpoint, keys: { p256dh: subscription.p256dh, auth: subscription.auth } },
+        message,
+      );
+      sent += 1;
+    } catch (error: unknown) {
+      failed += 1;
+      const statusCode = (error as { statusCode?: number }).statusCode;
+      if (statusCode === 404 || statusCode === 410) expiredEndpoints.push(subscription.endpoint);
+    }
+  }));
+
+  if (expiredEndpoints.length > 0) {
+    await supabase.from("push_subscriptions").delete().in("endpoint", expiredEndpoints);
+  }
+  await supabase.from("push_notifications_log").insert({
+    event_key: payload.eventKey ?? null,
+    title: payload.title,
+    body: payload.body ?? null,
+    icon: payload.icon ?? null,
+    image: payload.image ?? null,
+    click_url: payload.url ?? null,
+    sent_count: sent,
+    failed_count: failed,
+  });
+  return { sent, failed, total: subscriptions.length };
+}
+
+/** Sends operational alerts only to authenticated admin devices. */
+export async function broadcastAdminPushNotification(payload: PushPayload): Promise<PushResult> {
+  configureWebPush();
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("push_subscriptions")
+    .select("endpoint, p256dh, auth")
+    .like("user_agent", `${ADMIN_PUSH_USER_AGENT_PREFIX}%`);
+  if (error) throw new Error(error.message);
+
+  const subscriptions = data ?? [];
+  if (subscriptions.length === 0) return { sent: 0, failed: 0, total: 0 };
+
+  const message = JSON.stringify({
+    title: payload.title,
+    body: payload.body ?? "",
+    icon: payload.icon ?? "/favicon.png",
+    badge: "/favicon.png",
+    image: payload.image,
+    url: payload.url ?? "/admin/dashboard/",
+    tag: payload.tag ?? "lecomax-admin-alert",
     requireInteraction: payload.requireInteraction ?? false,
   });
 

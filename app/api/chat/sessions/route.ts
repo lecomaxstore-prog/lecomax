@@ -15,6 +15,17 @@ export async function GET() {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
+  const sessionIds = (data || []).map((session) => session.id);
+  const joinedSessionIds = new Set<string>();
+  if (sessionIds.length > 0) {
+    const { data: joinedMessages } = await supabase
+      .from("chat_messages")
+      .select("session_id")
+      .in("session_id", sessionIds)
+      .eq("body", "__AGENT_JOINED__");
+    for (const message of joinedMessages || []) joinedSessionIds.add(message.session_id);
+  }
+
   const cutoff = new Date(Date.now() - 5 * 60 * 1000).toISOString();
   const candidates = (data || []).filter(
     (session) => session.status === "escalated" && session.last_at <= cutoff
@@ -44,5 +55,8 @@ export async function GET() {
       }
     }
   }
-  return NextResponse.json(data || []);
+  return NextResponse.json((data || []).map((session) => ({
+    ...session,
+    agent_joined: joinedSessionIds.has(session.id),
+  })));
 }

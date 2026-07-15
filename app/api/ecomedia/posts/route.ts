@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
   });
 }
 
-// Authenticated customers can publish a text or image post.
+// Authenticated customers can submit a text or image post for admin review.
 export async function POST(req: NextRequest) {
   const user = await getEcomediaUser(req);
   if (!user) return NextResponse.json({ error: "Connectez-vous pour publier." }, { status: 401 });
@@ -77,11 +77,11 @@ export async function POST(req: NextRequest) {
     content: content || null,
     type: mediaUrl ? "image" : "text",
     media_url: mediaUrl,
-    is_published: true,
+    is_published: false,
     is_featured: false,
     cta_text: authorMeta,
   };
   const { data, error } = await sb.from("ecomedia_posts").insert(payload).select("*").single();
   if (error) return NextResponse.json({ error: "Impossible de publier pour le moment." }, { status: 500 });
-  return NextResponse.json(hydrateCommunityPost(data), { status: 201 });
+  return NextResponse.json({ ...hydrateCommunityPost(data), moderation_status: "pending" }, { status: 201 });
 }

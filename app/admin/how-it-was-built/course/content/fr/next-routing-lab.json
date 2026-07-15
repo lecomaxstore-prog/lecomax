@@ -1,0 +1,984 @@
+{
+  "id": "next-routing-lab",
+  "order": 41,
+  "icon": "link",
+  "color": "#2563eb",
+  "title": "Next.js pratique : créer et relier toutes les pages",
+  "summary": "Construire routes, liens, layouts, paramètres et états étape par étape.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/41-next-routing-lab/navigation.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/41-next-routing-lab/product-page.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/41-next-routing-lab/layout.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/41-next-routing-lab/loading-error-navigation.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "page-route-link",
+      "order": 0,
+      "title": "Créer une page et la relier avec Link",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Créer une page et la relier avec Link en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer deux pages reliées par une navigation Next.js en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Transformer la structure app/dossier/page.tsx en URL et utiliser Link pour une navigation client accessible et préchargée. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Transformer la structure app/dossier/page.tsx en URL et utiliser Link pour une navigation client accessible et préchargée. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Créer une page et la relier avec Link ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Transformer la structure app/dossier/page.tsx en URL et utiliser Link pour une navigation client accessible et préchargée. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Créer une page et la relier avec Link, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est deux pages reliées par une navigation Next.js. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Route",
+                  "definition": "Concept central de Créer une page et la relier avec Link, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Paramètre",
+                  "definition": "Mesure ou structure qui rend la décision concernant Créer une page et la relier avec Link comparable et reproductible."
+                },
+                {
+                  "term": "Layout",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Créer une page et la relier avec Link améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Créer une page et la relier avec Link à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "tsx",
+                "filename": "exercises/41-next-routing-lab/navigation.tsx",
+                "source": "import Link from \"next/link\";\nexport default function Navigation() {\n  return <nav><Link href=\"/boutique\">Boutique</Link><Link href=\"/aide\">Aide</Link></nav>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Créer une page et la relier avec Link avant toute exécution."
+                  },
+                  {
+                    "lines": "3-4",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "tsx",
+                "filename": "exercises/41-next-routing-lab/navigation.tsx",
+                "source": "import Link from \"next/link\";\nconst links = [{href:\"/boutique\",label:\"Boutique\"},{href:\"/aide\",label:\"Aide\"}];\nexport default function Navigation(){return <nav>{links.map(l=><Link key={l.href} href={l.href}>{l.label}</Link>)}</nav>}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Créer une page et la relier avec Link complète chaque section de deux pages reliées par une navigation Next.js, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "Le résultat est vérifiable : deux pages reliées par une navigation Next.js existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire deux pages reliées par une navigation Next.js, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : deux pages reliées par une navigation Next.js existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Créer une page et la relier avec Link paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Créer une page et la relier avec Link, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Créer une page et la relier avec Link progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire deux pages reliées par une navigation Next.js à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Créer une page et la relier avec Link complète chaque section de deux pages reliées par une navigation Next.js, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "import Link from \"next/link\";\nconst links = [{href:\"/boutique\",label:\"Boutique\"},{href:\"/aide\",label:\"Aide\"}];\nexport default function Navigation(){return <nav>{links.map(l=><Link key={l.href} href={l.href}>{l.label}</Link>)}</nav>}",
+          "filename": "exercises/41-next-routing-lab/navigation.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "page-route-link-q1",
+          "question": "Quelle démarche applique correctement Créer une page et la relier avec Link ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Créer une page et la relier avec Link, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Créer une page et la relier avec Link, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Créer une page et la relier avec Link, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Créer une page et la relier avec Link, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Créer une page et la relier avec Link, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "page-route-link-q2",
+          "question": "Quelle définition correspond au terme « Route » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Créer une page et la relier avec Link comparable et reproductible.",
+            "Concept central de Créer une page et la relier avec Link, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Créer une page et la relier avec Link améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Route » signifie : Concept central de Créer une page et la relier avec Link, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Créer une page et la relier avec Link comparable et reproductible. ». La réponse de référence est « Concept central de Créer une page et la relier avec Link, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de Créer une page et la relier avec Link, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Créer une page et la relier avec Link, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de Créer une page et la relier avec Link, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Créer une page et la relier avec Link améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Créer une page et la relier avec Link, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de Créer une page et la relier avec Link, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Créer une page et la relier avec Link, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de Créer une page et la relier avec Link, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "page-route-link-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Créer une page et la relier avec Link paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Créer une page et la relier avec Link, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Créer une page et la relier avec Link, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Créer une page et la relier avec Link, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Créer une page et la relier avec Link, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Créer une page et la relier avec Link, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Créer une page et la relier avec Link, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Créer une page et la relier avec Link, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Créer une page et la relier avec Link, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Créer une page et la relier avec Link, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Créer une page et la relier avec Link, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Créer une page et la relier avec Link est un problème client observable, jamais une tendance isolée.",
+        "Le livrable deux pages reliées par une navigation Next.js rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Créer une page et la relier avec Link, poursuivez avec Route dynamique produit avec slug et not-found afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "dynamic-product-route",
+      "order": 1,
+      "title": "Route dynamique produit avec slug et not-found",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Route dynamique produit avec slug et not-found en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une route /produit/[slug] avec cas trouvé et absent en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Lire params, valider le slug, charger le bon produit et rendre notFound quand la ressource n’existe pas. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Lire params, valider le slug, charger le bon produit et rendre notFound quand la ressource n’existe pas. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Route dynamique produit avec slug et not-found ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Lire params, valider le slug, charger le bon produit et rendre notFound quand la ressource n’existe pas. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Route dynamique produit avec slug et not-found, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une route /produit/[slug] avec cas trouvé et absent. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Route",
+                  "definition": "Concept central de Route dynamique produit avec slug et not-found, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Paramètre",
+                  "definition": "Mesure ou structure qui rend la décision concernant Route dynamique produit avec slug et not-found comparable et reproductible."
+                },
+                {
+                  "term": "Layout",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Route dynamique produit avec slug et not-found améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Route dynamique produit avec slug et not-found à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "tsx",
+                "filename": "exercises/41-next-routing-lab/product-page.tsx",
+                "source": "import { notFound } from \"next/navigation\";\nexport default async function Page({ params }: { params: Promise<{slug:string}> }) {\n  const { slug } = await params;\n  if (!slug) notFound();\n  return <h1>Produit : {slug}</h1>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Route dynamique produit avec slug et not-found avant toute exécution."
+                  },
+                  {
+                    "lines": "4-6",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "tsx",
+                "filename": "exercises/41-next-routing-lab/product-page.tsx",
+                "source": "import { notFound } from \"next/navigation\";\nexport default async function Page({params}:{params:Promise<{slug:string}>}){\n const {slug}=await params; if(slug.length<2) notFound(); return <main><h1>{slug}</h1></main>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Route dynamique produit avec slug et not-found complète chaque section de une route /produit/[slug] avec cas trouvé et absent, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-4",
+                    "label": "Le résultat est vérifiable : une route /produit/[slug] avec cas trouvé et absent existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une route /produit/[slug] avec cas trouvé et absent, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une route /produit/[slug] avec cas trouvé et absent existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Route dynamique produit avec slug et not-found paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Route dynamique produit avec slug et not-found, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Route dynamique produit avec slug et not-found progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une route /produit/[slug] avec cas trouvé et absent à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Route dynamique produit avec slug et not-found complète chaque section de une route /produit/[slug] avec cas trouvé et absent, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "import { notFound } from \"next/navigation\";\nexport default async function Page({params}:{params:Promise<{slug:string}>}){\n const {slug}=await params; if(slug.length<2) notFound(); return <main><h1>{slug}</h1></main>;\n}",
+          "filename": "exercises/41-next-routing-lab/product-page.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "dynamic-product-route-q1",
+          "question": "Quelle démarche applique correctement Route dynamique produit avec slug et not-found ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Route dynamique produit avec slug et not-found, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Route dynamique produit avec slug et not-found, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Route dynamique produit avec slug et not-found, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Route dynamique produit avec slug et not-found, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Route dynamique produit avec slug et not-found, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "dynamic-product-route-q2",
+          "question": "Quelle définition correspond au terme « Route » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Route dynamique produit avec slug et not-found comparable et reproductible.",
+            "Concept central de Route dynamique produit avec slug et not-found, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Route dynamique produit avec slug et not-found améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Route » signifie : Concept central de Route dynamique produit avec slug et not-found, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Route dynamique produit avec slug et not-found comparable et reproductible. ». La réponse de référence est « Concept central de Route dynamique produit avec slug et not-found, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de Route dynamique produit avec slug et not-found, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Route dynamique produit avec slug et not-found, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de Route dynamique produit avec slug et not-found, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Route dynamique produit avec slug et not-found améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Route dynamique produit avec slug et not-found, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de Route dynamique produit avec slug et not-found, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Route dynamique produit avec slug et not-found, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de Route dynamique produit avec slug et not-found, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "dynamic-product-route-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Route dynamique produit avec slug et not-found paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Route dynamique produit avec slug et not-found, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Route dynamique produit avec slug et not-found, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Route dynamique produit avec slug et not-found, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Route dynamique produit avec slug et not-found, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Route dynamique produit avec slug et not-found, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Route dynamique produit avec slug et not-found, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Route dynamique produit avec slug et not-found, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Route dynamique produit avec slug et not-found, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Route dynamique produit avec slug et not-found, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Route dynamique produit avec slug et not-found, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Route dynamique produit avec slug et not-found est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une route /produit/[slug] avec cas trouvé et absent rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Route dynamique produit avec slug et not-found, poursuivez avec Layout partagé, Header, Footer et metadata afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "shared-layout-metadata",
+      "order": 2,
+      "title": "Layout partagé, Header, Footer et metadata",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Layout partagé, Header, Footer et metadata en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un layout racine accessible avec metadata en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Entourer les pages avec une structure stable, garder un seul main par page et définir titres, descriptions et images sociales côté serveur. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Entourer les pages avec une structure stable, garder un seul main par page et définir titres, descriptions et images sociales côté serveur. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Layout partagé, Header, Footer et metadata ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Entourer les pages avec une structure stable, garder un seul main par page et définir titres, descriptions et images sociales côté serveur. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Layout partagé, Header, Footer et metadata, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un layout racine accessible avec metadata. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Route",
+                  "definition": "Concept central de Layout partagé, Header, Footer et metadata, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Paramètre",
+                  "definition": "Mesure ou structure qui rend la décision concernant Layout partagé, Header, Footer et metadata comparable et reproductible."
+                },
+                {
+                  "term": "Layout",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Layout partagé, Header, Footer et metadata améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Layout partagé, Header, Footer et metadata à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "tsx",
+                "filename": "exercises/41-next-routing-lab/layout.tsx",
+                "source": "import type { Metadata } from \"next\";\nexport const metadata: Metadata = { title: \"L’ecomax\", description: \"Boutique en ligne\" };\nexport default function Layout({children}:{children:React.ReactNode}) {\n  return <html lang=\"fr\"><body>{children}</body></html>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Layout partagé, Header, Footer et metadata avant toute exécution."
+                  },
+                  {
+                    "lines": "3-5",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "tsx",
+                "filename": "exercises/41-next-routing-lab/layout.tsx",
+                "source": "import type {Metadata} from \"next\";\nexport const metadata:Metadata={title:{default:\"L’ecomax\",template:\"%s · L’ecomax\"}};\nexport default function Layout({children}:{children:React.ReactNode}){return <html lang=\"fr\"><body>{children}</body></html>}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Layout partagé, Header, Footer et metadata complète chaque section de un layout racine accessible avec metadata, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "Le résultat est vérifiable : un layout racine accessible avec metadata existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un layout racine accessible avec metadata, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un layout racine accessible avec metadata existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Layout partagé, Header, Footer et metadata paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Layout partagé, Header, Footer et metadata, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Layout partagé, Header, Footer et metadata progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un layout racine accessible avec metadata à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Layout partagé, Header, Footer et metadata complète chaque section de un layout racine accessible avec metadata, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "import type {Metadata} from \"next\";\nexport const metadata:Metadata={title:{default:\"L’ecomax\",template:\"%s · L’ecomax\"}};\nexport default function Layout({children}:{children:React.ReactNode}){return <html lang=\"fr\"><body>{children}</body></html>}",
+          "filename": "exercises/41-next-routing-lab/layout.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "shared-layout-metadata-q1",
+          "question": "Quelle démarche applique correctement Layout partagé, Header, Footer et metadata ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Layout partagé, Header, Footer et metadata, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Layout partagé, Header, Footer et metadata, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Layout partagé, Header, Footer et metadata, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Layout partagé, Header, Footer et metadata, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Layout partagé, Header, Footer et metadata, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "shared-layout-metadata-q2",
+          "question": "Quelle définition correspond au terme « Route » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Layout partagé, Header, Footer et metadata comparable et reproductible.",
+            "Concept central de Layout partagé, Header, Footer et metadata, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Layout partagé, Header, Footer et metadata améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Route » signifie : Concept central de Layout partagé, Header, Footer et metadata, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Layout partagé, Header, Footer et metadata comparable et reproductible. ». La réponse de référence est « Concept central de Layout partagé, Header, Footer et metadata, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de Layout partagé, Header, Footer et metadata, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Layout partagé, Header, Footer et metadata, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de Layout partagé, Header, Footer et metadata, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Layout partagé, Header, Footer et metadata améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Layout partagé, Header, Footer et metadata, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de Layout partagé, Header, Footer et metadata, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Layout partagé, Header, Footer et metadata, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de Layout partagé, Header, Footer et metadata, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "shared-layout-metadata-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Layout partagé, Header, Footer et metadata paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Layout partagé, Header, Footer et metadata, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Layout partagé, Header, Footer et metadata, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Layout partagé, Header, Footer et metadata, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Layout partagé, Header, Footer et metadata, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Layout partagé, Header, Footer et metadata, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Layout partagé, Header, Footer et metadata, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Layout partagé, Header, Footer et metadata, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Layout partagé, Header, Footer et metadata, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Layout partagé, Header, Footer et metadata, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Layout partagé, Header, Footer et metadata, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Layout partagé, Header, Footer et metadata est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un layout racine accessible avec metadata rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Layout partagé, Header, Footer et metadata, poursuivez avec loading, error, not-found et navigation robuste afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "loading-error-navigation",
+      "order": 3,
+      "title": "loading, error, not-found et navigation robuste",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer loading, error, not-found et navigation robuste en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une matrice des états de route et fichiers spéciaux en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Donner un retour immédiat pendant chargement, isoler les erreurs récupérables, préserver la navigation et tester lien cassé, réseau lent et ressource absente. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Donner un retour immédiat pendant chargement, isoler les erreurs récupérables, préserver la navigation et tester lien cassé, réseau lent et ressource absente. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "loading, error, not-found et navigation robuste ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Donner un retour immédiat pendant chargement, isoler les erreurs récupérables, préserver la navigation et tester lien cassé, réseau lent et ressource absente. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser loading, error, not-found et navigation robuste, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une matrice des états de route et fichiers spéciaux. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Route",
+                  "definition": "Concept central de loading, error, not-found et navigation robuste, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Paramètre",
+                  "definition": "Mesure ou structure qui rend la décision concernant loading, error, not-found et navigation robuste comparable et reproductible."
+                },
+                {
+                  "term": "Layout",
+                  "definition": "Limite de contrôle utilisée pour vérifier que loading, error, not-found et navigation robuste améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez loading, error, not-found et navigation robuste à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/41-next-routing-lab/loading-error-navigation.md",
+                "source": "# loading, error, not-found, and robust navigation\n- [ ] Customer problem: Give immediate loading feedback, isolate recoverable errors, preserve navigation, and test broken links, slow networks, and missing resources.\n- [ ] Deliverable: a route-state matrix and special files\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://nextjs.org/docs/app/getting-started/error-handling\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de loading, error, not-found et navigation robuste avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/41-next-routing-lab/loading-error-navigation.md",
+                "source": "# loading, error, not-found, and robust navigation\n- [x] Customer problem: Give immediate loading feedback, isolate recoverable errors, preserve navigation, and test broken links, slow networks, and missing resources.\n- [ ] Deliverable: a route-state matrix and special files\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://nextjs.org/docs/app/getting-started/error-handling\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: loading, error, not-found et navigation robuste",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour loading, error, not-found et navigation robuste complète chaque section de une matrice des états de route et fichiers spéciaux, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une matrice des états de route et fichiers spéciaux existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une matrice des états de route et fichiers spéciaux, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une matrice des états de route et fichiers spéciaux existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "loading, error, not-found et navigation robuste paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de loading, error, not-found et navigation robuste, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à loading, error, not-found et navigation robuste progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une matrice des états de route et fichiers spéciaux à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour loading, error, not-found et navigation robuste complète chaque section de une matrice des états de route et fichiers spéciaux, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# loading, error, not-found, and robust navigation\n- [x] Customer problem: Give immediate loading feedback, isolate recoverable errors, preserve navigation, and test broken links, slow networks, and missing resources.\n- [ ] Deliverable: a route-state matrix and special files\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://nextjs.org/docs/app/getting-started/error-handling\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: loading, error, not-found et navigation robuste",
+          "filename": "exercises/41-next-routing-lab/loading-error-navigation.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "loading-error-navigation-q1",
+          "question": "Quelle démarche applique correctement loading, error, not-found et navigation robuste ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour loading, error, not-found et navigation robuste, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour loading, error, not-found et navigation robuste, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour loading, error, not-found et navigation robuste, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour loading, error, not-found et navigation robuste, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour loading, error, not-found et navigation robuste, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "loading-error-navigation-q2",
+          "question": "Quelle définition correspond au terme « Route » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant loading, error, not-found et navigation robuste comparable et reproductible.",
+            "Concept central de loading, error, not-found et navigation robuste, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que loading, error, not-found et navigation robuste améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Route » signifie : Concept central de loading, error, not-found et navigation robuste, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant loading, error, not-found et navigation robuste comparable et reproductible. ». La réponse de référence est « Concept central de loading, error, not-found et navigation robuste, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de loading, error, not-found et navigation robuste, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de loading, error, not-found et navigation robuste, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de loading, error, not-found et navigation robuste, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que loading, error, not-found et navigation robuste améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de loading, error, not-found et navigation robuste, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de loading, error, not-found et navigation robuste, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de loading, error, not-found et navigation robuste, défini par une règle observable plutôt que par une préférence. ». « Route » signifie : Concept central de loading, error, not-found et navigation robuste, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "loading-error-navigation-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « loading, error, not-found et navigation robuste paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de loading, error, not-found et navigation robuste, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de loading, error, not-found et navigation robuste, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de loading, error, not-found et navigation robuste, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de loading, error, not-found et navigation robuste, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de loading, error, not-found et navigation robuste, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de loading, error, not-found et navigation robuste, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de loading, error, not-found et navigation robuste, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de loading, error, not-found et navigation robuste, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de loading, error, not-found et navigation robuste, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de loading, error, not-found et navigation robuste, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de loading, error, not-found et navigation robuste est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une matrice des états de route et fichiers spéciaux rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après loading, error, not-found et navigation robuste, poursuivez avec Créer projet, tables, colonnes et contraintes SQL afin de relier la compétence acquise à l’étape suivante du système de vente."
+    }
+  ]
+}

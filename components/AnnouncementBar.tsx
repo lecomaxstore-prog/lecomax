@@ -6,18 +6,17 @@ const supabaseAdmin = createClient(
 );
 
 export default async function AnnouncementBar() {
-  const { data } = await supabaseAdmin
-    .from("announcements")
-    .select("text")
-    .eq("active", true)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const [{ data }, { data: settingRows }] = await Promise.all([
+    supabaseAdmin.from("announcements").select("text").eq("active", true).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    supabaseAdmin.from("settings").select("key, value").in("key", ["announcement_1", "announcement_2", "announcement_3"]),
+  ]);
+  const settings = Object.fromEntries((settingRows ?? []).map((row) => [row.key, row.value]));
+  const configured = [settings.announcement_1, settings.announcement_2, settings.announcement_3].filter((value): value is string => Boolean(value?.trim()));
+  const messages = configured.length > 0 ? configured : data?.text ? [data.text] : [];
+  if (messages.length === 0) return null;
 
-  if (!data?.text) return null;
-
-  // Repeat enough times so the marquee never shows a gap
-  const repeats = Array(10).fill(data.text);
+  // Repeat the configured sequence enough times so the marquee never shows a gap.
+  const repeats = Array.from({ length: 12 }, (_, index) => messages[index % messages.length]);
 
   return (
     <div

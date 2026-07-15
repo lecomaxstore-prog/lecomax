@@ -1,0 +1,984 @@
+{
+  "id": "import-quality-logistics",
+  "order": 45,
+  "icon": "ship",
+  "color": "#0f766e",
+  "title": "Import, contrôle qualité, transport et coût rendu",
+  "summary": "Prévoir conformité, inspection, douane, délais et argent avant la production.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/45-import-quality-logistics/compliance-before-order.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/45-import-quality-logistics/incoterms-freight.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/45-import-quality-logistics/quality-inspection-aql.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/45-import-quality-logistics/customs-landed-cost-risk.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "compliance-before-order",
+      "order": 0,
+      "title": "Conformité produit et marché avant commande",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Conformité produit et marché avant commande en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un dossier conformité relié au produit exact et au pays en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Identifier code douanier, restrictions, normes, étiquetage, sécurité, responsabilité importateur et preuves applicables dans le pays de vente avant de payer l’outillage. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Identifier code douanier, restrictions, normes, étiquetage, sécurité, responsabilité importateur et preuves applicables dans le pays de vente avant de payer l’outillage. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Conformité produit et marché avant commande ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Identifier code douanier, restrictions, normes, étiquetage, sécurité, responsabilité importateur et preuves applicables dans le pays de vente avant de payer l’outillage. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Conformité produit et marché avant commande, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un dossier conformité relié au produit exact et au pays. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Incoterm",
+                  "definition": "Concept central de Conformité produit et marché avant commande, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Code SH",
+                  "definition": "Mesure ou structure qui rend la décision concernant Conformité produit et marché avant commande comparable et reproductible."
+                },
+                {
+                  "term": "Coût rendu",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Conformité produit et marché avant commande améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Conformité produit et marché avant commande à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/compliance-before-order.md",
+                "source": "# Product and market compliance before ordering\n- [ ] Customer problem: Identify customs code, restrictions, standards, labeling, safety, importer responsibility, and evidence for the destination market before paying for tooling.\n- [ ] Deliverable: a compliance dossier tied to the exact product and country\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://policy.trade.ec.europa.eu/help-exporters-and-importers/importing-eu_en\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Conformité produit et marché avant commande avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/compliance-before-order.md",
+                "source": "# Product and market compliance before ordering\n- [x] Customer problem: Identify customs code, restrictions, standards, labeling, safety, importer responsibility, and evidence for the destination market before paying for tooling.\n- [ ] Deliverable: a compliance dossier tied to the exact product and country\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://policy.trade.ec.europa.eu/help-exporters-and-importers/importing-eu_en\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Conformité produit et marché avant commande",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Conformité produit et marché avant commande complète chaque section de un dossier conformité relié au produit exact et au pays, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un dossier conformité relié au produit exact et au pays existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un dossier conformité relié au produit exact et au pays, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un dossier conformité relié au produit exact et au pays existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Conformité produit et marché avant commande paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Conformité produit et marché avant commande, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Conformité produit et marché avant commande progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un dossier conformité relié au produit exact et au pays à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Conformité produit et marché avant commande complète chaque section de un dossier conformité relié au produit exact et au pays, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Product and market compliance before ordering\n- [x] Customer problem: Identify customs code, restrictions, standards, labeling, safety, importer responsibility, and evidence for the destination market before paying for tooling.\n- [ ] Deliverable: a compliance dossier tied to the exact product and country\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://policy.trade.ec.europa.eu/help-exporters-and-importers/importing-eu_en\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Conformité produit et marché avant commande",
+          "filename": "exercises/45-import-quality-logistics/compliance-before-order.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "compliance-before-order-q1",
+          "question": "Quelle démarche applique correctement Conformité produit et marché avant commande ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Conformité produit et marché avant commande, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Conformité produit et marché avant commande, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Conformité produit et marché avant commande, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Conformité produit et marché avant commande, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Conformité produit et marché avant commande, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "compliance-before-order-q2",
+          "question": "Quelle définition correspond au terme « Incoterm » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Conformité produit et marché avant commande comparable et reproductible.",
+            "Concept central de Conformité produit et marché avant commande, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Conformité produit et marché avant commande améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Incoterm » signifie : Concept central de Conformité produit et marché avant commande, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Conformité produit et marché avant commande comparable et reproductible. ». La réponse de référence est « Concept central de Conformité produit et marché avant commande, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de Conformité produit et marché avant commande, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Conformité produit et marché avant commande, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de Conformité produit et marché avant commande, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Conformité produit et marché avant commande améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Conformité produit et marché avant commande, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de Conformité produit et marché avant commande, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Conformité produit et marché avant commande, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de Conformité produit et marché avant commande, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "compliance-before-order-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Conformité produit et marché avant commande paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Conformité produit et marché avant commande, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Conformité produit et marché avant commande, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Conformité produit et marché avant commande, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Conformité produit et marché avant commande, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Conformité produit et marché avant commande, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Conformité produit et marché avant commande, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Conformité produit et marché avant commande, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Conformité produit et marché avant commande, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Conformité produit et marché avant commande, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Conformité produit et marché avant commande, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Conformité produit et marché avant commande est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un dossier conformité relié au produit exact et au pays rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Conformité produit et marché avant commande, poursuivez avec EXW, FOB, CIF, DDP et choix du transport afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "incoterms-freight",
+      "order": 1,
+      "title": "EXW, FOB, CIF, DDP et choix du transport",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer EXW, FOB, CIF, DDP et choix du transport en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une matrice Incoterm et transport air, mer, rail ou express en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Comprendre où coût, risque, assurance, export, import et livraison changent de responsable, puis obtenir des devis comparables d’un transitaire indépendant. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Comprendre où coût, risque, assurance, export, import et livraison changent de responsable, puis obtenir des devis comparables d’un transitaire indépendant. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "EXW, FOB, CIF, DDP et choix du transport ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Comprendre où coût, risque, assurance, export, import et livraison changent de responsable, puis obtenir des devis comparables d’un transitaire indépendant. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser EXW, FOB, CIF, DDP et choix du transport, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une matrice Incoterm et transport air, mer, rail ou express. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Incoterm",
+                  "definition": "Concept central de EXW, FOB, CIF, DDP et choix du transport, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Code SH",
+                  "definition": "Mesure ou structure qui rend la décision concernant EXW, FOB, CIF, DDP et choix du transport comparable et reproductible."
+                },
+                {
+                  "term": "Coût rendu",
+                  "definition": "Limite de contrôle utilisée pour vérifier que EXW, FOB, CIF, DDP et choix du transport améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez EXW, FOB, CIF, DDP et choix du transport à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/incoterms-freight.md",
+                "source": "# EXW, FOB, CIF, DDP, and freight choice\n- [ ] Customer problem: Understand where cost, risk, insurance, export, import, and delivery change responsibility, then obtain comparable quotes from an independent forwarder.\n- [ ] Deliverable: an Incoterm and air, sea, rail, or express matrix\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://iccwbo.org/business-solutions/incoterms-rules/\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de EXW, FOB, CIF, DDP et choix du transport avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/incoterms-freight.md",
+                "source": "# EXW, FOB, CIF, DDP, and freight choice\n- [x] Customer problem: Understand where cost, risk, insurance, export, import, and delivery change responsibility, then obtain comparable quotes from an independent forwarder.\n- [ ] Deliverable: an Incoterm and air, sea, rail, or express matrix\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://iccwbo.org/business-solutions/incoterms-rules/\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: EXW, FOB, CIF, DDP et choix du transport",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour EXW, FOB, CIF, DDP et choix du transport complète chaque section de une matrice Incoterm et transport air, mer, rail ou express, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une matrice Incoterm et transport air, mer, rail ou express existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une matrice Incoterm et transport air, mer, rail ou express, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une matrice Incoterm et transport air, mer, rail ou express existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "EXW, FOB, CIF, DDP et choix du transport paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de EXW, FOB, CIF, DDP et choix du transport, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à EXW, FOB, CIF, DDP et choix du transport progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une matrice Incoterm et transport air, mer, rail ou express à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour EXW, FOB, CIF, DDP et choix du transport complète chaque section de une matrice Incoterm et transport air, mer, rail ou express, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# EXW, FOB, CIF, DDP, and freight choice\n- [x] Customer problem: Understand where cost, risk, insurance, export, import, and delivery change responsibility, then obtain comparable quotes from an independent forwarder.\n- [ ] Deliverable: an Incoterm and air, sea, rail, or express matrix\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://iccwbo.org/business-solutions/incoterms-rules/\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: EXW, FOB, CIF, DDP et choix du transport",
+          "filename": "exercises/45-import-quality-logistics/incoterms-freight.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "incoterms-freight-q1",
+          "question": "Quelle démarche applique correctement EXW, FOB, CIF, DDP et choix du transport ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour EXW, FOB, CIF, DDP et choix du transport, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour EXW, FOB, CIF, DDP et choix du transport, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour EXW, FOB, CIF, DDP et choix du transport, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour EXW, FOB, CIF, DDP et choix du transport, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour EXW, FOB, CIF, DDP et choix du transport, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "incoterms-freight-q2",
+          "question": "Quelle définition correspond au terme « Incoterm » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant EXW, FOB, CIF, DDP et choix du transport comparable et reproductible.",
+            "Concept central de EXW, FOB, CIF, DDP et choix du transport, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que EXW, FOB, CIF, DDP et choix du transport améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Incoterm » signifie : Concept central de EXW, FOB, CIF, DDP et choix du transport, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant EXW, FOB, CIF, DDP et choix du transport comparable et reproductible. ». La réponse de référence est « Concept central de EXW, FOB, CIF, DDP et choix du transport, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de EXW, FOB, CIF, DDP et choix du transport, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de EXW, FOB, CIF, DDP et choix du transport, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de EXW, FOB, CIF, DDP et choix du transport, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que EXW, FOB, CIF, DDP et choix du transport améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de EXW, FOB, CIF, DDP et choix du transport, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de EXW, FOB, CIF, DDP et choix du transport, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de EXW, FOB, CIF, DDP et choix du transport, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de EXW, FOB, CIF, DDP et choix du transport, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "incoterms-freight-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « EXW, FOB, CIF, DDP et choix du transport paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de EXW, FOB, CIF, DDP et choix du transport, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de EXW, FOB, CIF, DDP et choix du transport, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de EXW, FOB, CIF, DDP et choix du transport, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de EXW, FOB, CIF, DDP et choix du transport, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de EXW, FOB, CIF, DDP et choix du transport, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de EXW, FOB, CIF, DDP et choix du transport, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de EXW, FOB, CIF, DDP et choix du transport, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de EXW, FOB, CIF, DDP et choix du transport, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de EXW, FOB, CIF, DDP et choix du transport, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de EXW, FOB, CIF, DDP et choix du transport, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de EXW, FOB, CIF, DDP et choix du transport est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une matrice Incoterm et transport air, mer, rail ou express rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après EXW, FOB, CIF, DDP et choix du transport, poursuivez avec Contrôle qualité, défauts et inspection avant expédition afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "quality-inspection-aql",
+      "order": 2,
+      "title": "Contrôle qualité, défauts et inspection avant expédition",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Contrôle qualité, défauts et inspection avant expédition en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une checklist QC et un plan d’inspection indépendant en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Approuver échantillon, définir défaut critique, majeur et mineur, contrôler production, tirage, quantité, emballage et fonctionnement avant libération du solde. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Approuver échantillon, définir défaut critique, majeur et mineur, contrôler production, tirage, quantité, emballage et fonctionnement avant libération du solde. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Contrôle qualité, défauts et inspection avant expédition ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Approuver échantillon, définir défaut critique, majeur et mineur, contrôler production, tirage, quantité, emballage et fonctionnement avant libération du solde. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Contrôle qualité, défauts et inspection avant expédition, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une checklist QC et un plan d’inspection indépendant. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Incoterm",
+                  "definition": "Concept central de Contrôle qualité, défauts et inspection avant expédition, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Code SH",
+                  "definition": "Mesure ou structure qui rend la décision concernant Contrôle qualité, défauts et inspection avant expédition comparable et reproductible."
+                },
+                {
+                  "term": "Coût rendu",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Contrôle qualité, défauts et inspection avant expédition améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Contrôle qualité, défauts et inspection avant expédition à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/quality-inspection-aql.md",
+                "source": "# Quality control, defects, and pre-shipment inspection\n- [ ] Customer problem: Approve a sample; define critical, major, and minor defects; inspect production, sampling, quantity, packaging, and function before releasing balance.\n- [ ] Deliverable: a QC checklist and independent inspection plan\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.iso.org/standard/1141.html\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Contrôle qualité, défauts et inspection avant expédition avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/quality-inspection-aql.md",
+                "source": "# Quality control, defects, and pre-shipment inspection\n- [x] Customer problem: Approve a sample; define critical, major, and minor defects; inspect production, sampling, quantity, packaging, and function before releasing balance.\n- [ ] Deliverable: a QC checklist and independent inspection plan\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.iso.org/standard/1141.html\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Contrôle qualité, défauts et inspection avant expédition",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Contrôle qualité, défauts et inspection avant expédition complète chaque section de une checklist QC et un plan d’inspection indépendant, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une checklist QC et un plan d’inspection indépendant existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une checklist QC et un plan d’inspection indépendant, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une checklist QC et un plan d’inspection indépendant existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Contrôle qualité, défauts et inspection avant expédition paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Contrôle qualité, défauts et inspection avant expédition, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Contrôle qualité, défauts et inspection avant expédition progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une checklist QC et un plan d’inspection indépendant à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Contrôle qualité, défauts et inspection avant expédition complète chaque section de une checklist QC et un plan d’inspection indépendant, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Quality control, defects, and pre-shipment inspection\n- [x] Customer problem: Approve a sample; define critical, major, and minor defects; inspect production, sampling, quantity, packaging, and function before releasing balance.\n- [ ] Deliverable: a QC checklist and independent inspection plan\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.iso.org/standard/1141.html\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Contrôle qualité, défauts et inspection avant expédition",
+          "filename": "exercises/45-import-quality-logistics/quality-inspection-aql.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "quality-inspection-aql-q1",
+          "question": "Quelle démarche applique correctement Contrôle qualité, défauts et inspection avant expédition ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Contrôle qualité, défauts et inspection avant expédition, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Contrôle qualité, défauts et inspection avant expédition, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Contrôle qualité, défauts et inspection avant expédition, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Contrôle qualité, défauts et inspection avant expédition, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Contrôle qualité, défauts et inspection avant expédition, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "quality-inspection-aql-q2",
+          "question": "Quelle définition correspond au terme « Incoterm » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Contrôle qualité, défauts et inspection avant expédition comparable et reproductible.",
+            "Concept central de Contrôle qualité, défauts et inspection avant expédition, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Contrôle qualité, défauts et inspection avant expédition améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Incoterm » signifie : Concept central de Contrôle qualité, défauts et inspection avant expédition, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Contrôle qualité, défauts et inspection avant expédition comparable et reproductible. ». La réponse de référence est « Concept central de Contrôle qualité, défauts et inspection avant expédition, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de Contrôle qualité, défauts et inspection avant expédition, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Contrôle qualité, défauts et inspection avant expédition, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de Contrôle qualité, défauts et inspection avant expédition, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Contrôle qualité, défauts et inspection avant expédition améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Contrôle qualité, défauts et inspection avant expédition, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de Contrôle qualité, défauts et inspection avant expédition, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Contrôle qualité, défauts et inspection avant expédition, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de Contrôle qualité, défauts et inspection avant expédition, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "quality-inspection-aql-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Contrôle qualité, défauts et inspection avant expédition paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Contrôle qualité, défauts et inspection avant expédition, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contrôle qualité, défauts et inspection avant expédition, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Contrôle qualité, défauts et inspection avant expédition, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contrôle qualité, défauts et inspection avant expédition, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Contrôle qualité, défauts et inspection avant expédition, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contrôle qualité, défauts et inspection avant expédition, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Contrôle qualité, défauts et inspection avant expédition, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contrôle qualité, défauts et inspection avant expédition, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Contrôle qualité, défauts et inspection avant expédition, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contrôle qualité, défauts et inspection avant expédition, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Contrôle qualité, défauts et inspection avant expédition est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une checklist QC et un plan d’inspection indépendant rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Contrôle qualité, défauts et inspection avant expédition, poursuivez avec Douane, coût rendu, stock et plan de risque afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "customs-landed-cost-risk",
+      "order": 3,
+      "title": "Douane, coût rendu, stock et plan de risque",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Douane, coût rendu, stock et plan de risque en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un calcul de coût rendu et registre de risques supply chain en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Additionner produit, emballage, inspection, fret, assurance, droits, taxes, courtage, livraison, financement, casse et retours; ajouter marge de délai et solution de secours. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Additionner produit, emballage, inspection, fret, assurance, droits, taxes, courtage, livraison, financement, casse et retours; ajouter marge de délai et solution de secours. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Douane, coût rendu, stock et plan de risque ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Additionner produit, emballage, inspection, fret, assurance, droits, taxes, courtage, livraison, financement, casse et retours; ajouter marge de délai et solution de secours. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Douane, coût rendu, stock et plan de risque, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un calcul de coût rendu et registre de risques supply chain. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Incoterm",
+                  "definition": "Concept central de Douane, coût rendu, stock et plan de risque, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Code SH",
+                  "definition": "Mesure ou structure qui rend la décision concernant Douane, coût rendu, stock et plan de risque comparable et reproductible."
+                },
+                {
+                  "term": "Coût rendu",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Douane, coût rendu, stock et plan de risque améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Douane, coût rendu, stock et plan de risque à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/customs-landed-cost-risk.md",
+                "source": "# Customs, landed cost, inventory, and risk plan\n- [ ] Customer problem: Add product, packaging, inspection, freight, insurance, duties, tax, brokerage, delivery, finance, damage, and returns; include time buffer and fallback.\n- [ ] Deliverable: a landed-cost calculation and supply-chain risk register\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade.ec.europa.eu/access-to-markets/en/home\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Douane, coût rendu, stock et plan de risque avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/customs-landed-cost-risk.md",
+                "source": "# Customs, landed cost, inventory, and risk plan\n- [x] Customer problem: Add product, packaging, inspection, freight, insurance, duties, tax, brokerage, delivery, finance, damage, and returns; include time buffer and fallback.\n- [ ] Deliverable: a landed-cost calculation and supply-chain risk register\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade.ec.europa.eu/access-to-markets/en/home\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Douane, coût rendu, stock et plan de risque",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Douane, coût rendu, stock et plan de risque complète chaque section de un calcul de coût rendu et registre de risques supply chain, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un calcul de coût rendu et registre de risques supply chain existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un calcul de coût rendu et registre de risques supply chain, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un calcul de coût rendu et registre de risques supply chain existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Douane, coût rendu, stock et plan de risque paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Douane, coût rendu, stock et plan de risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Douane, coût rendu, stock et plan de risque progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un calcul de coût rendu et registre de risques supply chain à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Douane, coût rendu, stock et plan de risque complète chaque section de un calcul de coût rendu et registre de risques supply chain, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Customs, landed cost, inventory, and risk plan\n- [x] Customer problem: Add product, packaging, inspection, freight, insurance, duties, tax, brokerage, delivery, finance, damage, and returns; include time buffer and fallback.\n- [ ] Deliverable: a landed-cost calculation and supply-chain risk register\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade.ec.europa.eu/access-to-markets/en/home\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Douane, coût rendu, stock et plan de risque",
+          "filename": "exercises/45-import-quality-logistics/customs-landed-cost-risk.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "customs-landed-cost-risk-q1",
+          "question": "Quelle démarche applique correctement Douane, coût rendu, stock et plan de risque ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Douane, coût rendu, stock et plan de risque, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Douane, coût rendu, stock et plan de risque, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Douane, coût rendu, stock et plan de risque, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Douane, coût rendu, stock et plan de risque, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Douane, coût rendu, stock et plan de risque, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "customs-landed-cost-risk-q2",
+          "question": "Quelle définition correspond au terme « Incoterm » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Douane, coût rendu, stock et plan de risque comparable et reproductible.",
+            "Concept central de Douane, coût rendu, stock et plan de risque, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Douane, coût rendu, stock et plan de risque améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Incoterm » signifie : Concept central de Douane, coût rendu, stock et plan de risque, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Douane, coût rendu, stock et plan de risque comparable et reproductible. ». La réponse de référence est « Concept central de Douane, coût rendu, stock et plan de risque, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de Douane, coût rendu, stock et plan de risque, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Douane, coût rendu, stock et plan de risque, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de Douane, coût rendu, stock et plan de risque, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Douane, coût rendu, stock et plan de risque améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Douane, coût rendu, stock et plan de risque, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de Douane, coût rendu, stock et plan de risque, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Douane, coût rendu, stock et plan de risque, défini par une règle observable plutôt que par une préférence. ». « Incoterm » signifie : Concept central de Douane, coût rendu, stock et plan de risque, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "customs-landed-cost-risk-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Douane, coût rendu, stock et plan de risque paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Douane, coût rendu, stock et plan de risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Douane, coût rendu, stock et plan de risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Douane, coût rendu, stock et plan de risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Douane, coût rendu, stock et plan de risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Douane, coût rendu, stock et plan de risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Douane, coût rendu, stock et plan de risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Douane, coût rendu, stock et plan de risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Douane, coût rendu, stock et plan de risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Douane, coût rendu, stock et plan de risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Douane, coût rendu, stock et plan de risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Douane, coût rendu, stock et plan de risque est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un calcul de coût rendu et registre de risques supply chain rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Douane, coût rendu, stock et plan de risque, poursuivez avec Search Console, indexation et base de référence afin de relier la compétence acquise à l’étape suivante du système de vente."
+    }
+  ]
+}

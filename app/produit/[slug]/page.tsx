@@ -10,6 +10,7 @@ import ProductCarousel from "@/components/ProductCarousel";
 import ReviewSection from "@/components/ReviewSection";
 import ProductAccordion from "@/components/ProductAccordion";
 import ShareButtons from "@/components/ShareButtons";
+import NewsletterSection from "@/components/NewsletterSection";
 
 
 export const dynamic = "force-dynamic";
@@ -478,14 +479,17 @@ export default async function ProductPage({
         {/* ── Info panel ── */}
         <div className="lg:sticky lg:top-24 self-start min-w-0">
 
-          <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-400 mb-2">
-            {product.subCategory}
-          </p>
+          <div className="product-summary-enter mb-3 flex items-center gap-3">
+            <span aria-hidden="true" className="h-px w-7 bg-[#3ecf4c]" />
+            <p className="text-[10px] font-black uppercase tracking-[0.32em] text-neutral-400">
+              {product.subCategory}
+            </p>
+          </div>
 
-          <h1 className={`h-display leading-[1.05] ${
+          <h1 className={`product-summary-enter h-display max-w-2xl leading-[.98] tracking-[-.035em] [animation-delay:.08s] ${
             (product.displayName ?? product.name).length > 35
-              ? "text-2xl md:text-[1.7rem]"
-              : "text-3xl md:text-[2.2rem]"
+              ? "text-[1.75rem] sm:text-[2rem] lg:text-[2.35rem]"
+              : "text-[2rem] sm:text-[2.35rem] lg:text-[2.75rem]"
           }`}>
             {product.displayName ?? product.name}
           </h1>
@@ -496,10 +500,11 @@ export default async function ProductPage({
             const count = displayReviewCount;
             const full = Math.round(rating);
             return (
-              <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <div className="product-summary-enter mt-4 flex flex-wrap items-center gap-2.5 [animation-delay:.16s]">
                 {count > 0 && (
                   <>
-                    <div className="flex gap-0.5">
+                    <span aria-label={`${rating} sur 5, ${count} avis`} className="inline-flex min-h-9 items-center gap-2 rounded-full border border-amber-200/80 bg-amber-50/70 px-3">
+                    <span className="flex gap-0.5">
                       {[1,2,3,4,5].map(s => (
                         <svg key={s} width="12" height="12" viewBox="0 0 24 24"
                           fill={s <= full ? "#facc15" : "none"}
@@ -508,14 +513,17 @@ export default async function ProductPage({
                           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                         </svg>
                       ))}
-                    </div>
-                    <span className="text-[12px] font-bold">{rating}</span>
-                    <span className="text-[12px] text-neutral-400">({count} avis)</span>
-                    <span className="text-neutral-200">·</span>
+                    </span>
+                    <span className="text-[11px] font-black text-neutral-900">{rating}</span>
+                    <span className="text-[10px] text-neutral-500">{count} avis</span>
+                    </span>
                   </>
                 )}
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="inline-flex min-h-9 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-[11px] font-black text-emerald-700">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                  </span>
                   En stock
                 </span>
               </div>
@@ -524,18 +532,23 @@ export default async function ProductPage({
 
           {/* Spec chips */}
           {product.specs && product.specs.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-5">
-              {product.specs.map((s) => (
+            <div className="product-summary-enter mt-6 border-y border-neutral-100 py-4 [animation-delay:.24s]">
+              <p className="mb-3 text-[9px] font-black uppercase tracking-[.28em] text-neutral-400">Points forts</p>
+              <div className="flex flex-wrap gap-2">
+              {product.specs.map((s, index) => (
                 <span
                   key={s}
-                  className="inline-flex items-center gap-2 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-neutral-50 border border-neutral-200 text-neutral-800 hover:bg-black hover:text-white hover:border-black transition-all duration-200 cursor-default"
+                  className="product-spec-chip inline-flex min-h-9 items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50/80 px-3.5 py-2 text-[11px] font-bold leading-tight text-neutral-700 shadow-[0_1px_0_rgba(0,0,0,.03)] transition duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-900"
+                  style={{ animationDelay: `${.3 + index * .05}s` }}
                 >
-                  <svg width="7" height="7" viewBox="0 0 8 8" className="shrink-0">
-                    <circle cx="4" cy="4" r="4" fill="#3ecf4c" />
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0 text-emerald-600" aria-hidden="true">
+                    <circle cx="8" cy="8" r="7" fill="currentColor" opacity=".12" />
+                    <path d="m5 8 2 2 4-4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   {s}
                 </span>
               ))}
+              </div>
             </div>
           )}
 
@@ -627,6 +640,10 @@ export default async function ProductPage({
           <ProductCarousel products={related} />
         </section>
       )}
+
+      <div className="mt-16">
+        <NewsletterSection />
+      </div>
 
     </div>
   );

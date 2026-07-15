@@ -45,6 +45,8 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const postId = new URL(req.url).searchParams.get("postId");
   if (!postId) return NextResponse.json([]);
+  const { data: publicPost } = await sb.from("ecomedia_posts").select("id").eq("id", postId).eq("is_published", true).maybeSingle();
+  if (!publicPost) return NextResponse.json([], { headers: { "Cache-Control": "no-store" } });
   const { data, error } = await sb
     .from("ecomedia_comments")
     .select("id, post_id, name, content, created_at")

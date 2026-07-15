@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
+import { useSettings } from "@/lib/use-settings";
 
 /** Slug → color → image path — used to heal stale cart images */
 const COLOR_IMAGES: Record<string, Record<string, string>> = {
@@ -21,7 +22,10 @@ const COLOR_IMAGES: Record<string, Record<string, string>> = {
 
 export default function CartPage() {
   const { items, total, count, setQty, remove, clear } = useCart();
-  const shipping = total >= 500 ? 0 : 35;
+  const siteSettings = useSettings();
+  const shippingCost = Number(siteSettings.shipping_cost ?? 35);
+  const freeShippingThreshold = Number(siteSettings.free_shipping_threshold ?? 500);
+  const shipping = total >= freeShippingThreshold ? 0 : shippingCost;
 
   const [promoInput, setPromoInput] = useState("");
   const [promoApplied, setPromoApplied] = useState<null | { code: string; type: "percent" | "fixed"; value: number; label: string; discount: number }>(null);
@@ -197,7 +201,7 @@ export default function CartPage() {
               {/* Shipping info */}
               <div className="px-6 py-3 bg-[#f0fdf4] border-b border-[#3ecf4c]/20 flex items-center gap-2 text-[11px] font-black text-[#16a34a] uppercase tracking-wider">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                  {total >= 500 ? "Livraison gratuite 🎉" : `Livraison 35 MAD — gratuite dès 500 MAD`}
+                  {total >= freeShippingThreshold ? "Livraison gratuite 🎉" : `Livraison ${shippingCost} MAD — gratuite dès ${freeShippingThreshold} MAD`}
               </div>
 
               {/* Column headers */}
@@ -332,7 +336,7 @@ export default function CartPage() {
                   </div>
 
                   {/* Promo discount line */}
-                  {promoApplied && (
+                  {siteSettings.enable_coupons !== "false" && promoApplied && (
                     <div className="flex justify-between text-[13px]">
                       <span className="flex items-center gap-1.5 text-[#16a34a] font-bold">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5"/></svg>
@@ -344,7 +348,7 @@ export default function CartPage() {
                   )}
 
                   {/* ── Promo code input ── */}
-                  <div className="pt-1">
+                  {siteSettings.enable_coupons !== "false" && <div className="pt-1">
                     {!promoApplied ? (
                       <div>
                         <button
@@ -397,7 +401,7 @@ export default function CartPage() {
                         </button>
                       </div>
                     )}
-                  </div>
+                  </div>}
 
                   {/* Total */}
                   <div className="flex justify-between items-center pt-3 mt-1 border-t border-neutral-100">
@@ -424,7 +428,7 @@ export default function CartPage() {
 
                   <p className="text-center text-[11px] text-neutral-400 mt-3 flex items-center justify-center gap-1.5">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#3ecf4c]"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    Paiement sécurisé · Livraison gratuite dès 500 MAD
+                    Paiement sécurisé · Livraison gratuite dès {freeShippingThreshold} MAD
                   </p>
                 </div>
               </div>

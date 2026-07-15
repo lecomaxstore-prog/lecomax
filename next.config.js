@@ -135,6 +135,12 @@ const nextConfig = {
   },
   async headers() {
     return [
+      ...(process.env.NODE_ENV === "development"
+        ? [{
+            source: "/admin/how-it-was-built/:path*",
+            headers: [{ key: "Clear-Site-Data", value: '"cache"' }],
+          }]
+        : []),
       // ── Admin panel: no caching ────────────────────────────────────────────
       {
         source: "/admin/:path*",
@@ -148,7 +154,21 @@ const nextConfig = {
       {
         source: "/_next/static/(.*)",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          {
+            key: "Cache-Control",
+            value: process.env.NODE_ENV === "development"
+              ? "no-store, no-cache, must-revalidate"
+              : "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      // Always let browsers discover the newest push worker. The worker does
+      // not cache pages, but an old worker script can otherwise survive refreshes.
+      {
+        source: "/sw.js",
+        headers: [
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate" },
+          { key: "Service-Worker-Allowed", value: "/" },
         ],
       },
       {

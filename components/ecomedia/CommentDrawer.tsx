@@ -87,7 +87,7 @@ export default function CommentDrawer({ post, onClose, onCommentAdded, onRequire
       <button className="absolute inset-0 h-full w-full bg-black/55 backdrop-blur-sm" onClick={onClose} aria-label="Fermer les commentaires" />
       <section className="absolute inset-x-0 bottom-0 flex max-h-[88dvh] flex-col rounded-t-[28px] bg-white shadow-2xl sm:inset-y-0 sm:left-auto sm:right-0 sm:h-full sm:max-h-none sm:w-full sm:max-w-[520px] sm:rounded-none">
         <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4">
-          <div><div className="flex items-center gap-2"><h2 id="comments-title" className="text-base font-black">Discussion</h2><span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[9px] font-black text-neutral-500">{comments.length}</span></div><p className="mt-0.5 max-w-[300px] truncate text-[10px] text-neutral-400">{post.title}</p></div>
+          <div><div className="flex items-center gap-2"><h2 id="comments-title" className="text-base font-black">Discussion</h2><span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[9px] font-black text-neutral-500">{comments.length}</span>{!user && <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[8px] font-black uppercase tracking-wide text-emerald-700">Lecture libre</span>}</div><p className="mt-0.5 max-w-[300px] truncate text-[10px] text-neutral-400">{post.title}</p></div>
           <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 transition hover:bg-neutral-200" aria-label="Fermer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
         </div>
 

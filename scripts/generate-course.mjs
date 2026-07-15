@@ -10,8 +10,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const courseRoot = path.join(root, "app", "admin", "how-it-was-built", "course");
 const languages = ["fr", "en", "ar"];
 const modules = [...partA, ...partB, ...partC, ...partD].sort((a, b) => a.order - b.order);
-const expectedModuleCount = 40;
-const expectedLessonCount = 160;
+const expectedModuleCount = 48;
+const expectedLessonCount = 192;
 
 const labels = {
   fr: {

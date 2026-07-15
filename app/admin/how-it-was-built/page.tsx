@@ -25,6 +25,10 @@ const AcademySection = dynamic(() => import("./AcademySection"), {
 });
 
 // ─── Language ─────────────────────────────────────────────────────────────────
+const CodeCoachGame = dynamic(() => import("./CodeCoachGame"), {
+  loading: () => <div role="status" className="min-h-96 animate-pulse rounded-3xl border border-gray-100 bg-white" />,
+});
+
 type Lang = "fr" | "en" | "ar";
 
 const UI: Record<Lang, {
@@ -5036,6 +5040,11 @@ function StartHereSection({ onNavigate }: { onNavigate: (tab: string) => void })
     document.getElementById("coding-lab")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function openAcademyLesson(moduleId: string, lessonId: string) {
+    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#academy/${moduleId}/${lessonId}`);
+    onNavigate("academy");
+  }
+
   const quickStart = `# 1. Ouvre le terminal dans le dossier L'ecomax
 npm install
 
@@ -5086,12 +5095,24 @@ export default function ProductsPage() {
 }`;
 
   const learningPath = [
+    { tab: "game", icon: "★", title: "Jouer et coder avec le bot", desc: "Regarde le bot coder ligne par ligne, comprends, puis écris le code et reçois une correction.", color: "#facc15" },
     { tab: "hero", icon: "1", title: "Construire de zéro", desc: "Installation, fichiers, frontend, API, base de données et mise en ligne.", color: "#3ecf4c" },
     { tab: "academy", icon: "2", title: "Suivre l’Académie complète", desc: "HTML → CSS → JavaScript → React → Next.js → production, dans le bon ordre.", color: "#60a5fa" },
     { tab: "mentor", icon: "3", title: "Comprendre vraiment", desc: "Analogies, quiz et exercices guidés comme avec un mentor.", color: "#a78bfa" },
     { tab: "files", icon: "4", title: "Lire le vrai code", desc: "Ouvre les fichiers réels de L'ecomax et compare avec les leçons.", color: "#f59e0b" },
     { tab: "debug", icon: "5", title: "Apprendre à réparer", desc: "Lis une erreur, trouve sa source et applique une méthode de diagnostic.", color: "#fb7185" },
     { tab: "deploy", icon: "6", title: "Publier le site", desc: "GitHub, variables d'environnement, Vercel et domaine personnalisé.", color: "#16b277" },
+  ];
+
+  const practicalTracks = [
+    { module: "beginner-code-labs", lesson: "read-code-symbols", icon: "01", title: "Je pars de zéro en code", desc: "Lis chaque symbole, puis pratique variables, fonctions, tableaux et erreurs sans sauter d’étape.", color: "#10b981" },
+    { module: "next-routing-lab", lesson: "page-route-link", icon: "02", title: "Je crée et relie mes pages", desc: "Crée les routes Next.js, ajoute les liens, les layouts, les slugs et tous les états de navigation.", color: "#2563eb" },
+    { module: "supabase-build-lab", lesson: "supabase-project-schema", icon: "03", title: "Je construis Supabase", desc: "Écris les tables SQL, connecte Next.js, protège avec RLS puis ajoute Auth, Storage et Realtime.", color: "#3ecf8e" },
+    { module: "ui-build-lab", lesson: "wireframe-to-html", icon: "04", title: "Je dessine et code mes pages", desc: "Passe du wireframe au HTML, puis ajoute couleurs, typographie, espaces, Grid et responsive.", color: "#f43f5e" },
+    { module: "china-sourcing", lesson: "sourcing-product-spec", icon: "05", title: "J’achète en Chine prudemment", desc: "Spécification, fournisseurs, échantillons, négociation, contrat, paiement protégé et prévention fraude.", color: "#dc2626" },
+    { module: "import-quality-logistics", lesson: "compliance-before-order", icon: "06", title: "J’importe et contrôle la qualité", desc: "Conformité, Incoterms, transport, inspection, douane, coût rendu, stock et risques.", color: "#0f766e" },
+    { module: "seo-client-action-lab", lesson: "search-console-baseline", icon: "07", title: "Je classe mon site et trouve des clients", desc: "Search Console, SEO produit, contenu, acquisition, partenaires et revue de croissance hebdomadaire.", color: "#7c3aed" },
+    { module: "zero-to-hero-capstone", lesson: "capstone-week-1-foundation", icon: "08", title: "Je suis le plan final 12 semaines", desc: "Assemble site, données, design, produit, sourcing, lancement, ventes, SEO et rétention dans l’ordre.", color: "#111827" },
   ];
 
   const codingLoop = [
@@ -5172,7 +5193,7 @@ export default function ProductsPage() {
         <div className="relative max-w-3xl">
           <span className="inline-flex rounded-full border border-[#3ecf4c]/30 bg-[#3ecf4c]/10 px-3 py-1 text-[10px] font-black uppercase tracking-[.2em] text-[#3ecf4c]">Commence ici</span>
           <h2 className="mt-4 text-2xl font-black leading-tight sm:text-4xl">Apprends à construire L&apos;ecomax,<br className="hidden sm:block" /> une petite victoire à la fois.</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/55">Tu n&apos;as pas besoin de tout mémoriser. Comprends le rôle de chaque fichier, écris un petit changement, regarde le résultat, puis recommence. Cette page utilise le vrai projet comme livre d&apos;apprentissage.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/55">Tu n&apos;as pas besoin de tout mémoriser. Les 192 leçons avancent du premier symbole de code jusqu&apos;à Next.js, Supabase, design, sourcing, import, vente, SEO et acquisition. Fais un petit changement, regarde la preuve, puis recommence.</p>
           <div className="mt-6 flex flex-wrap gap-2">
             <button onClick={openCodingLab} className="rounded-xl bg-[#3ecf4c] px-4 py-2.5 text-xs font-black text-black transition-transform active:scale-95">Apprendre à coder maintenant →</button>
             <button onClick={() => onNavigate("academy")} className="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-bold text-white hover:bg-white/10">Ouvrir l’Académie 0→Héros</button>
@@ -5190,6 +5211,23 @@ export default function ProductsPage() {
             <button key={item.tab} onClick={() => onNavigate(item.tab)} className="group rounded-2xl border border-gray-100 bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-gray-200 hover:shadow-md">
               <div className="mb-3 flex items-center justify-between"><span className="flex h-8 w-8 items-center justify-center rounded-xl text-xs font-black text-black" style={{ backgroundColor: item.color }}>{item.icon}</span><span className="text-gray-300 transition-transform group-hover:translate-x-1">→</span></div>
               <p className="text-sm font-black text-gray-900">{item.title}</p><p className="mt-1 text-[11px] leading-relaxed text-gray-500">{item.desc}</p>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-4 sm:p-5">
+        <div className="mb-4 max-w-3xl">
+          <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#128347]">Nouveaux parcours pratiques</p>
+          <h3 className="mt-1 text-lg font-black text-gray-950">Choisis exactement ce que tu veux apprendre maintenant</h3>
+          <p className="mt-1 text-xs leading-relaxed text-gray-500">Chaque bouton ouvre directement la première leçon du parcours. Si tu débutes complètement, commence par 01 et avance dans l’ordre jusqu’au projet final.</p>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {practicalTracks.map(track => (
+            <button key={track.module} onClick={() => openAcademyLesson(track.module, track.lesson)} className="group min-h-32 rounded-2xl border border-white bg-white p-4 text-start shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16b277]">
+              <div className="flex items-center justify-between"><span className="flex h-8 min-w-8 items-center justify-center rounded-xl px-2 text-[10px] font-black text-white" style={{ backgroundColor: track.color }}>{track.icon}</span><span className="text-gray-300 transition-transform group-hover:translate-x-1">→</span></div>
+              <p className="mt-3 text-xs font-black text-gray-950">{track.title}</p>
+              <p className="mt-1 text-[10px] leading-relaxed text-gray-500">{track.desc}</p>
             </button>
           ))}
         </div>
@@ -5325,11 +5363,11 @@ export default function ProductsPage() {
 }
 
 // ─── TABS ─────────────────────────────────────────────────────────────────────
-const TAB_IDS = ["start","academy","hero","cours","mentor","guide","debug","supabase","deploy","arch","files","tech","env","pages","search"] as const;
+const TAB_IDS = ["start","game","academy","hero","cours","mentor","guide","debug","supabase","deploy","arch","files","tech","env","pages","search"] as const;
 type TabId = typeof TAB_IDS[number];
 
 const TAB_GROUPS: { id: "learn" | "build" | "reference"; tabs: TabId[] }[] = [
-  { id: "learn", tabs: ["start", "academy", "hero", "cours", "mentor", "guide", "debug"] },
+  { id: "learn", tabs: ["start", "game", "academy", "hero", "cours", "mentor", "guide", "debug"] },
   { id: "build", tabs: ["supabase", "deploy", "arch"] },
   { id: "reference", tabs: ["files", "tech", "env", "pages", "search"] },
 ];
@@ -5339,6 +5377,7 @@ function TabIcon({ id, className = "h-4 w-4" }: { id: TabId; className?: string 
   return (
     <svg aria-hidden="true" className={className} viewBox="0 0 24 24" {...common}>
       {id === "start" && <><path d="m12 3-1.2 4.1a5 5 0 0 1-3.4 3.4L3 12l4.4 1.5a5 5 0 0 1 3.4 3.4L12 21l1.2-4.1a5 5 0 0 1 3.4-3.4L21 12l-4.4-1.5a5 5 0 0 1-3.4-3.4L12 3Z"/><path d="m19 3 .3 1.2a2 2 0 0 0 1.5 1.5L22 6l-1.2.3a2 2 0 0 0-1.5 1.5L19 9l-.3-1.2a2 2 0 0 0-1.5-1.5L16 6l1.2-.3a2 2 0 0 0 1.5-1.5L19 3Z"/></>}
+      {id === "game" && <><path d="M8 3h8l1 4h2a2 2 0 0 1 2 2v8a4 4 0 0 1-4 4h-1l-2-3h-4l-2 3H7a4 4 0 0 1-4-4V9a2 2 0 0 1 2-2h2l1-4Z"/><path d="M8 11v4M6 13h4M16.5 12.5h.01M18.5 14.5h.01"/></>}
       {id === "academy" && <><path d="m3 10 9-5 9 5-9 5-9-5Z"/><path d="M7 12.5V17c2.7 2 7.3 2 10 0v-4.5M21 10v6"/></>}
       {id === "hero" && <><path d="M14.5 5.5c2.2-2.2 4.8-2.4 5.8-2.3.1 1-.1 3.6-2.3 5.8l-5.5 5.5-3-3 5-6Z"/><path d="m9.5 11.5-4.4.5-2 2 5 1M12.5 14.5l-.5 4.4-2 2-1-5M15.5 8.5h.01M5 19c1.4 0 2.5-1.1 2.5-2.5C6.1 16.5 5 17.6 5 19Z"/></>}
       {id === "cours" && <><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/></>}
@@ -5414,6 +5453,9 @@ export default function HowItWasBuiltPage() {
     : lang === "ar"
       ? { learn: "التعلّم", build: "بناء L'ecomax", reference: "استكشاف المشروع" }
       : { learn: "Apprendre", build: "Construire L'ecomax", reference: "Explorer le projet" };
+  const tabLabel = (id: TabId) => id === "game"
+    ? (lang === "en" ? "Code Game" : lang === "ar" ? "لعبة البرمجة" : "Jeu de code")
+    : u.tabs[id];
   const previousLabel = lang === "en" ? "Previous section" : lang === "ar" ? "القسم السابق" : "Section précédente";
   const nextLabel = lang === "en" ? "Next section" : lang === "ar" ? "القسم التالي" : "Section suivante";
 
@@ -5466,7 +5508,7 @@ export default function HowItWasBuiltPage() {
                   className="h-12 w-full appearance-none truncate rounded-xl border border-gray-200 bg-white ps-10 pe-9 text-base font-extrabold text-gray-950 shadow-sm outline-none transition focus:border-[#16b277] focus:ring-2 focus:ring-[#16b277]/20">
                   {TAB_GROUPS.map(group => (
                     <optgroup key={group.id} label={groupLabels[group.id]}>
-                      {group.tabs.map(id => <option key={id} value={id}>{u.tabs[id]}</option>)}
+                      {group.tabs.map(id => <option key={id} value={id}>{tabLabel(id)}</option>)}
                     </optgroup>
                   ))}
                 </select>
@@ -5481,22 +5523,27 @@ export default function HowItWasBuiltPage() {
           </div>
         </div>
 
-        {/* Desktop/tablet tabs */}
-        <div id="course-desktop-tabs" ref={tabListRef} className="mx-auto hidden max-w-7xl overflow-x-auto px-1 no-scrollbar overscroll-x-contain md:block md:px-6">
-          <div role="tablist" aria-label={u.title} className="flex min-w-max gap-0.5 pb-px">
-            {TAB_IDS.map(id => (
-              <button key={id} id={"course-tab-" + id} role="tab" aria-selected={tab === id} aria-controls="course-tab-panel" tabIndex={tab === id ? 0 : -1} onKeyDown={event => handleTabKeyDown(event, id)} onClick={() => selectTab(id)}
-                className={`relative flex min-h-11 items-center gap-1.5 whitespace-nowrap px-4 text-[12px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#16b277] ${
-                  tab === id
-                    ? "text-gray-900"
-                    : "text-gray-400 hover:text-gray-700 hover:bg-gray-50"
-                }`}>
-                <TabIcon id={id} />
-                <span>{u.tabs[id]}</span>
-                {tab === id && (
-                  <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-[#3ecf4c] rounded-t-full" />
-                )}
-              </button>
+        {/* Desktop/tablet navigation — grouped and allowed to wrap, never clipped. */}
+        <div id="course-desktop-tabs" className="hidden border-t border-gray-100 bg-[#fafafa] md:block">
+          <div ref={tabListRef} role="tablist" aria-label={u.title} className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-6 py-2.5">
+            {TAB_GROUPS.map((group, groupIndex) => (
+              <div key={group.id} role="presentation" className={`flex flex-wrap items-center gap-1 rounded-2xl border border-gray-200/80 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,.04)] ${groupIndex > 0 ? "xl:ms-1" : ""}`}>
+                <span className="hidden px-2 text-[9px] font-black uppercase tracking-[.14em] text-gray-400 2xl:inline-flex">{groupLabels[group.id]}</span>
+                {group.tabs.map(id => (
+                  <button key={id} id={"course-tab-" + id} role="tab" aria-selected={tab === id} aria-controls="course-tab-panel" tabIndex={tab === id ? 0 : -1} onKeyDown={event => handleTabKeyDown(event, id)} onClick={() => selectTab(id)}
+                    className={`relative flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-xl px-3 text-[11px] font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16b277] focus-visible:ring-offset-1 ${
+                      tab === id
+                        ? "bg-gray-950 text-white shadow-sm"
+                        : id === "game"
+                          ? "bg-amber-50 text-amber-900 hover:bg-amber-100"
+                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-950"
+                    }`}>
+                    <span className={tab === id ? "text-[#3ecf4c]" : id === "game" ? "text-amber-600" : "text-gray-400"}><TabIcon id={id} /></span>
+                    <span>{tabLabel(id)}</span>
+                    {id === "game" && <span className={`rounded-md px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wide ${tab === id ? "bg-[#3ecf4c] text-black" : "bg-amber-200 text-amber-900"}`}>{lang === "fr" ? "Nouveau" : lang === "ar" ? "جديد" : "New"}</span>}
+                  </button>
+                ))}
+              </div>
             ))}
           </div>
         </div>
@@ -5509,10 +5556,11 @@ export default function HowItWasBuiltPage() {
         role="tabpanel"
         aria-labelledby={"course-tab-" + tab}
         tabIndex={-1}
-        className="mx-auto min-w-0 max-w-7xl scroll-mt-36 px-3 py-4 outline-none sm:px-6 sm:py-6 md:scroll-mt-28"
+        className="mx-auto min-w-0 max-w-7xl scroll-mt-36 px-3 py-4 outline-none sm:px-6 sm:py-6 md:scroll-mt-40"
       >
         {tab === "hero"   && <HeroSection lang={lang} />}
         {tab === "start"  && <StartHereSection onNavigate={id => selectTab(id as TabId)} />}
+        {tab === "game" && <CodeCoachGame lang={lang} />}
         {tab === "academy" && <AcademySection lang={lang} />}
         {tab === "arch"   && <ArchSection lang={lang} />}
         {tab === "files"  && <ExplorerSection />}

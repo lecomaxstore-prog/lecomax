@@ -1,0 +1,984 @@
+{
+  "id": "ui-build-lab",
+  "order": 43,
+  "icon": "layout",
+  "color": "#f43f5e",
+  "title": "UI workshop: color, layout, and a complete product page",
+  "summary": "Code visually in small layers and test every viewport.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/43-ui-build-lab/product-shell.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/43-ui-build-lab/tokens.css",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/43-ui-build-lab/product-grid.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/43-ui-build-lab/ui-states-polish.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "wireframe-to-html",
+      "order": 0,
+      "title": "From wireframe to semantic HTML",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn From wireframe to semantic HTML into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a product-page skeleton readable without CSS into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Break the page into header, navigation, main, sections, articles, and footer before adding color and decoration. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Break the page into header, navigation, main, sections, articles, and footer before adding color and decoration. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "From wireframe to semantic HTML is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Break the page into header, navigation, main, sections, articles, and footer before adding color and decoration. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master From wireframe to semantic HTML, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a product-page skeleton readable without CSS. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Hierarchy",
+                  "definition": "A central From wireframe to semantic HTML concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Responsive",
+                  "definition": "A measure or structure that makes the From wireframe to semantic HTML decision comparable and reproducible."
+                },
+                {
+                  "term": "Component",
+                  "definition": "A control boundary used to verify that From wireframe to semantic HTML improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply From wireframe to semantic HTML to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "tsx",
+                "filename": "exercises/43-ui-build-lab/product-shell.tsx",
+                "source": "export default function Product(){return <main><section><div>Images</div><article><h1>Sac voyage</h1><p>299 MAD</p><button>Ajouter</button></article></section></main>}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Frames the exact problem and deliverable for From wireframe to semantic HTML before execution."
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "tsx",
+                "filename": "exercises/43-ui-build-lab/product-shell.tsx",
+                "source": "export default function Product(){return <main><nav aria-label=\"Fil\">Accueil / Sacs</nav><section><div aria-label=\"Galerie\">Images</div><article><h1>Sac voyage</h1><p>299 MAD</p><button>Ajouter au panier</button></article></section></main>}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for From wireframe to semantic HTML completes every section of a product-page skeleton readable without CSS, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1",
+                    "label": "The result is verifiable: a product-page skeleton readable without CSS exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a product-page skeleton readable without CSS, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a product-page skeleton readable without CSS exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "From wireframe to semantic HTML looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the From wireframe to semantic HTML problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with From wireframe to semantic HTML rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a product-page skeleton readable without CSS from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for From wireframe to semantic HTML completes every section of a product-page skeleton readable without CSS, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "export default function Product(){return <main><nav aria-label=\"Fil\">Accueil / Sacs</nav><section><div aria-label=\"Galerie\">Images</div><article><h1>Sac voyage</h1><p>299 MAD</p><button>Ajouter au panier</button></article></section></main>}",
+          "filename": "exercises/43-ui-build-lab/product-shell.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "wireframe-to-html-q1",
+          "question": "Which approach correctly applies From wireframe to semantic HTML?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For From wireframe to semantic HTML, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For From wireframe to semantic HTML, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For From wireframe to semantic HTML, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For From wireframe to semantic HTML, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For From wireframe to semantic HTML, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "wireframe-to-html-q2",
+          "question": "Which definition matches the term “Hierarchy”?",
+          "options": [
+            "A measure or structure that makes the From wireframe to semantic HTML decision comparable and reproducible.",
+            "A central From wireframe to semantic HTML concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that From wireframe to semantic HTML improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Hierarchy” means: A central From wireframe to semantic HTML concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the From wireframe to semantic HTML decision comparable and reproducible. ». The reference answer is « A central From wireframe to semantic HTML concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central From wireframe to semantic HTML concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central From wireframe to semantic HTML concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central From wireframe to semantic HTML concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that From wireframe to semantic HTML improves the system without moving the problem elsewhere. ». The reference answer is « A central From wireframe to semantic HTML concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central From wireframe to semantic HTML concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central From wireframe to semantic HTML concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central From wireframe to semantic HTML concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "wireframe-to-html-q3",
+          "question": "What is the best first fix when you observe: “From wireframe to semantic HTML looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the From wireframe to semantic HTML problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the From wireframe to semantic HTML problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the From wireframe to semantic HTML problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the From wireframe to semantic HTML problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the From wireframe to semantic HTML problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the From wireframe to semantic HTML problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the From wireframe to semantic HTML problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the From wireframe to semantic HTML problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the From wireframe to semantic HTML problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the From wireframe to semantic HTML problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "From wireframe to semantic HTML starts from an observable customer problem, never an isolated trend.",
+        "The a product-page skeleton readable without CSS deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After From wireframe to semantic HTML, continue with Code palette, typography, and spacing to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "color-type-spacing-code",
+      "order": 1,
+      "title": "Code palette, typography, and spacing",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Code palette, typography, and spacing into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a CSS token file and base rules into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Create named tokens, a coherent spacing scale, readable line width, and verified contrast instead of random numbers. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Create named tokens, a coherent spacing scale, readable line width, and verified contrast instead of random numbers. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Code palette, typography, and spacing is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Create named tokens, a coherent spacing scale, readable line width, and verified contrast instead of random numbers. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Code palette, typography, and spacing, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a CSS token file and base rules. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Hierarchy",
+                  "definition": "A central Code palette, typography, and spacing concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Responsive",
+                  "definition": "A measure or structure that makes the Code palette, typography, and spacing decision comparable and reproducible."
+                },
+                {
+                  "term": "Component",
+                  "definition": "A control boundary used to verify that Code palette, typography, and spacing improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Code palette, typography, and spacing to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "css",
+                "filename": "exercises/43-ui-build-lab/tokens.css",
+                "source": ":root {\n  --color-brand: #3ecf4c;\n  --color-ink: #0d0d0d;\n  --space-1: .5rem;\n  --space-2: 1rem;\n}\nbody { color: var(--color-ink); }",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Code palette, typography, and spacing before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "css",
+                "filename": "exercises/43-ui-build-lab/tokens.css",
+                "source": ":root{--color-brand:#3ecf4c;--color-ink:#0d0d0d;--color-surface:#fff;--space-1:.5rem;--space-2:1rem;--radius:1rem}\nbody{color:var(--color-ink);background:var(--color-surface);line-height:1.5}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Code palette, typography, and spacing completes every section of a CSS token file and base rules, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "The result is verifiable: a CSS token file and base rules exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a CSS token file and base rules, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a CSS token file and base rules exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Code palette, typography, and spacing looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Code palette, typography, and spacing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Code palette, typography, and spacing rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a CSS token file and base rules from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Code palette, typography, and spacing completes every section of a CSS token file and base rules, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": ":root{--color-brand:#3ecf4c;--color-ink:#0d0d0d;--color-surface:#fff;--space-1:.5rem;--space-2:1rem;--radius:1rem}\nbody{color:var(--color-ink);background:var(--color-surface);line-height:1.5}",
+          "filename": "exercises/43-ui-build-lab/tokens.css",
+          "language": "css"
+        }
+      },
+      "quiz": [
+        {
+          "id": "color-type-spacing-code-q1",
+          "question": "Which approach correctly applies Code palette, typography, and spacing?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Code palette, typography, and spacing, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Code palette, typography, and spacing, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Code palette, typography, and spacing, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Code palette, typography, and spacing, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Code palette, typography, and spacing, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "color-type-spacing-code-q2",
+          "question": "Which definition matches the term “Hierarchy”?",
+          "options": [
+            "A measure or structure that makes the Code palette, typography, and spacing decision comparable and reproducible.",
+            "A central Code palette, typography, and spacing concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Code palette, typography, and spacing improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Hierarchy” means: A central Code palette, typography, and spacing concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Code palette, typography, and spacing decision comparable and reproducible. ». The reference answer is « A central Code palette, typography, and spacing concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central Code palette, typography, and spacing concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Code palette, typography, and spacing concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central Code palette, typography, and spacing concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Code palette, typography, and spacing improves the system without moving the problem elsewhere. ». The reference answer is « A central Code palette, typography, and spacing concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central Code palette, typography, and spacing concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Code palette, typography, and spacing concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central Code palette, typography, and spacing concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "color-type-spacing-code-q3",
+          "question": "What is the best first fix when you observe: “Code palette, typography, and spacing looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Code palette, typography, and spacing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Code palette, typography, and spacing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Code palette, typography, and spacing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Code palette, typography, and spacing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Code palette, typography, and spacing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Code palette, typography, and spacing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Code palette, typography, and spacing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Code palette, typography, and spacing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Code palette, typography, and spacing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Code palette, typography, and spacing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Code palette, typography, and spacing starts from an observable customer problem, never an isolated trend.",
+        "The a CSS token file and base rules deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Code palette, typography, and spacing, continue with Mobile-first responsive grid with Tailwind to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "responsive-grid-product",
+      "order": 2,
+      "title": "Mobile-first responsive grid with Tailwind",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Mobile-first responsive grid with Tailwind into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a one-column then two-column product page into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Start on a narrow screen, add columns when content has room, and prevent images, text, and buttons from overflowing. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Start on a narrow screen, add columns when content has room, and prevent images, text, and buttons from overflowing. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Mobile-first responsive grid with Tailwind is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start on a narrow screen, add columns when content has room, and prevent images, text, and buttons from overflowing. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Mobile-first responsive grid with Tailwind, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a one-column then two-column product page. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Hierarchy",
+                  "definition": "A central Mobile-first responsive grid with Tailwind concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Responsive",
+                  "definition": "A measure or structure that makes the Mobile-first responsive grid with Tailwind decision comparable and reproducible."
+                },
+                {
+                  "term": "Component",
+                  "definition": "A control boundary used to verify that Mobile-first responsive grid with Tailwind improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Mobile-first responsive grid with Tailwind to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "tsx",
+                "filename": "exercises/43-ui-build-lab/product-grid.tsx",
+                "source": "export function ProductGrid(){return <section className=\"grid gap-6 md:grid-cols-2\"><div className=\"aspect-square bg-neutral-100\"/><article className=\"min-w-0\"><h1 className=\"text-2xl font-black\">Produit</h1></article></section>}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Frames the exact problem and deliverable for Mobile-first responsive grid with Tailwind before execution."
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "tsx",
+                "filename": "exercises/43-ui-build-lab/product-grid.tsx",
+                "source": "export function ProductGrid(){return <section className=\"mx-auto grid max-w-6xl gap-6 px-4 py-8 md:grid-cols-2\"><div className=\"aspect-square rounded-2xl bg-neutral-100\"/><article className=\"min-w-0\"><h1 className=\"text-2xl font-black sm:text-4xl\">Produit</h1></article></section>}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Mobile-first responsive grid with Tailwind completes every section of a one-column then two-column product page, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1",
+                    "label": "The result is verifiable: a one-column then two-column product page exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a one-column then two-column product page, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a one-column then two-column product page exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Mobile-first responsive grid with Tailwind looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Mobile-first responsive grid with Tailwind problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Mobile-first responsive grid with Tailwind rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a one-column then two-column product page from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Mobile-first responsive grid with Tailwind completes every section of a one-column then two-column product page, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "export function ProductGrid(){return <section className=\"mx-auto grid max-w-6xl gap-6 px-4 py-8 md:grid-cols-2\"><div className=\"aspect-square rounded-2xl bg-neutral-100\"/><article className=\"min-w-0\"><h1 className=\"text-2xl font-black sm:text-4xl\">Produit</h1></article></section>}",
+          "filename": "exercises/43-ui-build-lab/product-grid.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "responsive-grid-product-q1",
+          "question": "Which approach correctly applies Mobile-first responsive grid with Tailwind?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Mobile-first responsive grid with Tailwind, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Mobile-first responsive grid with Tailwind, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Mobile-first responsive grid with Tailwind, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Mobile-first responsive grid with Tailwind, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Mobile-first responsive grid with Tailwind, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "responsive-grid-product-q2",
+          "question": "Which definition matches the term “Hierarchy”?",
+          "options": [
+            "A measure or structure that makes the Mobile-first responsive grid with Tailwind decision comparable and reproducible.",
+            "A central Mobile-first responsive grid with Tailwind concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Mobile-first responsive grid with Tailwind improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Hierarchy” means: A central Mobile-first responsive grid with Tailwind concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Mobile-first responsive grid with Tailwind decision comparable and reproducible. ». The reference answer is « A central Mobile-first responsive grid with Tailwind concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central Mobile-first responsive grid with Tailwind concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Mobile-first responsive grid with Tailwind concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central Mobile-first responsive grid with Tailwind concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Mobile-first responsive grid with Tailwind improves the system without moving the problem elsewhere. ». The reference answer is « A central Mobile-first responsive grid with Tailwind concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central Mobile-first responsive grid with Tailwind concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Mobile-first responsive grid with Tailwind concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central Mobile-first responsive grid with Tailwind concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "responsive-grid-product-q3",
+          "question": "What is the best first fix when you observe: “Mobile-first responsive grid with Tailwind looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Mobile-first responsive grid with Tailwind problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Mobile-first responsive grid with Tailwind problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Mobile-first responsive grid with Tailwind problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Mobile-first responsive grid with Tailwind problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Mobile-first responsive grid with Tailwind problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Mobile-first responsive grid with Tailwind problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Mobile-first responsive grid with Tailwind problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Mobile-first responsive grid with Tailwind problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Mobile-first responsive grid with Tailwind problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Mobile-first responsive grid with Tailwind problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Mobile-first responsive grid with Tailwind starts from an observable customer problem, never an isolated trend.",
+        "The a one-column then two-column product page deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Mobile-first responsive grid with Tailwind, continue with Loading, empty, error, success states, and polish to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "ui-states-polish",
+      "order": 3,
+      "title": "Loading, empty, error, success states, and polish",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Loading, empty, error, success states, and polish into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a polish checklist and multi-viewport comparison into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Design every state before animation; verify focus, touch targets, long content, reduced motion, and screenshots at key sizes. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Design every state before animation; verify focus, touch targets, long content, reduced motion, and screenshots at key sizes. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Loading, empty, error, success states, and polish is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Design every state before animation; verify focus, touch targets, long content, reduced motion, and screenshots at key sizes. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Loading, empty, error, success states, and polish, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a polish checklist and multi-viewport comparison. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Hierarchy",
+                  "definition": "A central Loading, empty, error, success states, and polish concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Responsive",
+                  "definition": "A measure or structure that makes the Loading, empty, error, success states, and polish decision comparable and reproducible."
+                },
+                {
+                  "term": "Component",
+                  "definition": "A control boundary used to verify that Loading, empty, error, success states, and polish improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Loading, empty, error, success states, and polish to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/43-ui-build-lab/ui-states-polish.md",
+                "source": "# Loading, empty, error, success states, and polish\n- [ ] Customer problem: Design every state before animation; verify focus, touch targets, long content, reduced motion, and screenshots at key sizes.\n- [ ] Deliverable: a polish checklist and multi-viewport comparison\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.w3.org/WAI/WCAG22/quickref/\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Loading, empty, error, success states, and polish before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/43-ui-build-lab/ui-states-polish.md",
+                "source": "# Loading, empty, error, success states, and polish\n- [x] Customer problem: Design every state before animation; verify focus, touch targets, long content, reduced motion, and screenshots at key sizes.\n- [ ] Deliverable: a polish checklist and multi-viewport comparison\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.w3.org/WAI/WCAG22/quickref/\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Loading, empty, error, success states, and polish",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Loading, empty, error, success states, and polish completes every section of a polish checklist and multi-viewport comparison, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a polish checklist and multi-viewport comparison exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a polish checklist and multi-viewport comparison, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a polish checklist and multi-viewport comparison exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Loading, empty, error, success states, and polish looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Loading, empty, error, success states, and polish problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Loading, empty, error, success states, and polish rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a polish checklist and multi-viewport comparison from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Loading, empty, error, success states, and polish completes every section of a polish checklist and multi-viewport comparison, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Loading, empty, error, success states, and polish\n- [x] Customer problem: Design every state before animation; verify focus, touch targets, long content, reduced motion, and screenshots at key sizes.\n- [ ] Deliverable: a polish checklist and multi-viewport comparison\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.w3.org/WAI/WCAG22/quickref/\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Loading, empty, error, success states, and polish",
+          "filename": "exercises/43-ui-build-lab/ui-states-polish.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "ui-states-polish-q1",
+          "question": "Which approach correctly applies Loading, empty, error, success states, and polish?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Loading, empty, error, success states, and polish, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Loading, empty, error, success states, and polish, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Loading, empty, error, success states, and polish, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Loading, empty, error, success states, and polish, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Loading, empty, error, success states, and polish, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "ui-states-polish-q2",
+          "question": "Which definition matches the term “Hierarchy”?",
+          "options": [
+            "A measure or structure that makes the Loading, empty, error, success states, and polish decision comparable and reproducible.",
+            "A central Loading, empty, error, success states, and polish concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Loading, empty, error, success states, and polish improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Hierarchy” means: A central Loading, empty, error, success states, and polish concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Loading, empty, error, success states, and polish decision comparable and reproducible. ». The reference answer is « A central Loading, empty, error, success states, and polish concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central Loading, empty, error, success states, and polish concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Loading, empty, error, success states, and polish concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central Loading, empty, error, success states, and polish concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Loading, empty, error, success states, and polish improves the system without moving the problem elsewhere. ». The reference answer is « A central Loading, empty, error, success states, and polish concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central Loading, empty, error, success states, and polish concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Loading, empty, error, success states, and polish concept defined by an observable rule rather than preference. ». “Hierarchy” means: A central Loading, empty, error, success states, and polish concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "ui-states-polish-q3",
+          "question": "What is the best first fix when you observe: “Loading, empty, error, success states, and polish looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Loading, empty, error, success states, and polish problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Loading, empty, error, success states, and polish problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Loading, empty, error, success states, and polish problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Loading, empty, error, success states, and polish problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Loading, empty, error, success states, and polish problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Loading, empty, error, success states, and polish problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Loading, empty, error, success states, and polish problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Loading, empty, error, success states, and polish problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Loading, empty, error, success states, and polish problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Loading, empty, error, success states, and polish problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Loading, empty, error, success states, and polish starts from an observable customer problem, never an isolated trend.",
+        "The a polish checklist and multi-viewport comparison deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Loading, empty, error, success states, and polish, continue with Choose the product and write a specification to connect the new skill to the next part of the selling system."
+    }
+  ]
+}

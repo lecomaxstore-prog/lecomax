@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import type { EcomediaPost, EcomediaComment, PostType } from "@/lib/ecomedia";
 import { POST_TYPE_LABELS, POST_TYPE_COLORS, formatRelativeTime } from "@/lib/ecomedia";
 
-type Tab = "posts" | "new" | "comments";
+type Tab = "posts" | "moderation" | "new" | "comments";
 
 const EMPTY_FORM = {
   title: "", content: "", type: "text" as PostType,
@@ -136,6 +136,25 @@ export default function EcomediaManagerPage() {
     load();
   }
 
+  async function moderatePost(post: EcomediaPost, action: "approve" | "reject") {
+    if (action === "reject" && !confirm("Rejeter et supprimer définitivement cette publication ?")) return;
+    setDeleting(post.id);
+    try {
+      const response = await fetch(`/api/admin/ecomedia/posts/${post.id}`, action === "approve" ? {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_published: true }),
+      } : { method: "DELETE" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Action impossible");
+      await load();
+    } catch (reason) {
+      alert(reason instanceof Error ? reason.message : "Action impossible");
+    } finally {
+      setDeleting(null);
+    }
+  }
+
   async function deleteComment(id: string) {
     if (!confirm("Supprimer ce commentaire ?")) return;
     await fetch(`/api/admin/ecomedia/comments/${id}`, { method: "DELETE" });
@@ -180,6 +199,7 @@ export default function EcomediaManagerPage() {
   }
 
   const publishedCount = posts.filter(p => p.is_published).length;
+  const pendingPosts = posts.filter(p => p.is_client_post && !p.is_published);
   const totalLikes = posts.reduce((s, p) => s + p.likes_count, 0);
   const totalComments = posts.reduce((s, p) => s + p.comments_count, 0);
 
@@ -207,10 +227,11 @@ export default function EcomediaManagerPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {[
           { label: "Posts total", val: posts.length, icon: "📱" },
           { label: "Publiés", val: publishedCount, icon: "✅" },
+          { label: "À valider", val: pendingPosts.length, icon: "🛡️" },
           { label: "Likes total", val: totalLikes, icon: "❤️" },
           { label: "Commentaires", val: totalComments, icon: "💬" },
         ].map(s => (
@@ -224,13 +245,48 @@ export default function EcomediaManagerPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 bg-neutral-100 rounded-xl p-1 w-fit">
-        {([["posts", "Posts"], ["new", editId ? "Modifier" : "Nouveau post"], ["comments", "Commentaires"]] as [Tab, string][]).map(([t, label]) => (
+        {([["posts", "Posts"], ["moderation", `Validation (${pendingPosts.length})`], ["new", editId ? "Modifier" : "Nouveau post"], ["comments", "Commentaires"]] as [Tab, string][]).map(([t, label]) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${tab === t ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
             {label}
           </button>
         ))}
       </div>
+
+      {/* CLIENT POST MODERATION */}
+      {tab === "moderation" && (
+        <section className="space-y-4">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <p className="text-sm font-black text-amber-950">Publications clients à vérifier</p>
+            <p className="mt-1 text-xs leading-5 text-amber-800">Une publication reste invisible sur Ecomedia jusqu’à votre approbation. Rejeter la supprime définitivement.</p>
+          </div>
+          {loading ? <div className="rounded-2xl border border-neutral-200 bg-white p-10 text-center text-sm text-neutral-400">Chargement…</div> : pendingPosts.length === 0 ? (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-12 text-center">
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-xl">✓</span>
+              <p className="mt-4 font-black">Aucune publication en attente</p>
+              <p className="mt-1 text-xs text-neutral-400">Toutes les publications clients ont été traitées.</p>
+            </div>
+          ) : <div className="grid gap-4 md:grid-cols-2">
+            {pendingPosts.map(post => (
+              <article key={post.id} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+                {post.media_url && <div className="aspect-[16/10] bg-neutral-100"><img src={post.media_url} alt="" className="h-full w-full object-cover" /></div>}
+                <div className="p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0"><p className="truncate text-sm font-black">{post.author_name || "Membre"}</p><p className="text-[10px] text-neutral-400">{formatRelativeTime(post.created_at)}</p></div>
+                    <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-amber-700">En attente</span>
+                  </div>
+                  <h3 className="mt-4 line-clamp-2 text-sm font-black">{post.title}</h3>
+                  {post.content && <p className="mt-2 line-clamp-4 text-xs leading-5 text-neutral-600">{post.content}</p>}
+                  <div className="mt-5 grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => moderatePost(post, "reject")} disabled={deleting === post.id} className="min-h-11 rounded-xl border border-red-200 px-3 text-xs font-black text-red-600 transition hover:bg-red-50 disabled:opacity-50">Rejeter</button>
+                    <button type="button" onClick={() => moderatePost(post, "approve")} disabled={deleting === post.id} className="min-h-11 rounded-xl bg-emerald-600 px-3 text-xs font-black text-white transition hover:bg-emerald-700 disabled:opacity-50">{deleting === post.id ? "Traitement…" : "Approuver"}</button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>}
+        </section>
+      )}
 
       {/* ── POSTS LIST ── */}
       {tab === "posts" && (
@@ -273,10 +329,10 @@ export default function EcomediaManagerPage() {
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${POST_TYPE_COLORS[p.type]}`}>{POST_TYPE_LABELS[p.type]}</span>
                       </td>
                       <td className="px-4 py-3">
-                        <button onClick={() => togglePublish(p)}
+                        {p.is_client_post && !p.is_published ? <button onClick={() => setTab("moderation")} className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-700 hover:bg-amber-200">À valider</button> : <button onClick={() => togglePublish(p)}
                           className={`text-[11px] font-bold px-2.5 py-1 rounded-full transition-colors ${p.is_published ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"}`}>
                           {p.is_published ? "Publié" : "Brouillon"}
-                        </button>
+                        </button>}
                       </td>
                       <td className="px-4 py-3 text-center font-semibold">{p.likes_count}</td>
                       <td className="px-4 py-3 text-center font-semibold">{p.comments_count}</td>

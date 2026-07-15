@@ -95,13 +95,13 @@ class CdpClient {
   }
 }
 
-async function createAdminToken() {
+async function createSessionToken(identity = "academy-smoke@localhost") {
   const envText = await readFile(path.join(root, ".env.local"), "utf8").catch(() => "");
   const match = /^SUPABASE_SERVICE_ROLE_KEY=(.*)$/m.exec(envText);
   const secret = (process.env.SUPABASE_SERVICE_ROLE_KEY ?? match?.[1] ?? "dev-only-fallback-not-for-production-please-set-env")
     .trim()
     .replace(/^['"]|['"]$/g, "");
-  const payload = `${Date.now()}:academy-smoke@localhost`;
+  const payload = `${Date.now()}:${identity}`;
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",
@@ -189,7 +189,7 @@ async function main() {
     ]);
     await pageClient.send("Page.bringToFront");
 
-    const token = await createAdminToken();
+    const token = await createSessionToken();
     const cookie = await pageClient.send("Network.setCookie", {
       name: "admin_session",
       value: token,
@@ -199,6 +199,16 @@ async function main() {
       sameSite: "Strict",
     });
     assert(cookie.success, "The smoke-test admin cookie was rejected.");
+    const pinToken = await createSessionToken("how-built-pin@lecomax.local");
+    const pinCookie = await pageClient.send("Network.setCookie", {
+      name: "how_built_access",
+      value: pinToken,
+      url: `${baseUrl}/admin/how-it-was-built/`,
+      path: "/admin/how-it-was-built",
+      httpOnly: true,
+      sameSite: "Strict",
+    });
+    assert(pinCookie.success, "The smoke-test course PIN cookie was rejected.");
 
     const manifest = JSON.parse(await readFile(path.join(root, "app", "admin", "how-it-was-built", "course", "generated", "manifest.json"), "utf8"));
     const module = manifest.modules.find(item => item.id === "nextjs-app-router") ?? manifest.modules[0];
@@ -411,6 +421,37 @@ async function main() {
     })()`);
     assert(mobilePanel.top >= mobilePanel.mainTop && mobilePanel.top < mobilePanel.mainBottom && mobilePanel.overflow <= 2, "Mobile section navigation did not reveal a non-overflowing tab panel.");
 
+    await evaluate(pageClient, `(() => {
+      const select = document.querySelector('#course-section-select');
+      Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set.call(select, 'game');
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    })()`);
+    await waitFor(pageClient, `!!document.querySelector('#code-coach-game [data-code-game-action="advance"]')`, "Code Game demonstration");
+    assert(await evaluate(pageClient, `document.querySelector('#code-coach-game')?.dataset.codeGameLevels === '100'`), "Code Game did not load the current 100-level bundle.");
+    await evaluate(pageClient, `document.querySelector('#code-coach-game [data-code-game-action="advance"]').click()`);
+    await waitFor(pageClient, `document.querySelector('#code-coach-game [data-code-game-action="advance"]')?.previousElementSibling?.disabled === true`, "Code Game completed demonstration");
+    assert(await evaluate(pageClient, `document.querySelectorAll('#code-coach-game [data-code-demo-line]').length >= 12`), "Code Game lessons must expose at least 12 guided lines.");
+    await evaluate(pageClient, `document.querySelector('[data-code-demo-line="0"]').click()`);
+    await waitFor(pageClient, `document.querySelector('[data-code-demo-line="0"]')?.getAttribute('aria-pressed') === 'true'`, "clickable line-by-line bot explanation");
+    await evaluate(pageClient, `document.querySelector('[data-code-game-view="preview"]').click()`);
+    await waitFor(pageClient, `!!document.querySelector('[data-code-game-preview]')`, "Code Game visual result preview");
+    await evaluate(pageClient, `document.querySelector('[data-code-game-view="meaning"]').click()`);
+    await waitFor(pageClient, `document.querySelector('[data-code-game-view="meaning"]')?.getAttribute('aria-pressed') === 'true'`, "Code Game meaning question");
+    await evaluate(pageClient, `document.querySelector('#code-coach-game [data-code-game-action="advance"]').click()`);
+    await waitFor(pageClient, `!!document.querySelector('#code-game-editor')`, "Code Game practice editor");
+    await evaluate(pageClient, `(() => {
+      const editor = document.querySelector('#code-game-editor');
+      Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(editor, 'export default function Test(){ return <main><h1>Bonjour</h1><p>Test</p></main> }');
+      editor.dispatchEvent(new Event('input', { bubbles: true }));
+      return true;
+    })()`);
+    await waitFor(pageClient, `!document.querySelector('[data-code-game-action="check"]')?.disabled`, "enabled Code Game validation");
+    await evaluate(pageClient, `document.querySelector('[data-code-game-action="check"]').click()`);
+    await waitFor(pageClient, `document.querySelector('[data-code-game-result]')?.dataset.codeGameResult === 'correct'`, "correct Code Game feedback");
+    const gameMobile = await evaluate(pageClient, `({ overflow: document.querySelector('#admin-main').scrollWidth - document.querySelector('#admin-main').clientWidth, editorHeight: document.querySelector('#code-game-editor').getBoundingClientRect().height })`);
+    assert(gameMobile.overflow <= 2 && gameMobile.editorHeight >= 300, "Code Game is not usable at 390px.");
+
     const exceptions = pageClient.events.filter(event => event.method === "Runtime.exceptionThrown");
     assert(exceptions.length === 0, "The browser reported an uncaught runtime exception.");
     const storageAudit = await evaluate(pageClient, `({
@@ -419,7 +460,7 @@ async function main() {
     })`);
     assert(storageAudit.current === initialCourseStorage && storageAudit.writes.length === 0, "Interactions persisted Academy course or progress state in localStorage.");
 
-    console.log("Academy browser smoke test passed: deep link, language retention, RTL, copy, quiz, hints, solution, keyboard-ready controls, 390px, tablet, and desktop.");
+    console.log("Academy browser smoke test passed: deep link, language retention, RTL, copy, quiz, hints, solution, Code Game validation, keyboard-ready controls, 390px, tablet, and desktop.");
   } finally {
     pageClient?.close();
     browserClient?.close();

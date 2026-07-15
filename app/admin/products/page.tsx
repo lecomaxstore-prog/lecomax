@@ -392,6 +392,10 @@ export default function ProductsPage() {
     const matchCat = filterCat === "all" || p.category === filterCat;
     return matchSearch && matchCat;
   });
+  const activeProducts = products.filter((product) => product.active).length;
+  const outOfStockProducts = products.filter((product) => product.stock === 0).length;
+  const lowStockProducts = products.filter((product) => product.stock > 0 && product.stock <= 5).length;
+  const inventoryValue = products.reduce((sum, product) => sum + Number(product.price || 0) * Number(product.stock || 0), 0);
 
   const [aiUrl, setAiUrl] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
@@ -1002,21 +1006,50 @@ export default function ProductsPage() {
   );
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-black">Produits</h1>
-          <p className="text-neutral-500 text-sm mt-0.5">
+    <div className="mx-auto w-full max-w-7xl pb-12">
+      <div className="relative mb-5 overflow-hidden rounded-3xl border border-neutral-200 bg-white px-5 py-6 shadow-[0_1px_2px_rgba(0,0,0,.03)] sm:px-7 lg:px-8">
+        <div className="pointer-events-none absolute -right-12 -top-24 h-52 w-52 rounded-full bg-[#3ecf4c]/10 blur-3xl" />
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-black text-[#3ecf4c] shadow-lg shadow-black/10">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
+          </div>
+          <div>
+          <div className="mb-1.5 flex items-center gap-2">
+            <h1 className="text-2xl font-black tracking-tight sm:text-[28px]">Produits</h1>
+            <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-neutral-600">{products.length} au total</span>
+          </div>
+          <p className="max-w-xl text-sm leading-relaxed text-neutral-500">
             {isStaff
               ? `${products.length} produit${products.length !== 1 ? "s" : ""} approuvé${products.length !== 1 ? "s" : ""} · vos ajouts uniquement`
-              : `${products.length} produit${products.length !== 1 ? "s" : ""} au total`}
+              : "Gérez votre catalogue, vos tarifs et votre inventaire depuis un seul espace."}
           </p>
+          </div>
         </div>
         <button onClick={() => router.push("/admin/products?new=1")}
-          className="bg-black text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-neutral-800 flex items-center gap-2">
+          className="flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-black px-5 text-sm font-bold text-white shadow-lg shadow-black/10 transition-all hover:-translate-y-0.5 hover:bg-neutral-800">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Nouveau produit
         </button>
+        </div>
+      </div>
+
+      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[
+          { label: "Produits actifs", value: activeProducts, detail: `${products.length - activeProducts} masqué${products.length - activeProducts !== 1 ? "s" : ""}`, tone: "emerald", icon: <path d="m5 12 4 4L19 6"/> },
+          { label: "Stock faible", value: lowStockProducts, detail: "5 unités ou moins", tone: "amber", icon: <path d="M12 9v4M12 17h.01"/> },
+          { label: "Ruptures", value: outOfStockProducts, detail: "À réapprovisionner", tone: "red", icon: <path d="M18 6 6 18M6 6l12 12"/> },
+          { label: "Valeur du stock", value: `${inventoryValue.toLocaleString("fr-MA")} MAD`, detail: "Au prix de vente", tone: "neutral", icon: <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7H14a3.5 3.5 0 010 7H6"/> },
+        ].map((stat) => (
+          <div key={stat.label} className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,.025)] sm:p-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-neutral-400">{stat.label}</p>
+              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${stat.tone === "emerald" ? "bg-emerald-50 text-emerald-600" : stat.tone === "amber" ? "bg-amber-50 text-amber-600" : stat.tone === "red" ? "bg-red-50 text-red-600" : "bg-neutral-100 text-neutral-600"}`}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">{stat.icon}</svg></span>
+            </div>
+            <p className="truncate text-xl font-black tracking-tight sm:text-2xl">{stat.value}</p>
+            <p className="mt-1 text-[10px] text-neutral-400 sm:text-[11px]">{stat.detail}</p>
+          </div>
+        ))}
       </div>
 
       {/* Pending approvals banner — staff only */}
@@ -1059,22 +1092,25 @@ export default function ProductsPage() {
         </div>
       )}
 
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <div className="relative flex-1 min-w-[200px] max-w-xs">
+      <div className="mb-4 rounded-2xl border border-neutral-200 bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,.025)]">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+        <div className="relative min-w-0 flex-1 lg:max-w-sm">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
           <input type="text" placeholder="Rechercher…" value={search} onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-black bg-white" />
+            className="h-11 w-full rounded-xl border border-neutral-200 bg-neutral-50/70 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-neutral-400 focus:border-black focus:bg-white focus:ring-4 focus:ring-black/[.04]" />
         </div>
+        <div className="flex gap-2 overflow-x-auto pb-1 lg:pb-0">
         {["all", ...CATEGORIES].map((c) => (
           <button key={c} onClick={() => router.replace(c === "all" ? "/admin/products" : `/admin/products?cat=${c}`)}
-            className={`text-xs font-semibold px-3.5 py-2 rounded-xl transition-colors ${filterCat === c ? "bg-black text-white" : "bg-white border border-neutral-200 text-neutral-600 hover:border-black"}`}>
+            className={`shrink-0 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${filterCat === c ? "bg-black text-white shadow-md shadow-black/10" : "border border-neutral-200 bg-white text-neutral-600 hover:border-black"}`}>
             {c === "all" ? "Tous" : c.charAt(0).toUpperCase() + c.slice(1)}
           </button>
         ))}
+        </div>
         {/* Scroll arrows for the table below */}
-        <div className="ml-auto flex items-center gap-1.5 shrink-0">
+        <div className="ml-auto hidden shrink-0 items-center gap-1.5 md:flex">
           <button
             onClick={() => scrollTable("left")}
             className="w-8 h-8 flex items-center justify-center rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 hover:border-neutral-400 transition-all text-neutral-500 hover:text-black"
@@ -1090,6 +1126,11 @@ export default function ProductsPage() {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
           </button>
         </div>
+      </div>
+      <div className="mt-3 flex items-center justify-between border-t border-neutral-100 px-1 pt-3 text-[11px] text-neutral-400">
+        <span><strong className="text-neutral-700">{filtered.length}</strong> résultat{filtered.length !== 1 ? "s" : ""}</span>
+        {(search || filterCat !== "all") && <button type="button" onClick={() => { setSearch(""); router.replace("/admin/products"); }} className="font-bold text-neutral-600 hover:text-black">Réinitialiser les filtres</button>}
+      </div>
       </div>
 
       {loading ? (
@@ -1118,10 +1159,11 @@ export default function ProductsPage() {
           )}
         </div>
       ) : (
-        <div ref={tableRef} className="bg-white rounded-2xl border border-neutral-100 overflow-x-auto">
+        <>
+        <div ref={tableRef} className="hidden overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-[0_1px_2px_rgba(0,0,0,.025)] md:block">
           <table className="w-full text-sm min-w-[820px]">
             <thead className="sticky top-0 z-10">
-              <tr className="border-b border-neutral-100 text-left bg-white">
+              <tr className="border-b border-neutral-100 bg-neutral-50/80 text-left">
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Produit</th>
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Catégorie</th>
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Prix</th>
@@ -1133,10 +1175,10 @@ export default function ProductsPage() {
             </thead>
             <tbody>
               {filtered.map((p) => (
-                <tr key={p.id} className="border-b border-neutral-50 hover:bg-neutral-50/50 transition-colors">
+                <tr key={p.id} className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50/70 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-neutral-100 overflow-hidden shrink-0">
+                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-neutral-100 bg-neutral-100">
                         {p.images?.[0]
                           // eslint-disable-next-line @next/next/no-img-element
                           ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
@@ -1144,7 +1186,7 @@ export default function ProductsPage() {
                         }
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-sm truncate">{p.name} {p.featured && <span className="text-yellow-400">★</span>}</p>
+                        <p className="max-w-[360px] truncate text-sm font-bold">{p.name} {p.featured && <span className="text-yellow-400">★</span>}</p>
                         <p className="text-[11px] text-neutral-400 truncate">{p.brand ? `${p.brand} · ` : ""}{p.slug}</p>
                       </div>
                     </div>
@@ -1182,15 +1224,15 @@ export default function ProductsPage() {
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Link href={`/produit/${p.slug}`} target="_blank"
-                        className="p-1.5 hover:bg-neutral-100 rounded-lg transition-colors text-neutral-400 hover:text-black">
+                        aria-label={`Voir ${p.name}`} className="flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-neutral-400 transition-colors hover:border-neutral-200 hover:bg-white hover:text-black">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                       </Link>
                       <button onClick={() => router.push(`/admin/products?id=${p.id}`)}
-                        className="p-1.5 hover:bg-neutral-100 rounded-lg transition-colors text-neutral-400 hover:text-black">
+                        aria-label={`Modifier ${p.name}`} className="flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-neutral-400 transition-colors hover:border-neutral-200 hover:bg-white hover:text-black">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       </button>
                       <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id}
-                        className="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-neutral-400 hover:text-red-600">
+                        aria-label={`Supprimer ${p.name}`} className="flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-neutral-400 transition-colors hover:border-red-100 hover:bg-red-50 hover:text-red-600">
                         {deleting === p.id
                           ? <div className="w-3 h-3 border border-red-400 border-t-transparent rounded-full animate-spin" />
                           : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
@@ -1203,6 +1245,38 @@ export default function ProductsPage() {
             </tbody>
           </table>
         </div>
+        <div className="space-y-3 md:hidden">
+          {filtered.map((p) => (
+            <article key={p.id} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-[0_1px_2px_rgba(0,0,0,.03)]">
+              <div className="flex gap-3 p-4">
+                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-neutral-100 bg-neutral-100">
+                  {p.images?.[0]
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={p.images[0]} alt="" className="h-full w-full object-cover" />
+                    : <div className="flex h-full w-full items-center justify-center text-neutral-300"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex items-start justify-between gap-2">
+                    <p className="line-clamp-2 text-sm font-black leading-snug">{p.name} {p.featured && <span className="text-yellow-400">★</span>}</p>
+                    <span className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${p.active ? "bg-emerald-500" : "bg-neutral-300"}`} />
+                  </div>
+                  <p className="truncate text-[10px] text-neutral-400">{p.brand ? `${p.brand} · ` : ""}{p.slug}</p>
+                  <div className="mt-3 flex items-end justify-between gap-2">
+                    <div><p className="text-base font-black">{p.price} MAD</p>{p.original_price && <p className="text-[10px] text-neutral-400 line-through">{p.original_price} MAD</p>}</div>
+                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-black ${p.stock === 0 ? "bg-red-50 text-red-600" : p.stock <= 5 ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{p.stock === 0 ? "Épuisé" : `${p.stock} en stock`}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 border-t border-neutral-100 bg-neutral-50/60 p-2.5">
+                <span className="mr-auto rounded-lg bg-white px-2.5 py-1.5 text-[10px] font-bold capitalize text-neutral-600 ring-1 ring-neutral-200">{p.category}</span>
+                <Link href={`/produit/${p.slug}`} target="_blank" className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-neutral-500 ring-1 ring-neutral-200" aria-label={`Voir ${p.name}`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></Link>
+                <button onClick={() => router.push(`/admin/products?id=${p.id}`)} className="flex h-9 items-center gap-2 rounded-xl bg-black px-3 text-[10px] font-black text-white"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="m18.5 2.5 3 3L12 15l-4 1 1-4z"/></svg>Modifier</button>
+                <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id} className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600 disabled:opacity-50" aria-label={`Supprimer ${p.name}`}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6"/></svg></button>
+              </div>
+            </article>
+          ))}
+        </div>
+        </>
       )}
     </div>
   );

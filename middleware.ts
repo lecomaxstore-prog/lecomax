@@ -23,6 +23,12 @@ async function isValidAdminSession(req: NextRequest): Promise<boolean> {
   return !!email;
 }
 
+async function hasHowBuiltPin(req: NextRequest): Promise<boolean> {
+  const value = req.cookies.get("how_built_access")?.value;
+  if (!value) return false;
+  return (await verifySessionToken(value, 8 * 60 * 60 * 1000)) === "how-built-pin@lecomax.local";
+}
+
 // Route slug → required permission slug.
 // null      = always visible to all authenticated users (e.g. dashboard)
 // undefined = owner-only (hidden from all staff)
@@ -160,6 +166,16 @@ export async function middleware(req: NextRequest) {
         loginUrl.searchParams.set("from", pathname);
         return NextResponse.redirect(loginUrl);
       }
+    }
+
+    // The owner-only learning/code area requires a second PIN unlock. Keep the
+    // unlock screen reachable, but never serve the real course bundle first.
+    if (
+      pathname.startsWith("/admin/how-it-was-built") &&
+      !pathname.startsWith("/admin/how-it-was-built/unlock") &&
+      !(await hasHowBuiltPin(req))
+    ) {
+      return NextResponse.redirect(new URL("/admin/how-it-was-built/unlock", req.url));
     }
   }
 

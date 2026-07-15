@@ -63,6 +63,9 @@ export type Category = {
   slug: string;
   label: string;
   image: string | null;
+  image_mobile?: string | null;
+  image_position?: string | null;
+  image_mobile_position?: string | null;
   description: string | null;
   active: boolean;
   sort_order: number;

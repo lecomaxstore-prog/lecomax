@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCart } from "./CartContext";
 import { useRef, useState, useEffect } from "react";
 
-const cats = [
+const fallbackCats = [
   { slug: "homme",       label: "Homme",        sub: "Vestes & Sweats" },
   { slug: "femme",       label: "Femme",         sub: "Vestes & Sweats" },
   { slug: "chaussures",  label: "Chaussures",    sub: "Running & Lifestyle" },
@@ -79,9 +79,15 @@ export default function MobileNav() {
   const [catOpen,    setCatOpen]    = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query,      setQuery]      = useState("");
+  const [cats, setCats] = useState(fallbackCats);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { setCatOpen(false); setSearchOpen(false); }, [pathname]);
+  useEffect(() => {
+    fetch("/api/categories", { cache: "no-store" }).then((response) => response.json()).then((data) => {
+      if (Array.isArray(data) && data.length) setCats(data.filter((category) => category.active !== false).map((category) => ({ slug: category.slug, label: category.label, sub: category.description || "Découvrir la collection" })));
+    }).catch(() => {});
+  }, []);
   useEffect(() => {
     if (searchOpen) setTimeout(() => inputRef.current?.focus(), 80);
     else setQuery("");

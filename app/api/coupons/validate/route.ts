@@ -7,6 +7,15 @@ const supabase = createClient(
 );
 
 export async function POST(req: NextRequest) {
+  const { data: featureSetting } = await supabase
+    .from("settings")
+    .select("value")
+    .eq("key", "enable_coupons")
+    .maybeSingle();
+  if (featureSetting?.value === "false") {
+    return NextResponse.json({ error: "Les codes promo sont temporairement désactivés" }, { status: 403 });
+  }
+
   const { code, order_total } = await req.json();
   if (!code) return NextResponse.json({ error: "Code requis" }, { status: 400 });
 

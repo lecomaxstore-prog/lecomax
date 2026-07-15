@@ -1,328 +1,111 @@
 "use client";
-import { useEffect, useState, useCallback, useRef } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
 
-type Banner = {
-  id: string;
-  title: string | null;
-  subtitle: string | null;
-  badge: string | null;
-  button_label: string | null;
-  button_href: string | null;
-  button2_label: string | null;
-  button2_href: string | null;
-  image_desktop: string | null;
-  image_mobile: string | null;
-  overlay_opacity: number;
-  sort_order: number;
-  active: boolean;
-  created_at: string;
-};
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import type { HeroBannerRecord } from "@/lib/hero-banners";
 
-const emptyForm = {
-  title: "", subtitle: "", badge: "",
-  button_label: "Découvrir", button_href: "/boutique",
-  button2_label: "", button2_href: "",
-  image_desktop: "", image_mobile: "",
-  overlay_opacity: "50", sort_order: "0", active: true,
-};
+type Banner = HeroBannerRecord;
+type FormState = { title: string; subtitle: string; badge: string; button_label: string; button_href: string; button2_label: string; button2_href: string; image_desktop: string; image_mobile: string; overlay_opacity: string; sort_order: string; active: boolean };
+const emptyForm: FormState = { title: "", subtitle: "", badge: "", button_label: "Découvrir", button_href: "/boutique", button2_label: "", button2_href: "", image_desktop: "", image_mobile: "", overlay_opacity: "50", sort_order: "0", active: true };
 
 export default function BannersPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const editId = searchParams.get("id");
-  const isNew = searchParams.get("new") === "1";
-
+  const params = useSearchParams();
+  const editId = params.get("id");
+  const isNew = params.get("new") === "1";
+  const showForm = isNew || Boolean(editId);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ ...emptyForm });
+  const [error, setError] = useState("");
+  const [form, setForm] = useState<FormState>(emptyForm);
+  const [initialForm, setInitialForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
-  const [uploadingDesktop, setUploadingDesktop] = useState(false);
-  const [uploadingMobile, setUploadingMobile] = useState(false);
-  const [dragOverDesktop, setDragOverDesktop] = useState(false);
-  const [dragOverMobile, setDragOverMobile] = useState(false);
-  const desktopInputRef = useRef<HTMLInputElement>(null);
-  const mobileInputRef = useRef<HTMLInputElement>(null);
+  const [workingId, setWorkingId] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [preview, setPreview] = useState<"desktop" | "mobile">("desktop");
 
   const load = useCallback(async () => {
-    setLoading(true);
-    const res = await fetch("/api/banners");
-    const data = await res.json();
-    setBanners(Array.isArray(data) ? data : []);
-    setLoading(false);
+    setLoading(true); setError("");
+    try { const response = await fetch("/api/banners", { cache: "no-store" }); const result = await response.json().catch(() => null); if (!response.ok) throw new Error(result?.error || "Impossible de charger les bannières."); setBanners(Array.isArray(result) ? result : []); }
+    catch (loadError) { setError(loadError instanceof Error ? loadError.message : "Une erreur inattendue est survenue."); }
+    finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
-
+  useEffect(() => { void load(); }, [load]);
   useEffect(() => {
-    if (editId) {
-      const b = banners.find((x) => x.id === editId);
-      if (b) setForm({
-        title: b.title ?? "", subtitle: b.subtitle ?? "", badge: b.badge ?? "",
-        button_label: b.button_label ?? "", button_href: b.button_href ?? "",
-        button2_label: b.button2_label ?? "", button2_href: b.button2_href ?? "",
-        image_desktop: b.image_desktop ?? "", image_mobile: b.image_mobile ?? "",
-        overlay_opacity: String(b.overlay_opacity), sort_order: String(b.sort_order), active: b.active,
-      });
-    } else if (isNew) {
-      setForm({ ...emptyForm });
-    }
-  }, [editId, isNew, banners]);
+    if (editId) { const banner = banners.find((item) => item.id === editId); if (!banner) return; const next = toForm(banner); setForm(next); setInitialForm(next); setMessage(null); }
+    else if (isNew) { const next = { ...emptyForm, sort_order: String(banners.length) }; setForm(next); setInitialForm(next); setMessage(null); }
+  }, [banners, editId, isNew]);
 
-  async function uploadImage(file: File, field: "image_desktop" | "image_mobile") {
-    const setUploading = field === "image_desktop" ? setUploadingDesktop : setUploadingMobile;
-    setUploading(true);
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    setUploading(false);
-    if (res.ok) setForm((f) => ({ ...f, [field]: data.url }));
-    else setMsg({ type: "err", text: data.error ?? "Échec upload" });
+  const dirty = JSON.stringify(form) !== JSON.stringify(initialForm);
+  useEffect(() => { if (!showForm || !dirty) return; const warn = (event: BeforeUnloadEvent) => event.preventDefault(); window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty, showForm]);
+
+  function closeEditor() { if (dirty && !window.confirm("Quitter sans enregistrer les modifications ?")) return; router.replace("/admin/banners"); }
+  function update<K extends keyof FormState>(key: K, value: FormState[K]) { setForm((current) => ({ ...current, [key]: value })); }
+
+  async function save(event: React.FormEvent) {
+    event.preventDefault(); setSaving(true); setMessage(null);
+    try {
+      const response = await fetch(editId ? `/api/banners/${editId}` : "/api/banners", { method: editId ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, overlay_opacity: Number(form.overlay_opacity), sort_order: Number(form.sort_order) || 0 }) });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "Impossible d’enregistrer la bannière.");
+      const saved = toForm(result); setForm(saved); setInitialForm(saved); setMessage({ ok: true, text: result.active ? "Bannière publiée sur la page d’accueil." : "Brouillon enregistré." }); await load(); window.setTimeout(() => router.replace("/admin/banners"), 700);
+    } catch (saveError) { setMessage({ ok: false, text: saveError instanceof Error ? saveError.message : "Erreur d’enregistrement." }); }
+    finally { setSaving(false); }
   }
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-    setMsg(null);
-    const payload = {
-      title: form.title.trim() || null,
-      subtitle: form.subtitle.trim() || null,
-      badge: form.badge.trim() || null,
-      button_label: form.button_label.trim() || null,
-      button_href: form.button_href.trim() || null,
-      button2_label: form.button2_label.trim() || null,
-      button2_href: form.button2_href.trim() || null,
-      image_desktop: form.image_desktop.trim() || null,
-      image_mobile: form.image_mobile.trim() || null,
-      overlay_opacity: parseInt(form.overlay_opacity) || 50,
-      sort_order: parseInt(form.sort_order) || 0,
-      active: form.active,
-    };
-    const url = editId ? `/api/banners/${editId}` : "/api/banners";
-    const method = editId ? "PUT" : "POST";
-    const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-    const json = await res.json();
-    setSaving(false);
-    if (!res.ok) setMsg({ type: "err", text: json.error ?? "Erreur" });
-    else { setMsg({ type: "ok", text: "Bannière enregistrée ✓" }); load(); setTimeout(() => router.replace("/admin/banners"), 1000); }
+  async function patchBanner(id: string, body: Record<string, unknown>, success: string) {
+    setWorkingId(id); setMessage(null);
+    try { const response = await fetch(`/api/banners/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); const result = await response.json().catch(() => ({})); if (!response.ok) throw new Error(result.error || "Modification impossible."); setBanners((items) => items.map((item) => item.id === id ? result : item).sort((a, b) => a.sort_order - b.sort_order)); setMessage({ ok: true, text: success }); return true; }
+    catch (patchError) { setMessage({ ok: false, text: patchError instanceof Error ? patchError.message : "Modification impossible." }); return false; }
+    finally { setWorkingId(null); }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Supprimer cette bannière ?")) return;
-    await fetch(`/api/banners/${id}`, { method: "DELETE" });
-    load();
+  async function remove(banner: Banner) {
+    if (!window.confirm(`Supprimer définitivement « ${banner.title || "Sans titre"} » ?`)) return;
+    setWorkingId(banner.id); setMessage(null);
+    try { const response = await fetch(`/api/banners/${banner.id}`, { method: "DELETE" }); const result = await response.json().catch(() => ({})); if (!response.ok) throw new Error(result.error || "Suppression impossible."); setBanners((items) => items.filter((item) => item.id !== banner.id)); setMessage({ ok: true, text: "Bannière supprimée." }); }
+    catch (deleteError) { setMessage({ ok: false, text: deleteError instanceof Error ? deleteError.message : "Suppression impossible." }); }
+    finally { setWorkingId(null); }
   }
 
-  async function toggleActive(b: Banner) {
-    await fetch(`/api/banners/${b.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...b, active: !b.active }),
-    });
-    load();
+  async function move(index: number, direction: -1 | 1) {
+    const otherIndex = index + direction; if (otherIndex < 0 || otherIndex >= banners.length) return;
+    const current = banners[index]; const other = banners[otherIndex]; setWorkingId(current.id);
+    try { const [first, second] = await Promise.all([fetch(`/api/banners/${current.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sort_order: other.sort_order }) }), fetch(`/api/banners/${other.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sort_order: current.sort_order }) })]); if (!first.ok || !second.ok) throw new Error("Réorganisation impossible."); await load(); }
+    catch (moveError) { setMessage({ ok: false, text: moveError instanceof Error ? moveError.message : "Réorganisation impossible." }); }
+    finally { setWorkingId(null); }
   }
 
-  const showForm = isNew || !!editId;
+  if (showForm) return <BannerEditor form={form} update={update} editId={editId} saving={saving} dirty={dirty} message={message} preview={preview} setPreview={setPreview} save={save} close={closeEditor} />;
 
-  const ImageUploader = ({ field, label, uploading, dragOver, setDragOver, inputRef, aspect }: {
-    field: "image_desktop" | "image_mobile"; label: string; uploading: boolean;
-    dragOver: boolean; setDragOver: (v: boolean) => void; inputRef: React.RefObject<HTMLInputElement | null>; aspect: string;
-  }) => (
-    <div>
-      <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">{label}</label>
-      <div
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) uploadImage(f, field); }}
-        onClick={() => inputRef.current?.click()}
-        className={`border-2 border-dashed rounded-xl overflow-hidden cursor-pointer transition-colors ${dragOver ? "border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"}`}
-      >
-        {form[field] ? (
-          <div className="relative">
-            <img src={form[field]} alt="preview" className={`w-full object-cover ${aspect}`} />
-            <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-              <p className="text-white text-sm font-bold">Cliquer pour remplacer</p>
-            </div>
-          </div>
-        ) : uploading ? (
-          <div className={`flex flex-col items-center justify-center gap-2 ${aspect}`}>
-            <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-neutral-500">Upload…</p>
-          </div>
-        ) : (
-          <div className={`flex flex-col items-center justify-center gap-2 ${aspect}`}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-300">
-              <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
-            </svg>
-            <p className="text-sm font-medium text-neutral-500">Glissez ou <span className="text-black underline">choisissez</span></p>
-            <p className="text-xs text-neutral-400">JPG, PNG, WEBP · max 5 MB</p>
-          </div>
-        )}
-      </div>
-      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(f, field); }} />
-      {/* URL fallback */}
-      <input type="text" value={form[field]} onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
-        placeholder="Ou coller une URL directement…"
-        className="w-full mt-2 border border-neutral-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-black text-neutral-500" />
-    </div>
-  );
-
-  if (showForm) return (
-    <div className="max-w-3xl">
-      <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => router.replace("/admin/banners")} className="p-2 hover:bg-neutral-100 rounded-lg">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-        </button>
-        <h1 className="text-xl font-black">{editId ? "Modifier la bannière" : "Nouvelle bannière hero"}</h1>
-      </div>
-      <form onSubmit={handleSave} className="space-y-5">
-        {/* Images */}
-        <div className="bg-white rounded-2xl border border-neutral-100 p-6 space-y-5">
-          <h2 className="text-sm font-bold text-neutral-500 uppercase tracking-wider">Images</h2>
-          <ImageUploader field="image_desktop" label="Image Desktop (recommandé : 1920×800px)" uploading={uploadingDesktop} dragOver={dragOverDesktop} setDragOver={setDragOverDesktop} inputRef={desktopInputRef} aspect="aspect-[16/5]" />
-          <ImageUploader field="image_mobile" label="Image Mobile (recommandé : 750×900px)" uploading={uploadingMobile} dragOver={dragOverMobile} setDragOver={setDragOverMobile} inputRef={mobileInputRef} aspect="aspect-[4/5]" />
-          <div>
-            <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Opacité de l'overlay sombre ({form.overlay_opacity}%)</label>
-            <input type="range" min="0" max="100" value={form.overlay_opacity} onChange={(e) => setForm((f) => ({ ...f, overlay_opacity: e.target.value }))} className="w-full accent-black" />
-          </div>
-        </div>
-
-        {/* Text content */}
-        <div className="bg-white rounded-2xl border border-neutral-100 p-6 space-y-4">
-          <h2 className="text-sm font-bold text-neutral-500 uppercase tracking-wider">Texte & Boutons</h2>
-          <div>
-            <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Badge (texte petit en haut)</label>
-            <input type="text" value={form.badge} onChange={(e) => setForm((f) => ({ ...f, badge: e.target.value }))}
-              placeholder="ex: Boutique en ligne · Maroc"
-              className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Titre principal</label>
-            <input type="text" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              placeholder="ex: Sport. Tech. Style."
-              className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Sous-titre</label>
-            <textarea value={form.subtitle} onChange={(e) => setForm((f) => ({ ...f, subtitle: e.target.value }))}
-              rows={2} placeholder="ex: Livraison 35 MAD · Retours gratuits 30 j"
-              className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black resize-none" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Bouton 1 — Texte</label>
-              <input type="text" value={form.button_label} onChange={(e) => setForm((f) => ({ ...f, button_label: e.target.value }))}
-                placeholder="Découvrir la collection"
-                className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Bouton 1 — Lien</label>
-              <input type="text" value={form.button_href} onChange={(e) => setForm((f) => ({ ...f, button_href: e.target.value }))}
-                placeholder="/boutique"
-                className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Bouton 2 — Texte (optionnel)</label>
-              <input type="text" value={form.button2_label} onChange={(e) => setForm((f) => ({ ...f, button2_label: e.target.value }))}
-                placeholder="Voir les promos"
-                className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Bouton 2 — Lien</label>
-              <input type="text" value={form.button2_href} onChange={(e) => setForm((f) => ({ ...f, button2_href: e.target.value }))}
-                placeholder="/promotions"
-                className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black" />
-            </div>
-          </div>
-        </div>
-
-        {/* Settings */}
-        <div className="bg-white rounded-2xl border border-neutral-100 p-6 space-y-4">
-          <h2 className="text-sm font-bold text-neutral-500 uppercase tracking-wider">Paramètres</h2>
-          <div className="grid grid-cols-2 gap-4 items-end">
-            <div>
-              <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Ordre d'affichage</label>
-              <input type="number" value={form.sort_order} onChange={(e) => setForm((f) => ({ ...f, sort_order: e.target.value }))}
-                className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black" />
-            </div>
-            <label className="flex items-center gap-2 cursor-pointer select-none pb-1">
-              <div onClick={() => setForm((f) => ({ ...f, active: !f.active }))} className={`w-10 h-6 rounded-full transition-colors ${form.active ? "bg-black" : "bg-neutral-200"} relative`}>
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.active ? "translate-x-5" : "translate-x-1"}`} />
-              </div>
-              <span className="text-sm font-medium">Bannière active</span>
-            </label>
-          </div>
-        </div>
-
-        {msg && <div className={`text-sm px-4 py-3 rounded-xl ${msg.type === "ok" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-red-50 text-red-700 border border-red-200"}`}>{msg.text}</div>}
-        <div className="flex gap-3">
-          <button type="submit" disabled={saving} className="flex-1 bg-black text-white font-bold py-3 rounded-xl hover:bg-neutral-800 disabled:opacity-50 flex items-center justify-center gap-2">
-            {saving ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Enregistrement…</> : "Enregistrer"}
-          </button>
-          <button type="button" onClick={() => router.replace("/admin/banners")} className="px-6 py-3 border border-neutral-200 rounded-xl text-sm font-medium hover:border-black transition-colors">Annuler</button>
-        </div>
-      </form>
-    </div>
-  );
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-black">Bannières Hero</h1>
-          <p className="text-sm text-neutral-500 mt-0.5">Gérez les slides de la bannière principale de votre boutique</p>
-        </div>
-        <button onClick={() => router.replace("/admin/banners?new=1")} className="bg-black text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-neutral-800 flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Nouvelle bannière
-        </button>
-      </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center h-40"><div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" /></div>
-      ) : banners.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-neutral-100 px-6 py-16 text-center">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mx-auto text-neutral-200 mb-3"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <p className="text-neutral-400 text-sm font-medium">Aucune bannière créée.</p>
-          <p className="text-neutral-300 text-xs mt-1">Créez votre première bannière hero.</p>
-        </div>
-      ) : (
-        <div className="grid gap-4">
-          {banners.map((b) => (
-            <div key={b.id} className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
-              {b.image_desktop && (
-                <div className="relative">
-                  <img src={b.image_desktop} alt={b.title ?? ""} className="w-full h-32 object-cover" />
-                  <div className="absolute inset-0" style={{ background: `rgba(0,0,0,${b.overlay_opacity / 100})` }} />
-                  {b.title && <p className="absolute bottom-3 left-4 text-white font-black text-lg drop-shadow">{b.title}</p>}
-                </div>
-              )}
-              <div className="flex items-center gap-4 px-5 py-4">
-                {!b.image_desktop && (
-                  <div className="w-12 h-12 bg-neutral-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold truncate">{b.title ?? <span className="text-neutral-400 italic">Sans titre</span>}</p>
-                  <p className="text-xs text-neutral-400 truncate">{b.subtitle}</p>
-                  {(b.button_label || b.button_href) && <p className="text-xs text-neutral-400 mt-0.5">→ {b.button_href}</p>}
-                </div>
-                <span className="text-xs font-semibold text-neutral-400">#{b.sort_order}</span>
-                <button onClick={() => toggleActive(b)} className={`text-[10px] font-bold px-2.5 py-1.5 rounded-full cursor-pointer transition-colors ${b.active ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"}`}>{b.active ? "Active" : "Inactive"}</button>
-                <button onClick={() => router.replace(`/admin/banners?id=${b.id}`)} className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-lg">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
-                <button onClick={() => handleDelete(b.id)} className="p-1.5 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  const activeCount = banners.filter((banner) => banner.active).length;
+  return <div className="mx-auto w-full max-w-[1500px] space-y-5 sm:space-y-6">
+    <header className="relative overflow-hidden rounded-[28px] bg-neutral-950 px-5 py-6 text-white shadow-xl sm:px-7 sm:py-7"><div className="absolute -right-12 -top-24 h-64 w-64 rounded-full bg-violet-500/20 blur-3xl" /><div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><div className="mb-2 flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-violet-300"><span className="h-2 w-2 rounded-full bg-violet-400" />Vitrine de la boutique</div><h1 className="text-2xl font-black tracking-[-.035em] sm:text-3xl">Bannières Hero</h1><p className="mt-2 max-w-xl text-sm leading-6 text-white/50">Créez le carrousel principal avec des visuels adaptés au web et au mobile.</p></div><button onClick={() => router.push("/admin/banners?new=1")} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#3ecf4c]"><span className="text-lg">+</span>Nouvelle bannière</button></div></header>
+    <section className="grid grid-cols-3 gap-3"><Metric label="Total" value={banners.length} helper="slides créés" /><Metric label="En ligne" value={activeCount} helper="dans le carrousel" tone="green" /><Metric label="Brouillons" value={banners.length - activeCount} helper="non visibles" tone="orange" /></section>
+    {message && <Notice message={message} />}{error && <div className="flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-800 sm:flex-row sm:items-center sm:justify-between">{error}<button onClick={() => void load()} className="min-h-11 rounded-xl bg-red-700 px-4 text-white">Réessayer</button></div>}
+    <section className="overflow-hidden rounded-[26px] border border-neutral-200/80 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-neutral-100 p-4 sm:px-5"><div><p className="text-[9px] font-extrabold uppercase tracking-[.16em] text-neutral-400">Ordre de diffusion</p><h2 className="mt-0.5 text-base font-black">Carrousel de l’accueil</h2></div><a href="/" target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center rounded-xl border border-neutral-200 px-3 text-xs font-bold text-neutral-600 hover:border-black">Voir l’accueil ↗</a></div>
+      {loading ? <div className="grid gap-4 p-4 lg:grid-cols-2">{[1,2].map((item) => <div key={item} className="h-64 animate-pulse rounded-2xl bg-neutral-100" />)}</div> : banners.length === 0 ? <Empty onCreate={() => router.push("/admin/banners?new=1")} /> : <div className="grid gap-4 p-4 lg:grid-cols-2">{banners.map((banner, index) => <BannerCard key={banner.id} banner={banner} index={index} total={banners.length} working={workingId === banner.id} onMove={(direction) => void move(index, direction)} onToggle={() => void patchBanner(banner.id, { active: !banner.active }, banner.active ? "Bannière désactivée." : "Bannière publiée.")} onEdit={() => router.push(`/admin/banners?id=${encodeURIComponent(banner.id)}`)} onDelete={() => void remove(banner)} />)}</div>}
+    </section>
+  </div>;
 }
+
+function BannerEditor({ form, update, editId, saving, dirty, message, preview, setPreview, save, close }: { form: FormState; update: <K extends keyof FormState>(key: K, value: FormState[K]) => void; editId: string | null; saving: boolean; dirty: boolean; message: { ok: boolean; text: string } | null; preview: "desktop" | "mobile"; setPreview: (value: "desktop" | "mobile") => void; save: (event: React.FormEvent) => void; close: () => void }) {
+  return <form onSubmit={save} className="mx-auto w-full max-w-[1450px] space-y-5 pb-24 lg:pb-0"><header className="flex flex-col gap-4 rounded-[26px] border border-neutral-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-5"><div className="flex min-w-0 items-center gap-3"><button type="button" onClick={close} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-neutral-100 hover:bg-black hover:text-white">←</button><div><div className="flex items-center gap-2"><h1 className="text-xl font-black sm:text-2xl">{editId ? "Modifier la bannière" : "Nouvelle bannière"}</h1>{dirty && <span className="h-2 w-2 rounded-full bg-orange-400" />}</div><p className="mt-0.5 text-xs text-neutral-400">Images responsives, contenu et publication</p></div></div><div className="hidden gap-2 lg:flex"><button type="button" onClick={close} className="min-h-11 rounded-xl border border-neutral-200 px-4 text-xs font-bold">Annuler</button><Save saving={saving} active={form.active} /></div></header>{message && <Notice message={message} />}
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]"><div className="space-y-5"><section className="rounded-[26px] border border-neutral-200/80 bg-white p-4 shadow-sm sm:p-6"><Title eyebrow="Médias" title="Images responsives" /><div className="mt-5 grid gap-5 lg:grid-cols-[1.55fr_.75fr]"><Uploader label="Image web" hint="Recommandé : 1920 × 900" value={form.image_desktop} required aspect="aspect-[16/7]" onChange={(value) => update("image_desktop", value)} /><Uploader label="Image mobile" hint="Recommandé : 750 × 1000" value={form.image_mobile} aspect="aspect-[3/4]" onChange={(value) => update("image_mobile", value)} /></div><div className="mt-5"><div className="mb-2 flex justify-between text-[10px] font-extrabold uppercase tracking-[.13em] text-neutral-500"><span>Intensité de l’overlay</span><span>{form.overlay_opacity}%</span></div><input type="range" min="0" max="90" value={form.overlay_opacity} onChange={(event) => update("overlay_opacity", event.target.value)} className="w-full accent-black" /></div></section>
+      <section className="rounded-[26px] border border-neutral-200/80 bg-white p-4 shadow-sm sm:p-6"><Title eyebrow="Contenu" title="Texte et appels à l’action" /><div className="mt-5 space-y-4"><Field label="Petit badge"><input maxLength={60} value={form.badge} onChange={(event) => update("badge", event.target.value)} placeholder="Boutique en ligne · Maroc" className={input} /></Field><Field label="Titre principal"><textarea maxLength={120} rows={2} value={form.title} onChange={(event) => update("title", event.target.value)} placeholder="Sport. Tech. Style." className={`${input} resize-none py-3 text-base font-black`} /></Field><Field label="Sous-titre"><textarea maxLength={240} rows={3} value={form.subtitle} onChange={(event) => update("subtitle", event.target.value)} placeholder="Présentez votre offre en quelques mots…" className={`${input} resize-none py-3`} /></Field><div className="grid gap-4 sm:grid-cols-2"><Field label="Bouton principal"><input value={form.button_label} onChange={(event) => update("button_label", event.target.value)} placeholder="Découvrir" className={input} /></Field><Field label="Lien principal"><input value={form.button_href} onChange={(event) => update("button_href", event.target.value)} placeholder="/boutique" className={input} /></Field><Field label="Bouton secondaire"><input value={form.button2_label} onChange={(event) => update("button2_label", event.target.value)} placeholder="Voir les promotions" className={input} /></Field><Field label="Lien secondaire"><input value={form.button2_href} onChange={(event) => update("button2_href", event.target.value)} placeholder="/promotions" className={input} /></Field></div></div></section></div>
+      <aside className="space-y-5 xl:sticky xl:top-5 xl:self-start"><section className="overflow-hidden rounded-[26px] border border-neutral-200 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-neutral-100 p-4"><Title eyebrow="Aperçu" title="Rendu en direct" compact /><div className="flex rounded-xl bg-neutral-100 p-1"><button type="button" onClick={() => setPreview("desktop")} className={`min-h-9 rounded-lg px-3 text-[10px] font-black ${preview === "desktop" ? "bg-white shadow-sm" : "text-neutral-400"}`}>Web</button><button type="button" onClick={() => setPreview("mobile")} className={`min-h-9 rounded-lg px-3 text-[10px] font-black ${preview === "mobile" ? "bg-white shadow-sm" : "text-neutral-400"}`}>Mobile</button></div></div><LivePreview form={form} mode={preview} /></section><section className="rounded-[26px] border border-neutral-200 bg-white p-5 shadow-sm"><Title eyebrow="Publication" title="Réglages" compact /><button type="button" role="switch" aria-checked={form.active} onClick={() => update("active", !form.active)} className={`mt-5 flex w-full items-center gap-3 rounded-2xl border p-3 text-left ${form.active ? "border-emerald-200 bg-emerald-50" : "border-neutral-200 bg-neutral-50"}`}><span className={`relative h-7 w-12 rounded-full ${form.active ? "bg-emerald-500" : "bg-neutral-300"}`}><span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${form.active ? "translate-x-6" : "translate-x-1"}`} /></span><span><span className="block text-sm font-black">{form.active ? "En ligne" : "Brouillon"}</span><span className="block text-[10px] text-neutral-500">{form.active ? "Visible dans le carrousel" : "Non visible sur le site"}</span></span></button><Field label="Position dans le carrousel" className="mt-5"><input type="number" min={0} max={9999} value={form.sort_order} onChange={(event) => update("sort_order", event.target.value)} className={input} /></Field></section></aside></div>
+    <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 flex gap-2 border-t border-neutral-200 bg-white/95 p-3 backdrop-blur lg:static lg:hidden"><button type="button" onClick={close} className="min-h-12 flex-1 rounded-xl border border-neutral-200 text-xs font-bold">Annuler</button><Save saving={saving} active={form.active} className="flex-1" /></div></form>;
+}
+
+function Uploader({ label, hint, value, aspect, required, onChange }: { label: string; hint: string; value: string; aspect: string; required?: boolean; onChange: (value: string) => void }) { const inputRef=useRef<HTMLInputElement>(null); const [uploading,setUploading]=useState(false); const [drag,setDrag]=useState(false); const [error,setError]=useState(""); async function send(file:File){setError("");if(!file.type.startsWith("image/")){setError("Fichier image requis.");return}if(file.size>15*1024*1024){setError("Maximum 15 Mo.");return}setUploading(true);try{const body=new FormData();body.append("file",file);const response=await fetch("/api/upload",{method:"POST",body});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Envoi impossible.");onChange(result.url)}catch(uploadError){setError(uploadError instanceof Error?uploadError.message:"Envoi impossible.")}finally{setUploading(false)}} return <div><div className="mb-2"><p className="text-[10px] font-extrabold uppercase tracking-[.13em] text-neutral-600">{label}{required&&<span className="text-red-500"> *</span>}</p><p className="mt-0.5 text-[10px] text-neutral-400">{hint} · JPG, PNG, WEBP, AVIF · 15 Mo</p></div><button type="button" onClick={()=>inputRef.current?.click()} onDragOver={(e)=>{e.preventDefault();setDrag(true)}} onDragLeave={()=>setDrag(false)} onDrop={(e)=>{e.preventDefault();setDrag(false);const file=e.dataTransfer.files[0];if(file)void send(file)}} className={`relative flex w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed bg-neutral-50 transition ${aspect} ${drag?"border-black bg-neutral-100":"border-neutral-200 hover:border-neutral-400"}`}>{value?<><img src={value} alt="" className="h-full w-full object-cover"/><span className="absolute inset-0 flex items-center justify-center bg-black/45 text-xs font-black text-white opacity-0 transition hover:opacity-100">Remplacer l’image</span></>:uploading?<span className="text-xs font-bold text-neutral-500">Envoi en cours…</span>:<span className="px-4 text-center"><span className="block text-2xl text-neutral-300">＋</span><span className="mt-1 block text-xs font-bold text-neutral-600">Glissez ou choisissez une image</span></span>}</button><input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/heic,image/heif" hidden onChange={(e)=>{const file=e.target.files?.[0];if(file)void send(file);e.currentTarget.value=""}}/><input required={required} value={value} onChange={(e)=>onChange(e.target.value)} placeholder="Ou coller l’URL de l’image…" className={`${input} mt-2 text-xs`} />{value&&<button type="button" onClick={()=>onChange("")} className="mt-2 text-[10px] font-bold text-red-600">Retirer l’image</button>}{error&&<p className="mt-2 text-[10px] font-bold text-red-600">{error}</p>}</div> }
+function LivePreview({form,mode}:{form:FormState;mode:"desktop"|"mobile"}){const source=mode==="mobile"?(form.image_mobile||form.image_desktop):form.image_desktop;return <div className="bg-neutral-100 p-4"><div className={`relative mx-auto overflow-hidden bg-neutral-900 text-white shadow-xl transition-all ${mode==="mobile"?"aspect-[3/4] max-w-[250px] rounded-[24px]":"aspect-[16/9] w-full rounded-xl"}`}>{source&&<img src={source} alt="" className="absolute inset-0 h-full w-full object-cover"/>}<div className="absolute inset-0" style={{background:`linear-gradient(${mode==="mobile"?"0deg":"90deg"},rgba(0,0,0,${Math.min(.95,Number(form.overlay_opacity)/100+.25)}),rgba(0,0,0,${Number(form.overlay_opacity)/200}))`}}/><div className="absolute inset-x-0 bottom-0 p-4"><p className="text-[6px] font-black uppercase tracking-[.25em] text-[#3ecf4c]">{form.badge||"Votre badge"}</p><p className={`${mode==="mobile"?"text-2xl":"text-xl"} mt-1 whitespace-pre-line font-black leading-[.9]`}>{form.title||"Votre titre"}</p><p className="mt-2 line-clamp-2 text-[8px] text-white/65">{form.subtitle||"Votre sous-titre apparaîtra ici."}</p>{form.button_label&&<span className="mt-3 inline-flex bg-[#3ecf4c] px-3 py-2 text-[6px] font-black uppercase text-black">{form.button_label}</span>}</div></div></div>}
+function BannerCard({banner,index,total,working,onMove,onToggle,onEdit,onDelete}:{banner:Banner;index:number;total:number;working:boolean;onMove:(d:-1|1)=>void;onToggle:()=>void;onEdit:()=>void;onDelete:()=>void}){return <article className={`overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${banner.active?"border-neutral-200":"border-dashed border-neutral-300 opacity-80"}`}><div className="relative aspect-[16/7] bg-neutral-100">{banner.image_desktop&&<img src={banner.image_desktop} alt="" className="h-full w-full object-cover"/>}<div className="absolute inset-0" style={{background:`linear-gradient(90deg,rgba(0,0,0,${Math.min(.95,banner.overlay_opacity/100+.25)}),rgba(0,0,0,.08))`}}/><div className="absolute inset-x-0 bottom-0 p-4 text-white"><p className="text-[8px] font-black uppercase tracking-widest text-[#3ecf4c]">{banner.badge}</p><h3 className="mt-1 line-clamp-2 text-xl font-black leading-tight">{banner.title||"Sans titre"}</h3></div><span className={`absolute right-3 top-3 rounded-full px-2.5 py-1 text-[9px] font-black ${banner.active?"bg-emerald-500 text-white":"bg-white/90 text-neutral-600"}`}>{banner.active?"EN LIGNE":"BROUILLON"}</span>{banner.image_mobile&&<span className="absolute left-3 top-3 rounded-full bg-black/45 px-2 py-1 text-[8px] font-bold text-white backdrop-blur">Web + mobile</span>}</div><div className="p-3"><div className="mb-3 flex items-center justify-between"><span className="text-[10px] font-bold text-neutral-400">Position {index+1} sur {total}</span><div className="flex gap-1"><button onClick={()=>onMove(-1)} disabled={index===0||working} aria-label="Monter" className="h-9 w-9 rounded-lg border border-neutral-200 text-xs disabled:opacity-25">↑</button><button onClick={()=>onMove(1)} disabled={index===total-1||working} aria-label="Descendre" className="h-9 w-9 rounded-lg border border-neutral-200 text-xs disabled:opacity-25">↓</button></div></div><div className="grid grid-cols-2 gap-2 sm:grid-cols-4"><button onClick={onEdit} className="min-h-11 rounded-xl bg-black px-3 text-xs font-black text-white">Modifier</button><button onClick={onToggle} disabled={working} className="min-h-11 rounded-xl border border-neutral-200 px-3 text-xs font-bold disabled:opacity-40">{banner.active?"Désactiver":"Publier"}</button><a href="/" target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-neutral-200 px-3 text-xs font-bold">Voir</a><button onClick={onDelete} disabled={working} className="min-h-11 rounded-xl border border-red-100 px-3 text-xs font-bold text-red-600 disabled:opacity-40">Supprimer</button></div></div></article>}
+const input="min-h-12 w-full rounded-xl border border-neutral-200 bg-white px-4 text-sm outline-none transition focus:border-black focus:ring-2 focus:ring-black/5";
+function toForm(b:Banner):FormState{return{title:b.title??"",subtitle:b.subtitle??"",badge:b.badge??"",button_label:b.button_label??"",button_href:b.button_href??"",button2_label:b.button2_label??"",button2_href:b.button2_href??"",image_desktop:b.image_desktop??"",image_mobile:b.image_mobile??"",overlay_opacity:String(b.overlay_opacity),sort_order:String(b.sort_order),active:b.active}}
+function Title({eyebrow,title,compact=false}:{eyebrow:string;title:string;compact?:boolean}){return <div><p className="text-[9px] font-extrabold uppercase tracking-[.17em] text-neutral-400">{eyebrow}</p><h2 className={`${compact?"text-base":"text-lg"} mt-0.5 font-black`}>{title}</h2></div>}
+function Field({label,className="",children}:{label:string;className?:string;children:React.ReactNode}){return <label className={`block ${className}`}><span className="mb-2 block text-[10px] font-extrabold uppercase tracking-[.13em] text-neutral-500">{label}</span>{children}</label>}
+function Save({saving,active,className=""}:{saving:boolean;active:boolean;className?:string}){return <button type="submit" disabled={saving} className={`inline-flex min-h-11 items-center justify-center rounded-xl bg-black px-5 text-xs font-black text-white disabled:opacity-50 ${className}`}>{saving?"Enregistrement…":active?"Enregistrer et publier":"Enregistrer le brouillon"}</button>}
+function Notice({message}:{message:{ok:boolean;text:string}}){return <div role="status" className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-bold ${message.ok?"border-emerald-200 bg-emerald-50 text-emerald-800":"border-red-200 bg-red-50 text-red-800"}`}><span className={`h-2.5 w-2.5 rounded-full ${message.ok?"bg-emerald-500":"bg-red-500"}`}/>{message.text}</div>}
+function Metric({label,value,helper,tone="neutral"}:{label:string;value:number;helper:string;tone?:"neutral"|"green"|"orange"}){const style=tone==="green"?"border-emerald-100 bg-emerald-50 text-emerald-800":tone==="orange"?"border-orange-100 bg-orange-50 text-orange-800":"border-neutral-200 bg-white";return <div className={`min-w-0 rounded-2xl border p-3 shadow-sm sm:p-5 ${style}`}><p className="text-[9px] font-extrabold uppercase tracking-[.13em] opacity-55">{label}</p><p className="mt-1 text-2xl font-black sm:text-3xl">{value}</p><p className="mt-1 truncate text-[10px] font-semibold opacity-55 sm:text-xs">{helper}</p></div>}
+function Empty({onCreate}:{onCreate:()=>void}){return <div className="px-5 py-16 text-center"><span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-2xl text-violet-600">▧</span><h2 className="mt-4 text-base font-black">Créez votre première bannière</h2><p className="mx-auto mt-1 max-w-md text-sm leading-6 text-neutral-400">Ajoutez un visuel web, une version mobile et un message pour votre page d’accueil.</p><button onClick={onCreate} className="mt-5 min-h-11 rounded-xl bg-black px-5 text-xs font-black text-white">Créer une bannière</button></div>}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
+import { broadcastAdminPushNotification } from "@/lib/push-notifications";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -241,6 +242,14 @@ export async function POST(req: Request) {
 
   // If already escalated to agent — just store, admin will reply
   if (session.status === "escalated") {
+    await broadcastAdminPushNotification({
+      eventKey: `chat-message:${session_id}:${Date.now()}`,
+      title: "Nouveau message dans le Live Chat",
+      body: body.trim().replace(/\s+/g, " ").slice(0, 140),
+      url: "/admin/messages/",
+      tag: `admin-chat-${session_id}`,
+      requireInteraction: true,
+    }).catch((error) => console.error("Admin chat push failed:", error));
     return NextResponse.json({ status: "escalated", reply: null });
   }
 
@@ -254,6 +263,14 @@ export async function POST(req: Request) {
       body: escalationMsg,
       sent_by: "ai",
     });
+    await broadcastAdminPushNotification({
+      eventKey: `chat-escalation:${session_id}`,
+      title: "Un client demande un conseiller",
+      body: body.trim().replace(/\s+/g, " ").slice(0, 140),
+      url: "/admin/messages/",
+      tag: `admin-chat-${session_id}`,
+      requireInteraction: true,
+    }).catch((error) => console.error("Admin chat escalation push failed:", error));
     return NextResponse.json({ status: "escalated", reply: escalationMsg });
   }
 
@@ -307,6 +324,14 @@ export async function POST(req: Request) {
 
   if (shouldEscalate) {
     await supabase.from("chat_sessions").update({ status: "escalated" }).eq("id", session_id);
+    await broadcastAdminPushNotification({
+      eventKey: `chat-ai-escalation:${session_id}`,
+      title: "Live Chat · Intervention requise",
+      body: body.trim().replace(/\s+/g, " ").slice(0, 140),
+      url: "/admin/messages/",
+      tag: `admin-chat-${session_id}`,
+      requireInteraction: true,
+    }).catch((error) => console.error("Admin AI escalation push failed:", error));
   }
 
   await supabase.from("chat_sessions").update({

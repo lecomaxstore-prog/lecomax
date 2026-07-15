@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const courseRoot = path.join(root, "app", "admin", "how-it-was-built", "course");
 const languages = ["fr", "en", "ar"];
-const expectedModuleCount = 40;
-const expectedLessonCount = 160;
+const expectedModuleCount = 48;
+const expectedLessonCount = 192;
 const forbidden = [/\[TODO\]/i, /lorem ipsum/i, /placeholder content/i, /à compléter/i, /to be added/i, /\bTBD\b/i];
 let checks = 0;
 

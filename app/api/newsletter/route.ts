@@ -16,6 +16,15 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const { data: featureSetting } = await supabase
+    .from("settings")
+    .select("value")
+    .eq("key", "enable_newsletter")
+    .maybeSingle();
+  if (featureSetting?.value === "false") {
+    return NextResponse.json({ error: "La newsletter est temporairement désactivée" }, { status: 403 });
+  }
+
   const body = await req.json();
   const { data, error } = await supabase
     .from("newsletter_subscribers")

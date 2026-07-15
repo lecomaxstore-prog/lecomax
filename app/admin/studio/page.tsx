@@ -99,6 +99,8 @@ function PhotoEditor() {
   const selectedLayer = layers.find(l => l.id === selectedId) ?? null;
 
   function loadFile(file: File) {
+    if (!file.type.startsWith("image/")) { setMsg({ type: "err", text: "Choisissez une image valide." }); return; }
+    if (file.size > 20 * 1024 * 1024) { setMsg({ type: "err", text: "L’image dépasse la limite de 20 Mo." }); return; }
     const reader = new FileReader();
     reader.onload = e => { setSrc(e.target?.result as string); setMsg(null); };
     reader.readAsDataURL(file);
@@ -136,7 +138,8 @@ function PhotoEditor() {
     setTool("select");
   }
 
-  function startDrag(e: React.MouseEvent, id: string) {
+  function startDrag(e: React.PointerEvent, id: string) {
+    e.preventDefault();
     e.stopPropagation();
     setSelectedId(id);
     const container = containerRef.current!;
@@ -145,17 +148,17 @@ function PhotoEditor() {
     const sx = e.clientX, sy = e.clientY;
     const ox = layer.xPct, oy = layer.yPct;
 
-    function onMove(ev: MouseEvent) {
+    function onMove(ev: PointerEvent) {
       const dx = ((ev.clientX - sx) / rect.width) * 100;
       const dy = ((ev.clientY - sy) / rect.height) * 100;
       setLayers(ls => ls.map(l => l.id === id ? { ...l, xPct: ox + dx, yPct: oy + dy } : l));
     }
     function onUp() {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
     }
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
   }
 
   function updateLayer(patch: Partial<TextLayer>) {
@@ -232,18 +235,18 @@ function PhotoEditor() {
   // Upload screen
   if (!src) {
     return (
-      <div className="max-w-lg mx-auto mt-12">
+      <div className="mx-auto mt-4 max-w-3xl sm:mt-8">
         <div
-          className={`border-2 border-dashed rounded-3xl p-16 text-center transition-all cursor-pointer ${dragOver ? "border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-300"}`}
+          className={`relative cursor-pointer overflow-hidden rounded-[28px] border-2 border-dashed bg-white px-5 py-14 text-center shadow-sm transition-all sm:px-12 sm:py-20 ${dragOver ? "scale-[1.01] border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-400 hover:shadow-md"}`}
           onClick={() => fileInputRef.current?.click()}
           onDragOver={e => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
-          onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f?.type.startsWith("image/")) loadFile(f); }}
+          onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) loadFile(f); }}
         >
-          <div className="text-5xl mb-4">🖼️</div>
-          <p className="font-black text-lg mb-2">Glissez votre image ici</p>
-          <p className="text-sm text-neutral-400 mb-6">ou cliquez pour sélectionner</p>
-          <div className="inline-flex gap-2">
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-950 text-white shadow-lg"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span>
+          <p className="mb-2 mt-5 text-lg font-black sm:text-xl">Ajoutez une image à retoucher</p>
+          <p className="mb-6 text-sm text-neutral-400">Glissez votre fichier ici ou cliquez pour le sélectionner</p>
+          <div className="inline-flex flex-wrap justify-center gap-2">
             {["JPG", "PNG", "WEBP", "HEIC"].map(t => (
               <span key={t} className="text-xs bg-neutral-100 text-neutral-500 px-2 py-1 rounded-lg font-medium">{t}</span>
             ))}
@@ -251,6 +254,7 @@ function PhotoEditor() {
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
             onChange={e => { const f = e.target.files?.[0]; if (f) loadFile(f); }} />
         </div>
+        {msg && <div role="alert" className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{msg.text}</div>}
       </div>
     );
   }
@@ -258,9 +262,9 @@ function PhotoEditor() {
   const filterStr = buildCssFilter(filters);
 
   return (
-    <div className="flex gap-3" style={{ height: "calc(100vh - 136px)" }}>
+    <div className="flex min-w-0 flex-col gap-3 lg:h-[calc(100dvh-180px)] lg:min-h-[640px] lg:flex-row">
       {/* ── Left toolbar ── */}
-      <div className="w-12 flex-shrink-0 flex flex-col items-center gap-1.5 py-2">
+      <div className="flex w-full shrink-0 items-center gap-1.5 overflow-x-auto py-1 [scrollbar-width:none] lg:w-12 lg:flex-col lg:py-2">
         <button title="Sélectionner" onClick={() => setTool("select")}
           className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${tool === "select" ? "bg-black text-white" : "bg-white border border-neutral-200 hover:border-neutral-400"}`}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 0L20 10.5 13 12.5 10.5 22z"/></svg>
@@ -269,7 +273,7 @@ function PhotoEditor() {
           className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all font-black text-sm ${tool === "text" ? "bg-black text-white" : "bg-white border border-neutral-200 hover:border-neutral-400"}`}>
           T
         </button>
-        <div className="w-7 border-t border-neutral-200 my-0.5" />
+        <div className="mx-0.5 h-7 border-l border-neutral-200 lg:h-auto lg:w-7 lg:border-l-0 lg:border-t" />
         <button title="Rotation +90°" onClick={() => setRotation(r => (r + 90) % 360)}
           className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-neutral-200 hover:border-neutral-400 transition-all">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -304,28 +308,28 @@ function PhotoEditor() {
       </div>
 
       {/* ── Canvas area ── */}
-      <div className="flex-1 flex flex-col bg-[#1a1a1a] rounded-2xl overflow-hidden min-w-0">
+      <div className="flex min-h-[520px] min-w-0 flex-1 flex-col overflow-hidden rounded-[22px] bg-[#1a1a1a] lg:min-h-0">
         {/* Top action bar */}
-        <div className="flex items-center gap-2 px-4 py-2.5 bg-neutral-900 border-b border-neutral-800 flex-shrink-0">
-          <div className="flex gap-1.5">
+        <div className="flex flex-shrink-0 flex-wrap items-center gap-2 border-b border-neutral-800 bg-neutral-900 px-3 py-2.5 sm:px-4">
+          <div className="hidden gap-1.5 sm:flex">
             <div className="w-3 h-3 rounded-full bg-red-500/70" />
             <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
             <div className="w-3 h-3 rounded-full bg-green-500/70" />
           </div>
-          <p className="flex-1 text-center text-xs text-neutral-400 truncate">
+          <p className="hidden flex-1 truncate text-center text-xs text-neutral-400 md:block">
             {tool === "text" ? "✏️  Cliquez sur l'image pour placer le texte" : "Studio Photo — L'ecomax"}
           </p>
-          <div className="flex gap-1.5">
+          <div className="flex w-full gap-1.5 md:w-auto">
             <button onClick={() => doExport("jpeg")} disabled={saving}
-              className="text-xs bg-neutral-700 hover:bg-neutral-600 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors disabled:opacity-40">
+              className="min-h-10 flex-1 rounded-lg bg-neutral-700 px-3 text-xs font-semibold text-white transition-colors hover:bg-neutral-600 disabled:opacity-40 md:flex-none">
               ↓ JPG
             </button>
             <button onClick={() => doExport("png")} disabled={saving}
-              className="text-xs bg-neutral-700 hover:bg-neutral-600 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors disabled:opacity-40">
+              className="min-h-10 flex-1 rounded-lg bg-neutral-700 px-3 text-xs font-semibold text-white transition-colors hover:bg-neutral-600 disabled:opacity-40 md:flex-none">
               ↓ PNG
             </button>
             <button onClick={() => doExport("jpeg", true)} disabled={saving}
-              className="text-xs bg-[#3ecf4c] hover:bg-[#33b840] text-black px-3 py-1.5 rounded-lg font-black transition-colors disabled:opacity-40">
+              className="min-h-10 flex-[1.4] rounded-lg bg-[#3ecf4c] px-3 text-xs font-black text-black transition-colors hover:bg-[#33b840] disabled:opacity-40 md:flex-none">
               {saving ? "…" : "⊕ Médiathèque"}
             </button>
           </div>
@@ -333,7 +337,7 @@ function PhotoEditor() {
 
         {/* Canvas */}
         <div
-          className="flex-1 overflow-auto flex items-center justify-center p-6"
+          className="flex min-h-0 flex-1 items-center justify-center overflow-auto p-3 sm:p-6"
           onClick={onCanvasClick}
           style={{ cursor: tool === "text" ? "crosshair" : "default" }}
         >
@@ -346,8 +350,8 @@ function PhotoEditor() {
               onDragStart={e => e.preventDefault()}
               style={{
                 display: "block",
-                maxWidth: "min(780px, calc(100vw - 600px))",
-                maxHeight: "calc(100vh - 310px)",
+                maxWidth: "100%",
+                maxHeight: "min(62dvh, 720px)",
                 width: "auto",
                 height: "auto",
                 filter: filterStr,
@@ -375,11 +379,12 @@ function PhotoEditor() {
                   whiteSpace: "nowrap",
                   cursor: "move",
                   userSelect: "none",
+                  touchAction: "none",
                   outline: selectedId === layer.id ? "2px dashed rgba(255,255,255,0.7)" : "none",
                   outlineOffset: "4px",
                   borderRadius: "2px",
                 }}
-                onMouseDown={e => startDrag(e, layer.id)}
+                onPointerDown={e => startDrag(e, layer.id)}
               >
                 {layer.text}
               </div>
@@ -403,7 +408,7 @@ function PhotoEditor() {
       </div>
 
       {/* ── Right panel ── */}
-      <div className="w-64 flex-shrink-0 flex flex-col gap-3 overflow-y-auto">
+      <div className="grid w-full shrink-0 gap-3 md:grid-cols-2 lg:flex lg:w-64 lg:flex-col lg:overflow-y-auto">
         {/* Filter adjustments */}
         <div className="bg-white rounded-2xl border border-neutral-100 p-4">
           <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">Réglages</h3>
@@ -550,6 +555,9 @@ function VideoEditor() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function loadFile(file: File) {
+    if (!file.type.startsWith("video/")) { setMsg({ type: "err", text: "Choisissez une vidéo valide." }); return; }
+    if (file.size > 500 * 1024 * 1024) { setMsg({ type: "err", text: "La vidéo dépasse la limite de 500 Mo." }); return; }
+    if (src) URL.revokeObjectURL(src);
     fileRef.current = file;
     setFileName(file.name);
     const url = URL.createObjectURL(file);
@@ -615,25 +623,26 @@ function VideoEditor() {
   // Upload screen
   if (!src) {
     return (
-      <div className="max-w-lg mx-auto mt-12">
+      <div className="mx-auto mt-4 max-w-3xl sm:mt-8">
         <div
-          className={`border-2 border-dashed rounded-3xl p-16 text-center transition-all cursor-pointer ${dragOver ? "border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-300"}`}
+          className={`relative cursor-pointer overflow-hidden rounded-[28px] border-2 border-dashed bg-white px-5 py-14 text-center shadow-sm transition-all sm:px-12 sm:py-20 ${dragOver ? "scale-[1.01] border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-400 hover:shadow-md"}`}
           onClick={() => fileInputRef.current?.click()}
           onDragOver={e => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
-          onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f?.type.startsWith("video/")) loadFile(f); }}
+          onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) loadFile(f); }}
         >
-          <div className="text-5xl mb-4">🎬</div>
-          <p className="font-black text-lg mb-2">Glissez votre vidéo ici</p>
-          <p className="text-sm text-neutral-400 mb-6">ou cliquez pour sélectionner</p>
-          <div className="inline-flex gap-2">
-            {["MP4", "MOV", "WEBM", "MKV"].map(t => (
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-950 text-white shadow-lg"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="5" width="15" height="14" rx="3"/><path d="m17 10 5-3v10l-5-3z"/></svg></span>
+          <p className="mb-2 mt-5 text-lg font-black sm:text-xl">Ajoutez une vidéo à préparer</p>
+          <p className="mb-6 text-sm text-neutral-400">Glissez votre fichier ici ou cliquez pour le sélectionner</p>
+          <div className="inline-flex flex-wrap justify-center gap-2">
+            {["MP4", "MOV", "WEBM"].map(t => (
               <span key={t} className="text-xs bg-neutral-100 text-neutral-500 px-2 py-1 rounded-lg font-medium">{t}</span>
             ))}
           </div>
           <input ref={fileInputRef} type="file" accept="video/*" className="hidden"
             onChange={e => { const f = e.target.files?.[0]; if (f) loadFile(f); }} />
         </div>
+        {msg && <div role="alert" className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{msg.text}</div>}
       </div>
     );
   }
@@ -642,11 +651,11 @@ function VideoEditor() {
   const playheadPct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="flex gap-4" style={{ height: "calc(100vh - 136px)" }}>
+    <div className="flex min-w-0 flex-col gap-4 lg:h-[calc(100dvh-180px)] lg:min-h-[640px] lg:flex-row">
       {/* Video + controls */}
-      <div className="flex-1 flex flex-col gap-3 min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
         {/* Player */}
-        <div className="flex-1 bg-black rounded-2xl overflow-hidden relative flex items-center justify-center min-h-0">
+        <div className="relative flex min-h-[300px] flex-1 items-center justify-center overflow-hidden rounded-[22px] bg-black sm:min-h-[420px] lg:min-h-0">
           <video
             ref={videoRef}
             src={src}
@@ -715,7 +724,7 @@ function VideoEditor() {
           </div>
 
           {/* Trim sliders */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="mb-4 grid gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">
                 Début du clip
@@ -745,7 +754,7 @@ function VideoEditor() {
           </div>
 
           {/* Playback controls */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button onClick={() => seek(trimStart)} title="Retour au début" className="p-2 hover:bg-neutral-100 rounded-lg transition-colors">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <polygon points="19,20 9,12 19,4"/><line x1="5" y1="4" x2="5" y2="20"/>
@@ -785,7 +794,7 @@ function VideoEditor() {
       </div>
 
       {/* Right panel */}
-      <div className="w-64 flex-shrink-0 flex flex-col gap-3">
+      <div className="grid w-full shrink-0 gap-3 md:grid-cols-2 lg:flex lg:w-64 lg:flex-col">
         {/* File info */}
         <div className="bg-white rounded-2xl border border-neutral-100 p-4">
           <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">Fichier</h3>
@@ -855,24 +864,26 @@ export default function StudioPage() {
   const router = useRouter();
 
   return (
-    <div className="max-w-[1440px]">
+    <div className="mx-auto w-full max-w-[1500px]">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-5">
+      <div className="relative mb-5 flex flex-col gap-5 overflow-hidden rounded-[28px] bg-neutral-950 p-5 text-white shadow-xl sm:flex-row sm:items-center sm:p-6">
+        <div aria-hidden="true" className="absolute -right-10 -top-20 h-56 w-56 rounded-full bg-fuchsia-500/20 blur-3xl" />
         <button onClick={() => router.back()}
-          className="p-2 hover:bg-neutral-100 rounded-lg transition-colors">
+          className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white transition-colors hover:bg-white hover:text-black">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 12H5M12 5l-7 7 7 7"/>
           </svg>
         </button>
-        <div>
-          <h1 className="text-xl font-black">Studio Créatif</h1>
-          <p className="text-xs text-neutral-400">Retouche photo & montage vidéo professionnel</p>
+        <div className="relative min-w-0 flex-1">
+          <p className="mb-1 text-[9px] font-extrabold uppercase tracking-[.18em] text-fuchsia-300">Production visuelle</p>
+          <h1 className="text-2xl font-black tracking-tight">Studio Créatif</h1>
+          <p className="mt-1 text-xs text-white/45">Retouche photo & préparation vidéo professionnelle</p>
         </div>
         {/* Mode tabs */}
-        <div className="ml-auto flex gap-1 bg-neutral-100 p-1 rounded-xl">
+        <div className="relative flex w-full gap-1 rounded-2xl bg-white/10 p-1 sm:ml-auto sm:w-auto">
           <button
             onClick={() => setMode("photo")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${mode === "photo" ? "bg-white shadow-sm" : "text-neutral-500 hover:text-black"}`}>
+            className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition-all sm:flex-none ${mode === "photo" ? "bg-white text-black shadow-sm" : "text-white/50 hover:bg-white/10 hover:text-white"}`}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
             </svg>
@@ -880,7 +891,7 @@ export default function StudioPage() {
           </button>
           <button
             onClick={() => setMode("video")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${mode === "video" ? "bg-white shadow-sm" : "text-neutral-500 hover:text-black"}`}>
+            className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition-all sm:flex-none ${mode === "video" ? "bg-white text-black shadow-sm" : "text-white/50 hover:bg-white/10 hover:text-white"}`}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
             </svg>
