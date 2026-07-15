@@ -4,11 +4,14 @@ import { fileURLToPath } from "node:url";
 import { modules as partA } from "./course-blueprints/part-a.mjs";
 import { modules as partB } from "./course-blueprints/part-b.mjs";
 import { modules as partC } from "./course-blueprints/part-c.mjs";
+import { modules as partD } from "./course-blueprints/part-d.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const courseRoot = path.join(root, "app", "admin", "how-it-was-built", "course");
 const languages = ["fr", "en", "ar"];
-const modules = [...partA, ...partB, ...partC].sort((a, b) => a.order - b.order);
+const modules = [...partA, ...partB, ...partC, ...partD].sort((a, b) => a.order - b.order);
+const expectedModuleCount = 40;
+const expectedLessonCount = 160;
 
 const labels = {
   fr: {
@@ -60,7 +63,7 @@ function requireValue(condition, message) {
 }
 
 function validateBlueprint() {
-  requireValue(modules.length === 28, "Expected 28 modules, received " + modules.length);
+  requireValue(modules.length === expectedModuleCount, `Expected ${expectedModuleCount} modules, received ${modules.length}`);
   const moduleIds = new Set();
   const lessonIds = new Set();
   modules.forEach((module, moduleIndex) => {
@@ -90,7 +93,7 @@ function validateBlueprint() {
       });
     });
   });
-  requireValue(lessonIds.size === 112, "Expected 112 lessons, received " + lessonIds.size);
+  requireValue(lessonIds.size === expectedLessonCount, `Expected ${expectedLessonCount} lessons, received ${lessonIds.size}`);
 }
 
 function lineRange(start, end) {

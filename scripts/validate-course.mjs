@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const courseRoot = path.join(root, "app", "admin", "how-it-was-built", "course");
 const languages = ["fr", "en", "ar"];
+const expectedModuleCount = 40;
+const expectedLessonCount = 160;
 const forbidden = [/\[TODO\]/i, /lorem ipsum/i, /placeholder content/i, /à compléter/i, /to be added/i, /\bTBD\b/i];
 let checks = 0;
 
@@ -165,10 +167,10 @@ function validateLesson(lesson, location, moduleFilePaths, seenQuizIds) {
 async function main() {
   const manifest = JSON.parse(await readFile(path.join(courseRoot, "generated", "manifest.json"), "utf8"));
   assert(manifest.version === 1, "Manifest version must be 1");
-  assert(manifest.moduleCount === 28, "Manifest must contain 28 modules");
-  assert(manifest.lessonCount === 112, "Manifest must contain 112 lessons");
-  assert(manifest.modules?.length === 28, "Manifest module array mismatch");
-  assert(new Set(manifest.modules.map(module => module.id)).size === 28, "Manifest module ids must be unique");
+  assert(manifest.moduleCount === expectedModuleCount, `Manifest must contain ${expectedModuleCount} modules`);
+  assert(manifest.lessonCount === expectedLessonCount, `Manifest must contain ${expectedLessonCount} lessons`);
+  assert(manifest.modules?.length === expectedModuleCount, "Manifest module array mismatch");
+  assert(new Set(manifest.modules.map(module => module.id)).size === expectedModuleCount, "Manifest module ids must be unique");
   const manifestLessonIds = new Set();
   manifest.modules.forEach((module, moduleIndex) => {
     assert(hasText(module.id) && hasText(module.icon), "Manifest module metadata missing at index " + moduleIndex);
@@ -186,7 +188,7 @@ async function main() {
   const loaderText = await readFile(path.join(courseRoot, "generated", "loaders.ts"), "utf8");
   const moduleImportCount = (loaderText.match(/\(\) => import\("\.\.\/content\/(?:fr|en|ar)\//g) ?? []).length;
   const indexImportCount = (loaderText.match(/\(\) => import\("\.\.\/content\/index\/(?:fr|en|ar)\.json"\)/g) ?? []).length;
-  assert(moduleImportCount === 84, "Loader must contain exactly 84 lazy module imports");
+  assert(moduleImportCount === expectedModuleCount * languages.length, `Loader must contain exactly ${expectedModuleCount * languages.length} lazy module imports`);
   assert(indexImportCount === 3, "Loader must contain exactly three lazy language-index imports");
   for (const lang of languages) {
     for (const module of manifest.modules) {
@@ -203,11 +205,11 @@ async function main() {
   for (const lang of languages) {
     const localizedIndex = JSON.parse(await readFile(path.join(courseRoot, "content", "index", lang + ".json"), "utf8"));
     assert(localizedIndex.language === lang, lang + " search index language mismatch");
-    assert(localizedIndex.modules?.length === 28, lang + " search index must contain 28 modules");
+    assert(localizedIndex.modules?.length === expectedModuleCount, lang + ` search index must contain ${expectedModuleCount} modules`);
     assert(localizedIndex.modules.map(module => module.id).join(",") === manifest.modules.map(module => module.id).join(","), lang + " search index module order differs from manifest");
     const dir = path.join(courseRoot, "content", lang);
     const files = (await readdir(dir)).filter(file => file.endsWith(".json")).sort();
-    assert(files.length === 28, lang + " must contain exactly 28 JSON modules");
+    assert(files.length === expectedModuleCount, lang + ` must contain exactly ${expectedModuleCount} JSON modules`);
     const seenModules = new Set();
     const seenLessons = new Set();
     const seenQuizIds = new Set();
@@ -285,12 +287,12 @@ async function main() {
       });
       structure.push({ id: module.id, files: module.files, lessons: module.lessons.map(lesson => lesson.id) });
     }
-    assert(seenLessons.size === 112, lang + " must contain 112 unique lessons");
+    assert(seenLessons.size === expectedLessonCount, lang + ` must contain ${expectedLessonCount} unique lessons`);
     if (canonical.length === 0) canonical.push(...structure);
     else assert(JSON.stringify(structure) === JSON.stringify(canonical), lang + " module/lesson structure differs from French");
   }
 
-  console.log("Course validation passed: 28 modules, 112 lessons, 3 languages, " + checks + " checks.");
+  console.log(`Course validation passed: ${expectedModuleCount} modules, ${expectedLessonCount} lessons, 3 languages, ${checks} checks.`);
 }
 
 await main();

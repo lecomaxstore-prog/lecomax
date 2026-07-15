@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { supabase } from "@/lib/supabase";
 
 type ChatMsg = {
   id: string;
@@ -109,20 +110,21 @@ export default function ChatWidget() {
   const [feedbackRating, setFeedbackRating] = useState(0);
   const [feedbackComment, setFeedbackComment] = useState("");
   const [feedbackState, setFeedbackState] = useState<"idle" | "submitted">("idle");
-  const [inactiveWarning, setInactiveWarning] = useState(false);
-  const [inactiveCountdown, setInactiveCountdown] = useState(30);
+  const [expiredByTimeout, setExpiredByTimeout] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const agentJoinedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clientTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clientTypingActiveRef = useRef(false);
+  const clientTypingLastSentRef = useRef(0);
+  const agentTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const chatChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const prevMsgCount = useRef(0);
-  const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const countdownTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const replyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   // ── Mobile keyboard: keep header visible by tracking visualViewport ────────
@@ -195,44 +197,7 @@ export default function ChatWidget() {
     ];
   })();
 
-  const INACTIVITY_MS = 5 * 60 * 1000;
-  const WARNING_SECS  = 30;
-
-  // ── Reset the inactivity clock ────────────────────────────────────────────
-  const resetInactivity = useCallback(() => {
-    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
-    if (countdownTimer.current) clearInterval(countdownTimer.current);
-    setInactiveWarning(false);
-    setInactiveCountdown(WARNING_SECS);
-    inactivityTimer.current = setTimeout(() => {
-      // Show 30-second warning
-      setInactiveWarning(true);
-      setInactiveCountdown(WARNING_SECS);
-      let secs = WARNING_SECS;
-      countdownTimer.current = setInterval(() => {
-        secs -= 1;
-        setInactiveCountdown(secs);
-        if (secs <= 0) {
-          if (countdownTimer.current) clearInterval(countdownTimer.current);
-          // Mark session resolved then close
-          setSessionId(prev => {
-            if (prev) {
-              fetch(`/api/chat/sessions/${prev}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: "resolved" }),
-              }).catch(() => {});
-            }
-            return prev;
-          });
-          setStatus("resolved");
-          setOpen(false);
-          setInactiveWarning(false);
-          document.body.classList.remove("chat-open");
-        }
-      }, 1000);
-    }, INACTIVITY_MS);
-  }, [INACTIVITY_MS]);
+  const AGENT_REPLY_TIMEOUT_MS = 5 * 60 * 1000;
 
   // ── Start or resume session ──────────────────────────────────────────────
   const startSession = useCallback(async () => {
@@ -293,6 +258,12 @@ export default function ChatWidget() {
       const newStatus = data.status || "ai";
 
       // Always sync status (catches admin resolving the chat)
+      if (newStatus === "resolved" && status === "escalated") {
+        const lastMessage = [...newMsgs].reverse().find((m) => m.body !== "__AGENT_JOINED__");
+        if (lastMessage?.sent_by === "agent" && Date.now() - new Date(lastMessage.timestamp).getTime() >= AGENT_REPLY_TIMEOUT_MS) {
+          setExpiredByTimeout(true);
+        }
+      }
       setStatus(newStatus);
 
       if (newMsgs.length > prevMsgCount.current) {
@@ -312,17 +283,66 @@ export default function ChatWidget() {
       }
     }, 5000);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [sessionId, open]);
+  }, [sessionId, open, status, AGENT_REPLY_TIMEOUT_MS]);
 
-  // ── Poll agent typing indicator ──────────────────────────────────────────
+  // ── Live agent events, with polling retained as a fallback ───────────────
   useEffect(() => {
     if (!sessionId || !open) { setAgentTyping(false); return; }
+    const showAgentTyping = (typing: boolean) => {
+      if (agentTypingTimeoutRef.current) clearTimeout(agentTypingTimeoutRef.current);
+      setAgentTyping(typing);
+      if (typing) agentTypingTimeoutRef.current = setTimeout(() => setAgentTyping(false), 4500);
+    };
+    const channel = supabase
+      .channel(`chat:${sessionId}`)
+      .on("broadcast", { event: "typing" }, ({ payload }) => {
+        if (payload?.from === "agent") showAgentTyping(payload.typing !== false);
+      })
+      .on("broadcast", { event: "agent-joined" }, () => {
+        setAgentJoined(true);
+        setHasAgentJoined(true);
+        setCallVisible(false);
+        if (agentJoinedTimer.current) clearTimeout(agentJoinedTimer.current);
+        agentJoinedTimer.current = setTimeout(() => setAgentJoined(false), 5000);
+      })
+      .subscribe();
+    chatChannelRef.current = channel;
     const iv = setInterval(async () => {
       const res = await fetch(`/api/chat/typing?session_id=${sessionId}&from=agent`).catch(() => null);
-      if (res?.ok) { const d = await res.json(); setAgentTyping(!!d.typing); }
+      if (res?.ok) { const d = await res.json(); if (d.typing) showAgentTyping(true); }
     }, 2000);
-    return () => { clearInterval(iv); setAgentTyping(false); };
+    return () => {
+      clearInterval(iv);
+      if (agentTypingTimeoutRef.current) clearTimeout(agentTypingTimeoutRef.current);
+      chatChannelRef.current = null;
+      supabase.removeChannel(channel);
+      setAgentTyping(false);
+    };
   }, [sessionId, open]);
+
+  // Expire only when an adviser is waiting for the client's reply.
+  useEffect(() => {
+    if (replyTimeoutRef.current) clearTimeout(replyTimeoutRef.current);
+    if (!sessionId || status !== "escalated") return;
+    const lastMessage = [...messages].reverse().find((m) => m.body !== "__AGENT_JOINED__");
+    if (!lastMessage || lastMessage.sent_by !== "agent") return;
+
+    const expireAt = new Date(lastMessage.timestamp).getTime() + AGENT_REPLY_TIMEOUT_MS;
+    const expire = () => {
+      fetch(`/api/chat/sessions/${sessionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "resolved" }),
+      }).catch(() => {});
+      setExpiredByTimeout(true);
+      setStatus("resolved");
+      setAgentTyping(false);
+    };
+    const remaining = expireAt - Date.now();
+    if (remaining <= 0) expire();
+    else replyTimeoutRef.current = setTimeout(expire, remaining);
+    return () => { if (replyTimeoutRef.current) clearTimeout(replyTimeoutRef.current); };
+  }, [sessionId, status, messages, AGENT_REPLY_TIMEOUT_MS]);
 
   // Poll when closed to show unread badge
   useEffect(() => {
@@ -350,6 +370,29 @@ export default function ChatWidget() {
     }
   }, [messages]);
 
+  function signalClientTyping(typing: boolean) {
+    if (!sessionId) return;
+    chatChannelRef.current?.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { from: "client", typing },
+    });
+
+    const now = Date.now();
+    if (!typing || !clientTypingActiveRef.current || now - clientTypingLastSentRef.current > 1500) {
+      clientTypingActiveRef.current = typing;
+      clientTypingLastSentRef.current = now;
+      fetch("/api/chat/typing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId, typing, from: "client" }),
+      }).catch(() => {});
+    }
+
+    if (clientTypingTimeoutRef.current) clearTimeout(clientTypingTimeoutRef.current);
+    if (typing) clientTypingTimeoutRef.current = setTimeout(() => signalClientTyping(false), 3000);
+  }
+
   // ── Send message ─────────────────────────────────────────────────────────
   async function sendMessage() {
     const text = input.trim();
@@ -364,9 +407,9 @@ export default function ChatWidget() {
       timestamp: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, tempMsg]);
+    signalClientTyping(false);
     setInput("");
     setLoading(true);
-    resetInactivity(); // visitor activity → reset timer
 
     try {
       const res = await fetch("/api/chat/message", {
@@ -411,17 +454,7 @@ export default function ChatWidget() {
     setUnread(0);
     setHasNew(false);
     document.body.classList.add("chat-open");
-    resetInactivity();
   }
-
-  // Clear inactivity timer when chat closes
-  useEffect(() => {
-    if (!open) {
-      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
-      if (countdownTimer.current) clearInterval(countdownTimer.current);
-      setInactiveWarning(false);
-    }
-  }, [open]);
 
   async function newConversation() {
     clearSession();
@@ -435,6 +468,7 @@ export default function ChatWidget() {
     setFeedbackRating(0);
     setFeedbackComment("");
     setFeedbackState("idle");
+    setExpiredByTimeout(false);
     await startSession();
   }
 
@@ -693,7 +727,6 @@ export default function ChatWidget() {
                         const tempMsg: ChatMsg = { id:genId(), direction:"in", body:chip.msg, sent_by:"visitor", timestamp:new Date().toISOString() };
                         setMessages(prev => [...prev, tempMsg]);
                         setLoading(true);
-                        resetInactivity();
                         try {
                           const res = await fetch("/api/chat/message", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ session_id:sessionId, body:chip.msg }) });
                           const data = await res.json();
@@ -844,22 +877,6 @@ export default function ChatWidget() {
           )}
           </div>{/* end relative wrapper */}
 
-          {/* Inactivity warning */}
-          {inactiveWarning && (
-            <div className="flex-shrink-0 flex items-center gap-3 px-4 py-2.5"
-              style={{ background:"linear-gradient(90deg,#fffbeb,#fef9c3)",borderTop:"1px solid #fde68a",animation:"slideDown 0.3s ease both" }}>
-              <span className="text-lg flex-shrink-0">&#9201;</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-bold text-amber-900 leading-tight">Toujours l&agrave;&nbsp;?</p>
-                <p className="text-[11px] text-amber-700">Fermeture dans <strong>{inactiveCountdown}s</strong></p>
-              </div>
-              <button onClick={resetInactivity}
-                className="flex-shrink-0 px-3 py-1.5 rounded-xl bg-amber-400 text-amber-900 text-[11px] font-bold hover:bg-amber-500 transition-colors">
-                Je suis l&agrave;&nbsp;!
-              </button>
-            </div>
-          )}
-
           {/* Input */}
           <div className="flex-shrink-0 bg-white" style={{ borderTop:"1px solid rgba(0,0,0,0.06)" }}>
             {status === "resolved" ? (
@@ -877,8 +894,12 @@ export default function ChatWidget() {
               ) : (
                 <div className="flex flex-col gap-3 p-4">
                   <div className="rounded-2xl p-3 text-center" style={{ background:"linear-gradient(135deg,#f8fffe,#f0fdf4)",border:"1px solid #d1fae5" }}>
-                    <p className="text-[12px] font-bold text-neutral-800">Conversation termin&eacute;e &#10003;</p>
-                    <p className="text-[11px] text-neutral-500 mt-0.5">Comment s&apos;est pass&eacute;e votre exp&eacute;rience&nbsp;?</p>
+                    <p className="text-[12px] font-bold text-neutral-800">
+                      {expiredByTimeout ? "Session expirée" : "Conversation terminée ✓"}
+                    </p>
+                    <p className="text-[11px] text-neutral-500 mt-0.5">
+                      {expiredByTimeout ? "Sans réponse pendant 5 minutes, la conversation a été fermée automatiquement." : "Comment s'est passée votre expérience ?"}
+                    </p>
                   </div>
                   <div className="flex justify-center gap-2">
                     {[1,2,3,4,5].map((star) => (
@@ -926,7 +947,6 @@ export default function ChatWidget() {
                             const tempMsg: ChatMsg = { id: genId(), direction: "in", body: chip.msg, sent_by: "visitor", timestamp: new Date().toISOString() };
                             setMessages(prev => [...prev, tempMsg]);
                             setLoading(true);
-                            resetInactivity();
                             try {
                               const res = await fetch("/api/chat/message", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: sessionId, body: chip.msg }) });
                               const data = await res.json();
@@ -962,19 +982,7 @@ export default function ChatWidget() {
                   </span>
                   <textarea ref={inputRef} value={input} onChange={(e) => {
                     setInput(e.target.value);
-                    if (sessionId && e.target.value) {
-                      if (!clientTypingActiveRef.current) {
-                        clientTypingActiveRef.current = true;
-                        fetch("/api/chat/typing", { method: "POST", headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ session_id: sessionId, typing: true, from: "client" }) });
-                      }
-                      if (clientTypingTimeoutRef.current) clearTimeout(clientTypingTimeoutRef.current);
-                      clientTypingTimeoutRef.current = setTimeout(() => {
-                        clientTypingActiveRef.current = false;
-                        fetch("/api/chat/typing", { method: "POST", headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ session_id: sessionId, typing: false, from: "client" }) });
-                      }, 3000);
-                    }
+                    signalClientTyping(e.target.value.length > 0);
                   }} onKeyDown={handleKey}
                     onFocus={() => setInputFocused(true)}
                     onBlur={() => setInputFocused(false)}

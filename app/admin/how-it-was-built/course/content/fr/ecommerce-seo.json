@@ -1,0 +1,984 @@
+{
+  "id": "ecommerce-seo",
+  "order": 33,
+  "icon": "search",
+  "color": "#22c55e",
+  "title": "SEO e-commerce, données structurées et Merchant Center",
+  "summary": "Rendre produits et contenus découvrables sans promesse de classement magique.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/33-ecommerce-seo/keyword-intent-research.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/33-ecommerce-seo/technical-onpage-seo.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/33-ecommerce-seo/product-schema-merchant.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/33-ecommerce-seo/content-authority-links.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "keyword-intent-research",
+      "order": 0,
+      "title": "Recherche de mots-clés et intention commerciale",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Recherche de mots-clés et intention commerciale en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une carte mots-clés vers pages et intentions en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Relier requêtes, langage client, intention informationnelle ou transactionnelle, difficulté et page réellement capable de satisfaire la demande. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Relier requêtes, langage client, intention informationnelle ou transactionnelle, difficulté et page réellement capable de satisfaire la demande. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Recherche de mots-clés et intention commerciale ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Relier requêtes, langage client, intention informationnelle ou transactionnelle, difficulté et page réellement capable de satisfaire la demande. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Recherche de mots-clés et intention commerciale, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une carte mots-clés vers pages et intentions. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Intention de recherche",
+                  "definition": "Concept central de Recherche de mots-clés et intention commerciale, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Canonique",
+                  "definition": "Mesure ou structure qui rend la décision concernant Recherche de mots-clés et intention commerciale comparable et reproductible."
+                },
+                {
+                  "term": "Donnée structurée",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Recherche de mots-clés et intention commerciale améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Recherche de mots-clés et intention commerciale à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/33-ecommerce-seo/keyword-intent-research.md",
+                "source": "# Keyword research and commercial intent\n- [ ] Customer problem: Connect queries, customer language, informational or transactional intent, difficulty, and the page that can genuinely satisfy demand.\n- [ ] Deliverable: a keyword-to-page intent map\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/fundamentals/seo-starter-guide\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Recherche de mots-clés et intention commerciale avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/33-ecommerce-seo/keyword-intent-research.md",
+                "source": "# Keyword research and commercial intent\n- [x] Customer problem: Connect queries, customer language, informational or transactional intent, difficulty, and the page that can genuinely satisfy demand.\n- [ ] Deliverable: a keyword-to-page intent map\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/fundamentals/seo-starter-guide\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Recherche de mots-clés et intention commerciale",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Recherche de mots-clés et intention commerciale complète chaque section de une carte mots-clés vers pages et intentions, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une carte mots-clés vers pages et intentions existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une carte mots-clés vers pages et intentions, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une carte mots-clés vers pages et intentions existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Recherche de mots-clés et intention commerciale paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Recherche de mots-clés et intention commerciale, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Recherche de mots-clés et intention commerciale progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une carte mots-clés vers pages et intentions à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Recherche de mots-clés et intention commerciale complète chaque section de une carte mots-clés vers pages et intentions, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Keyword research and commercial intent\n- [x] Customer problem: Connect queries, customer language, informational or transactional intent, difficulty, and the page that can genuinely satisfy demand.\n- [ ] Deliverable: a keyword-to-page intent map\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/fundamentals/seo-starter-guide\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Recherche de mots-clés et intention commerciale",
+          "filename": "exercises/33-ecommerce-seo/keyword-intent-research.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "keyword-intent-research-q1",
+          "question": "Quelle démarche applique correctement Recherche de mots-clés et intention commerciale ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Recherche de mots-clés et intention commerciale, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Recherche de mots-clés et intention commerciale, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Recherche de mots-clés et intention commerciale, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Recherche de mots-clés et intention commerciale, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Recherche de mots-clés et intention commerciale, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "keyword-intent-research-q2",
+          "question": "Quelle définition correspond au terme « Intention de recherche » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Recherche de mots-clés et intention commerciale comparable et reproductible.",
+            "Concept central de Recherche de mots-clés et intention commerciale, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Recherche de mots-clés et intention commerciale améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Intention de recherche » signifie : Concept central de Recherche de mots-clés et intention commerciale, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Recherche de mots-clés et intention commerciale comparable et reproductible. ». La réponse de référence est « Concept central de Recherche de mots-clés et intention commerciale, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Recherche de mots-clés et intention commerciale, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Recherche de mots-clés et intention commerciale, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Recherche de mots-clés et intention commerciale, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Recherche de mots-clés et intention commerciale améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Recherche de mots-clés et intention commerciale, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Recherche de mots-clés et intention commerciale, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Recherche de mots-clés et intention commerciale, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Recherche de mots-clés et intention commerciale, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "keyword-intent-research-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Recherche de mots-clés et intention commerciale paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Recherche de mots-clés et intention commerciale, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Recherche de mots-clés et intention commerciale, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Recherche de mots-clés et intention commerciale, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Recherche de mots-clés et intention commerciale, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Recherche de mots-clés et intention commerciale, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Recherche de mots-clés et intention commerciale, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Recherche de mots-clés et intention commerciale, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Recherche de mots-clés et intention commerciale, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Recherche de mots-clés et intention commerciale, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Recherche de mots-clés et intention commerciale, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Recherche de mots-clés et intention commerciale est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une carte mots-clés vers pages et intentions rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Recherche de mots-clés et intention commerciale, poursuivez avec Architecture SEO, on-page, canonicals et indexation afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "technical-onpage-seo",
+      "order": 1,
+      "title": "Architecture SEO, on-page, canonicals et indexation",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Architecture SEO, on-page, canonicals et indexation en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un audit d’indexation et un modèle metadata Next.js en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Aligner URL, titre, H1, contenu, liens internes, sitemap, robots, canonique et variantes sans créer de pages faibles ou dupliquées. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Aligner URL, titre, H1, contenu, liens internes, sitemap, robots, canonique et variantes sans créer de pages faibles ou dupliquées. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Architecture SEO, on-page, canonicals et indexation ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Aligner URL, titre, H1, contenu, liens internes, sitemap, robots, canonique et variantes sans créer de pages faibles ou dupliquées. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Architecture SEO, on-page, canonicals et indexation, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un audit d’indexation et un modèle metadata Next.js. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Intention de recherche",
+                  "definition": "Concept central de Architecture SEO, on-page, canonicals et indexation, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Canonique",
+                  "definition": "Mesure ou structure qui rend la décision concernant Architecture SEO, on-page, canonicals et indexation comparable et reproductible."
+                },
+                {
+                  "term": "Donnée structurée",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Architecture SEO, on-page, canonicals et indexation améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Architecture SEO, on-page, canonicals et indexation à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/33-ecommerce-seo/technical-onpage-seo.md",
+                "source": "# SEO architecture, on-page, canonicals, and indexing\n- [ ] Customer problem: Align URL, title, H1, content, internal links, sitemap, robots, canonical, and variants without creating thin or duplicate pages.\n- [ ] Deliverable: an indexing audit and Next.js metadata model\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://nextjs.org/docs/app/getting-started/metadata-and-og-images\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Architecture SEO, on-page, canonicals et indexation avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/33-ecommerce-seo/technical-onpage-seo.md",
+                "source": "# SEO architecture, on-page, canonicals, and indexing\n- [x] Customer problem: Align URL, title, H1, content, internal links, sitemap, robots, canonical, and variants without creating thin or duplicate pages.\n- [ ] Deliverable: an indexing audit and Next.js metadata model\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://nextjs.org/docs/app/getting-started/metadata-and-og-images\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Architecture SEO, on-page, canonicals et indexation",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Architecture SEO, on-page, canonicals et indexation complète chaque section de un audit d’indexation et un modèle metadata Next.js, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un audit d’indexation et un modèle metadata Next.js existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un audit d’indexation et un modèle metadata Next.js, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un audit d’indexation et un modèle metadata Next.js existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Architecture SEO, on-page, canonicals et indexation paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Architecture SEO, on-page, canonicals et indexation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Architecture SEO, on-page, canonicals et indexation progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un audit d’indexation et un modèle metadata Next.js à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Architecture SEO, on-page, canonicals et indexation complète chaque section de un audit d’indexation et un modèle metadata Next.js, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# SEO architecture, on-page, canonicals, and indexing\n- [x] Customer problem: Align URL, title, H1, content, internal links, sitemap, robots, canonical, and variants without creating thin or duplicate pages.\n- [ ] Deliverable: an indexing audit and Next.js metadata model\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://nextjs.org/docs/app/getting-started/metadata-and-og-images\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Architecture SEO, on-page, canonicals et indexation",
+          "filename": "exercises/33-ecommerce-seo/technical-onpage-seo.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "technical-onpage-seo-q1",
+          "question": "Quelle démarche applique correctement Architecture SEO, on-page, canonicals et indexation ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Architecture SEO, on-page, canonicals et indexation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Architecture SEO, on-page, canonicals et indexation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Architecture SEO, on-page, canonicals et indexation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Architecture SEO, on-page, canonicals et indexation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Architecture SEO, on-page, canonicals et indexation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "technical-onpage-seo-q2",
+          "question": "Quelle définition correspond au terme « Intention de recherche » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Architecture SEO, on-page, canonicals et indexation comparable et reproductible.",
+            "Concept central de Architecture SEO, on-page, canonicals et indexation, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Architecture SEO, on-page, canonicals et indexation améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Intention de recherche » signifie : Concept central de Architecture SEO, on-page, canonicals et indexation, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Architecture SEO, on-page, canonicals et indexation comparable et reproductible. ». La réponse de référence est « Concept central de Architecture SEO, on-page, canonicals et indexation, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Architecture SEO, on-page, canonicals et indexation, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Architecture SEO, on-page, canonicals et indexation, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Architecture SEO, on-page, canonicals et indexation, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Architecture SEO, on-page, canonicals et indexation améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Architecture SEO, on-page, canonicals et indexation, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Architecture SEO, on-page, canonicals et indexation, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Architecture SEO, on-page, canonicals et indexation, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Architecture SEO, on-page, canonicals et indexation, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "technical-onpage-seo-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Architecture SEO, on-page, canonicals et indexation paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Architecture SEO, on-page, canonicals et indexation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Architecture SEO, on-page, canonicals et indexation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Architecture SEO, on-page, canonicals et indexation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Architecture SEO, on-page, canonicals et indexation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Architecture SEO, on-page, canonicals et indexation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Architecture SEO, on-page, canonicals et indexation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Architecture SEO, on-page, canonicals et indexation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Architecture SEO, on-page, canonicals et indexation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Architecture SEO, on-page, canonicals et indexation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Architecture SEO, on-page, canonicals et indexation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Architecture SEO, on-page, canonicals et indexation est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un audit d’indexation et un modèle metadata Next.js rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Architecture SEO, on-page, canonicals et indexation, poursuivez avec Product schema, variantes et Google Merchant Center afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "product-schema-merchant",
+      "order": 2,
+      "title": "Product schema, variantes et Google Merchant Center",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Product schema, variantes et Google Merchant Center en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un JSON-LD produit et une checklist de flux marchand en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Synchroniser Product, Offer, prix, disponibilité, livraison, retours, identifiants et flux Merchant Center avec le contenu visible. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Synchroniser Product, Offer, prix, disponibilité, livraison, retours, identifiants et flux Merchant Center avec le contenu visible. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Product schema, variantes et Google Merchant Center ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Synchroniser Product, Offer, prix, disponibilité, livraison, retours, identifiants et flux Merchant Center avec le contenu visible. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Product schema, variantes et Google Merchant Center, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un JSON-LD produit et une checklist de flux marchand. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Intention de recherche",
+                  "definition": "Concept central de Product schema, variantes et Google Merchant Center, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Canonique",
+                  "definition": "Mesure ou structure qui rend la décision concernant Product schema, variantes et Google Merchant Center comparable et reproductible."
+                },
+                {
+                  "term": "Donnée structurée",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Product schema, variantes et Google Merchant Center améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Product schema, variantes et Google Merchant Center à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/33-ecommerce-seo/product-schema-merchant.md",
+                "source": "# Product schema, variants, and Google Merchant Center\n- [ ] Customer problem: Synchronize Product, Offer, price, availability, shipping, returns, identifiers, and Merchant Center feeds with visible content.\n- [ ] Deliverable: product JSON-LD and a merchant-feed checklist\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/appearance/structured-data/merchant-listing\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Product schema, variantes et Google Merchant Center avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/33-ecommerce-seo/product-schema-merchant.md",
+                "source": "# Product schema, variants, and Google Merchant Center\n- [x] Customer problem: Synchronize Product, Offer, price, availability, shipping, returns, identifiers, and Merchant Center feeds with visible content.\n- [ ] Deliverable: product JSON-LD and a merchant-feed checklist\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/appearance/structured-data/merchant-listing\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Product schema, variantes et Google Merchant Center",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Product schema, variantes et Google Merchant Center complète chaque section de un JSON-LD produit et une checklist de flux marchand, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un JSON-LD produit et une checklist de flux marchand existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un JSON-LD produit et une checklist de flux marchand, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un JSON-LD produit et une checklist de flux marchand existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Product schema, variantes et Google Merchant Center paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Product schema, variantes et Google Merchant Center, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Product schema, variantes et Google Merchant Center progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un JSON-LD produit et une checklist de flux marchand à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Product schema, variantes et Google Merchant Center complète chaque section de un JSON-LD produit et une checklist de flux marchand, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Product schema, variants, and Google Merchant Center\n- [x] Customer problem: Synchronize Product, Offer, price, availability, shipping, returns, identifiers, and Merchant Center feeds with visible content.\n- [ ] Deliverable: product JSON-LD and a merchant-feed checklist\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/appearance/structured-data/merchant-listing\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Product schema, variantes et Google Merchant Center",
+          "filename": "exercises/33-ecommerce-seo/product-schema-merchant.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "product-schema-merchant-q1",
+          "question": "Quelle démarche applique correctement Product schema, variantes et Google Merchant Center ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Product schema, variantes et Google Merchant Center, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Product schema, variantes et Google Merchant Center, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Product schema, variantes et Google Merchant Center, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Product schema, variantes et Google Merchant Center, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Product schema, variantes et Google Merchant Center, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "product-schema-merchant-q2",
+          "question": "Quelle définition correspond au terme « Intention de recherche » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Product schema, variantes et Google Merchant Center comparable et reproductible.",
+            "Concept central de Product schema, variantes et Google Merchant Center, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Product schema, variantes et Google Merchant Center améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Intention de recherche » signifie : Concept central de Product schema, variantes et Google Merchant Center, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Product schema, variantes et Google Merchant Center comparable et reproductible. ». La réponse de référence est « Concept central de Product schema, variantes et Google Merchant Center, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Product schema, variantes et Google Merchant Center, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Product schema, variantes et Google Merchant Center, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Product schema, variantes et Google Merchant Center, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Product schema, variantes et Google Merchant Center améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Product schema, variantes et Google Merchant Center, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Product schema, variantes et Google Merchant Center, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Product schema, variantes et Google Merchant Center, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Product schema, variantes et Google Merchant Center, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "product-schema-merchant-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Product schema, variantes et Google Merchant Center paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Product schema, variantes et Google Merchant Center, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Product schema, variantes et Google Merchant Center, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Product schema, variantes et Google Merchant Center, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Product schema, variantes et Google Merchant Center, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Product schema, variantes et Google Merchant Center, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Product schema, variantes et Google Merchant Center, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Product schema, variantes et Google Merchant Center, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Product schema, variantes et Google Merchant Center, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Product schema, variantes et Google Merchant Center, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Product schema, variantes et Google Merchant Center, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Product schema, variantes et Google Merchant Center est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un JSON-LD produit et une checklist de flux marchand rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Product schema, variantes et Google Merchant Center, poursuivez avec Contenu utile, maillage interne et autorité afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "content-authority-links",
+      "order": 3,
+      "title": "Contenu utile, maillage interne et autorité",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Contenu utile, maillage interne et autorité en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un calendrier éditorial et une carte de maillage en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Créer guides, comparatifs et réponses issus des questions clients, les relier aux catégories et gagner des mentions sans achat de liens trompeurs. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Créer guides, comparatifs et réponses issus des questions clients, les relier aux catégories et gagner des mentions sans achat de liens trompeurs. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Contenu utile, maillage interne et autorité ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Créer guides, comparatifs et réponses issus des questions clients, les relier aux catégories et gagner des mentions sans achat de liens trompeurs. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Contenu utile, maillage interne et autorité, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un calendrier éditorial et une carte de maillage. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Intention de recherche",
+                  "definition": "Concept central de Contenu utile, maillage interne et autorité, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Canonique",
+                  "definition": "Mesure ou structure qui rend la décision concernant Contenu utile, maillage interne et autorité comparable et reproductible."
+                },
+                {
+                  "term": "Donnée structurée",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Contenu utile, maillage interne et autorité améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Contenu utile, maillage interne et autorité à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/33-ecommerce-seo/content-authority-links.md",
+                "source": "# Helpful content, internal links, and authority\n- [ ] Customer problem: Create guides, comparisons, and answers from customer questions, connect them to categories, and earn mentions without deceptive link buying.\n- [ ] Deliverable: an editorial calendar and internal-link map\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/fundamentals/creating-helpful-content\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Contenu utile, maillage interne et autorité avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/33-ecommerce-seo/content-authority-links.md",
+                "source": "# Helpful content, internal links, and authority\n- [x] Customer problem: Create guides, comparisons, and answers from customer questions, connect them to categories, and earn mentions without deceptive link buying.\n- [ ] Deliverable: an editorial calendar and internal-link map\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/fundamentals/creating-helpful-content\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Contenu utile, maillage interne et autorité",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Contenu utile, maillage interne et autorité complète chaque section de un calendrier éditorial et une carte de maillage, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un calendrier éditorial et une carte de maillage existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un calendrier éditorial et une carte de maillage, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un calendrier éditorial et une carte de maillage existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Contenu utile, maillage interne et autorité paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Contenu utile, maillage interne et autorité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Contenu utile, maillage interne et autorité progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un calendrier éditorial et une carte de maillage à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Contenu utile, maillage interne et autorité complète chaque section de un calendrier éditorial et une carte de maillage, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Helpful content, internal links, and authority\n- [x] Customer problem: Create guides, comparisons, and answers from customer questions, connect them to categories, and earn mentions without deceptive link buying.\n- [ ] Deliverable: an editorial calendar and internal-link map\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/fundamentals/creating-helpful-content\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Contenu utile, maillage interne et autorité",
+          "filename": "exercises/33-ecommerce-seo/content-authority-links.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "content-authority-links-q1",
+          "question": "Quelle démarche applique correctement Contenu utile, maillage interne et autorité ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Contenu utile, maillage interne et autorité, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Contenu utile, maillage interne et autorité, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Contenu utile, maillage interne et autorité, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Contenu utile, maillage interne et autorité, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Contenu utile, maillage interne et autorité, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "content-authority-links-q2",
+          "question": "Quelle définition correspond au terme « Intention de recherche » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Contenu utile, maillage interne et autorité comparable et reproductible.",
+            "Concept central de Contenu utile, maillage interne et autorité, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Contenu utile, maillage interne et autorité améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Intention de recherche » signifie : Concept central de Contenu utile, maillage interne et autorité, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Contenu utile, maillage interne et autorité comparable et reproductible. ». La réponse de référence est « Concept central de Contenu utile, maillage interne et autorité, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Contenu utile, maillage interne et autorité, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Contenu utile, maillage interne et autorité, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Contenu utile, maillage interne et autorité, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Contenu utile, maillage interne et autorité améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Contenu utile, maillage interne et autorité, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Contenu utile, maillage interne et autorité, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Contenu utile, maillage interne et autorité, défini par une règle observable plutôt que par une préférence. ». « Intention de recherche » signifie : Concept central de Contenu utile, maillage interne et autorité, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "content-authority-links-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Contenu utile, maillage interne et autorité paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Contenu utile, maillage interne et autorité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contenu utile, maillage interne et autorité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Contenu utile, maillage interne et autorité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contenu utile, maillage interne et autorité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Contenu utile, maillage interne et autorité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contenu utile, maillage interne et autorité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Contenu utile, maillage interne et autorité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contenu utile, maillage interne et autorité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Contenu utile, maillage interne et autorité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contenu utile, maillage interne et autorité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Contenu utile, maillage interne et autorité est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un calendrier éditorial et une carte de maillage rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Contenu utile, maillage interne et autorité, poursuivez avec SEO local et profil d’établissement afin de relier la compétence acquise à l’étape suivante du système de vente."
+    }
+  ]
+}

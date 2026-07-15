@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "moduleCount": 28,
-  "lessonCount": 112,
+  "moduleCount": 40,
+  "lessonCount": 160,
   "modules": [
     {
       "id": "module-00-learning-tools",
@@ -337,6 +337,150 @@
         "capstone-catalog",
         "capstone-purchase",
         "capstone-production"
+      ]
+    },
+    {
+      "id": "design-foundations",
+      "order": 28,
+      "icon": "palette",
+      "color": "#ec4899",
+      "lessonIds": [
+        "color-theory-brand",
+        "accessible-color-states",
+        "typography-reading",
+        "design-tokens-system"
+      ]
+    },
+    {
+      "id": "layout-mastery",
+      "order": 29,
+      "icon": "layout",
+      "color": "#8b5cf6",
+      "lessonIds": [
+        "layout-principles",
+        "flex-grid-containers",
+        "responsive-navigation",
+        "page-layout-blueprints"
+      ]
+    },
+    {
+      "id": "conversion-ux",
+      "order": 30,
+      "icon": "cursor",
+      "color": "#f97316",
+      "lessonIds": [
+        "customer-research-journey",
+        "value-proposition-trust",
+        "product-page-conversion",
+        "cart-checkout-friction"
+      ]
+    },
+    {
+      "id": "content-photography",
+      "order": 31,
+      "icon": "camera",
+      "color": "#06b6d4",
+      "lessonIds": [
+        "brand-voice-copy",
+        "product-descriptions",
+        "product-photography",
+        "short-product-video"
+      ]
+    },
+    {
+      "id": "merchandising-pricing",
+      "order": 32,
+      "icon": "tag",
+      "color": "#eab308",
+      "lessonIds": [
+        "product-selection-demand",
+        "unit-economics-pricing",
+        "offers-bundles-discounts",
+        "catalog-merchandising"
+      ]
+    },
+    {
+      "id": "ecommerce-seo",
+      "order": 33,
+      "icon": "search",
+      "color": "#22c55e",
+      "lessonIds": [
+        "keyword-intent-research",
+        "technical-onpage-seo",
+        "product-schema-merchant",
+        "content-authority-links"
+      ]
+    },
+    {
+      "id": "discovery-reputation",
+      "order": 34,
+      "icon": "globe",
+      "color": "#14b8a6",
+      "lessonIds": [
+        "local-seo-profile",
+        "reviews-reputation",
+        "international-seo-localization",
+        "free-shopping-surfaces"
+      ]
+    },
+    {
+      "id": "organic-acquisition",
+      "order": 35,
+      "icon": "users",
+      "color": "#3b82f6",
+      "lessonIds": [
+        "channel-audience-strategy",
+        "organic-content-engine",
+        "community-ugc",
+        "influencers-partnerships"
+      ]
+    },
+    {
+      "id": "paid-acquisition",
+      "order": 36,
+      "icon": "megaphone",
+      "color": "#ef4444",
+      "lessonIds": [
+        "paid-unit-economics",
+        "campaign-structure",
+        "creative-testing",
+        "attribution-remarketing"
+      ]
+    },
+    {
+      "id": "sales-service",
+      "order": 37,
+      "icon": "message",
+      "color": "#a855f7",
+      "lessonIds": [
+        "ethical-sales-funnel",
+        "objections-chat",
+        "crm-pipeline",
+        "support-returns-recovery"
+      ]
+    },
+    {
+      "id": "retention-loyalty",
+      "order": 38,
+      "icon": "heart",
+      "color": "#db2777",
+      "lessonIds": [
+        "lifecycle-email",
+        "segmentation-automation",
+        "loyalty-referral",
+        "cohort-retention-analysis"
+      ]
+    },
+    {
+      "id": "business-operations",
+      "order": 39,
+      "icon": "briefcase",
+      "color": "#334155",
+      "lessonIds": [
+        "finance-dashboard",
+        "inventory-suppliers",
+        "legal-trust-checklist",
+        "growth-90-day-capstone"
       ]
     }
   ]

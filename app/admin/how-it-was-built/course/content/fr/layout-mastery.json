@@ -1,0 +1,984 @@
+{
+  "id": "layout-mastery",
+  "order": 29,
+  "icon": "layout",
+  "color": "#8b5cf6",
+  "title": "Maîtrise des layouts et pages responsive",
+  "summary": "Passer d’un wireframe à des pages solides sur tous les écrans.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/29-layout-mastery/layout-principles.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/29-layout-mastery/flex-grid-containers.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/29-layout-mastery/responsive-navigation.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/29-layout-mastery/page-layout-blueprints.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "layout-principles",
+      "order": 0,
+      "title": "Alignement, proximité, répétition et espace blanc",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Alignement, proximité, répétition et espace blanc en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un audit annoté de la hiérarchie d’une page en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Organiser l’information avec des relations visibles plutôt qu’avec des positions arbitraires. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Organiser l’information avec des relations visibles plutôt qu’avec des positions arbitraires. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Alignement, proximité, répétition et espace blanc ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Organiser l’information avec des relations visibles plutôt qu’avec des positions arbitraires. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Alignement, proximité, répétition et espace blanc, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un audit annoté de la hiérarchie d’une page. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Grille",
+                  "definition": "Concept central de Alignement, proximité, répétition et espace blanc, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Conteneur",
+                  "definition": "Mesure ou structure qui rend la décision concernant Alignement, proximité, répétition et espace blanc comparable et reproductible."
+                },
+                {
+                  "term": "Breakpoint",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Alignement, proximité, répétition et espace blanc améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Alignement, proximité, répétition et espace blanc à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/29-layout-mastery/layout-principles.md",
+                "source": "# Alignment, proximity, repetition, and whitespace\n- [ ] Customer problem: Organize information through visible relationships rather than arbitrary positions.\n- [ ] Deliverable: an annotated page-hierarchy audit\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://web.dev/learn/design/layout\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Alignement, proximité, répétition et espace blanc avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/29-layout-mastery/layout-principles.md",
+                "source": "# Alignment, proximity, repetition, and whitespace\n- [x] Customer problem: Organize information through visible relationships rather than arbitrary positions.\n- [ ] Deliverable: an annotated page-hierarchy audit\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://web.dev/learn/design/layout\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Alignement, proximité, répétition et espace blanc",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Alignement, proximité, répétition et espace blanc complète chaque section de un audit annoté de la hiérarchie d’une page, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un audit annoté de la hiérarchie d’une page existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un audit annoté de la hiérarchie d’une page, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un audit annoté de la hiérarchie d’une page existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Alignement, proximité, répétition et espace blanc paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Alignement, proximité, répétition et espace blanc, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Alignement, proximité, répétition et espace blanc progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un audit annoté de la hiérarchie d’une page à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Alignement, proximité, répétition et espace blanc complète chaque section de un audit annoté de la hiérarchie d’une page, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Alignment, proximity, repetition, and whitespace\n- [x] Customer problem: Organize information through visible relationships rather than arbitrary positions.\n- [ ] Deliverable: an annotated page-hierarchy audit\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://web.dev/learn/design/layout\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Alignement, proximité, répétition et espace blanc",
+          "filename": "exercises/29-layout-mastery/layout-principles.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "layout-principles-q1",
+          "question": "Quelle démarche applique correctement Alignement, proximité, répétition et espace blanc ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Alignement, proximité, répétition et espace blanc, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Alignement, proximité, répétition et espace blanc, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Alignement, proximité, répétition et espace blanc, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Alignement, proximité, répétition et espace blanc, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Alignement, proximité, répétition et espace blanc, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "layout-principles-q2",
+          "question": "Quelle définition correspond au terme « Grille » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Alignement, proximité, répétition et espace blanc comparable et reproductible.",
+            "Concept central de Alignement, proximité, répétition et espace blanc, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Alignement, proximité, répétition et espace blanc améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Grille » signifie : Concept central de Alignement, proximité, répétition et espace blanc, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Alignement, proximité, répétition et espace blanc comparable et reproductible. ». La réponse de référence est « Concept central de Alignement, proximité, répétition et espace blanc, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Alignement, proximité, répétition et espace blanc, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Alignement, proximité, répétition et espace blanc, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Alignement, proximité, répétition et espace blanc, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Alignement, proximité, répétition et espace blanc améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Alignement, proximité, répétition et espace blanc, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Alignement, proximité, répétition et espace blanc, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Alignement, proximité, répétition et espace blanc, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Alignement, proximité, répétition et espace blanc, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "layout-principles-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Alignement, proximité, répétition et espace blanc paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Alignement, proximité, répétition et espace blanc, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Alignement, proximité, répétition et espace blanc, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Alignement, proximité, répétition et espace blanc, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Alignement, proximité, répétition et espace blanc, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Alignement, proximité, répétition et espace blanc, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Alignement, proximité, répétition et espace blanc, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Alignement, proximité, répétition et espace blanc, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Alignement, proximité, répétition et espace blanc, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Alignement, proximité, répétition et espace blanc, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Alignement, proximité, répétition et espace blanc, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Alignement, proximité, répétition et espace blanc est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un audit annoté de la hiérarchie d’une page rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Alignement, proximité, répétition et espace blanc, poursuivez avec Flexbox, Grid, conteneurs et espacements fluides afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "flex-grid-containers",
+      "order": 1,
+      "title": "Flexbox, Grid, conteneurs et espacements fluides",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Flexbox, Grid, conteneurs et espacements fluides en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une grille catalogue fluide sans débordement en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Choisir le bon algorithme de layout et combiner minmax, gap, clamp et limites de largeur sans coordonnées fragiles. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Choisir le bon algorithme de layout et combiner minmax, gap, clamp et limites de largeur sans coordonnées fragiles. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Flexbox, Grid, conteneurs et espacements fluides ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Choisir le bon algorithme de layout et combiner minmax, gap, clamp et limites de largeur sans coordonnées fragiles. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Flexbox, Grid, conteneurs et espacements fluides, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une grille catalogue fluide sans débordement. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Grille",
+                  "definition": "Concept central de Flexbox, Grid, conteneurs et espacements fluides, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Conteneur",
+                  "definition": "Mesure ou structure qui rend la décision concernant Flexbox, Grid, conteneurs et espacements fluides comparable et reproductible."
+                },
+                {
+                  "term": "Breakpoint",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Flexbox, Grid, conteneurs et espacements fluides améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Flexbox, Grid, conteneurs et espacements fluides à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/29-layout-mastery/flex-grid-containers.md",
+                "source": "# Flexbox, Grid, containers, and fluid spacing\n- [ ] Customer problem: Choose the right layout algorithm and combine minmax, gap, clamp, and width limits without fragile coordinates.\n- [ ] Deliverable: a fluid catalog grid without overflow\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Flexbox, Grid, conteneurs et espacements fluides avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/29-layout-mastery/flex-grid-containers.md",
+                "source": "# Flexbox, Grid, containers, and fluid spacing\n- [x] Customer problem: Choose the right layout algorithm and combine minmax, gap, clamp, and width limits without fragile coordinates.\n- [ ] Deliverable: a fluid catalog grid without overflow\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Flexbox, Grid, conteneurs et espacements fluides",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Flexbox, Grid, conteneurs et espacements fluides complète chaque section de une grille catalogue fluide sans débordement, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une grille catalogue fluide sans débordement existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une grille catalogue fluide sans débordement, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une grille catalogue fluide sans débordement existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Flexbox, Grid, conteneurs et espacements fluides paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Flexbox, Grid, conteneurs et espacements fluides, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Flexbox, Grid, conteneurs et espacements fluides progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une grille catalogue fluide sans débordement à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Flexbox, Grid, conteneurs et espacements fluides complète chaque section de une grille catalogue fluide sans débordement, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Flexbox, Grid, containers, and fluid spacing\n- [x] Customer problem: Choose the right layout algorithm and combine minmax, gap, clamp, and width limits without fragile coordinates.\n- [ ] Deliverable: a fluid catalog grid without overflow\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Flexbox, Grid, conteneurs et espacements fluides",
+          "filename": "exercises/29-layout-mastery/flex-grid-containers.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "flex-grid-containers-q1",
+          "question": "Quelle démarche applique correctement Flexbox, Grid, conteneurs et espacements fluides ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Flexbox, Grid, conteneurs et espacements fluides, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Flexbox, Grid, conteneurs et espacements fluides, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Flexbox, Grid, conteneurs et espacements fluides, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Flexbox, Grid, conteneurs et espacements fluides, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Flexbox, Grid, conteneurs et espacements fluides, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "flex-grid-containers-q2",
+          "question": "Quelle définition correspond au terme « Grille » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Flexbox, Grid, conteneurs et espacements fluides comparable et reproductible.",
+            "Concept central de Flexbox, Grid, conteneurs et espacements fluides, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Flexbox, Grid, conteneurs et espacements fluides améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Grille » signifie : Concept central de Flexbox, Grid, conteneurs et espacements fluides, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Flexbox, Grid, conteneurs et espacements fluides comparable et reproductible. ». La réponse de référence est « Concept central de Flexbox, Grid, conteneurs et espacements fluides, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Flexbox, Grid, conteneurs et espacements fluides, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Flexbox, Grid, conteneurs et espacements fluides, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Flexbox, Grid, conteneurs et espacements fluides, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Flexbox, Grid, conteneurs et espacements fluides améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Flexbox, Grid, conteneurs et espacements fluides, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Flexbox, Grid, conteneurs et espacements fluides, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Flexbox, Grid, conteneurs et espacements fluides, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Flexbox, Grid, conteneurs et espacements fluides, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "flex-grid-containers-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Flexbox, Grid, conteneurs et espacements fluides paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Flexbox, Grid, conteneurs et espacements fluides, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Flexbox, Grid, conteneurs et espacements fluides, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Flexbox, Grid, conteneurs et espacements fluides, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Flexbox, Grid, conteneurs et espacements fluides, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Flexbox, Grid, conteneurs et espacements fluides, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Flexbox, Grid, conteneurs et espacements fluides, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Flexbox, Grid, conteneurs et espacements fluides, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Flexbox, Grid, conteneurs et espacements fluides, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Flexbox, Grid, conteneurs et espacements fluides, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Flexbox, Grid, conteneurs et espacements fluides, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Flexbox, Grid, conteneurs et espacements fluides est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une grille catalogue fluide sans débordement rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Flexbox, Grid, conteneurs et espacements fluides, poursuivez avec Navigation responsive, en-têtes et menus mobiles afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "responsive-navigation",
+      "order": 2,
+      "title": "Navigation responsive, en-têtes et menus mobiles",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Navigation responsive, en-têtes et menus mobiles en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un en-tête responsive avec menu mobile testé en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Concevoir une navigation courte, accessible au clavier, stable avec le clavier mobile et cohérente entre états connecté et invité. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Concevoir une navigation courte, accessible au clavier, stable avec le clavier mobile et cohérente entre états connecté et invité. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Navigation responsive, en-têtes et menus mobiles ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Concevoir une navigation courte, accessible au clavier, stable avec le clavier mobile et cohérente entre états connecté et invité. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Navigation responsive, en-têtes et menus mobiles, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un en-tête responsive avec menu mobile testé. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Grille",
+                  "definition": "Concept central de Navigation responsive, en-têtes et menus mobiles, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Conteneur",
+                  "definition": "Mesure ou structure qui rend la décision concernant Navigation responsive, en-têtes et menus mobiles comparable et reproductible."
+                },
+                {
+                  "term": "Breakpoint",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Navigation responsive, en-têtes et menus mobiles améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Navigation responsive, en-têtes et menus mobiles à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/29-layout-mastery/responsive-navigation.md",
+                "source": "# Responsive navigation, headers, and mobile menus\n- [ ] Customer problem: Design concise keyboard-accessible navigation that remains stable with mobile keyboards and signed-in or guest states.\n- [ ] Deliverable: a tested responsive header with mobile menu\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Navigation responsive, en-têtes et menus mobiles avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/29-layout-mastery/responsive-navigation.md",
+                "source": "# Responsive navigation, headers, and mobile menus\n- [x] Customer problem: Design concise keyboard-accessible navigation that remains stable with mobile keyboards and signed-in or guest states.\n- [ ] Deliverable: a tested responsive header with mobile menu\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Navigation responsive, en-têtes et menus mobiles",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Navigation responsive, en-têtes et menus mobiles complète chaque section de un en-tête responsive avec menu mobile testé, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un en-tête responsive avec menu mobile testé existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un en-tête responsive avec menu mobile testé, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un en-tête responsive avec menu mobile testé existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Navigation responsive, en-têtes et menus mobiles paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Navigation responsive, en-têtes et menus mobiles, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Navigation responsive, en-têtes et menus mobiles progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un en-tête responsive avec menu mobile testé à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Navigation responsive, en-têtes et menus mobiles complète chaque section de un en-tête responsive avec menu mobile testé, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Responsive navigation, headers, and mobile menus\n- [x] Customer problem: Design concise keyboard-accessible navigation that remains stable with mobile keyboards and signed-in or guest states.\n- [ ] Deliverable: a tested responsive header with mobile menu\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Navigation responsive, en-têtes et menus mobiles",
+          "filename": "exercises/29-layout-mastery/responsive-navigation.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "responsive-navigation-q1",
+          "question": "Quelle démarche applique correctement Navigation responsive, en-têtes et menus mobiles ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Navigation responsive, en-têtes et menus mobiles, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Navigation responsive, en-têtes et menus mobiles, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Navigation responsive, en-têtes et menus mobiles, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Navigation responsive, en-têtes et menus mobiles, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Navigation responsive, en-têtes et menus mobiles, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "responsive-navigation-q2",
+          "question": "Quelle définition correspond au terme « Grille » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Navigation responsive, en-têtes et menus mobiles comparable et reproductible.",
+            "Concept central de Navigation responsive, en-têtes et menus mobiles, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Navigation responsive, en-têtes et menus mobiles améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Grille » signifie : Concept central de Navigation responsive, en-têtes et menus mobiles, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Navigation responsive, en-têtes et menus mobiles comparable et reproductible. ». La réponse de référence est « Concept central de Navigation responsive, en-têtes et menus mobiles, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Navigation responsive, en-têtes et menus mobiles, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Navigation responsive, en-têtes et menus mobiles, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Navigation responsive, en-têtes et menus mobiles, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Navigation responsive, en-têtes et menus mobiles améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Navigation responsive, en-têtes et menus mobiles, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Navigation responsive, en-têtes et menus mobiles, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Navigation responsive, en-têtes et menus mobiles, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Navigation responsive, en-têtes et menus mobiles, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "responsive-navigation-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Navigation responsive, en-têtes et menus mobiles paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Navigation responsive, en-têtes et menus mobiles, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Navigation responsive, en-têtes et menus mobiles, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Navigation responsive, en-têtes et menus mobiles, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Navigation responsive, en-têtes et menus mobiles, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Navigation responsive, en-têtes et menus mobiles, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Navigation responsive, en-têtes et menus mobiles, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Navigation responsive, en-têtes et menus mobiles, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Navigation responsive, en-têtes et menus mobiles, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Navigation responsive, en-têtes et menus mobiles, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Navigation responsive, en-têtes et menus mobiles, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Navigation responsive, en-têtes et menus mobiles est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un en-tête responsive avec menu mobile testé rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Navigation responsive, en-têtes et menus mobiles, poursuivez avec Blueprints : accueil, catégorie, produit et checkout afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "page-layout-blueprints",
+      "order": 3,
+      "title": "Blueprints : accueil, catégorie, produit et checkout",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Blueprints : accueil, catégorie, produit et checkout en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer quatre wireframes responsive reliés au parcours d’achat en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Composer chaque page autour de son intention principale, de son ordre de lecture et de ses états vide, chargement, erreur et succès. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Composer chaque page autour de son intention principale, de son ordre de lecture et de ses états vide, chargement, erreur et succès. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Blueprints : accueil, catégorie, produit et checkout ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Composer chaque page autour de son intention principale, de son ordre de lecture et de ses états vide, chargement, erreur et succès. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Blueprints : accueil, catégorie, produit et checkout, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est quatre wireframes responsive reliés au parcours d’achat. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Grille",
+                  "definition": "Concept central de Blueprints : accueil, catégorie, produit et checkout, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Conteneur",
+                  "definition": "Mesure ou structure qui rend la décision concernant Blueprints : accueil, catégorie, produit et checkout comparable et reproductible."
+                },
+                {
+                  "term": "Breakpoint",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Blueprints : accueil, catégorie, produit et checkout améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Blueprints : accueil, catégorie, produit et checkout à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/29-layout-mastery/page-layout-blueprints.md",
+                "source": "# Blueprints: home, category, product, and checkout\n- [ ] Customer problem: Compose every page around its primary intent, reading order, and empty, loading, error, and success states.\n- [ ] Deliverable: four responsive wireframes connected to the purchase journey\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://nextjs.org/docs/app/getting-started/layouts-and-pages\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Blueprints : accueil, catégorie, produit et checkout avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/29-layout-mastery/page-layout-blueprints.md",
+                "source": "# Blueprints: home, category, product, and checkout\n- [x] Customer problem: Compose every page around its primary intent, reading order, and empty, loading, error, and success states.\n- [ ] Deliverable: four responsive wireframes connected to the purchase journey\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://nextjs.org/docs/app/getting-started/layouts-and-pages\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Blueprints : accueil, catégorie, produit et checkout",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Blueprints : accueil, catégorie, produit et checkout complète chaque section de quatre wireframes responsive reliés au parcours d’achat, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : quatre wireframes responsive reliés au parcours d’achat existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire quatre wireframes responsive reliés au parcours d’achat, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : quatre wireframes responsive reliés au parcours d’achat existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Blueprints : accueil, catégorie, produit et checkout paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Blueprints : accueil, catégorie, produit et checkout, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Blueprints : accueil, catégorie, produit et checkout progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire quatre wireframes responsive reliés au parcours d’achat à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Blueprints : accueil, catégorie, produit et checkout complète chaque section de quatre wireframes responsive reliés au parcours d’achat, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Blueprints: home, category, product, and checkout\n- [x] Customer problem: Compose every page around its primary intent, reading order, and empty, loading, error, and success states.\n- [ ] Deliverable: four responsive wireframes connected to the purchase journey\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://nextjs.org/docs/app/getting-started/layouts-and-pages\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Blueprints : accueil, catégorie, produit et checkout",
+          "filename": "exercises/29-layout-mastery/page-layout-blueprints.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "page-layout-blueprints-q1",
+          "question": "Quelle démarche applique correctement Blueprints : accueil, catégorie, produit et checkout ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Blueprints : accueil, catégorie, produit et checkout, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Blueprints : accueil, catégorie, produit et checkout, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Blueprints : accueil, catégorie, produit et checkout, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Blueprints : accueil, catégorie, produit et checkout, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Blueprints : accueil, catégorie, produit et checkout, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "page-layout-blueprints-q2",
+          "question": "Quelle définition correspond au terme « Grille » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Blueprints : accueil, catégorie, produit et checkout comparable et reproductible.",
+            "Concept central de Blueprints : accueil, catégorie, produit et checkout, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Blueprints : accueil, catégorie, produit et checkout améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Grille » signifie : Concept central de Blueprints : accueil, catégorie, produit et checkout, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Blueprints : accueil, catégorie, produit et checkout comparable et reproductible. ». La réponse de référence est « Concept central de Blueprints : accueil, catégorie, produit et checkout, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Blueprints : accueil, catégorie, produit et checkout, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Blueprints : accueil, catégorie, produit et checkout, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Blueprints : accueil, catégorie, produit et checkout, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Blueprints : accueil, catégorie, produit et checkout améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Blueprints : accueil, catégorie, produit et checkout, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Blueprints : accueil, catégorie, produit et checkout, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Blueprints : accueil, catégorie, produit et checkout, défini par une règle observable plutôt que par une préférence. ». « Grille » signifie : Concept central de Blueprints : accueil, catégorie, produit et checkout, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "page-layout-blueprints-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Blueprints : accueil, catégorie, produit et checkout paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Blueprints : accueil, catégorie, produit et checkout, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Blueprints : accueil, catégorie, produit et checkout, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Blueprints : accueil, catégorie, produit et checkout, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Blueprints : accueil, catégorie, produit et checkout, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Blueprints : accueil, catégorie, produit et checkout, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Blueprints : accueil, catégorie, produit et checkout, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Blueprints : accueil, catégorie, produit et checkout, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Blueprints : accueil, catégorie, produit et checkout, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Blueprints : accueil, catégorie, produit et checkout, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Blueprints : accueil, catégorie, produit et checkout, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Blueprints : accueil, catégorie, produit et checkout est un problème client observable, jamais une tendance isolée.",
+        "Le livrable quatre wireframes responsive reliés au parcours d’achat rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Blueprints : accueil, catégorie, produit et checkout, poursuivez avec Recherche client, personas utiles et parcours afin de relier la compétence acquise à l’étape suivante du système de vente."
+    }
+  ]
+}

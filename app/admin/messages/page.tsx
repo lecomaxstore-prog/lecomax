@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
+import { supabase } from "@/lib/supabase";
 
 type Message = { id: string; name: string; email: string; subject: string; message: string; read: boolean; created_at: string };
 type InboxEmail = { uid: number; subject: string; from: string; fromAddress: string; date: string; read: boolean; hasAttachment: boolean };
@@ -284,7 +285,10 @@ export default function MessagesPage() {
   const lcPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lcTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lcTypingActiveRef = useRef(false);
+  const lcTypingLastSentRef = useRef(0);
+  const lcClientTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lcClientTypingPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lcChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   // ── Feedback ──────────────────────────────────────────────────────────
   type ChatFeedback = { id: string; session_id: string; rating: number; comment: string | null; created_at: string };
@@ -348,19 +352,34 @@ export default function MessagesPage() {
     return () => clearInterval(iv);
   }, [lcSelected, loadLcMessages]);
 
-  // Poll client typing indicator
+  // Live client typing, with polling retained as a fallback.
   useEffect(() => {
     if (!lcSelected) {
       setLcClientTyping(false);
       if (lcClientTypingPollRef.current) clearInterval(lcClientTypingPollRef.current);
       return;
     }
+    const showClientTyping = (typing: boolean) => {
+      if (lcClientTypingTimeoutRef.current) clearTimeout(lcClientTypingTimeoutRef.current);
+      setLcClientTyping(typing);
+      if (typing) lcClientTypingTimeoutRef.current = setTimeout(() => setLcClientTyping(false), 4500);
+    };
+    const channel = supabase
+      .channel(`chat:${lcSelected.id}`)
+      .on("broadcast", { event: "typing" }, ({ payload }) => {
+        if (payload?.from === "client") showClientTyping(payload.typing !== false);
+      })
+      .subscribe();
+    lcChannelRef.current = channel;
     lcClientTypingPollRef.current = setInterval(async () => {
       const res = await fetch(`/api/chat/typing?session_id=${lcSelected.id}&from=client`).catch(() => null);
-      if (res?.ok) { const d = await res.json(); setLcClientTyping(!!d.typing); }
+      if (res?.ok) { const d = await res.json(); if (d.typing) showClientTyping(true); }
     }, 2000);
     return () => {
       if (lcClientTypingPollRef.current) clearInterval(lcClientTypingPollRef.current);
+      if (lcClientTypingTimeoutRef.current) clearTimeout(lcClientTypingTimeoutRef.current);
+      lcChannelRef.current = null;
+      supabase.removeChannel(channel);
       setLcClientTyping(false);
     };
   }, [lcSelected]);
@@ -404,26 +423,31 @@ export default function MessagesPage() {
     });
     await updateLcStatus(sessionId, "escalated");
     await loadLcMessages(sessionId);
+    lcChannelRef.current?.send({
+      type: "broadcast",
+      event: "agent-joined",
+      payload: { at: new Date().toISOString() },
+    });
   }
 
-  function signalTyping(sessionId: string) {
-    if (!lcTypingActiveRef.current) {
-      lcTypingActiveRef.current = true;
+  function signalTyping(sessionId: string, typing = true) {
+    lcChannelRef.current?.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { from: "agent", typing },
+    });
+    const now = Date.now();
+    if (!typing || !lcTypingActiveRef.current || now - lcTypingLastSentRef.current > 1500) {
+      lcTypingActiveRef.current = typing;
+      lcTypingLastSentRef.current = now;
       fetch("/api/chat/typing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId, typing: true, from: "agent" }),
-      });
+        body: JSON.stringify({ session_id: sessionId, typing, from: "agent" }),
+      }).catch(() => {});
     }
     if (lcTypingTimeoutRef.current) clearTimeout(lcTypingTimeoutRef.current);
-    lcTypingTimeoutRef.current = setTimeout(() => {
-      lcTypingActiveRef.current = false;
-      fetch("/api/chat/typing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId, typing: false, from: "agent" }),
-      });
-    }, 3000);
+    if (typing) lcTypingTimeoutRef.current = setTimeout(() => signalTyping(sessionId, false), 3000);
   }
 
   async function sendLcReply() {
@@ -431,12 +455,7 @@ export default function MessagesPage() {
     setLcSending(true);
     // Clear typing indicator immediately on send
     if (lcTypingTimeoutRef.current) clearTimeout(lcTypingTimeoutRef.current);
-    lcTypingActiveRef.current = false;
-    fetch("/api/chat/typing", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: lcSelected.id, typing: false, from: "agent" }),
-    });
+    signalTyping(lcSelected.id, false);
     try {
       await fetch("/api/chat/reply", {
         method: "POST",
@@ -909,7 +928,7 @@ export default function MessagesPage() {
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2" style={{ minHeight: 200 }}>
+                <div ref={lcMsgsContainerRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-2" style={{ minHeight: 200 }}>
                   {waMessagesLoading && waMessages.length === 0 ? (
                     <div className="text-center text-xs text-neutral-400 py-8">Chargement…</div>
                   ) : waMessages.length === 0 ? (
@@ -1207,7 +1226,7 @@ export default function MessagesPage() {
                   <div className="flex gap-2">
                     <textarea
                       value={lcReply}
-                      onChange={(e) => { setLcReply(e.target.value); setLcSent(false); if (e.target.value && lcSelected) signalTyping(lcSelected.id); }}
+                      onChange={(e) => { setLcReply(e.target.value); setLcSent(false); if (lcSelected) signalTyping(lcSelected.id, e.target.value.length > 0); }}
                       onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendLcReply(); } }}
                       placeholder={lcSelected.status === "ai" ? "Prenez en charge pour répondre…" : "Répondre… (Entrée pour envoyer)"}
                       rows={2}

@@ -29,8 +29,8 @@ const firstModule = manifest.modules[0];
 const TEXT = {
   fr: {
     badge: "Manuel interactif complet",
-    title: "De zéro à développeur web — avec L’ecomax comme laboratoire.",
-    intro: "112 leçons complètes dans 28 modules. Chaque leçon explique le pourquoi, montre du code annoté, te fait pratiquer localement, puis vérifie ta compréhension.",
+    title: "De zéro à créateur web et entrepreneur e-commerce — avec L’ecomax comme laboratoire.",
+    intro: "160 leçons complètes dans 40 modules : code, Next.js, design, layouts, vente, SEO, acquisition et croissance. Chaque leçon explique le pourquoi, montre un exemple annoté, te fait pratiquer, puis vérifie ta compréhension.",
     modules: "modules", lessons: "leçons", languages: "langues", free: "accès libre",
     search: "Rechercher une notion, une commande, un fichier…", noResults: "Aucun résultat dans le cours.",
     program: "Programme", lesson: "Leçon", duration: "min", loading: "Chargement de la leçon…",
@@ -49,8 +49,8 @@ const TEXT = {
   },
   en: {
     badge: "Complete interactive textbook",
-    title: "From zero to web developer — using L’ecomax as your laboratory.",
-    intro: "112 complete lessons across 28 modules. Every lesson explains why, shows annotated code, guides local practice, and checks your understanding.",
+    title: "From zero to web creator and ecommerce entrepreneur — using L’ecomax as your laboratory.",
+    intro: "160 complete lessons across 40 modules: code, Next.js, design, layouts, selling, SEO, acquisition, and growth. Every lesson explains why, shows an annotated example, guides practice, and checks your understanding.",
     modules: "modules", lessons: "lessons", languages: "languages", free: "open access",
     search: "Search for a concept, command, or file…", noResults: "No course results.",
     program: "Curriculum", lesson: "Lesson", duration: "min", loading: "Loading lesson…",
@@ -69,8 +69,8 @@ const TEXT = {
   },
   ar: {
     badge: "كتاب تفاعلي متكامل",
-    title: "من الصفر إلى مطور ويب — باستخدام L’ecomax كمختبر عملي.",
-    intro: "112 درسًا كاملًا ضمن 28 وحدة. يشرح كل درس السبب، ويعرض كودًا مشروحًا، ويوجه التطبيق المحلي، ثم يتحقق من الفهم.",
+    title: "من الصفر إلى صانع ويب ورائد تجارة إلكترونية — باستخدام L’ecomax كمختبر عملي.",
+    intro: "160 درسًا كاملًا ضمن 40 وحدة: البرمجة وNext.js والتصميم والتخطيط والبيع وSEO والاكتساب والنمو. يشرح كل درس السبب ويعرض مثالًا مشروحًا ويوجه التطبيق ثم يتحقق من الفهم.",
     modules: "وحدة", lessons: "درسًا", languages: "لغات", free: "وصول مفتوح",
     search: "ابحث عن مفهوم أو أمر أو ملف…", noResults: "لا توجد نتائج في الدورة.",
     program: "البرنامج", lesson: "الدرس", duration: "دقيقة", loading: "جارٍ تحميل الدرس…",
