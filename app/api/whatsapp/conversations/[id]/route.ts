@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { isAdminRequest } from "@/lib/request-auth";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,7 +10,8 @@ const supabase = createClient(
 type Params = { params: Promise<{ id: string }> };
 
 /** GET /api/whatsapp/conversations/[id] — get messages for a conversation */
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(req: NextRequest, { params }: Params) {
+  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
 
   const { data: messages, error } = await supabase
@@ -30,15 +32,15 @@ export async function GET(_req: Request, { params }: Params) {
 }
 
 /** PATCH /api/whatsapp/conversations/[id] — update status */
-export async function PATCH(req: Request, { params }: Params) {
+export async function PATCH(req: NextRequest, { params }: Params) {
+  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
   const body = await req.json();
 
-  const allowed = ["status"];
-  const update: Record<string, unknown> = {};
-  for (const k of allowed) {
-    if (k in body) update[k] = body[k];
+  if (!body || typeof body !== "object" || !["active", "escalated", "resolved"].includes(body.status)) {
+    return NextResponse.json({ error: "Statut invalide." }, { status: 400 });
   }
+  const update = { status: body.status };
 
   const { error } = await supabase
     .from("whatsapp_conversations")

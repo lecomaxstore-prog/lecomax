@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { isAdminRequest } from "@/lib/request-auth";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,9 +10,13 @@ const supabase = createClient(
 const PHONE_ID = process.env.WHATSAPP_PHONE_NUMBER_ID!;
 const WA_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN!;
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   try {
-    const { conversation_id, phone, body } = await req.json();
+    const requestBody = await req.json();
+    const conversation_id = typeof requestBody.conversation_id === "string" ? requestBody.conversation_id : "";
+    const phone = typeof requestBody.phone === "string" ? requestBody.phone.replace(/[^0-9]/g, "").slice(0, 20) : "";
+    const body = typeof requestBody.body === "string" ? requestBody.body.trim().slice(0, 4000) : "";
     if (!phone || !body || !conversation_id) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }

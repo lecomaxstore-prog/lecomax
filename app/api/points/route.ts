@@ -2,20 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
 
-/*
-  Required Supabase table (run once in your SQL editor):
-
-  CREATE TABLE IF NOT EXISTS user_points (
-    id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    email       text UNIQUE NOT NULL,
-    points      integer DEFAULT 0 NOT NULL,
-    updated_at  timestamptz DEFAULT now()
-  );
-*/
-
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 const POINTS_PER_ORDER = 50;
