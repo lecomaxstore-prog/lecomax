@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { isAdminRequest } from "@/lib/request-auth";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,11 +8,24 @@ const supabase = createClient(
 );
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
-  const body = await req.json();
+  let body: Record<string, unknown>;
+  try { body = await req.json(); } catch {
+    return NextResponse.json({ error: "Requête JSON invalide." }, { status: 400 });
+  }
+  const update: { status?: string; notes?: string | null } = {};
+  if ("status" in body) {
+    if (typeof body.status !== "string" || !["pending", "approved", "rejected", "completed"].includes(body.status)) {
+      return NextResponse.json({ error: "Statut invalide." }, { status: 400 });
+    }
+    update.status = body.status;
+  }
+  if ("notes" in body) update.notes = typeof body.notes === "string" ? body.notes.trim().slice(0, 2000) || null : null;
+  if (Object.keys(update).length === 0) return NextResponse.json({ error: "Aucune modification valide." }, { status: 400 });
   const { data, error } = await supabase
     .from("returns")
-    .update(body)
+    .update({ ...update, updated_at: new Date().toISOString() })
     .eq("id", id)
     .select()
     .single();
@@ -19,7 +33,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   return NextResponse.json(data);
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
   const { error } = await supabase.from("returns").delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
