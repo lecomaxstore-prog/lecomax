@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
 import { verifySessionToken } from "@/lib/admin-session";
 import { NextRequest } from "next/server";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { shippingSummary } from "@/lib/shipping-config";
-
-const groq = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1",
-});
+import { getGroqClient } from "@/lib/groq-client";
 
 export async function POST(req: NextRequest) {
   const token = req.cookies.get("admin_session")?.value;
@@ -38,7 +33,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const shippingConfig = await getServerShippingConfig();
-    const completion = await groq.chat.completions.create({
+    const completion = await getGroqClient().chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [
         {
