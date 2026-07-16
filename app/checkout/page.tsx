@@ -252,6 +252,121 @@ function Section({ step, title, subtitle, icon, children }: { step: number; titl
   );
 }
 
+function PaymentErrorDialog({
+  open,
+  onClose,
+  onRetry,
+  onUseDelivery,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onRetry: () => void;
+  onUseDelivery: () => void;
+}) {
+  const retryButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    retryButtonRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[1000] flex items-end justify-center bg-black/55 p-3 backdrop-blur-[3px] sm:items-center sm:p-6"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <style>{`
+        @keyframes lecomax-dialog-in {
+          from { opacity: 0; transform: translateY(16px) scale(.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      `}</style>
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="paypal-error-title"
+        aria-describedby="paypal-error-description"
+        className="w-full max-w-[470px] overflow-hidden rounded-[24px] border border-white/15 bg-white shadow-[0_28px_90px_rgba(0,0,0,0.32)] animate-[lecomax-dialog-in_.22s_ease-out]"
+      >
+        <div className="relative overflow-hidden bg-[#07110a] px-6 pb-7 pt-6 text-white sm:px-8">
+          <div className="absolute -right-14 -top-20 h-44 w-44 rounded-full bg-[#3ecf4c]/15 blur-2xl" aria-hidden="true" />
+          <div className="relative flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#75e584]">L&apos;ecomax · Paiement sécurisé</p>
+              <h2 id="paypal-error-title" className="mt-3 max-w-[330px] text-[24px] font-black leading-[1.1] tracking-[-0.03em] sm:text-[28px]">
+                Le paiement n&apos;a pas abouti
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Fermer"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white/70 transition hover:bg-white/20 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#3ecf4c]"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <div className="px-6 pb-6 pt-6 sm:px-8 sm:pb-8">
+          <div className="flex gap-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 ring-1 ring-amber-100" aria-hidden="true">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg>
+            </span>
+            <div>
+              <p id="paypal-error-description" className="text-[14px] font-semibold leading-6 text-neutral-800">
+                Nous n&apos;avons pas pu confirmer votre paiement PayPal.
+              </p>
+              <p className="mt-1 text-[12px] leading-5 text-neutral-500">
+                Vérifiez votre compte PayPal avant une nouvelle tentative, ou choisissez le paiement à la livraison.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-2.5">
+            <button
+              ref={retryButtonRef}
+              type="button"
+              onClick={onRetry}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0070ba] px-5 text-[12px] font-black uppercase tracking-[0.08em] text-white shadow-[0_8px_22px_rgba(0,112,186,0.22)] transition hover:bg-[#005ea6] focus:outline-none focus:ring-4 focus:ring-[#0070ba]/20 active:scale-[0.99]"
+            >
+              Réessayer avec PayPal
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M20 6v6h-6M4 18v-6h6"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 9M5.5 15A7 7 0 0 0 18 17.5l2-2.5"/></svg>
+            </button>
+            <button
+              type="button"
+              onClick={onUseDelivery}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-5 text-[12px] font-black uppercase tracking-[0.08em] text-neutral-900 transition hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none focus:ring-4 focus:ring-neutral-100 active:scale-[0.99]"
+            >
+              Choisir le paiement à la livraison
+            </button>
+          </div>
+
+          <div className="mt-5 flex items-center justify-center gap-2 border-t border-neutral-100 pt-5 text-[11px] font-medium text-neutral-400">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
+            Besoin d&apos;aide ? <a href="mailto:contact@lecomax.com" className="font-bold text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-black">contact@lecomax.com</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, total, clear } = useCart();
@@ -265,6 +380,7 @@ export default function CheckoutPage() {
   const [paypalStatus, setPaypalStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [paypalRetry, setPaypalRetry] = useState(0);
   const [paypalError, setPaypalError] = useState("");
+  const [paypalFailureOpen, setPaypalFailureOpen] = useState(false);
   const [paypalServerReady, setPaypalServerReady] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
@@ -535,7 +651,7 @@ export default function CheckoutPage() {
             paypalFormErrorRef.current = false;
             return;
           }
-          alert("Paiement PayPal échoué. Veuillez réessayer ou choisir le paiement à la livraison.");
+          setPaypalFailureOpen(true);
         },
         onCancel: () => {
           // User closed the PayPal popup — silent, no error message
@@ -740,6 +856,22 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f7f8]">
+      <PaymentErrorDialog
+        open={paypalFailureOpen}
+        onClose={() => setPaypalFailureOpen(false)}
+        onRetry={() => {
+          setPaypalFailureOpen(false);
+          paypalRendered.current = false;
+          if (paypalContainerRef.current) paypalContainerRef.current.innerHTML = "";
+          setPaypalRetry((retry) => retry + 1);
+        }}
+        onUseDelivery={() => {
+          setPaypalFailureOpen(false);
+          setPayment("livraison");
+          setPaypalStatus("idle");
+          setPaypalError("");
+        }}
+      />
       {/* ── Stepper bar ── */}
       <div
         style={{
