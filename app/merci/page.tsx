@@ -116,31 +116,92 @@ export default function MerciPage() {
 
   return (
     <main className="min-h-screen bg-[#f6f7f5] text-neutral-950">
+      <style>{`
+        @keyframes lecomax-success-pop {
+          0% { opacity: 0; transform: translateY(12px) scale(.72) rotate(-4deg); }
+          62% { opacity: 1; transform: translateY(-3px) scale(1.06) rotate(1deg); }
+          100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+        }
+        @keyframes lecomax-check-draw {
+          from { stroke-dashoffset: 28; }
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes lecomax-success-ring {
+          0% { opacity: .65; transform: scale(.7); }
+          100% { opacity: 0; transform: scale(1.75); }
+        }
+        @keyframes lecomax-hero-rise {
+          from { opacity: 0; transform: translateY(16px); filter: blur(5px); }
+          to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        @keyframes lecomax-panel-rise {
+          from { opacity: 0; transform: translateY(22px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes lecomax-glow-bloom {
+          0% { opacity: 0; transform: translate(-50%, -50%) scale(.5); }
+          100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        @keyframes lecomax-spark {
+          0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--spark-angle)) translateY(0) scale(.4); }
+          45% { opacity: .9; }
+          100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--spark-angle)) translateY(-76px) scale(1); }
+        }
+        @keyframes lecomax-shine {
+          0% { transform: translateX(-160%) rotate(20deg); }
+          100% { transform: translateX(220%) rotate(20deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .lecomax-success-motion, .lecomax-success-motion * {
+            animation-duration: .01ms !important;
+            animation-delay: 0ms !important;
+            animation-iteration-count: 1 !important;
+          }
+        }
+      `}</style>
       <section className="relative overflow-hidden bg-[#07110a] px-4 pb-24 pt-14 text-white sm:pb-28 sm:pt-20">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute -right-24 -top-36 h-96 w-96 rounded-full bg-[#3ecf4c]/15 blur-3xl" />
           <div className="absolute -bottom-52 left-1/4 h-80 w-80 rounded-full bg-emerald-300/10 blur-3xl" />
           <div className="absolute inset-0 opacity-[0.035]" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+          <div className="absolute left-1/2 top-[38%] h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#3ecf4c]/15 blur-[72px] animate-[lecomax-glow-bloom_1.2s_.05s_ease-out_both]" />
         </div>
 
-        <div className="relative mx-auto max-w-5xl text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] border border-[#75e584]/30 bg-[#3ecf4c] text-[#07110a] shadow-[0_14px_40px_rgba(62,207,76,0.28)] sm:h-20 sm:w-20">
-            <IconCheck className="h-8 w-8 sm:h-10 sm:w-10" />
+        <div className="lecomax-success-motion relative mx-auto max-w-5xl text-center">
+          <div className="relative mx-auto h-20 w-20 sm:h-24 sm:w-24" aria-hidden="true">
+            <span className="absolute inset-2 rounded-[26px] border border-[#75e584]/45 animate-[lecomax-success-ring_1.25s_.35s_ease-out_both]" />
+            <span className="absolute inset-2 rounded-[26px] border border-[#75e584]/25 animate-[lecomax-success-ring_1.4s_.55s_ease-out_both]" />
+            {Array.from({ length: 8 }, (_, index) => (
+              <span
+                key={index}
+                className="absolute left-1/2 top-1/2 h-1.5 w-1.5 rounded-full bg-[#9cf3a8] animate-[lecomax-spark_.8s_.38s_ease-out_both]"
+                style={{ "--spark-angle": `${index * 45}deg` } as React.CSSProperties}
+              />
+            ))}
+            <div className="absolute inset-2 flex items-center justify-center overflow-hidden rounded-[24px] border border-[#9cf3a8]/40 bg-[#3ecf4c] text-[#07110a] shadow-[0_16px_45px_rgba(62,207,76,0.32)] animate-[lecomax-success-pop_.72s_.12s_cubic-bezier(.2,.9,.2,1.25)_both]">
+              <span className="absolute -left-8 top-[-20%] h-[140%] w-7 bg-white/35 blur-sm animate-[lecomax-shine_.8s_.8s_ease-in-out_both]" />
+              <svg className="h-9 w-9 sm:h-11 sm:w-11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m5 12 4 4L19 6" strokeDasharray="28" strokeDashoffset="28" className="animate-[lecomax-check-draw_.55s_.48s_ease-out_forwards]" />
+              </svg>
+            </div>
           </div>
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#75e584]" />
+          <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 opacity-0 animate-[lecomax-hero-rise_.55s_.68s_ease-out_forwards]">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#75e584] opacity-50" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#75e584]" />
+            </span>
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#9cf3a8]">Commande confirmée</span>
           </div>
-          <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-black leading-[0.98] tracking-[-0.045em] sm:text-6xl">
+          <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-black leading-[0.98] tracking-[-0.045em] opacity-0 animate-[lecomax-hero-rise_.7s_.82s_cubic-bezier(.2,.8,.2,1)_forwards] sm:text-6xl">
             Merci, {order.customer.prenom || "votre commande est confirmée"}.
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-white/60 sm:text-base">
+          <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-white/60 opacity-0 animate-[lecomax-hero-rise_.7s_1s_ease-out_forwards] sm:text-base">
             Nous avons bien reçu votre commande. Un récapitulatif a été envoyé à <span className="font-semibold text-white/90">{order.customer.email}</span>.
           </p>
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto -mt-14 max-w-6xl px-4 pb-20 sm:-mt-16 sm:px-6">
+      <section className="relative z-10 mx-auto -mt-14 max-w-6xl px-4 pb-20 opacity-0 animate-[lecomax-panel-rise_.75s_1.12s_ease-out_forwards] sm:-mt-16 sm:px-6">
         <div className="grid items-start gap-5 lg:grid-cols-[1.12fr_.88fr] lg:gap-6">
           <div className="overflow-hidden rounded-[24px] border border-neutral-200/80 bg-white shadow-[0_22px_70px_rgba(15,23,42,0.09)] sm:rounded-[28px]">
             <div className="flex flex-col gap-5 border-b border-neutral-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-6">
