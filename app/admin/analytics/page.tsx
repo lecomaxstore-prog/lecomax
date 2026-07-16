@@ -1,7 +1,15 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
+import MoroccoLiveMap from "@/components/admin/MoroccoLiveMap";
 
-type ViewRow = { path: string; referrer: string | null; user_agent: string | null; created_at: string };
+type ViewRow = {
+  path: string; referrer: string | null; user_agent: string | null; created_at: string;
+  session_id?: string | null; visitor_id?: string | null; ip_masked?: string | null;
+  country_code?: string | null; region?: string | null; city?: string | null;
+  device_type?: string | null; browser?: string | null; operating_system?: string | null;
+  screen_width?: number | null; screen_height?: number | null; language?: string | null; timezone?: string | null;
+  latitude?: number | null; longitude?: number | null;
+};
 type OrderRow = { total: number; status: string; customer: { city: string } | null; created_at: string };
 type DayStat = { date: string; views: number; orders: number; revenue: number };
 type PageStat = { path: string; count: number };
@@ -15,6 +23,20 @@ type SessionData = {
   started_at: string;
   ended_at: string;
   page_count: number;
+  visitor_id: string | null;
+  ip_masked: string | null;
+  country_code: string | null;
+  region: string | null;
+  city: string | null;
+  device_type: string | null;
+  browser: string | null;
+  operating_system: string | null;
+  screen_width: number | null;
+  screen_height: number | null;
+  language: string | null;
+  timezone: string | null;
+  latitude: number | null;
+  longitude: number | null;
 };
 
 // â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -44,6 +66,15 @@ function timeAgo(iso: string) {
   if (diff < 60) return `${diff}s`;
   if (diff < 3600) return `${Math.floor(diff / 60)}min`;
   return `${Math.floor(diff / 3600)}h`;
+}
+function countryFlag(code: string | null | undefined) {
+  if (!code) return "🌐";
+  if (code === "LO") return "🏠";
+  if (!/^[A-Z]{2}$/.test(code)) return "🌐";
+  return String.fromCodePoint(...code.split("").map((letter) => 127397 + letter.charCodeAt(0)));
+}
+function locationLabel(city?: string | null, region?: string | null, country?: string | null) {
+  return [city, region, country && country !== "LO" ? country : null].filter(Boolean).join(", ") || "Localisation inconnue";
 }
 function funnelLabel(path: string): string | null {
   if (path === "/") return "Accueil";
@@ -86,14 +117,14 @@ function BarChart({ data, color = "#000", labels }: { data: number[]; color?: st
 
 function StatCard({ label, value, sub, icon, color, trend }: { label: string; value: string | number; sub?: string; icon: React.ReactNode; color: string; trend?: number | null }) {
   return (
-    <div className="bg-white rounded-2xl border border-neutral-100 p-4 md:p-5">
+    <div className="group rounded-[22px] border border-neutral-200/70 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] transition duration-300 hover:-translate-y-1 hover:border-neutral-300 hover:shadow-[0_16px_40px_rgba(0,0,0,.07)] md:p-5">
       <div className="flex items-start justify-between mb-3">
-        <div className={`w-9 h-9 rounded-xl ${color} flex items-center justify-center shrink-0`}>{icon}</div>
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] ${color} transition-transform duration-300 group-hover:scale-105`}>{icon}</div>
         {trend !== undefined && <Trend pct={trend ?? null} />}
       </div>
-      <p className="text-xl md:text-2xl font-black leading-none">{value}</p>
-      <p className="text-[11px] text-neutral-500 mt-1">{label}</p>
-      {sub && <p className="text-[10px] text-neutral-400 mt-0.5">{sub}</p>}
+      <p className="text-xl font-black leading-none tracking-tight md:text-2xl">{value}</p>
+      <p className="mt-2 text-[10px] font-bold uppercase tracking-[.08em] text-neutral-500">{label}</p>
+      {sub && <p className="mt-1 text-[9px] font-medium text-neutral-400">{sub}</p>}
     </div>
   );
 }
@@ -140,6 +171,7 @@ export default function AnalyticsPage() {
   const [recentViews, setRecentViews] = useState<ViewRow[]>([]);
   const [visitorsToday, setVisitorsToday] = useState(0);
   const [uniqueToday, setUniqueToday] = useState(0);
+  const [activeNow, setActiveNow] = useState(0);
   const [prevTotals, setPrevTotals] = useState({ views: 0, orders: 0, revenue: 0 });
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [sessions, setSessions] = useState<SessionData[]>([]);
@@ -157,6 +189,7 @@ export default function AnalyticsPage() {
     setRecentViews(raw.recent_views ?? []);
     setVisitorsToday(raw.visitors_today ?? 0);
     setUniqueToday(raw.unique_today ?? 0);
+    setActiveNow(raw.active_now ?? 0);
     setSessions(raw.sessions ?? []);
 
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - period);
@@ -181,6 +214,7 @@ export default function AnalyticsPage() {
         setRecentViews(raw.recent_views ?? []);
         setVisitorsToday(raw.visitors_today ?? 0);
         setUniqueToday(raw.unique_today ?? 0);
+        setActiveNow(raw.active_now ?? 0);
       });
     }, 60_000);
     return () => clearInterval(id);
@@ -213,7 +247,7 @@ export default function AnalyticsPage() {
   const uniqueDayMap: Record<string, Set<string>> = {};
   views.forEach((v) => { const key = v.created_at.split("T")[0]; if (!uniqueDayMap[key]) uniqueDayMap[key] = new Set(); uniqueDayMap[key].add(v.user_agent ?? "anon"); });
   const uniqueData = stats.map((s) => uniqueDayMap[s.date]?.size ?? 0);
-  const totalUnique = new Set(views.map((v) => v.user_agent ?? "anon")).size;
+  const totalUnique = new Set(views.map((v) => v.visitor_id || v.session_id || v.ip_masked || v.user_agent || "anon")).size;
 
   // Top pages
   const pageCount: Record<string, number> = {};
@@ -255,34 +289,35 @@ export default function AnalyticsPage() {
   const sourceColors = ["#6366f1", "#10b981", "#f59e0b", "#ec4899", "#3b82f6", "#8b5cf6"];
 
   return (
-    <div>
+    <div className="mx-auto w-full max-w-[1600px] pb-16">
       {/* Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black">Analytiques</h1>
-          <p className="text-neutral-500 text-sm mt-0.5">Performance de votre boutique</p>
+          <div className="mb-2 flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-emerald-600"><span className="h-2 w-2 rounded-full bg-[#3ecf4c] shadow-[0_0_0_4px_rgba(62,207,76,.12)]"/>Intelligence boutique</div>
+          <h1 className="text-3xl font-black tracking-[-.035em] sm:text-4xl">Centre analytique</h1>
+          <p className="mt-1.5 text-sm text-neutral-500">Comprenez vos visiteurs, leurs parcours et la performance de L&apos;ecomax.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center bg-white border border-neutral-200 rounded-xl p-1 gap-0.5">
+          <div className="flex items-center gap-0.5 rounded-2xl border border-neutral-200 bg-white p-1.5 shadow-sm">
             {([7, 30, 90] as const).map((p) => (
               <button key={p} onClick={() => setPeriod(p)}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${period === p ? "bg-black text-white" : "text-neutral-500 hover:text-black"}`}>
+                className={`rounded-xl px-3.5 py-2 text-xs font-black transition-all ${period === p ? "bg-black text-white shadow-md" : "text-neutral-400 hover:bg-neutral-50 hover:text-black"}`}>
                 {p}j
               </button>
             ))}
           </div>
           <button onClick={() => { setLoading(true); load(); }}
-            className="flex items-center gap-1.5 text-xs font-semibold border border-neutral-200 px-3 py-2 rounded-xl hover:border-black transition-colors text-neutral-600">
+            className="flex items-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-4 py-2.5 text-xs font-bold text-neutral-600 shadow-sm transition hover:border-black">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
             Actualiser
           </button>
           <button onClick={() => setAutoRefresh((x) => !x)}
-            className={`flex items-center gap-1.5 text-xs font-semibold border px-3 py-2 rounded-xl transition-colors ${autoRefresh ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "border-neutral-200 text-neutral-500 hover:border-black"}`}>
+            className={`flex items-center gap-1.5 rounded-2xl border px-4 py-2.5 text-xs font-black shadow-sm transition ${autoRefresh ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-neutral-200 bg-white text-neutral-500 hover:border-black"}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${autoRefresh ? "bg-emerald-500 animate-pulse" : "bg-neutral-300"}`} />
             Live
           </button>
           <a href="https://analytics.google.com" target="_blank" rel="noopener noreferrer"
-            className="hidden sm:flex items-center gap-1.5 text-xs font-semibold border border-neutral-200 px-3 py-2 rounded-xl hover:border-black transition-colors text-neutral-600">
+            className="hidden items-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-4 py-2.5 text-xs font-bold text-neutral-600 shadow-sm transition hover:border-black sm:flex">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             GA4
           </a>
@@ -296,14 +331,17 @@ export default function AnalyticsPage() {
       ) : (
         <>
           {/* KPI Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-            <StatCard label="Visiteurs aujourd'hui" value={visitorsToday} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>} color="bg-sky-50 text-sky-600" trend={null} />
+          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-7">
+            <StatCard label="En ligne maintenant" value={activeNow} sub="5 dernières min" icon={<span className="relative flex h-3 w-3"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"/><span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"/></span>} color="bg-emerald-50 text-emerald-600" trend={null} />
+            <StatCard label="Visiteurs aujourd'hui" value={visitorsToday} sub={`${uniqueToday} uniques`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>} color="bg-sky-50 text-sky-600" trend={null} />
             <StatCard label="Visiteurs uniques" value={totalUnique.toLocaleString("fr-FR")} sub={`${period}j`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>} color="bg-blue-50 text-blue-600" trend={null} />
             <StatCard label="Vues totales" value={views.length.toLocaleString("fr-FR")} sub={`${period}j`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>} color="bg-violet-50 text-violet-600" trend={trendPct(views.length, prevTotals.views)} />
             <StatCard label="Commandes" value={orders.length} sub={`${period}j`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>} color="bg-emerald-50 text-emerald-600" trend={trendPct(orders.length, prevTotals.orders)} />
             <StatCard label="Revenus" value={`${totalRevenue.toLocaleString("fr-MA")} MAD`} sub={`${period}j`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>} color="bg-orange-50 text-orange-600" trend={trendPct(totalRevenue, prevTotals.revenue)} />
             <StatCard label="Panier moyen" value={`${aov.toFixed(0)} MAD`} sub="par commande" icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>} color="bg-pink-50 text-pink-600" trend={null} />
           </div>
+
+          <MoroccoLiveMap sessions={sessions} period={period} />
 
           {/* Views + Revenue charts */}
           <div className="grid md:grid-cols-3 gap-4 mb-4">
@@ -609,12 +647,12 @@ export default function AnalyticsPage() {
           <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden mt-4">
             <div className="px-5 py-3.5 border-b border-neutral-50 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Parcours visiteurs</p>
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Parcours visiteurs détaillés</p>
                 <span className="text-[10px] text-neutral-400 bg-neutral-50 px-2 py-0.5 rounded-full">{sessions.length} session{sessions.length !== 1 ? "s" : ""}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-                <span className="text-[10px] text-indigo-600 font-semibold">{period}j</span>
+                <span className="text-[10px] text-indigo-600 font-semibold">IP protégées · {period}j</span>
               </div>
             </div>
             {sessions.length === 0 ? (
@@ -627,7 +665,7 @@ export default function AnalyticsPage() {
             ) : (
               <div className="divide-y divide-neutral-50">
                 {sessions.slice(0, 50).map((s) => {
-                  const device = isTablet(s.user_agent) ? "Tablette" : isMobile(s.user_agent) ? "Mobile" : "Desktop";
+                  const device = s.device_type || (isTablet(s.user_agent) ? "Tablette" : isMobile(s.user_agent) ? "Mobile" : "Desktop");
                   const source = parseSource(s.referrer);
                   const durationSec = Math.max(0, Math.floor((new Date(s.ended_at).getTime() - new Date(s.started_at).getTime()) / 1000));
                   const duration = durationSec < 60 ? `${durationSec}s` : `${Math.floor(durationSec / 60)}min ${durationSec % 60}s`;
@@ -638,21 +676,13 @@ export default function AnalyticsPage() {
                         onClick={() => setExpandedSession(isExpanded ? null : s.session_id)}
                         className="w-full flex items-center gap-3 px-5 py-3 hover:bg-neutral-50 transition-colors text-left"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-neutral-50 flex items-center justify-center shrink-0">
-                          {device === "Mobile" ? (
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                          ) : device === "Tablette" ? (
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                          ) : (
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                          )}
-                        </div>
+                        <div className="w-9 h-9 rounded-xl bg-neutral-50 flex items-center justify-center shrink-0 text-lg">{countryFlag(s.country_code)}</div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="text-[13px] font-semibold truncate">{s.pages[0]?.path || "/"}</p>
                             <span className="text-[10px] bg-neutral-100 text-neutral-500 px-1.5 py-0.5 rounded-full shrink-0">{s.page_count} page{s.page_count !== 1 ? "s" : ""}</span>
                           </div>
-                          <p className="text-[10px] text-neutral-400 mt-0.5 truncate">{source} · {device} · {duration}</p>
+                          <p className="text-[10px] text-neutral-400 mt-0.5 truncate">{locationLabel(s.city, s.region, s.country_code)} · {source} · {device} · {duration}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <span className="text-[10px] text-neutral-300">{timeAgo(s.started_at)}</span>
@@ -674,6 +704,16 @@ export default function AnalyticsPage() {
                                 </div>
                               </div>
                             ))}
+                          </div>
+                          <div className="mb-3 grid grid-cols-2 gap-2 pt-3 sm:grid-cols-3 lg:grid-cols-6">
+                            {[
+                              ["IP protégée", s.ip_masked || "Indisponible"],
+                              ["Navigateur", s.browser || "Inconnu"],
+                              ["Système", s.operating_system || "Inconnu"],
+                              ["Écran", s.screen_width && s.screen_height ? `${s.screen_width}×${s.screen_height}` : "Inconnu"],
+                              ["Langue", s.language || "Inconnue"],
+                              ["Fuseau", s.timezone || "Inconnu"],
+                            ].map(([label, value]) => <div key={label} className="rounded-xl border border-neutral-100 bg-white p-2.5"><p className="text-[9px] font-bold uppercase tracking-wide text-neutral-400">{label}</p><p className="mt-1 truncate text-[11px] font-black text-neutral-700" title={value}>{value}</p></div>)}
                           </div>
                           <div className="mt-3 pt-3 border-t border-neutral-100 grid grid-cols-3 gap-2 text-center">
                             <div>

@@ -41,7 +41,7 @@ const SITE_URL = "https://lecomax.com";
 
 const defaultMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  manifest: "/manifest.json?v=2",
+  manifest: "/manifest.json?v=3",
   title: {
     default: "L'ecomax — Mode, Tech & Sport · Livraison partout au Maroc",
     template: "%s · L'ecomax",
@@ -75,16 +75,13 @@ const defaultMetadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any", type: "image/x-icon" },
-      { url: "/favicon.png", sizes: "192x192", type: "image/png" },
-      { url: "/favicon.png", sizes: "512x512", type: "image/png" },
+      { url: "/icons/icon-192.png?v=3", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png?v=3", sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/favicon.png", sizes: "180x180", type: "image/png" },
+      { url: "/icons/apple-touch-icon.png?v=3", sizes: "180x180", type: "image/png" },
     ],
     shortcut: "/favicon.ico",
-    other: [
-      { rel: "mask-icon", url: "/favicon.png" },
-    ],
   },
   openGraph: {
     type: "website",

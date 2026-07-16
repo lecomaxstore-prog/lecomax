@@ -1,66 +1,88 @@
+import type { CSSProperties } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const DEFAULT_MESSAGES = [
+  "LIVRAISON GRATUITE DÈS 500 MAD AU MAROC",
+  "RETOURS GRATUITS SOUS 30 JOURS",
+  "PAIEMENT À LA LIVRAISON DISPONIBLE",
+];
+
+const SETTING_KEYS = [
+  "announcement_enabled",
+  "announcement_1",
+  "announcement_2",
+  "announcement_3",
+  "announcement_4",
+  "announcement_5",
+  "announcement_background",
+  "announcement_accent",
+  "announcement_text_color",
+  "announcement_speed",
+  "announcement_pause_hover",
+  "announcement_show_icons",
+  "announcement_uppercase",
+  "announcement_mobile_enabled",
+];
+
+function safeColor(value: string | undefined, fallback: string) {
+  return /^#[0-9a-f]{6}$/i.test(value ?? "") ? value! : fallback;
+}
 
 export default async function AnnouncementBar() {
-  const [{ data }, { data: settingRows }] = await Promise.all([
-    supabaseAdmin.from("announcements").select("text").eq("active", true).order("created_at", { ascending: false }).limit(1).maybeSingle(),
-    supabaseAdmin.from("settings").select("key, value").in("key", ["announcement_1", "announcement_2", "announcement_3"]),
-  ]);
-  const settings = Object.fromEntries((settingRows ?? []).map((row) => [row.key, row.value]));
-  const configured = [settings.announcement_1, settings.announcement_2, settings.announcement_3].filter((value): value is string => Boolean(value?.trim()));
-  const messages = configured.length > 0 ? configured : data?.text ? [data.text] : [];
-  if (messages.length === 0) return null;
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  const { data } = await supabase.from("settings").select("key,value").in("key", SETTING_KEYS);
+  const settings = Object.fromEntries((data ?? []).map((row) => [row.key, String(row.value ?? "")]));
 
-  // Repeat the configured sequence enough times so the marquee never shows a gap.
-  const repeats = Array.from({ length: 12 }, (_, index) => messages[index % messages.length]);
+  if (settings.announcement_enabled === "false") return null;
+
+  const configured = [1, 2, 3, 4, 5]
+    .map((index) => settings[`announcement_${index}`]?.trim())
+    .filter((value): value is string => Boolean(value));
+  const messages = configured.length > 0 ? configured : DEFAULT_MESSAGES;
+  const repeats = Array.from({ length: Math.max(12, messages.length * 4) }, (_, index) => messages[index % messages.length]);
+
+  const background = safeColor(settings.announcement_background, "#09090b");
+  const accent = safeColor(settings.announcement_accent, "#3ecf4c");
+  const textColor = safeColor(settings.announcement_text_color, "#ffffff");
+  const parsedSpeed = Number(settings.announcement_speed);
+  const speed = Number.isFinite(parsedSpeed) ? Math.min(120, Math.max(12, parsedSpeed)) : 36;
+  const showIcons = settings.announcement_show_icons !== "false";
+  const uppercase = settings.announcement_uppercase !== "false";
+  const mobileEnabled = settings.announcement_mobile_enabled !== "false";
 
   return (
     <div
-      className="relative overflow-hidden select-none"
-      style={{
-        background: "linear-gradient(90deg, #08080d 0%, #0f0f17 40%, #0f0f17 60%, #08080d 100%)",
-      }}
+      className={`relative overflow-hidden select-none ${mobileEnabled ? "block" : "hidden sm:block"}`}
+      style={{ backgroundColor: background, color: textColor }}
+      aria-label="Informations de la boutique"
     >
-      {/* Green shimmer line at top */}
-      <div
-        className="absolute top-0 left-0 right-0 h-[2px]"
-        style={{ background: "linear-gradient(90deg, #3ecf4c 0%, #60a5fa 40%, #3ecf4c 100%)", opacity: 0.7 }}
-      />
+      <div className="absolute inset-x-0 top-0 h-px opacity-90" style={{ backgroundColor: accent }} />
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 sm:w-20" style={{ background: `linear-gradient(to right, ${background}, transparent)` }} />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 sm:w-20" style={{ background: `linear-gradient(to left, ${background}, transparent)` }} />
 
-      {/* Edge fade masks */}
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 w-20 z-10"
-        style={{ background: "linear-gradient(to right, #08080d, transparent)" }}
-      />
-      <div
-        className="pointer-events-none absolute inset-y-0 right-0 w-20 z-10"
-        style={{ background: "linear-gradient(to left, #08080d, transparent)" }}
-      />
-
-      <div className="marquee-track py-[9px] text-[11px] tracking-[0.18em] font-semibold">
-        {repeats.map((text, i) => (
-          <span key={i} className="inline-flex items-center gap-3 text-white/80 cursor-default">
-            <span
-              className="inline-flex items-center justify-center w-[20px] h-[20px] rounded-full shrink-0"
-              style={{ background: "rgba(62,207,76,0.2)" }}
-            >
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-              </svg>
-            </span>
-            <span>{text}</span>
-            <span className="mx-5 shrink-0 text-[#3ecf4c]/40 text-[8px]">◆</span>
+        className="marquee-track py-2 text-[10px] font-bold tracking-[0.16em] sm:py-2.5 sm:text-[11px]"
+        data-pause-on-hover={settings.announcement_pause_hover !== "false"}
+        style={{ animationDuration: `${speed}s` } as CSSProperties}
+      >
+        {repeats.map((text, index) => (
+          <span key={`${text}-${index}`} className="inline-flex items-center gap-2.5" style={{ color: textColor }}>
+            {showIcons && (
+              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: `${accent}22`, color: accent }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="m13 2-9 12h8l-1 8 9-12h-8l1-8Z" />
+                </svg>
+              </span>
+            )}
+            <span className={uppercase ? "uppercase" : "normal-case"}>{text}</span>
+            <span className="mx-4 text-[7px] opacity-50" style={{ color: accent }} aria-hidden="true">◆</span>
           </span>
         ))}
       </div>
-
-      {/* Subtle bottom border */}
-      <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+      <div className="absolute inset-x-0 bottom-0 h-px bg-white/5" />
     </div>
   );
 }
-
