@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { protectAdminRead } from "@/lib/api-security";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,6 +10,9 @@ const supabase = createClient(
 // GET /api/admin/staff/permissions?email=xxx
 // Returns the permission slugs for a staff member (used at login time)
 export async function GET(req: NextRequest) {
+  const blocked = await protectAdminRead(req, { key: "admin:staff:permissions", limit: 120 });
+  if (blocked) return blocked;
+
   const email = req.nextUrl.searchParams.get("email");
   if (!email) return NextResponse.json({ isStaff: false, permissions: [] });
 

@@ -186,7 +186,7 @@ export async function middleware(req: NextRequest) {
     req.method !== "GET" &&
     !pathname.startsWith("/api/admin/auth/") &&
     !pathname.startsWith("/api/coupons/validate") &&
-    /^\/api\/(products|coupons|promotions|categories|settings|announcements|shipping|size-guide|newsletter|admin\/)/.test(
+    /^\/api\/(products|coupons|promotions|categories|settings|announcements|shipping|size-guide|newsletter|admin\/|ads|ai-(?:broadcast|product|reply|review)|send-confirmation|upload(?:-media)?|media|trustpilot-featured)/.test(
       pathname
     );
   const isCouponManagementApi =

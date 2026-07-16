@@ -11,6 +11,7 @@ import { useSettings } from "@/lib/use-settings";
 import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
 import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
 import { supabase } from "@/lib/supabase";
+import { PAYPAL_CURRENCY, paypalAmountFromMad } from "@/lib/paypal-money";
 
 type Field = {
   prenom: string; nom: string; email: string; telephone: string;
@@ -64,6 +65,21 @@ function getPhoneError(value: string): string | undefined {
     return "Saisissez un numéro marocain valide, par exemple 06 12 34 56 78.";
   }
   return undefined;
+}
+
+const ABANDONED_CART_TOKEN_KEY = "lecomax_abandoned_cart_token";
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function getAbandonedCartToken() {
+  const stored = localStorage.getItem(ABANDONED_CART_TOKEN_KEY);
+  if (stored && UUID_PATTERN.test(stored)) return stored;
+  const token = crypto.randomUUID();
+  localStorage.setItem(ABANDONED_CART_TOKEN_KEY, token);
+  return token;
+}
+
+function clearAbandonedCartToken() {
+  localStorage.removeItem(ABANDONED_CART_TOKEN_KEY);
 }
 
 
@@ -249,6 +265,7 @@ export default function CheckoutPage() {
   const [paypalStatus, setPaypalStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [paypalRetry, setPaypalRetry] = useState(0);
   const [paypalError, setPaypalError] = useState("");
+  const [paypalServerReady, setPaypalServerReady] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState<{
@@ -365,24 +382,28 @@ export default function CheckoutPage() {
 
   // Track abandoned cart — save when phone or email is entered
   useEffect(() => {
-    if (!form.telephone && !form.email) return;
     if (items.length === 0) return;
+    const phone = form.telephone && !getPhoneError(form.telephone) ? form.telephone.trim() : null;
+    const email = form.email && !getEmailError(form.email) ? form.email.trim().toLowerCase() : null;
+    if (!phone && !email) return;
     const t = setTimeout(() => {
       fetch("/api/abandoned-carts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        keepalive: true,
         body: JSON.stringify({
-          phone: form.telephone || null,
+          cart_token: getAbandonedCartToken(),
+          phone,
           name: (form.prenom || form.nom) ? `${form.prenom} ${form.nom}`.trim() : null,
-          email: form.email || null,
-          items: items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price, size: i.size })),
-          total: total,
+          email,
+          items: items.map((i) => ({ slug: i.slug, name: i.name, quantity: i.quantity, price: i.price, size: i.size, color: i.color })),
         }),
-      }).catch(() => {});
-    }, 1500);
+      }).then(async (response) => {
+        if (!response.ok) console.warn("Abandoned cart tracking failed:", await response.json().catch(() => ({})));
+      }).catch((error) => console.warn("Abandoned cart tracking unavailable:", error));
+    }, 900);
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.telephone, form.email, form.prenom, form.nom]);
+  }, [form.telephone, form.email, form.prenom, form.nom, items]);
 
   // Fetch EcoClub tier to apply automatic loyalty discount
   useEffect(() => {
@@ -418,6 +439,13 @@ export default function CheckoutPage() {
 
   // Load vanilla PayPal SDK and render buttons when PayPal selected
   useEffect(() => {
+    fetch("/api/paypal/config", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data) => setPaypalServerReady(data.enabled === true))
+      .catch(() => setPaypalServerReady(false));
+  }, []);
+
+  useEffect(() => {
     if (payment !== "paypal") return;
     const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "";
     let active = true;
@@ -432,7 +460,11 @@ export default function CheckoutPage() {
       setPaypalError(message);
     };
 
-    if (!PAYPAL_CLIENT_ID) {
+    if (paypalServerReady === null) {
+      setPaypalStatus("loading");
+      return () => { active = false; };
+    }
+    if (!PAYPAL_CLIENT_ID || !paypalServerReady) {
       failLoading("PayPal n'est pas configuré. Choisissez le paiement à la livraison.");
       return () => { active = false; };
     }
@@ -460,16 +492,17 @@ export default function CheckoutPage() {
             return Promise.reject(new Error("Form invalid"));
           }
           paypalFormErrorRef.current = false;
-          const usdAmount = (gt / 10).toFixed(2);
+          const usdAmount = paypalAmountFromMad(gt);
           return actions.order.create({
             intent: "CAPTURE",
-            purchase_units: [{ amount: { currency_code: "USD", value: usdAmount }, description: `L'ecomax — ${its.map((i: any) => i.name.slice(0,30)).join(", ").slice(0, 127)}` }],
+            purchase_units: [{ amount: { currency_code: PAYPAL_CURRENCY, value: usdAmount }, description: `L'ecomax — ${its.map((i: any) => i.name.slice(0,30)).join(", ").slice(0, 127)}` }],
           });
         },
         onApprove: async (_data: unknown, actions: any) => {
           setLoading(true);
           const details = await actions.order.capture();
-          const transactionId = details.id;
+          const captureId = details.purchase_units?.[0]?.payments?.captures?.[0]?.id;
+          if (!details.id || !captureId) throw new Error("PayPal n'a pas retourné les identifiants du paiement.");
           // Use ref to get latest values at the moment of capture
           const { form: f, items: its, grandTotal: gt, shipping: sh, couponApplied: ca, discount: disc } = paypalDataRef.current;
           const res = await fetch("/api/orders", {
@@ -478,16 +511,19 @@ export default function CheckoutPage() {
             body: JSON.stringify({
               customer: { name: `${f.prenom} ${f.nom}`, phone: f.telephone, email: f.email, city: f.ville, address: `${f.adresse}${f.codePostal ? ", " + f.codePostal : ""}` },
               items: its.map((i: any) => ({ slug: i.slug, name: i.name, price: i.price, qty: i.quantity, image: i.image ?? "", size: i.size ?? "", color: i.color ?? "" })),
-              total: gt, shipping: sh, coupon_id: ca?.id ?? null, discount: disc,
-              payment_method: `PayPal (${transactionId})`,
-            }),
+               total: gt, shipping: sh, coupon_id: ca?.id ?? null, discount: disc,
+               payment_provider: "paypal",
+               paypal_order_id: details.id,
+               paypal_capture_id: captureId,
+               abandoned_cart_token: localStorage.getItem(ABANDONED_CART_TOKEN_KEY),
+             }),
           });
           const data = await res.json();
-          if (f.email) {
-            fetch("/api/send-confirmation", { method: "POST", headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ to_email: f.email, to_name: `${f.prenom} ${f.nom}`, order_number: data.order_number, order_items: its.map((i: any) => `• ${i.name} x${i.quantity}`).join("\n"), order_total: gt, shipping: sh, payment_method: "PayPal", delivery_city: f.ville }),
-            }).catch(() => {});
+          if (!res.ok) {
+            console.error("Order API error after PayPal capture:", data.error);
+            throw new Error(data.error || "La commande n'a pas pu être enregistrée après le paiement PayPal.");
           }
+          clearAbandonedCartToken();
           clear();
           router.push("/merci");
         },
@@ -550,7 +586,7 @@ export default function CheckoutPage() {
       if (loadTimer) clearTimeout(loadTimer);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [payment, paypalRetry]);
+  }, [payment, paypalRetry, paypalServerReady]);
 
   // Reset rendered flag when payment changes away from paypal
   useEffect(() => {
@@ -650,8 +686,9 @@ export default function CheckoutPage() {
           shipping,
           coupon_id: couponApplied?.id ?? null,
           discount,
-          payment_method: "Paiement à la livraison",
-        }),
+           payment_provider: "cod",
+           abandoned_cart_token: localStorage.getItem(ABANDONED_CART_TOKEN_KEY),
+         }),
       });
 
       const data = await res.json();
@@ -681,24 +718,7 @@ export default function CheckoutPage() {
         })),
       });
 
-      // Auto-send confirmation email if client provided an email
-      if (form.email) {
-        fetch("/api/send-confirmation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            to_email: form.email,
-            to_name: `${form.prenom} ${form.nom}`,
-            order_number: number,
-            order_items: items.map((i) => `• ${i.name} x${i.quantity}${i.size ? " (" + i.size + ")" : ""}${i.color ? " — " + i.color : ""}`).join("\n"),
-            order_total: grandTotal,
-            shipping: shipping,
-            payment_method: "Paiement à la livraison",
-            delivery_city: form.ville,
-          }),
-        }).catch(() => {}); // fire and forget — don't block redirect
-      }
-
+      clearAbandonedCartToken();
       clear();
       router.push("/merci");
     } catch (err) {

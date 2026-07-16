@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { protectAdminMutation } from "@/lib/api-security";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
@@ -15,9 +16,13 @@ Reply with ONLY valid JSON, no markdown fences, no explanations.
 Example: {"name":"Yasmine Tazi","title":"Super rapide et bien emballé","text":"Commande reçue en 2 jours, vraiment impressionnée par la rapidité. Le produit correspond exactement aux photos. Je recommande sans hésiter !"}`;
 
 export async function POST(req: NextRequest) {
+  const blocked = await protectAdminMutation(req, { key: "ai:review", limit: 15 });
+  if (blocked) return blocked;
   try {
-    const { rating, hint } = await req.json() as { rating?: number; hint?: string };
-    const stars = rating ?? 5;
+    const input = await req.json() as { rating?: unknown; hint?: unknown };
+    const numericRating = Number(input.rating ?? 5);
+    const stars = Number.isInteger(numericRating) && numericRating >= 1 && numericRating <= 5 ? numericRating : 5;
+    const hint = typeof input.hint === "string" ? input.hint.trim().slice(0, 500) : "";
 
     const userPrompt = `Generate a ${stars}-star review.${hint ? ` The customer bought: ${hint}.` : ""}`;
 

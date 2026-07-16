@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { shippingSummary } from "@/lib/shipping-config";
+import { protectAdminMutation } from "@/lib/api-security";
 
 // Groq — free tier, no billing required. Models: llama-3.3-70b-versatile, llama-3.1-8b-instant
 const groq = new OpenAI({
@@ -9,11 +10,16 @@ const groq = new OpenAI({
   baseURL: "https://api.groq.com/openai/v1",
 });
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const blocked = await protectAdminMutation(req, { key: "ai:reply", limit: 20 });
+  if (blocked) return blocked;
   try {
     const shippingConfig = await getServerShippingConfig();
-    const { subject, message, from } = await req.json();
-    if (!message) return NextResponse.json({ error: "No message" }, { status: 400 });
+    const body = await req.json() as Record<string, unknown>;
+    const subject = typeof body.subject === "string" ? body.subject.trim().slice(0, 200) : "";
+    const message = typeof body.message === "string" ? body.message.trim().slice(0, 5_000) : "";
+    const from = typeof body.from === "string" ? body.from.trim().slice(0, 160) : "";
+    if (message.length < 2) return NextResponse.json({ error: "Message requis" }, { status: 400 });
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { protectAdminMutation } from "@/lib/api-security";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,6 +13,9 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const blocked = await protectAdminMutation(req, { key: "admin:approvals:review", limit: 30 });
+  if (blocked) return blocked;
+
   const { id } = await params;
   const body = await req.json().catch(() => null);
 
@@ -100,9 +104,12 @@ export async function PATCH(
 
 // DELETE /api/admin/approvals/[id] — hard delete a change request
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const blocked = await protectAdminMutation(req, { key: "admin:approvals:delete", limit: 20 });
+  if (blocked) return blocked;
+
   const { id } = await params;
   const { error } = await supabase.from("pending_changes").delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

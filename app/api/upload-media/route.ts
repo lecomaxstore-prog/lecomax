@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { isAdminRequest } from "@/lib/request-auth";
+import { protectAdminMutation } from "@/lib/api-security";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,7 +14,8 @@ const MAX_VIDEO = 500 * 1024 * 1024; // 500 MB
 const BUCKET = "product-images";
 
 export async function POST(req: NextRequest) {
-  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  const blocked = await protectAdminMutation(req, { key: "storage:media", limit: 10, windowMs: 600_000 });
+  if (blocked) return blocked;
   let formData: FormData;
   try {
     formData = await req.formData();

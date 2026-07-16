@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { protectAdminMutation } from "@/lib/api-security";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
@@ -14,16 +15,21 @@ Rules:
 - Reply with ONLY the message body text, no quotes, no explanations`;
 
 export async function POST(req: NextRequest) {
+  const blocked = await protectAdminMutation(req, { key: "ai:broadcast", limit: 15 });
+  if (blocked) return blocked;
   try {
-    const { subject, template } = await req.json() as { subject: string; template: string };
+    const input = await req.json() as { subject?: unknown; template?: unknown };
+    const subject = typeof input.subject === "string" ? input.subject.trim().slice(0, 500) : "";
+    const template = typeof input.template === "string" ? input.template : "general";
 
     if (!subject?.trim()) {
       return NextResponse.json({ error: "subject required" }, { status: 400 });
     }
 
-    const userPrompt = template === "promo"
+    const safeTemplate = ["promo", "newproduct", "general"].includes(template) ? template : "general";
+    const userPrompt = safeTemplate === "promo"
       ? `Write a WhatsApp promotion message body about: "${subject}". Mention the deal/discount clearly.`
-      : template === "newproduct"
+      : safeTemplate === "newproduct"
       ? `Write a WhatsApp new product announcement body about: "${subject}". Create excitement about the product.`
       : `Write a WhatsApp message body about: "${subject}".`;
 

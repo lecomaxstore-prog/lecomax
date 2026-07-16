@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
+import { protectAdminMutation } from "@/lib/api-security";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const BUCKET = "product-images";
@@ -28,7 +29,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  const blocked = await protectAdminMutation(req, { key: "storage:delete", limit: 30, windowMs: 600_000 });
+  if (blocked) return blocked;
   const name = req.nextUrl.searchParams.get("name")?.trim();
   if (!name || name.length > 500 || name.startsWith("/") || name.includes("..") || name.includes("\\")) return NextResponse.json({ error: "Chemin de fichier invalide." }, { status: 400 });
   const { data, error } = await supabase.storage.from(BUCKET).remove([name]);

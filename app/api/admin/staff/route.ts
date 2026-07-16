@@ -1,5 +1,7 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { supabaseServiceHeaders } from "@/lib/supabase-service-headers";
+import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,10 +9,13 @@ const supabase = createClient(
 );
 
 // GET /api/admin/staff — list all staff members with their role
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const blocked = await protectAdminRead(req, { key: "admin:staff:list", limit: 60 });
+  if (blocked) return blocked;
+
   const { data, error } = await supabase
     .from("admin_staff")
-    .select("*, admin_roles(id, name, color, slug)")
+    .select("id, email, name, avatar_url, role_id, status, last_login, created_at, admin_roles(id, name, color, slug)")
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -19,6 +24,9 @@ export async function GET() {
 
 // POST /api/admin/staff — create a new staff member with email + password
 export async function POST(req: NextRequest) {
+  const blocked = await protectAdminMutation(req, { key: "admin:staff:create", limit: 10 });
+  if (blocked) return blocked;
+
   const body = await req.json().catch(() => null);
   if (!body?.email || !body?.name || !body?.password) {
     return NextResponse.json({ error: "email, name et password sont requis" }, { status: 400 });
@@ -59,10 +67,7 @@ export async function POST(req: NextRequest) {
       const listRes = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users?per_page=50`,
         {
-          headers: {
-            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-            apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-          },
+          headers: supabaseServiceHeaders(),
         }
       );
       const listData = await listRes.json();
@@ -77,11 +82,7 @@ export async function POST(req: NextRequest) {
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users/${existing.id}`,
         {
           method: "PUT",
-          headers: {
-            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-            apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-            "Content-Type": "application/json",
-          },
+          headers: supabaseServiceHeaders({ "Content-Type": "application/json" }),
           body: JSON.stringify({ password: body.password, user_metadata: { name }, email_confirm: true }),
         }
       );
