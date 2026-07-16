@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import type { CartItem } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
-import { useSettings, getWhatsAppHref } from "@/lib/use-settings";
+import { getWhatsAppHref, useSettings } from "@/lib/use-settings";
 
 type Order = {
   number: string;
@@ -17,572 +17,259 @@ type Order = {
   date: string;
 };
 
-type Particle = {
-  id: number; color: string; left: number; size: number;
-  delay: number; duration: number; shape: "square" | "circle" | "diamond";
-};
-
-const CONFETTI_COLORS = [
-  "#FFD700", "#FF4500", "#00C49F", "#7C3AED", "#2563EB",
-  "#F97316", "#10B981", "#EC4899", "#FACC15", "#06B6D4",
-  "#A855F7", "#EF4444", "#84CC16", "#F59E0B", "#3B82F6",
-  "#000000", "#1a1a1a", "#FF69B4", "#FF1493", "#00BFFF",
+const ORDER_STEPS = [
+  { title: "Commande confirmée", detail: "Votre commande est bien enregistrée", active: true },
+  { title: "Préparation", detail: "Notre équipe prépare soigneusement vos articles", active: false },
+  { title: "Expédition", detail: "Vous recevrez les informations de livraison", active: false },
+  { title: "Livraison", detail: "Votre colis arrive à l’adresse indiquée", active: false },
 ];
 
-const SPARKLES = ["✦", "✧", "★", "✦", "✧", "✦"];
+function addBusinessDays(start: Date, businessDays: number) {
+  const date = new Date(start);
+  let added = 0;
+  while (added < businessDays) {
+    date.setDate(date.getDate() + 1);
+    if (date.getDay() !== 0) added += 1;
+  }
+  return date;
+}
 
-const STEPS = [
-  { label: "Commande reçue",   icon: "✓", color: "#10B981" },
-  { label: "En préparation",   icon: "📦", color: "#F59E0B" },
-  { label: "En livraison",     icon: "🚚", color: "#3B82F6" },
-  { label: "Livraison prévue", icon: "📍", color: "#A855F7" },
-];
+function IconCheck({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m5 12 4 4L19 6" />
+    </svg>
+  );
+}
 
 export default function MerciPage() {
   const siteSettings = useSettings();
   const [order, setOrder] = useState<Order | null>(null);
-  const [particles, setParticles] = useState<Particle[]>([]);
-  const [stage, setStage] = useState(0);
-  const [waOpened, setWaOpened] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
-
-  const copyTracking = useCallback((num: string) => {
-    navigator.clipboard?.writeText(num).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }, []);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
-    let parsed: Order | null = null;
     try {
       const raw = localStorage.getItem("lecomax_last_order");
-      if (raw) { parsed = JSON.parse(raw); setOrder(parsed); }
-    } catch {}
-
-    setParticles(
-      Array.from({ length: 80 }, (_, i) => ({
-        id: i,
-        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-        left: (i * 1.25) % 105 - 2,
-        size: 5 + ((i * 11) % 9),
-        delay: (i * 0.033) % 2.8,
-        duration: 2.0 + ((i * 17) % 2.0),
-        shape: (["square", "circle", "diamond"] as const)[i % 3],
-      }))
-    );
-
-    const timers = [
-      setTimeout(() => setStage(1), 80),
-      setTimeout(() => setStage(2), 450),
-      setTimeout(() => setStage(3), 950),
-      setTimeout(() => setStage(4), 1350),
-      setTimeout(() => setStage(5), 1750),
-      // Start 15-second countdown on mobile/tablet only (devices with WhatsApp installed)
-      setTimeout(() => {
-        if (parsed && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-          setCountdown(15);
-        }
-      }, 2000),
-    ];
-    return () => timers.forEach(clearTimeout);
+      if (raw) setOrder(JSON.parse(raw) as Order);
+    } catch {
+      setOrder(null);
+    } finally {
+      setLoaded(true);
+    }
   }, []);
 
-  // Countdown tick
-  useEffect(() => {
-    if (countdown === null) return;
-    if (countdown === 0) {
-      if (order) {
-        const msg = `Bonjour L'ECOMAX,
-
-Je viens de passer la commande *${order.number}*.
-
-Nom : ${order.customer.prenom} ${order.customer.nom}
-Ville : ${order.customer.ville}
-Total : ${order.total} MAD
-Paiement : ${order.payment === "livraison" ? "A la livraison" : "Carte bancaire"}
-
-Merci de confirmer ma commande.`;
-        window.open(getWhatsAppHref(siteSettings, msg), "_blank");
-        setWaOpened(true);
-      }
-      setCountdown(null);
-      return;
+  const copyOrderNumber = useCallback(async () => {
+    if (!order) return;
+    try {
+      await navigator.clipboard.writeText(order.number);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
     }
-    const t = setTimeout(() => setCountdown((c) => (c !== null ? c - 1 : null)), 1000);
-    return () => clearTimeout(t);
-  }, [countdown, order, siteSettings]);
+  }, [order]);
 
   const deliveryDate = useMemo(() => {
-    const d = new Date();
-    let daysAdded = 0;
-    while (daysAdded < 3) {
-      d.setDate(d.getDate() + 1);
-      if (d.getDay() !== 0) daysAdded++; // skip Sundays (0)
-    }
-    // If the final date lands on Sunday, push one more day
-    if (d.getDay() === 0) d.setDate(d.getDate() + 1);
-    return d.toLocaleDateString("fr-MA", { weekday: "long", day: "numeric", month: "long" });
-  }, []);
+    const orderDate = order?.date ? new Date(order.date) : new Date();
+    const safeDate = Number.isNaN(orderDate.getTime()) ? new Date() : orderDate;
+    return addBusinessDays(safeDate, 3).toLocaleDateString("fr-MA", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
+  }, [order?.date]);
 
-  const rays = useMemo(() =>
-    Array.from({ length: 8 }, (_, i) => ({ id: i, angle: i * 45 })), []);
+  const paymentLabel = order?.payment === "livraison" ? "Paiement à la livraison" : "PayPal";
+  const itemCount = order?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+  const subtotal = Math.max(0, (order?.total ?? 0) - (order?.shipping ?? 0));
+  const whatsappMessage = order
+    ? `Bonjour L'ECOMAX,\n\nJ'ai une question concernant ma commande ${order.number}.\n\nNom : ${order.customer.prenom} ${order.customer.nom}\nVille : ${order.customer.ville}\nTotal : ${order.total} MAD`
+    : "Bonjour L'ECOMAX, j'ai une question concernant ma commande.";
 
-  return (
-    <div className="min-h-screen bg-white text-neutral-900 overflow-x-hidden">
-
-      {/* ── Confetti ── */}
-      <div className="pointer-events-none fixed inset-0 z-10 overflow-hidden">
-        {stage >= 2 && particles.map((p) => (
-          <span
-            key={p.id}
-            className="absolute top-0"
-            style={{
-              left: `${p.left}%`,
-              width: p.size,
-              height: p.size,
-              backgroundColor: p.color,
-              borderRadius: p.shape === "circle" ? "50%" : "1px",
-              transform: p.shape === "diamond" ? "rotate(45deg)" : undefined,
-              animation: `confetti-fall ${p.duration}s ${p.delay}s cubic-bezier(.23,.4,.22,1) both`,
-            }}
-          />
-        ))}
+  if (!loaded) {
+    return (
+      <div className="min-h-[70vh] bg-[#f6f7f5] px-4 py-16">
+        <div className="mx-auto h-72 max-w-4xl animate-pulse rounded-[28px] bg-white" />
       </div>
+    );
+  }
 
-      {/* ── Ambient blobs ── */}
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[400px]"
-          style={{ background: "radial-gradient(ellipse, rgba(255,215,0,0.18) 0%, transparent 65%)", animation: "glow-breathe 4s ease-in-out infinite" }} />
-        <div className="absolute top-1/2 -left-40 w-[500px] h-[500px]"
-          style={{ background: "radial-gradient(ellipse, rgba(124,58,237,0.06) 0%, transparent 70%)" }} />
-        <div className="absolute top-1/2 -right-40 w-[500px] h-[500px]"
-          style={{ background: "radial-gradient(ellipse, rgba(6,182,212,0.06) 0%, transparent 70%)" }} />
-      </div>
-
-      <div className="relative z-20 flex flex-col items-center px-4 py-14 pb-28">
-
-        {/* ── Hero: Checkmark ── */}
-        <div className="relative flex items-center justify-center mb-10" style={{ width: 200, height: 200 }}>
-
-          {/* Pulsing rings */}
-          {stage >= 1 && (
-            <>
-              {[160, 178, 196].map((size, i) => (
-                <span key={size} className="absolute rounded-full border border-neutral-200"
-                  style={{ width: size, height: size, animation: `ring-pulse 2.4s ${i * 0.5}s ease-out infinite` }} />
-              ))}
-            </>
-          )}
-
-          {/* Rotating gradient ring */}
-          {stage >= 2 && (
-            <div className="absolute w-[154px] h-[154px] rounded-full"
-              style={{
-                animation: "rotate-cw 4s linear infinite", padding: 2,
-                background: "conic-gradient(from 0deg, #FFD700, #FF4500, #A855F7, #06B6D4, #10B981, #FFD700)",
-              }}>
-              <div className="w-full h-full rounded-full bg-white" />
-            </div>
-          )}
-
-          {/* Counter-rotating shimmer */}
-          {stage >= 2 && (
-            <div className="absolute w-[140px] h-[140px] rounded-full"
-              style={{
-                animation: "rotate-ccw 6s linear infinite", padding: 1,
-                background: "conic-gradient(from 180deg, transparent 60%, rgba(255,165,0,0.5) 80%, transparent 100%)",
-              }}>
-              <div className="w-full h-full rounded-full bg-transparent" />
-            </div>
-          )}
-
-          {/* Burst rays */}
-          {stage >= 2 && rays.map((ray) => (
-            <span
-              key={ray.id}
-              className="absolute bottom-1/2 left-1/2 origin-bottom"
-              style={{
-                width: 3, height: 28, marginLeft: -1.5, borderRadius: 99,
-                background: "linear-gradient(to top, #FFD700, transparent)",
-                transform: `rotate(${ray.angle}deg)`,
-                animation: `ray-burst 0.9s ${0.85 + ray.id * 0.04}s ease-out both`,
-              }}
-            />
-          ))}
-
-          {/* Sparkles */}
-          {stage >= 2 && SPARKLES.map((s, i) => (
-            <span
-              key={i}
-              className="absolute font-bold select-none"
-              style={{
-                fontSize: 10 + (i % 3) * 4,
-                color: ["#FFD700", "#A855F7", "#10B981", "#3B82F6", "#F97316", "#EC4899"][i],
-                top: `${20 + ((i * 31) % 60)}%`,
-                left: `${10 + ((i * 47) % 80)}%`,
-                animation: `sparkle-blink ${1.2 + i * 0.3}s ${i * 0.2}s ease-in-out infinite`,
-              }}
-            >
-              {s}
-            </span>
-          ))}
-
-          {/* Main circle */}
-          <div
-            className="relative z-10 w-32 h-32 rounded-full flex items-center justify-center bg-white"
-            style={{
-              boxShadow: stage >= 2
-                ? "0 0 0 1px rgba(0,0,0,0.06), 0 8px 40px rgba(255,215,0,0.25), 0 2px 12px rgba(0,0,0,0.08)"
-                : "0 0 0 1px rgba(0,0,0,0.06)",
-              animation: stage >= 2 ? "pop-scale 0.7s cubic-bezier(.34,1.56,.64,1) both" : "none",
-            }}
-          >
-            <svg width="58" height="58" viewBox="0 0 58 58" fill="none">
-              <defs>
-                <linearGradient id="cg" x1="0" y1="0" x2="58" y2="58" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#FFD700" />
-                  <stop offset="50%" stopColor="#FF8C00" />
-                  <stop offset="100%" stopColor="#10B981" />
-                </linearGradient>
-              </defs>
-              <circle cx="29" cy="29" r="26" stroke="url(#cg)" strokeWidth="2" fill="none"
-                strokeDasharray="163.4" strokeDashoffset={stage >= 2 ? "0" : "163.4"}
-                style={{ transition: "stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1) 0.1s" }} />
-              <path d="M16 29 L24 37 L42 19" stroke="#111" strokeWidth="3.5"
-                strokeLinecap="round" strokeLinejoin="round" fill="none"
-                strokeDasharray="42" strokeDashoffset={stage >= 2 ? "0" : "42"}
-                style={{ transition: "stroke-dashoffset 0.55s cubic-bezier(.4,0,.2,1) 0.75s" }} />
-            </svg>
+  if (!order) {
+    return (
+      <main className="flex min-h-[70vh] items-center justify-center bg-[#f6f7f5] px-4 py-16">
+        <div className="w-full max-w-lg rounded-[28px] border border-neutral-200 bg-white p-8 text-center shadow-[0_20px_60px_rgba(15,23,42,0.07)] sm:p-12">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-neutral-100 text-neutral-500">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+          </div>
+          <h1 className="mt-6 text-2xl font-black tracking-[-0.03em]">Aucune commande récente</h1>
+          <p className="mt-3 text-sm leading-6 text-neutral-500">Retrouvez une commande avec son numéro et l’adresse e-mail utilisée lors de l’achat.</p>
+          <div className="mt-7 grid gap-3 sm:grid-cols-2">
+            <Link href="/suivre-commande" className="rounded-xl bg-black px-5 py-3.5 text-xs font-black uppercase tracking-[0.1em] text-white">Suivre une commande</Link>
+            <Link href="/boutique" className="rounded-xl border border-neutral-200 px-5 py-3.5 text-xs font-black uppercase tracking-[0.1em] text-neutral-800">Voir la boutique</Link>
           </div>
         </div>
+      </main>
+    );
+  }
 
-        {/* ── Heading ── */}
-        {stage >= 3 && (
-          <div className="text-center mb-8" style={{ animation: "fade-up 0.6s ease both" }}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" style={{ animation: "glow-breathe 1.5s ease-in-out infinite" }} />
-              <span className="text-emerald-700 text-[10px] font-black uppercase tracking-[0.14em]">Commande confirmée</span>
-            </div>
-            <h1 className="text-4xl font-black uppercase tracking-tight leading-none mb-3 text-neutral-900">
-              Merci pour<br />votre commande
-            </h1>
-            <p className="text-4xl">🎉</p>
-            {order && (
-              <p className="text-neutral-500 text-sm mt-2 font-medium">
-                Bonjour <span className="text-neutral-900 font-bold">{order.customer.prenom} {order.customer.nom}</span>,<br />
-                votre commande a bien été enregistrée.
-              </p>
-            )}
+  return (
+    <main className="min-h-screen bg-[#f6f7f5] text-neutral-950">
+      <section className="relative overflow-hidden bg-[#07110a] px-4 pb-24 pt-14 text-white sm:pb-28 sm:pt-20">
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <div className="absolute -right-24 -top-36 h-96 w-96 rounded-full bg-[#3ecf4c]/15 blur-3xl" />
+          <div className="absolute -bottom-52 left-1/4 h-80 w-80 rounded-full bg-emerald-300/10 blur-3xl" />
+          <div className="absolute inset-0 opacity-[0.035]" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+        </div>
+
+        <div className="relative mx-auto max-w-5xl text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] border border-[#75e584]/30 bg-[#3ecf4c] text-[#07110a] shadow-[0_14px_40px_rgba(62,207,76,0.28)] sm:h-20 sm:w-20">
+            <IconCheck className="h-8 w-8 sm:h-10 sm:w-10" />
           </div>
-        )}
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#75e584]" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#9cf3a8]">Commande confirmée</span>
+          </div>
+          <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-black leading-[0.98] tracking-[-0.045em] sm:text-6xl">
+            Merci, {order.customer.prenom || "votre commande est confirmée"}.
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-white/60 sm:text-base">
+            Nous avons bien reçu votre commande. Un récapitulatif a été envoyé à <span className="font-semibold text-white/90">{order.customer.email}</span>.
+          </p>
+        </div>
+      </section>
 
-        {/* ── Order card ── */}
-        {stage >= 4 && order && (
-          <div className="w-full max-w-md mb-5" style={{ animation: "fade-up 0.6s 0.05s ease both" }}>
-            <div className="rounded-2xl overflow-hidden" style={{ boxShadow: "0 2px 24px rgba(62,207,76,0.13), 0 1px 4px rgba(0,0,0,0.07)", border: "1.5px solid #d1fae5" }}>
+      <section className="relative z-10 mx-auto -mt-14 max-w-6xl px-4 pb-20 sm:-mt-16 sm:px-6">
+        <div className="grid items-start gap-5 lg:grid-cols-[1.12fr_.88fr] lg:gap-6">
+          <div className="overflow-hidden rounded-[24px] border border-neutral-200/80 bg-white shadow-[0_22px_70px_rgba(15,23,42,0.09)] sm:rounded-[28px]">
+            <div className="flex flex-col gap-5 border-b border-neutral-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-6">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-neutral-400">Numéro de commande</p>
+                <p className="mt-1.5 font-mono text-[22px] font-black tracking-[0.08em] sm:text-[26px]">{order.number}</p>
+              </div>
+              <button
+                type="button"
+                onClick={copyOrderNumber}
+                className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-[10px] font-black uppercase tracking-[0.1em] transition focus:outline-none focus:ring-4 ${copied ? "bg-emerald-100 text-emerald-800 focus:ring-emerald-100" : "bg-neutral-950 text-white hover:bg-neutral-800 focus:ring-neutral-200"}`}
+              >
+                {copied ? <IconCheck className="h-4 w-4" /> : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>}
+                {copied ? "Numéro copié" : "Copier"}
+              </button>
+            </div>
 
-              {/* ── Green header band: tracking number ── */}
-              <div className="px-5 pt-5 pb-4" style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)" }}>
-                {/* Label row */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-1.5">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600">Numéro de suivi</span>
-                  </div>
-                  <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "#3ecf4c18", color: "#3ecf4c" }}>Confirmé ✓</span>
+            <div className="px-5 py-2 sm:px-7">
+              <div className="flex items-center justify-between border-b border-neutral-100 py-4">
+                <h2 className="text-xs font-black uppercase tracking-[0.14em]">Votre commande</h2>
+                <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-[10px] font-bold text-neutral-500">{itemCount} article{itemCount > 1 ? "s" : ""}</span>
+              </div>
+              <ul className="divide-y divide-neutral-100">
+                {order.items.map((item) => (
+                  <li key={`${item.slug}-${item.size}-${item.color}`} className="flex items-center gap-4 py-4">
+                    <div className="relative h-[76px] w-16 shrink-0 overflow-hidden rounded-xl border border-neutral-100 bg-neutral-100">
+                      <Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" />
+                      <span className="absolute right-1 top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[9px] font-black text-white">{item.quantity}</span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="line-clamp-2 text-[13px] font-bold leading-5">{item.name}</p>
+                      <div className="mt-1.5 flex flex-wrap gap-1.5 text-[10px] font-semibold text-neutral-400">
+                        {item.size && <span className="rounded-md bg-neutral-100 px-2 py-1">Taille {item.size}</span>}
+                        {item.color && <span className="rounded-md bg-neutral-100 px-2 py-1">{item.color}</span>}
+                      </div>
+                    </div>
+                    <span className="shrink-0 text-[13px] font-black tabular-nums">{formatMAD(item.price * item.quantity)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="border-t border-neutral-100 bg-neutral-50/70 px-5 py-5 sm:px-7">
+              <div className="ml-auto max-w-sm space-y-2.5 text-[13px]">
+                <div className="flex justify-between text-neutral-500"><span>Sous-total</span><span className="font-semibold text-neutral-800">{formatMAD(subtotal)}</span></div>
+                <div className="flex justify-between text-neutral-500"><span>Livraison</span><span className={order.shipping === 0 ? "font-bold text-emerald-600" : "font-semibold text-neutral-800"}>{order.shipping === 0 ? "Gratuite" : formatMAD(order.shipping)}</span></div>
+                <div className="flex items-center justify-between border-t border-neutral-200 pt-3 text-base font-black"><span>Total TTC</span><span className="text-xl text-[#25b83a]">{formatMAD(order.total)}</span></div>
+              </div>
+            </div>
+
+            <div className="grid border-t border-neutral-100 sm:grid-cols-3 sm:divide-x sm:divide-neutral-100">
+              {[
+                { label: "Paiement", value: paymentLabel },
+                { label: "Destination", value: `${order.customer.ville || "Maroc"}, Maroc` },
+                { label: "Date", value: new Date(order.date).toLocaleDateString("fr-MA", { day: "numeric", month: "long", year: "numeric" }) },
+              ].map((detail) => (
+                <div key={detail.label} className="border-b border-neutral-100 px-5 py-4 last:border-b-0 sm:border-b-0 sm:px-6">
+                  <p className="text-[9px] font-black uppercase tracking-[0.16em] text-neutral-400">{detail.label}</p>
+                  <p className="mt-1.5 text-[12px] font-bold text-neutral-800">{detail.value}</p>
                 </div>
+              ))}
+            </div>
+          </div>
 
-                {/* Tracking number + copy */}
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 rounded-xl px-4 py-3.5 flex items-center justify-between bg-white" style={{ border: "1.5px solid #86efac", boxShadow: "0 1px 6px rgba(62,207,76,0.1)" }}>
-                    <span className="font-black text-[22px] tracking-[0.18em] text-neutral-900" style={{ animation: "count-up-reveal 0.5s 0.3s ease both", opacity: 0, letterSpacing: "0.18em" }}>
-                      {order.number}
-                    </span>
-                    <button
-                      onClick={() => copyTracking(order.number)}
-                      className="ml-3 shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wide transition-all duration-200 active:scale-95"
-                      style={{ background: copied ? "#3ecf4c" : "#111", color: copied ? "#000" : "#fff", boxShadow: copied ? "0 2px 8px rgba(62,207,76,0.4)" : "none" }}
-                    >
-                      {copied ? (
-                        <><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>Copié!</>
-                      ) : (
-                        <><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copier</>
-                      )}
-                    </button>
-                  </div>
+          <aside className="space-y-5 lg:sticky lg:top-24">
+            <div className="overflow-hidden rounded-[24px] border border-emerald-200 bg-white shadow-[0_16px_50px_rgba(15,23,42,0.06)]">
+              <div className="flex items-center gap-4 bg-gradient-to-br from-emerald-50 to-[#effff1] px-5 py-5 sm:px-6">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#3ecf4c] text-[#07110a] shadow-[0_8px_20px_rgba(62,207,76,0.28)]">
+                  <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h11v10H3zM14 9h4l3 3v4h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
                 </div>
-
-                {/* Barcode decoration */}
-                <div className="mt-3 flex items-end gap-[2px] h-5" style={{ opacity: 0.12 }}>
-                  {Array.from({ length: 40 }, (_, i) => (
-                    <div key={i} className="bg-neutral-800 rounded-sm" style={{ width: i % 4 === 0 ? 3 : i % 7 === 0 ? 2 : 1.5, height: `${35 + ((i * 23) % 65)}%` }} />
-                  ))}
+                <div className="min-w-0 flex-1">
+                  <p className="text-[9px] font-black uppercase tracking-[0.17em] text-emerald-600">Livraison estimée</p>
+                  <p className="mt-1 capitalize text-[17px] font-black tracking-[-0.02em]">{deliveryDate}</p>
                 </div>
+                <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-emerald-700 shadow-sm">2–5 jours</span>
               </div>
 
-              {/* ── White body: items + totals ── */}
-              <div className="bg-white">
-                {/* Items */}
-                <ul className="divide-y divide-neutral-50">
-                  {order.items.slice(0, 3).map((item) => (
-                    <li key={item.slug + item.size} className="flex items-center gap-3 px-5 py-3.5">
-                      <div className="relative w-12 h-14 rounded-xl overflow-hidden shrink-0" style={{ background: "#f5f5f5", border: "1px solid #f0f0f0" }}>
-                        <Image src={item.image} alt={item.name} fill sizes="48px" className="object-cover" />
-                        {item.quantity > 1 && (
-                          <span className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-neutral-900 text-white text-[9px] font-black flex items-center justify-center leading-none">
-                            {item.quantity}
-                          </span>
-                        )}
+              <div className="px-5 py-6 sm:px-6">
+                <h2 className="text-[10px] font-black uppercase tracking-[0.16em] text-neutral-400">Parcours de votre commande</h2>
+                <ol className="mt-5">
+                  {ORDER_STEPS.map((step, index) => (
+                    <li key={step.title} className="relative flex gap-4 pb-6 last:pb-0">
+                      {index < ORDER_STEPS.length - 1 && <span className="absolute left-[15px] top-8 h-[calc(100%-24px)] w-px bg-neutral-200" aria-hidden="true" />}
+                      <span className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-[11px] font-black ${step.active ? "border-[#3ecf4c] bg-[#3ecf4c] text-[#07110a] shadow-[0_0_0_5px_rgba(62,207,76,0.12)]" : "border-neutral-200 bg-white text-neutral-400"}`}>
+                        {step.active ? <IconCheck className="h-4 w-4" /> : index + 1}
+                      </span>
+                      <div className="pt-0.5">
+                        <p className={`text-[13px] font-bold ${step.active ? "text-neutral-950" : "text-neutral-500"}`}>{step.title}</p>
+                        <p className="mt-1 text-[10px] leading-4 text-neutral-400">{step.detail}</p>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[12px] font-bold leading-tight truncate text-neutral-900">{item.name}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded-md font-medium">Taille {item.size}</span>
-                          {item.quantity > 1 && <span className="text-[10px] text-neutral-400">×{item.quantity}</span>}
-                        </div>
-                      </div>
-                      <span className="text-[13px] font-black text-neutral-800 shrink-0 tabular-nums">{formatMAD(item.price * item.quantity)}</span>
                     </li>
                   ))}
-                  {order.items.length > 3 && (
-                    <li className="px-5 py-2.5 text-center text-[11px] text-neutral-400 bg-neutral-50">
-                      +{order.items.length - 3} autre{order.items.length - 3 > 1 ? "s" : ""} article{order.items.length - 3 > 1 ? "s" : ""}
-                    </li>
-                  )}
-                </ul>
-
-                {/* Totals */}
-                <div className="mx-5 mt-1 pt-3 pb-3 border-t border-dashed border-neutral-200 space-y-2">
-                  <div className="flex justify-between text-[12px]">
-                    <span className="text-neutral-400">Sous-total</span>
-                    <span className="text-neutral-500 font-medium tabular-nums">{formatMAD(order.total - (order.shipping ?? 0))}</span>
-                  </div>
-                  <div className="flex justify-between text-[12px]">
-                    <span className="text-neutral-400">Livraison</span>
-                    {order.shipping === 0
-                      ? <span className="text-emerald-600 font-bold">Gratuite ✓</span>
-                      : <span className="text-neutral-500 font-medium tabular-nums">{formatMAD(order.shipping)}</span>
-                    }
-                  </div>
-                  {/* Total row with green accent */}
-                  <div className="flex justify-between items-center pt-2 mt-1 border-t border-neutral-100">
-                    <span className="text-[13px] font-black uppercase tracking-wide text-neutral-900">Total</span>
-                    <span className="font-black text-[18px] tabular-nums" style={{ color: "#3ecf4c" }}>{formatMAD(order.total)}</span>
-                  </div>
-                </div>
-
-                {/* Payment footer */}
-                <div className="px-4 py-3 flex items-center gap-2.5 border-t border-neutral-100 mx-0" style={{ background: "linear-gradient(135deg, #f9fafb 0%, #f5f5f5 100%)" }}>
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-base" style={{ background: order.payment === "livraison" ? "#f0fdf4" : "#eff6ff", border: `1.5px solid ${order.payment === "livraison" ? "#86efac" : "#bfdbfe"}` }}>
-                      {order.payment === "livraison" ? "💵" : "💳"}
-                    </div>
-                    <div>
-                      <p className="text-[11px] font-bold text-neutral-700 leading-tight">{order.payment === "livraison" ? "Paiement à la livraison" : "Carte bancaire"}</p>
-                      <p className="text-[9px] text-neutral-400 mt-0.5 uppercase tracking-wide">Mode de paiement</p>
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-[9px] text-neutral-400 uppercase tracking-wide">Date</p>
-                    <p className="text-[11px] font-bold text-neutral-500 tabular-nums font-mono">{new Date(order.date).toLocaleDateString("fr-MA", { day: "2-digit", month: "2-digit", year: "2-digit" })}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Timeline ── */}
-        {stage >= 5 && (
-          <div className="w-full max-w-md mb-5" style={{ animation: "fade-up 0.6s 0.05s ease both" }}>
-
-            {/* Delivery date banner */}
-            <div className="rounded-2xl mb-3 px-5 py-4 flex items-center gap-4"
-              style={{ background: "linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%)", border: "1.5px solid #86efac" }}>
-              <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 text-xl"
-                style={{ background: "linear-gradient(135deg, #10B981 0%, #059669 100%)", boxShadow: "0 4px 12px rgba(16,185,129,0.3)" }}>
-                🚚
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-emerald-600 mb-0.5">Livraison estimée</p>
-                <p className="font-black text-[15px] text-neutral-900 capitalize leading-tight">{deliveryDate}</p>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-[10px] font-bold text-emerald-500 bg-emerald-100 px-2 py-1 rounded-full">2–5 jours</p>
+                </ol>
               </div>
             </div>
 
-            {/* Vertical step list */}
-            <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
-              <div className="px-5 pt-4 pb-1">
-                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-neutral-400">Suivi de commande</p>
-              </div>
-              <div className="px-5 py-4 space-y-0">
-                {STEPS.map((step, i) => {
-                  const isActive = i === 0;
-                  const isDone = i === 0;
-                  const isLast = i === STEPS.length - 1;
-                  return (
-                    <div key={i} className="flex gap-4">
-                      {/* Left: icon + connector line */}
-                      <div className="flex flex-col items-center shrink-0" style={{ width: 36 }}>
-                        <div
-                          className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0 z-10"
-                          style={{
-                            background: isDone
-                              ? `linear-gradient(135deg, ${step.color} 0%, ${step.color}cc 100%)`
-                              : "#f5f5f5",
-                            border: isActive ? `2px solid ${step.color}` : "2px solid #e5e7eb",
-                            boxShadow: isActive ? `0 0 0 4px ${step.color}18, 0 4px 12px ${step.color}30` : "none",
-                            color: isDone ? "#fff" : "#d1d5db",
-                            animation: isActive ? "glow-breathe 2s ease-in-out infinite" : "none",
-                            fontSize: isDone ? 14 : 18,
-                          }}
-                        >
-                          {isDone ? "✓" : step.icon}
-                        </div>
-                        {!isLast && (
-                          <div className="flex-1 w-[2px] my-1 rounded-full"
-                            style={{
-                              background: isDone ? `linear-gradient(to bottom, ${step.color}60, #e5e7eb)` : "#e5e7eb",
-                              minHeight: 20,
-                            }} />
-                        )}
-                      </div>
-                      {/* Right: text */}
-                      <div className={`flex-1 flex items-start justify-between pb-${isLast ? "0" : "4"}`}
-                        style={{ paddingBottom: isLast ? 0 : 16 }}>
-                        <div>
-                          <p className="font-bold text-[13px] leading-tight"
-                            style={{ color: isActive ? "#111" : "#9ca3af" }}>
-                            {step.label}
-                          </p>
-                          <p className="text-[11px] mt-0.5"
-                            style={{ color: isActive ? step.color : "#d1d5db" }}>
-                            {i === 0 && "Votre commande est confirmée"}
-                            {i === 1 && "En attente de traitement"}
-                            {i === 2 && "Votre colis sera envoyé"}
-                            {i === 3 && <span className="capitalize font-semibold">{deliveryDate}</span>}
-                          </p>
-                        </div>
-                        {isActive && (
-                          <span className="text-[9px] font-black uppercase tracking-wide px-2 py-1 rounded-full shrink-0"
-                            style={{ background: `${step.color}15`, color: step.color }}>
-                            En cours
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Info grid ── */}
-        {stage >= 5 && order && (
-          <div className="w-full max-w-md mb-8 grid grid-cols-2 gap-3" style={{ animation: "fade-up 0.6s 0.1s ease both" }}>
-            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-              <p className="text-[9px] font-black uppercase tracking-[0.12em] text-neutral-400 mb-1">Destination</p>
-              <p className="text-sm font-bold text-neutral-900 capitalize">{order.customer.ville || "—"}</p>
-              <p className="text-[11px] text-neutral-400 mt-0.5">Maroc 🇲🇦</p>
-            </div>
-            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 min-w-0">
-              <p className="text-[9px] font-black uppercase tracking-[0.12em] text-neutral-400 mb-1">Confirmation</p>
-              <p className="text-[11px] font-semibold text-neutral-900 truncate">{order.customer.email || "—"}</p>
-              {order.customer.email && (
-                <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">Email envoyé ✓</p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* WhatsApp notice removed — absorbed into button below */}
-
-        {/* ── CTAs ── */}
-        {stage >= 5 && (
-          <div className="w-full max-w-md flex flex-col gap-3" style={{ animation: "fade-up 0.6s 0.15s ease both" }}>
-
-            {/* Primary: Track order */}
-            <Link
-              href={order ? `/suivre-commande?order=${order.number}` : "/suivre-commande"}
-              className="w-full py-4 rounded-2xl font-black uppercase text-sm tracking-[0.1em] text-center flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.97]"
-              style={{ background: "#3ecf4c", color: "#000", boxShadow: "0 6px 20px rgba(62,207,76,0.45)" }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-              </svg>
-              Suivre ma commande
-            </Link>
-
-            {/* Secondary: WhatsApp with countdown */}
-            {order && (
-              <div className="relative overflow-hidden rounded-2xl" style={{ boxShadow: "0 4px 16px rgba(37,211,102,0.25)" }}>
-                {/* Countdown progress bar */}
-                {countdown !== null && (
-                  <div
-                    className="absolute top-0 left-0 h-full rounded-2xl transition-none pointer-events-none"
-                    style={{
-                      width: `${((15 - countdown) / 15) * 100}%`,
-                      background: "rgba(0,0,0,0.15)",
-                      transition: "width 1s linear",
-                    }}
-                  />
-                )}
-                <a
-                  href={getWhatsAppHref(siteSettings, `Bonjour L'ECOMAX,\n\nJe viens de passer la commande *${order.number}*.\n\nNom : ${order.customer.prenom} ${order.customer.nom}\nVille : ${order.customer.ville}\nTotal : ${order.total} MAD\nPaiement : ${order.payment === "livraison" ? "A la livraison" : "Carte bancaire"}\n\nMerci de confirmer ma commande.`)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => { setWaOpened(true); setCountdown(null); }}
-                  className="relative w-full py-3.5 rounded-2xl font-bold text-sm tracking-[0.06em] text-center flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.97]"
-                  style={{
-                    background: waOpened ? "linear-gradient(135deg, #128C7E 0%, #075E54 100%)" : "linear-gradient(135deg, #25D366 0%, #128C7E 100%)",
-                    color: "#fff",
-                    display: "flex",
-                  }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                  </svg>
-                  {waOpened
-                    ? "WhatsApp ouvert — appuyez sur Envoyer"
-                    : countdown !== null
-                      ? `Confirmer sur WhatsApp (${countdown}s)`
-                      : "Confirmer sur WhatsApp"}
+            <div className="rounded-[24px] border border-neutral-200 bg-white p-5 shadow-[0_16px_50px_rgba(15,23,42,0.05)] sm:p-6">
+              <h2 className="text-base font-black tracking-[-0.02em]">Que souhaitez-vous faire ?</h2>
+              <p className="mt-1 text-[11px] leading-5 text-neutral-500">Gardez votre numéro de commande pour suivre sa progression.</p>
+              <div className="mt-5 grid gap-2.5">
+                <Link href={`/suivre-commande?order=${encodeURIComponent(order.number)}`} className="flex h-12 items-center justify-center gap-2 rounded-xl bg-neutral-950 px-5 text-[11px] font-black uppercase tracking-[0.1em] text-white transition hover:bg-neutral-800 active:scale-[0.99]">
+                  Suivre ma commande
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </Link>
+                <Link href="/boutique" className="flex h-12 items-center justify-center rounded-xl border border-neutral-200 px-5 text-[11px] font-black uppercase tracking-[0.1em] text-neutral-800 transition hover:border-neutral-300 hover:bg-neutral-50 active:scale-[0.99]">Continuer mes achats</Link>
+                <a href={getWhatsAppHref(siteSettings, whatsappMessage)} target="_blank" rel="noopener noreferrer" className="flex h-11 items-center justify-center gap-2 text-[11px] font-bold text-neutral-500 transition hover:text-emerald-700">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.26-.46-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.69.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35ZM12.05 21.79h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.88 9.88Z"/></svg>
+                  Besoin d&apos;aide ? Contactez-nous
                 </a>
               </div>
-            )}
-
-            {/* Divider */}
-            <div className="flex items-center gap-3 py-1">
-              <div className="flex-1 h-px bg-neutral-100" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-300">ou</span>
-              <div className="flex-1 h-px bg-neutral-100" />
             </div>
+          </aside>
+        </div>
 
-            {/* Tertiary: Continue shopping */}
-            <Link
-              href="/"
-              className="w-full py-3 rounded-2xl font-bold text-sm tracking-[0.06em] text-center text-neutral-500 border border-neutral-200 hover:border-neutral-400 hover:text-neutral-800 transition-all duration-200 active:scale-[0.97]"
-            >
-              Continuer mes achats →
-            </Link>
-          </div>
-        )}
+        <div className="mt-8 grid gap-3 rounded-[22px] border border-neutral-200 bg-white p-4 sm:grid-cols-3 sm:p-5">
+          {[
+            { title: "Paiement sécurisé", detail: "Vos données restent protégées" },
+            { title: "Retours sous 30 jours", detail: "Une procédure simple et claire" },
+            { title: "Service client", detail: "Une équipe disponible pour vous aider" },
+          ].map((item) => (
+            <div key={item.title} className="flex items-center gap-3 rounded-xl px-3 py-2.5">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><IconCheck className="h-4 w-4" /></span>
+              <div><p className="text-[11px] font-black">{item.title}</p><p className="mt-0.5 text-[9px] text-neutral-400">{item.detail}</p></div>
+            </div>
+          ))}
+        </div>
 
-        {stage >= 5 && (
-          <p className="mt-10 text-[10px] text-neutral-300 font-black uppercase tracking-[0.25em]"
-            style={{ animation: "fade-up 0.6s 0.2s ease both" }}>
-            L&apos;ecomax · Maroc
-          </p>
-        )}
-      </div>
-    </div>
+        <p className="mt-8 text-center text-[9px] font-black uppercase tracking-[0.24em] text-neutral-300">L&apos;ecomax · Merci pour votre confiance</p>
+      </section>
+    </main>
   );
 }
