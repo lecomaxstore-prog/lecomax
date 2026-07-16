@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.2" baseProfile="tiny-ps" width="512" height="512" viewBox="0 0 512 512">
+  <title>L&apos;ecomax</title>
+  <desc>L&apos;ecomax LM monogram in white and green on a solid black background</desc>
+  <rect width="512" height="512" fill="#0b0b0b"/>
+  <path fill="#ffffff" d="M104 106h62v247h126l29 53H104z"/>
+  <path fill="#9bd63b" d="M188 126l97 96 123-111v295h-61V246l-62 58-97-91z"/>
+</svg>
