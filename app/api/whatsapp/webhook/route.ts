@@ -1,19 +1,15 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import OpenAI from "openai";
+import type OpenAI from "openai";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { shippingSummary } from "@/lib/shipping-config";
+import { getGroqClient } from "@/lib/groq-client";
 
 // ─── Clients ────────────────────────────────────────────────────────────────
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
-
-const groq = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1",
-});
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "lecomax_webhook_token";
@@ -76,7 +72,7 @@ Style: Warm, helpful, concise (under 120 words). No long paragraphs. Use natural
     { role: "user", content: userMessage },
   ];
 
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroqClient().chat.completions.create({
     model: "llama-3.3-70b-versatile",
     messages,
     temperature: 0.6,

@@ -1,19 +1,15 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import OpenAI from "openai";
+import type OpenAI from "openai";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { shippingSummary } from "@/lib/shipping-config";
+import { getGroqClient } from "@/lib/groq-client";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
-
-const groq = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1",
-});
 
 const ESCALATION_PATTERNS = [
   /\b(agent|human|person|personne|quelqu[''']un|vrai|réel|live|real)\b/i,
@@ -298,7 +294,7 @@ export async function POST(req: Request) {
   let aiReply = "";
   try {
     const systemPrompt = await buildSystemPrompt();
-    const completion = await groq.chat.completions.create({
+    const completion = await getGroqClient().chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [
         { role: "system", content: systemPrompt },
