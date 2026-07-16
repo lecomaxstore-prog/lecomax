@@ -16,6 +16,14 @@ type PayPalOrder = {
   }>;
 };
 
+export function isPayPalEnabled() {
+  return process.env.PAYPAL_ENABLED === "true" && Boolean(
+    process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID?.trim() &&
+    process.env.PAYPAL_CLIENT_SECRET?.trim() &&
+    process.env.PAYPAL_WEBHOOK_ID?.trim(),
+  );
+}
+
 function apiBase() {
   return process.env.PAYPAL_ENVIRONMENT === "sandbox"
     ? "https://api-m.sandbox.paypal.com"
@@ -23,6 +31,7 @@ function apiBase() {
 }
 
 function credentials() {
+  if (!isPayPalEnabled()) throw new Error("PAYPAL_NOT_CONFIGURED");
   const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID?.trim();
   const secret = process.env.PAYPAL_CLIENT_SECRET?.trim();
   if (!clientId || !secret) throw new Error("PAYPAL_NOT_CONFIGURED");
