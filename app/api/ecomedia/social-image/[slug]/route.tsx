@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { supabaseServiceHeaders } from "@/lib/supabase-service-headers";
 
 type SocialPost = {
   title: string;
@@ -17,10 +18,7 @@ async function getSocialPost(slug: string): Promise<SocialPost | null> {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/ecomedia_posts?${query}`,
       {
-        headers: {
-          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
-        },
+        headers: supabaseServiceHeaders(),
         next: { revalidate: 300 },
       }
     );

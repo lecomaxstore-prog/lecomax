@@ -6,6 +6,7 @@ import { products as catalogProducts } from "@/lib/products";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
 import { calculateCouponDiscount, calculateCouponPricing } from "@/lib/coupon-pricing";
 import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
+import { verifyPayPalCapture } from "@/lib/paypal-server";
 
 // Use service role key server-side so RLS doesn't block order insertion
 const supabase = createClient(
@@ -26,6 +27,21 @@ function cleanText(value: unknown, maxLength: number): string {
   return typeof value === "string"
     ? value.replace(/[<>\u0000-\u001F\u007F]/g, "").trim().slice(0, maxLength)
     : "";
+}
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function normalizeRecoveryPhone(value: unknown) {
+  if (typeof value !== "string") return null;
+  let phone = value.trim().replace(/[\s().-]/g, "");
+  if (phone.startsWith("00212")) phone = `0${phone.slice(5)}`;
+  else if (phone.startsWith("+212")) phone = `0${phone.slice(4)}`;
+  else if (phone.startsWith("212")) phone = `0${phone.slice(3)}`;
+  return /^0[67]\d{8}$/.test(phone) ? phone : null;
+}
+
+function missingAbandonedCartTokenColumn(error: { message: string; code?: string } | null) {
+  if (!error) return false;
+  return (error.code === "42703" || error.code === "PGRST204") && /cart_token/i.test(error.message);
 }
 
 // GET /api/orders — list all orders (admin), or GET /api/orders?order_number=ECO-XXXXXX (single order lookup)
@@ -74,7 +90,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { customer, items, total, shipping, payment_method, coupon_id, discount, notes } = body as {
+  const { customer, items, total, shipping, payment_provider, paypal_order_id, paypal_capture_id, coupon_id, discount, notes, abandoned_cart_token } = body as {
     customer: {
       name: string;
       phone: string;
@@ -93,10 +109,13 @@ export async function POST(req: NextRequest) {
     }[];
     total: number;
     shipping?: number;
-    payment_method: string;
+    payment_provider?: "cod" | "paypal";
+    paypal_order_id?: string;
+    paypal_capture_id?: string;
     coupon_id?: string | null;
     discount?: number;
     notes?: string;
+    abandoned_cart_token?: string | null;
   };
 
   // Validate and normalize all browser-provided order data.
@@ -229,15 +248,62 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Le total de la commande a changé. Actualisez la page puis réessayez." }, { status: 409 });
   }
 
+  const provider = payment_provider === "paypal" ? "paypal" : payment_provider === "cod" ? "cod" : null;
+  if (!provider) return NextResponse.json({ error: "Mode de paiement invalide." }, { status: 400 });
+
+  let paymentReference: string | null = null;
+  let paymentStatus = provider === "paypal" ? "captured" : "pending";
+  let paymentCurrency: string | null = null;
+  let paymentAmount: number | null = null;
+
+  if (provider === "paypal") {
+    try {
+      const verified = await verifyPayPalCapture({
+        orderId: cleanText(paypal_order_id, 64),
+        captureId: cleanText(paypal_capture_id, 64),
+        expectedMad: expectedTotal,
+      });
+      paymentReference = verified.captureId;
+      paymentCurrency = verified.currency;
+      paymentAmount = Number(verified.amount);
+    } catch (verificationError) {
+      const reason = verificationError instanceof Error ? verificationError.message : "PAYPAL_VERIFICATION_FAILED";
+      console.error("PayPal capture verification failed:", reason);
+      const unavailable = ["PAYPAL_NOT_CONFIGURED", "PAYPAL_AUTH_FAILED"].includes(reason);
+      return NextResponse.json(
+        { error: unavailable ? "La vérification PayPal est momentanément indisponible." : "Le paiement PayPal n'a pas pu être vérifié." },
+        { status: unavailable ? 503 : 422 },
+      );
+    }
+
+    const { data: existingOrder, error: existingError } = await supabase
+      .from("orders")
+      .select("id,order_number")
+      .eq("payment_reference", paymentReference)
+      .maybeSingle();
+    if (existingError) {
+      console.error("PayPal idempotency lookup failed:", existingError);
+      return NextResponse.json({ error: "Impossible de sécuriser ce paiement PayPal." }, { status: 503 });
+    }
+    if (existingOrder) {
+      return NextResponse.json({ ...existingOrder, duplicate: true });
+    }
+  }
+
   const order_number = generateOrderNumber();
-  const isPayPal = typeof payment_method === "string" && payment_method.toLowerCase().startsWith("paypal");
+  const isPayPal = provider === "paypal";
+  const displayPaymentMethod = isPayPal ? "PayPal" : "Paiement à la livraison";
 
   const { data, error } = await supabase.from("orders").insert({
     order_number,
     customer,
     items,
-    total,
-    payment_method: payment_method || "Paiement à la livraison",
+    total: expectedTotal,
+    payment_method: displayPaymentMethod,
+    payment_reference: paymentReference,
+    payment_status: paymentStatus,
+    payment_currency: paymentCurrency,
+    payment_amount: paymentAmount,
     status: isPayPal ? "confirmed" : "pending",
     tracking_number: null,
     notes: safeNotes,
@@ -245,8 +311,38 @@ export async function POST(req: NextRequest) {
   }).select("id, order_number").single();
 
   if (error) {
+    if (isPayPal && error.code === "23505" && paymentReference) {
+      const { data: existingOrder } = await supabase
+        .from("orders")
+        .select("id,order_number")
+        .eq("payment_reference", paymentReference)
+        .maybeSingle();
+      if (existingOrder) return NextResponse.json({ ...existingOrder, duplicate: true });
+    }
     console.error("Order insert error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // A successfully created order is no longer abandoned. The random token is
+  // a capability identifier and never exposes customer data by itself.
+  const abandonedCartToken = cleanText(abandoned_cart_token, 36);
+  if (UUID_PATTERN.test(abandonedCartToken)) {
+    let { error: cleanupError } = await supabase
+      .from("abandoned_carts")
+      .delete()
+      .eq("cart_token", abandonedCartToken);
+    if (missingAbandonedCartTokenColumn(cleanupError)) {
+      const recoveryPhone = normalizeRecoveryPhone(customer.phone);
+      const recoveryEmail = customer.email || null;
+      if (recoveryPhone) {
+        ({ error: cleanupError } = await supabase.from("abandoned_carts").delete().eq("phone", recoveryPhone));
+      } else if (recoveryEmail) {
+        ({ error: cleanupError } = await supabase.from("abandoned_carts").delete().eq("email", recoveryEmail));
+      } else {
+        cleanupError = null;
+      }
+    }
+    if (cleanupError) console.error("Abandoned cart cleanup after order failed:", cleanupError);
   }
 
   await broadcastAdminPushNotification({
@@ -415,7 +511,7 @@ export async function POST(req: NextRequest) {
       </td>
       <td style="padding:18px 44px;width:33%;border-right:1px solid #f3f4f6;vertical-align:top;">
         <p style="margin:0 0 8px;font-size:8px;font-weight:700;color:#9ca3af;letter-spacing:2px;text-transform:uppercase;">PAIEMENT</p>
-        <p style="margin:0;font-size:12px;font-weight:600;color:#111827;">${payment_method || "Paiement à la livraison"}</p>
+        <p style="margin:0;font-size:12px;font-weight:600;color:#111827;">${displayPaymentMethod}</p>
       </td>
       <td style="padding:18px 44px;width:33%;vertical-align:top;">
         <p style="margin:0 0 8px;font-size:8px;font-weight:700;color:#9ca3af;letter-spacing:2px;text-transform:uppercase;">LIVRAISON</p>
@@ -552,7 +648,7 @@ export async function POST(req: NextRequest) {
                   <p style="margin:4px 0 0;font-size:14px;font-weight:600;color:#111;">${customer.name}</p>
                   <p style="margin:2px 0 0;font-size:13px;color:#6b7280;">${customer.phone}${customer.email ? ` · ${customer.email}` : ""}</p>
                   <p style="margin:2px 0 0;font-size:13px;color:#6b7280;">${customer.address}, ${customer.city}</p>
-                  <p style="margin:4px 0 0;font-size:12px;color:#9ca3af;">Paiement : ${payment_method}</p>
+                  <p style="margin:4px 0 0;font-size:12px;color:#9ca3af;">Paiement : ${displayPaymentMethod}</p>
                 </td>
               </tr>
             </table>

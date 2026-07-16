@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { supabaseServiceHeaders } from "@/lib/supabase-service-headers";
+import { protectAdminMutation } from "@/lib/api-security";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,6 +10,9 @@ const supabase = createClient(
 
 // PUT /api/admin/staff/[id] — update name, role, status
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const blocked = await protectAdminMutation(req, { key: "admin:staff:update", limit: 30 });
+  if (blocked) return blocked;
+
   const { id } = await params;
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
@@ -31,7 +36,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 // DELETE /api/admin/staff/[id]
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const blocked = await protectAdminMutation(req, { key: "admin:staff:delete", limit: 10 });
+  if (blocked) return blocked;
+
   const { id } = await params;
 
   // 1. Get the staff email so we can delete the Supabase Auth user too
@@ -51,10 +59,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
       const listRes = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users?per_page=50`,
         {
-          headers: {
-            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-            apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-          },
+          headers: supabaseServiceHeaders(),
         }
       );
       const listData = await listRes.json();
@@ -66,10 +71,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
           `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users/${authUser.id}`,
           {
             method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-              apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-            },
+            headers: supabaseServiceHeaders(),
           }
         );
       }

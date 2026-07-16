@@ -169,18 +169,18 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
 
     return (
       <div className={`${mode === "mobile" ? "flex sm:hidden" : "hidden sm:flex"} mt-10 flex-col items-center sm:mt-12`}>
-        <div className="w-full max-w-[280px] px-1">
-          <div className="mb-2.5 flex items-center justify-between gap-4">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-neutral-500">
+        <div className="w-full max-w-[280px]">
+          <div className="mb-[10px] flex items-center justify-between gap-4 px-1">
+            <p className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-[#6b6b6b]">
               {shown} affichés
             </p>
-            <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-neutral-300">
+            <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#d1d1d1]">
               {filtered.length} au total
             </p>
           </div>
-          <div className="h-[3px] w-full overflow-hidden rounded-full bg-neutral-200/80">
+          <div className="h-[3px] w-full overflow-hidden bg-[#e8e8e8]">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#20b83f] to-[#4ade80] shadow-[0_0_12px_rgba(62,207,76,0.35)] transition-all duration-500"
+              className="h-full bg-[#34d058] transition-[width] duration-500"
               style={{ width: `${(shown / filtered.length) * 100}%` }}
             />
           </div>
@@ -190,21 +190,19 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
           type="button"
           onClick={() => loadMore(mode)}
           aria-label={`Afficher ${nextBatch} produit${nextBatch > 1 ? "s" : ""} supplémentaire${nextBatch > 1 ? "s" : ""}`}
-          className="magic-load-more group relative mt-5 inline-flex min-h-[68px] w-full max-w-[280px] items-center justify-between overflow-hidden rounded-xl border border-neutral-200/90 bg-white px-5 text-left text-black shadow-[0_8px_25px_rgba(0,0,0,0.055)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#3ecf4c]/45 hover:shadow-[0_14px_32px_rgba(25,135,46,0.11)] active:translate-y-0 active:scale-[0.985]"
+          className="group mt-5 inline-flex h-[68px] w-full max-w-[280px] items-center justify-between rounded-[13px] border border-[#e1e1e1] bg-white px-5 text-left text-black shadow-[0_8px_24px_rgba(0,0,0,0.055)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-px hover:border-[#bdecc5] hover:shadow-[0_11px_27px_rgba(0,0,0,0.075)] active:translate-y-0"
         >
-          <span className="magic-load-more__glow" aria-hidden="true" />
-          <span className="magic-load-more__sweep" aria-hidden="true" />
-          <span className="relative z-10 flex min-w-0 flex-col">
-            <span className="text-[11px] font-black uppercase tracking-[0.19em] text-neutral-950">
+          <span className="flex min-w-0 flex-col">
+            <span className="text-[11px] font-black uppercase tracking-[0.17em] text-[#151515]">
               Voir plus
             </span>
-            <span className="mt-1.5 text-[9px] font-semibold tracking-[0.06em] text-neutral-400 transition-colors duration-300 group-hover:text-[#269d3a]">
+            <span className="mt-[6px] text-[9px] font-medium tracking-[0.02em] text-[#a6a6a6]">
               +{nextBatch} produit{nextBatch > 1 ? "s" : ""}
             </span>
           </span>
-          <span className="magic-load-more__arrow relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#bcefc4] bg-[#eafbed] text-[#188c2d] shadow-[0_4px_12px_rgba(38,157,58,0.12)] transition-all duration-300 group-hover:border-[#3ecf4c] group-hover:bg-[#3ecf4c] group-hover:text-black">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" aria-hidden="true">
-              <path d="M12 5v14M5 12l7 7 7-7" />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#bcefc4] bg-[#effdf2] text-[#179333] shadow-[0_4px_13px_rgba(46,180,70,0.12)] transition-colors duration-200 group-hover:bg-[#e4fae8]">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 5v13M7.5 13.5 12 18l4.5-4.5" />
             </svg>
           </span>
         </button>

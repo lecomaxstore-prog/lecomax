@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
     .from("admin_staff")
     .select("id, role_id")
     .eq("email", normalizedEmail)
+    .eq("status", "active")
     .maybeSingle();
 
   // Reject accounts that are neither the owner nor an active staff member.

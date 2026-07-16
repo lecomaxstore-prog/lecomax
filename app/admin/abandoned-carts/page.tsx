@@ -45,6 +45,7 @@ export default function AbandonedCartsPage() {
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [filter, setFilter] = useState<"all" | "pending" | "reminded">("all");
   const [search, setSearch] = useState("");
+  const [apiError, setApiError] = useState("");
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -53,26 +54,47 @@ export default function AbandonedCartsPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/abandoned-carts");
-    const data = await res.json();
-    setCarts(Array.isArray(data) ? data : []);
-    setLoading(false);
+    setApiError("");
+    try {
+      const res = await fetch("/api/abandoned-carts", { cache: "no-store" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Impossible de charger les paniers abandonnés.");
+      setCarts(Array.isArray(data) ? data : []);
+    } catch (error) {
+      setCarts([]);
+      setApiError(error instanceof Error ? error.message : "Impossible de charger les paniers abandonnés.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
   async function markReminded(id: string) {
-    await fetch(`/api/abandoned-carts/${id}`, { method: "PATCH" });
-    setCarts((prev) => prev.map((c) => c.id === id ? { ...c, reminded: true } : c));
-    showToast("Marqué comme contacté ✓");
+    try {
+      const response = await fetch(`/api/abandoned-carts/${id}`, { method: "PATCH" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Mise à jour impossible.");
+      setCarts((prev) => prev.map((c) => c.id === id ? { ...c, reminded: true } : c));
+      showToast("Marqué comme contacté ✓");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Mise à jour impossible.", false);
+    }
   }
 
   async function deleteCart(id: string) {
     setDeletingId(id);
-    await fetch(`/api/abandoned-carts?id=${id}`, { method: "DELETE" });
-    setCarts((prev) => prev.filter((c) => c.id !== id));
-    setDeletingId(null);
-    showToast("Supprimé ✓");
+    try {
+      const response = await fetch(`/api/abandoned-carts?id=${id}`, { method: "DELETE" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Suppression impossible.");
+      setCarts((prev) => prev.filter((c) => c.id !== id));
+      showToast("Supprimé ✓");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Suppression impossible.", false);
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   const filtered = carts.filter((c) => {
@@ -99,6 +121,17 @@ export default function AbandonedCartsPage() {
       {toast && (
         <div className={`px-4 py-2.5 rounded-xl text-xs font-semibold ${toast.ok ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-red-50 border border-red-200 text-red-700"}`}>
           {toast.msg}
+        </div>
+      )}
+
+      {apiError && (
+        <div role="alert" className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-800">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-red-100 text-sm">!</span>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-black">Connexion aux paniers impossible</p>
+            <p className="mt-1 text-[11px] leading-5 text-red-600">{apiError}</p>
+          </div>
+          <button type="button" onClick={load} className="min-h-9 shrink-0 rounded-xl border border-red-200 bg-white px-3 text-[10px] font-black uppercase tracking-wide hover:bg-red-100">Réessayer</button>
         </div>
       )}
 
@@ -138,7 +171,7 @@ export default function AbandonedCartsPage() {
         <div className="flex items-center justify-center py-16">
           <div className="w-7 h-7 border-2 border-black border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : apiError ? null : filtered.length === 0 ? (
         <div className="text-center py-16 text-neutral-400 text-sm bg-white rounded-2xl border border-neutral-100">
           {carts.length === 0
             ? "Aucun panier abandonné pour l'instant. Les paniers s'enregistrent dès qu'un client remplit son numéro ou email à la caisse."

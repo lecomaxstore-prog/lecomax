@@ -6,6 +6,7 @@ import ProductRail from "@/components/ProductRail";
 import Image from "next/image";
 import Link from "next/link";
 import { ECOMEDIA_COMMUNITY_AUTHOR_PREFIX } from "@/lib/ecomedia";
+import { supabaseServiceHeaders } from "@/lib/supabase-service-headers";
 
 // Lazy-load heavy below-fold components — keeps initial JS bundle small
 const OurProductsGrid = dynamic(() => import("@/components/OurProductsGrid"));
@@ -108,7 +109,7 @@ async function getHeroBanners(): Promise<HeroBannerRecord[]> {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/banners?active=eq.true&select=*&order=sort_order.asc,created_at.asc`,
-      { headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}` }, next: { revalidate: 60 } }
+      { headers: supabaseServiceHeaders(), next: { revalidate: 60 } }
     );
     return response.ok ? await response.json() : [];
   } catch { return []; }
@@ -137,10 +138,7 @@ export default async function HomePage() {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/ecomedia_posts?${ecomediaParams}`,
       {
-        headers: {
-          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
-        },
+        headers: supabaseServiceHeaders(),
         next: { revalidate: 60 },
       }
     );

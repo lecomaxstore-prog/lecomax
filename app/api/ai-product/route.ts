@@ -1,5 +1,36 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
+import { protectAdminMutation } from "@/lib/api-security";
+
+export const runtime = "nodejs";
+
+function isPrivateAddress(address: string) {
+  const normalized = address.toLowerCase();
+  if (normalized === "::1" || normalized === "::" || normalized.startsWith("fc") || normalized.startsWith("fd") || normalized.startsWith("fe8") || normalized.startsWith("fe9") || normalized.startsWith("fea") || normalized.startsWith("feb")) return true;
+  const ipv4 = normalized.startsWith("::ffff:") ? normalized.slice(7) : normalized;
+  if (isIP(ipv4) !== 4) return false;
+  const [a, b] = ipv4.split(".").map(Number);
+  return a === 0 || a === 10 || a === 127 || a >= 224 ||
+    (a === 100 && b >= 64 && b <= 127) ||
+    (a === 169 && b === 254) ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168);
+}
+
+async function safeProductUrl(value: unknown) {
+  if (typeof value !== "string" || value.length > 2_000) return null;
+  let url: URL;
+  try { url = new URL(value); } catch { return null; }
+  if (url.protocol !== "https:" || url.username || url.password || (url.port && url.port !== "443")) return null;
+  if (url.hostname === "localhost" || isIP(url.hostname) && isPrivateAddress(url.hostname)) return null;
+  try {
+    const addresses = await lookup(url.hostname, { all: true, verbatim: true });
+    if (!addresses.length || addresses.some(({ address }) => isPrivateAddress(address))) return null;
+  } catch { return null; }
+  return url.toString();
+}
 
 // Extract product info directly from URL for sites with bot protection (Temu, AliExpress)
 function extractFromUrl(url: string): { title: string; images: string[] } {
@@ -105,9 +136,15 @@ function extractProductImages(html: string, baseUrl: string): string[] {
   return [...imgs].slice(0, 8);
 }
 
-export async function POST(req: Request) {
-  const { url } = await req.json();
-  if (!url || !url.startsWith("http")) {
+export async function POST(req: NextRequest) {
+  const blocked = await protectAdminMutation(req, { key: "ai:product", limit: 10 });
+  if (blocked) return blocked;
+  let input: { url?: unknown };
+  try { input = await req.json() as { url?: unknown }; } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  const url = await safeProductUrl(input.url);
+  if (!url) {
     return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
   }
 
@@ -116,6 +153,7 @@ export async function POST(req: Request) {
   let fetchFailed = false;
   try {
     const res = await fetch(url, {
+      redirect: "error",
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
@@ -123,7 +161,10 @@ export async function POST(req: Request) {
       },
       signal: AbortSignal.timeout(10000),
     });
-    html = await res.text();
+    if (!res.ok || !res.headers.get("content-type")?.toLowerCase().includes("text/html")) throw new Error("invalid response");
+    const declaredLength = Number(res.headers.get("content-length") || 0);
+    if (declaredLength > 2_000_000) throw new Error("response too large");
+    html = (await res.text()).slice(0, 2_000_000);
   } catch {
     fetchFailed = true;
   }

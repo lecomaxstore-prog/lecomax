@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,7 +8,10 @@ const supabase = createClient(
 );
 
 // GET /api/admin/roles/[id]
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const blocked = await protectAdminRead(req, { key: "admin:roles:read", limit: 60 });
+  if (blocked) return blocked;
+
   const { id } = await params;
   const { data, error } = await supabase
     .from("admin_roles")
@@ -27,6 +31,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
 // PUT /api/admin/roles/[id] — update role name/description/color/permissions
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const blocked = await protectAdminMutation(req, { key: "admin:roles:update", limit: 20 });
+  if (blocked) return blocked;
+
   const { id } = await params;
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
@@ -67,7 +74,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 // DELETE /api/admin/roles/[id]
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const blocked = await protectAdminMutation(req, { key: "admin:roles:delete", limit: 10 });
+  if (blocked) return blocked;
+
   const { id } = await params;
 
   const { data: role } = await supabase

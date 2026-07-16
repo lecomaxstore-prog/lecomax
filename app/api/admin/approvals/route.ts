@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,6 +9,9 @@ const supabase = createClient(
 
 // GET /api/admin/approvals?status=pending|approved|rejected|all
 export async function GET(req: NextRequest) {
+  const blocked = await protectAdminRead(req, { key: "admin:approvals:list", limit: 60 });
+  if (blocked) return blocked;
+
   const status = req.nextUrl.searchParams.get("status") ?? "all";
 
   let query = supabase
@@ -27,6 +31,9 @@ export async function GET(req: NextRequest) {
 
 // POST /api/admin/approvals — staff submits a change for review
 export async function POST(req: NextRequest) {
+  const blocked = await protectAdminMutation(req, { key: "admin:approvals:create", limit: 30 });
+  if (blocked) return blocked;
+
   const body = await req.json().catch(() => null);
   if (!body?.staff_email || !body?.action || !body?.entity_type || !body?.description) {
     return NextResponse.json(
