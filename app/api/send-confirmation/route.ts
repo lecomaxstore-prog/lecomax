@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
+import { protectAdminMutation } from "@/lib/api-security";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://lecomax.com";
@@ -31,23 +32,44 @@ async function getStoreSettings(): Promise<{ name: string; email: string; banner
   }
 }
 
-export async function POST(req: Request) {
+function safeText(value: unknown, max: number) {
+  return typeof value === "string" ? value.trim().slice(0, max) : "";
+}
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!);
+}
+
+export async function POST(req: NextRequest) {
+  const blocked = await protectAdminMutation(req, { key: "email:confirmation", limit: 10 });
+  if (blocked) return blocked;
   if (!process.env.RESEND_API_KEY) {
     return NextResponse.json({ error: "Email service not configured" }, { status: 503 });
   }
 
-  const body = await req.json();
-  const { to_email, to_name, order_number, order_items, order_total, shipping, payment_method, delivery_city } = body;
+  let body: Record<string, unknown>;
+  try { body = await req.json() as Record<string, unknown>; } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  const to_email = safeText(body.to_email, 254).toLowerCase();
+  const to_name = escapeHtml(safeText(body.to_name, 120));
+  const order_number = escapeHtml(safeText(body.order_number, 40));
+  const order_items = safeText(body.order_items, 5_000);
+  const order_total = escapeHtml(safeText(String(body.order_total ?? ""), 40));
+  const shipping = escapeHtml(safeText(String(body.shipping ?? ""), 40));
+  const payment_method = escapeHtml(safeText(body.payment_method, 80));
+  const delivery_city = escapeHtml(safeText(body.delivery_city, 100));
 
-  if (!to_email || !order_number) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to_email) || !/^ECO-\d{6}$/.test(order_number) || !order_items) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
   const { name: storeName, email: storeEmail, banner: emailBannerUrl } = await getStoreSettings();
 
-  const itemsHtml = (order_items as string)
+  const itemsHtml = order_items
     .split("\n")
-    .map((line: string) => `<li style="padding:4px 0;color:#374151;">${line.replace("•", "").trim()}</li>`)
+    .slice(0, 50)
+    .map((line: string) => `<li style="padding:4px 0;color:#374151;">${escapeHtml(line.replace("•", "").trim())}</li>`)
     .join("");
 
   const html = `

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { randomBytes } from "crypto";
+import { protectAdminMutation } from "@/lib/api-security";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,6 +10,9 @@ const supabase = createClient(
 
 // POST /api/admin/staff/resend-invite — rotate token + resend invite email
 export async function POST(req: NextRequest) {
+  const blocked = await protectAdminMutation(req, { key: "admin:staff:invite", limit: 10, windowMs: 600_000 });
+  if (blocked) return blocked;
+
   const body = await req.json().catch(() => null);
   if (!body?.id) return NextResponse.json({ error: "id required" }, { status: 400 });
 

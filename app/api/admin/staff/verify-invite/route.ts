@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { enforceRateLimit, isSameOrigin } from "@/lib/api-security";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,8 +9,13 @@ const supabase = createClient(
 
 // GET /api/admin/staff/verify-invite?token=XXX — look up staff by invite token
 export async function GET(req: NextRequest) {
+  const limited = enforceRateLimit(req, "admin:invite:verify", 20, 600_000);
+  if (limited) return limited;
+
   const token = req.nextUrl.searchParams.get("token");
-  if (!token) return NextResponse.json({ error: "token required" }, { status: 400 });
+  if (!token || !/^[a-f0-9]{64}$/i.test(token)) {
+    return NextResponse.json({ error: "Invalid or expired token" }, { status: 404 });
+  }
 
   const { data, error } = await supabase
     .from("admin_staff")
@@ -25,13 +31,20 @@ export async function GET(req: NextRequest) {
 
 // POST /api/admin/staff/verify-invite — mark staff as active after account creation
 export async function POST(req: NextRequest) {
+  if (!isSameOrigin(req)) return NextResponse.json({ error: "Origine non autorisée" }, { status: 403 });
+  const limited = enforceRateLimit(req, "admin:invite:activate", 10, 600_000);
+  if (limited) return limited;
+
   const body = await req.json().catch(() => null);
-  if (!body?.token) return NextResponse.json({ error: "token required" }, { status: 400 });
+  if (!body?.token || !/^[a-f0-9]{64}$/i.test(body.token)) {
+    return NextResponse.json({ error: "Invalid or expired token" }, { status: 404 });
+  }
 
   const { error } = await supabase
     .from("admin_staff")
     .update({ status: "active", invite_token: null })
-    .eq("invite_token", body.token);
+    .eq("invite_token", body.token)
+    .eq("status", "invited");
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });

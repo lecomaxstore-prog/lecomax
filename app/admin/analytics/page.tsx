@@ -67,14 +67,37 @@ function timeAgo(iso: string) {
   if (diff < 3600) return `${Math.floor(diff / 60)}min`;
   return `${Math.floor(diff / 3600)}h`;
 }
-function countryFlag(code: string | null | undefined) {
-  if (!code) return "🌐";
-  if (code === "LO") return "🏠";
-  if (!/^[A-Z]{2}$/.test(code)) return "🌐";
-  return String.fromCodePoint(...code.split("").map((letter) => 127397 + letter.charCodeAt(0)));
+function countryName(code: string | null | undefined) {
+  const normalized = code?.trim().toUpperCase();
+  if (!normalized || normalized === "LO" || !/^[A-Z]{2}$/.test(normalized)) return null;
+  try {
+    return new Intl.DisplayNames(["fr"], { type: "region" }).of(normalized) || normalized;
+  } catch {
+    return normalized;
+  }
+}
+function CountryFlag({ code }: { code: string | null | undefined }) {
+  const normalized = code?.trim().toUpperCase();
+  if (normalized === "LO") return <span title="Visite locale" aria-label="Visite locale">🏠</span>;
+  if (!normalized || !/^[A-Z]{2}$/.test(normalized)) return <span title="Pays inconnu" aria-label="Pays inconnu">🌐</span>;
+  const name = countryName(normalized) || normalized;
+  return (
+    <span className="relative flex h-[20px] w-[27px] items-center justify-center" title={name}>
+      <span className="text-base" aria-hidden="true">🌐</span>
+      <img
+        src={`https://flagcdn.com/w40/${normalized.toLowerCase()}.png`}
+        srcSet={`https://flagcdn.com/w80/${normalized.toLowerCase()}.png 2x`}
+        width="40"
+        height="30"
+        alt={`Drapeau ${name}`}
+        className="absolute inset-0 h-full w-full rounded-[4px] object-cover shadow-[0_1px_4px_rgba(0,0,0,.16)] ring-1 ring-black/[.06]"
+        onError={(event) => { event.currentTarget.style.display = "none"; }}
+      />
+    </span>
+  );
 }
 function locationLabel(city?: string | null, region?: string | null, country?: string | null) {
-  return [city, region, country && country !== "LO" ? country : null].filter(Boolean).join(", ") || "Localisation inconnue";
+  return [city, region, countryName(country)].filter(Boolean).join(", ") || "Localisation inconnue";
 }
 function funnelLabel(path: string): string | null {
   if (path === "/") return "Accueil";
@@ -163,6 +186,8 @@ function DonutChart({ slices }: { slices: { label: string; value: number; color:
   );
 }
 
+const SESSION_PAGE_SIZE = 8;
+
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState<7 | 30 | 90>(30);
   const [loading, setLoading] = useState(true);
@@ -176,6 +201,7 @@ export default function AnalyticsPage() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [sessions, setSessions] = useState<SessionData[]>([]);
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
+  const [visibleSessionCount, setVisibleSessionCount] = useState(SESSION_PAGE_SIZE);
 
   const load = useCallback(async () => {
     const [res, prevRes] = await Promise.all([
@@ -204,7 +230,12 @@ export default function AnalyticsPage() {
     setLoading(false);
   }, [period]);
 
-  useEffect(() => { setLoading(true); load(); }, [load]);
+  useEffect(() => {
+    setLoading(true);
+    setVisibleSessionCount(SESSION_PAGE_SIZE);
+    setExpandedSession(null);
+    load();
+  }, [load]);
 
   // Auto-refresh recent activity every 60s
   useEffect(() => {
@@ -664,7 +695,7 @@ export default function AnalyticsPage() {
               </div>
             ) : (
               <div className="divide-y divide-neutral-50">
-                {sessions.slice(0, 50).map((s) => {
+                {sessions.slice(0, visibleSessionCount).map((s) => {
                   const device = s.device_type || (isTablet(s.user_agent) ? "Tablette" : isMobile(s.user_agent) ? "Mobile" : "Desktop");
                   const source = parseSource(s.referrer);
                   const durationSec = Math.max(0, Math.floor((new Date(s.ended_at).getTime() - new Date(s.started_at).getTime()) / 1000));
@@ -676,7 +707,7 @@ export default function AnalyticsPage() {
                         onClick={() => setExpandedSession(isExpanded ? null : s.session_id)}
                         className="w-full flex items-center gap-3 px-5 py-3 hover:bg-neutral-50 transition-colors text-left"
                       >
-                        <div className="w-9 h-9 rounded-xl bg-neutral-50 flex items-center justify-center shrink-0 text-lg">{countryFlag(s.country_code)}</div>
+                        <div className="w-9 h-9 rounded-xl border border-neutral-100 bg-neutral-50 flex items-center justify-center shrink-0"><CountryFlag code={s.country_code} /></div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="text-[13px] font-semibold truncate">{s.pages[0]?.path || "/"}</p>
@@ -734,6 +765,44 @@ export default function AnalyticsPage() {
                     </div>
                   );
                 })}
+                {(sessions.length > visibleSessionCount || visibleSessionCount > SESSION_PAGE_SIZE) && (
+                  <div className="border-t border-neutral-100 bg-neutral-50/60 px-4 py-4 sm:px-5">
+                    <div className="mx-auto max-w-sm">
+                      <div className="mb-2.5 flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.14em]">
+                        <span className="text-neutral-500">{Math.min(visibleSessionCount, sessions.length)} affichées</span>
+                        <span className="text-neutral-300">{sessions.length} au total</span>
+                      </div>
+                      <div className="mb-3 h-1 overflow-hidden rounded-full bg-neutral-200">
+                        <div
+                          className="h-full rounded-full bg-[#3ecf4c] transition-[width] duration-300"
+                          style={{ width: `${Math.min(100, (visibleSessionCount / sessions.length) * 100)}%` }}
+                        />
+                      </div>
+                      {sessions.length > visibleSessionCount ? (
+                        <button
+                          type="button"
+                          onClick={() => setVisibleSessionCount((count) => Math.min(count + SESSION_PAGE_SIZE, sessions.length))}
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white text-[11px] font-black uppercase tracking-[0.12em] text-neutral-800 shadow-sm transition hover:border-[#3ecf4c]/50 hover:text-[#188c2d]"
+                        >
+                          Voir plus
+                          <span className="rounded-full bg-[#effcf1] px-2 py-0.5 text-[9px] text-[#188c2d]">
+                            +{Math.min(SESSION_PAGE_SIZE, sessions.length - visibleSessionCount)}
+                          </span>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => { setVisibleSessionCount(SESSION_PAGE_SIZE); setExpandedSession(null); }}
+                          className="flex h-10 w-full items-center justify-center gap-2 rounded-xl text-[10px] font-black uppercase tracking-[0.12em] text-neutral-400 transition hover:bg-white hover:text-neutral-700"
+                        >
+                          Afficher moins
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6" /></svg>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

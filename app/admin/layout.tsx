@@ -476,7 +476,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isDesktop, setIsDesktop] = useState(false);
   const drawerRef = useRef<HTMLElement>(null);
   const drawerTriggerRef = useRef<HTMLButtonElement | null>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const drawerCloseRef = useRef<HTMLButtonElement | null>(null);
   const isLoginRoute = pathname.replace(/\/+$/, "") === "/admin";
 
   // ── Set admin-specific document title ──────────────────────────────────
@@ -603,11 +603,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )
     ).filter(element => element.getClientRects().length > 0);
 
-    // Delay focus until after the click event has finished. This avoids the
-    // trigger reclaiming focus in mobile browsers while the drawer starts its
-    // transform transition.
+    // Keep focus inside the drawer for accessibility without focusing the
+    // search input, which would open the software keyboard on mobile.
     const focusTimer = window.setTimeout(() => {
-      searchInputRef.current?.focus({ preventScroll: true });
+      drawerCloseRef.current?.focus({ preventScroll: true });
     }, 80);
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -823,6 +822,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
           <button
+            ref={drawerCloseRef}
             type="button"
             onClick={closeDrawer}
             aria-label="Fermer le menu"
@@ -839,7 +839,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <svg aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/25" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             <input
               id="admin-navigation-search"
-              ref={searchInputRef}
               type="text"
               placeholder="Rechercher…"
               value={search}
@@ -898,9 +897,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         )}
 
         {/* Nav */}
-        <nav aria-label="Sections de l’administration" aria-busy={permissionState.status === "loading"} className="min-h-0 flex-1 space-y-0 overflow-y-auto overscroll-contain px-3 py-1">
+        <nav aria-label="Sections de l’administration" aria-busy={permissionState.status === "loading"} className="min-h-0 flex-1 space-y-0 overflow-y-auto overscroll-contain px-3 py-1.5">
           {search ? (
-            <div className="space-y-0.5 py-1">
+            <div className="space-y-1 py-1">
               {allNavItems.length === 0 && (
                 <p className="text-white/20 text-xs px-3 py-4 text-center">Aucun résultat</p>
               )}
@@ -910,16 +909,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 return (
                   <Link key={item.href} href={item.href} onClick={() => { closeDrawer(); setSearch(""); }}
                     aria-current={active ? "page" : undefined}
-                    className={`flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]
-                      ${active ? "bg-white text-black" : "text-white/55 hover:text-white hover:bg-white/8"}`}>
-                    <span className={`shrink-0 ${active ? "text-black" : "text-white/35"}`}>{item.icon}</span>
-                    <span className="flex-1 truncate">{item.label}</span>
+                    className={`group relative flex min-h-12 items-center gap-2.5 rounded-[14px] border px-2 py-2 text-[13px] font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]
+                      ${active ? "border-[#3ecf4c]/25 bg-gradient-to-r from-[#3ecf4c]/16 to-[#3ecf4c]/[.06] text-white shadow-[0_8px_22px_rgba(0,0,0,.18)]" : "border-transparent text-white/60 hover:border-white/[.07] hover:bg-white/[.055] hover:text-white"}`}>
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] transition-all ${active ? "bg-[#3ecf4c] text-black shadow-[0_5px_14px_rgba(62,207,76,.22)]" : "bg-white/[.045] text-white/35 group-hover:bg-white/[.08] group-hover:text-white/70"}`}>{item.icon}</span>
+                    <span className="flex-1 truncate tracking-[-0.01em]">{item.label}</span>
                     {badgeCount > 0 && (
                       <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight shrink-0
                         ${item.badge === "stock" ? "bg-amber-400 text-amber-950" : item.badge === "messages" ? "bg-blue-500 text-white" : item.badge === "approvals" ? "bg-amber-500 text-white animate-pulse" : "bg-orange-500 text-white"}`}>
                         {badgeCount}
                       </span>
                     )}
+                    {active && badgeCount === 0 && <svg className="mr-1 shrink-0 text-[#66e875]" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>}
                   </Link>
                 );
               })}
@@ -930,25 +930,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               .filter((x): x is typeof nav[0] => !!x && canSee(x.href));
             if (items.length === 0) return null;
             return (
-              <div key={section.title} className="mb-1">
-                <p className="px-3 pt-3 pb-1 text-[9px] font-bold text-white/18 uppercase tracking-[0.2em]">{section.title}</p>
-                <div className="space-y-0.5">
+              <div key={section.title} className="mb-1.5">
+                <div className="flex items-center gap-2 px-2 pb-1.5 pt-3.5">
+                  <span className="h-1 w-1 rounded-full bg-[#3ecf4c]/80 shadow-[0_0_8px_rgba(62,207,76,.45)]" />
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30">{section.title}</p>
+                  <span className="h-px flex-1 bg-gradient-to-r from-white/[.07] to-transparent" />
+                </div>
+                <div className="space-y-1">
                   {items.map((item) => {
                     const active = pathname.startsWith(item.href);
                     const badgeCount = item.badge ? (badges[item.badge] ?? 0) : 0;
                     return (
                       <Link key={item.href} href={item.href} onClick={closeDrawer}
                         aria-current={active ? "page" : undefined}
-                        className={`flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]
-                          ${active ? "bg-white text-black shadow-sm" : "text-white/50 hover:text-white hover:bg-white/8"}`}>
-                        <span className={`shrink-0 ${active ? "text-black" : "text-white/35"}`}>{item.icon}</span>
-                        <span className="flex-1 truncate">{item.label}</span>
+                        className={`group relative flex min-h-12 items-center gap-2.5 rounded-[14px] border px-2 py-2 text-[13px] font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]
+                          ${active ? "border-[#3ecf4c]/25 bg-gradient-to-r from-[#3ecf4c]/16 to-[#3ecf4c]/[.06] text-white shadow-[0_8px_22px_rgba(0,0,0,.18)]" : "border-transparent text-white/60 hover:border-white/[.07] hover:bg-white/[.055] hover:text-white"}`}>
+                        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] transition-all ${active ? "bg-[#3ecf4c] text-black shadow-[0_5px_14px_rgba(62,207,76,.22)]" : "bg-white/[.045] text-white/35 group-hover:bg-white/[.08] group-hover:text-white/70"}`}>{item.icon}</span>
+                        <span className="flex-1 truncate tracking-[-0.01em]">{item.label}</span>
                         {badgeCount > 0 && (
                           <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight shrink-0
                             ${item.badge === "stock" ? "bg-amber-400 text-amber-950" : item.badge === "messages" ? "bg-blue-500 text-white" : item.badge === "approvals" ? "bg-amber-500 text-white animate-pulse" : "bg-orange-500 text-white"}`}>
                             {badgeCount}
                           </span>
                         )}
+                        {active && badgeCount === 0 && <svg className="mr-1 shrink-0 text-[#66e875]" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>}
                       </Link>
                     );
                   })}
@@ -959,18 +964,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Footer */}
-        <div className="shrink-0 space-y-1 border-t border-white/[0.07] px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:pb-3">
+        <div className="shrink-0 space-y-1.5 border-t border-white/[0.07] bg-black/10 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:pb-3">
           <Link href="/" target="_blank" rel="noreferrer"
-            className="flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2.5 text-[12px] font-medium text-white/45 transition-colors hover:bg-white/8 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            Voir le site
+            className="group flex min-h-12 items-center gap-2.5 rounded-[14px] border border-transparent px-2 py-2 text-[12px] font-semibold text-white/55 transition-all hover:border-[#3ecf4c]/15 hover:bg-[#3ecf4c]/[.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/[.045] text-white/35 transition group-hover:bg-[#3ecf4c]/15 group-hover:text-[#66e875]"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+            <span className="flex-1">Voir le site</span>
+            <svg className="mr-1 text-white/20 transition group-hover:text-[#66e875]" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
           </Link>
           <button type="button" onClick={logout}
-            className="flex min-h-11 w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[12px] font-medium text-white/45 transition-colors hover:bg-red-500/10 hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            className="group flex min-h-12 w-full items-center gap-2.5 rounded-[14px] border border-transparent px-2 py-2 text-[12px] font-semibold text-white/45 transition-all hover:border-red-400/15 hover:bg-red-500/[.08] hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/[.045] text-white/30 transition group-hover:bg-red-500/15 group-hover:text-red-300"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
-            Déconnexion
+            </svg></span>
+            <span className="flex-1 text-left">Déconnexion</span>
           </button>
         </div>
       </aside>

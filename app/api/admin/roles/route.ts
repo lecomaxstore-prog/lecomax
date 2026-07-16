@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,7 +8,10 @@ const supabase = createClient(
 );
 
 // GET /api/admin/roles — list all roles with their permissions + staff count
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const blocked = await protectAdminRead(req, { key: "admin:roles:list", limit: 60 });
+  if (blocked) return blocked;
+
   const { data: roles, error } = await supabase
     .from("admin_roles")
     .select("*, admin_role_permissions(permission_slug)")
@@ -44,6 +48,9 @@ export async function GET() {
 
 // POST /api/admin/roles — create a new role
 export async function POST(req: NextRequest) {
+  const blocked = await protectAdminMutation(req, { key: "admin:roles:create", limit: 10 });
+  if (blocked) return blocked;
+
   const body = await req.json().catch(() => null);
   if (!body?.name) return NextResponse.json({ error: "name is required" }, { status: 400 });
 
