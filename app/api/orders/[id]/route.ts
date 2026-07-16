@@ -85,6 +85,28 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
+  const update: { status?: string; tracking_number?: string | null; notes?: string | null; updated_at: string } = {
+    updated_at: new Date().toISOString(),
+  };
+  if ("status" in body) {
+    const status = typeof body.status === "string" ? body.status.trim().toLowerCase() : "";
+    if (!["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"].includes(status)) {
+      return NextResponse.json({ error: "Statut de commande invalide." }, { status: 400 });
+    }
+    update.status = status;
+  }
+  if ("tracking_number" in body) {
+    update.tracking_number = typeof body.tracking_number === "string"
+      ? body.tracking_number.trim().slice(0, 120) || null
+      : null;
+  }
+  if ("notes" in body) {
+    update.notes = typeof body.notes === "string" ? body.notes.trim().slice(0, 2000) || null : null;
+  }
+  if (Object.keys(update).length === 1) {
+    return NextResponse.json({ error: "Aucune modification valide." }, { status: 400 });
+  }
+
   // Fetch previous status so we only award points on the transition to delivered
   const { data: prev } = await supabase
     .from("orders")
@@ -94,14 +116,14 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const { data, error } = await supabase
     .from("orders")
-    .update({ ...body, updated_at: new Date().toISOString() })
+    .update(update)
     .eq("id", id)
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Award 50 EcoClub points + send Trustpilot review invite when delivered for the first time
-  if (body.status === "delivered" && prev?.status !== "delivered") {
+  if (update.status === "delivered" && prev?.status !== "delivered") {
     const customer = prev?.customer as { email?: string; name?: string; first_name?: string } | undefined;
     const email = customer?.email;
     const name = customer?.name || customer?.first_name || "Client";
