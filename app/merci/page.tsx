@@ -98,18 +98,73 @@ export default function MerciPage() {
 
   if (!order) {
     return (
-      <main className="flex min-h-[70vh] items-center justify-center bg-[#f6f7f5] px-4 py-16">
-        <div className="w-full max-w-lg rounded-[28px] border border-neutral-200 bg-white p-8 text-center shadow-[0_20px_60px_rgba(15,23,42,0.07)] sm:p-12">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-neutral-100 text-neutral-500">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+      <main className="relative flex min-h-[72vh] items-center justify-center overflow-hidden bg-[#f5f7f4] px-4 py-16 sm:py-20">
+        <style>{`
+          @keyframes lecomax-empty-enter {
+            from { opacity: 0; transform: translateY(22px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+          }
+          @keyframes lecomax-empty-icon {
+            0% { opacity: 0; transform: translateY(8px) rotate(-7deg) scale(.75); }
+            65% { opacity: 1; transform: translateY(-2px) rotate(2deg) scale(1.04); }
+            100% { opacity: 1; transform: translateY(0) rotate(0) scale(1); }
+          }
+          @keyframes lecomax-empty-pulse {
+            0%, 100% { opacity: .35; transform: scale(.9); }
+            50% { opacity: .65; transform: scale(1.08); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .lecomax-empty-motion { animation: none !important; }
+          }
+        `}</style>
+
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.10),transparent_66%)]" />
+
+        <section className="lecomax-empty-motion relative w-full max-w-2xl overflow-hidden rounded-[32px] border border-black/[0.07] bg-white shadow-[0_28px_90px_rgba(18,32,22,0.10)] [animation:lecomax-empty-enter_.65s_cubic-bezier(.22,1,.36,1)_both]">
+          <div className="h-1 w-full bg-gradient-to-r from-emerald-300 via-emerald-500 to-lime-300" />
+          <div className="px-7 py-10 text-center sm:px-14 sm:py-14">
+            <div className="relative mx-auto h-20 w-20">
+              <div className="lecomax-empty-motion absolute inset-0 rounded-[25px] bg-emerald-200 [animation:lecomax-empty-pulse_3s_ease-in-out_infinite]" />
+              <div className="lecomax-empty-motion relative flex h-20 w-20 items-center justify-center rounded-[25px] border border-emerald-200 bg-emerald-50 text-emerald-700 shadow-[0_12px_28px_rgba(16,185,129,0.14)] [animation:lecomax-empty-icon_.7s_.15s_cubic-bezier(.22,1,.36,1)_both]">
+                <svg width="31" height="31" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+                  <path d="M3 6h18M16 10a4 4 0 0 1-8 0" />
+                </svg>
+                <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-[3px] border-white bg-black text-white">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-7 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3.5 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Espace commande
+            </div>
+            <h1 className="mx-auto mt-4 max-w-md text-[28px] font-black leading-[1.08] tracking-[-0.045em] text-neutral-950 sm:text-4xl">
+              Retrouvez votre commande
+            </h1>
+            <p className="mx-auto mt-4 max-w-md text-[15px] leading-7 text-neutral-500">
+              Aucune commande n’est liée à cet appareil. Saisissez simplement votre numéro de commande et l’adresse e-mail utilisée lors de l’achat.
+            </p>
+
+            <div className="mx-auto mt-8 grid max-w-md gap-3 sm:grid-cols-2">
+              <Link href="/suivre-commande" className="group flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-neutral-950 px-5 text-xs font-black uppercase tracking-[0.09em] text-white shadow-[0_12px_28px_rgba(0,0,0,0.16)] transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-[0_16px_32px_rgba(5,150,105,0.22)]">
+                Suivre ma commande
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              </Link>
+              <Link href="/boutique" className="group flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-neutral-200 bg-white px-5 text-xs font-black uppercase tracking-[0.09em] text-neutral-900 transition duration-300 hover:-translate-y-0.5 hover:border-neutral-400 hover:bg-neutral-50">
+                Voir la boutique
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              </Link>
+            </div>
           </div>
-          <h1 className="mt-6 text-2xl font-black tracking-[-0.03em]">Aucune commande récente</h1>
-          <p className="mt-3 text-sm leading-6 text-neutral-500">Retrouvez une commande avec son numéro et l’adresse e-mail utilisée lors de l’achat.</p>
-          <div className="mt-7 grid gap-3 sm:grid-cols-2">
-            <Link href="/suivre-commande" className="rounded-xl bg-black px-5 py-3.5 text-xs font-black uppercase tracking-[0.1em] text-white">Suivre une commande</Link>
-            <Link href="/boutique" className="rounded-xl border border-neutral-200 px-5 py-3.5 text-xs font-black uppercase tracking-[0.1em] text-neutral-800">Voir la boutique</Link>
+
+          <div className="grid grid-cols-2 divide-x divide-neutral-200 border-t border-neutral-200 bg-neutral-50/80 px-4 py-4 text-center text-[10px] font-bold uppercase tracking-[0.11em] text-neutral-500 sm:grid-cols-3">
+            <span className="flex items-center justify-center gap-2"><span className="text-emerald-600">✓</span> Suivi sécurisé</span>
+            <span className="flex items-center justify-center gap-2"><span className="text-emerald-600">✓</span> Données protégées</span>
+            <span className="hidden items-center justify-center gap-2 sm:flex"><span className="text-emerald-600">✓</span> Assistance disponible</span>
           </div>
-        </div>
+        </section>
       </main>
     );
   }
@@ -159,15 +214,24 @@ export default function MerciPage() {
           }
         }
       `}</style>
-      <section className="relative overflow-hidden bg-[#07110a] px-4 pb-24 pt-14 text-white sm:pb-28 sm:pt-20">
+      <section className="relative flex min-h-[540px] items-start overflow-hidden bg-[#07110a] px-4 pb-40 pt-14 text-white sm:min-h-[590px] sm:pb-48 sm:pt-20 lg:min-h-[640px]">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div className="absolute -right-24 -top-36 h-96 w-96 rounded-full bg-[#3ecf4c]/15 blur-3xl" />
-          <div className="absolute -bottom-52 left-1/4 h-80 w-80 rounded-full bg-emerald-300/10 blur-3xl" />
-          <div className="absolute inset-0 opacity-[0.035]" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
-          <div className="absolute left-1/2 top-[38%] h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#3ecf4c]/15 blur-[72px] animate-[lecomax-glow-bloom_1.2s_.05s_ease-out_both]" />
+          <Image
+            src="/images/merci.png"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[17%_center] sm:object-[center_42%]"
+          />
+          <div className="absolute inset-0 bg-black/25 sm:bg-black/10" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.50)_0%,rgba(0,0,0,0.30)_34%,rgba(0,0,0,0.04)_72%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#07110a] via-[#07110a]/55 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/35 to-transparent" />
+          <div className="absolute left-1/2 top-[34%] h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#3ecf4c]/10 blur-[80px] animate-[lecomax-glow-bloom_1.2s_.05s_ease-out_both]" />
         </div>
 
-        <div className="lecomax-success-motion relative mx-auto max-w-5xl text-center">
+        <div className="lecomax-success-motion relative mx-auto w-full max-w-5xl text-center drop-shadow-[0_2px_18px_rgba(0,0,0,0.65)]">
           <div className="relative mx-auto h-20 w-20 sm:h-24 sm:w-24" aria-hidden="true">
             <span className="absolute inset-2 rounded-[26px] border border-[#75e584]/45 animate-[lecomax-success-ring_1.25s_.35s_ease-out_both]" />
             <span className="absolute inset-2 rounded-[26px] border border-[#75e584]/25 animate-[lecomax-success-ring_1.4s_.55s_ease-out_both]" />
@@ -201,7 +265,7 @@ export default function MerciPage() {
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto -mt-14 max-w-6xl px-4 pb-20 opacity-0 animate-[lecomax-panel-rise_.75s_1.12s_ease-out_forwards] sm:-mt-16 sm:px-6">
+      <section className="relative z-10 mx-auto -mt-24 max-w-6xl px-4 pb-20 opacity-0 animate-[lecomax-panel-rise_.75s_1.12s_ease-out_forwards] sm:-mt-28 sm:px-6 lg:-mt-32">
         <div className="grid items-start gap-5 lg:grid-cols-[1.12fr_.88fr] lg:gap-6">
           <div className="overflow-hidden rounded-[24px] border border-neutral-200/80 bg-white shadow-[0_22px_70px_rgba(15,23,42,0.09)] sm:rounded-[28px]">
             <div className="flex flex-col gap-5 border-b border-neutral-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-6">
