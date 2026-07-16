@@ -42,6 +42,29 @@ export async function POST(req: NextRequest) {
   if ("shipping_estimated_days" in values && (typeof values.shipping_estimated_days !== "string" || !values.shipping_estimated_days.trim() || values.shipping_estimated_days.length > 80)) {
     return NextResponse.json({ error: "Le délai de livraison doit contenir entre 1 et 80 caractères." }, { status: 400 });
   }
+  const announcementMessages = [1, 2, 3, 4, 5].map((index) => `announcement_${index}`);
+  for (const key of announcementMessages) {
+    if (key in values && (typeof values[key] !== "string" || String(values[key]).length > 160)) {
+      return NextResponse.json({ error: "Chaque annonce doit contenir au maximum 160 caractères." }, { status: 400 });
+    }
+  }
+  const booleanKeys = ["announcement_enabled", "announcement_pause_hover", "announcement_show_icons", "announcement_uppercase", "announcement_mobile_enabled"];
+  for (const key of booleanKeys) {
+    if (key in values && values[key] !== "true" && values[key] !== "false" && values[key] !== true && values[key] !== false) {
+      return NextResponse.json({ error: `Valeur invalide pour ${key}.` }, { status: 400 });
+    }
+  }
+  for (const key of ["announcement_background", "announcement_accent", "announcement_text_color"]) {
+    if (key in values && !/^#[0-9a-f]{6}$/i.test(String(values[key]))) {
+      return NextResponse.json({ error: "Les couleurs doivent utiliser le format hexadécimal #RRGGBB." }, { status: 400 });
+    }
+  }
+  if ("announcement_speed" in values) {
+    const speed = Number(values.announcement_speed);
+    if (!Number.isFinite(speed) || speed < 12 || speed > 120) {
+      return NextResponse.json({ error: "La vitesse doit être comprise entre 12 et 120 secondes." }, { status: 400 });
+    }
+  }
   const rows = Object.entries(values).map(([key, value]) => ({
     key,
     value: String(value ?? ""),

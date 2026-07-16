@@ -246,6 +246,9 @@ export default function CheckoutPage() {
   const [addressMode, setAddressMode] = useState<"saved" | "new">("new");
   const [accountDetailsLoaded, setAccountDetailsLoaded] = useState(false);
   const [payment, setPayment] = useState<"livraison" | "paypal">("livraison");
+  const [paypalStatus, setPaypalStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [paypalRetry, setPaypalRetry] = useState(0);
+  const [paypalError, setPaypalError] = useState("");
   const [loading, setLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState<{
@@ -417,6 +420,22 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (payment !== "paypal") return;
     const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "";
+    let active = true;
+    let loadTimer: ReturnType<typeof setTimeout> | null = null;
+    setPaypalStatus("loading");
+    setPaypalError("");
+
+    const failLoading = (message: string) => {
+      if (!active) return;
+      paypalRendered.current = false;
+      setPaypalStatus("error");
+      setPaypalError(message);
+    };
+
+    if (!PAYPAL_CLIENT_ID) {
+      failLoading("PayPal n'est pas configuré. Choisissez le paiement à la livraison.");
+      return () => { active = false; };
+    }
 
     const renderButtons = () => {
       const container = paypalContainerRef.current;
@@ -424,7 +443,7 @@ export default function CheckoutPage() {
       if (!(window as any).paypal) return;
       paypalRendered.current = true;
       container.innerHTML = "";
-      (window as any).paypal.Buttons({
+      const buttons = (window as any).paypal.Buttons({
         style: { layout: "vertical", color: "blue", shape: "rect", label: "pay", height: 48 },
         createOrder: (_data: unknown, actions: any) => {
           // Use ref to get latest form data (avoids stale closure)
@@ -486,29 +505,60 @@ export default function CheckoutPage() {
           // User closed the PayPal popup — silent, no error message
           setLoading(false);
         },
-      }).render(container);
+      });
+      if (typeof buttons.isEligible === "function" && !buttons.isEligible()) {
+        failLoading("PayPal n'est pas disponible sur ce navigateur. Réessayez ou choisissez le paiement à la livraison.");
+        return;
+      }
+      Promise.resolve(buttons.render(container))
+        .then(() => { if (active) setPaypalStatus("ready"); })
+        .catch(() => failLoading("Le bouton PayPal n'a pas pu être chargé. Vérifiez votre connexion puis réessayez."));
     };
 
     // If SDK already loaded, render immediately
-    if ((window as any).paypal) { renderButtons(); return; }
+    if ((window as any).paypal) {
+      renderButtons();
+      return () => { active = false; };
+    }
 
     // Otherwise inject script tag
     const existing = document.getElementById("paypal-sdk");
-    if (existing) { existing.addEventListener("load", renderButtons); return; }
+    // A script left by a failed/aborted attempt will never fire `load` again.
+    // Remove it so retrying always starts from a known state.
+    if (existing) existing.remove();
     const script = document.createElement("script");
     script.id = "paypal-sdk";
     script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=capture`;
-    script.onload = renderButtons;
-    script.onerror = () => console.error("Failed to load PayPal SDK");
+    script.onload = () => {
+      if (loadTimer) clearTimeout(loadTimer);
+      renderButtons();
+    };
+    script.onerror = () => {
+      if (loadTimer) clearTimeout(loadTimer);
+      failLoading("Impossible de contacter PayPal. Désactivez le bloqueur de contenu pour cette page puis réessayez.");
+    };
     document.head.appendChild(script);
+    loadTimer = setTimeout(() => {
+      if (active && !(window as any).paypal) {
+        script.remove();
+        failLoading("Le chargement de PayPal prend trop de temps. Vérifiez votre connexion puis réessayez.");
+      }
+    }, 15_000);
 
-    return () => { /* keep script in DOM for reuse */ };
+    return () => {
+      active = false;
+      if (loadTimer) clearTimeout(loadTimer);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [payment, grandTotal]);
+  }, [payment, paypalRetry]);
 
   // Reset rendered flag when payment changes away from paypal
   useEffect(() => {
-    if (payment !== "paypal") { paypalRendered.current = false; }
+    if (payment !== "paypal") {
+      paypalRendered.current = false;
+      setPaypalStatus("idle");
+      setPaypalError("");
+    }
   }, [payment]);
 
   const applyCoupon = async () => {
@@ -940,9 +990,44 @@ export default function CheckoutPage() {
 
                 {/* PayPal Buttons — shown when PayPal is selected */}
                 {payment === "paypal" && (
-                  <div className="border border-[#0070ba]/20 bg-[#f0f7ff] p-4">
-                    <p className="text-[11px] text-neutral-500 mb-3 text-center font-semibold uppercase tracking-wider">Remplissez le formulaire puis cliquez sur PayPal</p>
-                    <div ref={paypalContainerRef} id="paypal-button-container" />
+                  <div className="rounded-xl border border-[#0070ba]/20 bg-gradient-to-b from-[#f7fbff] to-white p-4 shadow-[0_8px_24px_rgba(0,112,186,0.08)]" aria-live="polite">
+                    <div className="mb-3 flex items-center justify-center gap-2 text-center">
+                      {paypalStatus === "loading" && (
+                        <>
+                          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#0070ba]/25 border-t-[#0070ba]" aria-hidden="true" />
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-[#36546b]">Connexion sécurisée à PayPal…</p>
+                        </>
+                      )}
+                      {paypalStatus === "ready" && (
+                        <p className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100" aria-hidden="true">✓</span>
+                          PayPal est prêt — vérifiez vos coordonnées puis payez
+                        </p>
+                      )}
+                    </div>
+
+                    <div ref={paypalContainerRef} id="paypal-button-container" className={paypalStatus === "ready" ? "min-h-[48px]" : "min-h-0"} />
+
+                    {paypalStatus === "loading" && (
+                      <div className="h-12 animate-pulse rounded-lg bg-[#0070ba]/10" aria-hidden="true" />
+                    )}
+
+                    {paypalStatus === "error" && (
+                      <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-center">
+                        <p className="text-[12px] font-semibold leading-relaxed text-red-700">{paypalError}</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            paypalRendered.current = false;
+                            if (paypalContainerRef.current) paypalContainerRef.current.innerHTML = "";
+                            setPaypalRetry((retry) => retry + 1);
+                          }}
+                          className="mt-3 inline-flex h-9 items-center justify-center rounded-lg bg-[#0070ba] px-5 text-[11px] font-black uppercase tracking-wider text-white transition hover:bg-[#005ea6]"
+                        >
+                          Réessayer PayPal
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
 

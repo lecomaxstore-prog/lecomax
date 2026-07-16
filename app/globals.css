@@ -149,7 +149,7 @@ body {
   animation: marquee 36s linear infinite;
   will-change: transform;
 }
-.marquee-track:hover {
+.marquee-track[data-pause-on-hover="true"]:hover {
   animation-play-state: paused;
 }
 
