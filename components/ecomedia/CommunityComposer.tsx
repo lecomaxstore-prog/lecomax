@@ -38,6 +38,7 @@ export default function CommunityComposer({ onPublished }: { onPublished: (post:
   const name = user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? user?.user_metadata?.prenom ?? user?.email?.split("@")[0] ?? "Membre";
   const firstName = String(name).split(" ")[0];
   const initial = String(name).charAt(0).toUpperCase();
+  const avatar = user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? "";
 
   function startPost() {
     if (!user) { setShowAuth(true); return; }
@@ -105,8 +106,8 @@ export default function CommunityComposer({ onPublished }: { onPublished: (post:
       <section className="border-b border-neutral-100 bg-white px-3 pb-4 pt-3 sm:px-4">
         <div className="overflow-hidden rounded-[22px] border border-neutral-200 bg-white shadow-[0_8px_30px_rgba(0,0,0,.045)]">
           <div className="flex items-center gap-3 px-4 pb-3 pt-4">
-            <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-xs font-black ${user ? "bg-neutral-950 text-[#3ecf4c] shadow-lg shadow-black/10" : "bg-neutral-100 text-neutral-400"}`}>
-              {user ? initial : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 21a8 8 0 00-16 0"/><circle cx="12" cy="7" r="4"/></svg>}
+            <div className={`flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl text-xs font-black ${user ? "bg-neutral-950 text-[#3ecf4c] shadow-lg shadow-black/10" : "bg-neutral-100 text-neutral-400"}`}>
+              {user && avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : user ? initial : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 21a8 8 0 00-16 0"/><circle cx="12" cy="7" r="4"/></svg>}
             </div>
             <button type="button" onClick={startPost} disabled={!checked} className="group min-h-12 flex-1 rounded-2xl bg-neutral-50 px-4 text-left transition hover:bg-neutral-100 disabled:opacity-60">
               <span className="block text-[13px] font-medium text-neutral-500 group-hover:text-neutral-700">
@@ -154,7 +155,7 @@ export default function CommunityComposer({ onPublished }: { onPublished: (post:
             </header>
 
             <div className="p-5 sm:p-6">
-              <div className="mb-5 flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-black text-xs font-black text-[#3ecf4c]">{initial}</div><div><p className="text-[13px] font-black">{name}</p><p className="mt-0.5 text-[9px] text-neutral-400">Texte ou une photo uniquement</p></div></div>
+              <div className="mb-5 flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl bg-black text-xs font-black text-[#3ecf4c]">{avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : initial}</div><div><p className="text-[13px] font-black">{name}</p><p className="mt-0.5 text-[9px] text-neutral-400">Texte ou une photo uniquement</p></div></div>
               <textarea autoFocus value={content} onChange={event => setContent(event.target.value)} maxLength={2000} rows={5} placeholder="Partagez une idée, une découverte ou un moment…" className="w-full resize-none rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-[14px] leading-6 outline-none transition placeholder:text-neutral-300 focus:border-neutral-400 focus:bg-white" />
               {preview && <div className="relative mt-3 overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-50"><img src={preview} alt="Aperçu de la publication" className="max-h-[390px] w-full object-contain"/><button type="button" onClick={() => setFile(null)} className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/75 text-white backdrop-blur" aria-label="Retirer la photo"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>}
               {error && <p className="mt-3 rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-xs font-medium text-red-600">{error}</p>}

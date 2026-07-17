@@ -10,7 +10,7 @@ interface Props {
   onClose: () => void;
   onCommentCountChange: (delta: number) => void;
   onRequireAuth: (action: "comment" | "reply") => void;
-  user?: { id: string; email?: string; name?: string } | null;
+  user?: { id: string; email?: string; name?: string; avatar?: string } | null;
 }
 
 type CommentRowProps = {
@@ -57,8 +57,8 @@ function CommentRow({
 
   return (
     <div className="flex gap-3" data-comment-id={comment.id}>
-      <div className={`flex shrink-0 items-center justify-center rounded-full font-black ${compact ? "h-8 w-8 text-[9px]" : "h-10 w-10 text-[11px]"} ${comment.is_owner ? "bg-black text-[#3ecf4c] ring-2 ring-[#3ecf4c]/20" : "bg-neutral-100 text-neutral-500"}`}>
-        {initial}
+      <div className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full font-black ${compact ? "h-8 w-8 text-[9px]" : "h-10 w-10 text-[11px]"} ${comment.is_owner ? "bg-black text-[#3ecf4c] ring-2 ring-[#3ecf4c]/20" : "bg-neutral-100 text-neutral-500"}`}>
+        {!comment.is_deleted && comment.avatar_url ? <img src={comment.avatar_url} alt="" className="h-full w-full object-cover" /> : initial}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex min-h-6 items-start justify-between gap-2">
@@ -391,7 +391,7 @@ export default function CommentDrawer({ post, onClose, onCommentCountChange, onR
           <form onSubmit={submit} className="border-t border-neutral-100 bg-white px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 sm:px-5">
             {replyingTo && <div className="mb-2 flex items-center justify-between rounded-xl bg-emerald-50 px-3 py-2 text-[10px] text-emerald-700"><span>Réponse à <strong>{replyingTo.name}</strong></span><button type="button" onClick={() => setReplyingTo(null)} className="font-black">Annuler</button></div>}
             <div className="flex items-end gap-2">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black text-[10px] font-black text-[#3ecf4c]">{(user.name ?? user.email ?? "U").charAt(0).toUpperCase()}</div>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-black text-[10px] font-black text-[#3ecf4c]">{user.avatar ? <img src={user.avatar} alt="" className="h-full w-full object-cover" /> : (user.name ?? user.email ?? "U").charAt(0).toUpperCase()}</div>
               <div className="flex flex-1 items-end rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2 transition focus-within:border-neutral-400 focus-within:bg-white focus-within:shadow-sm">
                 <div className="min-w-0 flex-1">
                   <textarea

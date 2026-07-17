@@ -46,7 +46,54 @@ export interface EcomediaComment {
   is_owner?: boolean;
   is_deleted?: boolean;
   edited_at?: string | null;
+  avatar_url?: string | null;
   replies?: EcomediaComment[];
+}
+
+export type EcomediaCommentAuthor = { id: string; avatar: string | null };
+
+const COMMENT_AUTHOR_PATTERN = /^\[\[author:([^\]]+)\]\]/i;
+const COMMENT_REPLY_PATTERN = /^\[\[reply:([0-9a-f-]{36})\]\]/i;
+
+export function decodeEcomediaCommentContent(storedContent: string): {
+  author: EcomediaCommentAuthor | null;
+  parentId: string | null;
+  content: string;
+  isDeleted: boolean;
+} {
+  let remainder = storedContent;
+  let author: EcomediaCommentAuthor | null = null;
+  const authorMatch = remainder.match(COMMENT_AUTHOR_PATTERN);
+  if (authorMatch) {
+    try {
+      const parsed = JSON.parse(decodeURIComponent(authorMatch[1])) as Partial<EcomediaCommentAuthor>;
+      if (typeof parsed.id === "string") {
+        author = { id: parsed.id, avatar: typeof parsed.avatar === "string" ? parsed.avatar : null };
+      }
+    } catch { /* Legacy and malformed metadata is treated as anonymous. */ }
+    remainder = remainder.slice(authorMatch[0].length);
+  }
+
+  const replyMatch = remainder.match(COMMENT_REPLY_PATTERN);
+  const parentId = replyMatch?.[1] ?? null;
+  if (replyMatch) remainder = remainder.slice(replyMatch[0].length);
+  return { author, parentId, content: remainder, isDeleted: remainder === "[[deleted]]" };
+}
+
+export function encodeEcomediaCommentContent({
+  author,
+  parentId,
+  content,
+}: {
+  author?: EcomediaCommentAuthor | null;
+  parentId?: string | null;
+  content: string;
+}): string {
+  const authorPrefix = author
+    ? `[[author:${encodeURIComponent(JSON.stringify({ id: author.id, avatar: author.avatar }))}]]`
+    : "";
+  const replyPrefix = parentId ? `[[reply:${parentId}]]` : "";
+  return `${authorPrefix}${replyPrefix}${content}`;
 }
 
 export interface EcomediaLike {

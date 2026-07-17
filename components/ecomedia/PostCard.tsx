@@ -38,7 +38,7 @@ export default function PostCard({ post, priority = false, onDeleted }: PostCard
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Auth state
-  const [user, setUser] = useState<{ id: string; email?: string; name?: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; email?: string; name?: string; avatar?: string } | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
@@ -48,12 +48,12 @@ export default function PostCard({ post, priority = false, onDeleted }: PostCard
   useEffect(() => {
     hasAdminAccess().then(setIsAdmin);
     supabase.auth.getUser().then(({ data: { user: u } }) => {
-      if (u) setUser({ id: u.id, email: u.email, name: u.user_metadata?.name ?? u.user_metadata?.full_name ?? u.email?.split("@")[0] });
+      if (u) setUser({ id: u.id, email: u.email, name: u.user_metadata?.name ?? u.user_metadata?.full_name ?? u.email?.split("@")[0], avatar: u.user_metadata?.avatar_url ?? u.user_metadata?.picture });
       setAuthChecked(true);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       const u = session?.user;
-      setUser(u ? { id: u.id, email: u.email, name: u.user_metadata?.name ?? u.user_metadata?.full_name ?? u.email?.split("@")[0] } : null);
+      setUser(u ? { id: u.id, email: u.email, name: u.user_metadata?.name ?? u.user_metadata?.full_name ?? u.email?.split("@")[0], avatar: u.user_metadata?.avatar_url ?? u.user_metadata?.picture } : null);
     });
     return () => subscription.unsubscribe();
   }, []);

@@ -8,16 +8,16 @@ import EcomediaWordmark from "./EcomediaWordmark";
 
 export default function EcomediaLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [user, setUser] = useState<{ name?: string; email?: string } | null>(null);
+  const [user, setUser] = useState<{ name?: string; email?: string; avatar?: string } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user: u } }) => {
-      if (u) setUser({ name: u.user_metadata?.name ?? u.user_metadata?.full_name ?? u.email?.split("@")[0], email: u.email });
+      if (u) setUser({ name: u.user_metadata?.name ?? u.user_metadata?.full_name ?? u.email?.split("@")[0], email: u.email, avatar: u.user_metadata?.avatar_url ?? u.user_metadata?.picture });
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       const u = session?.user;
-      setUser(u ? { name: u.user_metadata?.name ?? u.user_metadata?.full_name ?? u.email?.split("@")[0], email: u.email } : null);
+      setUser(u ? { name: u.user_metadata?.name ?? u.user_metadata?.full_name ?? u.email?.split("@")[0], email: u.email, avatar: u.user_metadata?.avatar_url ?? u.user_metadata?.picture } : null);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -63,8 +63,8 @@ export default function EcomediaLayout({ children }: { children: React.ReactNode
                   {/* Avatar with green ring */}
                   <div className="p-[2px] rounded-full bg-gradient-to-br from-[#3ecf4c] to-[#16b277]">
                     <div className="bg-white p-[1.5px] rounded-full">
-                      <div className="w-7 h-7 rounded-full bg-black flex items-center justify-center text-[11px] font-black text-[#3ecf4c]">
-                        {(user.name ?? user.email ?? "U").charAt(0).toUpperCase()}
+                      <div className="w-7 h-7 overflow-hidden rounded-full bg-black flex items-center justify-center text-[11px] font-black text-[#3ecf4c]">
+                        {user.avatar ? <img src={user.avatar} alt="" className="h-full w-full object-cover" /> : (user.name ?? user.email ?? "U").charAt(0).toUpperCase()}
                       </div>
                     </div>
                   </div>
@@ -79,8 +79,8 @@ export default function EcomediaLayout({ children }: { children: React.ReactNode
                       <div className="flex items-center gap-3 px-3 py-2.5 mb-1 border-b border-neutral-100">
                         <div className="p-[2px] rounded-full bg-gradient-to-br from-[#3ecf4c] to-[#16b277] shrink-0">
                           <div className="bg-white p-[1px] rounded-full">
-                            <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-[12px] font-black text-[#3ecf4c]">
-                              {(user.name ?? user.email ?? "U").charAt(0).toUpperCase()}
+                            <div className="w-8 h-8 overflow-hidden rounded-full bg-black flex items-center justify-center text-[12px] font-black text-[#3ecf4c]">
+                              {user.avatar ? <img src={user.avatar} alt="" className="h-full w-full object-cover" /> : (user.name ?? user.email ?? "U").charAt(0).toUpperCase()}
                             </div>
                           </div>
                         </div>
