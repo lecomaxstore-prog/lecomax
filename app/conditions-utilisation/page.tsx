@@ -5,6 +5,7 @@ import ShippingTermsItem from "@/components/ShippingTermsItem";
 export const metadata = {
   title: "Conditions d'utilisation | L'ecomax",
   description: "Les conditions générales d'utilisation du site L'ecomax.",
+  alternates: { canonical: "/conditions-utilisation/" },
 };
 
 const sections = [

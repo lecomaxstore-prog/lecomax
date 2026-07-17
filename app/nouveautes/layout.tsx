@@ -4,7 +4,7 @@ import { withShippingMetadata } from "@/lib/shipping-config-server";
 const baseMetadata: Metadata = {
   title: "Nouveautés | L'ecomax — Dernières Arrivées au Maroc",
   description:
-    "Découvrez les dernières nouveautés L'ecomax : chaussures, vêtements et accessoires tech en édition limitée. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
+    "Découvrez les nouveautés L'ecomax : chaussures, vêtements et accessoires tech. Livraison 35 MAD partout au Maroc et paiement à la livraison.",
   keywords: [
     "nouveautés mode Maroc",
     "nouvelles chaussures Maroc",

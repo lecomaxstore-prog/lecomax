@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSettings, getWhatsAppHref } from "@/lib/use-settings";
 import { shippingConfigFromSettings, formatShippingAmount } from "@/lib/shipping-config";
+import { serializeJsonLd } from "@/lib/seo";
 
 const CartIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -136,7 +137,7 @@ export default function AidePage() {
     <div className="min-h-screen bg-white">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqSchema) }}
       />
 
       {/* ── Hero – deep navy gradient with wave bottom ── */}

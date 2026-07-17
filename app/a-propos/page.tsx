@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import { serializeJsonLd } from "@/lib/seo";
 
 const SITE_URL = "https://lecomax.com";
 
@@ -52,7 +53,7 @@ export default function AProposPage() {
 
   return (
     <div className="bg-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(aboutSchema) }} />
 
       {/* ── HERO ─────────────────────────────────────── */}
       <section className="relative text-white overflow-hidden h-screen flex items-end">

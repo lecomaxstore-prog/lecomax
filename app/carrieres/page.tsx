@@ -5,6 +5,7 @@ import JobApplyButton from "@/components/JobApplyButton";
 export const metadata = {
   title: "Carrières | L'ecomax",
   description: "Rejoignez l'équipe L'ecomax à Sidi Bennour et contribuez à l'avenir du retail au Maroc.",
+  alternates: { canonical: "/carrieres/" },
 };
 
 const values = [

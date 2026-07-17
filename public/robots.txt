@@ -2,30 +2,14 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /api/
-Disallow: /checkout
-Disallow: /panier
-Disallow: /compte/
-Disallow: /merci
-Disallow: /connexion
-Disallow: /inscription
+Disallow: /facture/
 
-# OpenAI search and user-requested browsing. Keep private flows excluded.
+# Search and answer-engine crawlers may access public storefront content.
+# Utility pages return an HTTP X-Robots-Tag instead of being blocked here,
+# so crawlers can observe the noindex directive.
 User-agent: OAI-SearchBot
 User-agent: ChatGPT-User
 User-agent: GPTBot
-Allow: /
-Disallow: /admin/
-Disallow: /api/
-Disallow: /checkout
-Disallow: /panier
-Disallow: /compte/
-Disallow: /merci
-Disallow: /connexion
-Disallow: /inscription
-Disallow: /facture
-Disallow: /maintenance
-
-# Other AI crawlers explicitly allowed on public content
 User-agent: ClaudeBot
 User-agent: Claude-Web
 User-agent: PerplexityBot
@@ -34,24 +18,6 @@ User-agent: Applebot
 Allow: /
 Disallow: /admin/
 Disallow: /api/
-Disallow: /checkout
-Disallow: /panier
-Disallow: /compte/
-Disallow: /merci
-Disallow: /connexion
-Disallow: /inscription
-Disallow: /facture
-Disallow: /maintenance
-
-# Prevent image files from being indexed as web pages
-User-agent: *
-Disallow: /*.avif$
-Disallow: /*.webp$
-Disallow: /facture
-Disallow: /maintenance
-
-# Crawl-delay for polite crawling
-Crawl-delay: 1
+Disallow: /facture/
 
 Sitemap: https://lecomax.com/sitemap.xml
-Host: https://lecomax.com

@@ -14,6 +14,8 @@ import NewsletterSection from "@/components/NewsletterSection";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
 import { cleanColorStock, resolveProductAvailability } from "@/lib/product-inventory";
+import { inferProductBrand, serializeJsonLd } from "@/lib/seo";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 
 export const dynamic = "force-dynamic";
@@ -248,6 +250,7 @@ export default async function ProductPage({
     product = {
       slug: dbProd.slug,
       name: dbProd.name,
+      brand: dbProd.brand ?? undefined,
       category: dbProd.category as "homme" | "femme" | "chaussures" | "accessoires",
       subCategory: dbProd.brand ?? dbProd.category,
       price: dbProd.price,
@@ -285,11 +288,7 @@ export default async function ProductPage({
   let reviewRating = 0;
   let reviewCount = 0;
   try {
-    const { createClient } = await import("@supabase/supabase-js");
-    const supa = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supa = createServerSupabaseClient();
     const { data: revData } = await supa
       .from("reviews")
       .select("rating")
@@ -307,11 +306,7 @@ export default async function ProductPage({
   // static catalogue. Database values are the single source of truth.
   let realStock: number | null = null;
   try {
-    const { createClient: createClient2 } = await import("@supabase/supabase-js");
-    const supa2 = createClient2(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supa2 = createServerSupabaseClient();
     const { data: stockData } = await supa2
       .from("products")
       .select("color_stock, stock, tags, colors, sizes")
@@ -362,25 +357,25 @@ export default async function ProductPage({
     : undefined;
 
   // Product structured data (schema.org)
-  const productImgUrl = product.image
-    ? product.image.startsWith("http") ? product.image : `${SITE_URL}${product.image.startsWith("/") ? "" : "/"}${product.image}`
-    : undefined;
+  const productImages = [product.image, ...product.gallery]
+    .filter((image): image is string => Boolean(image))
+    .map((image) => image.startsWith("http") ? image : `${SITE_URL}${image.startsWith("/") ? "" : "/"}${image}`);
+  const productBrand = inferProductBrand(product.displayName ?? product.name, product.brand);
 
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.displayName ?? product.name,
     "description": product.description ?? `Achetez ${product.name} sur L'ecomax.`,
-    ...(productImgUrl ? { "image": productImgUrl } : {}),
+    ...(productImages.length > 0 ? { "image": productImages } : {}),
     "sku": product.slug,
-    "brand": { "@type": "Brand", "name": "L'ecomax" },
+    ...(productBrand ? { "brand": { "@type": "Brand", "name": productBrand } } : {}),
     "offers": {
       "@type": "Offer",
       "price": product.price,
       "priceCurrency": "MAD",
       "availability": realStock === 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
       "url": `${SITE_URL}/produit/${product.slug}/`,
-      "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split("T")[0],
       "seller": { "@type": "Organization", "name": "L'ecomax", "url": SITE_URL },
       "shippingDetails": {
         "@type": "OfferShippingDetails",
@@ -472,9 +467,9 @@ export default async function ProductPage({
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
       {/* Product JSON-LD */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(productSchema) }} />
       {/* BreadcrumbList JSON-LD */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbSchema) }} />
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-[12px] text-neutral-400 mb-6 flex-wrap">

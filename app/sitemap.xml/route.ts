@@ -1,116 +1,99 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { SITE_URL } from "@/lib/seo";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
 
-const SITE_URL = "https://lecomax.com";
+type SitemapEntry = {
+  path: string;
+  lastModified?: string | null;
+  changeFrequency?: "daily" | "weekly" | "monthly" | "yearly";
+  priority?: number;
+};
 
-const categorySlugs = ["homme", "femme", "chaussures", "accessoires"];
-
-const staticPages = [
-  { path: "/", priority: 1.0, changeFreq: "daily",   lastmod: "2026-06-26" },
-  { path: "/boutique/", priority: 0.9, changeFreq: "daily",   lastmod: "2026-06-26" },
-  { path: "/nouveautes/", priority: 0.8, changeFreq: "weekly", lastmod: "2026-06-26" },
-  { path: "/bestsellers/", priority: 0.8, changeFreq: "weekly", lastmod: "2026-06-26" },
-  { path: "/promotions/", priority: 0.8, changeFreq: "daily",   lastmod: "2026-06-26" },
-  { path: "/ecomedia/", priority: 0.7, changeFreq: "daily", lastmod: "2026-07-15" },
-  { path: "/guide-des-tailles/", priority: 0.6, changeFreq: "monthly", lastmod: "2026-06-26" },
-  { path: "/a-propos/", priority: 0.6, changeFreq: "monthly", lastmod: "2026-06-26" },
-  { path: "/aide/", priority: 0.6, changeFreq: "monthly", lastmod: "2026-06-26" },
-  { path: "/nous-contacter/", priority: 0.6, changeFreq: "monthly", lastmod: "2026-06-26" },
-  { path: "/suivre-commande/", priority: 0.5, changeFreq: "monthly", lastmod: "2026-06-26" },
-  { path: "/retours/", priority: 0.5, changeFreq: "monthly", lastmod: "2026-06-26" },
-  { path: "/ecoclub/", priority: 0.5, changeFreq: "monthly", lastmod: "2026-06-26" },
-  { path: "/carrieres/", priority: 0.4, changeFreq: "monthly", lastmod: "2026-06-26" },
-  { path: "/boutiques/", priority: 0.4, changeFreq: "monthly", lastmod: "2026-06-26" },
-  { path: "/conditions/", priority: 0.3, changeFreq: "yearly", lastmod: "2026-06-26" },
-  { path: "/conditions-utilisation/", priority: 0.3, changeFreq: "yearly", lastmod: "2026-06-26" },
-  { path: "/confidentialite/", priority: 0.3, changeFreq: "yearly", lastmod: "2026-06-26" },
-  { path: "/politique-confidentialite/", priority: 0.3, changeFreq: "yearly", lastmod: "2026-06-26" },
-  { path: "/cookies/", priority: 0.3, changeFreq: "yearly", lastmod: "2026-06-26" },
+const staticPages: SitemapEntry[] = [
+  { path: "/", changeFrequency: "daily", priority: 1 },
+  { path: "/boutique/", changeFrequency: "daily", priority: 0.9 },
+  { path: "/nouveautes/", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/bestsellers/", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/promotions/", changeFrequency: "daily", priority: 0.8 },
+  { path: "/ecomedia/", changeFrequency: "daily", priority: 0.7 },
+  { path: "/guide-des-tailles/", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/a-propos/", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/aide/", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/nous-contacter/", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/retours/", changeFrequency: "monthly", priority: 0.5 },
+  { path: "/ecoclub/", changeFrequency: "monthly", priority: 0.5 },
+  { path: "/carrieres/", changeFrequency: "monthly", priority: 0.4 },
+  { path: "/boutiques/", changeFrequency: "monthly", priority: 0.4 },
+  { path: "/conditions/", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/conditions-utilisation/", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/politique-confidentialite/", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/cookies/", changeFrequency: "yearly", priority: 0.3 },
 ];
 
-export const revalidate = 3600; // revalidate every hour
+const fallbackCategorySlugs = ["homme", "femme", "chaussures", "accessoires"];
+
+function xmlEscape(value: string): string {
+  return value.replace(/[<>&'\"]/g, (character) => ({
+    "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;",
+  })[character]!);
+}
+
+function validLastModified(value?: string | null): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
+function renderEntry(entry: SitemapEntry): string {
+  const lastModified = validLastModified(entry.lastModified);
+  return [
+    "  <url>",
+    `    <loc>${xmlEscape(new URL(entry.path, `${SITE_URL}/`).toString())}</loc>`,
+    ...(lastModified ? [`    <lastmod>${lastModified}</lastmod>`] : []),
+    ...(entry.changeFrequency ? [`    <changefreq>${entry.changeFrequency}</changefreq>`] : []),
+    ...(typeof entry.priority === "number" ? [`    <priority>${entry.priority.toFixed(1)}</priority>`] : []),
+    "  </url>",
+  ].join("\n");
+}
+
+export const revalidate = 3600;
 
 export async function GET() {
-  const now = new Date().toISOString();
+  const entries = new Map<string, SitemapEntry>();
+  const add = (entry: SitemapEntry) => entries.set(entry.path, entry);
+  staticPages.forEach(add);
+  fallbackCategorySlugs.forEach((slug) => add({ path: `/${slug}/`, changeFrequency: "weekly", priority: 0.8 }));
 
-  const entries: string[] = [];
-
-  // Static pages
-  for (const p of staticPages) {
-    entries.push(`  <url>
-    <loc>${SITE_URL}${p.path}</loc>
-    <lastmod>${p.lastmod}</lastmod>
-    <changefreq>${p.changeFreq}</changefreq>
-    <priority>${p.priority}</priority>
-  </url>`);
-  }
-
-  // Category pages
-  for (const slug of categorySlugs) {
-    entries.push(`  <url>
-    <loc>${SITE_URL}/${slug}/</loc>
-    <lastmod>${now.split("T")[0]}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`);
-  }
-
-  // Product pages from Supabase
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-    const { data } = await supabase
-      .from("products")
-      .select("slug, updated_at")
-      .eq("active", true)
-      .order("created_at", { ascending: false });
+    const supabase = createServerSupabaseClient();
+    const [productsResult, postsResult, pagesResult, categoriesResult] = await Promise.all([
+      supabase.from("products").select("slug,updated_at").eq("active", true).order("updated_at", { ascending: false }).limit(5000),
+      supabase.from("ecomedia_posts").select("slug,created_at,updated_at").eq("is_published", true).order("created_at", { ascending: false }).limit(1000),
+      supabase.from("pages").select("slug,updated_at").eq("active", true).limit(1000),
+      supabase.from("categories").select("slug,updated_at").eq("active", true).limit(1000),
+    ]);
 
-    if (data) {
-      for (const p of data) {
-        if (p.slug) {
-          entries.push(`  <url>
-    <loc>${SITE_URL}/produit/${p.slug}/</loc>
-    <lastmod>${p.updated_at ?? now}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>`);
-        }
-      }
+    for (const product of productsResult.data ?? []) {
+      if (product.slug) add({ path: `/produit/${encodeURIComponent(product.slug)}/`, lastModified: product.updated_at, changeFrequency: "weekly", priority: 0.7 });
     }
-
-    // Fresh Ecomedia posts give search and answer engines crawlable,
-    // date-stamped brand content with a stable canonical URL.
-    const { data: posts } = await supabase
-      .from("ecomedia_posts")
-      .select("slug, created_at, updated_at")
-      .eq("is_published", true)
-      .order("created_at", { ascending: false })
-      .limit(500);
-
-    for (const post of posts ?? []) {
-      if (!post.slug) continue;
-      entries.push(`  <url>
-    <loc>${SITE_URL}/ecomedia/${post.slug}/</loc>
-    <lastmod>${post.updated_at ?? post.created_at ?? now}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>`);
+    for (const post of postsResult.data ?? []) {
+      if (post.slug) add({ path: `/ecomedia/${encodeURIComponent(post.slug)}/`, lastModified: post.updated_at ?? post.created_at, changeFrequency: "weekly", priority: 0.6 });
+    }
+    for (const page of pagesResult.data ?? []) {
+      if (page.slug) add({ path: `/${encodeURIComponent(page.slug)}/`, lastModified: page.updated_at, changeFrequency: "monthly", priority: 0.5 });
+    }
+    for (const category of categoriesResult.data ?? []) {
+      if (category.slug) add({ path: `/${encodeURIComponent(category.slug)}/`, lastModified: category.updated_at, changeFrequency: "weekly", priority: 0.8 });
     }
   } catch {
-    // Non-fatal — sitemap still works without product URLs
+    // Keep the static catalogue discoverable if the content service is unavailable.
   }
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${entries.join("\n")}
-</urlset>`;
-
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...entries.values()].map(renderEntry).join("\n")}\n</urlset>`;
   return new NextResponse(xml, {
     headers: {
-      "Content-Type": "application/xml",
-      "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+      "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
     },
   });
 }

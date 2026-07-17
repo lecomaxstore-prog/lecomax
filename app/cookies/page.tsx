@@ -3,6 +3,7 @@
 export const metadata = {
   title: "Politique de Cookies | L'ecomax",
   description: "Comment L'ecomax utilise les cookies pour améliorer votre expérience.",
+  alternates: { canonical: "/cookies/" },
 };
 
 const cookieTypes = [

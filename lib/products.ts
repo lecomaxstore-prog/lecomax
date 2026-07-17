@@ -2,6 +2,8 @@
   slug: string;
   name: string;
   displayName?: string;
+  /** Manufacturer or consumer-facing brand. Omit when it is not known. */
+  brand?: string;
   specs?: string[];
   category: "homme" | "femme" | "chaussures" | "accessoires";
   subCategory: string;

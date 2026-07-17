@@ -4,6 +4,43 @@ import { verifySessionToken, verifyStaffPermissionsToken } from "@/lib/admin-ses
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
+let maintenanceCache: { enabled: boolean; expiresAt: number } | null = null;
+
+async function isMaintenanceEnabled(): Promise<boolean> {
+  const now = Date.now();
+  if (maintenanceCache && maintenanceCache.expiresAt > now) return maintenanceCache.enabled;
+
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/settings?key=eq.maintenance_mode&select=value`,
+      {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+        signal: AbortSignal.timeout(1500),
+      }
+    );
+    const rows: { value: string }[] = response.ok ? await response.json() : [];
+    const enabled = rows[0]?.value === "true";
+    maintenanceCache = { enabled, expiresAt: now + 30_000 };
+    return enabled;
+  } catch {
+    maintenanceCache = { enabled: false, expiresAt: now + 10_000 };
+    return false;
+  }
+}
+
+const PRIVATE_INDEX_PREFIXES = [
+  "/admin", "/api", "/checkout", "/panier", "/compte", "/wishlist",
+  "/merci", "/connexion", "/inscription", "/facture", "/maintenance",
+  "/suivre-commande",
+];
+
+function applyRobotsHeader(response: NextResponse, pathname: string): NextResponse {
+  if (PRIVATE_INDEX_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive, noimageindex");
+  }
+  return response;
+}
+
 // ── Paths that hacking tools routinely probe — return 404 immediately ──────
 const BLOCKED_PATH_FRAGMENTS = [
   "/.git", "/.env", "/.htaccess", "/.htpasswd",
@@ -99,27 +136,8 @@ export async function middleware(req: NextRequest) {
   const isStaticOrApi = pathname.startsWith("/_next") || pathname.startsWith("/api") || pathname.startsWith("/admin");
 
   // ── Maintenance mode check (for non-admin, non-static routes) ──
-  if (!isStaticOrApi && !pathname.startsWith("/maintenance")) {
-    try {
-      // Query Supabase REST directly — no circular middleware call
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/settings?key=eq.maintenance_mode&select=value`,
-        {
-          headers: {
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-          },
-        }
-      );
-      if (res.ok) {
-        const rows: { value: string }[] = await res.json();
-        if (rows[0]?.value === "true") {
-          return NextResponse.redirect(new URL("/maintenance", req.url));
-        }
-      }
-    } catch {
-      // If DB is unreachable, don't block visitors
-    }
+  if (!isStaticOrApi && !pathname.startsWith("/maintenance") && await isMaintenanceEnabled()) {
+    return NextResponse.redirect(new URL("/maintenance", req.url));
   }
 
   // ── Auto-redirect authenticated users away from login page ──────────────
@@ -204,7 +222,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  return applyRobotsHeader(NextResponse.next(), pathname);
 }
 
 export const config = {

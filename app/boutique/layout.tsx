@@ -4,7 +4,7 @@ import { withShippingMetadata } from "@/lib/shipping-config-server";
 const baseMetadata: Metadata = {
   title: "Boutique | L'ecomax — Chaussures, Vêtements & Accessoires Maroc",
   description:
-    "Explorez toute la boutique L'ecomax : chaussures de sport, vêtements homme & femme, écouteurs, enceintes et gaming. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
+    "Chaussures, mode homme et femme, écouteurs, enceintes et accessoires gaming. Livraison 35 MAD partout au Maroc et paiement à la livraison.",
   keywords: [
     "boutique en ligne Maroc",
     "chaussures Maroc",

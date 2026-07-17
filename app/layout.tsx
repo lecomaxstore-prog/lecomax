@@ -3,6 +3,7 @@ import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { Inter, Sora } from "next/font/google";
+import { unstable_cache } from "next/cache";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -19,9 +20,9 @@ import BackToTop from "@/components/BackToTop";
 import AdsDisplay from "@/components/AdsDisplay";
 import PushPrompt from "@/components/PushPrompt";
 import ChatWidget from "@/components/ChatWidget";
-import { createClient } from "@supabase/supabase-js";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { formatShippingAmount, shippingConfigFromSettings } from "@/lib/shipping-config";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 
 const inter = Inter({
@@ -44,7 +45,7 @@ const defaultMetadata: Metadata = {
   manifest: "/manifest.json?v=3",
   title: {
     default: "L'ecomax — Mode, Tech & Sport · Livraison partout au Maroc",
-    template: "%s · L'ecomax",
+    template: "%s",
   },
   description:
     "L'ecomax est la boutique en ligne au Maroc pour acheter des chaussures de sport, vêtements tendance, écouteurs sans fil TWS, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc, paiement à la livraison, retours gratuits sous 30 jours. Commandez sur lecomax.com.",
@@ -71,7 +72,6 @@ const defaultMetadata: Metadata = {
   creator: "L'ecomax",
   publisher: "L'ecomax",
   category: "shopping",
-  alternates: { canonical: "/" },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any", type: "image/x-icon" },
@@ -127,16 +127,18 @@ const defaultMetadata: Metadata = {
   },
 };
 
+const getSiteMetadataSettings = unstable_cache(async () => {
+  const supabase = createServerSupabaseClient();
+  const { data } = await supabase.from("settings").select("key,value").in("key", [
+    "store_name", "seo_title", "seo_description", "favicon_image", "og_image",
+    "shipping_cost", "free_shipping_threshold", "shipping_estimated_days",
+  ]);
+  return Object.fromEntries((data ?? []).map((row) => [row.key, String(row.value ?? "")]));
+}, ["site-metadata-settings"], { revalidate: 300 });
+
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-    const { data } = await supabase.from("settings").select("key,value").in("key", [
-      "store_name", "seo_title", "seo_description", "favicon_image", "og_image", "shipping_cost", "free_shipping_threshold", "shipping_estimated_days",
-    ]);
-    const settings = Object.fromEntries((data ?? []).map((row) => [row.key, String(row.value ?? "")]));
+    const settings = await getSiteMetadataSettings();
     const storeName = settings.store_name || "L'ecomax";
     const seoTitle = settings.seo_title?.trim();
     const seoDescription = settings.seo_description?.trim();
@@ -150,7 +152,7 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
       ...defaultMetadata,
       applicationName: storeName,
-      title: seoTitle ? { default: seoTitle, template: `%s · ${storeName}` } : defaultMetadata.title,
+      title: seoTitle ? { default: seoTitle, template: "%s" } : defaultMetadata.title,
       description: seoDescription || replaceShipping(defaultMetadata.description),
       icons: favicon ? { icon: favicon, shortcut: favicon, apple: favicon } : defaultMetadata.icons,
       openGraph: {
@@ -181,9 +183,6 @@ export default async function RootLayout({
   return (
     <html lang="fr" className={`${inter.variable} ${sora.variable}`}>
       <head>
-        {/* Preconnect to external origins for faster resource loading */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <meta name="theme-color" content="#3ecf4c" />
@@ -198,7 +197,7 @@ export default async function RootLayout({
         {/* Trustpilot TrustBox widget bootstrap */}
         <Script src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" strategy="lazyOnload" />
         {/* Microsoft Clarity — heatmaps & session recordings */}
-        <Script id="clarity-init" strategy="afterInteractive">{`
+        <Script id="clarity-init" strategy="lazyOnload">{`
           (function(c,l,a,r,i,t,y){
             c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
             t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
@@ -229,7 +228,6 @@ export default async function RootLayout({
       "name": "L'ecomax",
       "description": "Boutique en ligne au Maroc — chaussures, vêtements, accessoires tech",
       "publisher": { "@id": "${SITE_URL}/#organization" },
-      "potentialAction": { "@type": "SearchAction", "target": "${SITE_URL}/boutique?q={search_term_string}", "query-input": "required name=search_term_string" },
       "inLanguage": "fr-MA"
     },
     {
@@ -246,7 +244,7 @@ export default async function RootLayout({
       "email": "contact@lecomax.com",
       "address": { "@type": "PostalAddress", "addressLocality": "Sidi Bennour", "addressRegion": "Doukkala-Abda", "addressCountry": "MA" },
       "geo": { "@type": "GeoCoordinates", "latitude": 32.6528, "longitude": -8.4236 },
-      "openingHoursSpecification": { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "08:00", "closes": "22:00" },
+      "openingHoursSpecification": { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "09:00", "closes": "21:00" },
       "hasMap": "https://maps.google.com/?q=Sidi+Bennour+Maroc",
       "areaServed": { "@type": "Country", "name": "Maroc" },
       "hasOfferCatalog": {
@@ -263,9 +261,15 @@ export default async function RootLayout({
       "sameAs": ["https://www.instagram.com/lecomaxcom", "https://www.tiktok.com/@lecomaxcom", "https://www.facebook.com/lecomaxcom"]
     }
   ]
-}` }} />
+}`.replace(/</g, "\\u003c") }} />
       </head>
       <body className="min-h-screen flex flex-col font-sans">
+        <a
+          href="#main-content"
+          className="sr-only fixed left-4 top-4 z-[10000] rounded-lg bg-black px-4 py-3 font-bold text-white focus:not-sr-only"
+        >
+          Aller au contenu principal
+        </a>
         <CartProvider>
           <WishlistProvider>
           <SiteProtection />
@@ -274,7 +278,7 @@ export default async function RootLayout({
             <AnnouncementBar />
             <Header />
           </AdminLayoutWrapper>
-          <main className="flex-1">{children}</main>
+          <main id="main-content" tabIndex={-1} className="flex-1 outline-none">{children}</main>
           <AdminLayoutWrapper>
 
             <Footer />
