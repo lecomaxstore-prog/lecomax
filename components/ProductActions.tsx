@@ -236,9 +236,10 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const hasColorImages = !!(effectiveColorImages);
   const outOfStockColors = product.outOfStockColors ?? [];
   const outOfStockSizes = product.outOfStockSizes ?? [];
-  const availableSizes = (((product.colorSizes && color && product.colorSizes[color])
+  const isProductOOS = product.stock !== undefined && product.stock <= 0;
+  const availableSizes = (isProductOOS ? [] : (((product.colorSizes && color && product.colorSizes[color])
     ? product.colorSizes[color]
-    : product.sizes) ?? []).filter((s) => !outOfStockSizes.includes(s));
+    : product.sizes) ?? []).filter((s) => !outOfStockSizes.includes(s)));
 
   const [size, setSize] = useState<string | null>(
     (product.sizes ?? []).length === 1 && product.sizes[0] === "Taille unique" ? "Taille unique" : null
@@ -275,8 +276,14 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const isSingleSize = availableSizes.length === 1 && availableSizes[0] === "Taille unique";
   const sizeLabel = getSizeLabel(product.subCategory);
   const isCurrentColorOOS = outOfStockColors.includes(color);
+  const hasNoAvailableSize = product.sizes.length > 0 && availableSizes.length === 0;
+  const isUnavailable = isProductOOS || isCurrentColorOOS || hasNoAvailableSize;
 
   const handleAdd = (goToCart = false, btnEl?: HTMLElement) => {
+    if (isUnavailable) {
+      setError("Ce produit est actuellement indisponible.");
+      return;
+    }
     if (!size) {
       setError("Veuillez sélectionner une taille.");
       return;
@@ -535,19 +542,19 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
 
       <button
         onClick={(e) => handleAdd(false, e.currentTarget)}
-        disabled={isCurrentColorOOS}
+        disabled={isUnavailable}
         className={`mt-5 w-full py-4 font-black uppercase text-[13px] tracking-wider inline-flex items-center justify-center gap-2 transition-all ${
-          isCurrentColorOOS
+          isUnavailable
             ? "border-2 border-dashed border-neutral-300 text-neutral-400 cursor-not-allowed bg-white"
             : added
             ? "bg-neutral-800 text-white"
             : "bg-black text-white hover:bg-neutral-800 active:scale-[0.99]"
         }`}
       >
-        {isCurrentColorOOS ? (
+        {isUnavailable ? (
           <>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            Couleur indisponible
+            {isProductOOS ? "Produit épuisé" : hasNoAvailableSize ? "Taille indisponible" : "Couleur indisponible"}
           </>
         ) : added ? (
           <>
@@ -561,16 +568,16 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
           </>
         )}
       </button>
-      {isCurrentColorOOS && (
+      {isUnavailable && (
         <p className="text-center text-[11px] text-neutral-400 mt-2">
-          Choisissez une autre couleur disponible
+          {isProductOOS ? "Ce produit sera bientôt de retour" : hasNoAvailableSize ? "Aucune taille n’est disponible" : "Choisissez une autre couleur disponible"}
         </p>
       )}
       <button
         onClick={() => handleAdd(true)}
-        disabled={isCurrentColorOOS}
+        disabled={isUnavailable}
         className={`mt-2 w-full border py-4 font-black uppercase text-[13px] tracking-wider transition-colors active:scale-[0.99] ${
-          isCurrentColorOOS
+          isUnavailable
             ? "hidden"
             : "border-black hover:bg-black hover:text-white"
         }`}

@@ -7,19 +7,7 @@ import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 import { useSettings } from "@/lib/use-settings";
 import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
-
-/** Slug → color → image path — used to heal stale cart images */
-const COLOR_IMAGES: Record<string, Record<string, string>> = {
-  "c-baasploa-course-homme": { "Jaune": "/images/products/BAASPLOA%20Men's%20Lightweight%20Running%20Sneakers/Yellow.avif", "Bleu": "/images/products/BAASPLOA%20Men's%20Lightweight%20Running%20Sneakers/Blue.avif", "Gris": "/images/products/BAASPLOA%20Men's%20Lightweight%20Running%20Sneakers/grey.avif" },
-  "c-chaussons-interieur-femme": { "Blanc": "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/1%20blanc.avif", "Rose": "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/1%20rose.avif" },
-  "c-chaussons-mode-femme": { "Kaki": "/images/products/Chaussons%20de%20mode%20pour%20femme/1%20kaki.avif", "Blanc": "/images/products/Chaussons%20de%20mode%20pour%20femme/1%20blanc.avif" },
-  "c-chaussons-fleurs-femme": { "Gris Clair": "/images/products/Chaussons%20%C3%A0%20fleurs%20de%20rose/1%20gris%20clair.avif", "Kaki": "/images/products/Chaussons%20%C3%A0%20fleurs%20de%20rose/1%20kaki.avif" },
-  "a-sac-banane-pu-polyvalent": { "Noir": "/images/products/Sac%20banane/1.avif", "Gris": "/images/products/Sac%20banane/2.avif" },
-  "a-lenovo-gm2-pro": { "Blanc": "/images/products/lenovo%20gm2%20pro/1.avif", "Noir": "/images/products/lenovo%20gm2%20pro/2.avif" },
-  "a-lenovo-lp40-pro": { "Blanc": "/images/products/lenovo%20lp40%20pro/1.avif", "Noir": "/images/products/lenovo%20lp40%20pro/2.avif" },
-  "a-genai-tws-hd": { "Blanc": "/images/products/GENAI%20%C3%89couteurs%20st%C3%A9r%C3%A9o%20HD%20sans%20fil%20TWS/1%20white.avif", "Noir": "/images/products/GENAI%20%C3%89couteurs%20st%C3%A9r%C3%A9o%20HD%20sans%20fil%20TWS/2%20black.avif" },
-};
-
+import { resolveProductVariantImage } from "@/lib/product-variant-image";
 
 export default function CartPage() {
   const { items, total, count, setQty, remove, clear } = useCart();
@@ -167,6 +155,30 @@ export default function CartPage() {
             40%      { transform: translateY(-4px); }
             60%      { transform: translateY(-2px); }
           }
+          @keyframes deliveryCardIn {
+            0%   { opacity: 0; transform: translateY(10px) scale(.975); }
+            70%  { opacity: 1; transform: translateY(-1px) scale(1.005); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+          }
+          @keyframes deliveryTruckDrive {
+            0%, 100% { transform: translateX(0) rotate(0); }
+            38%      { transform: translateX(3px) rotate(-2deg); }
+            52%      { transform: translateX(4px) rotate(1deg); }
+            68%      { transform: translateX(-1px) rotate(0); }
+          }
+          @keyframes deliveryStatusPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(62, 207, 76, .38); }
+            50%      { box-shadow: 0 0 0 5px rgba(62, 207, 76, 0); }
+          }
+          @keyframes deliverySweep {
+            0%, 62%  { transform: translateX(-180%) skewX(-18deg); opacity: 0; }
+            70%      { opacity: .45; }
+            88%, 100% { transform: translateX(520%) skewX(-18deg); opacity: 0; }
+          }
+          @keyframes deliveryFeeFloat {
+            0%   { opacity: 0; transform: translateX(6px) scale(.92); }
+            100% { opacity: 1; transform: translateX(0) scale(1); }
+          }
           .step-active-circle {
             animation: stepPulse 2s ease-in-out infinite, stepBounce 2.4s ease-in-out infinite;
           }
@@ -181,6 +193,40 @@ export default function CartPage() {
           .step-connector-fill {
             transform-origin: left;
             animation: lineGrow 0.6s ease-out forwards;
+          }
+          .delivery-mobile-card {
+            animation: deliveryCardIn .58s cubic-bezier(.2,.85,.25,1) both;
+          }
+          .delivery-mobile-card::after {
+            content: '';
+            pointer-events: none;
+            position: absolute;
+            inset: -30% auto -30% -20%;
+            width: 18%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.8), transparent);
+            filter: blur(1px);
+            animation: deliverySweep 4.8s 1s ease-in-out infinite;
+          }
+          .delivery-mobile-truck {
+            animation: deliveryTruckDrive 3s .65s ease-in-out infinite;
+          }
+          .delivery-mobile-status {
+            animation: deliveryStatusPulse 2.2s .8s ease-out infinite;
+          }
+          .delivery-mobile-fee {
+            animation: deliveryFeeFloat .45s .28s ease-out both;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .step-active-circle,
+            .step-active-shine::after,
+            .step-connector-fill,
+            .delivery-mobile-card,
+            .delivery-mobile-card::after,
+            .delivery-mobile-truck,
+            .delivery-mobile-status,
+            .delivery-mobile-fee {
+              animation: none !important;
+            }
           }
         `}</style>
         <div className="max-w-3xl mx-auto px-4 py-5 flex items-center justify-center gap-0">
@@ -271,6 +317,99 @@ export default function CartPage() {
                       : `Livraison ${shippingCost} MAD partout au Maroc`}
               </div>
 
+              {/* Estimated delivery */}
+              <div className="delivery-mobile-card relative isolate mx-4 my-3 overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-lime-50 shadow-[0_10px_26px_rgba(5,150,105,0.09)] sm:hidden">
+                <div className="relative z-10 flex items-center gap-3 px-3.5 py-3.5">
+                  <span className="delivery-mobile-truck relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#087a49] text-white shadow-[0_7px_16px_rgba(8,122,73,0.22)]">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M3 6h11v10H3zM14 9h4l3 3v4h-7z" />
+                      <circle cx="7" cy="18" r="2" /><circle cx="18" cy="18" r="2" />
+                    </svg>
+                    <span className="delivery-mobile-status absolute -right-1 -top-1 h-3 w-3 rounded-full border-[2.5px] border-white bg-[#3ecf4c]" />
+                  </span>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[9px] font-black uppercase tracking-[0.16em] text-emerald-700">Livraison express</p>
+                    <p className="mt-0.5 text-[17px] font-black leading-none tracking-[-0.035em] text-neutral-950">Chez vous en 24–48h</p>
+                    <p className="mt-1.5 flex items-center gap-1.5 text-[9px] font-semibold text-neutral-500">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>
+                      Partout au Maroc · Suivi inclus
+                    </p>
+                  </div>
+
+                  <span className="delivery-mobile-fee shrink-0 rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-[9px] font-black text-emerald-700 shadow-sm">
+                    {shipping === 0 ? "GRATUITE" : `${shipping} MAD`}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mx-6 my-4 hidden overflow-hidden rounded-[22px] border border-emerald-200 bg-white shadow-[0_16px_40px_rgba(5,150,105,0.10)] sm:block">
+                <div className="relative overflow-hidden bg-[linear-gradient(135deg,#edfff3_0%,#f9fffa_52%,#f4ffe8_100%)] px-4 py-4 sm:px-5 sm:py-5">
+                  <div className="pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full bg-[#3ecf4c]/10 blur-2xl" />
+
+                  <div className="relative flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[#087a49] text-white shadow-[0_9px_22px_rgba(8,122,73,0.24)]">
+                        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M3 6h11v10H3zM14 9h4l3 3v4h-7z" />
+                          <circle cx="7" cy="18" r="2" /><circle cx="18" cy="18" r="2" />
+                          <path d="M6 10h4" />
+                        </svg>
+                        <span className="absolute -right-1 -top-1 h-3.5 w-3.5 rounded-full border-[3px] border-white bg-[#3ecf4c]" />
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black uppercase tracking-[0.19em] text-emerald-700">Livraison express</p>
+                        <p className="mt-0.5 text-[11px] font-semibold text-neutral-500">Délai estimé après confirmation</p>
+                      </div>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-emerald-200 bg-white/90 px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-emerald-700 shadow-sm">
+                      {shipping === 0 ? "Gratuite" : `${shipping} MAD`}
+                    </span>
+                  </div>
+
+                  <div className="relative mt-4 flex items-center gap-3 rounded-2xl border border-emerald-100 bg-white/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-sm sm:max-w-md">
+                    <div className="min-w-[72px] text-center">
+                      <p className="text-[25px] font-black leading-none tracking-[-0.05em] text-neutral-950">24h</p>
+                      <p className="mt-1 text-[8px] font-black uppercase tracking-[0.14em] text-emerald-600">Au plus tôt</p>
+                    </div>
+                    <div className="flex min-w-0 flex-1 items-center gap-2" aria-hidden="true">
+                      <span className="h-px flex-1 bg-gradient-to-r from-emerald-300 to-[#3ecf4c]" />
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#3ecf4c] text-black shadow-[0_5px_12px_rgba(62,207,76,0.28)]">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                      </span>
+                      <span className="h-px flex-1 bg-gradient-to-r from-[#3ecf4c] to-emerald-300" />
+                    </div>
+                    <div className="min-w-[72px] text-center">
+                      <p className="text-[25px] font-black leading-none tracking-[-0.05em] text-neutral-950">48h</p>
+                      <p className="mt-1 text-[8px] font-black uppercase tracking-[0.14em] text-emerald-600">Au plus tard</p>
+                    </div>
+                  </div>
+
+                  <div className="relative mt-3 flex items-center gap-2 text-[10px] font-semibold text-neutral-500">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/><path d="M12 6v6l4 2"/></svg>
+                    Partout au Maroc · Suivi de colis inclus
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 divide-x divide-neutral-100 border-t border-emerald-100 bg-white px-2 py-3.5" aria-label="Étapes de livraison">
+                  {[
+                    { title: "Confirmée", time: "Maintenant", done: true },
+                    { title: "Préparation", time: "Sous 24h", done: false },
+                    { title: "Chez vous", time: "24–48h", done: false },
+                  ].map((step, index) => (
+                    <div key={step.title} className="flex min-w-0 items-center justify-center gap-2 px-1.5 sm:px-3">
+                      <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[9px] font-black ${step.done ? "bg-[#3ecf4c] text-black shadow-[0_0_0_4px_rgba(62,207,76,0.12)]" : "border border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
+                        {step.done ? <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m5 12 4 4L19 6" /></svg> : index + 1}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-[9px] font-black text-neutral-800 sm:text-[10px]">{step.title}</span>
+                        <span className="mt-0.5 block truncate text-[8px] font-semibold text-neutral-400 sm:text-[9px]">{step.time}</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Column headers */}
               <div className="hidden md:grid grid-cols-[1fr_100px_120px_100px] px-6 py-3 border-b border-neutral-100 text-[10px] font-black uppercase tracking-[0.15em] text-neutral-400">
                 <span>Produit</span>
@@ -282,7 +421,7 @@ export default function CartPage() {
               {/* Items */}
               <ul className="divide-y divide-neutral-100">
                 {items.map((i) => {
-                  const displayImage = (i.color && COLOR_IMAGES[i.slug]?.[i.color]) ? COLOR_IMAGES[i.slug][i.color] : i.image;
+                  const displayImage = resolveProductVariantImage({ slug: i.slug, color: i.color, fallback: i.image });
                   return (
                   <li key={i.slug + i.size + i.color} className="px-6 py-5 grid grid-cols-[72px_1fr] md:grid-cols-[72px_1fr_100px_120px_100px] gap-4 items-center">
                     {/* Image */}
@@ -523,7 +662,7 @@ export default function CartPage() {
               <div className="bg-white rounded-xl border border-neutral-200 px-5 py-4 space-y-3">
                 {[
                   { icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", label: "Retours gratuits sous 30 jours" },
-                  { icon: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8z", label: "Livraison 2–5 jours ouvrés" },
+                  { icon: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8z", label: `Livraison sous ${shippingConfig.estimatedDays}` },
                   { icon: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", label: "Paiement 100% sécurisé" },
                 ].map(t => (
                   <div key={t.label} className="flex items-center gap-2.5 text-[12px] text-neutral-600">

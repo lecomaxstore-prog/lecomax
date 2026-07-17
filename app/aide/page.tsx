@@ -62,7 +62,7 @@ const faqGroups = [
     id: "livraison",
     label: "Livraison",
     faqs: [
-      { q: "Quels sont les délais de livraison ?", a: "La livraison standard prend 3 à 5 jours ouvrables partout au Maroc. Les frais de livraison sont de 35 MAD (offerts dès 500 MAD d'achats)." },
+      { q: "Quels sont les délais de livraison ?", a: "La livraison express prend généralement 24 à 48 heures partout au Maroc. Les frais de livraison sont de 35 MAD (offerts dès 500 MAD d'achats)." },
       { q: "Livrez-vous à Sidi Bennour ?", a: "Oui, nous livrons dans toute la province de Doukkala-Abda y compris Sidi Bennour, El Jadida et les communes avoisinantes. Vous pouvez aussi passer en boutique." },
       { q: "Puis-je changer l'adresse de livraison ?", a: "Oui, vous pouvez modifier l'adresse de livraison avant l'expédition de votre commande. Contactez notre support dès que possible." },
     ],

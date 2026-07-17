@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import type { Product } from "@/lib/products";
+import { resolveProductVariantImage } from "@/lib/product-variant-image";
 
 export type CartItem = {
   slug: string;
@@ -40,7 +41,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) setItems(JSON.parse(raw));
+      if (raw) {
+        const stored = JSON.parse(raw) as CartItem[];
+        if (Array.isArray(stored)) {
+          setItems(stored.map((item) => ({
+            ...item,
+            image: resolveProductVariantImage({
+              slug: item.slug,
+              color: item.color,
+              fallback: item.image,
+            }),
+          })));
+        }
+      }
     } catch {}
     setHydrated(true);
   }, []);
@@ -56,6 +69,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       total: items.reduce((s, i) => s + i.quantity * i.price, 0),
       add: (p, size, qty = 1, color = "", image) =>
         setItems((prev) => {
+          const variantImage = resolveProductVariantImage({
+            slug: p.slug,
+            color,
+            fallback: image ?? p.image,
+            colors: p.colors,
+            images: [p.image, ...p.gallery],
+          });
           const idx = prev.findIndex(
             (i) => i.slug === p.slug && i.size === size && i.color === color
           );
@@ -64,7 +84,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             next[idx] = {
               ...next[idx],
               quantity: next[idx].quantity + qty,
-              image: image ?? next[idx].image,
+              image: variantImage,
             };
             return next;
           }
@@ -73,7 +93,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             {
               slug: p.slug,
               name: p.name,
-              image: image ?? p.image,
+              image: variantImage,
               price: p.price,
               size,
               color,

@@ -22,6 +22,8 @@
   video?: string;
   sizeGuideType?: "clothing" | "shoes" | "none";
   urgencyStock?: number;
+  /** Live database inventory. Undefined means the product only has static catalogue data. */
+  stock?: number;
 };
 
 /* ─────────────────────────── CHAUSSURES ────────────────────────── */

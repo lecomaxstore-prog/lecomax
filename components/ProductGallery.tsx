@@ -123,6 +123,15 @@ export default function ProductGallery({
     }
   }, [selectedColor]);
 
+  // A gallery thumbnail is also a variant selector. Keep the selected color
+  // synchronized when customers click or swipe directly to a color image.
+  useEffect(() => {
+    if (!hasColorPicker || typeof active !== "number" || !colorImages) return;
+    const activeImage = safeImages[active];
+    const matchingColor = Object.entries(colorImages).find(([, image]) => image === activeImage)?.[0];
+    if (matchingColor && matchingColor !== selectedColor) setSelectedColor(matchingColor);
+  }, [active, hasColorPicker, colorImages, safeImages, selectedColor, setSelectedColor]);
+
   return (
     <div className="flex flex-col gap-3 min-w-0">
       {/* Main view */}
