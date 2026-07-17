@@ -468,7 +468,7 @@ export default function PostCard({ post, priority = false, onDeleted }: PostCard
           post={post}
           user={user}
           onClose={() => setShowComments(false)}
-          onCommentAdded={() => setCommentsCount(c => c + 1)}
+          onCommentCountChange={delta => setCommentsCount(count => Math.max(0, count + delta))}
           onRequireAuth={action => { setAuthPromptAction(action); setShowAuthPrompt(true); }}
         />
       )}

@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   }
 
   const twoMinutesAgo = new Date(Date.now() - 120_000).toISOString();
-  const safeContent = !parentId && /^\[\[reply:/i.test(content) ? `\u200B${content}` : content;
+  const safeContent = /^\[\[(?:reply:|deleted\]\])/i.test(content) ? `\u200B${content}` : content;
   const storedContent = parentId ? `[[reply:${parentId}]]${content}` : safeContent;
   const { data: recent } = await sb.from("ecomedia_comments").select("id").eq("post_id", postId).eq("email", user.email ?? "").eq("content", storedContent).gte("created_at", twoMinutesAgo).maybeSingle();
   if (recent) return NextResponse.json({ error: "Ce message a déjà été envoyé." }, { status: 429 });
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   };
   const { data, error } = await sb.from("ecomedia_comments").insert(payload).select("id, post_id, name, content, is_approved, created_at").single();
   if (error) return NextResponse.json({ error: "Impossible de publier votre message." }, { status: 500 });
-  return NextResponse.json({ ...data, parent_id: parentId, content }, { status: 201 });
+  return NextResponse.json({ ...data, parent_id: parentId, content, is_owner: true, is_deleted: false }, { status: 201 });
 }
 
 export async function GET(req: NextRequest) {
@@ -47,9 +47,11 @@ export async function GET(req: NextRequest) {
   if (!postId) return NextResponse.json([]);
   const { data: publicPost } = await sb.from("ecomedia_posts").select("id").eq("id", postId).eq("is_published", true).maybeSingle();
   if (!publicPost) return NextResponse.json([], { headers: { "Cache-Control": "no-store" } });
+  const user = await getEcomediaUser(req);
+  const ownerEmail = user?.email?.trim().toLowerCase() ?? null;
   const { data, error } = await sb
     .from("ecomedia_comments")
-    .select("id, post_id, name, content, created_at")
+    .select("id, post_id, name, email, content, created_at")
     .eq("post_id", postId)
     .eq("is_approved", true)
     .order("created_at", { ascending: true })
@@ -57,7 +59,18 @@ export async function GET(req: NextRequest) {
   if (error) return NextResponse.json({ error: "Commentaires indisponibles" }, { status: 500 });
   const comments = (data ?? []).map(comment => {
     const match = comment.content.match(/^\[\[reply:([0-9a-f-]{36})\]\]([\s\S]*)$/i);
-    return match ? { ...comment, parent_id: match[1], content: match[2] } : { ...comment, parent_id: null };
+    const storedContent = match ? match[2] : comment.content;
+    const isDeleted = storedContent === "[[deleted]]";
+    return {
+      id: comment.id,
+      post_id: comment.post_id,
+      name: isDeleted ? "Membre" : comment.name,
+      content: isDeleted ? "Ce commentaire a été supprimé par son auteur." : storedContent,
+      created_at: comment.created_at,
+      parent_id: match ? match[1] : null,
+      is_owner: Boolean(ownerEmail && comment.email?.trim().toLowerCase() === ownerEmail),
+      is_deleted: isDeleted,
+    };
   });
   return NextResponse.json(comments, { headers: { "Cache-Control": "no-store" } });
 }
