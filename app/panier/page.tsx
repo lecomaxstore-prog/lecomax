@@ -16,6 +16,12 @@ export default function CartPage() {
   const shippingCost = shippingConfig.cost;
   const freeShippingThreshold = shippingConfig.freeThreshold;
   const shipping = calculateShipping(total, shippingConfig);
+  const hasFreeShippingGoal = freeShippingThreshold > 0;
+  const freeShippingRemaining = hasFreeShippingGoal ? Math.max(0, freeShippingThreshold - total) : 0;
+  const freeShippingUnlocked = hasFreeShippingGoal && freeShippingRemaining === 0;
+  const freeShippingProgress = hasFreeShippingGoal
+    ? Math.min(100, Math.max(0, (total / freeShippingThreshold) * 100))
+    : 0;
 
   const [promoInput, setPromoInput] = useState("");
   const [promoApplied, setPromoApplied] = useState<null | {
@@ -316,15 +322,68 @@ export default function CartPage() {
                 </Link>
               </div>
 
-              {/* Shipping info */}
-              <div className="px-6 py-3 bg-[#f0fdf4] border-b border-[#3ecf4c]/20 flex items-center gap-2 text-[11px] font-black text-[#16a34a] uppercase tracking-wider">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                  {shipping === 0
-                    ? "Livraison gratuite 🎉"
-                    : freeShippingThreshold > 0
-                      ? `Livraison ${shippingCost} MAD — gratuite dès ${freeShippingThreshold} MAD`
-                      : `Livraison ${shippingCost} MAD partout au Maroc`}
-              </div>
+              {/* Free-shipping progress */}
+              {hasFreeShippingGoal ? (
+                <div className={`border-b px-5 py-4 sm:px-6 ${freeShippingUnlocked ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-gradient-to-r from-amber-50 via-white to-emerald-50"}`}>
+                  <div className="flex items-start gap-3">
+                    <span className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm ${freeShippingUnlocked ? "bg-emerald-600 text-white" : "bg-neutral-950 text-[#3ecf4c]"}`}>
+                      {freeShippingUnlocked ? (
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+                      ) : (
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h11v10H3zM14 9h4l3 3v4h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+                      )}
+                    </span>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+                        <div>
+                          <p className={`text-[9px] font-black uppercase tracking-[0.17em] ${freeShippingUnlocked ? "text-emerald-700" : "text-neutral-500"}`}>Votre avantage livraison</p>
+                          {freeShippingUnlocked ? (
+                            <p className="mt-1 text-[13px] font-black leading-5 text-emerald-800 sm:text-[14px]">Livraison gratuite débloquée&nbsp;!</p>
+                          ) : (
+                            <p className="mt-1 text-[13px] leading-5 text-neutral-700 sm:text-[14px]">
+                              Plus que <strong className="font-black text-neutral-950">{formatMAD(freeShippingRemaining)}</strong> pour profiter de la <strong className="font-black text-emerald-700">livraison gratuite</strong>
+                            </p>
+                          )}
+                        </div>
+                        <span className={`shrink-0 rounded-full border bg-white px-2.5 py-1 text-[9px] font-black tabular-nums shadow-sm ${freeShippingUnlocked ? "border-emerald-200 text-emerald-700" : "border-neutral-200 text-neutral-600"}`}>
+                          {freeShippingUnlocked ? `${formatMAD(shippingCost)} économisés` : `${formatMAD(total)} / ${formatMAD(freeShippingThreshold)}`}
+                        </span>
+                      </div>
+
+                      <div
+                        className="mt-3 h-2 overflow-hidden rounded-full bg-black/10"
+                        role="progressbar"
+                        aria-label="Progression vers la livraison gratuite"
+                        aria-valuemin={0}
+                        aria-valuemax={freeShippingThreshold}
+                        aria-valuenow={Math.min(total, freeShippingThreshold)}
+                      >
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-[#16b277] to-[#3ecf4c] transition-[width] duration-500 ease-out"
+                          style={{ width: `${freeShippingProgress}%` }}
+                        />
+                      </div>
+
+                      <div className="mt-2 flex items-center justify-between gap-3">
+                        <p className={`text-[9px] font-semibold ${freeShippingUnlocked ? "text-emerald-700" : "text-neutral-500"}`}>
+                          {freeShippingUnlocked ? `Vous ne payez pas les ${formatMAD(shippingCost)} de livraison.` : `Dès ${formatMAD(freeShippingThreshold)} d’achats partout au Maroc.`}
+                        </p>
+                        {!freeShippingUnlocked && (
+                          <Link href="/boutique" className="hidden shrink-0 text-[9px] font-black uppercase tracking-[0.08em] text-emerald-700 transition hover:text-black sm:inline-flex">
+                            Compléter mon panier&nbsp;→
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 border-b border-[#3ecf4c]/20 bg-[#f0fdf4] px-6 py-3 text-[11px] font-black uppercase tracking-wider text-[#16a34a]">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                  Livraison {shippingCost} MAD partout au Maroc
+                </div>
+              )}
 
               {/* Estimated delivery */}
               <div className="delivery-mobile-card relative isolate mx-4 my-3 overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-lime-50 shadow-[0_10px_26px_rgba(5,150,105,0.09)] sm:hidden">
