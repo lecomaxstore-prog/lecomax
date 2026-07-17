@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { revalidatePath } from "next/cache";
 import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
 import { cleanProductPayload } from "@/lib/product-api-validation";
 import { cleanColorStock, colorStockTotal, syncOutOfStockTags } from "@/lib/product-inventory";
+import { publishProductDiscovery } from "@/lib/product-discovery";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -85,8 +85,6 @@ export async function POST(req: NextRequest) {
       { status: duplicate ? 409 : 500 },
     );
   }
-  revalidatePath("/", "layout");
-  revalidatePath("/boutique");
-  revalidatePath(`/produit/${data.slug}`);
+  publishProductDiscovery({ current: data });
   return NextResponse.json(data, { status: 201, headers: { "Cache-Control": "no-store, max-age=0" } });
 }
