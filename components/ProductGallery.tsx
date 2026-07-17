@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { useProductColor } from "./ProductColorContext";
 
@@ -57,22 +57,44 @@ export default function ProductGallery({
   const thumbsRef = useRef<HTMLDivElement>(null);
 
   // Filter out empty/invalid image strings and ensure at least a placeholder
-  const validImages = images.filter(Boolean);
-  const safeImages = validImages.length > 0 ? validImages : ["/images/no-image.svg"];
+  const safeImages = useMemo(() => {
+    const validImages = images.filter(Boolean);
+    return validImages.length > 0 ? validImages : ["/images/no-image.svg"];
+  }, [images]);
 
   // Build the full list of "slides": video first (if any), then images
-  const slides: Array<"video" | number> = [
-    ...(video ? (["video"] as const) : []),
-    ...safeImages.map((_, i) => i as number),
-  ];
+  const slides = useMemo<Array<"video" | number>>(
+    () => [
+      ...(video ? (["video"] as const) : []),
+      ...safeImages.map((_, i) => i as number),
+    ],
+    [safeImages, video]
+  );
   const activeIndex = slides.indexOf(active);
+
+  const selectSlide = useCallback(
+    (slide: "video" | number) => {
+      setActive(slide);
+
+      // Gallery navigation is an explicit customer action. When the selected
+      // slide belongs to a color variant, update the shared color once here
+      // instead of running a second effect that can fight the color picker.
+      if (typeof slide !== "number" || !colorImages) return;
+      const image = safeImages[slide];
+      const matchingColor = Object.entries(colorImages).find(([, src]) => src === image)?.[0];
+      if (matchingColor && matchingColor !== selectedColor) {
+        setSelectedColor(matchingColor);
+      }
+    },
+    [colorImages, safeImages, selectedColor, setSelectedColor]
+  );
 
   const goTo = useCallback(
     (idx: number) => {
       const clamped = (idx + slides.length) % slides.length;
-      setActive(slides[clamped]);
+      selectSlide(slides[clamped]);
     },
-    [slides]
+    [selectSlide, slides]
   );
 
   const goPrev = () => goTo(activeIndex - 1);
@@ -106,14 +128,6 @@ export default function ProductGallery({
 
   const hasColorPicker = !!(colors && colors.length > 0 && colorImages);
 
-  const handleColorClick = (color: string) => {
-    setSelectedColor(color);
-    if (colorImages?.[color]) {
-      const idx = safeImages.indexOf(colorImages[color]);
-      if (idx >= 0) setActive(idx);
-    }
-  };
-
   // Sync gallery image when color changes via ProductActions color picker
   useEffect(() => {
     if (!hasColorPicker || !selectedColor) return;
@@ -121,16 +135,7 @@ export default function ProductGallery({
       const idx = safeImages.indexOf(colorImages[selectedColor]);
       if (idx >= 0) setActive(idx);
     }
-  }, [selectedColor]);
-
-  // A gallery thumbnail is also a variant selector. Keep the selected color
-  // synchronized when customers click or swipe directly to a color image.
-  useEffect(() => {
-    if (!hasColorPicker || typeof active !== "number" || !colorImages) return;
-    const activeImage = safeImages[active];
-    const matchingColor = Object.entries(colorImages).find(([, image]) => image === activeImage)?.[0];
-    if (matchingColor && matchingColor !== selectedColor) setSelectedColor(matchingColor);
-  }, [active, hasColorPicker, colorImages, safeImages, selectedColor, setSelectedColor]);
+  }, [colorImages, hasColorPicker, safeImages, selectedColor]);
 
   return (
     <div className="flex flex-col gap-3 min-w-0">
@@ -246,7 +251,7 @@ export default function ProductGallery({
           {safeImages.map((src, i) => (
             <button
               key={i}
-              onClick={() => setActive(i)}
+              onClick={() => selectSlide(i)}
               className={`relative flex-shrink-0 w-[72px] h-[72px] bg-neutral-100 border-2 transition-colors overflow-hidden ${
                 active === i
                   ? "border-black"
