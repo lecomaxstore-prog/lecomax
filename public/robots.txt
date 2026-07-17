@@ -4,6 +4,26 @@ Disallow: /admin/
 Disallow: /api/
 Disallow: /facture/
 
+# Google Merchant Center uses these crawlers for landing-page, mobile and
+# product-image policy checks. Keep public products and media explicitly open.
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /facture/
+
+User-agent: Googlebot-Image
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /facture/
+
+User-agent: Storebot-Google
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /facture/
+
 # Search and answer-engine crawlers may access public storefront content.
 # Utility pages return an HTTP X-Robots-Tag instead of being blocked here,
 # so crawlers can observe the noindex directive.
