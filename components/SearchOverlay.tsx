@@ -68,20 +68,21 @@ function ProductCard({ product, query, active, index, onPick, onHover }: {
       onClick={onPick}
       onMouseEnter={onHover}
       data-search-result={index}
-      className={`group overflow-hidden rounded-2xl border bg-white transition duration-200 hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-[0_14px_35px_rgba(0,0,0,0.09)] ${active ? "border-[#3ecf4c] ring-2 ring-[#3ecf4c]/15" : "border-neutral-200"}`}
+      className={`group flex min-w-0 items-center gap-4 rounded-2xl border bg-white p-2.5 transition duration-200 hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-[0_12px_28px_rgba(0,0,0,0.08)] ${active ? "border-[#3ecf4c] ring-2 ring-[#3ecf4c]/15" : "border-neutral-200"}`}
     >
-      <div className="relative aspect-square overflow-hidden bg-neutral-100">
+      <div className="relative h-[112px] w-[112px] shrink-0 overflow-hidden rounded-xl bg-neutral-100">
         <ProductImage product={product} />
-        {discount > 0 && <span className="absolute left-2.5 top-2.5 rounded-full bg-red-600 px-2 py-1 text-[9px] font-black text-white">-{discount}%</span>}
-        {(product.stock ?? 0) <= 0 && <span className="absolute inset-x-2.5 bottom-2.5 rounded-lg bg-black/80 px-2 py-1.5 text-center text-[9px] font-black uppercase tracking-wider text-white backdrop-blur">Rupture de stock</span>}
+        {discount > 0 && <span className="absolute left-2 top-2 rounded-full bg-red-600 px-2 py-1 text-[8px] font-black text-white">-{discount}%</span>}
+        {(product.stock ?? 0) <= 0 && <span className="absolute inset-x-2 bottom-2 rounded-md bg-black/80 px-1.5 py-1 text-center text-[8px] font-black uppercase tracking-wider text-white backdrop-blur">Indisponible</span>}
       </div>
-      <div className="p-3.5">
+      <div className="min-w-0 flex-1 pr-2">
         <p className="mb-1 text-[9px] font-black uppercase tracking-[0.14em] text-neutral-400">{product.brand || product.category || "L’ecomax"}</p>
-        <h3 className="line-clamp-2 min-h-10 text-[13px] font-bold leading-5 text-neutral-900"><Highlight text={product.name} query={query} /></h3>
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-[15px] font-black text-neutral-950">{money.format(product.price)} MAD</span>
+        <h3 className="line-clamp-2 text-[13px] font-bold leading-5 text-neutral-900"><Highlight text={product.name} query={query} /></h3>
+        <div className="mt-3 flex items-baseline gap-2">
+          <span className="text-base font-black text-neutral-950">{money.format(product.price)} MAD</span>
           {product.original_price && product.original_price > product.price && <span className="text-[11px] text-neutral-400 line-through">{money.format(product.original_price)} MAD</span>}
         </div>
+        <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-[#179b38]">Voir le produit <span aria-hidden="true">→</span></span>
       </div>
     </Link>
   );
@@ -254,41 +255,46 @@ export default function SearchOverlay({ open, onClose }: Props) {
         </div>
       </div>
 
-      <div className={`so-desktop fixed inset-0 z-[9999] bg-black/55 backdrop-blur-[5px] transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }} role="dialog" aria-modal="true" aria-label="Recherche de produits">
-        <div className={`mx-auto max-h-[88vh] w-full max-w-[1280px] overflow-hidden rounded-b-[28px] bg-white shadow-[0_24px_80px_rgba(0,0,0,0.28)] transition-transform duration-300 ${open ? "translate-y-0" : "-translate-y-full"}`}>
-          <div className="flex h-[86px] items-center gap-5 border-b border-neutral-100 px-7">
+      <div className={`so-desktop fixed inset-0 z-[9999] bg-black/60 backdrop-blur-[7px] transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }} role="dialog" aria-modal="true" aria-label="Recherche de produits">
+        <div className={`mx-auto mt-5 max-h-[calc(100vh-40px)] w-[calc(100%-40px)] max-w-[1120px] overflow-hidden rounded-[26px] border border-white/30 bg-white shadow-[0_30px_100px_rgba(0,0,0,0.35)] transition-all duration-300 ${open ? "translate-y-0 scale-100 opacity-100" : "-translate-y-5 scale-[0.98] opacity-0"}`}>
+          <div className="flex h-[82px] items-center gap-5 border-b border-neutral-100 px-7">
             <Link href="/" onClick={onClose} aria-label="L’ecomax — Accueil" className="shrink-0"><Logo showWordmark /></Link>
-            <div className="flex h-12 min-w-0 flex-1 items-center rounded-2xl border border-neutral-200 bg-neutral-50 px-4 transition focus-within:border-[#3ecf4c] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#3ecf4c]/10">
+            <div className="flex h-[50px] min-w-0 flex-1 items-center rounded-2xl border border-neutral-200 bg-[#f7f7f7] px-4 transition focus-within:border-[#3ecf4c] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#3ecf4c]/10">
               <span className="text-neutral-500"><SearchIcon /></span>
-              <input ref={desktopInput} value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={handleKeyDown} placeholder="Rechercher un produit, une marque ou une catégorie…" autoComplete="off" spellCheck={false} className="h-full min-w-0 flex-1 bg-transparent px-3 text-[15px] font-semibold outline-none placeholder:font-normal placeholder:text-neutral-400" />
+              <input ref={desktopInput} value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={handleKeyDown} placeholder="Que recherchez-vous ? Produit, marque, catégorie…" autoComplete="off" spellCheck={false} className="h-full min-w-0 flex-1 bg-transparent px-3 text-[15px] font-semibold outline-none placeholder:font-normal placeholder:text-neutral-400" />
               {loading && <span className="mr-3 h-4 w-4 animate-spin rounded-full border-2 border-neutral-200 border-t-[#179b38]" />}
               {query && !loading && <button onClick={() => { setQuery(""); desktopInput.current?.focus(); }} aria-label="Effacer la recherche" className="mr-2 flex h-7 w-7 items-center justify-center rounded-full bg-neutral-200 text-sm text-neutral-500 hover:bg-neutral-300">×</button>}
-              <kbd className="rounded-md border border-neutral-200 bg-white px-2 py-1 text-[10px] font-bold text-neutral-400 shadow-sm">ENTRÉE</kbd>
+              <kbd className="rounded-md border border-neutral-200 bg-white px-2 py-1 text-[9px] font-black text-neutral-400 shadow-sm">↵ ENTRÉE</kbd>
             </div>
-            <button onClick={onClose} aria-label="Fermer la recherche" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-neutral-200 text-neutral-600 transition hover:border-neutral-400 hover:bg-neutral-50">
+            <button onClick={onClose} aria-label="Fermer la recherche" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-500 transition hover:border-neutral-400 hover:bg-neutral-50 hover:text-black">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3"><path d="M18 6 6 18M6 6l12 12" /></svg>
             </button>
           </div>
 
-          <div className="grid min-h-[470px] grid-cols-[250px_1fr]">
-            <aside className="border-r border-neutral-100 bg-neutral-50/60 p-6">
-              {recents.length > 0 && <div className="mb-7"><div className="mb-3 flex items-center justify-between"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-neutral-400">Récentes</p><button onClick={() => { setRecents([]); try { localStorage.removeItem("search_recents"); } catch { /* Storage can be blocked. */ } }} className="text-[10px] font-bold text-neutral-400 hover:text-black">Effacer</button></div><div className="space-y-1">{recents.slice(0, 4).map((term) => <button key={term} onClick={() => chooseTerm(term)} className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-xs font-semibold text-neutral-600 hover:bg-white hover:text-black"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-400"><path d="M12 8v4l3 2" /><circle cx="12" cy="12" r="9" /></svg><span className="truncate">{term}</span></button>)}</div></div>}
-              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-neutral-400">{cleanQuery ? "Suggestions" : "Tendances"}</p>
-              <div className="space-y-1">{(cleanQuery && suggestions.length ? suggestions : POPULAR).slice(0, 8).map((term) => <button key={term} onClick={() => chooseTerm(term)} className="group flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold text-neutral-600 transition hover:bg-white hover:text-neutral-950 hover:shadow-sm"><span>{term}</span><span className="text-neutral-300 transition group-hover:translate-x-0.5 group-hover:text-[#179b38]">→</span></button>)}</div>
-              <div className="mt-7 rounded-2xl border border-[#d5f5dc] bg-[#f2fff5] p-4"><p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#179b38]">Recherche intelligente</p><p className="mt-2 text-[11px] leading-5 text-neutral-600">Tolère les accents, les fautes de frappe et les mots similaires.</p></div>
-            </aside>
+          <div className="flex min-h-[58px] items-center gap-3 border-b border-neutral-100 bg-neutral-50/70 px-7">
+            <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.17em] text-neutral-400">{cleanQuery && suggestions.length ? "Suggestions" : "Recherches populaires"}</span>
+            <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+              {(cleanQuery && suggestions.length ? suggestions : POPULAR).slice(0, 6).map((term) => <button key={term} onClick={() => chooseTerm(term)} className="shrink-0 rounded-full border border-neutral-200 bg-white px-3.5 py-2 text-[11px] font-bold text-neutral-600 transition hover:border-[#3ecf4c] hover:text-[#168a31]">{term}</button>)}
+            </div>
+            {recents.length > 0 && !cleanQuery && <button onClick={() => chooseTerm(recents[0])} className="shrink-0 border-l border-neutral-200 pl-4 text-[11px] font-bold text-neutral-400 hover:text-black">Récent : <span className="text-neutral-700">{recents[0]}</span></button>}
+          </div>
 
-            <main className="min-w-0 p-6">
-              <div className="mb-5 flex items-end justify-between">
-                <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#179b38]">L’ecomax</p><h2 className="mt-1 text-xl font-black tracking-[-0.02em]">{loading ? "Recherche en cours…" : heading}</h2></div>
-                {cleanQuery.length >= 2 && results.length > 0 && <button onClick={submitSearch} className="rounded-xl border border-neutral-200 px-4 py-2.5 text-xs font-black transition hover:border-black hover:bg-black hover:text-white">Voir tous les résultats →</button>}
-              </div>
+          <main className="min-w-0 px-7 py-6">
+            <div className="mb-5 flex items-end justify-between">
+              <div><p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#179b38]">Sélection L’ecomax</p><h2 className="mt-1 text-[21px] font-black tracking-[-0.025em]">{loading ? "Recherche en cours…" : heading}</h2></div>
+              <button onClick={cleanQuery.length >= 2 ? submitSearch : () => { onClose(); window.location.href = "/boutique"; }} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-neutral-200 px-4 text-[11px] font-black transition hover:border-black hover:bg-black hover:text-white">{cleanQuery.length >= 2 ? "Voir tous les résultats" : "Explorer la boutique"}<span aria-hidden="true">→</span></button>
+            </div>
 
-              {isTypingHint && <MessageState title="Continuez à écrire" text="Deux caractères suffisent pour lancer la recherche intelligente." />}
-              {noResults && <MessageState title={`Aucun résultat pour « ${cleanQuery} »`} text="Essayez une marque, une catégorie ou un mot plus simple. La recherche accepte aussi les fautes légères." />}
-              {error && <MessageState title="Recherche indisponible" text={error} />}
-              {!isTypingHint && !noResults && !error && <div className="grid grid-cols-4 gap-4">{results.slice(0, 8).map((product, index) => <ProductCard key={product.slug} product={product} query={cleanQuery} active={activeIndex === index} index={index} onHover={() => setActiveIndex(index)} onPick={closeAndRemember} />)}</div>}
-            </main>
+            {isTypingHint && <MessageState title="Continuez à écrire" text="Deux caractères suffisent pour lancer la recherche intelligente." />}
+            {noResults && <MessageState title={`Aucun résultat pour « ${cleanQuery} »`} text="Essayez une marque, une catégorie ou un mot plus simple. La recherche accepte aussi les fautes légères." />}
+            {error && <MessageState title="Recherche indisponible" text={error} />}
+            {!isTypingHint && !noResults && !error && <div className="grid grid-cols-2 gap-3.5">{results.slice(0, cleanQuery ? 6 : 4).map((product, index) => <ProductCard key={product.slug} product={product} query={cleanQuery} active={activeIndex === index} index={index} onHover={() => setActiveIndex(index)} onPick={closeAndRemember} />)}</div>}
+          </main>
+
+          <div className="flex min-h-[52px] items-center justify-center gap-8 border-t border-neutral-100 bg-neutral-50 px-7 text-[10px] font-bold text-neutral-500">
+            <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-[#3ecf4c]" />Recherche intelligente et tolérante aux fautes</span>
+            <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-[#3ecf4c]" />Livraison partout au Maroc</span>
+            <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-[#3ecf4c]" />Paiement sécurisé</span>
           </div>
         </div>
       </div>
