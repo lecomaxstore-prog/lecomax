@@ -149,7 +149,8 @@ export default function CartPage() {
         </div>
       </div>
 
-      {/* Checkout stepper */}
+      {/* Checkout progress only matters once the customer has an item to buy. */}
+      {items.length > 0 && (
       <div className="bg-white border-b border-neutral-100 overflow-hidden">
         <style>{`
           @keyframes stepPulse {
@@ -225,27 +226,62 @@ export default function CartPage() {
           ))}
         </div>
       </div>
+      )}
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 sm:py-10">
         {items.length === 0 ? (
-          <div className="py-24 flex flex-col items-center text-center">
-            <div className="w-24 h-24 rounded-full bg-neutral-100 flex items-center justify-center mb-6">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-400">
-                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
-              </svg>
+          <section className="mx-auto max-w-3xl overflow-hidden rounded-[28px] border border-neutral-200 bg-white shadow-[0_18px_60px_rgba(0,0,0,0.06)]">
+            <div className="px-5 py-9 text-center sm:px-12 sm:py-11">
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#ecfbef] text-[#179b38] ring-1 ring-[#c9f2d2]">
+                <svg width="29" height="29" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                  <circle cx="9" cy="20" r="1"/><circle cx="19" cy="20" r="1"/>
+                  <path d="M3 4h2l2.3 10.4a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4L21 8H7"/>
+                </svg>
+              </div>
+
+              <p className="mb-2 text-[10px] font-black uppercase tracking-[0.22em] text-[#179b38]">Votre panier</p>
+              <h1 className="text-2xl font-black tracking-[-0.03em] text-neutral-950 sm:text-3xl">Votre panier est vide</h1>
+              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-neutral-500">
+                Découvrez nos nouveautés et trouvez le produit qui vous correspond.
+              </p>
+
+              <div className="mt-7 flex flex-col items-stretch justify-center gap-3 sm:flex-row">
+                <Link
+                  href="/boutique"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-black px-7 text-[12px] font-black text-white transition-all hover:bg-neutral-800 active:scale-[0.98]"
+                >
+                  Découvrir la boutique
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </Link>
+                <Link
+                  href="/nouveautes"
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-neutral-200 bg-white px-7 text-[12px] font-black text-neutral-900 transition-colors hover:border-neutral-400 hover:bg-neutral-50"
+                >
+                  Voir les nouveautés
+                </Link>
+              </div>
             </div>
-            <h2 className="font-black text-2xl mb-2 uppercase tracking-wide">Panier vide</h2>
-            <p className="text-neutral-400 text-sm mb-8 max-w-xs">Découvrez notre sélection et ajoutez vos articles préférés.</p>
-            <Link
-              href="/boutique"
-              className="inline-flex items-center gap-2 px-8 py-4 font-black uppercase text-[12px] tracking-[0.12em] text-white hover:opacity-90 active:scale-95 transition-all"
-              style={{ background: "#000", color: "#fff" }}
-            >
-              Découvrir la boutique
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </Link>
-          </div>
+
+            <div className="border-t border-neutral-100 bg-neutral-50/80 px-5 py-5 sm:px-10">
+              <p className="mb-3 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-400">Explorer par catégorie</p>
+              <nav aria-label="Catégories populaires" className="flex flex-wrap justify-center gap-2">
+                {[
+                  { label: "Homme", href: "/homme" },
+                  { label: "Femme", href: "/femme" },
+                  { label: "Chaussures", href: "/chaussures" },
+                  { label: "Accessoires", href: "/accessoires" },
+                ].map((category) => (
+                  <Link
+                    key={category.href}
+                    href={category.href}
+                    className="rounded-full border border-neutral-200 bg-white px-4 py-2 text-[11px] font-bold text-neutral-700 transition-colors hover:border-[#3ecf4c] hover:text-[#168a31]"
+                  >
+                    {category.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </section>
         ) : (
           <div className="grid lg:grid-cols-[1fr_380px] gap-6 items-start">
             {/* ── LEFT: Items ── */}
