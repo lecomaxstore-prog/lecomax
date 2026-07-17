@@ -141,12 +141,26 @@ export default function CartPage() {
         </div>
       )}
       {/* Breadcrumb */}
-      <div className="bg-white border-b border-neutral-100">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 text-[12px] text-neutral-400 flex items-center gap-2">
-          <Link href="/" className="hover:text-black transition-colors">Accueil</Link>
-          <span>/</span>
-          <span className="text-black font-semibold">Panier</span>
-        </div>
+      <div className="border-b border-neutral-100 bg-white">
+        <nav aria-label="Fil d’Ariane" className="mx-auto flex max-w-7xl items-center px-4 py-3.5 md:px-6">
+          <ol className="flex items-center gap-2 text-[12px]">
+            <li>
+              <Link
+                href="/"
+                className="group inline-flex min-h-8 items-center gap-2 rounded-lg px-2 text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-950"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true" className="text-neutral-400 transition-colors group-hover:text-[#179b38]">
+                  <path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z" />
+                </svg>
+                <span>Accueil</span>
+              </Link>
+            </li>
+            <li aria-hidden="true" className="text-neutral-300">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
+            </li>
+            <li aria-current="page" className="font-bold text-neutral-950">Panier</li>
+          </ol>
+        </nav>
       </div>
 
       {/* Checkout progress only matters once the customer has an item to buy. */}
