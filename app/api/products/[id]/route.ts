@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { revalidatePath } from "next/cache";
 import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
 import { cleanProductPayload } from "@/lib/product-api-validation";
+import { publishProductDiscovery } from "@/lib/product-discovery";
 import {
   cleanColorStock,
   colorStockTotal,
@@ -22,13 +22,9 @@ type StoredProduct = {
   colors: string[] | null;
   color_stock: Record<string, number> | null;
   tags: string[] | null;
+  category: string | null;
+  active: boolean;
 };
-
-function refreshProductPages(slug?: string) {
-  revalidatePath("/", "layout");
-  revalidatePath("/boutique");
-  if (slug) revalidatePath(`/produit/${slug}`);
-}
 
 // GET /api/products/[id] — admin detail endpoint
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -55,7 +51,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const { data: current, error: currentError } = await supabase
     .from("products")
-    .select("id,slug,stock,colors,color_stock,tags")
+    .select("id,slug,stock,colors,color_stock,tags,category,active")
     .eq("id", id)
     .maybeSingle();
   if (currentError) return NextResponse.json({ error: "Impossible de lire l’inventaire actuel." }, { status: 500 });
@@ -90,8 +86,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       { status: duplicate ? 409 : 500 },
     );
   }
-  refreshProductPages(data.slug ?? stored.slug);
-  if (data.slug !== stored.slug) refreshProductPages(stored.slug);
+  publishProductDiscovery({ current: data, previous: stored });
   return NextResponse.json(data, { headers: { "Cache-Control": "no-store, max-age=0" } });
 }
 
@@ -100,10 +95,10 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const blocked = await protectAdminMutation(req, { key: "products:delete", limit: 20 });
   if (blocked) return blocked;
   const { id } = await params;
-  const { data: current } = await supabase.from("products").select("slug").eq("id", id).maybeSingle();
+  const { data: current } = await supabase.from("products").select("slug,category,active").eq("id", id).maybeSingle();
   if (!current) return NextResponse.json({ error: "Produit introuvable." }, { status: 404 });
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) return NextResponse.json({ error: "Impossible de supprimer le produit." }, { status: 500 });
-  refreshProductPages(current.slug);
+  publishProductDiscovery({ previous: current });
   return NextResponse.json({ success: true });
 }
