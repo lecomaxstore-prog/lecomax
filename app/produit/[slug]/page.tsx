@@ -13,6 +13,7 @@ import ShareButtons from "@/components/ShareButtons";
 import NewsletterSection from "@/components/NewsletterSection";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
+import { cleanColorStock, resolveProductAvailability } from "@/lib/product-inventory";
 
 
 export const dynamic = "force-dynamic";
@@ -302,7 +303,8 @@ export default async function ProductPage({
   const displayRating = reviewRating;
   const displayReviewCount = reviewCount;
 
-  // Fetch color_stock and stock from DB
+  // Fetch the live database inventory even for products that also exist in the
+  // static catalogue. Database values are the single source of truth.
   let realStock: number | null = null;
   try {
     const { createClient: createClient2 } = await import("@supabase/supabase-js");
@@ -312,19 +314,44 @@ export default async function ProductPage({
     );
     const { data: stockData } = await supa2
       .from("products")
-      .select("color_stock, stock")
+      .select("color_stock, stock, tags, colors, sizes")
       .eq("slug", slug)
-      .single();
-    if (stockData?.color_stock && typeof stockData.color_stock === "object") {
-      const cs = stockData.color_stock as Record<string, number>;
-      const dbOos = Object.entries(cs).filter(([, qty]) => qty === 0).map(([color]) => color);
-      if (dbOos.length > 0) {
-        const existing = product.outOfStockColors ?? [];
-        product = { ...product, outOfStockColors: [...new Set([...existing, ...dbOos])] };
-      }
-    }
+      .maybeSingle();
     if (typeof stockData?.stock === "number" && stockData.stock >= 0) {
       realStock = stockData.stock;
+    }
+    if (stockData) {
+      const dbColors = Array.isArray(stockData.colors) && stockData.colors.length > 0
+        ? stockData.colors as string[]
+        : product.colors;
+      const availability = resolveProductAvailability({
+        stock: realStock,
+        colors: dbColors,
+        colorStock: cleanColorStock(stockData.color_stock),
+        fallbackOutOfStockColors: product.outOfStockColors,
+      });
+      const tags = Array.isArray(stockData.tags) ? stockData.tags as string[] : [];
+      const sizeStock = new Map<string, number>();
+      for (const tag of tags.filter((value) => value.startsWith("__sstock:"))) {
+        const parts = tag.slice("__sstock:".length).split(":");
+        const quantity = Number(parts.pop());
+        const size = parts.join(":");
+        if (size && Number.isInteger(quantity) && quantity >= 0) sizeStock.set(size, quantity);
+      }
+      const dbSizes = Array.isArray(stockData.sizes) && stockData.sizes.length > 0
+        ? stockData.sizes as string[]
+        : product.sizes;
+      const outOfStockSizes = sizeStock.size > 0
+        ? dbSizes.filter((size) => (sizeStock.get(size) ?? 0) <= 0)
+        : product.outOfStockSizes;
+      product = {
+        ...product,
+        colors: dbColors,
+        sizes: dbSizes,
+        stock: realStock ?? undefined,
+        outOfStockColors: availability.outOfStockColors,
+        outOfStockSizes,
+      };
     }
   } catch { /* non-critical */ }
 
@@ -351,7 +378,7 @@ export default async function ProductPage({
       "@type": "Offer",
       "price": product.price,
       "priceCurrency": "MAD",
-      "availability": "https://schema.org/InStock",
+      "availability": realStock === 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
       "url": `${SITE_URL}/produit/${product.slug}/`,
       "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split("T")[0],
       "seller": { "@type": "Organization", "name": "L'ecomax", "url": SITE_URL },
@@ -523,12 +550,12 @@ export default async function ProductPage({
                     </span>
                   </>
                 )}
-                <span className="inline-flex min-h-9 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-[11px] font-black text-emerald-700">
+                <span className={`inline-flex min-h-9 items-center gap-2 rounded-full border px-3 text-[11px] font-black ${realStock === 0 ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
                   <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                    {realStock !== 0 && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />}
+                    <span className={`relative inline-flex h-2 w-2 rounded-full ${realStock === 0 ? "bg-red-500" : "bg-emerald-500"}`} />
                   </span>
-                  En stock
+                  {realStock === 0 ? "Épuisé" : "En stock"}
                 </span>
               </div>
             );
@@ -580,7 +607,9 @@ export default async function ProductPage({
 
           {/* Urgency / scarcity signal */}
           {(() => {
-            const stock = realStock === 0 ? null : (product.urgencyStock ?? (realStock !== null && realStock > 0 ? realStock : stockFor(product.slug)));
+            const stock = realStock !== null
+              ? (realStock > 0 && realStock <= 10 ? realStock : null)
+              : (product.urgencyStock ?? stockFor(product.slug));
             if (!stock) return null;
             return (
               <div className="flex items-center gap-2 py-2.5 px-3.5 bg-amber-50 border border-amber-200 rounded-lg mb-4">
