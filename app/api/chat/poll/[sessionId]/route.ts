@@ -26,22 +26,18 @@ export async function GET(
       .order("timestamp", { ascending: true }),
   ]);
 
-  let status = session?.status || "ai";
+  const status = session?.status || "ai";
   const lastMessage = [...(messages || [])]
     .reverse()
-    .find((message) => message.body !== "__AGENT_JOINED__");
-  const agentReplyExpired =
+    .find((message) => message.body !== "__AGENT_JOINED__" && message.body !== "__AI_RESUMED__");
+  const aiTakeoverRequired =
     status === "escalated" &&
-    lastMessage?.sent_by === "agent" &&
+    lastMessage?.sent_by === "visitor" &&
     Date.now() - new Date(lastMessage.timestamp).getTime() >= 5 * 60 * 1000;
-
-  if (agentReplyExpired) {
-    await supabase.from("chat_sessions").update({ status: "resolved" }).eq("id", sessionId);
-    status = "resolved";
-  }
 
   return NextResponse.json({
     status,
     messages: messages || [],
+    ai_takeover_required: aiTakeoverRequired,
   });
 }

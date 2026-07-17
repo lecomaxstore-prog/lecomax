@@ -171,6 +171,11 @@ export async function POST(req: NextRequest) {
   for (const product of catalogProducts) productBySlug.set(product.slug, product as unknown as Record<string, unknown>);
   for (const product of databaseProducts ?? []) productBySlug.set(String(product.slug), product as Record<string, unknown>);
 
+  const requestedBySlug = new Map<string, number>();
+  for (const item of items) {
+    requestedBySlug.set(item.slug, (requestedBySlug.get(item.slug) ?? 0) + item.qty);
+  }
+
   for (const item of items) {
     const product = productBySlug.get(item.slug);
     const authoritativePrice = Number(product?.price);
@@ -178,8 +183,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `L'article « ${item.name} » n'est plus disponible.` }, { status: 409 });
     }
     const stock = Number(product.stock);
-    if (Number.isFinite(stock) && stock >= 0 && item.qty > stock) {
+    if (Number.isFinite(stock) && stock >= 0 && (requestedBySlug.get(item.slug) ?? item.qty) > stock) {
       return NextResponse.json({ error: `Stock insuffisant pour « ${item.name} ».` }, { status: 409 });
+    }
+    const colorStock = product.color_stock && typeof product.color_stock === "object" && !Array.isArray(product.color_stock)
+      ? product.color_stock as Record<string, unknown>
+      : null;
+    const variantStock = item.color && colorStock && item.color in colorStock
+      ? Number(colorStock[item.color])
+      : null;
+    if (variantStock !== null && Number.isFinite(variantStock) && item.qty > variantStock) {
+      return NextResponse.json({ error: `La couleur choisie pour « ${item.name} » est épuisée ou insuffisante.` }, { status: 409 });
     }
     item.price = authoritativePrice;
     item.name = cleanText(product.name, 200) || item.name;

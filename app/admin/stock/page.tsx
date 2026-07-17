@@ -12,7 +12,7 @@ export default function StockPage() {
   const [error, setError] = useState("");
   const [threshold, setThreshold] = useState(5);
   const [thresholdReady, setThresholdReady] = useState(false);
-  const [filter, setFilter] = useState<Filter>("alerts");
+  const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);

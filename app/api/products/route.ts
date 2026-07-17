@@ -20,8 +20,11 @@ export async function GET(req: NextRequest) {
   const search = searchParams.get("search")?.trim();
   const createdBy = searchParams.get("created_by")?.trim();
   const sort = searchParams.get("sort");
-  const requestedLimit = Number(searchParams.get("limit"));
-  const limit = Number.isInteger(requestedLimit) ? Math.min(100, Math.max(1, requestedLimit)) : null;
+  const limitParam = searchParams.get("limit");
+  const requestedLimit = limitParam === null ? null : Number(limitParam);
+  const limit = requestedLimit !== null && Number.isInteger(requestedLimit)
+    ? Math.min(100, Math.max(1, requestedLimit))
+    : null;
   const publicRequest = activeOnly && !createdBy;
 
   if (!publicRequest) {

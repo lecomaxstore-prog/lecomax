@@ -10,7 +10,7 @@ import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-co
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
 
 export default function CartPage() {
-  const { items, total, count, setQty, remove, clear } = useCart();
+  const { items, total, count, setQty, remove, clear, inventoryNotice, dismissInventoryNotice } = useCart();
   const siteSettings = useSettings();
   const shippingConfig = shippingConfigFromSettings(siteSettings);
   const shippingCost = shippingConfig.cost;
@@ -125,6 +125,15 @@ export default function CartPage() {
 
   return (
     <div className="min-h-[60vh] bg-[#f7f7f8]">
+      {inventoryNotice && (
+        <div role="status" className="border-b border-amber-200 bg-amber-50">
+          <div className="mx-auto flex max-w-7xl items-start gap-3 px-4 py-3 text-xs text-amber-900 md:px-6">
+            <span aria-hidden="true" className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-200 font-black">!</span>
+            <p className="flex-1 font-semibold leading-5">{inventoryNotice}</p>
+            <button type="button" onClick={dismissInventoryNotice} aria-label="Fermer le message" className="min-h-8 px-2 font-black text-amber-700 hover:text-black">×</button>
+          </div>
+        </div>
+      )}
       {/* Breadcrumb */}
       <div className="bg-white border-b border-neutral-100">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 text-[12px] text-neutral-400 flex items-center gap-2">

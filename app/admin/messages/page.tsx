@@ -1266,6 +1266,17 @@ export default function MessagesPage() {
                           </div>
                         );
                       }
+                      if (msg.body === "__AI_RESUMED__") {
+                        if (lcMessages[messageIndex - 1]?.body === "__AI_RESUMED__") return null;
+                        return (
+                          <div key={msg.id} className="flex justify-center py-2">
+                            <span className="flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-[10px] font-bold text-emerald-700">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M20 11a8.1 8.1 0 1 1-2.3-5.7L20 8"/><path d="M20 3v5h-5"/></svg>
+                              Eco a repris la conversation après 5 minutes sans réponse
+                            </span>
+                          </div>
+                        );
+                      }
                       return (
                         <div key={msg.id} className={`flex ${isOut ? "justify-end" : "justify-start"}`}>
                           <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-xs leading-relaxed ${

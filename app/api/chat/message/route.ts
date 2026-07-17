@@ -105,13 +105,17 @@ const STORE_CONTEXT = `You are Eco, the professional and friendly AI assistant f
 
 ## RESPONSE RULES (CRITICAL)
 1. LANGUAGE: ALWAYS reply in the EXACT same language the customer used. French → French, Arabic/Darija → Arabic, English → English. NEVER switch languages mid-reply.
-2. TONE: Professional, warm, concise. Use 2–4 short sentences maximum. No bullet lists unless listing multiple products.
+2. TONE: Professional, warm, natural and concise. Prefer short paragraphs. Use bullets only when they make the answer easier to scan.
 3. ESCALATION: Add [ESCALATE] at the very end ONLY when the customer explicitly requests a human agent. NEVER escalate for standard questions you can handle.
 4. PRODUCT SUGGESTIONS: When relevant, mention 1–2 specific products from the catalog with price. Always include the product link.
 5. HONESTY: Never invent prices, product names, or policies. If unsure, direct to the website or support.
 6. UPSELL NATURALLY: After answering, sometimes add a brief helpful suggestion (e.g., "N'oubliez pas de consulter nos promotions en cours sur lecomax.com/promotions").
 7. EMOTIONS: If customer is frustrated or unhappy, acknowledge their feeling first, then help. ("Je comprends votre frustration. Voici ce que je peux faire pour vous…")
-8. IDENTITY: If asked who made you or what AI you are, say you are Eco, L'ecomax's assistant. Do not mention OpenAI, GPT, Groq, or any other AI company.`;
+8. IDENTITY: If asked who made you or what AI you are, say you are Eco, L'ecomax's assistant. Do not mention OpenAI, GPT, Groq, or any other AI company.
+9. GENERAL QUESTIONS: Answer any safe, reasonable question helpfully, even when it is not directly about the store. Do not force a sales pitch into unrelated answers.
+10. SMART CONVERSATION: Use the full conversation context, resolve references such as "it" or "that product", and never repeat a canned greeting in an active conversation.
+11. CLARIFICATION: When essential information is missing, ask one precise follow-up question instead of guessing.
+12. ACTIONS: Clearly distinguish what you know from what requires access to a customer's account or order. Give the exact next step when you cannot perform an account action yourself.`;
 
 // Cache products for 5 minutes to avoid hitting Supabase on every message
 let cachedProducts: string = "";
@@ -197,21 +201,12 @@ async function buildSystemPrompt(): Promise<string> {
 
 /** POST /api/chat/message — visitor sends a message */
 export async function POST(req: Request) {
-  const { session_id, body } = await req.json();
-  if (!session_id || !body?.trim()) {
+  const payload = await req.json();
+  const session_id = payload.session_id as string | undefined;
+  const aiTakeover = payload.ai_takeover === true;
+  let messageBody = typeof payload.body === "string" ? payload.body.trim() : "";
+  if (!session_id || (!messageBody && !aiTakeover)) {
     return NextResponse.json({ error: "session_id and body required" }, { status: 400 });
-  }
-
-  // Rate limit: max 8 messages per session per 60 seconds
-  const oneMinuteAgo = new Date(Date.now() - 60_000).toISOString();
-  const { count: recentCount } = await supabase
-    .from("chat_messages")
-    .select("id", { count: "exact", head: true })
-    .eq("session_id", session_id)
-    .eq("direction", "in")
-    .gte("timestamp", oneMinuteAgo);
-  if ((recentCount ?? 0) >= 8) {
-    return NextResponse.json({ error: "rate_limit", reply: "Vous envoyez trop de messages. Veuillez patienter une minute." }, { status: 429 });
   }
 
   // Load session
@@ -225,27 +220,66 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
   }
 
-  // Store visitor message
-  await supabase.from("chat_messages").insert({
-    session_id,
-    direction: "in",
-    body: body.trim(),
-    sent_by: "visitor",
-  });
+  if (aiTakeover) {
+    const { data: recentMessages } = await supabase
+      .from("chat_messages")
+      .select("body, sent_by, timestamp")
+      .eq("session_id", session_id)
+      .order("timestamp", { ascending: false })
+      .limit(30);
+    const pendingMessage = (recentMessages || []).find((message) =>
+      message.body !== "__AGENT_JOINED__" && message.body !== "__AI_RESUMED__"
+    );
+    const waitedFiveMinutes = pendingMessage?.sent_by === "visitor" &&
+      Date.now() - new Date(pendingMessage.timestamp).getTime() >= 5 * 60 * 1000;
 
-  // Update last_message on session
-  await supabase.from("chat_sessions").update({
-    last_message: body.trim(),
-    last_at: new Date().toISOString(),
-    unread_count: session.unread_count + 1,
-  }).eq("id", session_id);
+    if (session.status !== "escalated" || !waitedFiveMinutes) {
+      return NextResponse.json({ error: "takeover_not_ready" }, { status: 409 });
+    }
+
+    messageBody = pendingMessage.body;
+    const { data: claimedSession } = await supabase
+      .from("chat_sessions")
+      .update({ status: "ai", last_at: new Date().toISOString() })
+      .eq("id", session_id)
+      .eq("status", "escalated")
+      .select("id")
+      .maybeSingle();
+    if (!claimedSession) {
+      return NextResponse.json({ error: "takeover_already_handled" }, { status: 409 });
+    }
+  } else {
+    const oneMinuteAgo = new Date(Date.now() - 60_000).toISOString();
+    const { count: recentCount } = await supabase
+      .from("chat_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("session_id", session_id)
+      .eq("direction", "in")
+      .gte("timestamp", oneMinuteAgo);
+    if ((recentCount ?? 0) >= 8) {
+      return NextResponse.json({ error: "rate_limit", reply: "Vous envoyez trop de messages. Veuillez patienter une minute." }, { status: 429 });
+    }
+
+    await supabase.from("chat_messages").insert({
+      session_id,
+      direction: "in",
+      body: messageBody,
+      sent_by: "visitor",
+    });
+
+    await supabase.from("chat_sessions").update({
+      last_message: messageBody,
+      last_at: new Date().toISOString(),
+      unread_count: session.unread_count + 1,
+    }).eq("id", session_id);
+  }
 
   // If already escalated to agent — just store, admin will reply
-  if (session.status === "escalated") {
+  if (session.status === "escalated" && !aiTakeover) {
     await broadcastAdminPushNotification({
       eventKey: `chat-message:${session_id}:${Date.now()}`,
       title: "Nouveau message dans le Live Chat",
-      body: body.trim().replace(/\s+/g, " ").slice(0, 140),
+      body: messageBody.replace(/\s+/g, " ").slice(0, 140),
       url: "/admin/messages/",
       tag: `admin-chat-${session_id}`,
       requireInteraction: true,
@@ -254,9 +288,9 @@ export async function POST(req: Request) {
   }
 
   // Check if user wants human before calling AI
-  if (wantsHuman(body)) {
+  if (!aiTakeover && wantsHuman(messageBody)) {
     await supabase.from("chat_sessions").update({ status: "escalated" }).eq("id", session_id);
-    const escalationMsg = detectEscalationResponse(body);
+    const escalationMsg = detectEscalationResponse(messageBody);
     await supabase.from("chat_messages").insert({
       session_id,
       direction: "out",
@@ -266,7 +300,7 @@ export async function POST(req: Request) {
     await broadcastAdminPushNotification({
       eventKey: `chat-escalation:${session_id}`,
       title: "Un client demande un conseiller",
-      body: body.trim().replace(/\s+/g, " ").slice(0, 140),
+      body: messageBody.replace(/\s+/g, " ").slice(0, 140),
       url: "/admin/messages/",
       tag: `admin-chat-${session_id}`,
       requireInteraction: true,
@@ -283,8 +317,8 @@ export async function POST(req: Request) {
     .limit(20);
 
   const chatHistory: OpenAI.ChatCompletionMessageParam[] = (history || [])
-    .filter((m) => m.sent_by !== "agent")
-    .slice(-12)
+    .filter((m) => m.sent_by !== "agent" && m.body !== "__AI_RESUMED__")
+    .slice(-16)
     .map((m) => ({
       role: m.direction === "in" ? "user" : "assistant",
       content: m.body,
@@ -299,20 +333,31 @@ export async function POST(req: Request) {
       messages: [
         { role: "system", content: systemPrompt },
         ...chatHistory,
-        { role: "user", content: body.trim() },
+        ...(aiTakeover ? [{ role: "system" as const, content: "No human agent replied within five minutes. Resume as Eco now, answer the customer's latest pending question directly using the conversation context, and do not escalate this response." }] : []),
       ],
-      temperature: 0.4,
-      max_tokens: 400,
+      temperature: 0.35,
+      max_tokens: 650,
       top_p: 0.9,
     });
     aiReply = completion.choices[0]?.message?.content?.trim() || "";
   } catch {
-    aiReply = "Je rencontre un problème technique. Un agent va vous aider. [ESCALATE]";
+    aiReply = aiTakeover
+      ? "Je reprends la conversation. Je rencontre momentanément une difficulté pour générer la réponse complète ; vous pouvez reformuler votre question et je vous répondrai immédiatement."
+      : "Je rencontre un problème technique. Un agent va vous aider. [ESCALATE]";
   }
 
   // Check if AI decided to escalate
-  const shouldEscalate = aiReply.includes("[ESCALATE]");
+  const shouldEscalate = !aiTakeover && aiReply.includes("[ESCALATE]");
   const cleanReply = aiReply.replace("[ESCALATE]", "").trim();
+
+  if (aiTakeover) {
+    await supabase.from("chat_messages").insert({
+      session_id,
+      direction: "out",
+      body: "__AI_RESUMED__",
+      sent_by: "ai",
+    });
+  }
 
   // Store AI reply
   await supabase.from("chat_messages").insert({
@@ -327,7 +372,7 @@ export async function POST(req: Request) {
     await broadcastAdminPushNotification({
       eventKey: `chat-ai-escalation:${session_id}`,
       title: "Live Chat · Intervention requise",
-      body: body.trim().replace(/\s+/g, " ").slice(0, 140),
+      body: messageBody.replace(/\s+/g, " ").slice(0, 140),
       url: "/admin/messages/",
       tag: `admin-chat-${session_id}`,
       requireInteraction: true,
@@ -342,6 +387,7 @@ export async function POST(req: Request) {
   return NextResponse.json({
     status: shouldEscalate ? "escalated" : "ai",
     reply: cleanReply,
+    ai_takeover: aiTakeover,
   });
 }
 

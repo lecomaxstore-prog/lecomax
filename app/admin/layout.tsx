@@ -535,7 +535,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       try {
         // Prefer the signed admin cookie: it is the same source of truth used by
         // the route guard. Supabase is retained as a fallback for legacy sessions.
-        const verifyRes = await fetch("/api/admin/auth/verify", { method: "GET" });
+        const verifyRes = await fetch("/api/admin/auth/verify/", {
+          method: "GET",
+          cache: "no-store",
+        });
         let email: string | null = null;
         if (verifyRes.ok) {
           const verified = await verifyRes.json() as { email?: unknown };
@@ -547,7 +550,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
         if (!email) throw new Error("Unable to identify the admin session");
 
-        const res = await fetch(`/api/admin/staff/permissions?email=${encodeURIComponent(email)}`);
+        const res = await fetch(
+          `/api/admin/staff/permissions/?email=${encodeURIComponent(email)}&v=2`,
+          { cache: "no-store" }
+        );
         if (!res.ok) throw new Error("Unable to load permissions");
         const result = await res.json() as { isStaff?: unknown; permissions?: unknown };
         if (cancelled) return;
@@ -657,7 +663,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     // Check the server-side admin_session cookie first (source of truth).
     // Only fall back to Supabase if the cookie is also missing.
-    fetch("/api/admin/auth/verify", { method: "GET" })
+    fetch("/api/admin/auth/verify/", { method: "GET", cache: "no-store" })
       .then((res) => {
         if (res.ok) {
           // Cookie session is valid — stay on current page regardless of Supabase state
@@ -738,7 +744,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   async function logout() {
     await supabase.auth.signOut();
-    await fetch("/api/admin/auth/session", { method: "DELETE" });
+    await fetch("/api/admin/auth/session/", { method: "DELETE" });
     router.replace("/admin");
   }
 

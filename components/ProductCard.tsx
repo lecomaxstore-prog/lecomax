@@ -37,6 +37,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
   const rating = product.rating ?? 0;
   const count = product.reviewCount ?? 0;
   const displayImage = product.image || "/images/no-image.svg";
+  const outOfStock = product.stock !== undefined && product.stock <= 0;
 
   useEffect(() => setMounted(true), []);
   const onSale = product.oldPrice && product.oldPrice > product.price;
@@ -54,12 +55,17 @@ export default function ProductCard({ product }: { product: CardProduct }) {
           alt={product.name}
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-          className="object-cover group-hover:scale-[1.06] transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
+          className={`object-cover transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${outOfStock ? "opacity-60 grayscale-[25%]" : "group-hover:scale-[1.06]"}`}
         />
         <div className="shimmer-on-hover" />
 
         {/* Top-left badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+          {outOfStock && (
+            <span className="rounded-full bg-neutral-950 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-white shadow-sm">
+              Épuisé
+            </span>
+          )}
           {product.badge && (
             <span className={`text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full leading-none ${
               product.badge === "Nouveau" ? "bg-black text-white" :
@@ -97,8 +103,8 @@ export default function ProductCard({ product }: { product: CardProduct }) {
 
         {/* CTA bar on hover */}
         <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out px-3 pb-3 pt-10 bg-gradient-to-t from-black/70 to-transparent">
-          <div className="w-full bg-[#3ecf4c] text-black text-[10px] font-black uppercase tracking-[0.2em] py-2.5 rounded-lg text-center flex items-center justify-center gap-2">
-            Voir le produit
+          <div className={`w-full text-[10px] font-black uppercase tracking-[0.2em] py-2.5 rounded-lg text-center flex items-center justify-center gap-2 ${outOfStock ? "bg-neutral-900 text-white" : "bg-[#3ecf4c] text-black"}`}>
+            {outOfStock ? "Produit épuisé" : "Voir le produit"}
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </div>
         </div>

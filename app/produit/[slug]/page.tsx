@@ -530,6 +530,25 @@ export default async function ProductPage({
             const rating = displayRating;
             const count = displayReviewCount;
             const full = Math.round(rating);
+            const isOutOfStock = realStock === 0;
+            const isLowStock = typeof realStock === "number" && realStock > 0 && realStock <= 5;
+            const stockTone = isOutOfStock
+              ? {
+                  shell: "border-red-200/90 bg-gradient-to-br from-white via-white to-red-50/90 text-red-800 hover:border-red-300",
+                  icon: "bg-red-500 text-white shadow-[0_5px_14px_rgba(239,68,68,.24)]",
+                  detail: "text-red-500/70",
+                }
+              : isLowStock
+                ? {
+                    shell: "border-amber-200/90 bg-gradient-to-br from-white via-white to-amber-50/90 text-amber-900 hover:border-amber-300",
+                    icon: "bg-amber-400 text-amber-950 shadow-[0_5px_14px_rgba(245,158,11,.24)]",
+                    detail: "text-amber-600/75",
+                  }
+                : {
+                    shell: "border-emerald-200/90 bg-gradient-to-br from-white via-white to-emerald-50/90 text-emerald-900 hover:border-emerald-300 hover:shadow-[0_10px_28px_rgba(16,185,129,.13)]",
+                    icon: "bg-emerald-500 text-white shadow-[0_5px_14px_rgba(16,185,129,.28)]",
+                    detail: "text-emerald-600/70",
+                  };
             return (
               <div className="product-summary-enter mt-4 flex flex-wrap items-center gap-2.5 [animation-delay:.16s]">
                 {count > 0 && (
@@ -550,12 +569,30 @@ export default async function ProductPage({
                     </span>
                   </>
                 )}
-                <span className={`inline-flex min-h-9 items-center gap-2 rounded-full border px-3 text-[11px] font-black ${realStock === 0 ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
-                  <span className="relative flex h-2 w-2">
-                    {realStock !== 0 && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />}
-                    <span className={`relative inline-flex h-2 w-2 rounded-full ${realStock === 0 ? "bg-red-500" : "bg-emerald-500"}`} />
+                <span
+                  role="status"
+                  aria-label={isOutOfStock ? "Produit épuisé" : isLowStock ? `Stock limité, ${realStock} unités restantes` : "Produit disponible en stock"}
+                  className={`group relative inline-flex min-h-11 items-center gap-2.5 overflow-hidden rounded-2xl border py-1.5 pl-1.5 pr-3.5 shadow-[0_5px_18px_rgba(15,23,42,.055)] transition duration-300 hover:-translate-y-0.5 ${stockTone.shell}`}
+                >
+                  <span aria-hidden="true" className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
+                  <span className={`relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${stockTone.icon}`}>
+                    {!isOutOfStock && !isLowStock && <span className="absolute inset-0 animate-ping rounded-xl bg-emerald-400 opacity-[.12]" />}
+                    {isOutOfStock ? (
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="m7 7 10 10M17 7 7 17"/></svg>
+                    ) : isLowStock ? (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v5M12 17h.01"/><path d="M10.3 3.7 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z"/></svg>
+                    ) : (
+                      <svg className="relative" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><path d="m6 12 4 4 8-9"/></svg>
+                    )}
                   </span>
-                  {realStock === 0 ? "Épuisé" : "En stock"}
+                  <span className="flex min-w-0 flex-col leading-none">
+                    <span className="text-[11px] font-black tracking-[-.015em]">
+                      {isOutOfStock ? "Produit épuisé" : isLowStock ? "Stock limité" : "Disponible"}
+                    </span>
+                    <span className={`mt-1.5 whitespace-nowrap text-[8px] font-black uppercase tracking-[.1em] ${stockTone.detail}`}>
+                      {isOutOfStock ? "Bientôt de retour" : isLowStock ? `${realStock} restant${realStock === 1 ? "" : "s"}` : "En stock · Prêt à expédier"}
+                    </span>
+                  </span>
                 </span>
               </div>
             );

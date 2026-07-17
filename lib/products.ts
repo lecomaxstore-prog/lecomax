@@ -504,6 +504,8 @@ export type CardProduct = {
   badge?: string;
   rating?: number;
   reviewCount?: number;
+  /** Live database inventory. Undefined is reserved for static fallback products. */
+  stock?: number;
 };
 
 /** Convert an API/Supabase product to the CardProduct format */
@@ -518,6 +520,7 @@ export function apiToCard(p: {
   sizes?: string[] | null;
   featured?: boolean;
   brand?: string | null;
+  stock?: number | null;
 }): CardProduct {
   return {
     slug: p.slug,
@@ -531,5 +534,6 @@ export function apiToCard(p: {
     colors: (p.colors as string[]) ?? [],
     sizes: (p.sizes as string[]) ?? [],
     badge: p.featured ? "Nouveau" : undefined,
+    stock: typeof p.stock === "number" ? p.stock : undefined,
   };
 }

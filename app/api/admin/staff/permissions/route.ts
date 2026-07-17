@@ -7,6 +7,18 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+export const dynamic = "force-dynamic";
+
+const NO_STORE_HEADERS = {
+  "Cache-Control": "private, no-store, no-cache, max-age=0, must-revalidate",
+  Pragma: "no-cache",
+  Expires: "0",
+};
+
+function json(body: unknown, status = 200) {
+  return NextResponse.json(body, { status, headers: NO_STORE_HEADERS });
+}
+
 // GET /api/admin/staff/permissions?email=xxx
 // Returns the permission slugs for a staff member (used at login time)
 export async function GET(req: NextRequest) {
@@ -14,20 +26,27 @@ export async function GET(req: NextRequest) {
   if (blocked) return blocked;
 
   const email = req.nextUrl.searchParams.get("email");
-  if (!email) return NextResponse.json({ isStaff: false, permissions: [] });
+  if (!email) return json({ error: "Email required" }, 400);
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const ownerEmail = (process.env.ADMIN_EMAIL ?? "contact@lecomax.com").trim().toLowerCase();
+  if (normalizedEmail === ownerEmail) {
+    return json({ isOwner: true, isStaff: false, permissions: [] });
+  }
 
   const { data: staffRow } = await supabase
     .from("admin_staff")
     .select("id, role_id")
-    .eq("email", email.toLowerCase())
+    .eq("email", normalizedEmail)
+    .eq("status", "active")
     .maybeSingle();
 
   if (!staffRow) {
-    return NextResponse.json({ isStaff: false, permissions: [] });
+    return json({ error: "Admin access not found" }, 403);
   }
 
   if (!staffRow.role_id) {
-    return NextResponse.json({ isStaff: true, permissions: [] });
+    return json({ isOwner: false, isStaff: true, permissions: [] });
   }
 
   const { data: permRows } = await supabase
@@ -36,5 +55,5 @@ export async function GET(req: NextRequest) {
     .eq("role_id", staffRow.role_id);
 
   const permissions = permRows?.map((r: { permission_slug: string }) => r.permission_slug) ?? [];
-  return NextResponse.json({ isStaff: true, permissions });
+  return json({ isOwner: false, isStaff: true, permissions });
 }

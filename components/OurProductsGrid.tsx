@@ -44,6 +44,7 @@ function useInView(threshold = 0.08) {
 
 function ProductCard({ product, index, visibilityClass = "" }: { product: CardProduct; index: number; visibilityClass?: string }) {
   const hasDiscount = product.oldPrice && product.oldPrice > product.price;
+  const outOfStock = product.stock !== undefined && product.stock <= 0;
   const discount = hasDiscount
     ? Math.round(((product.oldPrice! - product.price) / product.oldPrice!) * 100)
     : null;
@@ -68,7 +69,7 @@ function ProductCard({ product, index, visibilityClass = "" }: { product: CardPr
               alt={product.name}
               fill
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-              className="object-cover group-hover:scale-[1.05] transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
+              className={`object-cover transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${outOfStock ? "opacity-60 grayscale-[25%]" : "group-hover:scale-[1.05]"}`}
             />
           )}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
@@ -76,6 +77,11 @@ function ProductCard({ product, index, visibilityClass = "" }: { product: CardPr
           <div className="absolute top-0 left-0 w-0 group-hover:w-full h-[2px] bg-[#3ecf4c] transition-all duration-500 ease-out" />
           {/* Badges */}
           <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
+            {outOfStock && (
+              <span className="bg-neutral-950 px-2.5 py-[5px] text-[10px] font-black uppercase tracking-[0.12em] leading-none text-white">
+                Épuisé
+              </span>
+            )}
             {product.badge && (
               <span className="text-[10px] font-black uppercase px-2.5 py-[5px] tracking-[0.12em] leading-none bg-black text-white">
                 {product.badge}
@@ -88,8 +94,8 @@ function ProductCard({ product, index, visibilityClass = "" }: { product: CardPr
             )}
           </div>
           {/* CTA bar */}
-          <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out bg-[#3ecf4c] text-black text-[10px] font-black uppercase tracking-[0.2em] py-3 text-center flex items-center justify-center gap-2">
-            Voir le produit
+          <div className={`absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out text-[10px] font-black uppercase tracking-[0.2em] py-3 text-center flex items-center justify-center gap-2 ${outOfStock ? "bg-neutral-950 text-white" : "bg-[#3ecf4c] text-black"}`}>
+            {outOfStock ? "Produit épuisé" : "Voir le produit"}
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>

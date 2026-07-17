@@ -45,6 +45,12 @@ function formatTime(ts: string) {
   return new Date(ts).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 }
 
+function agentIsActive(messages: ChatMsg[]): boolean {
+  const lastAgentJoin = messages.map((message) => message.body).lastIndexOf("__AGENT_JOINED__");
+  const lastAiResume = messages.map((message) => message.body).lastIndexOf("__AI_RESUMED__");
+  return lastAgentJoin > lastAiResume;
+}
+
 function playNotifSound() {
   try {
     const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
@@ -127,7 +133,7 @@ export default function ChatWidget() {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const prevMsgCount = useRef(0);
-  const replyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const takeoverInFlightRef = useRef(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
   // ── Mobile keyboard: keep header visible by tracking visualViewport ────────
@@ -200,8 +206,6 @@ export default function ChatWidget() {
     ];
   })();
 
-  const AGENT_REPLY_TIMEOUT_MS = 5 * 60 * 1000;
-
   // ── Start or resume session ──────────────────────────────────────────────
   const startSession = useCallback(async () => {
     setStarting(true);
@@ -240,9 +244,7 @@ export default function ChatWidget() {
         setStatus(d.status || "ai");
         prevMsgCount.current = loadedMsgs.length;
         // If agent already replied, mark as joined (no animation banner on resume)
-        if (loadedMsgs.some((m) => m.sent_by === "agent")) {
-          setHasAgentJoined(true);
-        }
+        setHasAgentJoined(agentIsActive(loadedMsgs));
       });
     } else {
       startSession();
@@ -260,12 +262,34 @@ export default function ChatWidget() {
       const newMsgs: ChatMsg[] = data.messages || [];
       const newStatus = data.status || "ai";
 
-      // Always sync status (catches admin resolving the chat)
-      if (newStatus === "resolved" && status === "escalated") {
-        const lastMessage = [...newMsgs].reverse().find((m) => m.body !== "__AGENT_JOINED__");
-        if (lastMessage?.sent_by === "agent" && Date.now() - new Date(lastMessage.timestamp).getTime() >= AGENT_REPLY_TIMEOUT_MS) {
-          setExpiredByTimeout(true);
+      if (data.ai_takeover_required && !takeoverInFlightRef.current) {
+        takeoverInFlightRef.current = true;
+        setLoading(true);
+        try {
+          const takeoverRes = await fetch("/api/chat/message", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ session_id: sessionId, ai_takeover: true }),
+          });
+          if (takeoverRes.ok) {
+            const refreshedRes = await fetch(`/api/chat/poll/${sessionId}`);
+            const refreshed = await refreshedRes.json();
+            const refreshedMessages: ChatMsg[] = refreshed.messages || [];
+            setMessages(refreshedMessages);
+            prevMsgCount.current = refreshedMessages.length;
+            setStatus("ai");
+            setHasAgentJoined(false);
+            setAgentJoined(false);
+            setAgentTyping(false);
+            setCallVisible(false);
+            setExpiredByTimeout(false);
+            playNotifSound();
+          }
+        } finally {
+          takeoverInFlightRef.current = false;
+          setLoading(false);
         }
+        return;
       }
       setStatus(newStatus);
 
@@ -286,7 +310,7 @@ export default function ChatWidget() {
       }
     }, 5000);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [sessionId, open, status, AGENT_REPLY_TIMEOUT_MS]);
+  }, [sessionId, open]);
 
   // ── Live agent events, with polling retained as a fallback ───────────────
   useEffect(() => {
@@ -322,30 +346,6 @@ export default function ChatWidget() {
       setAgentTyping(false);
     };
   }, [sessionId, open]);
-
-  // Expire only when an adviser is waiting for the client's reply.
-  useEffect(() => {
-    if (replyTimeoutRef.current) clearTimeout(replyTimeoutRef.current);
-    if (!sessionId || status !== "escalated") return;
-    const lastMessage = [...messages].reverse().find((m) => m.body !== "__AGENT_JOINED__");
-    if (!lastMessage || lastMessage.sent_by !== "agent") return;
-
-    const expireAt = new Date(lastMessage.timestamp).getTime() + AGENT_REPLY_TIMEOUT_MS;
-    const expire = () => {
-      fetch(`/api/chat/sessions/${sessionId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "resolved" }),
-      }).catch(() => {});
-      setExpiredByTimeout(true);
-      setStatus("resolved");
-      setAgentTyping(false);
-    };
-    const remaining = expireAt - Date.now();
-    if (remaining <= 0) expire();
-    else replyTimeoutRef.current = setTimeout(expire, remaining);
-    return () => { if (replyTimeoutRef.current) clearTimeout(replyTimeoutRef.current); };
-  }, [sessionId, status, messages, AGENT_REPLY_TIMEOUT_MS]);
 
   // Poll when closed to show unread badge
   useEffect(() => {
@@ -784,6 +784,22 @@ export default function ChatWidget() {
             )}
 
             {messages.map((m, messageIndex) => {
+              if (m.body === "__AI_RESUMED__" && m.direction === "out") {
+                if (messages[messageIndex - 1]?.body === "__AI_RESUMED__") return null;
+                return (
+                  <div key={m.id} className="chat-msg py-2">
+                    <div className="mx-auto flex max-w-[92%] items-start gap-3 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-white px-3.5 py-3 shadow-[0_6px_20px_rgba(22,163,74,.08)]">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-sm">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 11a8.1 8.1 0 1 1-2.3-5.7L20 8"/><path d="M20 3v5h-5"/></svg>
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-black text-emerald-900">Eco reprend la conversation</p>
+                        <p className="mt-0.5 text-[10px] leading-relaxed text-emerald-700/75">Aucune réponse de l’agent après 5 minutes. Votre assistant répond maintenant à votre question.</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
               // System message: agent joined
               if (m.body === "__AGENT_JOINED__" && m.direction === "out") {
                 if (messages[messageIndex - 1]?.body === "__AGENT_JOINED__") return null;

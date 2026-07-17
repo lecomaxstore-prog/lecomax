@@ -20,6 +20,10 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   trailingSlash: true,
+  // API requests throughout the app use extensionless, slashless URLs.
+  // Let route handlers accept those URLs directly instead of issuing a 308
+  // redirect, which can make browser fetches fail before reaching the handler.
+  skipTrailingSlashRedirect: true,
   // Include source files in the dev-docs serverless function bundle (needed on Vercel)
   outputFileTracingIncludes: {
     "/api/dev-docs/*": [

@@ -84,28 +84,40 @@ export default function ProductsPage() {
   const load = useCallback(async () => {
     if (!ready) return;
     setLoading(true);
-    if (isStaff && userEmail) {
-      // Staff: only their own approved products + their pending approvals
-      const [prodRes, approvalRes] = await Promise.all([
-        fetch(`/api/products?created_by=${encodeURIComponent(userEmail)}`),
-        fetch("/api/admin/approvals?status=pending"),
-      ]);
-      const prodData = await prodRes.json();
-      const approvalData = await approvalRes.json();
-      setProducts(Array.isArray(prodData) ? prodData : []);
-      const myPending = (Array.isArray(approvalData) ? approvalData : []).filter(
-        (c: { staff_email: string; entity_type: string }) =>
-          c.staff_email === userEmail && c.entity_type === "product"
-      );
-      setPendingProducts(myPending);
-    } else {
-      // Owner: all products
-      const res = await fetch("/api/products");
-      const data = await res.json();
-      setProducts(Array.isArray(data) ? data : []);
-      setPendingProducts([]);
+    setMsg(null);
+    try {
+      if (isStaff && userEmail) {
+        // Staff: only their own approved products + their pending approvals
+        const [prodRes, approvalRes] = await Promise.all([
+          fetch(`/api/products/?created_by=${encodeURIComponent(userEmail)}`, { cache: "no-store" }),
+          fetch("/api/admin/approvals/?status=pending", { cache: "no-store" }),
+        ]);
+        if (!prodRes.ok || !approvalRes.ok) throw new Error("Impossible de charger les produits.");
+        const prodData = await prodRes.json();
+        const approvalData = await approvalRes.json();
+        setProducts(Array.isArray(prodData) ? prodData : []);
+        const myPending = (Array.isArray(approvalData) ? approvalData : []).filter(
+          (c: { staff_email: string; entity_type: string }) =>
+            c.staff_email === userEmail && c.entity_type === "product"
+        );
+        setPendingProducts(myPending);
+      } else {
+        // Owner: all products
+        const res = await fetch("/api/products/", { cache: "no-store" });
+        if (!res.ok) throw new Error("Impossible de charger les produits.");
+        const data = await res.json();
+        setProducts(Array.isArray(data) ? data : []);
+        setPendingProducts([]);
+      }
+    } catch (error) {
+      setProducts([]);
+      setMsg({
+        type: "err",
+        text: error instanceof Error ? error.message : "Impossible de charger les produits.",
+      });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [ready, isStaff, userEmail]);
 
   useEffect(() => { load(); }, [load]);
@@ -453,22 +465,151 @@ export default function ProductsPage() {
     }
   }
 
+  function closeEditor() {
+    sessionStorage.removeItem("__new_product_images");
+    sessionStorage.removeItem("__new_product_desc_images");
+    if (editId) {
+      sessionStorage.removeItem(`__edit_product_images_${editId}`);
+      sessionStorage.removeItem(`__edit_product_desc_images_${editId}`);
+    }
+    initializedEditIdRef.current = null;
+    router.replace("/admin/products");
+  }
+
+  const editorRequirements = [
+    Boolean(form.name.trim()),
+    Boolean(form.slug.trim()),
+    Boolean(form.price && Number(form.price) > 0),
+    Boolean(form.category),
+    images.length > 0,
+  ];
+  const editorCompletion = Math.round(
+    editorRequirements.filter(Boolean).length / editorRequirements.length * 100
+  );
+  const previewStock = Math.max(0, Number(form.stock) || 0);
+  const previewDiscount = form.price && form.original_price && Number(form.original_price) > Number(form.price)
+    ? Math.round((1 - Number(form.price) / Number(form.original_price)) * 100)
+    : 0;
+  const previewColors = selectedColors
+    .map((color) => AVAILABLE_COLORS.find((item) => item.label === color))
+    .filter((color): color is (typeof AVAILABLE_COLORS)[number] => Boolean(color));
+  const editorPreview = (
+    <div className="group relative overflow-hidden rounded-[26px] border border-neutral-800/90 bg-[#090b0a] text-white shadow-[0_22px_55px_rgba(0,0,0,.2)]">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-52 w-52 rounded-full bg-emerald-400/[.09] blur-3xl" />
+      <div className="relative flex items-center justify-between border-b border-white/[.08] px-5 py-3.5">
+        <div className="flex items-center gap-2.5">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#3ecf4c] opacity-40" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#3ecf4c]" />
+          </span>
+          <p className="text-[9px] font-black uppercase tracking-[.2em] text-white/60">Aperçu boutique</p>
+        </div>
+        <span className="rounded-full border border-white/10 bg-white/[.05] px-2.5 py-1 text-[8px] font-black uppercase tracking-[.12em] text-white/45">Vue client</span>
+      </div>
+
+      <div className="relative p-4 sm:p-5">
+        <div className="flex gap-4">
+          <div className="relative flex h-36 w-[7.25rem] shrink-0 items-center justify-center overflow-hidden rounded-[20px] bg-gradient-to-br from-white/[.09] to-white/[.025] ring-1 ring-inset ring-white/10">
+            {images[0] ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={images[0]} alt="Aperçu du produit" className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
+            ) : (
+              <div className="flex flex-col items-center gap-2 text-white/25">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[.04]">
+                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                </span>
+                <span className="text-[8px] font-bold uppercase tracking-[.12em]">Photo produit</span>
+              </div>
+            )}
+            {form.featured && <span className="absolute left-2.5 top-2.5 rounded-full bg-amber-300 px-2 py-1 text-[7px] font-black uppercase tracking-[.08em] text-black shadow-lg">Vedette</span>}
+            {images.length > 1 && <span className="absolute bottom-2.5 right-2.5 rounded-full bg-black/70 px-2 py-1 text-[8px] font-black backdrop-blur-md">+{images.length - 1}</span>}
+          </div>
+
+          <div className="flex min-w-0 flex-1 flex-col py-0.5">
+            <div className="flex items-center justify-between gap-2">
+              <p className="truncate text-[9px] font-black uppercase tracking-[.18em] text-[#58df67]">{form.category || "Catégorie"}</p>
+              <span className={`shrink-0 rounded-full px-2 py-1 text-[7px] font-black uppercase tracking-[.08em] ${previewStock > 0 ? "bg-emerald-400/10 text-emerald-300" : "bg-red-400/10 text-red-300"}`}>
+                {previewStock > 0 ? "En stock" : "Épuisé"}
+              </span>
+            </div>
+            <h3 className={`mt-2.5 line-clamp-2 text-[15px] font-black leading-5 tracking-[-.02em] ${form.name.trim() ? "text-white" : "text-white/55"}`}>{form.name.trim() || "Nom de votre produit"}</h3>
+            <p className="mt-1 truncate text-[10px] font-medium text-white/35">{form.brand.trim() || "Marque du produit"}</p>
+            <div className="mt-3 flex min-h-5 items-center gap-1.5">
+              {previewColors.length > 0 ? previewColors.slice(0, 4).map((color) => (
+                <span key={color.label} title={color.label} className="h-4 w-4 rounded-full border-2 border-[#090b0a] ring-1 ring-white/20" style={{ backgroundColor: color.hex }} />
+              )) : <span className="text-[9px] text-white/25">Ajoutez des variantes couleur</span>}
+              {previewColors.length > 4 && <span className="ml-0.5 text-[8px] font-bold text-white/35">+{previewColors.length - 4}</span>}
+            </div>
+            <div className="mt-auto flex flex-wrap items-end gap-x-2 gap-y-1 pt-3">
+              <span className={`text-xl font-black tracking-[-.04em] ${form.price && Number(form.price) > 0 ? "text-white" : "text-white/45"}`}>{form.price && Number(form.price) > 0 ? Number(form.price).toLocaleString("fr-MA") : "—"}<span className="ml-1 text-[10px] tracking-normal text-white/55">MAD</span></span>
+              {previewDiscount > 0 && <><span className="pb-1 text-[9px] text-white/30 line-through">{Number(form.original_price).toLocaleString("fr-MA")} MAD</span><span className="mb-0.5 rounded-md bg-[#3ecf4c] px-1.5 py-0.5 text-[8px] font-black text-black">-{previewDiscount}%</span></>}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center gap-3 border-t border-white/[.08] pt-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-[8px] font-black uppercase tracking-[.14em] text-white/25">Disponibilité</p>
+            <p className="mt-0.5 truncate text-[10px] font-bold text-white/65">{previewStock > 0 ? `${previewStock} unité${previewStock > 1 ? "s" : ""} disponible${previewStock > 1 ? "s" : ""}` : "Indisponible à la commande"}</p>
+          </div>
+          <span className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl px-4 text-[10px] font-black transition ${previewStock > 0 ? "bg-white text-black shadow-[0_8px_22px_rgba(255,255,255,.08)]" : "cursor-not-allowed bg-white/[.07] text-white/30"}`}>
+            Voir la fiche
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+
   if (showForm) return (
-    <div className="max-w-5xl">
-      <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => { sessionStorage.removeItem("__new_product_images"); sessionStorage.removeItem("__new_product_desc_images"); if (editId) { sessionStorage.removeItem(`__edit_product_images_${editId}`); sessionStorage.removeItem(`__edit_product_desc_images_${editId}`); } initializedEditIdRef.current = null; router.replace("/admin/products"); }} className="p-2 hover:bg-neutral-100 rounded-lg transition-colors">
+    <div className="mx-auto w-full max-w-[1440px] pb-28 lg:pb-12">
+      <div className="sticky top-0 z-30 -mx-4 mb-5 border-b border-neutral-200/80 bg-[#f6f6f4]/90 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:mb-7 lg:rounded-[26px] lg:border lg:bg-white lg:p-5 lg:shadow-[0_12px_35px_rgba(0,0,0,.055)]">
+        <div className="flex items-center gap-3">
+        <button type="button" onClick={closeEditor} aria-label="Retour aux produits" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-neutral-200 bg-white text-neutral-600 shadow-sm transition hover:border-black hover:text-black">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </button>
-        <div>
-          <h1 className="text-xl font-black">{editId ? "Modifier le produit" : "Nouveau produit 🤖"}</h1>
-          <p className="text-xs text-neutral-400 mt-0.5">{editId ? "Mettez à jour les informations" : "Remplissez les champs pour créer un produit"}</p>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="truncate text-lg font-black tracking-[-.025em] sm:text-xl lg:text-2xl">{editId ? "Modifier le produit" : "Nouveau produit"}</h1>
+            <span className={`hidden rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[.14em] sm:inline-flex ${form.active ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}>{form.active ? "Visible" : "Brouillon"}</span>
+          </div>
+          <p className="mt-0.5 truncate text-[11px] text-neutral-400 sm:text-xs">{editId ? "Mettez à jour la fiche, les médias et l’inventaire." : "Créez une fiche claire, complète et prête à vendre."}</p>
+        </div>
+        <div className="hidden w-44 xl:block">
+          <div className="mb-1.5 flex items-center justify-between text-[9px] font-black uppercase tracking-[.12em] text-neutral-400"><span>Fiche complétée</span><span className="text-neutral-900">{editorCompletion}%</span></div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-neutral-100"><div className="h-full rounded-full bg-[#3ecf4c] transition-[width] duration-500" style={{ width: `${editorCompletion}%` }} /></div>
+        </div>
+        <div className="hidden items-center gap-2 lg:flex">
+          <button type="button" onClick={closeEditor} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-neutral-200 bg-white px-4 text-xs font-black text-neutral-600 transition hover:border-black hover:text-black">Annuler</button>
+          <button type="submit" form="product-editor-form" disabled={saving} className="inline-flex min-h-11 min-w-44 items-center justify-center gap-2 rounded-xl bg-black px-5 text-xs font-black text-white shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:bg-neutral-800 disabled:opacity-50">
+            {saving ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Enregistrement…</> : editId ? "Enregistrer" : "Créer le produit"}
+          </button>
+        </div>
+        </div>
+        <div className="mt-3 flex items-center gap-3 lg:hidden">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200"><div className="h-full rounded-full bg-[#3ecf4c] transition-[width] duration-500" style={{ width: `${editorCompletion}%` }} /></div>
+          <span className="text-[9px] font-black text-neutral-500">{editorCompletion}%</span>
         </div>
       </div>
 
-      <form onSubmit={handleSave}>
+      <form id="product-editor-form" onSubmit={handleSave}>
+        <div className="mb-5 hidden grid-cols-4 gap-2 lg:grid">
+          {[
+            ["01", "Informations", Boolean(form.name && form.slug)],
+            ["02", "Médias", images.length > 0],
+            ["03", "Vente & stock", Boolean(form.price)],
+            ["04", "Variantes", selectedColors.length > 0 || selectedSizes.length > 0],
+          ].map(([step, label, complete]) => (
+            <div key={String(step)} className={`flex items-center gap-3 rounded-2xl border px-3 py-2.5 ${complete ? "border-emerald-100 bg-emerald-50/70" : "border-neutral-200 bg-white"}`}>
+              <span className={`flex h-7 w-7 items-center justify-center rounded-xl text-[9px] font-black ${complete ? "bg-[#3ecf4c] text-black" : "bg-neutral-100 text-neutral-400"}`}>{step}</span>
+              <span className={`text-[10px] font-black uppercase tracking-[.1em] ${complete ? "text-emerald-800" : "text-neutral-400"}`}>{label}</span>
+            </div>
+          ))}
+        </div>
         {/* ── AI IMPORT BANNER ── */}
-        <div className="mb-5 bg-gradient-to-r from-violet-50 to-blue-50 border border-violet-200 rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-3">
+        <div className="relative mb-5 overflow-hidden rounded-[24px] border border-violet-200/80 bg-gradient-to-br from-violet-50 via-white to-blue-50 p-4 shadow-[0_8px_30px_rgba(109,40,217,.06)] sm:p-5">
+            <div aria-hidden="true" className="absolute -right-12 -top-16 h-40 w-40 rounded-full bg-violet-300/20 blur-3xl" />
+            <div className="relative flex items-center gap-3 mb-3">
               <div className="w-7 h-7 bg-violet-600 rounded-lg flex items-center justify-center shrink-0">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
               </div>
@@ -477,20 +618,20 @@ export default function ProductsPage() {
                 <p className="text-[11px] text-violet-600">Collez un lien produit — l'IA génère automatiquement nom, description, catégorie, tags <strong>et importe les images</strong></p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="relative flex flex-col gap-2 sm:flex-row">
               <input
                 type="url"
                 value={aiUrl}
                 onChange={e => setAiUrl(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleAiImport())}
                 placeholder="https://www.aliexpress.com/item/... ou https://www.temu.com/..."
-                className="flex-1 border border-violet-200 bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-violet-500 transition-colors"
+                className="min-h-12 min-w-0 flex-1 rounded-xl border border-violet-200 bg-white px-4 text-sm shadow-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
               />
               <button
                 type="button"
                 onClick={handleAiImport}
                 disabled={aiLoading || !aiUrl.startsWith("http")}
-                className="flex items-center gap-2 bg-violet-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-violet-700 disabled:opacity-50 transition-colors whitespace-nowrap"
+                className="flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-5 text-sm font-bold text-white shadow-lg shadow-violet-600/15 transition hover:bg-violet-700 disabled:opacity-50"
               >
                 {aiLoading ? (
                   <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Génération…</>
@@ -503,12 +644,16 @@ export default function ProductsPage() {
               <p className={`mt-2 text-xs font-semibold ${aiMsg.type === "ok" ? "text-green-700" : "text-red-600"}`}>{aiMsg.text}</p>
             )}
           </div>
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
+        <div className="mb-5 lg:hidden">{editorPreview}</div>
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_390px] xl:gap-6">
           {/* ── LEFT ── */}
           <div className="space-y-4">
             {/* General info */}
-            <div className="bg-white border border-neutral-100 rounded-2xl p-6 space-y-4">
-              <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Informations générales</h2>
+            <div className="space-y-5 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+              <div className="flex items-center gap-3 border-b border-neutral-100 pb-4">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-black text-[10px] font-black text-[#3ecf4c]">01</span>
+                <div><h2 className="text-xs font-black uppercase tracking-[.16em] text-neutral-800">Informations générales</h2><p className="mt-0.5 text-[10px] text-neutral-400">Identité, description et référencement du produit</p></div>
+              </div>
               <div>
                 <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Nom du produit *</label>
                 <input type="text" value={form.name} required
@@ -520,11 +665,11 @@ export default function ProductsPage() {
                   placeholder="ex: Veste Running Légère"
                   className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Slug URL *</label>
                   <div className="flex items-center border border-neutral-200 rounded-xl overflow-hidden focus-within:border-black bg-neutral-50 focus-within:bg-white transition-all">
-                    <span className="pl-3 pr-1 text-xs text-neutral-400">/produit/</span>
+                    <span className="border-r border-neutral-200 bg-neutral-100/80 px-3 py-3 text-xs font-semibold text-neutral-400">/produit/</span>
                     <input type="text" value={form.slug} required
                       onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") })}
                       placeholder="veste-running"
@@ -556,7 +701,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Product Details */}
-            <div className="bg-white border border-neutral-100 rounded-2xl p-6">
+            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Détails du produit</h2>
@@ -574,25 +719,25 @@ export default function ProductsPage() {
               ) : (
                 <div className="space-y-2">
                   {productDetails.map((detail, i) => (
-                    <div key={i} className="flex items-center gap-2">
+                    <div key={i} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-2xl border border-neutral-100 bg-neutral-50/70 p-2 sm:grid-cols-[140px_auto_minmax(0,1fr)_auto] sm:items-center sm:border-0 sm:bg-transparent sm:p-0">
                       <input
                         type="text"
                         value={detail.key}
                         onChange={(e) => setProductDetails((p) => p.map((d, j) => j === i ? { ...d, key: e.target.value } : d))}
                         placeholder="Ex: Matière"
-                        className="w-32 shrink-0 border border-neutral-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all"
+                        className="min-h-10 min-w-0 rounded-xl border border-neutral-200 bg-white px-3 text-xs font-semibold outline-none transition focus:border-black sm:w-full"
                       />
-                      <span className="text-neutral-300 text-xs shrink-0">:</span>
+                      <span className="hidden shrink-0 text-xs text-neutral-300 sm:block">:</span>
                       <input
                         type="text"
                         value={detail.value}
                         onChange={(e) => setProductDetails((p) => p.map((d, j) => j === i ? { ...d, value: e.target.value } : d))}
                         placeholder="Ex: 100% coton biologique"
-                        className="flex-1 border border-neutral-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all"
+                        className="min-h-10 min-w-0 rounded-xl border border-neutral-200 bg-white px-3 text-xs outline-none transition focus:border-black"
                       />
                       <button type="button"
                         onClick={() => setProductDetails((p) => p.filter((_, j) => j !== i))}
-                        className="shrink-0 w-7 h-7 flex items-center justify-center text-neutral-300 hover:text-red-500 transition-colors">
+                        className="row-span-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-neutral-300 transition-colors hover:bg-red-50 hover:text-red-500 sm:row-span-1">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                       </button>
                     </div>
@@ -602,7 +747,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Category */}
-            <div className="bg-white border border-neutral-100 rounded-2xl p-6">
+            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">Catégorie</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {CATEGORIES.map((c) => {
@@ -625,9 +770,12 @@ export default function ProductsPage() {
             </div>
 
             {/* Pricing */}
-            <div className="bg-white border border-neutral-100 rounded-2xl p-6">
-              <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">Tarification &amp; Stock</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+              <div className="mb-5 flex items-center gap-3 border-b border-neutral-100 pb-4">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-black text-[10px] font-black text-[#3ecf4c]">03</span>
+                <div><h2 className="text-xs font-black uppercase tracking-[.16em] text-neutral-800">Tarification &amp; Stock</h2><p className="mt-0.5 text-[10px] text-neutral-400">Prix de vente, remise et inventaire disponible</p></div>
+              </div>
+              <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 xl:grid-cols-4">
                 <div>
                   <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Prix *</label>
                   <div className="flex items-center border border-neutral-200 rounded-xl overflow-hidden focus-within:border-black bg-neutral-50 focus-within:bg-white transition-all">
@@ -672,7 +820,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Colors */}
-            <div className="bg-white border border-neutral-100 rounded-2xl p-6">
+            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">
                 Couleurs disponibles
                 {selectedColors.length > 0 && <span className="ml-2 text-[10px] font-bold px-2 py-0.5 bg-black text-white rounded-full">{selectedColors.length}</span>}
@@ -693,7 +841,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Sizes */}
-            <div className="bg-white border border-neutral-100 rounded-2xl p-6">
+            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">
                   Tailles disponibles
@@ -820,10 +968,11 @@ export default function ProductsPage() {
 
           {/* ── RIGHT ── */}
           <div className="space-y-4">
+            <div className="hidden lg:block">{editorPreview}</div>
             {/* Images */}
-            <div className="bg-white border border-neutral-100 rounded-2xl p-6">
+            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Images</h2>
+                <div className="flex items-center gap-2.5"><span className="flex h-7 w-7 items-center justify-center rounded-xl bg-black text-[9px] font-black text-[#3ecf4c]">02</span><h2 className="text-xs font-black uppercase tracking-[.16em] text-neutral-800">Images produit</h2></div>
                 <span className="text-[10px] font-bold px-2 py-0.5 bg-neutral-100 rounded-full text-neutral-500">{images.length} photo{images.length !== 1 ? "s" : ""}</span>
               </div>
               <input ref={fileInputRef} id="img-upload-main" type="file" accept="image/*,image/heic,image/heif" multiple className="hidden"
@@ -875,7 +1024,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Video URL */}
-            <div className="bg-white border border-neutral-100 rounded-2xl p-6 space-y-3">
+            <div className="space-y-3 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="flex items-center gap-2 mb-1">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-400"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
                 <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Vidéo produit</h2>
@@ -913,7 +1062,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Description Images */}
-            <div className="bg-white border border-neutral-100 rounded-2xl p-6">
+            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="flex items-center justify-between mb-1">
                 <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Images de description</h2>
                 <span className="text-[10px] font-bold px-2 py-0.5 bg-neutral-100 rounded-full text-neutral-500">{descImages.length} photo{descImages.length !== 1 ? "s" : ""}</span>
@@ -963,7 +1112,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Status & Options */}
-            <div className="bg-white border border-neutral-100 rounded-2xl p-6 space-y-4">
+            <div className="space-y-4 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Statut &amp; Options</h2>
               <label className="flex items-center justify-between cursor-pointer select-none">
                 <div>
@@ -993,14 +1142,31 @@ export default function ProductsPage() {
                 {msg.text}
               </div>
             )}
-            <button type="submit" disabled={saving}
-              className="w-full bg-black text-white font-bold py-3.5 rounded-xl hover:bg-neutral-800 disabled:opacity-50 flex items-center justify-center gap-2">
-              {saving ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Enregistrement…</> : `${editId ? "Mettre à jour" : "Créer le produit"} →`}
-            </button>
-            <button type="button" onClick={() => { sessionStorage.removeItem("__new_product_images"); sessionStorage.removeItem("__new_product_desc_images"); if (editId) { sessionStorage.removeItem(`__edit_product_images_${editId}`); sessionStorage.removeItem(`__edit_product_desc_images_${editId}`); } initializedEditIdRef.current = null; router.replace("/admin/products"); }}
-              className="w-full py-2.5 text-sm text-neutral-500 hover:text-black transition-colors">Annuler</button>
           </div>
         </div>
+        <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 border-t border-neutral-200 bg-white/95 p-3 shadow-[0_-12px_35px_rgba(0,0,0,.1)] backdrop-blur-xl lg:hidden">
+          <div className="mx-auto flex max-w-lg gap-2">
+            <button type="button" onClick={closeEditor} className="min-h-12 rounded-xl border border-neutral-200 px-4 text-xs font-black text-neutral-600">Annuler</button>
+            <button type="submit" disabled={saving} className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-black px-5 text-xs font-black text-white shadow-lg disabled:opacity-50">
+              {saving ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Enregistrement…</> : editId ? "Enregistrer les modifications" : "Créer le produit"}
+            </button>
+          </div>
+        </div>
+        <style jsx global>{`
+          #product-editor-form input:not([type="file"]):focus,
+          #product-editor-form textarea:focus,
+          #product-editor-form select:focus {
+            border-color: #171717;
+            box-shadow: 0 0 0 4px rgba(23, 23, 23, 0.06);
+          }
+          #product-editor-form input::placeholder,
+          #product-editor-form textarea::placeholder {
+            color: #a3a3a3;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            #product-editor-form * { scroll-behavior: auto !important; }
+          }
+        `}</style>
       </form>
     </div>
   );
@@ -1033,6 +1199,13 @@ export default function ProductsPage() {
         </button>
         </div>
       </div>
+
+      {msg?.type === "err" && (
+        <div role="alert" className="mb-5 flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-bold">{msg.text}</p>
+          <button type="button" onClick={() => void load()} className="min-h-10 rounded-xl bg-red-700 px-4 text-xs font-black text-white">Réessayer</button>
+        </div>
+      )}
 
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {[

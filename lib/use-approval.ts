@@ -69,21 +69,52 @@ export function useApproval(): HookReturn {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user?.email) { setReady(true); return; }
-      const email = user.email;
-      const name = user.user_metadata?.name || email.split("@")[0];
-      setUserEmail(email);
-      setUserName(name);
+    let cancelled = false;
 
-      fetch(`/api/admin/staff/permissions?email=${encodeURIComponent(email)}`)
-        .then(r => r.json())
-        .then(({ isStaff: staffFlag }: { isStaff: boolean }) => {
-          setIsStaff(!!staffFlag);
-          setReady(true);
-        })
-        .catch(() => { setReady(true); });
-    });
+    async function resolveAdminIdentity() {
+      try {
+        let email = "";
+        let name = "";
+
+        // The signed HttpOnly admin cookie is the primary session used by the
+        // middleware and admin APIs. It must also drive the approval workflow.
+        const verifyResponse = await fetch("/api/admin/auth/verify/", {
+          cache: "no-store",
+        });
+        if (verifyResponse.ok) {
+          const verified = await verifyResponse.json() as { email?: unknown };
+          if (typeof verified.email === "string") email = verified.email;
+        }
+
+        // Keep Supabase as a legacy fallback, but never let it block readiness.
+        if (!email) {
+          const { data: { user } } = await supabase.auth.getUser();
+          email = user?.email ?? "";
+          name = typeof user?.user_metadata?.name === "string" ? user.user_metadata.name : "";
+        }
+        if (!email) return;
+
+        const permissionsResponse = await fetch(
+          `/api/admin/staff/permissions/?email=${encodeURIComponent(email)}&v=3`,
+          { cache: "no-store" }
+        );
+        if (!permissionsResponse.ok) throw new Error("Unable to resolve admin permissions");
+        const permissions = await permissionsResponse.json() as { isStaff?: unknown };
+        if (cancelled) return;
+
+        setUserEmail(email);
+        setUserName(name || email.split("@")[0]);
+        setIsStaff(permissions.isStaff === true);
+      } catch {
+        // The page can still show a recoverable data error; readiness must not
+        // remain stuck on an infinite spinner.
+      } finally {
+        if (!cancelled) setReady(true);
+      }
+    }
+
+    void resolveAdminIdentity();
+    return () => { cancelled = true; };
   }, []);
 
   async function submitForApproval(opts: SubmitChangeOptions) {

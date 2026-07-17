@@ -173,7 +173,7 @@ export default async function HomePage() {
       "position": i + 1,
       "url": `${SITE_URL}/produit/${p.slug}/`,
       "name": p.name,
-      ...(p.price ? { "offers": { "@type": "Offer", "price": p.price, "priceCurrency": "MAD", "availability": "https://schema.org/InStock" } } : {}),
+      ...(p.price ? { "offers": { "@type": "Offer", "price": p.price, "priceCurrency": "MAD", "availability": p.stock !== undefined && p.stock <= 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock" } } : {}),
     })),
   };
 

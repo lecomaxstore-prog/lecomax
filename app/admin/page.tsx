@@ -43,15 +43,24 @@ export default function AdminLoginPage() {
       }
 
       // Set session via server-side endpoint so the cookie is HttpOnly
-      const sessionRes = await fetch("/api/admin/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          access_token: authData.session?.access_token,
-          email: authData.user?.email,
-          rememberMe,
-        }),
-      });
+      let sessionRes: Response;
+      try {
+        // Keep the trailing slash because this project enables
+        // `trailingSlash`; avoiding Next's redirect is important for POSTs.
+        sessionRes = await fetch("/api/admin/auth/session/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            access_token: authData.session?.access_token,
+            email: authData.user?.email,
+            rememberMe,
+          }),
+        });
+      } catch {
+        setLoading(false);
+        setError("Impossible de contacter le serveur. Réessayez.");
+        return;
+      }
       if (!sessionRes.ok) {
         setLoading(false);
         const body = await sessionRes.json().catch(() => ({}));
