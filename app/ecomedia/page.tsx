@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { createClient } from "@supabase/supabase-js";
 import EcomediaFeed from "@/components/ecomedia/EcomediaFeed";
 import { hydrateCommunityPost, type EcomediaPost } from "@/lib/ecomedia";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
@@ -12,19 +12,16 @@ export const metadata: Metadata = {
     title: "Ecomedia | L'ecomax",
     description: "La communauté L'ecomax — offres, nouveautés, vidéos et plus encore.",
     type: "website",
-    url: "https://lecomax.com/ecomedia",
+    url: "https://lecomax.com/ecomedia/",
     siteName: "L'ecomax",
   },
   twitter: { card: "summary_large_image" },
-  alternates: { canonical: "https://lecomax.com/ecomedia" },
+  alternates: { canonical: "https://lecomax.com/ecomedia/" },
 };
 
 async function getInitialPosts(): Promise<EcomediaPost[]> {
   try {
-    const sb = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const sb = createServerSupabaseClient();
     const { data } = await sb
       .from("ecomedia_posts")
       .select("*")
@@ -41,6 +38,7 @@ export default async function EcomediaPage() {
 
   return (
     <>
+      <h1 className="sr-only">Ecomedia — Actualités et communauté L&apos;ecomax</h1>
       {/* Feed (layout.tsx provides the header) */}
       <EcomediaFeed initialPosts={initialPosts} />
     </>

@@ -1,16 +1,17 @@
 import "server-only";
 
-import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { DEFAULT_SHIPPING_CONFIG, shippingConfigFromSettings, type ShippingConfig } from "@/lib/shipping-config";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
 
-export async function getServerShippingConfig(): Promise<ShippingConfig> {
+const loadServerShippingConfig = unstable_cache(async (): Promise<ShippingConfig> => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) return DEFAULT_SHIPPING_CONFIG;
 
   try {
-    const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+    const supabase = createServerSupabaseClient();
     const { data, error } = await supabase
       .from("settings")
       .select("key,value")
@@ -20,6 +21,10 @@ export async function getServerShippingConfig(): Promise<ShippingConfig> {
   } catch {
     return DEFAULT_SHIPPING_CONFIG;
   }
+}, ["server-shipping-config"], { revalidate: 60 });
+
+export async function getServerShippingConfig(): Promise<ShippingConfig> {
+  return loadServerShippingConfig();
 }
 
 export async function withShippingMetadata(metadata: Metadata): Promise<Metadata> {

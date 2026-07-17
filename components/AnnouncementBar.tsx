@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 const DEFAULT_MESSAGES = [
   "LIVRAISON GRATUITE DÈS 500 MAD AU MAROC",
@@ -29,12 +29,24 @@ function safeColor(value: string | undefined, fallback: string) {
 }
 
 export default async function AnnouncementBar() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-  const { data } = await supabase.from("settings").select("key,value").in("key", SETTING_KEYS);
-  const settings = Object.fromEntries((data ?? []).map((row) => [row.key, String(row.value ?? "")]));
+  let settings: Record<string, string> = {};
+
+  try {
+    const supabase = createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from("settings")
+      .select("key,value")
+      .in("key", SETTING_KEYS);
+
+    if (!error) {
+      settings = Object.fromEntries(
+        (data ?? []).map((row) => [row.key, String(row.value ?? "")]),
+      );
+    }
+  } catch {
+    // Public rendering must remain available when the settings store is down or
+    // intentionally unavailable in an isolated preview.
+  }
 
   if (settings.announcement_enabled === "false") return null;
 

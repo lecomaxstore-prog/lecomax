@@ -246,6 +246,7 @@ export default function NousContacterPage() {
 
   return (
     <main className="bg-[#0a0a0a] overflow-x-hidden">
+      <h1 className="sr-only">Contacter L&apos;ecomax</h1>
 
       {/* ══════════════════════════════════════════════════════
           MOBILE LAYOUT (hidden on sm+)

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
 import { hydrateCommunityPost, type EcomediaPost } from "@/lib/ecomedia";
 import PostCard from "@/components/ecomedia/PostCard";
 import Link from "next/link";
+import { serializeJsonLd } from "@/lib/seo";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,7 @@ const SITE_URL = "https://lecomax.com";
 
 async function getPost(slug: string): Promise<EcomediaPost | null> {
   try {
-    const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    const sb = createServerSupabaseClient();
     const { data } = await sb.from("ecomedia_posts").select("*").eq("slug", slug).eq("is_published", true).single();
     return data ? hydrateCommunityPost(data as EcomediaPost) : null;
   } catch { return null; }
@@ -79,7 +80,7 @@ export default async function EcomediaPostPage({ params }: { params: Promise<{ s
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: serializeJsonLd({
               "@context": "https://schema.org",
               "@type": "SocialMediaPosting",
               "headline": post.title,

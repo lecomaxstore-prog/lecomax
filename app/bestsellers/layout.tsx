@@ -4,7 +4,7 @@ import { withShippingMetadata } from "@/lib/shipping-config-server";
 const baseMetadata: Metadata = {
   title: "Bestsellers | L'ecomax — Les Plus Vendus au Maroc",
   description:
-    "Les produits les plus populaires de L'ecomax : chaussures, vêtements et accessoires tech bestsellers. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
+    "Découvrez les meilleures ventes L'ecomax : chaussures, vêtements et accessoires tech. Livraison 35 MAD au Maroc et paiement à la livraison.",
   keywords: [
     "bestsellers Maroc",
     "produits populaires Maroc",

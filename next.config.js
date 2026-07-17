@@ -4,12 +4,12 @@ const contentSecurityPolicy = [
   "object-src 'none'",
   "frame-ancestors 'none'",
   "form-action 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.paypal.com https://www.sandbox.paypal.com https://www.paypalobjects.com https://va.vercel-scripts.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.paypal.com https://www.sandbox.paypal.com https://www.paypalobjects.com https://va.vercel-scripts.com https://www.googletagmanager.com https://widget.trustpilot.com https://www.clarity.ms",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api-m.paypal.com https://api-m.sandbox.paypal.com https://www.paypal.com https://vitals.vercel-insights.com",
-  "frame-src https://www.paypal.com https://www.sandbox.paypal.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api-m.paypal.com https://api-m.sandbox.paypal.com https://www.paypal.com https://vitals.vercel-insights.com https://www.google-analytics.com https://*.google-analytics.com https://*.clarity.ms https://*.trustpilot.com",
+  "frame-src https://www.paypal.com https://www.sandbox.paypal.com https://*.trustpilot.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   "upgrade-insecure-requests",
@@ -66,6 +66,16 @@ const nextConfig = {
       {
         source: "/terms.html",
         destination: "/conditions-utilisation/",
+        permanent: true,
+      },
+      {
+        source: "/confidentialite",
+        destination: "/politique-confidentialite/",
+        permanent: true,
+      },
+      {
+        source: "/confidentialite/",
+        destination: "/politique-confidentialite/",
         permanent: true,
       },
       // Fix 404: deleted/renamed products — redirect to closest category
@@ -196,13 +206,6 @@ const nextConfig = {
         source: "/images/(.*)",
         headers: [
           { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
-        ],
-      },
-      {
-        // Tell Google not to index raw image files as web pages
-        source: "/images/:path*.(avif|webp|png|jpg|jpeg|gif|svg)",
-        headers: [
-          { key: "X-Robots-Tag", value: "noindex, nofollow" },
         ],
       },
       {

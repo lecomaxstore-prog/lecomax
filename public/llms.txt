@@ -54,7 +54,7 @@ L'ecomax est une boutique en ligne marocaine proposant des chaussures de sport, 
 - À propos : https://lecomax.com/a-propos
 - Nous contacter : https://lecomax.com/nous-contacter
 - Conditions générales : https://lecomax.com/conditions
-- Politique de confidentialité : https://lecomax.com/confidentialite
+- Politique de confidentialité : https://lecomax.com/politique-confidentialite
 - Boutiques physiques : https://lecomax.com/boutiques
 - Carrières : https://lecomax.com/carrieres
 

@@ -4,6 +4,7 @@ import Image from "next/image";
 export const metadata = {
   title: "Notre Boutique — Sidi Bennour | L'ecomax",
   description: "Visitez L'ecomax en boutique à Sidi Bennour. Chaussures, vêtements et accessoires tech.",
+  alternates: { canonical: "/boutiques/" },
 };
 
 export default function BoutiquesPage() {

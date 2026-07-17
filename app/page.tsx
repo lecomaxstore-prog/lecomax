@@ -18,13 +18,14 @@ import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import type { HeroBannerRecord } from "@/lib/hero-banners";
 import { shippingConfigFromSettings, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { serializeJsonLd } from "@/lib/seo";
 
 const SITE_URL_PAGE = "https://lecomax.com";
 
 const defaultHomeMetadata: Metadata = {
   title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
   description:
-    "L'ecomax : boutique en ligne au Maroc — chaussures running, vêtements tendance, écouteurs Bluetooth, enceintes HiFi et manettes gaming. Livraison 35 MAD partout au Maroc. Paiement à la livraison. Retours gratuits 30 jours.",
+    "Boutique en ligne au Maroc : chaussures, mode et accessoires tech. Livraison partout à 35 MAD, paiement à la livraison et retours gratuits sous 30 jours.",
   keywords: [
     "boutique en ligne Maroc",
     "acheter chaussures Maroc",
@@ -173,7 +174,6 @@ export default async function HomePage() {
       "position": i + 1,
       "url": `${SITE_URL}/produit/${p.slug}/`,
       "name": p.name,
-      ...(p.price ? { "offers": { "@type": "Offer", "price": p.price, "priceCurrency": "MAD", "availability": p.stock !== undefined && p.stock <= 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock" } } : {}),
     })),
   };
 
@@ -252,9 +252,8 @@ export default async function HomePage() {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(webPageSchema) }} />
       <HeroBanner
         banners={heroBanners}
         heroImage={heroImages.hero_image}

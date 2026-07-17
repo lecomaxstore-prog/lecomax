@@ -1,8 +1,8 @@
 ﻿import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { cache } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
 import {
   categories,
   productsByCategory,
@@ -14,6 +14,8 @@ import CategoryFilters from "@/components/CategoryFilters";
 import { sanitizePageHtml } from "@/lib/site-pages";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { formatShippingAmount } from "@/lib/shipping-config";
+import { serializeJsonLd } from "@/lib/seo";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 const valid = new Set(categories.map((c) => c.slug));
 
@@ -24,12 +26,9 @@ type DbCategory = {
   image_mobile?: string | null; image_position?: string | null; image_mobile_position?: string | null;
 };
 
-async function getDbCategory(slug: string): Promise<DbCategory | null> {
+const getDbCategory = cache(async (slug: string): Promise<DbCategory | null> => {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabase = createServerSupabaseClient();
     const [{ data }, { data: mediaRow }] = await Promise.all([
       supabase.from("categories").select("slug,name,description,image").eq("slug", slug).eq("active", true).maybeSingle(),
       supabase.from("settings").select("value").eq("key", `category_media:${slug}`).maybeSingle(),
@@ -39,7 +38,7 @@ async function getDbCategory(slug: string): Promise<DbCategory | null> {
     try { media = mediaRow?.value ? JSON.parse(mediaRow.value) : {}; } catch { /* ignore */ }
     return { ...data, label: data.name, ...media } as DbCategory;
   } catch { return null; }
-}
+});
 
 const categoryMeta: Record<string, { title: string; description: string; keywords: string[] }> = {
   homme: {
@@ -54,7 +53,7 @@ const categoryMeta: Record<string, { title: string; description: string; keyword
   },
   chaussures: {
     title: "Chaussures Sport & Lifestyle | L'ecomax — Maroc",
-    description: "Chaussures running, trail et lifestyle au Maroc. Baskets respirantes légères disponibles en plusieurs coloris. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
+    description: "Chaussures running et lifestyle au Maroc, légères et disponibles en plusieurs coloris. Livraison 35 MAD et paiement à la livraison.",
     keywords: ["chaussures sport Maroc", "chaussures running Maroc", "baskets Maroc", "chaussures lifestyle Maroc", "sneakers Maroc"],
   },
   accessoires: {
@@ -95,10 +94,7 @@ export async function generateMetadata({
   const dbCategory = await getDbCategory(category);
   const cat = dbCategory ? { label: dbCategory.label, description: dbCategory.description || staticCategory?.description || "", hero: dbCategory.image || staticCategory?.hero || "" } : staticCategory;
   if (!cat) {
-    const supa = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supa = createServerSupabaseClient();
     const { data: page } = await supa.from("pages").select("title,slug,meta_title,meta_description").eq("slug", category).eq("active", true).maybeSingle();
     if (!page) return {};
     const title = page.meta_title || page.title;
@@ -151,10 +147,7 @@ export default async function CategoryPage({
 
   // Check if it's a custom CMS page first
   if (!valid.has(category as never) && !dbCategory) {
-    const supa = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supa = createServerSupabaseClient();
     const { data: page } = await supa.from("pages").select("*").eq("slug", category).eq("active", true).single();
     if (page) return <CustomPage page={page} />;
     notFound();
@@ -221,8 +214,8 @@ export default async function CategoryPage({
 
   return (
     <div>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryPageSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(categoryPageSchema) }} />
       {/* Hero */}
       <section className="relative h-[58vh] min-h-[380px] bg-black overflow-hidden">
         <Image

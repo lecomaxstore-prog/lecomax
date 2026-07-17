@@ -3,6 +3,7 @@
 export const metadata = {
   title: "Politique de confidentialité | L'ecomax",
   description: "Comment L'ecomax collecte, utilise et protège vos données personnelles.",
+  alternates: { canonical: "/politique-confidentialite/" },
 };
 
 const sections = [

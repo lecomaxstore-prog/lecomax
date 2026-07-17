@@ -1,7 +1,17 @@
 import { createClient } from "@supabase/supabase-js";
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const configuredUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+const configuredKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+
+/**
+ * Keep public pages renderable in environments where Supabase is intentionally
+ * unavailable (for example an isolated preview). Server data loaders already
+ * fall back to the local catalogue; this prevents the browser SDK from throwing
+ * during module evaluation before those fallbacks can run.
+ */
+export const isSupabaseConfigured = Boolean(configuredUrl && configuredKey);
+const url = configuredUrl || "https://unconfigured.invalid";
+const key = configuredKey || "unconfigured-anon-key";
 
 export const supabase = createClient(url, key, {
   auth: {

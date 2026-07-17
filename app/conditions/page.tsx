@@ -1,5 +1,7 @@
 export const metadata = {
   title: "Conditions Générales de Vente | L'ecomax",
+  description: "Conditions générales de vente de L'ecomax : commandes, prix, livraison, paiement et retours au Maroc.",
+  alternates: { canonical: "/conditions/" },
 };
 
 export default function ConditionsPage() {

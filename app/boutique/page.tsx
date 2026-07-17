@@ -1,6 +1,6 @@
 "use client";
-import { useState, useMemo, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "@/components/ProductCard";
@@ -25,23 +25,22 @@ type CategoryId = (typeof CATEGORIES)[number]["id"];
 type SortId = (typeof SORTS)[number]["id"];
 
 export default function BoutiquePage() {
-  return (
-    <Suspense fallback={null}>
-      <BoutiqueContent />
-    </Suspense>
-  );
+  return <BoutiqueContent />;
 }
 
 function BoutiqueContent() {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const [activeCategory, setActiveCategory] = useState<CategoryId>(
-    (searchParams.get("cat") as CategoryId) ?? "all"
-  );
-  const [activeSort, setActiveSort] = useState<SortId>(
-    (searchParams.get("sort") as SortId) ?? "default"
-  );
+  const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
+  const [activeSort, setActiveSort] = useState<SortId>("default");
   const [dbProducts, setDbProducts] = useState<CardProduct[]>([]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get("cat");
+    const sort = params.get("sort");
+    if (CATEGORIES.some((item) => item.id === category)) setActiveCategory(category as CategoryId);
+    if (SORTS.some((item) => item.id === sort)) setActiveSort(sort as SortId);
+  }, []);
 
   const updateURL = (cat: CategoryId, sort: SortId) => {
     const params = new URLSearchParams();

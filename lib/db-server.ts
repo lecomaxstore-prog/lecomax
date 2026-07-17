@@ -2,14 +2,11 @@
  * Server-only Supabase helper.
  * Uses the service role key — NEVER import this from client components.
  */
-import { createClient } from "@supabase/supabase-js";
 import { apiToCard, type CardProduct } from "./products";
+import { createServerSupabaseClient } from "./supabase-server";
 
 function getClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return createServerSupabaseClient();
 }
 
 type ApiProduct = {

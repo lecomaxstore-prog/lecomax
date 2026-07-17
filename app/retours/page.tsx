@@ -3,7 +3,8 @@ import WhatsAppLink from "@/components/WhatsAppLink";
 
 export const metadata = {
   title: "Retours & Échanges | L'ecomax",
-  description: "Politique de retour L'ecomax — 30 jours, sans questions.",
+  description: "Consultez la politique de retours et d'échanges L'ecomax : délai de 30 jours, étapes de retour et remboursement de vos commandes au Maroc.",
+  alternates: { canonical: "/retours/" },
 };
 
 const steps = [
