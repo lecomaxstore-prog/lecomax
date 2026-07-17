@@ -68,7 +68,7 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
   const shippingConfig = useShippingConfig();
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<{ email?: string; full_name?: string } | null>(null);
+  const [user, setUser] = useState<{ email?: string; full_name?: string; avatar_url?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionExpired, setSessionExpired] = useState(false);
   const [points, setPoints] = useState(0);
@@ -84,6 +84,11 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
       setLoading(false);
     };
     window.addEventListener(CUSTOMER_SESSION_EXPIRED_EVENT, showExpired);
+    const updateAvatar = (event: Event) => {
+      const avatarUrl = (event as CustomEvent<{ avatarUrl?: string }>).detail?.avatarUrl ?? "";
+      setUser(current => current ? { ...current, avatar_url: avatarUrl } : current);
+    };
+    window.addEventListener("lecomax:profile-updated", updateAvatar);
 
     // Read the persisted session immediately
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -97,6 +102,7 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
       setUser({
         email,
         full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || "",
+        avatar_url: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
       });
       setLoading(false);
       // Fetch points
@@ -127,6 +133,7 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
       setUser({
         email: session.user.email,
         full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || "",
+        avatar_url: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
       });
       setLoading(false);
     });
@@ -134,6 +141,7 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
     return () => {
       mounted = false;
       window.removeEventListener(CUSTOMER_SESSION_EXPIRED_EVENT, showExpired);
+      window.removeEventListener("lecomax:profile-updated", updateAvatar);
       subscription.unsubscribe();
     };
   }, [pathname, router]);
@@ -167,8 +175,8 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
       {/* ── Mobile top bar ── */}
       <div className="lg:hidden bg-[#080b09] text-white px-4 py-3.5 flex items-center justify-between sticky top-0 z-20 border-b border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-white text-black flex items-center justify-center text-[10px] font-black shrink-0 shadow-sm ring-1 ring-white/20">
-            {initials}
+          <div className="h-9 w-9 shrink-0 overflow-hidden rounded-xl bg-white text-black flex items-center justify-center text-[10px] font-black shadow-sm ring-1 ring-white/20">
+            {user?.avatar_url ? <img src={user.avatar_url} alt="" className="h-full w-full object-cover" /> : initials}
           </div>
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400 leading-none mb-0.5">Mon compte</p>
@@ -197,8 +205,8 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
             <div aria-hidden className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%)", backgroundSize: "12px 12px" }} />
             <div className="relative">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center text-sm font-black uppercase shrink-0">
-                  {initials}
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-white text-black flex items-center justify-center text-sm font-black uppercase">
+                  {user?.avatar_url ? <img src={user.avatar_url} alt="" className="h-full w-full object-cover" /> : initials}
                 </div>
                 <div className="min-w-0">
                   <p className="font-black text-[13px] truncate leading-tight">{displayName}</p>

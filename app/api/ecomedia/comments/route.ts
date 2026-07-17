@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { communityDisplayName, getEcomediaUser } from "@/lib/ecomedia-auth";
+import { communityAvatar } from "@/lib/ecomedia-auth";
+import { decodeEcomediaCommentContent, encodeEcomediaCommentContent } from "@/lib/ecomedia";
 
 const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
@@ -25,8 +27,12 @@ export async function POST(req: NextRequest) {
   }
 
   const twoMinutesAgo = new Date(Date.now() - 120_000).toISOString();
-  const safeContent = /^\[\[(?:reply:|deleted\]\])/i.test(content) ? `\u200B${content}` : content;
-  const storedContent = parentId ? `[[reply:${parentId}]]${content}` : safeContent;
+  const safeContent = /^\[\[(?:author:|reply:|deleted\]\])/i.test(content) ? `\u200B${content}` : content;
+  const storedContent = encodeEcomediaCommentContent({
+    author: { id: user.id, avatar: communityAvatar(user) },
+    parentId,
+    content: safeContent,
+  });
   const { data: recent } = await sb.from("ecomedia_comments").select("id").eq("post_id", postId).eq("email", user.email ?? "").eq("content", storedContent).gte("created_at", twoMinutesAgo).maybeSingle();
   if (recent) return NextResponse.json({ error: "Ce message a déjà été envoyé." }, { status: 429 });
 
@@ -58,18 +64,17 @@ export async function GET(req: NextRequest) {
     .limit(200);
   if (error) return NextResponse.json({ error: "Commentaires indisponibles" }, { status: 500 });
   const comments = (data ?? []).map(comment => {
-    const match = comment.content.match(/^\[\[reply:([0-9a-f-]{36})\]\]([\s\S]*)$/i);
-    const storedContent = match ? match[2] : comment.content;
-    const isDeleted = storedContent === "[[deleted]]";
+    const decoded = decodeEcomediaCommentContent(comment.content);
     return {
       id: comment.id,
       post_id: comment.post_id,
-      name: isDeleted ? "Membre" : comment.name,
-      content: isDeleted ? "Ce commentaire a été supprimé par son auteur." : storedContent,
+      name: decoded.isDeleted ? "Membre" : comment.name,
+      content: decoded.isDeleted ? "Ce commentaire a été supprimé par son auteur." : decoded.content,
       created_at: comment.created_at,
-      parent_id: match ? match[1] : null,
-      is_owner: Boolean(ownerEmail && comment.email?.trim().toLowerCase() === ownerEmail),
-      is_deleted: isDeleted,
+      parent_id: decoded.parentId,
+      avatar_url: decoded.isDeleted ? null : decoded.author?.avatar ?? null,
+      is_owner: Boolean((user && decoded.author?.id === user.id) || (ownerEmail && comment.email?.trim().toLowerCase() === ownerEmail)),
+      is_deleted: decoded.isDeleted,
     };
   });
   return NextResponse.json(comments, { headers: { "Cache-Control": "no-store" } });

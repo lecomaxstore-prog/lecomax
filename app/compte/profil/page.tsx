@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 export default function ProfilPage() {
@@ -11,6 +11,10 @@ export default function ProfilPage() {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [confirmAvatarRemoval, setConfirmAvatarRemoval] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -20,6 +24,7 @@ export default function ProfilPage() {
         setPrenom(meta?.prenom || (meta?.full_name || meta?.name || "").split(" ")[0] || "");
         setNom(meta?.nom || (meta?.full_name || meta?.name || "").split(" ").slice(1).join(" ") || "");
         setPhone(meta?.phone || "");
+        setAvatarUrl(meta?.avatar_url || meta?.picture || "");
       }
     });
   }, []);
@@ -46,6 +51,77 @@ export default function ProfilPage() {
     }
   };
 
+  const refreshProfileSession = async (nextAvatar: string) => {
+    await supabase.auth.refreshSession();
+    window.dispatchEvent(new CustomEvent("lecomax:profile-updated", { detail: { avatarUrl: nextAvatar } }));
+  };
+
+  const uploadAvatar = async (file: File | null) => {
+    if (!file || avatarLoading) return;
+    if (!["image/jpeg", "image/png", "image/webp", "image/avif"].includes(file.type)) {
+      setError("Utilisez une photo JPG, PNG, WEBP ou AVIF.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("La photo de profil doit peser moins de 5 Mo.");
+      return;
+    }
+    setAvatarLoading(true);
+    setConfirmAvatarRemoval(false);
+    setSaved(false);
+    setError("");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Votre session a expiré. Reconnectez-vous.");
+      const form = new FormData();
+      form.append("file", file);
+      const response = await fetch("/api/account/avatar", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: form,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Impossible de modifier la photo.");
+      setAvatarUrl(data.avatarUrl);
+      await refreshProfileSession(data.avatarUrl);
+      setSaved(true);
+      window.setTimeout(() => setSaved(false), 3000);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Impossible de modifier la photo.");
+    } finally {
+      setAvatarLoading(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
+  };
+
+  const removeAvatar = async () => {
+    if (avatarLoading) return;
+    setAvatarLoading(true);
+    setSaved(false);
+    setError("");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Votre session a expiré. Reconnectez-vous.");
+      const response = await fetch("/api/account/avatar", {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Impossible de supprimer la photo.");
+      setAvatarUrl("");
+      setConfirmAvatarRemoval(false);
+      await refreshProfileSession("");
+      setSaved(true);
+      window.setTimeout(() => setSaved(false), 3000);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Impossible de supprimer la photo.");
+    } finally {
+      setAvatarLoading(false);
+    }
+  };
+
+  const profileInitials = `${prenom.charAt(0)}${nom.charAt(0)}`.toUpperCase() || email.charAt(0).toUpperCase() || "?";
+
   return (
     <div className="flex flex-col gap-6">
 
@@ -54,6 +130,40 @@ export default function ProfilPage() {
         <p className="text-[10px] font-black uppercase tracking-[0.35em] text-neutral-400 mb-1">Mon compte</p>
         <h1 className="font-black text-[26px] uppercase tracking-tight">Mon profil</h1>
       </div>
+
+      {/* Profile photo */}
+      <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-[0_10px_32px_rgba(15,23,42,.045)]">
+        <div className="border-b border-neutral-100 px-6 py-5">
+          <p className="mb-0.5 text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400">Identité</p>
+          <h2 className="text-[14px] font-black uppercase tracking-wide">Photo de profil</h2>
+        </div>
+        <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
+          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-white bg-black shadow-[0_10px_30px_rgba(0,0,0,.18)] ring-1 ring-neutral-200">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Photo de profil" className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-2xl font-black text-[#3ecf4c]">{profileInitials}</div>
+            )}
+            {avatarLoading && <div className="absolute inset-0 flex items-center justify-center bg-black/60"><span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" /></div>}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-black text-neutral-900">Personnalisez votre compte</p>
+            <p className="mt-1 max-w-xl text-[11px] leading-5 text-neutral-500">Cette photo apparaîtra dans votre espace client ainsi que sur vos publications, commentaires et réponses Ecomedia.</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button type="button" onClick={() => avatarInputRef.current?.click()} disabled={avatarLoading} className="rounded-xl bg-black px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-white transition hover:bg-emerald-600 disabled:opacity-50">{avatarUrl ? "Changer la photo" : "Ajouter une photo"}</button>
+              {avatarUrl && !confirmAvatarRemoval && <button type="button" onClick={() => setConfirmAvatarRemoval(true)} disabled={avatarLoading} className="rounded-xl border border-neutral-200 px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-neutral-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50">Supprimer</button>}
+              <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden" onChange={event => void uploadAvatar(event.target.files?.[0] ?? null)} />
+            </div>
+            <p className="mt-2 text-[9px] text-neutral-400">JPG, PNG, WEBP ou AVIF · 5 Mo maximum.</p>
+            {confirmAvatarRemoval && (
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-100 bg-red-50 p-3">
+                <p className="text-[10px] font-bold text-red-700">Retirer votre photo de profil partout ?</p>
+                <div className="flex gap-2"><button type="button" onClick={() => setConfirmAvatarRemoval(false)} className="rounded-lg px-3 py-1.5 text-[10px] font-bold text-neutral-600">Annuler</button><button type="button" onClick={() => void removeAvatar()} disabled={avatarLoading} className="rounded-lg bg-red-600 px-3 py-1.5 text-[10px] font-black text-white disabled:opacity-50">Confirmer</button></div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Form card */}
       <div className="bg-white border border-neutral-100">
