@@ -134,9 +134,34 @@ export default function Testimonials() {
   const [featured, setFeatured] = useState<FeaturedReview[]>([]);
 
   useEffect(() => {
-    fetch("/api/trustpilot-featured")
-      .then((r) => r.json())
-      .then((d) => setFeatured(d.reviews ?? []));
+    const controller = new AbortController();
+    let active = true;
+
+    async function loadFeaturedReviews() {
+      try {
+        const response = await fetch("/api/trustpilot-featured/", {
+          signal: controller.signal,
+          cache: "no-store",
+          headers: { Accept: "application/json" },
+        });
+        if (!response.ok) return;
+
+        const payload = await response.json().catch(() => null);
+        if (active && Array.isArray(payload?.reviews)) {
+          setFeatured(payload.reviews);
+        }
+      } catch (error) {
+        // Featured reviews are optional. Keep the Trustpilot widget and page
+        // usable when the local API or network is temporarily unavailable.
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      }
+    }
+
+    void loadFeaturedReviews();
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, []);
 
   return (

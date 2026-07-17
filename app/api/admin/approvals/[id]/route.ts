@@ -65,7 +65,10 @@ export async function PATCH(
         method: change.api_method,
         headers: {
           "Content-Type": "application/json",
-          "x-approval-token": process.env.INTERNAL_APPROVAL_TOKEN ?? "approval-internal",
+          // The owner has already authenticated this approval request. Forward
+          // that signed session to the protected mutation endpoint so the
+          // internal apply step follows the same authorization path.
+          Cookie: req.headers.get("cookie") ?? "",
         },
         body: JSON.stringify(applyPayload),
       });

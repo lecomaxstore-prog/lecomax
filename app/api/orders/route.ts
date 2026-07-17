@@ -7,6 +7,7 @@ import { broadcastAdminPushNotification } from "@/lib/push-notifications";
 import { calculateCouponDiscount, calculateCouponPricing } from "@/lib/coupon-pricing";
 import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
 import { verifyPayPalCapture } from "@/lib/paypal-server";
+import { resolveProductVariantImage } from "@/lib/product-variant-image";
 
 // Use service role key server-side so RLS doesn't block order insertion
 const supabase = createClient(
@@ -18,6 +19,13 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://lecomax.com";
 const EMAIL_LOGO_URL = `${SITE_URL}/images/email%20image/email%20image.png`;
 const EMAIL_LOGO_CONTENT_ID = "lecomax-store-logo";
+
+function formatInvoiceMoney(value: number) {
+  return `${new Intl.NumberFormat("fr-MA", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)} MAD`;
+}
 
 function generateOrderNumber(): string {
   return `ECO-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -175,7 +183,13 @@ export async function POST(req: NextRequest) {
     }
     item.price = authoritativePrice;
     item.name = cleanText(product.name, 200) || item.name;
-    const serverImage = cleanText(product.image, 500) || (Array.isArray(product.images) ? cleanText(product.images[0], 500) : "");
+    const serverImage = cleanText(resolveProductVariantImage({
+      slug: item.slug,
+      color: item.color,
+      fallback: item.image,
+      colors: product.colors,
+      images: product.images,
+    }), 500);
     if (serverImage) item.image = serverImage;
   }
 
@@ -396,32 +410,36 @@ export async function POST(req: NextRequest) {
     const invoiceNumber = `FAC-${order_number}`;
     const invoiceDate = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
     const itemsTotal = items.reduce((s, i) => s + i.price * i.qty, 0);
-    const deliveryFee = parseFloat(Math.max(0, total - itemsTotal).toFixed(2));
+    const deliveryFee = safeShipping;
+    const invoiceDiscount = safeDiscount;
 
     const itemRowsHtml = items.map((i, idx) => {
-      const imgSrc = i.image?.startsWith("http") ? i.image : `https://lecomax.com${i.image}`;
-      const lineTotal = (i.price * i.qty).toFixed(2);
-      const rowBg = idx % 2 === 0 ? "#ffffff" : "#f9fafb";
-      const pills = [i.size, i.color].filter(Boolean).map(p =>
-        `<span style="display:inline-block;font-size:11px;color:#6b7280;background:#f3f4f6;padding:2px 8px;border-radius:4px;margin-right:4px;">${p}</span>`
-      ).join("");
+      const imgSrc = i.image?.startsWith("http") ? i.image : `${SITE_URL}${i.image}`;
+      const lineTotal = formatInvoiceMoney(i.price * i.qty);
+      const cleanSize = i.size?.replace(/^taille\s*:?\s*/i, "");
+      const pills = [
+        cleanSize ? `<span style="display:inline-block;font-size:10px;font-weight:700;color:#4b5563;background:#f3f4f6;padding:4px 8px;border-radius:999px;margin:3px 4px 0 0;">Taille&nbsp; ${cleanSize}</span>` : "",
+        i.color ? `<span style="display:inline-block;font-size:10px;font-weight:700;color:#4b5563;background:#f3f4f6;padding:4px 8px;border-radius:999px;margin:3px 4px 0 0;">Couleur&nbsp; ${i.color}</span>` : "",
+        `<span class="mobile-qty" style="display:none;font-size:10px;font-weight:800;color:#047857;background:#ecfdf5;padding:4px 8px;border-radius:999px;margin:3px 4px 0 0;">Qt&eacute;&nbsp; &times;${i.qty}</span>`,
+        `<span class="mobile-price" style="display:none;font-size:10px;font-weight:900;color:#0c1a12;background:#dcfce7;padding:4px 8px;border-radius:999px;margin:3px 4px 0 0;">${lineTotal}</span>`,
+      ].join("");
       return `
-      <tr style="background:${rowBg};">
-        <td style="padding:14px 12px;color:#d1d5db;font-weight:700;font-size:11px;border-bottom:1px solid #f3f4f6;width:28px;">${String(idx + 1).padStart(2, "0")}</td>
-        <td style="padding:14px 12px;border-bottom:1px solid #f3f4f6;">
-          <table cellpadding="0" cellspacing="0"><tr>
-            <td style="width:44px;vertical-align:top;">
-              <img src="${imgSrc}" alt="${i.name}" width="44" height="44" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid #f3f4f6;background:#f9fafb;display:block;" />
+      <tr style="background:#ffffff;">
+        <td class="hide-mobile" style="padding:16px 10px;color:#d1d5db;font-weight:800;font-size:10px;border-bottom:1px solid #edf0ed;width:24px;">${String(idx + 1).padStart(2, "0")}</td>
+        <td class="product-cell" style="padding:16px 10px;border-bottom:1px solid #edf0ed;">
+          <table class="product-layout" width="100%" cellpadding="0" cellspacing="0" style="width:100%;table-layout:fixed;"><tr>
+            <td class="product-image-cell" style="width:58px;vertical-align:top;">
+              <img class="product-image" src="${imgSrc}" alt="${i.name}" width="58" height="62" style="width:58px;height:62px;object-fit:cover;border-radius:12px;border:1px solid #e5e7eb;background:#f7f8f7;display:block;" />
             </td>
-            <td style="padding-left:12px;vertical-align:top;">
-              <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#111827;line-height:1.3;">${i.name}</p>
+            <td class="product-content" style="padding-left:12px;vertical-align:middle;overflow-wrap:anywhere;word-break:break-word;">
+              <p class="product-name" style="margin:0 0 4px;font-size:13px;font-weight:800;color:#111827;line-height:1.35;overflow-wrap:anywhere;word-break:break-word;">${i.name}</p>
               ${pills}
             </td>
           </tr></table>
         </td>
-        <td style="padding:14px 12px;text-align:right;font-weight:700;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;">${i.qty}</td>
-        <td style="padding:14px 12px;text-align:right;font-size:12px;color:#9ca3af;border-bottom:1px solid #f3f4f6;">${i.price.toFixed(2)} MAD</td>
-        <td style="padding:14px 12px;text-align:right;font-weight:700;font-size:13px;color:#111827;border-bottom:1px solid #f3f4f6;">${lineTotal} MAD</td>
+        <td class="hide-mobile" style="padding:16px 10px;text-align:right;font-weight:800;font-size:12px;color:#374151;border-bottom:1px solid #edf0ed;">${i.qty}</td>
+        <td class="hide-mobile" style="padding:16px 10px;text-align:right;font-size:11px;color:#9ca3af;border-bottom:1px solid #edf0ed;white-space:nowrap;">${formatInvoiceMoney(i.price)}</td>
+        <td class="line-total" style="padding:16px 10px;text-align:right;font-weight:900;font-size:13px;color:#0c1a12;border-bottom:1px solid #edf0ed;white-space:nowrap;">${lineTotal}</td>
       </tr>`;
     }).join("");
 
@@ -443,26 +461,65 @@ export async function POST(req: NextRequest) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Facture ${invoiceNumber}</title>
+  <style>
+    body, table, td, p, a { font-family: Arial, Helvetica, sans-serif; }
+    table { border-collapse: collapse; }
+    img { border: 0; outline: none; text-decoration: none; }
+    .mobile-qty { display: none !important; }
+    .mobile-price { display: none !important; }
+    @media only screen and (max-width: 620px) {
+      .email-shell { padding: 10px 8px 24px !important; }
+      .invoice-card { width: 100% !important; max-width: 100% !important; border-radius: 18px !important; }
+      .mobile-px { padding-left: 20px !important; padding-right: 20px !important; }
+      .logo-wrap { padding: 22px 20px 0 !important; }
+      .store-logo { width: 66px !important; height: 66px !important; border-radius: 17px !important; }
+      .header-col, .party-col, .meta-cell, .footer-col { display: block !important; width: auto !important; text-align: left !important; }
+      .header-right { padding-top: 22px !important; text-align: left !important; }
+      .invoice-number { font-size: 24px !important; }
+      .party-col { padding: 22px 20px !important; border-right: 0 !important; }
+      .party-customer { border-top: 1px solid #edf0ed !important; }
+      .meta-cell { padding: 15px 20px !important; border-right: 0 !important; border-bottom: 1px solid #e5e7eb !important; }
+      .articles-wrap { padding: 24px 14px 0 !important; }
+      .items-table { width: 100% !important; table-layout: fixed !important; border-radius: 14px !important; }
+      .hide-mobile { display: none !important; }
+      .mobile-qty { display: inline-block !important; }
+      .mobile-price { display: inline-block !important; }
+      .product-cell { padding: 14px 8px !important; }
+      .product-image-cell { width: 62px !important; }
+      .product-image { width: 62px !important; height: 68px !important; }
+      .product-layout { width: 100% !important; table-layout: fixed !important; }
+      .product-content, .product-name { min-width: 0 !important; overflow-wrap: anywhere !important; word-break: break-word !important; white-space: normal !important; }
+      .line-total { display: none !important; }
+      .totals-wrap { padding: 18px 18px 26px !important; }
+      .totals-table { width: 100% !important; }
+      .grand-total-value { font-size: 20px !important; }
+      .footer-col { padding-bottom: 14px !important; }
+      .footer-center { text-align: left !important; }
+      .footer-right { text-align: left !important; padding-bottom: 0 !important; }
+      .trust-cell { display: block !important; width: auto !important; padding: 4px 0 !important; text-align: left !important; }
+    }
+  </style>
 </head>
 <body style="margin:0;padding:0;background:#f0f0ee;font-family:'Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f0ee;padding:40px 16px;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Votre commande ${order_number} est bien enregistr&eacute;e. Retrouvez votre facture et tous les d&eacute;tails ici.</div>
+<table class="email-shell" width="100%" cellpadding="0" cellspacing="0" style="background:#f0f0ee;padding:36px 16px;">
 <tr><td align="center">
-<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
+<table class="invoice-card" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;border-radius:10px;overflow:hidden;box-shadow:0 20px 60px rgba(12,26,18,.10);">
 
   <!-- TOP ACCENT BAR -->
   <tr><td style="height:4px;background:linear-gradient(90deg,#166534,#16a34a,#3ecf4c,#4ade80);border-radius:8px 8px 0 0;font-size:0;line-height:0;">&nbsp;</td></tr>
 
   <!-- STORE LOGO -->
-  <tr><td style="background:#0c1a12;padding:24px 44px 0;text-align:center;">
+  <tr><td class="logo-wrap" style="background:#0c1a12;padding:26px 44px 0;text-align:center;">
     <a href="${SITE_URL}" style="display:inline-block;text-decoration:none;">
-      <img src="cid:${EMAIL_LOGO_CONTENT_ID}" alt="L'ecomax" width="88" height="88" style="display:block;width:88px;height:88px;border:0;border-radius:20px;object-fit:cover;" />
+      <img class="store-logo" src="cid:${EMAIL_LOGO_CONTENT_ID}" alt="L'ecomax" width="76" height="76" style="display:block;width:76px;height:76px;border:0;border-radius:19px;object-fit:cover;box-shadow:0 12px 34px rgba(0,0,0,.28);" />
     </a>
   </td></tr>
 
   <!-- DARK HEADER -->
-  <tr><td style="background:#0c1a12;padding:20px 44px 32px;border-radius:0;">
+  <tr><td class="mobile-px" style="background:#0c1a12;padding:20px 44px 32px;border-radius:0;">
     <table width="100%" cellpadding="0" cellspacing="0"><tr>
-      <td style="vertical-align:top;">
+      <td class="header-col" style="vertical-align:top;">
         <!-- Logo text -->
         <table cellpadding="0" cellspacing="0"><tr>
           <td style="font-size:28px;font-weight:900;color:#ffffff;letter-spacing:-1px;line-height:1;font-family:'Helvetica Neue',Arial,sans-serif;">L&apos;eco</td>
@@ -471,9 +528,9 @@ export async function POST(req: NextRequest) {
         <p style="margin:6px 0 0;font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;">BOUTIQUE EN LIGNE · MAROC</p>
         <p style="margin:16px 0 0;font-size:11px;color:rgba(255,255,255,0.35);line-height:1.8;">contact@lecomax.com<br>lecomax.com<br>Maroc</p>
       </td>
-      <td style="vertical-align:top;text-align:right;">
+      <td class="header-col header-right" style="vertical-align:top;text-align:right;">
         <span style="display:inline-block;padding:4px 12px;border:1px solid rgba(74,222,128,0.3);border-radius:5px;font-size:9px;font-weight:700;color:#4ade80;letter-spacing:3px;background:rgba(74,222,128,0.08);">&#9679; FACTURE</span>
-        <p style="margin:14px 0 0;font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;line-height:1;">${invoiceNumber}</p>
+        <p class="invoice-number" style="margin:14px 0 0;font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;line-height:1;">${invoiceNumber}</p>
         <p style="margin:10px 0 0;font-size:11px;color:rgba(255,255,255,0.4);line-height:2;">
           Date : <span style="color:rgba(255,255,255,0.7);font-weight:500;">${invoiceDate}</span><br>
           Commande : <span style="color:rgba(255,255,255,0.7);font-weight:500;">#${order_number}</span>
@@ -483,10 +540,23 @@ export async function POST(req: NextRequest) {
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;"><tr><td style="height:1px;background:linear-gradient(90deg,rgba(74,222,128,0.6),rgba(74,222,128,0.05));font-size:0;">&nbsp;</td></tr></table>
   </td></tr>
 
+  <!-- ORDER CONFIRMATION -->
+  <tr><td class="mobile-px" style="background:#ecfdf3;padding:18px 44px;border-bottom:1px solid #ccefd6;">
+    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td style="width:42px;vertical-align:middle;">
+        <span style="display:inline-block;width:32px;height:32px;line-height:32px;text-align:center;border-radius:50%;background:#16a34a;color:#fff;font-size:17px;font-weight:900;">&#10003;</span>
+      </td>
+      <td style="vertical-align:middle;">
+        <p style="margin:0;font-size:13px;font-weight:900;color:#0f5132;">Commande bien enregistr&eacute;e</p>
+        <p style="margin:4px 0 0;font-size:11px;line-height:1.5;color:#4b7a61;">Merci ${customer.name}. Notre &eacute;quipe pr&eacute;pare maintenant votre commande avec soin.</p>
+      </td>
+    </tr></table>
+  </td></tr>
+
   <!-- PARTIES: DE / FACTURÉ À -->
   <tr><td style="background:#fff;">
     <table width="100%" cellpadding="0" cellspacing="0"><tr>
-      <td style="padding:24px 44px;width:50%;border-right:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;vertical-align:top;border-left:3px solid #3ecf4c;">
+      <td class="party-col" style="padding:26px 36px;width:50%;border-right:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;vertical-align:top;border-left:3px solid #3ecf4c;">
         <p style="margin:0 0 12px;font-size:8px;font-weight:700;color:#9ca3af;letter-spacing:2.5px;text-transform:uppercase;">DE</p>
         <table cellpadding="0" cellspacing="0"><tr>
           <td style="font-size:16px;font-weight:900;color:#111827;letter-spacing:-0.5px;font-family:'Helvetica Neue',Arial,sans-serif;">L&apos;eco</td>
@@ -494,7 +564,7 @@ export async function POST(req: NextRequest) {
         </tr></table>
         <p style="margin:10px 0 0;font-size:12px;color:#6b7280;line-height:1.9;">contact@lecomax.com<br>lecomax.com<br>Maroc</p>
       </td>
-      <td style="padding:24px 44px;width:50%;border-bottom:1px solid #f3f4f6;vertical-align:top;">
+      <td class="party-col party-customer" style="padding:26px 36px;width:50%;border-bottom:1px solid #f3f4f6;vertical-align:top;">
         <p style="margin:0 0 12px;font-size:8px;font-weight:700;color:#9ca3af;letter-spacing:2.5px;text-transform:uppercase;">FACTUR&#201; &#192;</p>
         <p style="margin:0 0 8px;font-size:15px;font-weight:800;color:#111827;text-transform:capitalize;">${customer.name}</p>
         <p style="margin:0;font-size:12px;color:#6b7280;line-height:1.9;">${customer.phone}<br>${customer.email}<br>${customer.address}<br>${customer.city}, Maroc</p>
@@ -505,15 +575,15 @@ export async function POST(req: NextRequest) {
   <!-- META: STATUT / PAIEMENT / LIVRAISON -->
   <tr><td style="background:#f9fafb;border-top:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;">
     <table width="100%" cellpadding="0" cellspacing="0"><tr>
-      <td style="padding:18px 44px;width:33%;border-right:1px solid #f3f4f6;vertical-align:top;">
+      <td class="meta-cell" style="padding:18px 28px;width:33%;border-right:1px solid #f3f4f6;vertical-align:top;">
         <p style="margin:0 0 8px;font-size:8px;font-weight:700;color:#9ca3af;letter-spacing:2px;text-transform:uppercase;">STATUT</p>
-        <span style="display:inline-block;background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">&#9679; En attente</span>
+        <span style="display:inline-block;background:#dcfce7;color:#166534;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;">&#10003; Commande re&ccedil;ue</span>
       </td>
-      <td style="padding:18px 44px;width:33%;border-right:1px solid #f3f4f6;vertical-align:top;">
+      <td class="meta-cell" style="padding:18px 28px;width:33%;border-right:1px solid #f3f4f6;vertical-align:top;">
         <p style="margin:0 0 8px;font-size:8px;font-weight:700;color:#9ca3af;letter-spacing:2px;text-transform:uppercase;">PAIEMENT</p>
         <p style="margin:0;font-size:12px;font-weight:600;color:#111827;">${displayPaymentMethod}</p>
       </td>
-      <td style="padding:18px 44px;width:33%;vertical-align:top;">
+      <td class="meta-cell" style="padding:18px 28px;width:33%;vertical-align:top;">
         <p style="margin:0 0 8px;font-size:8px;font-weight:700;color:#9ca3af;letter-spacing:2px;text-transform:uppercase;">LIVRAISON</p>
         <p style="margin:0;font-size:12px;font-weight:600;color:#111827;">Partout au Maroc</p>
       </td>
@@ -521,19 +591,19 @@ export async function POST(req: NextRequest) {
   </td></tr>
 
   <!-- ARTICLES TABLE -->
-  <tr><td style="background:#fff;padding:28px 44px 0;">
+  <tr><td class="articles-wrap" style="background:#fff;padding:30px 36px 0;">
     <table cellpadding="0" cellspacing="0" style="margin-bottom:16px;"><tr>
       <td style="font-size:8px;font-weight:700;color:#9ca3af;letter-spacing:2.5px;text-transform:uppercase;">ARTICLES COMMAND&#201;S</td>
       <td style="padding-left:8px;"><span style="display:inline-block;font-size:9px;font-weight:700;color:#fff;background:#3ecf4c;border-radius:99px;padding:1px 7px;">${items.length}</span></td>
     </tr></table>
-    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #f3f4f6;border-radius:8px;overflow:hidden;">
+    <table class="items-table" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8ebe8;border-radius:12px;overflow:hidden;">
       <thead>
         <tr style="background:#f9fafb;">
-          <th style="padding:9px 12px;text-align:left;font-size:9px;font-weight:700;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;border-top:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;width:28px;">#</th>
+          <th class="hide-mobile" style="padding:9px 10px;text-align:left;font-size:9px;font-weight:700;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;border-top:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;width:24px;">#</th>
           <th style="padding:9px 12px;text-align:left;font-size:9px;font-weight:700;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;border-top:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;">Produit</th>
-          <th style="padding:9px 12px;text-align:right;font-size:9px;font-weight:700;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;border-top:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;width:30px;">Qt&#233;</th>
-          <th style="padding:9px 12px;text-align:right;font-size:9px;font-weight:700;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;border-top:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;width:90px;">Prix unit.</th>
-          <th style="padding:9px 12px;text-align:right;font-size:9px;font-weight:700;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;border-top:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;width:90px;">Total</th>
+          <th class="hide-mobile" style="padding:9px 10px;text-align:right;font-size:9px;font-weight:700;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;border-top:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;width:30px;">Qt&#233;</th>
+          <th class="hide-mobile" style="padding:9px 10px;text-align:right;font-size:9px;font-weight:700;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;border-top:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;width:90px;">Prix unit.</th>
+          <th class="hide-mobile" style="padding:9px 12px;text-align:right;font-size:9px;font-weight:700;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;border-top:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;width:90px;">Total</th>
         </tr>
       </thead>
       <tbody>${itemRowsHtml}</tbody>
@@ -541,16 +611,20 @@ export async function POST(req: NextRequest) {
   </td></tr>
 
   <!-- TOTALS -->
-  <tr><td style="background:#fff;padding:20px 44px 28px;">
-    <table cellpadding="0" cellspacing="0" style="margin-left:auto;width:280px;">
+  <tr><td class="totals-wrap" style="background:#fff;padding:22px 36px 30px;">
+    <table class="totals-table" cellpadding="0" cellspacing="0" style="margin-left:auto;width:300px;">
       <tr>
         <td style="padding:6px 0;font-size:12px;color:#9ca3af;border-bottom:1px dashed #f3f4f6;">Sous-total articles</td>
-        <td style="padding:6px 0;font-size:12px;font-weight:500;color:#374151;text-align:right;border-bottom:1px dashed #f3f4f6;">${itemsTotal.toFixed(2)} MAD</td>
+        <td style="padding:6px 0;font-size:12px;font-weight:700;color:#374151;text-align:right;border-bottom:1px dashed #f3f4f6;">${formatInvoiceMoney(itemsTotal)}</td>
       </tr>
       <tr>
         <td style="padding:6px 0;font-size:12px;color:#9ca3af;border-bottom:1px dashed #f3f4f6;">Frais de livraison</td>
-        <td style="padding:6px 0;font-size:12px;font-weight:500;color:${deliveryFee === 0 ? "#16a34a" : "#374151"};text-align:right;border-bottom:1px dashed #f3f4f6;">${deliveryFee === 0 ? "Gratuit" : deliveryFee.toFixed(2) + " MAD"}</td>
+        <td style="padding:6px 0;font-size:12px;font-weight:700;color:${deliveryFee === 0 ? "#16a34a" : "#374151"};text-align:right;border-bottom:1px dashed #f3f4f6;">${deliveryFee === 0 ? "Gratuit" : formatInvoiceMoney(deliveryFee)}</td>
       </tr>
+      ${invoiceDiscount > 0 ? `<tr>
+        <td style="padding:6px 0;font-size:12px;color:#16a34a;border-bottom:1px dashed #f3f4f6;">Remise appliqu&eacute;e</td>
+        <td style="padding:6px 0;font-size:12px;font-weight:800;color:#16a34a;text-align:right;border-bottom:1px dashed #f3f4f6;">&minus; ${formatInvoiceMoney(invoiceDiscount)}</td>
+      </tr>` : ""}
       <tr><td colspan="2" style="padding-top:12px;">
         <table width="100%" cellpadding="0" cellspacing="0" style="background:#0c1a12;border-radius:10px;border:1px solid rgba(74,222,128,0.15);">
           <tr>
@@ -559,7 +633,7 @@ export async function POST(req: NextRequest) {
               <p style="margin:3px 0 0;font-size:9px;color:rgba(255,255,255,0.35);">Toutes taxes comprises</p>
             </td>
             <td style="padding:16px 18px;text-align:right;vertical-align:middle;">
-              <p style="margin:0;font-size:22px;font-weight:900;color:#4ade80;letter-spacing:-0.5px;line-height:1;">${total.toFixed(2)} MAD</p>
+              <p class="grand-total-value" style="margin:0;font-size:22px;font-weight:900;color:#4ade80;letter-spacing:-0.5px;line-height:1;">${formatInvoiceMoney(total)}</p>
             </td>
           </tr>
         </table>
@@ -567,28 +641,40 @@ export async function POST(req: NextRequest) {
     </table>
   </td></tr>
 
+  <!-- TRACKING & SUPPORT -->
+  <tr><td class="mobile-px" style="background:#ffffff;padding:0 36px 30px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #d9efe0;border-radius:14px;background:#f7fff9;">
+      <tr><td style="padding:20px;text-align:center;">
+        <p style="margin:0;font-size:14px;font-weight:900;color:#0c1a12;">Nous restons avec vous jusqu&rsquo;&agrave; la livraison</p>
+        <p style="margin:6px auto 16px;max-width:420px;font-size:11px;line-height:1.6;color:#6b7280;">Consultez l&rsquo;avancement de votre commande &agrave; tout moment avec votre num&eacute;ro <strong style="color:#374151;">${order_number}</strong>.</p>
+        <a href="${SITE_URL}/suivre-commande/" style="display:inline-block;background:#0c1a12;color:#ffffff;text-decoration:none;border-radius:10px;padding:12px 22px;font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;box-shadow:0 8px 18px rgba(12,26,18,.14);">Suivre ma commande &nbsp;&#8594;</a>
+        <p style="margin:15px 0 0;font-size:10px;color:#9ca3af;">Une question ? R&eacute;pondez simplement &agrave; cet e-mail.</p>
+      </td></tr>
+    </table>
+  </td></tr>
+
   <!-- FOOTER -->
   <tr><td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:22px 44px;">
     <table width="100%" cellpadding="0" cellspacing="0"><tr>
-      <td style="vertical-align:middle;">
+      <td class="footer-col" style="vertical-align:middle;">
         <table cellpadding="0" cellspacing="0"><tr>
           <td style="font-size:14px;font-weight:900;color:#111827;letter-spacing:-0.5px;font-family:'Helvetica Neue',Arial,sans-serif;">L&apos;eco</td>
           <td style="font-size:14px;font-weight:900;color:#3ecf4c;letter-spacing:-0.5px;font-family:'Helvetica Neue',Arial,sans-serif;">max</td>
         </tr></table>
         <p style="margin:3px 0 0;font-size:10px;color:#9ca3af;">contact@lecomax.com · lecomax.com</p>
       </td>
-      <td style="text-align:center;vertical-align:middle;">
+      <td class="footer-col footer-center" style="text-align:center;vertical-align:middle;">
         <p style="margin:0;font-size:11px;font-weight:600;color:#6b7280;">Merci pour votre confiance !</p>
       </td>
-      <td style="text-align:right;vertical-align:middle;">
+      <td class="footer-col footer-right" style="text-align:right;vertical-align:middle;">
         <p style="margin:0;font-size:10px;color:#9ca3af;">&#201;mise le ${invoiceDate}</p>
         <p style="margin:2px 0 0;font-size:10px;color:#9ca3af;">R&#233;f : ${invoiceNumber}</p>
       </td>
     </tr></table>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:14px;border-top:1px solid #e5e7eb;padding-top:14px;"><tr>
-      <td style="font-size:10px;color:#9ca3af;">&#10003; Retours accept&#233;s sous 30 jours</td>
-      <td style="font-size:10px;color:#9ca3af;text-align:center;">&#10003; Livraison ${shippingRate.toFixed(0)} MAD partout au Maroc</td>
-      <td style="font-size:10px;color:#9ca3af;text-align:right;">&#10003; Paiement s&#233;curis&#233;</td>
+      <td class="trust-cell" style="font-size:10px;color:#9ca3af;">&#10003; Retours accept&#233;s sous 30 jours</td>
+      <td class="trust-cell" style="font-size:10px;color:#9ca3af;text-align:center;">&#10003; Livraison ${shippingRate.toFixed(0)} MAD partout au Maroc</td>
+      <td class="trust-cell" style="font-size:10px;color:#9ca3af;text-align:right;">&#10003; Paiement s&#233;curis&#233;</td>
     </tr></table>
   </td></tr>
 

@@ -7,6 +7,7 @@ import Image from "next/image";
 // PayPal loaded via vanilla SDK (see useEffect below)
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
+import { resolveProductVariantImage } from "@/lib/product-variant-image";
 import { useSettings } from "@/lib/use-settings";
 import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
 import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
@@ -383,6 +384,7 @@ export default function CheckoutPage() {
   const [paypalFailureOpen, setPaypalFailureOpen] = useState(false);
   const [paypalServerReady, setPaypalServerReady] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
+  const [orderError, setOrderError] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState<{
     id: string;
@@ -621,12 +623,14 @@ export default function CheckoutPage() {
           if (!details.id || !captureId) throw new Error("PayPal n'a pas retourné les identifiants du paiement.");
           // Use ref to get latest values at the moment of capture
           const { form: f, items: its, grandTotal: gt, shipping: sh, couponApplied: ca, discount: disc } = paypalDataRef.current;
-          const res = await fetch("/api/orders", {
+          const res = await fetch("/api/orders/", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            credentials: "same-origin",
+            cache: "no-store",
             body: JSON.stringify({
               customer: { name: `${f.prenom} ${f.nom}`, phone: f.telephone, email: f.email, city: f.ville, address: `${f.adresse}${f.codePostal ? ", " + f.codePostal : ""}` },
-              items: its.map((i: any) => ({ slug: i.slug, name: i.name, price: i.price, qty: i.quantity, image: i.image ?? "", size: i.size ?? "", color: i.color ?? "" })),
+              items: its.map((i: any) => ({ slug: i.slug, name: i.name, price: i.price, qty: i.quantity, image: resolveProductVariantImage({ slug: i.slug, color: i.color, fallback: i.image }), size: i.size ?? "", color: i.color ?? "" })),
                total: gt, shipping: sh, coupon_id: ca?.id ?? null, discount: disc,
                payment_provider: "paypal",
                paypal_order_id: details.id,
@@ -634,9 +638,8 @@ export default function CheckoutPage() {
                abandoned_cart_token: localStorage.getItem(ABANDONED_CART_TOKEN_KEY),
              }),
           });
-          const data = await res.json();
+          const data = await res.json().catch(() => ({ error: "Réponse serveur invalide." }));
           if (!res.ok) {
-            console.error("Order API error after PayPal capture:", data.error);
             throw new Error(data.error || "La commande n'a pas pu être enregistrée après le paiement PayPal.");
           }
           clearAbandonedCartToken();
@@ -737,6 +740,7 @@ export default function CheckoutPage() {
   };
 
   const set = (k: keyof Field, v: string) => {
+    setOrderError("");
     setForm((f) => ({ ...f, [k]: v }));
     setErrors((current) => ({
       ...current,
@@ -772,15 +776,19 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (payment === "paypal") return; // PayPal uses its own button flow
+    if (loading) return;
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
+    setOrderError("");
     setLoading(true);
 
     try {
-      const res = await fetch("/api/orders", {
+      const res = await fetch("/api/orders/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        credentials: "same-origin",
+        cache: "no-store",
         body: JSON.stringify({
           customer: {
             name: `${form.prenom} ${form.nom}`,
@@ -794,7 +802,7 @@ export default function CheckoutPage() {
             name: i.name,
             price: i.price,
             qty: i.quantity,
-            image: i.image ?? "",
+            image: resolveProductVariantImage({ slug: i.slug, color: i.color, fallback: i.image }),
             size: i.size ?? "",
             color: i.color ?? "",
           })),
@@ -807,9 +815,9 @@ export default function CheckoutPage() {
          }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({ error: "Le serveur a retourné une réponse invalide." }));
       if (!res.ok) {
-        console.error("Order API error:", data.error);
+        setOrderError(data.error || "Impossible d'enregistrer la commande. Veuillez réessayer.");
         setLoading(false);
         return;
       }
@@ -837,8 +845,12 @@ export default function CheckoutPage() {
       clearAbandonedCartToken();
       clear();
       router.push("/merci");
-    } catch (err) {
-      console.error("Order submission failed:", err);
+    } catch {
+      setOrderError(
+        navigator.onLine
+          ? "Connexion momentanément interrompue. Vérifiez que le site est accessible, puis réessayez."
+          : "Vous êtes hors ligne. Reconnectez-vous à Internet, puis réessayez."
+      );
       setLoading(false);
     }
   };
@@ -1191,7 +1203,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="grid grid-cols-3 divide-x divide-neutral-100">
                     {[
-                      { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, label: "Livraison 2–5j" },
+                      { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, label: "Livraison 24–48h" },
                       { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>, label: "Paiement sûr" },
                       { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>, label: "Retours 30j" },
                     ].map((b) => (
@@ -1207,18 +1219,28 @@ export default function CheckoutPage() {
 
             {/* Submit (mobile) — only for COD */}
             {payment === "livraison" && (
-            <button
-              type="submit"
-              disabled={loading}
-              className="lg:hidden w-full py-4 font-black uppercase text-sm tracking-[0.1em] hover:opacity-90 transition-all duration-200 active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-3"
-              style={{ background: "#000", color: "#fff", boxShadow: "0 4px 18px rgba(0,0,0,0.18)" }}
-            >
-              {loading ? (
-                <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Traitement…</>
-              ) : (
-                <>Confirmer ma commande <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></>
+            <div className="lg:hidden">
+              {orderError && (
+                <div role="alert" aria-live="assertive" className="mb-3 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-left shadow-sm">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+                  </span>
+                  <div><p className="text-[11px] font-black text-red-800">Commande non envoyée</p><p className="mt-1 text-[10px] font-medium leading-4 text-red-700">{orderError}</p></div>
+                </div>
               )}
-            </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex w-full items-center justify-center gap-3 py-4 text-sm font-black uppercase tracking-[0.1em] transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
+                style={{ background: "#000", color: "#fff", boxShadow: "0 4px 18px rgba(0,0,0,0.18)" }}
+              >
+                {loading ? (
+                  <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Traitement…</>
+                ) : (
+                  <>Confirmer ma commande <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></>
+                )}
+              </button>
+            </div>
             )}
           </div>
 
@@ -1239,10 +1261,10 @@ export default function CheckoutPage() {
               {/* Items */}
               <ul className="divide-y divide-neutral-50 max-h-60 overflow-y-auto">
                 {items.map((item) => (
-                  <li key={item.slug + item.size} className="flex items-center gap-3 px-5 py-3.5">
+                  <li key={`${item.slug}-${item.size}-${item.color}`} className="flex items-center gap-3 px-5 py-3.5">
                     <div className="relative w-14 h-16 overflow-visible bg-neutral-100 shrink-0 border border-neutral-100">
                       <div className="w-full h-full overflow-hidden">
-                        <Image src={item.image} alt={item.name} fill sizes="56px" className="object-cover" />
+                        <Image src={resolveProductVariantImage({ slug: item.slug, color: item.color, fallback: item.image })} alt={`${item.name}${item.color ? ` — ${item.color}` : ""}`} fill sizes="56px" className="object-cover" />
                       </div>
                       <span className="absolute -top-2 -right-2 w-5 h-5 bg-neutral-800 text-white text-[9px] font-black rounded-full flex items-center justify-center ring-2 ring-white shadow">
                         {item.quantity}
@@ -1250,7 +1272,9 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[12px] font-bold leading-tight line-clamp-2">{item.name}</p>
-                      <p className="text-[11px] text-neutral-400 mt-0.5">Taille : {item.size}</p>
+                      <p className="mt-0.5 text-[11px] text-neutral-400">
+                        {[item.size ? `Taille : ${item.size}` : "", item.color ? `Couleur : ${item.color}` : ""].filter(Boolean).join(" · ")}
+                      </p>
                     </div>
                     <span className="text-[13px] font-black shrink-0">{formatMAD(item.price * item.quantity)}</span>
                   </li>
@@ -1332,6 +1356,14 @@ export default function CheckoutPage() {
 
               {/* CTA */}
               <div className="px-5 pb-5 pt-3">
+                {orderError && (
+                  <div role="alert" aria-live="assertive" className="mb-3 hidden items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-3.5 py-3 text-left shadow-sm lg:flex">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+                    </span>
+                    <div><p className="text-[11px] font-black text-red-800">Commande non envoyée</p><p className="mt-1 text-[10px] font-medium leading-4 text-red-700">{orderError}</p></div>
+                  </div>
+                )}
                 <button
                   type="submit"
                   disabled={loading || payment === "paypal"}
@@ -1352,7 +1384,7 @@ export default function CheckoutPage() {
                     SSL sécurisé
                   </span>
                   <span className="w-1 h-1 rounded-full bg-neutral-300" />
-                  <span>Livraison 2–5j</span>
+                  <span>Livraison 24–48h</span>
                   <span className="w-1 h-1 rounded-full bg-neutral-300" />
                   <span>Retours 30j</span>
                 </div>

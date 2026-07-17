@@ -7,8 +7,18 @@ export type ShippingConfig = {
 export const DEFAULT_SHIPPING_CONFIG: ShippingConfig = {
   cost: 35,
   freeThreshold: 500,
-  estimatedDays: "2-5 jours ouvrables",
+  estimatedDays: "24–48h",
 };
+
+function deliveryEstimate(value: unknown) {
+  if (typeof value !== "string" || !value.trim()) return DEFAULT_SHIPPING_CONFIG.estimatedDays;
+  const configured = value.trim();
+
+  // Upgrade the former default automatically while preserving deliberate custom values.
+  return /^[23]\s*[-–à]\s*5\s*jours?/i.test(configured)
+    ? DEFAULT_SHIPPING_CONFIG.estimatedDays
+    : configured;
+}
 
 function nonNegativeNumber(value: unknown, fallback: number) {
   const parsed = Number(value);
@@ -19,9 +29,7 @@ export function shippingConfigFromSettings(settings: Record<string, unknown> | n
   return {
     cost: nonNegativeNumber(settings?.shipping_cost, DEFAULT_SHIPPING_CONFIG.cost),
     freeThreshold: nonNegativeNumber(settings?.free_shipping_threshold, DEFAULT_SHIPPING_CONFIG.freeThreshold),
-    estimatedDays: typeof settings?.shipping_estimated_days === "string" && settings.shipping_estimated_days.trim()
-      ? settings.shipping_estimated_days.trim()
-      : DEFAULT_SHIPPING_CONFIG.estimatedDays,
+    estimatedDays: deliveryEstimate(settings?.shipping_estimated_days),
   };
 }
 

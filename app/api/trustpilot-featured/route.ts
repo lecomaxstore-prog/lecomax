@@ -10,14 +10,19 @@ const supabase = createClient(
 const KEY = "trustpilot_featured";
 
 export async function GET() {
-  const { data } = await supabase
-    .from("settings")
-    .select("value")
-    .eq("key", KEY)
-    .single();
   try {
+    const { data, error } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", KEY)
+      .maybeSingle();
+    if (error) return NextResponse.json({ reviews: [] }, { status: 200 });
+
     const reviews = data?.value ? JSON.parse(data.value) : [];
-    return NextResponse.json({ reviews: Array.isArray(reviews) ? reviews : [] });
+    return NextResponse.json(
+      { reviews: Array.isArray(reviews) ? reviews : [] },
+      { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600" } },
+    );
   } catch {
     return NextResponse.json({ reviews: [] });
   }

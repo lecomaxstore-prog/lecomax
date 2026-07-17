@@ -197,19 +197,19 @@ export default function Header() {
 
       {/* Slide-in panel */}
       <div
-        className={`fixed top-0 left-0 h-full w-[88vw] max-w-[360px] z-[9999] md:hidden flex flex-col ${open ? "translate-x-0" : "-translate-x-full"}`}
-        style={{ background: "#fff", transition: "transform 0.38s cubic-bezier(0.22, 1, 0.36, 1)" }}
+        className={`fixed left-0 top-0 z-[9999] flex h-full w-[91vw] max-w-[390px] flex-col overflow-hidden bg-[#fafbf9] shadow-[24px_0_70px_rgba(0,0,0,0.18)] md:hidden ${open ? "translate-x-0" : "-translate-x-full"}`}
+        style={{ transition: "transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)" }}
       >
         {/* ── Header ── */}
-        <div className={`flex items-center justify-between px-5 h-[60px] shrink-0 ${open ? "drawer-item" : ""}`}
-          style={{ borderBottom: "1.5px solid #f0f0f0", animationDelay: "20ms" }}>
+        <div className={`flex h-[68px] shrink-0 items-center justify-between border-b border-black/[0.06] bg-white/90 px-5 backdrop-blur-xl ${open ? "drawer-item" : ""}`}
+          style={{ animationDelay: "20ms" }}>
           <Link href="/" onClick={() => setOpen(false)}>
             <Logo showWordmark />
           </Link>
           <button
             aria-label="Fermer"
             onClick={() => setOpen(false)}
-            className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 active:bg-neutral-100 transition-colors"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-neutral-500 shadow-sm transition duration-200 active:scale-95 active:bg-neutral-100 active:text-black"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <path d="M18 6 6 18M6 6l12 12"/>
@@ -220,7 +220,7 @@ export default function Header() {
         {/* ── Scrollable body wrapper (fade mask at bottom) ── */}
         <div className="flex-1 relative min-h-0">
           {/* Bottom fade-out hint */}
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10" style={{ height: 48, background: "linear-gradient(to top, #fff 0%, transparent 100%)" }} />
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-12 bg-gradient-to-t from-[#fafbf9] to-transparent" />
 
         {/* Scrollable body */}
         <div className="h-full overflow-y-auto drawer-scroll" key={open ? "open" : "closed"}
@@ -233,25 +233,30 @@ export default function Header() {
 
           {/* Account quick-access */}
           <Link href={isLoggedIn ? "/compte" : "/connexion"} onClick={() => setOpen(false)}
-            className={`flex items-center gap-3 mx-4 mt-4 px-4 py-3.5 rounded-2xl active:opacity-80 transition-opacity ${open ? "drawer-item" : ""}`}
-            style={{ background: "linear-gradient(135deg,#3ecf4c15,#3ecf4c08)", border: "1.5px solid #3ecf4c30", animationDelay: "60ms" }}>
-            <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: "#3ecf4c20" }}>
+            className={`group mx-4 mt-4 flex items-center gap-3 rounded-[20px] border border-emerald-200/80 bg-[linear-gradient(135deg,#effdf2_0%,#f9fff7_58%,#f5ffe9_100%)] px-4 py-3.5 shadow-[0_10px_28px_rgba(16,120,65,0.08)] transition duration-200 active:scale-[0.985] ${open ? "drawer-item" : ""}`}
+            style={{ animationDelay: "60ms" }}>
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border border-emerald-200 bg-white text-emerald-600 shadow-[0_6px_16px_rgba(16,185,129,0.10)]">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2" strokeLinecap="round">
                 <circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-bold text-black">{isLoggedIn ? "Mon compte" : "Se connecter"}</p>
-              <p className="text-[11px] text-neutral-400">{isLoggedIn ? "Commandes & profil" : "Créer un compte gratuit"}</p>
+              <p className="mb-0.5 text-[8px] font-black uppercase tracking-[0.18em] text-emerald-700">Votre espace</p>
+              <p className="text-[14px] font-black leading-tight text-neutral-950">{isLoggedIn ? "Mon compte" : "Se connecter"}</p>
+              <p className="mt-0.5 text-[10px] font-medium text-neutral-500">{isLoggedIn ? "Commandes, adresses et profil" : "Créez votre compte gratuitement"}</p>
             </div>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_5px_13px_rgba(5,150,105,.24)] transition-transform group-active:translate-x-0.5">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+            </span>
           </Link>
 
           {/* ── Nav rows ── */}
-          <div className={`mt-4 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "110ms" }}>
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-neutral-300 mb-1 px-5">Catégories</p>
+          <div className={`mx-4 mt-5 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "110ms" }}>
+            <div className="mb-2 flex items-center justify-between px-1">
+              <p className="text-[9px] font-black uppercase tracking-[0.24em] text-neutral-400">Explorer les catégories</p>
+              <Link href="/boutique" onClick={() => setOpen(false)} className="text-[9px] font-black uppercase tracking-[0.08em] text-emerald-700">Tout voir</Link>
+            </div>
+            <div className="overflow-hidden rounded-[22px] border border-black/[0.07] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.045)]">
             {([
               { slug: "homme",       label: "Homme",       sub: "Vestes, Pulls & Sport",     img: "/images/menu%20category/homme.png" },
               { slug: "femme",       label: "Femme",        sub: "Mode, Robes & Lifestyle",  img: "/images/menu%20category/femme.png" },
@@ -259,32 +264,32 @@ export default function Header() {
               { slug: "accessoires", label: "Accessoires",  sub: "Tech, Audio & Sacs",        img: "/images/menu%20category/accessoires.png" },
             ] as { slug:string; label:string; sub:string; img:string }[]).map((c, i, arr) => (
               <Link key={c.slug} href={`/${c.slug}`} onClick={() => setOpen(false)}
-                className={`flex items-center gap-4 px-5 py-2.5 active:bg-neutral-50 transition-colors ${open ? "drawer-item" : ""}`}
-                style={{ borderBottom: i < arr.length - 1 ? "1px solid #f3f3f3" : "none", animationDelay: `${140 + i * 55}ms` }}>
+                className={`group flex items-center gap-3 px-3 py-2.5 transition duration-200 active:bg-emerald-50/60 ${open ? "drawer-item" : ""}`}
+                style={{ borderBottom: i < arr.length - 1 ? "1px solid #f1f2f0" : "none", animationDelay: `${140 + i * 55}ms` }}>
                 {/* Category photo */}
-                <div className="w-14 h-14 rounded-2xl overflow-hidden shrink-0 bg-neutral-100">
+                <div className="h-[52px] w-[52px] shrink-0 overflow-hidden rounded-[16px] border border-black/[0.06] bg-neutral-100 shadow-sm">
                   <img src={c.img} alt={c.label}
-                    className="w-full h-full object-cover" />
+                    className="h-full w-full object-cover transition duration-300 group-active:scale-105" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[16px] font-black text-black leading-snug">{c.label}</p>
-                  <p className="text-[11px] text-neutral-400 leading-snug">{c.sub}</p>
+                  <p className="text-[15px] font-black leading-snug tracking-[-0.02em] text-neutral-950">{c.label}</p>
+                  <p className="mt-0.5 text-[10px] font-medium leading-snug text-neutral-400">{c.sub}</p>
                 </div>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="2.5" strokeLinecap="round">
-                  <path d="M9 18l6-6-6-6"/>
-                </svg>
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-neutral-50 text-neutral-300 transition group-active:bg-emerald-100 group-active:text-emerald-700">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                </span>
               </Link>
             ))}
+            </div>
           </div>
 
           {/* ── Promotions + Nouveautés photo banners ── */}
-          <div className={`px-4 mt-3 grid grid-cols-2 gap-2.5 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "380ms" }}>
+          <div className={`mt-3 grid grid-cols-2 gap-2.5 px-4 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "380ms" }}>
             {/* Nouveautés */}
             <Link href="/nouveautes" onClick={() => setOpen(false)}
-              className="relative overflow-hidden rounded-2xl active:opacity-90 transition-opacity"
-              style={{ height: 130 }}>
+              className="group relative h-[124px] overflow-hidden rounded-[20px] border border-white/70 shadow-[0_10px_24px_rgba(0,0,0,.10)] transition active:scale-[.98]">
               <img src="/images/menu%20category/nouveautes.png"
-                alt="Nouveautés" className="absolute inset-0 w-full h-full object-cover object-top" />
+                alt="Nouveautés" className="absolute inset-0 h-full w-full object-cover object-top transition duration-500 group-active:scale-105" />
               {/* gradient overlay */}
               <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%)" }} />
               <div className="absolute bottom-0 left-0 right-0 p-3">
@@ -295,10 +300,9 @@ export default function Header() {
 
             {/* Promotions */}
             <Link href="/promotions" onClick={() => setOpen(false)}
-              className="relative overflow-hidden rounded-2xl active:opacity-90 transition-opacity"
-              style={{ height: 130 }}>
+              className="group relative h-[124px] overflow-hidden rounded-[20px] border border-white/70 shadow-[0_10px_24px_rgba(0,0,0,.10)] transition active:scale-[.98]">
               <img src="/images/menu%20category/promotions.png"
-                alt="Promotions" className="absolute inset-0 w-full h-full object-cover object-center" />
+                alt="Promotions" className="absolute inset-0 h-full w-full object-cover object-center transition duration-500 group-active:scale-105" />
               {/* gradient overlay */}
               <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.1) 60%)" }} />
               {/* live badge */}
@@ -317,15 +321,14 @@ export default function Header() {
           </div>
 
           {/* ── Useful links ── */}
-          <div className={`px-4 mt-4 mb-6 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "440ms" }}>
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-neutral-300 mb-2 px-1">Aide & Services</p>
+          <div className={`mb-7 mt-5 px-4 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "440ms" }}>
+            <p className="mb-2 px-1 text-[9px] font-black uppercase tracking-[0.24em] text-neutral-400">Aide & Services</p>
             <div className="grid grid-cols-2 gap-2">
               {visibleUtilLinks.map((u) => (
                 <Link key={u.label} href={u.href} onClick={() => setOpen(false)}
-                  className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl active:bg-neutral-50 transition-colors"
-                  style={{ border: "1.5px solid #f0f0f0" }}>
-                  <span className="text-neutral-400 shrink-0">{u.icon}</span>
-                  <span className="text-[12px] font-bold text-neutral-600 leading-tight">{u.label}</span>
+                  className="flex min-h-[58px] items-center gap-2.5 rounded-[16px] border border-black/[0.07] bg-white px-3 py-2.5 shadow-[0_5px_18px_rgba(0,0,0,.035)] transition active:scale-[.98] active:border-emerald-200 active:bg-emerald-50/40">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">{u.icon}</span>
+                  <span className="text-[11px] font-bold leading-tight text-neutral-700">{u.label}</span>
                 </Link>
               ))}
             </div>
@@ -334,8 +337,8 @@ export default function Header() {
         </div>
 
         {/* ── Footer ── */}
-        <div className="shrink-0 px-5 py-3.5 flex items-center justify-between" style={{ borderTop: "1.5px solid #f0f0f0" }}>
-          <p className="text-[10px] text-neutral-300 tracking-widest uppercase">L&apos;ecomax &copy; 2026</p>
+        <div className="flex shrink-0 items-center justify-between border-t border-black/[0.06] bg-white px-5 py-3.5">
+          <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-neutral-300">L&apos;ecomax &copy; 2026</p>
           <div className="flex items-center gap-3">
             <Link href="/nous-contacter" onClick={() => setOpen(false)}
               className="text-[10px] font-bold text-neutral-400 active:text-black transition-colors uppercase tracking-wide">
