@@ -170,30 +170,6 @@ export default function CartPage() {
             40%      { transform: translateY(-4px); }
             60%      { transform: translateY(-2px); }
           }
-          @keyframes deliveryCardIn {
-            0%   { opacity: 0; transform: translateY(10px) scale(.975); }
-            70%  { opacity: 1; transform: translateY(-1px) scale(1.005); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-          }
-          @keyframes deliveryTruckDrive {
-            0%, 100% { transform: translateX(0) rotate(0); }
-            38%      { transform: translateX(3px) rotate(-2deg); }
-            52%      { transform: translateX(4px) rotate(1deg); }
-            68%      { transform: translateX(-1px) rotate(0); }
-          }
-          @keyframes deliveryStatusPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(62, 207, 76, .38); }
-            50%      { box-shadow: 0 0 0 5px rgba(62, 207, 76, 0); }
-          }
-          @keyframes deliverySweep {
-            0%, 62%  { transform: translateX(-180%) skewX(-18deg); opacity: 0; }
-            70%      { opacity: .45; }
-            88%, 100% { transform: translateX(520%) skewX(-18deg); opacity: 0; }
-          }
-          @keyframes deliveryFeeFloat {
-            0%   { opacity: 0; transform: translateX(6px) scale(.92); }
-            100% { opacity: 1; transform: translateX(0) scale(1); }
-          }
           .step-active-circle {
             animation: stepPulse 2s ease-in-out infinite, stepBounce 2.4s ease-in-out infinite;
           }
@@ -209,37 +185,10 @@ export default function CartPage() {
             transform-origin: left;
             animation: lineGrow 0.6s ease-out forwards;
           }
-          .delivery-mobile-card {
-            animation: deliveryCardIn .58s cubic-bezier(.2,.85,.25,1) both;
-          }
-          .delivery-mobile-card::after {
-            content: '';
-            pointer-events: none;
-            position: absolute;
-            inset: -30% auto -30% -20%;
-            width: 18%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,.8), transparent);
-            filter: blur(1px);
-            animation: deliverySweep 4.8s 1s ease-in-out infinite;
-          }
-          .delivery-mobile-truck {
-            animation: deliveryTruckDrive 3s .65s ease-in-out infinite;
-          }
-          .delivery-mobile-status {
-            animation: deliveryStatusPulse 2.2s .8s ease-out infinite;
-          }
-          .delivery-mobile-fee {
-            animation: deliveryFeeFloat .45s .28s ease-out both;
-          }
           @media (prefers-reduced-motion: reduce) {
             .step-active-circle,
             .step-active-shine::after,
-            .step-connector-fill,
-            .delivery-mobile-card,
-            .delivery-mobile-card::after,
-            .delivery-mobile-truck,
-            .delivery-mobile-status,
-            .delivery-mobile-fee {
+            .step-connector-fill {
               animation: none !important;
             }
           }
@@ -386,96 +335,22 @@ export default function CartPage() {
               )}
 
               {/* Estimated delivery */}
-              <div className="delivery-mobile-card relative isolate mx-4 my-3 overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-lime-50 shadow-[0_10px_26px_rgba(5,150,105,0.09)] sm:hidden">
-                <div className="relative z-10 flex items-center gap-3 px-3.5 py-3.5">
-                  <span className="delivery-mobile-truck relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#087a49] text-white shadow-[0_7px_16px_rgba(8,122,73,0.22)]">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M3 6h11v10H3zM14 9h4l3 3v4h-7z" />
-                      <circle cx="7" cy="18" r="2" /><circle cx="18" cy="18" r="2" />
-                    </svg>
-                    <span className="delivery-mobile-status absolute -right-1 -top-1 h-3 w-3 rounded-full border-[2.5px] border-white bg-[#3ecf4c]" />
-                  </span>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[9px] font-black uppercase tracking-[0.16em] text-emerald-700">Livraison estimée</p>
-                    <p className="mt-0.5 text-[17px] font-black leading-none tracking-[-0.035em] text-neutral-950">Chez vous en {shippingConfig.estimatedDays}</p>
-                    <p className="mt-1.5 flex items-center gap-1.5 text-[9px] font-semibold text-neutral-500">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>
-                      Partout au Maroc · Suivi inclus
-                    </p>
+              <div className="mx-4 my-3 flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-[0_4px_14px_rgba(0,0,0,0.04)] sm:mx-6">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center text-neutral-950" aria-hidden="true">
+                  <svg width="29" height="29" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 7h16v14H3zM19 12h5l5 5v4H19z"/>
+                    <path d="M7 11h8M7 15h6M1 18h8"/>
+                    <circle cx="8" cy="24" r="2.5"/><circle cx="24" cy="24" r="2.5"/>
+                  </svg>
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-[12px] font-semibold text-neutral-600 sm:text-[13px]">Livraison estimée</p>
+                    <span className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-400 text-[9px] font-black text-neutral-600" title="Le délai commence après confirmation de la commande" aria-label="Le délai commence après confirmation de la commande">i</span>
                   </div>
-
-                  <span className="delivery-mobile-fee shrink-0 rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-[9px] font-black text-emerald-700 shadow-sm">
-                    {shipping === 0 ? "GRATUITE" : `${shipping} MAD`}
-                  </span>
+                  <p className="mt-0.5 text-[14px] font-black leading-5 text-emerald-600 sm:text-[15px]">Chez vous sous {shippingConfig.estimatedDays}</p>
                 </div>
-              </div>
-
-              <div className="mx-6 my-4 hidden overflow-hidden rounded-[22px] border border-emerald-200 bg-white shadow-[0_16px_40px_rgba(5,150,105,0.10)] sm:block">
-                <div className="relative overflow-hidden bg-[linear-gradient(135deg,#edfff3_0%,#f9fffa_52%,#f4ffe8_100%)] px-4 py-4 sm:px-5 sm:py-5">
-                  <div className="pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full bg-[#3ecf4c]/10 blur-2xl" />
-
-                  <div className="relative flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[#087a49] text-white shadow-[0_9px_22px_rgba(8,122,73,0.24)]">
-                        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M3 6h11v10H3zM14 9h4l3 3v4h-7z" />
-                          <circle cx="7" cy="18" r="2" /><circle cx="18" cy="18" r="2" />
-                          <path d="M6 10h4" />
-                        </svg>
-                        <span className="absolute -right-1 -top-1 h-3.5 w-3.5 rounded-full border-[3px] border-white bg-[#3ecf4c]" />
-                      </div>
-                      <div>
-                        <p className="text-[9px] font-black uppercase tracking-[0.19em] text-emerald-700">Livraison estimée</p>
-                        <p className="mt-0.5 text-[11px] font-semibold text-neutral-500">Délai estimé après confirmation</p>
-                      </div>
-                    </div>
-                    <span className="shrink-0 rounded-full border border-emerald-200 bg-white/90 px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-emerald-700 shadow-sm">
-                      {shipping === 0 ? "Gratuite" : `${shipping} MAD`}
-                    </span>
-                  </div>
-
-                  <div className="relative mt-4 flex items-center gap-3 rounded-2xl border border-emerald-100 bg-white/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-sm sm:max-w-md">
-                    <div className="min-w-[72px] text-center">
-                      <p className="text-[25px] font-black leading-none tracking-[-0.05em] text-neutral-950">24h</p>
-                      <p className="mt-1 text-[8px] font-black uppercase tracking-[0.14em] text-emerald-600">Au plus tôt</p>
-                    </div>
-                    <div className="flex min-w-0 flex-1 items-center gap-2" aria-hidden="true">
-                      <span className="h-px flex-1 bg-gradient-to-r from-emerald-300 to-[#3ecf4c]" />
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#3ecf4c] text-black shadow-[0_5px_12px_rgba(62,207,76,0.28)]">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                      </span>
-                      <span className="h-px flex-1 bg-gradient-to-r from-[#3ecf4c] to-emerald-300" />
-                    </div>
-                    <div className="min-w-[72px] text-center">
-                      <p className="text-[18px] font-black leading-none tracking-[-0.05em] text-neutral-950">{shippingConfig.estimatedDays}</p>
-                      <p className="mt-1 text-[8px] font-black uppercase tracking-[0.14em] text-emerald-600">Au plus tard</p>
-                    </div>
-                  </div>
-
-                  <div className="relative mt-3 flex items-center gap-2 text-[10px] font-semibold text-neutral-500">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/><path d="M12 6v6l4 2"/></svg>
-                    Partout au Maroc · Suivi de colis inclus
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 divide-x divide-neutral-100 border-t border-emerald-100 bg-white px-2 py-3.5" aria-label="Étapes de livraison">
-                  {[
-                    { title: "Confirmée", time: "Maintenant", done: true },
-                    { title: "Préparation", time: "Sous 24h", done: false },
-                    { title: "Chez vous", time: shippingConfig.estimatedDays, done: false },
-                  ].map((step, index) => (
-                    <div key={step.title} className="flex min-w-0 items-center justify-center gap-2 px-1.5 sm:px-3">
-                      <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[9px] font-black ${step.done ? "bg-[#3ecf4c] text-black shadow-[0_0_0_4px_rgba(62,207,76,0.12)]" : "border border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
-                        {step.done ? <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m5 12 4 4L19 6" /></svg> : index + 1}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block truncate text-[9px] font-black text-neutral-800 sm:text-[10px]">{step.title}</span>
-                        <span className="mt-0.5 block truncate text-[8px] font-semibold text-neutral-400 sm:text-[9px]">{step.time}</span>
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                <span className="hidden shrink-0 text-[9px] font-semibold text-neutral-400 sm:block">Partout au Maroc</span>
               </div>
 
               {/* Column headers */}
