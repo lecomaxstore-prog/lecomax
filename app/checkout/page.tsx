@@ -302,65 +302,73 @@ function PaymentErrorDialog({
         aria-modal="true"
         aria-labelledby="paypal-error-title"
         aria-describedby="paypal-error-description"
-        className="w-full max-w-[470px] overflow-hidden rounded-[24px] border border-white/15 bg-white shadow-[0_28px_90px_rgba(0,0,0,0.32)] animate-[lecomax-dialog-in_.22s_ease-out]"
+        className="w-full max-w-[430px] overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-[0_28px_80px_rgba(0,0,0,0.24)] animate-[lecomax-dialog-in_.22s_ease-out]"
       >
-        <div className="relative overflow-hidden bg-[#07110a] px-6 pb-7 pt-6 text-white sm:px-8">
-          <div className="absolute -right-14 -top-20 h-44 w-44 rounded-full bg-[#3ecf4c]/15 blur-2xl" aria-hidden="true" />
-          <div className="relative flex items-start justify-between gap-4">
+        <div className="h-1 bg-[#3ecf4c]" />
+        <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 sm:px-6">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f3f7ff]" aria-hidden="true">
+              <svg viewBox="0 0 38 46" width="15" height="19">
+                <path fill="#253B80" d="M9.12 40.43l.72-4.56-1.6-.04H1.46L6.79 1.77A.43.43 0 0 1 7.22 1.4h12.9c4.28 0 7.23.89 8.77 2.65.72.82 1.18 1.68 1.4 2.63.23.99.24 2.18.01 3.63l-.02.1v.93l.72.41c.6.33 1.09.72 1.47 1.11.62.7 1.02 1.6 1.19 2.66.17 1.09.12 2.39-.17 3.86-.33 1.69-.86 3.16-1.58 4.37a8.98 8.98 0 0 1-2.51 2.83c-.95.7-2.09 1.22-3.37 1.57-1.25.34-2.67.51-4.23.51H21.3a3.03 3.03 0 0 0-2.99 2.56l-.07.41-1.46 9.27-.07.34a.43.43 0 0 1-.43.37H9.12z"/>
+                <path fill="#179BD7" d="M31.68 10.54a12.35 12.35 0 0 0-.13.76c-1.7 8.72-7.51 11.74-14.93 11.74H12.8c-.9 0-1.67.66-1.81 1.55L8.89 36.88l-.55 3.48a.97.97 0 0 0 .96 1.12h6.7c.79 0 1.47-.58 1.59-1.36l.07-.34 1.26-8.01.08-.44c.13-.78.8-1.36 1.59-1.36h1c6.5 0 11.59-2.64 13.07-10.27.62-3.19.3-5.85-1.8-7.73a6.44 6.44 0 0 0-1.18-.43z"/>
+              </svg>
+            </span>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#75e584]">L&apos;ecomax · Paiement sécurisé</p>
-              <h2 id="paypal-error-title" className="mt-3 max-w-[330px] text-[24px] font-black leading-[1.1] tracking-[-0.03em] sm:text-[28px]">
-                Le paiement n&apos;a pas abouti
-              </h2>
+              <p className="text-[12px] font-black text-neutral-900">Paiement PayPal</p>
+              <p className="text-[9px] font-medium text-neutral-400">L&apos;ecomax · Paiement sécurisé</p>
             </div>
+          </div>
             <button
               type="button"
               onClick={onClose}
               aria-label="Fermer"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white/70 transition hover:bg-white/20 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#3ecf4c]"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-500 transition hover:bg-neutral-200 hover:text-black focus:outline-none focus:ring-2 focus:ring-[#3ecf4c]"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
             </button>
-          </div>
         </div>
 
-        <div className="px-6 pb-6 pt-6 sm:px-8 sm:pb-8">
-          <div className="flex gap-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 ring-1 ring-amber-100" aria-hidden="true">
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg>
+        <div className="px-5 pb-5 pt-5 sm:px-6 sm:pb-6">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg>
             </span>
-            <div>
-              <p id="paypal-error-description" className="text-[14px] font-semibold leading-6 text-neutral-800">
-                Nous n&apos;avons pas pu confirmer votre paiement PayPal.
-              </p>
-              <p className="mt-1 text-[12px] leading-5 text-neutral-500">
-                Vérifiez votre compte PayPal avant une nouvelle tentative, ou choisissez le paiement à la livraison.
+            <div className="min-w-0">
+              <h2 id="paypal-error-title" className="text-[18px] font-black leading-6 tracking-[-0.02em] text-neutral-950">Paiement non confirmé</h2>
+              <p id="paypal-error-description" className="mt-1.5 text-[12px] leading-5 text-neutral-500">
+                PayPal n&apos;a pas confirmé le paiement. Votre commande n&apos;a donc pas été finalisée.
               </p>
             </div>
           </div>
 
-          <div className="mt-6 grid gap-2.5">
+          <div className="mt-4 rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-3">
+            <p className="text-[11px] font-semibold leading-5 text-neutral-600">
+              Vous pouvez réessayer avec PayPal ou choisir le paiement à la livraison. Vos articles restent dans votre panier.
+            </p>
+          </div>
+
+          <div className="mt-5 grid gap-2.5">
             <button
               ref={retryButtonRef}
               type="button"
               onClick={onRetry}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0070ba] px-5 text-[12px] font-black uppercase tracking-[0.08em] text-white shadow-[0_8px_22px_rgba(0,112,186,0.22)] transition hover:bg-[#005ea6] focus:outline-none focus:ring-4 focus:ring-[#0070ba]/20 active:scale-[0.99]"
+              className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0070ba] px-5 text-[12px] font-bold text-white transition hover:bg-[#005ea6] focus:outline-none focus:ring-4 focus:ring-[#0070ba]/15 active:scale-[0.99]"
             >
               Réessayer avec PayPal
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M20 6v6h-6M4 18v-6h6"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 9M5.5 15A7 7 0 0 0 18 17.5l2-2.5"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round"><path d="M20 6v6h-6M4 18v-6h6"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 9M5.5 15A7 7 0 0 0 18 17.5l2-2.5"/></svg>
             </button>
             <button
               type="button"
               onClick={onUseDelivery}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-5 text-[12px] font-black uppercase tracking-[0.08em] text-neutral-900 transition hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none focus:ring-4 focus:ring-neutral-100 active:scale-[0.99]"
+              className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-5 text-[12px] font-bold text-neutral-800 transition hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none focus:ring-4 focus:ring-neutral-100 active:scale-[0.99]"
             >
-              Choisir le paiement à la livraison
+              Payer à la livraison
             </button>
           </div>
 
-          <div className="mt-5 flex items-center justify-center gap-2 border-t border-neutral-100 pt-5 text-[11px] font-medium text-neutral-400">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-t border-neutral-100 pt-4 text-[10px] font-medium text-neutral-400">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
-            Besoin d&apos;aide ? <a href="mailto:contact@lecomax.com" className="font-bold text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-black">contact@lecomax.com</a>
+            Besoin d&apos;aide ? <a href="mailto:contact@lecomax.com" className="font-bold text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-black">Contacter L&apos;ecomax</a>
           </div>
         </div>
       </div>
