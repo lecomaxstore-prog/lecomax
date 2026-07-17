@@ -205,7 +205,7 @@ export const ecomediaGuides: EcomediaGuide[] = [
   },
   {
     slug: "guide-tailles-chaussures-femme",
-    title: "Guide des tailles de chaussures pour femme",
+    title: "Guide des tailles pour chaussures femme",
     description: "Mesurez correctement vos pieds, comparez les pointures et choisissez des chaussures ou chaussons femme confortables lors d’un achat en ligne.",
     eyebrow: "Guide des pointures",
     readingMinutes: 5,
