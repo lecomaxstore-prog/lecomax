@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { SITE_URL } from "@/lib/seo";
+import { products } from "@/lib/products";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 type SitemapEntry = {
@@ -63,6 +64,11 @@ export async function GET() {
   const add = (entry: SitemapEntry) => entries.set(entry.path, entry);
   staticPages.forEach(add);
   fallbackCategorySlugs.forEach((slug) => add({ path: `/${slug}/`, changeFrequency: "weekly", priority: 0.8 }));
+  products.forEach((product) => add({
+    path: `/produit/${encodeURIComponent(product.slug)}/`,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
 
   try {
     const supabase = createServerSupabaseClient();
