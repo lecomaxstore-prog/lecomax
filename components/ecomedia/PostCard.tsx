@@ -21,6 +21,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, priority = false, onDeleted }: PostCardProps) {
+  const isGuideLink = post.product_url?.startsWith("/ecomedia/") ?? false;
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes_count);
   const [likeLoading, setLikeLoading] = useState(false);
@@ -242,7 +243,7 @@ export default function PostCard({ post, priority = false, onDeleted }: PostCard
                     <div className="w-7 h-7 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16b277" strokeWidth="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
                     </div>
-                    <span className="text-[#16b277] font-semibold">Voir le produit</span>
+                    <span className="text-[#16b277] font-semibold">{isGuideLink ? "Lire le guide" : "Voir le produit"}</span>
                   </a>
                 )}
 
@@ -365,7 +366,7 @@ export default function PostCard({ post, priority = false, onDeleted }: PostCard
               {post.product_url ? (
                 <a
                   href={post.product_url}
-                  title="Voir le produit"
+                  title={isGuideLink ? "Lire le guide" : "Voir le produit"}
                   className="active:scale-90 transition-transform relative group/shop"
                 >
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -375,7 +376,7 @@ export default function PostCard({ post, priority = false, onDeleted }: PostCard
                   </svg>
                   {/* Tooltip */}
                   <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black text-white text-[10px] font-bold px-2.5 py-1 rounded-full opacity-0 group-hover/shop:opacity-100 transition-opacity">
-                    Voir le produit
+                    {isGuideLink ? "Lire le guide" : "Voir le produit"}
                   </span>
                 </a>
               ) : (
@@ -434,7 +435,7 @@ export default function PostCard({ post, priority = false, onDeleted }: PostCard
             <a href={post.product_url}
               className="flex items-center gap-2 mt-2 bg-black text-white text-[12px] font-black px-4 py-2 rounded-lg active:scale-95 transition-all w-fit">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-              {post.cta_text || "Acheter maintenant"}
+              {post.cta_text || (isGuideLink ? "Lire le guide" : "Acheter maintenant")}
             </a>
           )}
 

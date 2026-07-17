@@ -159,7 +159,7 @@ const SEED_REVIEWS: Record<string, SeedReview[]> = {
       city: "Fès",
       rating: 5,
       title: "Parfait pour les voyages",
-      body: "Léger, compact, sécurisé. J'ai fait tout le voyage de Fès à Casablanca avec. Je mets mon téléphone, mes espèces, mes clés et mes écouteurs sans problème. Livraison en 48h chrono.",
+      body: "Léger, compact, sécurisé. J'ai fait tout le voyage de Fès à Casablanca avec. Je mets mon téléphone, mes espèces, mes clés et mes écouteurs sans problème. Livraison reçue dans le délai annoncé.",
       color: "Noir",
       created_at: "2026-05-04T08:50:00.000Z",
     },

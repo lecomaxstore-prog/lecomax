@@ -16,7 +16,7 @@ type FeaturedReview = {
 const STATS = [
   { value: "500+", label: "Clients satisfaits" },
   { value: "4.8/5", label: "Note moyenne" },
-  { value: "48 h", label: "Livraison express" },
+  { value: "2–5 j", label: "Livraison estimée" },
   { value: "30 j", label: "Retours gratuits" },
 ];
 

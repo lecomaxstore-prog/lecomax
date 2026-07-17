@@ -74,7 +74,7 @@ const categorySeoContent: Record<string, { heading: string; body: string }> = {
   },
   chaussures: {
     heading: "Chaussures de Sport & Running au Maroc",
-    body: "Trouvez la chaussure idéale parmi notre sélection de baskets et chaussures de sport au Maroc. Modèles respirants ultra-légers pour la course à pied et la marche quotidienne, avec semelles souples pour un confort toute la journée. Disponibles en plusieurs couleurs et pointures (38 à 45). Idéales pour le running, le tennis et les activités sportives. Livraison express à 35 MAD partout au Maroc avec paiement à la livraison. Retours gratuits sous 30 jours.",
+    body: "Trouvez la chaussure idéale parmi notre sélection de baskets et chaussures de sport au Maroc. Modèles respirants ultra-légers pour la course à pied et la marche quotidienne, avec semelles souples pour un confort toute la journée. Disponibles en plusieurs couleurs et pointures (38 à 45). Idéales pour le running, le tennis et les activités sportives. Livraison estimée sous 2 à 5 jours ouvrables à 35 MAD partout au Maroc avec paiement à la livraison. Retours gratuits sous 30 jours.",
   },
   accessoires: {
     heading: "Accessoires Tech & Gaming au Maroc — Qualité Premium",

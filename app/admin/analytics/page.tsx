@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import MoroccoLiveMap from "@/components/admin/MoroccoLiveMap";
+import WeeklySearchMonitoring from "@/components/admin/WeeklySearchMonitoring";
 
 type ViewRow = {
   path: string; referrer: string | null; user_agent: string | null; created_at: string;
@@ -355,6 +356,8 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
+      <WeeklySearchMonitoring />
+
       {loading ? (
         <div className="flex items-center justify-center h-60">
           <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
@@ -411,7 +414,7 @@ export default function AnalyticsPage() {
           {/* Funnel + Devices + Sources */}
           <div className="grid md:grid-cols-3 gap-4 mb-4">
             {/* Funnel */}
-            <div className="bg-white rounded-2xl border border-neutral-100 p-5">
+            <div id="conversion-funnel" className="scroll-mt-24 bg-white rounded-2xl border border-neutral-100 p-5">
               <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide mb-4">Entonnoir de conversion</p>
               <div className="space-y-2.5">
                 {funnelSteps.map((step, i) => {

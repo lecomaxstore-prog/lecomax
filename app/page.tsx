@@ -186,7 +186,7 @@ export default async function HomePage() {
         "name": "Quels sont les frais de livraison au Maroc ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": `${shippingSummary(shippingConfig)} Les commandes sont expédiées sous 24h et livrées en ${shippingConfig.estimatedDays}.`
+          "text": `${shippingSummary(shippingConfig)} Le délai estimé est de ${shippingConfig.estimatedDays}.`
         }
       },
       {
