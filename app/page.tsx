@@ -126,11 +126,14 @@ export default async function HomePage() {
   ]);
   const shippingConfig = shippingConfigFromSettings(heroImages);
 
-  // Fetch only the latest official admin post for the homepage teaser.
+  // The homepage promotes the latest official photo post, never a text-only
+  // guide or a video. Text content remains available in the Ecomedia feed.
   let latestPost: { id: string; title: string; content?: string; slug: string; media_url?: string; thumbnail_url?: string; likes_count: number; comments_count: number } | null = null;
   try {
     const ecomediaParams = new URLSearchParams({
       is_published: "eq.true",
+      type: "in.(image,product,promotion)",
+      media_url: "not.is.null",
       or: `(cta_text.is.null,cta_text.not.like.${ECOMEDIA_COMMUNITY_AUTHOR_PREFIX}*)`,
       order: "created_at.desc",
       limit: "1",
