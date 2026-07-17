@@ -43,6 +43,9 @@ export interface EcomediaComment {
   created_at: string;
   user_id?: string | null;
   parent_id?: string | null;
+  is_owner?: boolean;
+  is_deleted?: boolean;
+  edited_at?: string | null;
   replies?: EcomediaComment[];
 }
 
