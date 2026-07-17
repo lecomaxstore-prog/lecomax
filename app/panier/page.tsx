@@ -338,8 +338,8 @@ export default function CartPage() {
                   </span>
 
                   <div className="min-w-0 flex-1">
-                    <p className="text-[9px] font-black uppercase tracking-[0.16em] text-emerald-700">Livraison express</p>
-                    <p className="mt-0.5 text-[17px] font-black leading-none tracking-[-0.035em] text-neutral-950">Chez vous en 24–48h</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.16em] text-emerald-700">Livraison estimée</p>
+                    <p className="mt-0.5 text-[17px] font-black leading-none tracking-[-0.035em] text-neutral-950">Chez vous en {shippingConfig.estimatedDays}</p>
                     <p className="mt-1.5 flex items-center gap-1.5 text-[9px] font-semibold text-neutral-500">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>
                       Partout au Maroc · Suivi inclus
@@ -367,7 +367,7 @@ export default function CartPage() {
                         <span className="absolute -right-1 -top-1 h-3.5 w-3.5 rounded-full border-[3px] border-white bg-[#3ecf4c]" />
                       </div>
                       <div>
-                        <p className="text-[9px] font-black uppercase tracking-[0.19em] text-emerald-700">Livraison express</p>
+                        <p className="text-[9px] font-black uppercase tracking-[0.19em] text-emerald-700">Livraison estimée</p>
                         <p className="mt-0.5 text-[11px] font-semibold text-neutral-500">Délai estimé après confirmation</p>
                       </div>
                     </div>
@@ -389,7 +389,7 @@ export default function CartPage() {
                       <span className="h-px flex-1 bg-gradient-to-r from-[#3ecf4c] to-emerald-300" />
                     </div>
                     <div className="min-w-[72px] text-center">
-                      <p className="text-[25px] font-black leading-none tracking-[-0.05em] text-neutral-950">48h</p>
+                      <p className="text-[18px] font-black leading-none tracking-[-0.05em] text-neutral-950">{shippingConfig.estimatedDays}</p>
                       <p className="mt-1 text-[8px] font-black uppercase tracking-[0.14em] text-emerald-600">Au plus tard</p>
                     </div>
                   </div>
@@ -404,7 +404,7 @@ export default function CartPage() {
                   {[
                     { title: "Confirmée", time: "Maintenant", done: true },
                     { title: "Préparation", time: "Sous 24h", done: false },
-                    { title: "Chez vous", time: "24–48h", done: false },
+                    { title: "Chez vous", time: shippingConfig.estimatedDays, done: false },
                   ].map((step, index) => (
                     <div key={step.title} className="flex min-w-0 items-center justify-center gap-2 px-1.5 sm:px-3">
                       <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[9px] font-black ${step.done ? "bg-[#3ecf4c] text-black shadow-[0_0_0_4px_rgba(62,207,76,0.12)]" : "border border-emerald-200 bg-emerald-50 text-emerald-700"}`}>

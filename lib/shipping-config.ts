@@ -7,15 +7,15 @@ export type ShippingConfig = {
 export const DEFAULT_SHIPPING_CONFIG: ShippingConfig = {
   cost: 35,
   freeThreshold: 500,
-  estimatedDays: "24–48h",
+  estimatedDays: "2–5 jours ouvrables",
 };
 
 function deliveryEstimate(value: unknown) {
   if (typeof value !== "string" || !value.trim()) return DEFAULT_SHIPPING_CONFIG.estimatedDays;
   const configured = value.trim();
 
-  // Upgrade the former default automatically while preserving deliberate custom values.
-  return /^[23]\s*[-–à]\s*5\s*jours?/i.test(configured)
+  // Retire the former 24–48h promise while preserving deliberate custom values.
+  return /^(?:24\s*[–-]\s*48\s*h(?:eures?)?|48\s*h)$/i.test(configured)
     ? DEFAULT_SHIPPING_CONFIG.estimatedDays
     : configured;
 }

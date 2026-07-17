@@ -5,6 +5,8 @@ import PostCard from "@/components/ecomedia/PostCard";
 import Link from "next/link";
 import { serializeJsonLd } from "@/lib/seo";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import GuideArticle from "@/components/ecomedia/GuideArticle";
+import { getEcomediaGuide } from "@/lib/ecomedia-guides";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +22,18 @@ async function getPost(slug: string): Promise<EcomediaPost | null> {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  const guide = getEcomediaGuide(slug);
+  if (guide) {
+    const postUrl = `${SITE_URL}/ecomedia/${guide.slug}/`;
+    const socialImageUrl = `${SITE_URL}/api/ecomedia/social-image/${guide.slug}/`;
+    return {
+      title: `${guide.title} | Ecomedia L'ecomax`,
+      description: guide.description,
+      alternates: { canonical: postUrl },
+      openGraph: { title: guide.title, description: guide.description, url: postUrl, siteName: "L'ecomax", locale: "fr_MA", type: "article", publishedTime: guide.publishedAt, modifiedTime: guide.updatedAt, images: [{ url: socialImageUrl, width: 1200, height: 630, alt: guide.title }] },
+      twitter: { card: "summary_large_image", title: guide.title, description: guide.description, images: [socialImageUrl] },
+    };
+  }
   const post = await getPost(slug);
   if (!post) return { title: "Post introuvable | L'ecomax" };
   const postUrl = `${SITE_URL}/ecomedia/${encodeURIComponent(post.slug)}/`;
@@ -59,6 +73,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function EcomediaPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const guide = getEcomediaGuide(slug);
+  if (guide) return <GuideArticle guide={guide} />;
   const post = await getPost(slug);
   if (!post) notFound();
 

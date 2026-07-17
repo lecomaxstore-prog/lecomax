@@ -1203,7 +1203,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="grid grid-cols-3 divide-x divide-neutral-100">
                     {[
-                      { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, label: "Livraison 24–48h" },
+                      { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, label: `Livraison ${shippingConfig.estimatedDays}` },
                       { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>, label: "Paiement sûr" },
                       { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>, label: "Retours 30j" },
                     ].map((b) => (
@@ -1384,7 +1384,7 @@ export default function CheckoutPage() {
                     SSL sécurisé
                   </span>
                   <span className="w-1 h-1 rounded-full bg-neutral-300" />
-                  <span>Livraison 24–48h</span>
+                  <span>Livraison {shippingConfig.estimatedDays}</span>
                   <span className="w-1 h-1 rounded-full bg-neutral-300" />
                   <span>Retours 30j</span>
                 </div>

@@ -7,6 +7,7 @@ import type { CartItem } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
 import { getWhatsAppHref, useSettings } from "@/lib/use-settings";
+import { shippingConfigFromSettings } from "@/lib/shipping-config";
 
 type Order = {
   number: string;
@@ -45,6 +46,7 @@ function IconCheck({ className = "" }: { className?: string }) {
 
 export default function MerciPage() {
   const siteSettings = useSettings();
+  const shippingConfig = shippingConfigFromSettings(siteSettings);
   const [order, setOrder] = useState<Order | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -93,11 +95,12 @@ export default function MerciPage() {
   const deliveryDate = useMemo(() => {
     const orderDate = order?.date ? new Date(order.date) : new Date();
     const safeDate = Number.isNaN(orderDate.getTime()) ? new Date() : orderDate;
-    return addBusinessDays(safeDate, 2).toLocaleDateString("fr-MA", {
+    const format = (date: Date) => date.toLocaleDateString("fr-MA", {
       weekday: "long",
       day: "numeric",
       month: "long",
     });
+    return `${format(addBusinessDays(safeDate, 2))} – ${format(addBusinessDays(safeDate, 5))}`;
   }, [order?.date]);
 
   const paymentLabel = order?.payment === "livraison" ? "Paiement à la livraison" : "PayPal";
@@ -447,7 +450,7 @@ export default function MerciPage() {
                   <p className="text-[9px] font-black uppercase tracking-[0.17em] text-emerald-600">Livraison estimée</p>
                   <p className="mt-1 capitalize text-[17px] font-black tracking-[-0.02em]">{deliveryDate}</p>
                 </div>
-                <span className="journey-badge relative z-10 shrink-0 rounded-full border border-emerald-100 bg-white px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-emerald-700 shadow-sm">24–48h</span>
+                <span className="journey-badge relative z-10 shrink-0 rounded-full border border-emerald-100 bg-white px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-emerald-700 shadow-sm">{shippingConfig.estimatedDays}</span>
               </div>
 
               <div className="px-5 py-6 sm:px-6">

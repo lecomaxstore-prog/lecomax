@@ -392,14 +392,14 @@ export default async function ProductPage({
           "@type": "ShippingDeliveryTime",
           "handlingTime": {
             "@type": "QuantitativeValue",
-            "minValue": 1,
-            "maxValue": 2,
+            "minValue": 0,
+            "maxValue": 1,
             "unitCode": "DAY",
           },
           "transitTime": {
             "@type": "QuantitativeValue",
             "minValue": 2,
-            "maxValue": 5,
+            "maxValue": 4,
             "unitCode": "DAY",
           },
         },

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { SITE_URL } from "@/lib/seo";
 import { products } from "@/lib/products";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { ecomediaGuides } from "@/lib/ecomedia-guides";
 
 type SitemapEntry = {
   path: string;
@@ -67,6 +68,12 @@ export async function GET() {
   products.forEach((product) => add({
     path: `/produit/${encodeURIComponent(product.slug)}/`,
     changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+  ecomediaGuides.forEach((guide) => add({
+    path: `/ecomedia/${guide.slug}/`,
+    lastModified: guide.updatedAt,
+    changeFrequency: "monthly",
     priority: 0.7,
   }));
 

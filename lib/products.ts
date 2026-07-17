@@ -32,7 +32,7 @@
 const chaussures: Product[] = [
   {
     slug: "c-baasploa-course-homme",
-    name: "Baasploa Baskets de Course Respirantes Homme",
+    name: "Baskets de running Baasploa pour homme — Respirantes et légères",
     specs: ["Tige en mesh respirant", "Ultra-léger & flexible", "Semelle amorti souple", "Grip multisurface", "Idéal course & marche", "Design tendance sport"],
     category: "chaussures",
     subCategory: "Running",
@@ -62,8 +62,8 @@ const chaussures: Product[] = [
   },
   {
     slug: "c-chaussons-interieur-femme",
-    name: "Chaussons d'intérieur pour femme — Printemps & Automne, Semelles Épaisses",
-    displayName: "Chaussons d'intérieur Femme — Semelles Épaisses",
+    name: "Chaussons d’intérieur pour femme — Semelles épaisses",
+    displayName: "Chaussons d’intérieur pour femme — Semelles épaisses",
     specs: [
       "Semelles épaisses confortables",
       "Ultra-légères & durables",
@@ -101,8 +101,8 @@ const chaussures: Product[] = [
   },
   {
     slug: "c-chaussons-mode-femme-peluche",
-    name: "Chaussons de mode pour femme en peluche de couleur unie avec lanières croisées",
-    displayName: "Chaussons Mode Femme — Peluche & Lanières Croisées",
+    name: "Chaussons en peluche pour femme — Lanières croisées",
+    displayName: "Chaussons en peluche pour femme — Lanières croisées",
     specs: [
       "Peluche douce & chaleureuse",
       "Lanières croisées élégantes",
@@ -138,8 +138,8 @@ const chaussures: Product[] = [
   },
   {
     slug: "c-chaussons-exterieur-poils-femme",
-    name: "Chaussons d'extérieur à poils pour femme automne/hiver avec décoration de cœur brodé",
-    displayName: "Chaussons Femme Automne/Hiver — Cœur Brodé",
+    name: "Chaussons fourrés pour femme à cœur brodé — Automne/Hiver",
+    displayName: "Chaussons fourrés pour femme — Cœur brodé",
     specs: [
       "Poils doux & moelleux",
       "Décoration cœur brodé",
@@ -170,8 +170,8 @@ const chaussures: Product[] = [
   },
   {
     slug: "c-chaussons-fleurs-rose-femme",
-    name: "Chaussons à fleurs de rose, Chaussures pour femme",
-    displayName: "Chaussons Femme — Fleurs de Rose",
+    name: "Chaussons fleuris pour femme — Confort intérieur",
+    displayName: "Chaussons fleuris pour femme — Confort intérieur",
     specs: [
       "Décoration florale tendance",
       "Tissu doux & confortable",
@@ -223,8 +223,8 @@ const femme: Product[] = [];
 const accessoires: Product[] = [
   {
     slug: "a-sac-bandouliere-antivol-code",
-    name: "Sac Bandoulière Anti-Vol Homme — Verrou à Code Numérique, Finitions Dorées",
-    displayName: "Sac Bandoulière Anti-Vol — Verrou à Code",
+    name: "Sac bandoulière antivol pour homme — Verrou à code",
+    displayName: "Sac bandoulière antivol — Verrou à code",
     specs: ["Verrou à code numérique", "Technologie anti-vol", "Finitions métalliques dorées", "Sangle réglable", "Port USB compatible", "Tissu durable"],
     category: "accessoires",
     subCategory: "Sacs",
@@ -249,8 +249,8 @@ const accessoires: Product[] = [
   },
   {
     slug: "a-sac-banane-pu-polyvalent",
-    name: "Sac Banane Polyvalent PU — Ceinture / Bandoulière / Épaule / Poitrine",
-    displayName: "Sac Banane PU — Multiport Réglable",
+    name: "Sac banane polyvalent en PU — Ceinture, bandoulière et poitrine",
+    displayName: "Sac banane en PU — Port polyvalent",
     specs: ["Matériau PU premium", "4 façons de porter", "Fermeture éclair lisse", "Maille respirante", "Plusieurs poches", "Léger & voyage"],
     category: "accessoires",
     subCategory: "Sacs",
@@ -280,8 +280,8 @@ const accessoires: Product[] = [
   },
   {
     slug: "a-lenovo-k3-pro-enceinte",
-    name: "Lenovo K3 PRO — Enceinte Bluetooth HiFi Son Stéréo Cinéma",
-    displayName: "Lenovo K3 PRO — Enceinte HiFi Stéréo",
+    name: "Enceinte Bluetooth Lenovo K3 Pro — Son stéréo Hi-Fi",
+    displayName: "Enceinte Lenovo K3 Pro — Bluetooth Hi-Fi",
     specs: ["Son stéréo HiFi", "Léger & portable", "Qualité cinéma", "Bluetooth"],
     category: "accessoires",
     subCategory: "Audio",
@@ -308,8 +308,8 @@ const accessoires: Product[] = [
   },
   {
     slug: "a-manette-sans-fil-rgb-v2",
-    name: "Manette de Jeu Sans Fil Interactive (No Drift) — iOS / Switch / PC / Android / Steam Deck · RGB · Batterie 1800mAh · V2 Noir",
-    displayName: "Manette Sans Fil No Drift V2 — RGB · 1800mAh",
+    name: "Manette sans fil RGB anti-drift — iOS, Switch, PC et Android",
+    displayName: "Manette sans fil anti-drift — RGB · 1 800 mAh",
     specs: ["No Drift Hall Effect", "iOS · Switch · PC · Android · Steam Deck", "RGB Personnalisable", "Batterie 1800 mAh", "Station de charge incluse", "Boutons remappables"],
     category: "accessoires",
     subCategory: "Gaming",
@@ -341,8 +341,8 @@ const accessoires: Product[] = [
   },
   {
     slug: "a-lenovo-gm2-pro-ecouteurs",
-    name: "Lenovo GM2 PRO Écouteurs Sans Fil Ergonomiques — Son Immersif, Autonomie Prolongée",
-    displayName: "Lenovo GM2 PRO — Écouteurs Sans Fil Ergonomiques",
+    name: "Écouteurs Bluetooth Lenovo GM2 Pro — Son immersif et faible latence",
+    displayName: "Écouteurs Lenovo GM2 Pro — Bluetooth gaming",
     specs: ["Bluetooth 5.3", "Son immersif stéréo", "Autonomie prolongée", "Micro HD intégré", "Contrôle tactile", "Compatible iOS & Android"],
     category: "accessoires",
     subCategory: "Audio",
@@ -375,8 +375,8 @@ const accessoires: Product[] = [
   },
   {
     slug: "a-lenovo-lp40-pro-ecouteurs",
-    name: "LP40Pro Écouteurs Bluetooth Sans Fil Authentiques — Sport & Gaming, Faible Latence, Longue Autonomie",
-    displayName: "LP40Pro — Écouteurs Bluetooth Sans Fil",
+    name: "Écouteurs Bluetooth Lenovo LP40 Pro — Sport et gaming",
+    displayName: "Écouteurs Lenovo LP40 Pro — Sport et gaming",
     specs: ["Bluetooth 5.3", "Faible latence gaming", "Autonomie longue durée", "Double micro HD", "Contrôle tactile", "Compatible iOS & Android"],
     category: "accessoires",
     subCategory: "Audio",
@@ -405,7 +405,7 @@ const accessoires: Product[] = [
   },
   {
     slug: "a-genai-tws-hd",
-    name: "GENAI Écouteurs Stéréo HD Sans Fil TWS",
+    name: "Écouteurs Bluetooth GENAI TWS — Stéréo HD sans fil",
     specs: ["Son stéréo HD haute fidélité", "Connexion Bluetooth stable", "Contrôle tactile volume", "Longue autonomie", "Micro intégré appels", "Compatible iOS & Android"],
     category: "accessoires",
     subCategory: "Audio",
