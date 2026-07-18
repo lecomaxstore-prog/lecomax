@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useSettings, getWhatsAppHref } from "@/lib/use-settings";
 
 const STEPS = [
@@ -72,78 +73,138 @@ function SuivreCommandeInner() {
   }
 
   const activeIdx = order ? order.step : -1;
+  const progressPercent = order ? Math.round((Math.max(0, Math.min(activeIdx, 3)) / 3) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen overflow-x-clip bg-[#f5f6f4]">
 
       {/* Hero */}
-      <div className="bg-neutral-950 border-b border-white/5">
-        <div className="max-w-2xl mx-auto px-6 py-14">
-          <div className="flex items-center gap-2 mb-6">
-            <Link href="/" className="text-[11px] uppercase tracking-[0.25em] text-neutral-500 hover:text-neutral-300 transition-colors">Accueil</Link>
-            <span className="text-neutral-700 text-[10px]">›</span>
-            <span className="text-[11px] uppercase tracking-[0.25em] text-neutral-400">Suivi de commande</span>
+      <div className="relative overflow-hidden bg-[#080a09] text-white">
+        <div className="absolute -right-28 -top-56 h-[540px] w-[540px] rounded-full border border-[#3ecf4c]/10" />
+        <div className="absolute -right-10 -top-36 h-[360px] w-[360px] rounded-full border border-[#3ecf4c]/10" />
+        <div className="absolute inset-y-0 right-[12%] hidden w-px bg-gradient-to-b from-transparent via-white/10 to-transparent lg:block" />
+
+        {/* Desktop-only photographic backdrop. Mobile keeps the inline image below. */}
+        <div className="tracking-delivery-backdrop pointer-events-none absolute inset-y-0 right-0 hidden w-[72%] lg:block" aria-hidden="true">
+          <Image
+            src="/images/pages/suivre commande.png"
+            alt=""
+            fill
+            sizes="72vw"
+            className="object-cover object-center opacity-[0.34] saturate-[0.72] contrast-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#080a09] via-[#080a09]/45 to-[#080a09]/10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#080a09]/65 via-transparent to-[#080a09]" />
+          <Image
+            src="/images/pages/suivre commande.png"
+            alt=""
+            fill
+            sizes="72vw"
+            className="tracking-delivery-backdrop-right object-cover object-center opacity-[0.2] saturate-90"
+          />
+        </div>
+
+        <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8 md:pb-32 md:pt-12">
+          <div className="mb-10 flex items-center gap-2.5">
+            <Link href="/" className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/40 transition-colors hover:text-white">Accueil</Link>
+            <span className="text-[#3ecf4c]">/</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/70">Suivi de commande</span>
           </div>
-          <div className="flex items-end justify-between gap-6">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#3ecf4c] mb-3">Suivi en temps réel</p>
-              <h1 className="h-display text-[2.8rem] md:text-[3.6rem] text-white leading-[0.9]">
-                Suivre ma<br />
-                <span className="text-[#3ecf4c]">commande</span>
+
+          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+            <div className="min-w-0">
+              <div className="mb-5 flex items-center gap-3">
+                <span className="h-px w-9 bg-[#3ecf4c]" />
+                <p className="text-[10px] font-black uppercase tracking-[0.38em] text-[#3ecf4c]">Livraison en temps réel</p>
+              </div>
+              <h1 className="h-display max-w-3xl text-[2.75rem] leading-[0.9] min-[380px]:text-[2.95rem] sm:text-[4.5rem] lg:text-[5.4rem]">
+                Votre commande,<br />
+                <span className="text-[#3ecf4c]">à chaque <span className="block sm:inline">étape.</span></span>
               </h1>
-              <p className="mt-4 text-neutral-400 text-[13px] max-w-sm leading-relaxed">
-                Entrez votre numéro de commande et votre e-mail pour consulter l&apos;état de votre livraison.
+              <p className="mt-6 max-w-xl text-[14px] leading-7 text-white/55 sm:text-[15px]">
+                Consultez instantanément l&apos;avancement de votre colis, de sa préparation jusqu&apos;à sa livraison chez vous.
               </p>
+              <div className="tracking-delivery-image relative mt-8 aspect-[16/9] max-w-xl overflow-hidden border border-white/10 lg:hidden">
+                <Image
+                  src="/images/pages/suivre commande.png"
+                  alt="Livraison d'une commande L'ecomax au Maroc"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 576px"
+                  className="object-cover object-center transition-transform duration-700 hover:scale-[1.025]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-4 p-4 sm:p-5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="h-px w-7 bg-[#3ecf4c]" />
+                    <p className="text-[9px] font-black uppercase tracking-[0.25em] text-white">Livraison partout au Maroc</p>
+                  </div>
+                  <svg className="hidden text-[#3ecf4c] sm:block" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                </div>
+              </div>
             </div>
-            <div className="hidden md:flex w-14 h-14 border border-[#3ecf4c]/25 bg-[#3ecf4c]/8 items-center justify-center shrink-0 mb-1">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="1.75" strokeLinecap="round">
-                <path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/>
-                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-              </svg>
-            </div>
+
           </div>
+
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-2xl mx-auto px-6 py-10">
+      <div className={`relative mx-auto px-5 pb-16 sm:px-8 ${order ? "max-w-5xl pt-10" : "max-w-6xl -mt-14 md:-mt-20"}`}>
 
         {!order ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]">
+          <form onSubmit={handleSubmit} className="min-w-0 border border-black/[0.07] bg-white p-6 shadow-[0_24px_70px_rgba(0,0,0,0.09)] sm:p-9 md:p-11">
+            <div className="mb-8 flex items-start justify-between gap-5 border-b border-neutral-100 pb-7">
+              <div>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-[0.32em] text-[#28b83a]">Espace de suivi sécurisé</p>
+                <h2 className="text-2xl font-black tracking-[-0.035em] text-neutral-950 sm:text-3xl">Où est mon colis ?</h2>
+                <p className="mt-2 text-[13px] leading-6 text-neutral-500">Renseignez les informations utilisées lors de votre achat.</p>
+              </div>
+              <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-700 sm:flex">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+              </div>
+            </div>
+            <div className="space-y-5">
             <div>
-              <label className="block text-[10px] font-black uppercase tracking-[0.25em] text-neutral-500 mb-2">
+              <label htmlFor="tracking-order-number" className="mb-2.5 block text-[10px] font-black uppercase tracking-[0.22em] text-neutral-600">
                 Numéro de commande
               </label>
               <div className="relative">
-                <svg className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <svg className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
                 <input
                   type="text"
+                  id="tracking-order-number"
+                  name="order-number"
+                  autoComplete="off"
                   placeholder="ECO-XXXXXX"
                   value={orderNum}
                   onChange={(e) => setOrderNum(e.target.value.toUpperCase())}
                   required
-                  className="w-full pl-10 pr-4 py-3.5 text-[14px] font-mono border border-neutral-200 bg-neutral-50 text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-[#3ecf4c] focus:bg-white transition-all duration-200"
+                  className="h-14 w-full border border-neutral-200 bg-[#fafafa] pl-11 pr-4 font-mono text-[14px] font-semibold text-neutral-900 outline-none transition-all duration-200 placeholder:font-normal placeholder:text-neutral-400 hover:border-neutral-300 focus:border-black focus:bg-white focus:ring-4 focus:ring-[#3ecf4c]/10"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-black uppercase tracking-[0.25em] text-neutral-500 mb-2">
+              <label htmlFor="tracking-email" className="mb-2.5 block text-[10px] font-black uppercase tracking-[0.22em] text-neutral-600">
                 Adresse e-mail
               </label>
               <div className="relative">
-                <svg className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <svg className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                   <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/>
                 </svg>
                 <input
                   type="email"
+                  id="tracking-email"
+                  name="email"
+                  autoComplete="email"
                   placeholder="votre@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-3.5 text-[14px] border border-neutral-200 bg-neutral-50 text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-[#3ecf4c] focus:bg-white transition-all duration-200"
+                  className="h-14 w-full border border-neutral-200 bg-[#fafafa] pl-11 pr-4 text-[14px] text-neutral-900 outline-none transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 focus:border-black focus:bg-white focus:ring-4 focus:ring-[#3ecf4c]/10"
                 />
               </div>
             </div>
@@ -158,7 +219,7 @@ function SuivreCommandeInner() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-black text-white font-black uppercase text-[11px] tracking-[0.18em] flex items-center justify-center gap-2.5 hover:bg-neutral-800 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 mt-2"
+              className="group mt-2 flex h-14 w-full items-center justify-center gap-3 bg-neutral-950 px-5 text-[11px] font-black uppercase tracking-[0.18em] text-white transition-all duration-200 hover:bg-[#29c63b] hover:text-black active:scale-[0.99] disabled:cursor-wait disabled:opacity-50"
             >
               {loading ? (
                 <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
@@ -166,136 +227,216 @@ function SuivreCommandeInner() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
               )}
               {loading ? "Recherche en cours…" : "Rechercher ma commande"}
+              {!loading && <span className="text-[#3ecf4c] transition-transform group-hover:translate-x-1 group-hover:text-black">→</span>}
             </button>
+            <div className="flex items-center justify-center gap-2 pt-1 text-[11px] text-neutral-400">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              Vos informations restent confidentielles et sécurisées.
+            </div>
+            </div>
           </form>
 
-        ) : (
-          <div className="space-y-4">
-
-            <div className="border border-neutral-900 bg-neutral-950 px-5 py-4 flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#3ecf4c] mb-1">N° de commande</p>
-                <p className="font-mono font-black text-[20px] text-white tracking-wider">{order.order_number}</p>
-                <p className="text-[11px] text-neutral-500 mt-0.5">
-                  {new Date(order.created_at).toLocaleDateString("fr-MA", { day: "numeric", month: "long", year: "numeric" })}
-                </p>
+          <aside className="flex min-w-0 flex-col justify-between overflow-hidden bg-[#dfffdf] p-7 sm:p-9">
+            <div>
+              <div className="mb-10 flex h-12 w-12 items-center justify-center bg-black text-[#3ecf4c]">
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.15em] px-3 py-1.5 border"
-                style={{
-                  background: order.status === "delivered" ? "rgba(62,207,76,0.1)" : order.status === "shipped" ? "rgba(59,130,246,0.1)" : order.status === "cancelled" ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)",
-                  borderColor: order.status === "delivered" ? "#3ecf4c" : order.status === "shipped" ? "#3b82f6" : order.status === "cancelled" ? "#ef4444" : "#f59e0b",
-                  color: order.status === "delivered" ? "#3ecf4c" : order.status === "shipped" ? "#60a5fa" : order.status === "cancelled" ? "#f87171" : "#fbbf24",
-                }}
-              >
-                {order.status_label}
-              </span>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/45">Simple et rapide</p>
+              <h3 className="mt-3 text-[2rem] font-black leading-[1.02] tracking-[-0.045em] text-black">Tout savoir,<br />sans attendre.</h3>
+              <p className="mt-4 max-w-sm text-[13px] leading-6 text-black/55">Votre statut est mis à jour dès que votre commande franchit une nouvelle étape.</p>
             </div>
-
-            {order.status !== "cancelled" && (
-              <div className="border border-neutral-100">
-                <div className="px-5 py-3 border-b border-neutral-100 bg-neutral-50">
-                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400">Progression</p>
+            <div className="mt-10 space-y-4 border-t border-black/10 pt-6">
+              {[['01', 'Numéro dans votre e-mail de confirmation'], ['02', 'Suivi disponible 24h/24 et 7j/7'], ['03', 'Assistance humaine en cas de besoin']].map(([number, text]) => (
+                <div key={number} className="flex items-center gap-3">
+                  <span className="font-mono text-[10px] font-bold text-black/35">{number}</span>
+                  <span className="text-[12px] font-bold text-black/75">{text}</span>
                 </div>
-                <div className="px-5 py-5">
+              ))}
+            </div>
+          </aside>
+          </div>
+
+        ) : (
+          <div className="tracking-result-enter space-y-5">
+            <section className="relative overflow-hidden bg-neutral-950 px-6 py-6 text-white shadow-[0_20px_60px_rgba(0,0,0,0.14)] sm:px-8 sm:py-7">
+              <div className="absolute inset-y-0 left-0 w-1 bg-[#3ecf4c]" />
+              <div className="absolute -right-16 -top-24 h-48 w-48 rounded-full border border-[#3ecf4c]/10" />
+              <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+                <div className="flex items-center gap-4">
+                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${order.status === "delivered" ? "bg-[#3ecf4c] text-black" : order.status === "cancelled" ? "bg-red-500 text-white" : "bg-white/10 text-[#3ecf4c]"}`}>
+                    {order.status === "delivered" ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#3ecf4c]">Commande retrouvée</p>
+                    <h2 className="mt-1 font-mono text-xl font-black tracking-[0.08em] sm:text-2xl">{order.order_number}</h2>
+                    <p className="mt-1 text-[11px] text-white/40">
+                      Passée le {new Date(order.created_at).toLocaleDateString("fr-MA", { day: "numeric", month: "long", year: "numeric" })}
+                    </p>
+                  </div>
+                </div>
+                <div className="sm:text-right">
+                  <span className={`inline-flex items-center gap-2 border px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.16em] ${order.status === "delivered" ? "border-[#3ecf4c]/40 bg-[#3ecf4c]/10 text-[#3ecf4c]" : order.status === "cancelled" ? "border-red-400/40 bg-red-400/10 text-red-300" : "border-amber-400/40 bg-amber-400/10 text-amber-300"}`}>
+                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                    {order.status_label}
+                  </span>
+                  <p className="mt-2 text-[10px] text-white/35">Mise à jour en temps réel</p>
+                </div>
+              </div>
+            </section>
+
+            {order.status !== "cancelled" ? (
+              <section className="tracking-timeline relative overflow-hidden border border-neutral-200 bg-white px-6 py-7 shadow-[0_16px_50px_rgba(0,0,0,0.055)] sm:px-8 sm:py-9">
+                <div className="pointer-events-none absolute -right-20 -top-28 h-64 w-64 rounded-full bg-[#3ecf4c]/[0.055] blur-3xl" />
+                <div className="relative mb-9 flex items-end justify-between gap-4">
+                  <div>
+                    <div className="mb-2 flex items-center gap-2.5">
+                      <span className="h-px w-7 bg-[#3ecf4c]" />
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#28b83a]">Suivi de livraison</p>
+                    </div>
+                    <h3 className="text-xl font-black tracking-[-0.035em] text-neutral-950">Parcours de votre colis</h3>
+                  </div>
+                  <div className="hidden items-center gap-3 sm:flex">
+                    <div className="h-1.5 w-24 overflow-hidden rounded-full bg-neutral-100"><span className="tracking-timeline-mini-progress block h-full rounded-full bg-[#3ecf4c]" style={{ width: `${progressPercent}%` }} /></div>
+                    <span className="font-mono text-[11px] font-black text-neutral-700">{progressPercent}%</span>
+                    <span className="text-[10px] font-semibold text-neutral-400">· 4 étapes</span>
+                  </div>
+                </div>
+                <div className="relative grid grid-cols-1 gap-6 sm:grid-cols-4 sm:gap-3">
+                  <div className="absolute left-[12.5%] right-[12.5%] top-5 hidden h-[2px] bg-neutral-100 sm:block">
+                    <span className="tracking-timeline-progress relative block h-full origin-left bg-[#3ecf4c]" style={{ width: `${progressPercent}%` }}>
+                      <span className="tracking-timeline-spark absolute -right-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#3ecf4c] shadow-[0_0_0_5px_rgba(62,207,76,0.15),0_0_14px_rgba(62,207,76,0.65)]" />
+                    </span>
+                  </div>
                   {STEPS.map((step, i) => {
-                    const isDone = i < activeIdx;
-                    const isActive = i === activeIdx;
-                    const isLast = i === STEPS.length - 1;
+                    const isDelivered = order.status === "delivered";
+                    const isDone = i < activeIdx || (isDelivered && i === activeIdx);
+                    const isActive = i === activeIdx && !isDelivered;
                     return (
-                      <div key={step.key} className="flex gap-4">
-                        <div className="flex flex-col items-center" style={{ width: 28 }}>
-                          <div
-                            className="w-7 h-7 flex items-center justify-center shrink-0 text-[11px] font-black"
-                            style={{
-                              background: isDone ? "#3ecf4c" : isActive ? "#000" : "#f5f5f5",
-                              border: isActive ? "2px solid #000" : isDone ? "2px solid #3ecf4c" : "2px solid #e5e7eb",
-                              color: isDone ? "#000" : isActive ? "#fff" : "#d1d5db",
-                            }}
-                          >
-                            {isDone ? (
-                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            ) : (
-                              <span>{i + 1}</span>
-                            )}
-                          </div>
-                          {!isLast && (
-                            <div className="w-[2px] my-1 flex-1 min-h-[18px]"
-                              style={{ background: isDone ? "#3ecf4c" : "#e5e7eb" }} />
-                          )}
+                      <div key={step.key} className="tracking-timeline-step relative z-10 flex items-center gap-3 sm:flex-col sm:text-center" style={{ animationDelay: `${250 + i * 150}ms` }}>
+                        <div className={`tracking-timeline-dot flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-[11px] font-black transition-all ${isDone ? `tracking-timeline-dot--done border-[#3ecf4c] bg-[#3ecf4c] text-black shadow-[0_0_0_6px_rgba(62,207,76,0.1)] ${i === activeIdx ? "tracking-timeline-dot--latest" : ""}` : isActive ? "tracking-timeline-dot--active border-black bg-black text-white shadow-[0_0_0_6px_rgba(0,0,0,0.06)]" : "border-neutral-200 bg-white text-neutral-300"}`}>
+                          {isDone ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline className="tracking-timeline-check" points="20 6 9 17 4 12"/></svg> : i + 1}
                         </div>
-                        <div className="flex-1 flex items-start justify-between pb-4 last:pb-0">
-                          <div>
-                            <p className="font-black text-[13px]" style={{ color: isActive ? "#111" : isDone ? "#6b7280" : "#d1d5db" }}>
-                              {step.label}
-                            </p>
-                            {(isActive || isDone) && (
-                              <p className="text-[11px] mt-0.5" style={{ color: isDone ? "#9ca3af" : "#3ecf4c" }}>
-                                {step.sub}
-                              </p>
-                            )}
-                          </div>
-                          {isActive && (
-                            <span className="text-[9px] font-black uppercase tracking-[0.1em] px-2 py-1 bg-black text-[#3ecf4c] shrink-0 ml-2">
-                              En cours
-                            </span>
-                          )}
+                        <div>
+                          <p className={`text-[11px] font-black tracking-[-0.01em] ${isDone || isActive ? "text-neutral-900" : "text-neutral-300"}`}>{step.label}</p>
+                          <p className={`mt-1.5 text-[10px] leading-4 ${isDone ? "text-neutral-400" : isActive ? "text-[#28b83a]" : "text-neutral-300"}`}>{step.sub}</p>
+                          {isActive && <span className="mt-2 inline-block bg-black px-2 py-1 text-[8px] font-black uppercase tracking-[0.14em] text-[#3ecf4c]">En cours</span>}
                         </div>
                       </div>
                     );
                   })}
                 </div>
-              </div>
-            )}
-
-            {order.tracking_number && (
-              <div className="border border-blue-200 bg-blue-50 px-5 py-4 flex items-center gap-3">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">N° de suivi transporteur</p>
-                  <p className="font-mono font-bold text-[14px] text-blue-900 mt-0.5">{order.tracking_number}</p>
-                </div>
-              </div>
-            )}
-
-            <div className="border border-neutral-100">
-              <div className="px-5 py-3 border-b border-neutral-100 bg-neutral-50">
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400">Articles commandés</p>
-              </div>
-              <div className="divide-y divide-neutral-50">
-                {order.items.map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 px-5 py-3">
-                    <div className="w-10 h-10 bg-neutral-100 shrink-0 flex items-center justify-center">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-semibold truncate">{item.name}</p>
-                      <p className="text-[11px] text-neutral-400">{[item.size, item.color].filter(Boolean).join(" · ")} × {item.qty}</p>
-                    </div>
-                    <p className="text-[13px] font-black shrink-0">{(item.price * item.qty).toFixed(2)} MAD</p>
+                {order.status === "delivered" && (
+                  <div className="tracking-delivered-note relative mt-8 flex items-center gap-3 border border-[#3ecf4c]/20 bg-[#effcf0] px-4 py-3">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#3ecf4c] text-black"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <div><p className="text-[11px] font-black text-neutral-900">Livraison terminée avec succès</p><p className="mt-0.5 text-[10px] text-neutral-500">Votre commande a bien été remise à destination.</p></div>
                   </div>
-                ))}
-              </div>
-              <div className="px-5 py-2.5 border-t border-neutral-100 flex items-center justify-between">
-                <span className="text-[12px] text-neutral-500">Livraison</span>
-                <span className="text-[12px] font-semibold">{order.shipping === 0 ? "Gratuite" : `${order.shipping} MAD`}</span>
-              </div>
-              <div className="px-5 py-3 border-t border-neutral-200 flex items-center justify-between">
-                <span className="text-[13px] font-black">Total</span>
-                <span className="text-[16px] font-black">{order.total.toFixed(2)} MAD</span>
+                )}
+              </section>
+            ) : (
+              <div className="border border-red-200 bg-red-50 px-5 py-4 text-[13px] font-semibold text-red-700">Cette commande a été annulée.</div>
+            )}
+
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.65fr)]">
+              <section className="tracking-order-card relative overflow-hidden border border-neutral-200 bg-white shadow-[0_16px_50px_rgba(0,0,0,0.055)]">
+                <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#3ecf4c] via-[#75e681] to-transparent" />
+                <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-5 sm:px-7">
+                  <div className="flex items-center gap-3.5">
+                    <div className="flex h-10 w-10 items-center justify-center bg-[#eafbea] text-[#23b735]">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black uppercase tracking-[0.28em] text-neutral-400">Détails de la commande</p>
+                      <h3 className="mt-1 text-[15px] font-black tracking-[-0.02em] text-neutral-950">Vos articles</h3>
+                    </div>
+                  </div>
+                  <span className="border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-[10px] font-black text-neutral-600">{order.items.length} article{order.items.length > 1 ? "s" : ""}</span>
+                </div>
+                <div className="divide-y divide-neutral-100">
+                  {order.items.map((item, i) => (
+                    <div key={i} className="tracking-product-row group flex items-center gap-4 px-6 py-6 transition-colors hover:bg-neutral-50/70 sm:px-7" style={{ animationDelay: `${180 + i * 100}ms` }}>
+                      <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden border border-neutral-100 bg-neutral-50 sm:h-24 sm:w-24">
+                        {item.image ? <Image src={item.image} alt={item.name} fill sizes="96px" className="object-cover transition-transform duration-500 group-hover:scale-105" /> : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-black leading-5 text-neutral-950 sm:text-[14px]">{item.name}</p>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {[item.size, item.color].filter(Boolean).map((value) => <span key={value} className="border border-neutral-200 bg-white px-2.5 py-1 text-[9px] font-bold text-neutral-500">{value}</span>)}
+                          <span className="bg-neutral-950 px-2.5 py-1 text-[9px] font-black text-white">Qté {item.qty}</span>
+                        </div>
+                        <p className="mt-3 text-[10px] text-neutral-400 sm:hidden">Prix unitaire · {item.price.toFixed(2)} MAD</p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="hidden text-[9px] font-bold uppercase tracking-[0.16em] text-neutral-300 sm:block">Sous-total</p>
+                        <p className="mt-1 text-[14px] font-black tracking-[-0.025em] text-neutral-950 sm:text-[16px]">{(item.price * item.qty).toFixed(2)} <span className="text-[10px] tracking-normal text-neutral-500">MAD</span></p>
+                        <p className="mt-1 hidden text-[9px] text-neutral-400 sm:block">{item.price.toFixed(2)} MAD / unité</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="border-t border-neutral-100 bg-[#fafafa] px-6 py-5 sm:px-7">
+                  <div className="space-y-3 text-[12px]">
+                    <div className="flex items-center justify-between text-neutral-500"><span>Sous-total</span><span className="font-bold text-neutral-800">{Math.max(0, order.total - order.shipping).toFixed(2)} MAD</span></div>
+                    <div className="flex items-center justify-between text-neutral-500"><span>Livraison</span><span className={`font-bold ${order.shipping === 0 ? "text-[#23b735]" : "text-neutral-800"}`}>{order.shipping === 0 ? "Gratuite" : `${order.shipping.toFixed(2)} MAD`}</span></div>
+                  </div>
+                </div>
+                <div className="tracking-order-total relative flex items-center justify-between overflow-hidden bg-neutral-950 px-6 py-5 text-white sm:px-7">
+                  <div><p className="text-[9px] font-black uppercase tracking-[0.24em] text-white/40">Total de la commande</p><p className="mt-1 text-[10px] text-white/30">Toutes taxes comprises</p></div>
+                  <p className="text-2xl font-black tracking-[-0.04em] text-[#3ecf4c]">{order.total.toFixed(2)} <span className="text-[11px] tracking-normal text-white/50">MAD</span></p>
+                </div>
+              </section>
+
+              <div className="space-y-5">
+                <section className="tracking-info-card overflow-hidden border border-neutral-200 bg-white shadow-[0_16px_50px_rgba(0,0,0,0.055)]">
+                  <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-5">
+                    <div>
+                      <p className="text-[9px] font-black uppercase tracking-[0.27em] text-[#28b83a]">Informations client</p>
+                      <h3 className="mt-1 text-[15px] font-black tracking-[-0.025em] text-neutral-950">Livraison & paiement</h3>
+                    </div>
+                    <div className="flex h-10 w-10 items-center justify-center bg-[#e8fbea] text-[#23b735]"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+                  </div>
+
+                  <div className="tracking-info-row flex gap-4 px-6 py-6">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#3ecf4c]/20 bg-[#effcf0] text-[#23b735]"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1116 0z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-[9px] font-black uppercase tracking-[0.22em] text-neutral-400">Adresse de livraison</p>
+                        <span className="flex items-center gap-1.5 bg-[#effcf0] px-2 py-1 text-[8px] font-black uppercase tracking-[0.1em] text-[#23a934]"><span className="h-1.5 w-1.5 rounded-full bg-[#3ecf4c]" /> Confirmée</span>
+                      </div>
+                      <p className="mt-3 text-[13px] font-black text-neutral-950">{order.customer.name}</p>
+                      <p className="mt-1.5 text-[12px] leading-5 text-neutral-500">{order.customer.address}<br /><span className="font-semibold text-neutral-700">{order.customer.city}, Maroc</span></p>
+                    </div>
+                  </div>
+
+                  <div className="tracking-info-row flex gap-4 border-t border-neutral-100 px-6 py-5">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-neutral-700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M16 15h2"/></svg></div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[9px] font-black uppercase tracking-[0.22em] text-neutral-400">Mode de paiement</p>
+                      <p className="mt-2 text-[12px] font-black text-neutral-900">{order.payment_method}</p>
+                      <p className="mt-1 text-[10px] leading-4 text-neutral-400">Réglez votre commande uniquement au moment de la réception.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 border-t border-neutral-100 bg-[#fafafa] px-6 py-3 text-[9px] font-semibold text-neutral-400">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                    Vos informations sont protégées et confidentielles.
+                  </div>
+                </section>
+                {order.tracking_number && (
+                  <section className="border border-blue-100 bg-blue-50 p-5">
+                    <p className="text-[9px] font-black uppercase tracking-[0.22em] text-blue-500">N° de suivi transporteur</p>
+                    <p className="mt-2 font-mono text-sm font-black text-blue-950">{order.tracking_number}</p>
+                  </section>
+                )}
+                <button onClick={() => { setOrder(null); setApiError(null); setOrderNum(""); setEmail(""); }} className="group flex w-full items-center justify-between border border-neutral-900 bg-white px-5 py-4 text-[10px] font-black uppercase tracking-[0.13em] text-neutral-900 transition-all hover:bg-neutral-950 hover:text-white">
+                  <span className="flex items-center gap-2"><span className="transition-transform group-hover:-translate-x-1">←</span> Nouvelle recherche</span>
+                  <span className="text-[9px] font-semibold normal-case tracking-normal text-neutral-400 group-hover:text-white/45">Suivre une autre commande</span>
+                </button>
               </div>
             </div>
-
-            <div className="border border-neutral-100 bg-neutral-50 px-5 py-4 space-y-1 text-[13px]">
-              <p className="text-neutral-500"><span className="font-black text-black">Livraison à :</span> {order.customer.address}, {order.customer.city}</p>
-              <p className="text-neutral-500"><span className="font-black text-black">Paiement :</span> {order.payment_method}</p>
-            </div>
-
-            <button
-              onClick={() => { setOrder(null); setApiError(null); setOrderNum(""); setEmail(""); }}
-              className="w-full py-3 text-[12px] font-bold text-neutral-500 border border-neutral-200 hover:border-neutral-400 hover:text-neutral-800 transition-all duration-200"
-            >
-              ← Rechercher une autre commande
-            </button>
           </div>
         )}
 

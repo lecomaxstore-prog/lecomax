@@ -57,7 +57,7 @@ export default function Header() {
     <>
     <header className={`sticky top-0 z-40 bg-white/95 backdrop-blur-md transition-shadow duration-200 ${scrolled ? "shadow-[0_1px_12px_0_rgba(0,0,0,0.08)]" : "shadow-[0_1px_0_0_#e5e5e5]"}`}>
       {/* ── Top utility bar ─────────────────────────────────────── */}
-      <div className="hidden md:block bg-neutral-950">
+      <div className="hidden lg:block bg-neutral-950">
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-9">
           {/* Left: tagline */}
           <span className="text-[11px] text-white/40 tracking-[0.15em] uppercase">
@@ -87,12 +87,12 @@ export default function Header() {
       </div>
 
       {/* ── Main bar ────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 md:px-6 h-[60px]">
+      <div className="flex h-[60px] items-center justify-between px-4 lg:px-6">
         {/* Left: hamburger + logo */}
         <div className="flex items-center gap-3">
           <button
             aria-label="Menu"
-            className="md:hidden p-2 -ml-1"
+            className="-ml-1 flex h-11 w-11 shrink-0 items-center justify-center lg:hidden"
             onClick={() => setOpen((o) => !o)}
           >
             <span className={`block w-[22px] h-[2px] bg-black transition-all duration-300 origin-center ${open ? "rotate-45 translate-y-[7px]" : "mb-[5px]"}`} />
@@ -106,7 +106,7 @@ export default function Header() {
         </div>
 
         {/* Centre: nav */}
-        <nav className="hidden md:flex items-center gap-0.5 text-[12px] font-black uppercase tracking-[0.08em]">
+        <nav className="hidden items-center gap-0.5 text-[12px] font-black uppercase tracking-[0.08em] lg:flex">
           <Link
             href="/"
             className="relative px-3.5 py-1.5 group rounded-sm overflow-hidden"
@@ -147,12 +147,12 @@ export default function Header() {
         </nav>
 
         {/* Right: search + icons */}
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-0 lg:gap-1">
           {/* Search button — desktop + mobile */}
           <button
             aria-label="Recherche"
             onClick={() => setSearchOpen(true)}
-            className="p-2 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-black"
+            className="header-action-button"
           >
             <SearchIcon />
           </button>
@@ -161,10 +161,10 @@ export default function Header() {
             <UserIcon />
           </IconBtn>
           {siteSettings.enable_wishlist !== "false" && <IconBtn href="/wishlist" label="Mes favoris">
-            <span className="relative inline-flex">
+            <span className="relative inline-flex h-6 w-6 items-center justify-center">
               <HeartIcon />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#3ecf4c] px-1 text-[8px] font-black leading-none text-black">
+                <span className="header-action-badge">
                   {wishlistCount > 99 ? "99+" : wishlistCount}
                 </span>
               )}
@@ -173,12 +173,12 @@ export default function Header() {
           <IconBtn href="/panier" label="Panier">
             <span
               data-cart-icon
-              className="relative inline-flex"
+              className="relative inline-flex h-6 w-6 items-center justify-center"
             >
               <BagIcon />
               {count > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-black text-white text-[9px] font-bold rounded-full w-[16px] h-[16px] flex items-center justify-center leading-none">
-                  {count}
+                <span className="header-action-badge">
+                  {count > 99 ? "99+" : count}
                 </span>
               )}
             </span>
@@ -190,14 +190,14 @@ export default function Header() {
       {/* ── Mobile full-screen menu ───────────────────────────────── */}
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-[9998] md:hidden transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className={`fixed inset-0 z-[9998] transition-opacity duration-300 lg:hidden ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
         style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
         onClick={() => setOpen(false)}
       />
 
       {/* Slide-in panel */}
       <div
-        className={`fixed left-0 top-0 z-[9999] flex h-full w-[91vw] max-w-[390px] flex-col overflow-hidden bg-[#fafbf9] shadow-[24px_0_70px_rgba(0,0,0,0.18)] md:hidden ${open ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed left-0 top-0 z-[9999] flex h-full w-[91vw] max-w-[390px] flex-col overflow-hidden bg-[#fafbf9] shadow-[24px_0_70px_rgba(0,0,0,0.18)] lg:hidden ${open ? "translate-x-0" : "-translate-x-full"}`}
         style={{ transition: "transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)" }}
       >
         {/* ── Header ── */}
@@ -371,7 +371,7 @@ function IconBtn({
     <Link
       href={href}
       aria-label={label}
-      className="relative p-2 rounded-full hover:bg-neutral-100 transition-colors text-neutral-700 hover:text-black"
+      className="header-action-button"
     >
       {children}
     </Link>
@@ -381,9 +381,9 @@ function IconBtn({
 /* ── SVG icons ── */
 function SearchIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" />
+    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="10.75" cy="10.75" r="6.75" />
+      <path d="m19.5 19.5-4-4" />
     </svg>
   );
 }
@@ -396,25 +396,25 @@ function CloseIcon() {
 }
 function UserIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 21a8 8 0 0 1 16 0" />
+    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="3.75" />
+      <path d="M4.75 20.5a7.25 7.25 0 0 1 14.5 0" />
     </svg>
   );
 }
 function HeartIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.5 5.1a5.25 5.25 0 0 0-7.43 0L12 6.17 10.93 5.1A5.25 5.25 0 0 0 3.5 12.53L12 21l8.5-8.47a5.25 5.25 0 0 0 0-7.43Z" />
     </svg>
   );
 }
 function BagIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="9" cy="21" r="1" />
-      <circle cx="20" cy="21" r="1" />
-      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 4h2.25l1.7 10.1a2 2 0 0 0 1.97 1.67h8.95a2 2 0 0 0 1.95-1.55L21.25 7H6" />
+      <circle cx="9.25" cy="19.5" r="1.15" />
+      <circle cx="18.25" cy="19.5" r="1.15" />
     </svg>
   );
 }
