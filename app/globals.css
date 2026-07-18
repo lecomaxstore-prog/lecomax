@@ -560,6 +560,10 @@ body {
   -webkit-mask-image: radial-gradient(ellipse 52% 72% at 76% 52%, #000 0%, rgba(0, 0, 0, 0.92) 38%, transparent 78%);
   mask-image: radial-gradient(ellipse 52% 72% at 76% 52%, #000 0%, rgba(0, 0, 0, 0.92) 38%, transparent 78%);
 }
+.tracking-delivery-backdrop-courier {
+  -webkit-mask-image: radial-gradient(ellipse 23% 62% at 18% 54%, #000 0%, rgba(0, 0, 0, 0.94) 42%, transparent 100%);
+  mask-image: radial-gradient(ellipse 23% 62% at 18% 54%, #000 0%, rgba(0, 0, 0, 0.94) 42%, transparent 100%);
+}
 .tracking-result-enter {
   animation: tracking-result-enter 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
