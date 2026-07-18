@@ -97,7 +97,7 @@ const trustBadges = [
 
 export default function Footer() {
   const [email, setEmail] = useState("");
-  const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
   const siteSettings = useSettings();
 
   const socials = DEFAULT_SOCIALS.map(s => ({ ...s, href: siteSettings[s.key] || s.defaultHref }));
@@ -116,8 +116,9 @@ export default function Footer() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), source: "footer" }),
       });
+      const data = await res.json().catch(() => null);
       if (res.ok) {
-        setNewsletterStatus("success");
+        setNewsletterStatus(data?.alreadySubscribed ? "already" : "success");
         setEmail("");
       } else {
         setNewsletterStatus("error");
@@ -224,11 +225,13 @@ export default function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Votre adresse email"
-                disabled={newsletterStatus === "loading" || newsletterStatus === "success"}
+                 disabled={newsletterStatus === "loading" || newsletterStatus === "success" || newsletterStatus === "already"}
                 className="w-full bg-white/5 border border-white/15 px-4 py-3 text-[13px] text-white placeholder-white/25 focus:outline-none focus:border-white/40 transition-colors disabled:opacity-50"
               />
-              {newsletterStatus === "success" ? (
-                <p className="text-[12px] text-[#3ecf4c] font-bold py-2">✓ Vous êtes inscrit(e) !</p>
+              {newsletterStatus === "success" || newsletterStatus === "already" ? (
+                <p className="text-[12px] text-[#3ecf4c] font-bold py-2">
+                  {newsletterStatus === "already" ? "✓ Vous êtes déjà inscrit(e) !" : "✓ Vous êtes inscrit(e) !"}
+                </p>
               ) : (
                 <button
                   type="submit"

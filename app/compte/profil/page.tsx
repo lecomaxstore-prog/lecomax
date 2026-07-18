@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { customerApiFetch } from "@/lib/customer-api";
 
 export default function ProfilPage() {
   const [prenom, setPrenom] = useState("");
@@ -10,6 +11,7 @@ export default function ProfilPage() {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [awardedPoints, setAwardedPoints] = useState(0);
   const [error, setError] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarLoading, setAvatarLoading] = useState(false);
@@ -33,21 +35,30 @@ export default function ProfilPage() {
     e.preventDefault();
     setLoading(true);
     setSaved(false);
+    setAwardedPoints(0);
     setError("");
-    const { error } = await supabase.auth.updateUser({
-      data: {
-        prenom,
-        nom,
-        full_name: `${prenom} ${nom}`.trim(),
-        phone,
-      },
-    });
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-    } else {
+    try {
+      const response = await customerApiFetch("/api/account/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prenom, nom, phone }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Impossible d’enregistrer votre profil.");
+      setPrenom(data.profile.prenom);
+      setNom(data.profile.nom);
+      setPhone(data.profile.phone);
+      const awarded = Number(data.loyalty?.awarded ?? 0);
+      setAwardedPoints(awarded);
+      await supabase.auth.refreshSession();
+      window.dispatchEvent(new CustomEvent("lecomax:profile-updated", { detail: { fullName: data.profile.full_name } }));
+      window.dispatchEvent(new CustomEvent("lecomax:loyalty-updated", { detail: data.loyalty }));
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Impossible d’enregistrer votre profil.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -69,6 +80,7 @@ export default function ProfilPage() {
     setAvatarLoading(true);
     setConfirmAvatarRemoval(false);
     setSaved(false);
+    setAwardedPoints(0);
     setError("");
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -83,7 +95,10 @@ export default function ProfilPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Impossible de modifier la photo.");
       setAvatarUrl(data.avatarUrl);
+      const awarded = Number(data.loyalty?.awarded ?? 0);
+      setAwardedPoints(awarded);
       await refreshProfileSession(data.avatarUrl);
+      window.dispatchEvent(new CustomEvent("lecomax:loyalty-updated", { detail: data.loyalty }));
       setSaved(true);
       window.setTimeout(() => setSaved(false), 3000);
     } catch (reason) {
@@ -98,6 +113,7 @@ export default function ProfilPage() {
     if (avatarLoading) return;
     setAvatarLoading(true);
     setSaved(false);
+    setAwardedPoints(0);
     setError("");
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -133,9 +149,12 @@ export default function ProfilPage() {
 
       {/* Profile photo */}
       <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-[0_10px_32px_rgba(15,23,42,.045)]">
-        <div className="border-b border-neutral-100 px-6 py-5">
-          <p className="mb-0.5 text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400">Identité</p>
-          <h2 className="text-[14px] font-black uppercase tracking-wide">Photo de profil</h2>
+        <div className="flex items-center justify-between gap-4 border-b border-neutral-100 px-6 py-5">
+          <div>
+            <p className="mb-0.5 text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400">Identité</p>
+            <h2 className="text-[14px] font-black uppercase tracking-wide">Photo de profil</h2>
+          </div>
+          <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-emerald-700">+10 points · 1 fois</span>
         </div>
         <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
           <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-white bg-black shadow-[0_10px_30px_rgba(0,0,0,.18)] ring-1 ring-neutral-200">
@@ -167,9 +186,12 @@ export default function ProfilPage() {
 
       {/* Form card */}
       <div className="bg-white border border-neutral-100">
-        <div className="px-6 py-5 border-b border-neutral-100">
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400 mb-0.5">Informations</p>
-          <h2 className="font-black text-[14px] uppercase tracking-wide">Informations personnelles</h2>
+        <div className="flex items-center justify-between gap-4 border-b border-neutral-100 px-6 py-5">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400 mb-0.5">Informations</p>
+            <h2 className="font-black text-[14px] uppercase tracking-wide">Informations personnelles</h2>
+          </div>
+          <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-emerald-700">+10 points · 1 fois</span>
         </div>
 
         <form onSubmit={handleSave} className="p-6 flex flex-col gap-5">
@@ -183,6 +205,7 @@ export default function ProfilPage() {
             <div className="px-4 py-3 border border-green-200 bg-green-50 text-green-700 text-[12px] font-bold uppercase tracking-widest flex items-center gap-2">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
               Modifications enregistrées
+              {awardedPoints > 0 && <span className="ml-auto">+{awardedPoints} points EcoClub</span>}
             </div>
           )}
 

@@ -98,8 +98,8 @@ const faqGroups = [
     id: "ecoclub",
     label: "ecoClub",
     faqs: [
-      { q: "Comment fonctionne le programme ecoClub ?", a: "Chaque achat vous rapporte des points. 10 MAD dépensés = 1 point. Dès 100 points, profitez de réductions exclusives et d'avant-premières." },
-      { q: "Comment voir mes points ?", a: "Vos points sont visibles dans votre espace compte, section ecoClub. Ils sont mis à jour automatiquement après chaque commande validée." },
+      { q: "Comment fonctionne le programme ecoClub ?", a: "Chaque achat vous rapporte des points. 10 MAD dépensés = 1 point. Le niveau Silver commence à 500 points et le niveau Gold à 2 000 points." },
+      { q: "Comment voir mes points ?", a: "Vos points sont visibles dans votre espace compte, section ecoClub. Ils apparaissent d'abord en attente puis sont ajoutés automatiquement après la livraison de votre commande." },
     ],
   },
 ];

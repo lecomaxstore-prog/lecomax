@@ -29,7 +29,15 @@ const cookieTypes = [
     tag: "Opt-in",
     essential: false,
     desc: "Permettent au site de mémoriser vos choix pour vous offrir une expérience personnalisée lors de vos prochaines visites.",
-    examples: ["Taille favorite", "Couleur préférée", "Historique récent", "Newsletter"],
+    examples: ["Catégories consultées", "Produits favoris", "Historique récent", "Ordre personnalisé"],
+  },
+  {
+    num: "04",
+    name: "Données comportementales",
+    tag: "Opt-in",
+    essential: false,
+    desc: "Enregistrent des signaux d'achat limités afin d'améliorer le catalogue et les recommandations. Cette collecte reste inactive tant que vous ne l'avez pas autorisée.",
+    examples: ["Produits consultés", "Recherches", "Ajouts au panier", "Engagement sur les pages"],
   },
 ];
 

@@ -8,6 +8,8 @@ import SizeGuideModal from "./SizeGuideModal";
 import type { Product } from "@/lib/products";
 import { trackAddToCart } from "@/lib/analytics";
 import { useWishlist } from "./WishlistContext";
+import { collectEvent } from "@/lib/collect";
+import { recordProductSignal } from "@/lib/personalization";
 
 /* ── Cart fly animation (pure DOM, Web Animations API) ── */
 function celebrateCart(cartEl: HTMLElement | null, x: number, y: number) {
@@ -248,6 +250,14 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
 
   // Fire view_item once when product page mounts
   useEffect(() => {
+    recordProductSignal(product, 3);
+    collectEvent("product_view", {
+      path: window.location.pathname,
+      product_id: product.slug,
+      product_name: product.name,
+      category: product.category,
+      extra: { price: product.price },
+    });
     import("@/lib/analytics").then(({ trackViewItem }) => {
       trackViewItem({
         item_id: product.slug,
@@ -316,6 +326,14 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
       price: product.price,
       quantity: 1,
       item_variant: [color, size].filter(Boolean).join(" / ") || undefined,
+    });
+    recordProductSignal(product, 8);
+    collectEvent("cart_add", {
+      path: window.location.pathname,
+      product_id: product.slug,
+      product_name: product.name,
+      category: product.category,
+      extra: { price: product.price, quantity: 1, color, size },
     });
     if (goToCart) {
       router.push("/checkout");

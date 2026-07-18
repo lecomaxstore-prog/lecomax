@@ -72,6 +72,8 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
   const [loading, setLoading] = useState(true);
   const [sessionExpired, setSessionExpired] = useState(false);
   const [points, setPoints] = useState(0);
+  const [pendingPoints, setPendingPoints] = useState(0);
+  const [tierProgress, setTierProgress] = useState(0);
   const [tierName, setTierName] = useState("Bronze");
   const [tierNext, setTierNext] = useState<number | null>(500);
   const [tierNextLabel, setTierNextLabel] = useState<string | null>("Silver");
@@ -85,10 +87,29 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
     };
     window.addEventListener(CUSTOMER_SESSION_EXPIRED_EVENT, showExpired);
     const updateAvatar = (event: Event) => {
-      const avatarUrl = (event as CustomEvent<{ avatarUrl?: string }>).detail?.avatarUrl ?? "";
-      setUser(current => current ? { ...current, avatar_url: avatarUrl } : current);
+      const detail = (event as CustomEvent<{ avatarUrl?: string; fullName?: string }>).detail;
+      setUser(current => current ? {
+        ...current,
+        ...(detail?.avatarUrl !== undefined ? { avatar_url: detail.avatarUrl } : {}),
+        ...(detail?.fullName !== undefined ? { full_name: detail.fullName } : {}),
+      } : current);
     };
     window.addEventListener("lecomax:profile-updated", updateAvatar);
+    const refreshLoyalty = () => {
+      customerApiFetch("/api/points")
+        .then(response => response.json())
+        .then(data => {
+          if (typeof data.points !== "number") return;
+          setPoints(data.points);
+          setPendingPoints(Number(data.pending ?? 0));
+          setTierProgress(Number(data.progress ?? 0));
+          setTierName(data.tier ?? "Bronze");
+          setTierNext(data.next ?? null);
+          setTierNextLabel(data.nextLabel ?? null);
+        })
+        .catch(() => {});
+    };
+    window.addEventListener("lecomax:loyalty-updated", refreshLoyalty);
 
     // Read the persisted session immediately
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -107,17 +128,7 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
       setLoading(false);
       // Fetch points
       if (email) {
-        customerApiFetch(`/api/points?email=${encodeURIComponent(email)}`)
-          .then(r => r.json())
-          .then(d => {
-            if (typeof d.points === "number") {
-              setPoints(d.points);
-              setTierName(d.tier ?? "Bronze");
-              setTierNext(d.next ?? null);
-              setTierNextLabel(d.nextLabel ?? null);
-            }
-          })
-          .catch(() => {});
+        refreshLoyalty();
       }
     });
 
@@ -142,6 +153,7 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
       mounted = false;
       window.removeEventListener(CUSTOMER_SESSION_EXPIRED_EVENT, showExpired);
       window.removeEventListener("lecomax:profile-updated", updateAvatar);
+      window.removeEventListener("lecomax:loyalty-updated", refreshLoyalty);
       subscription.unsubscribe();
     };
   }, [pathname, router]);
@@ -227,12 +239,12 @@ export default function CompteLayout({ children }: { children: React.ReactNode }
                 <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-700"
-                    style={{ width: tierNext ? `${Math.min(100, Math.round((points / tierNext) * 100))}%` : "100%", background: "linear-gradient(90deg, #cd7f32, #f59e0b)" }}
+                    style={{ width: `${tierProgress}%`, background: "linear-gradient(90deg, #cd7f32, #f59e0b)" }}
                   />
                 </div>
                 {tierNext && tierNextLabel ? (
-                  <p className="text-[9px] text-neutral-500 mt-1.5">
-                    {tierNext - points} pts → {tierNextLabel}
+                  <p className="mt-1.5 text-[9px] text-neutral-500">
+                    {tierNext - points} pts → {tierNextLabel}{pendingPoints > 0 ? ` · +${pendingPoints} en attente` : ""}
                   </p>
                 ) : (
                   <p className="text-[9px] text-neutral-500 mt-1.5">Niveau maximum 🏆</p>

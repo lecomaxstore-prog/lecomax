@@ -8,6 +8,7 @@ import { calculateCouponDiscount, calculateCouponPricing } from "@/lib/coupon-pr
 import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
 import { verifyPayPalCapture } from "@/lib/paypal-server";
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
+import { loyaltyTierForPoints } from "@/lib/loyalty";
 
 // Use service role key server-side so RLS doesn't block order insertion
 const supabase = createClient(
@@ -247,7 +248,7 @@ export async function POST(req: NextRequest) {
   if (featureSettings.enable_ecoclub !== "false" && customerUser?.email?.toLowerCase() === customer.email) {
     const { data: pointRecord } = await supabase.from("user_points").select("points").eq("email", customer.email).single();
     const points = Number(pointRecord?.points ?? 0);
-    loyaltyPercent = points >= 1000 ? 50 : points >= 500 ? 30 : 0;
+    loyaltyPercent = loyaltyTierForPoints(points).discountPercent;
   }
   const loyaltyDiscount = Math.round((calculatedSubtotal - couponDiscount) * loyaltyPercent / 100);
   const safeDiscount = couponDiscount + loyaltyDiscount;
@@ -351,6 +352,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  if (featureSettings.enable_ecoclub !== "false") {
+    const { error: loyaltyReservationError } = await supabase.rpc("reserve_order_loyalty_points", {
+      p_order_id: data.id,
+    });
+    if (loyaltyReservationError) {
+      console.error("EcoClub pending points reservation failed:", loyaltyReservationError.message);
+    }
+  }
+
   // A successfully created order is no longer abandoned. The random token is
   // a capability identifier and never exposes customer data by itself.
   const abandonedCartToken = cleanText(abandoned_cart_token, 36);
@@ -417,7 +427,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // NOTE: EcoClub points (50 pts) are awarded when the order is marked as "delivered".
+  // EcoClub points are reserved now and released atomically when delivered.
   // See /api/orders/[id]/route.ts PUT handler.
 
   if (resend && customer.email) {

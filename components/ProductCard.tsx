@@ -101,11 +101,15 @@ export default function ProductCard({ product }: { product: CardProduct }) {
           </svg>
         </button>
 
-        {/* CTA bar on hover */}
-        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out px-3 pb-3 pt-10 bg-gradient-to-t from-black/70 to-transparent">
-          <div className={`w-full text-[10px] font-black uppercase tracking-[0.2em] py-2.5 rounded-lg text-center flex items-center justify-center gap-2 ${outOfStock ? "bg-neutral-900 text-white" : "bg-[#3ecf4c] text-black"}`}>
-            {outOfStock ? "Produit épuisé" : "Voir le produit"}
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        {/* Refined CTA on hover */}
+        <div className="absolute inset-x-0 bottom-0 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 px-3 pb-3 pt-12 bg-gradient-to-t from-black/55 via-black/15 to-transparent">
+          <div className={`flex min-h-11 w-full items-center justify-between rounded-xl border px-3.5 pl-4 shadow-[0_8px_24px_rgba(0,0,0,.16)] backdrop-blur-md ${outOfStock ? "border-white/10 bg-neutral-950/95 text-white" : "border-white/70 bg-white/95 text-neutral-950"}`}>
+            <span className="text-[10px] font-extrabold tracking-[0.08em]">
+              {outOfStock ? "Produit épuisé" : "Voir le produit"}
+            </span>
+            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${outOfStock ? "bg-white/10 text-white" : "bg-neutral-950 text-white group-hover:bg-emerald-500 group-hover:text-neutral-950"}`}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </span>
           </div>
         </div>
       </div>
@@ -114,11 +118,11 @@ export default function ProductCard({ product }: { product: CardProduct }) {
       <div className="px-4 pt-3.5 pb-4 flex flex-col flex-1">
         {/* Colors */}
         {product.colors.length > 0 && (
-          <div className="flex items-center gap-1 mb-2.5">
+          <div className="mb-2.5 flex min-h-5 items-center gap-2">
             {product.colors.slice(0, 5).map((c, i) => (
               <span
                 key={i}
-                className="group/swatch relative w-[14px] h-[14px] rounded-full ring-1 ring-black/10 shrink-0 cursor-default transition-transform duration-150 hover:scale-125 hover:ring-2 hover:ring-black/20 hover:z-10"
+                className="group/swatch relative h-4 w-4 shrink-0 cursor-default rounded-full border-2 border-white shadow-[0_1px_3px_rgba(0,0,0,.14)] ring-1 ring-neutral-300 transition-transform duration-150 hover:z-10 hover:scale-110 hover:ring-neutral-500"
                 style={{ backgroundColor: getColor(c) }}
               >
                 {/* Tooltip */}
@@ -128,7 +132,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
               </span>
             ))}
             {product.colors.length > 5 && (
-              <span className="flex items-center justify-center w-[14px] h-[14px] rounded-full bg-neutral-100 text-[8px] font-black text-neutral-500 ring-1 ring-black/10 shrink-0">
+              <span className="flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-neutral-100 px-1 text-[8px] font-bold text-neutral-500">
                 +{product.colors.length - 5}
               </span>
             )}
@@ -136,7 +140,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
         )}
 
         {/* Title */}
-        <h3 className="font-semibold text-[13.5px] leading-snug line-clamp-2 text-neutral-800 group-hover:text-neutral-600 transition-colors duration-200 flex-1">
+        <h3 className="min-h-[37px] line-clamp-2 text-[13px] font-semibold leading-[1.4] tracking-[-0.01em] text-neutral-800 transition-colors duration-200 group-hover:text-neutral-600">
           {product.name}
         </h3>
 
@@ -169,9 +173,9 @@ export default function ProductCard({ product }: { product: CardProduct }) {
         )}
 
         {/* Price */}
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-2.5 flex items-center justify-between border-t border-neutral-100 pt-3">
           <div className="flex items-baseline gap-2">
-            <span className={`font-black text-[16px] leading-none ${onSale ? "text-red-600" : "text-neutral-900"}`}>
+            <span className={`text-[15px] font-extrabold leading-none tracking-[-0.02em] ${onSale ? "text-red-600" : "text-neutral-950"}`}>
               {formatMAD(product.price)}
             </span>
             {onSale && (

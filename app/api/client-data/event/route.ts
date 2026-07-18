@@ -14,6 +14,7 @@ const ALLOWED_EVENT_TYPES = new Set([
   "search",
   "checkout_start",
   "checkout_complete",
+  "engagement",
 ]);
 
 // POST — record a behavioral event
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
   const { session_id, event_type, path, title, product_id, product_name, category, query, extra } =
     body as Record<string, unknown>;
 
-  if (!session_id || typeof session_id !== "string") {
+  if (!session_id || typeof session_id !== "string" || session_id.length > 100 || !/^[a-zA-Z0-9_-]+$/.test(session_id)) {
     return NextResponse.json({ error: "session_id required" }, { status: 400 });
   }
   if (!event_type || typeof event_type !== "string" || !ALLOWED_EVENT_TYPES.has(event_type)) {
@@ -45,6 +46,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "no_consent" }, { status: 403 });
   }
 
+  const safeExtra = typeof extra === "object" && extra !== null && JSON.stringify(extra).length <= 4000 ? extra : null;
   const { error } = await supabase.from("client_behavioral_events").insert({
     session_id,
     event_type,
@@ -54,12 +56,44 @@ export async function POST(req: NextRequest) {
     product_name: typeof product_name === "string" ? product_name.slice(0, 200) : null,
     category: typeof category === "string" ? category.slice(0, 100) : null,
     query: typeof query === "string" ? query.slice(0, 200) : null,
-    extra: typeof extra === "object" && extra !== null ? extra : null,
+    extra: safeExtra,
   });
 
   if (error) {
     console.error("client_behavioral_events insert error:", error.message);
     return NextResponse.json({ ok: true, warning: "table_missing" });
+  }
+
+  const intelligenceItems: Array<{ product_id: string; category: string | null }> = [];
+  if (typeof product_id === "string" && product_id) {
+    intelligenceItems.push({
+      product_id: product_id.slice(0, 100),
+      category: typeof category === "string" ? category.slice(0, 100) : null,
+    });
+  }
+  if ((event_type === "checkout_start" || event_type === "checkout_complete") && safeExtra && "items" in safeExtra) {
+    const items = Array.isArray((safeExtra as { items?: unknown }).items)
+      ? (safeExtra as { items: unknown[] }).items.slice(0, 30)
+      : [];
+    for (const item of items) {
+      if (!item || typeof item !== "object") continue;
+      const candidate = item as { product_id?: unknown; category?: unknown };
+      if (typeof candidate.product_id !== "string" || !candidate.product_id) continue;
+      intelligenceItems.push({
+        product_id: candidate.product_id.slice(0, 100),
+        category: typeof candidate.category === "string" ? candidate.category.slice(0, 100) : null,
+      });
+    }
+  }
+
+  if (intelligenceItems.length > 0) {
+    await Promise.all(intelligenceItems.map((item) =>
+      supabase.rpc("increment_product_intelligence", {
+        p_product_id: item.product_id,
+        p_category: item.category,
+        p_event_type: event_type,
+      }).then(() => undefined),
+    ));
   }
 
   return NextResponse.json({ ok: true });

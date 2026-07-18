@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { CardProduct } from "@/lib/products";
+import { personalizeProducts, recordCategorySignal, recordProductSignal } from "@/lib/personalization";
 
 const COLOR_MAP: Record<string, string> = {
   "Noir": "#0a0a0a", "Blanc": "#f5f5f5", "Gris": "#9ca3af",
@@ -59,6 +60,7 @@ function ProductCard({ product, index, visibilityClass = "" }: { product: CardPr
     >
       <Link
         href={`/produit/${product.slug}`}
+        onClick={() => recordProductSignal(product, 2)}
         className="group flex flex-col bg-white border border-neutral-100 hover:border-[#3ecf4c]/40 hover:shadow-[0_8px_32px_rgba(62,207,76,0.10)] transition-all duration-300 overflow-hidden h-full"
       >
         {/* Image */}
@@ -93,37 +95,43 @@ function ProductCard({ product, index, visibilityClass = "" }: { product: CardPr
               </span>
             )}
           </div>
-          {/* CTA bar */}
-          <div className={`absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out text-[10px] font-black uppercase tracking-[0.2em] py-3 text-center flex items-center justify-center gap-2 ${outOfStock ? "bg-neutral-950 text-white" : "bg-[#3ecf4c] text-black"}`}>
-            {outOfStock ? "Produit épuisé" : "Voir le produit"}
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
+          {/* Refined CTA */}
+          <div className="absolute inset-x-0 bottom-0 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 px-3 pb-3 pt-12 bg-gradient-to-t from-black/55 via-black/15 to-transparent">
+            <div className={`flex min-h-11 items-center justify-between rounded-xl border px-3.5 pl-4 shadow-[0_8px_24px_rgba(0,0,0,.16)] backdrop-blur-md ${outOfStock ? "border-white/10 bg-neutral-950/95 text-white" : "border-white/70 bg-white/95 text-neutral-950"}`}>
+              <span className="text-[10px] font-extrabold tracking-[0.08em]">
+                {outOfStock ? "Produit épuisé" : "Voir le produit"}
+              </span>
+              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${outOfStock ? "bg-white/10 text-white" : "bg-neutral-950 text-white group-hover:bg-emerald-500 group-hover:text-neutral-950"}`}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Info */}
         <div className="px-3 pt-3 pb-4 flex flex-col flex-1">
           {product.colors && product.colors.length > 0 && (
-            <div className="flex items-center gap-[5px] mb-2">
+            <div className="mb-2 flex min-h-5 items-center gap-2">
               {product.colors.slice(0, 4).map((c) => (
                 <span
                   key={c}
-                  className="w-[9px] h-[9px] rounded-full ring-1 ring-black/10 ring-offset-1 shrink-0"
+                  className="h-4 w-4 shrink-0 rounded-full border-2 border-white shadow-[0_1px_3px_rgba(0,0,0,.14)] ring-1 ring-neutral-300"
                   style={{ backgroundColor: getHex(c) }}
                   title={c}
                 />
               ))}
             </div>
           )}
-          <h3 className="font-bold text-[13px] leading-snug line-clamp-2 text-black group-hover:text-neutral-600 transition-colors duration-200 flex-1">
+          <h3 className="min-h-[36px] line-clamp-2 text-[13px] font-semibold leading-[1.4] tracking-[-0.01em] text-neutral-800 transition-colors duration-200 group-hover:text-neutral-600">
             {product.name}
           </h3>
           <p className="text-neutral-400 text-[10.5px] mt-0.5 uppercase tracking-wider font-semibold">
             {product.category}
           </p>
-          <div className="flex items-baseline gap-2 mt-2">
-            <span className={`font-black text-[14px] ${hasDiscount ? "text-red-600" : "text-black"}`}>
+          <div className="mt-2.5 flex items-baseline gap-2 border-t border-neutral-100 pt-3">
+            <span className={`text-[14px] font-extrabold tracking-[-0.02em] ${hasDiscount ? "text-red-600" : "text-neutral-950"}`}>
               {product.price}&nbsp;MAD
             </span>
             {hasDiscount && (
@@ -142,11 +150,56 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
   const [active, setActive] = useState("tous");
   const [mobileDisplayed, setMobileDisplayed] = useState(MOBILE_INITIAL_PRODUCT_COUNT);
   const [desktopDisplayed, setDesktopDisplayed] = useState(DESKTOP_INITIAL_PRODUCT_COUNT);
+  const [rankedProducts, setRankedProducts] = useState(products);
   const { ref, visible } = useInView();
 
+  useEffect(() => {
+    setRankedProducts(personalizeProducts(products));
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      try {
+        let sessionId = "";
+        const consentRaw = localStorage.getItem("lecomax_cookie_consent");
+        const consent = consentRaw ? JSON.parse(consentRaw) : null;
+        if (consent?.data_collection === true) {
+          sessionId = localStorage.getItem("lecomax_session_id") || "";
+        }
+        const params = new URLSearchParams({ limit: String(Math.min(80, Math.max(4, products.length))) });
+        if (sessionId) params.set("mode", "personalized");
+        const response = await fetch(`/api/recommendations?${params}`, {
+          signal: controller.signal,
+          headers: {
+            Accept: "application/json",
+            ...(sessionId ? { "x-lecomax-session": sessionId } : {}),
+          },
+        });
+        if (!response.ok) return;
+        const data = await response.json() as { slugs?: unknown };
+        if (!Array.isArray(data.slugs)) return;
+        const positions = new Map(
+          data.slugs
+            .filter((slug): slug is string => typeof slug === "string")
+            .map((slug, index) => [slug, index]),
+        );
+        const serverRanked = [...products].sort((a, b) => {
+          const aRank = positions.get(a.slug) ?? Number.MAX_SAFE_INTEGER;
+          const bRank = positions.get(b.slug) ?? Number.MAX_SAFE_INTEGER;
+          return aRank - bRank;
+        });
+        setRankedProducts(personalizeProducts(serverRanked));
+      } catch {
+        // Keep the instant local/catalogue order when intelligence is unavailable.
+      }
+    }, 250);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [products]);
+
   const filtered = active === "tous"
-    ? products
-    : products.filter((p) => p.category === active);
+    ? rankedProducts
+    : rankedProducts.filter((p) => p.category === active);
 
   const visibleProducts = filtered.slice(0, Math.max(mobileDisplayed, desktopDisplayed));
   const mobileHasMore = filtered.length > mobileDisplayed;
@@ -154,6 +207,7 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
 
   const handleTab = (key: string) => {
     setActive(key);
+    if (key !== "tous") recordCategorySignal(key, 4);
     setMobileDisplayed(MOBILE_INITIAL_PRODUCT_COUNT);
     setDesktopDisplayed(DESKTOP_INITIAL_PRODUCT_COUNT);
   };
@@ -174,19 +228,14 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
     if (!hasMore) return null;
 
     return (
-      <div className={`${mode === "mobile" ? "flex sm:hidden" : "hidden sm:flex"} mt-10 flex-col items-center sm:mt-12`}>
-        <div className="w-full max-w-[280px]">
-          <div className="mb-[10px] flex items-center justify-between gap-4 px-1">
-            <p className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-[#6b6b6b]">
-              {shown} affichés
-            </p>
-            <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#d1d1d1]">
-              {filtered.length} au total
-            </p>
-          </div>
-          <div className="h-[3px] w-full overflow-hidden bg-[#e8e8e8]">
+      <div className={`${mode === "mobile" ? "flex sm:hidden" : "hidden sm:flex"} mt-9 flex-col items-center sm:mt-11`}>
+        <div className="w-full max-w-[220px]">
+          <p className="mb-2 text-center text-[11px] font-medium text-neutral-500">
+            {shown} produits sur {filtered.length}
+          </p>
+          <div className="h-1 w-full overflow-hidden rounded-full bg-neutral-200">
             <div
-              className="h-full bg-[#34d058] transition-[width] duration-500"
+              className="h-full rounded-full bg-emerald-500 transition-[width] duration-500"
               style={{ width: `${(shown / filtered.length) * 100}%` }}
             />
           </div>
@@ -196,19 +245,14 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
           type="button"
           onClick={() => loadMore(mode)}
           aria-label={`Afficher ${nextBatch} produit${nextBatch > 1 ? "s" : ""} supplémentaire${nextBatch > 1 ? "s" : ""}`}
-          className="group mt-5 inline-flex h-[68px] w-full max-w-[280px] items-center justify-between rounded-[13px] border border-[#e1e1e1] bg-white px-5 text-left text-black shadow-[0_8px_24px_rgba(0,0,0,0.055)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-px hover:border-[#bdecc5] hover:shadow-[0_11px_27px_rgba(0,0,0,0.075)] active:translate-y-0"
+          className="group mt-4 inline-flex h-11 w-full max-w-[220px] items-center justify-center gap-2.5 rounded-lg border border-neutral-200 bg-neutral-100 px-5 text-neutral-800 transition-colors duration-200 hover:bg-neutral-200"
         >
-          <span className="flex min-w-0 flex-col">
-            <span className="text-[11px] font-black uppercase tracking-[0.17em] text-[#151515]">
-              Voir plus
-            </span>
-            <span className="mt-[6px] text-[9px] font-medium tracking-[0.02em] text-[#a6a6a6]">
-              +{nextBatch} produit{nextBatch > 1 ? "s" : ""}
-            </span>
+          <span className="text-[11px] font-bold">
+            Afficher {nextBatch} produit{nextBatch > 1 ? "s" : ""} de plus
           </span>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#bcefc4] bg-[#effdf2] text-[#179333] shadow-[0_4px_13px_rgba(46,180,70,0.12)] transition-colors duration-200 group-hover:bg-[#e4fae8]">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M12 5v13M7.5 13.5 12 18l4.5-4.5" />
+          <span className="transition-transform duration-200 group-hover:translate-y-0.5" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m7 10 5 5 5-5" />
             </svg>
           </span>
         </button>

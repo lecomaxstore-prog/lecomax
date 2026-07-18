@@ -17,7 +17,7 @@ function hasConsent(): boolean {
   } catch { return false; }
 }
 
-export async function collectEvent(
+export function collectEvent(
   eventType: string,
   payload: {
     path?: string;
@@ -34,10 +34,11 @@ export async function collectEvent(
   const session_id = getSessionId();
   if (!session_id) return;
   try {
-    await fetch("/api/client-data/event", {
+    void fetch("/api/client-data/event", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      keepalive: true,
       body: JSON.stringify({ session_id, event_type: eventType, ...payload }),
-    });
+    }).catch(() => undefined);
   } catch { /* silent */ }
 }

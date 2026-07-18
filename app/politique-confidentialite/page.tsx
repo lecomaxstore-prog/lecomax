@@ -14,17 +14,17 @@ const sections = [
   },
   {
     id: "donnees", num: "02", title: "Données collectées", body: null,
-    items: ["Informations d'identité : prénom, nom","Coordonnées : adresse email, numéro de téléphone, adresse postale","Données de transaction : historique des commandes, méthodes de paiement","Données de navigation : adresse IP, cookies, pages visitées"],
+    items: ["Informations d'identité : prénom, nom","Coordonnées : adresse email, numéro de téléphone, adresse postale","Données de transaction : historique des commandes, méthodes de paiement","Données de navigation consenties : adresse IP tronquée, pages et produits consultés, recherches, interactions avec le panier, durée et profondeur de visite"],
     footer: null,
   },
   {
     id: "finalites", num: "03", title: "Finalités du traitement", body: null,
-    items: ["Traiter et livrer vos commandes","Gérer votre compte client","Vous envoyer des confirmations et notifications de commande","Améliorer notre site et nos services","Communications commerciales (sous réserve de votre consentement)","Prévenir la fraude et assurer la sécurité"],
+    items: ["Traiter et livrer vos commandes","Gérer votre compte client","Vous envoyer des confirmations et notifications de commande","Améliorer les performances et l'ergonomie du site","Personnaliser l'ordre des produits selon vos intérêts (sous réserve de votre consentement)","Communications commerciales (sous réserve de votre consentement)","Prévenir la fraude et assurer la sécurité"],
     footer: null,
   },
   {
     id: "base-legale", num: "04", title: "Base légale", body: null,
-    items: ["Exécution du contrat (traitement et suivi des commandes)","Votre consentement (communications marketing)","Notre intérêt légitime (amélioration du service, prévention de la fraude)","Respect d'obligations légales (comptabilité, facturation)"],
+    items: ["Exécution du contrat (traitement et suivi des commandes)","Votre consentement (mesure d'audience, personnalisation et communications marketing)","Notre intérêt légitime (sécurité et prévention de la fraude)","Respect d'obligations légales (comptabilité, facturation)"],
     footer: null,
   },
   {
@@ -39,7 +39,7 @@ const sections = [
   },
   {
     id: "cookies", num: "07", title: "Cookies",
-    body: "Notre site utilise des cookies pour améliorer votre expérience, mémoriser vos préférences et analyser notre trafic. Les cookies publicitaires ne sont déposés qu'avec votre consentement explicite.",
+    body: "Notre site utilise des cookies et un profil d'achat local pour améliorer votre expérience, mémoriser vos préférences et analyser notre trafic. Les mesures d'audience, la collecte comportementale et la personnalisation ne sont activées qu'après votre choix explicite dans la bannière.",
     items: null, footer: null,
   },
   {
