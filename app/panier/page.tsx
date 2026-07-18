@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 import { useSettings } from "@/lib/use-settings";
-import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
+import { calculateShipping, effectiveFreeShippingMinimum, shippingConfigFromSettings } from "@/lib/shipping-config";
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
 
 export default function CartPage() {
@@ -15,12 +15,13 @@ export default function CartPage() {
   const shippingConfig = shippingConfigFromSettings(siteSettings);
   const shippingCost = shippingConfig.cost;
   const freeShippingThreshold = shippingConfig.freeThreshold;
+  const freeShippingMinimum = effectiveFreeShippingMinimum(freeShippingThreshold);
   const shipping = calculateShipping(total, shippingConfig);
   const hasFreeShippingGoal = freeShippingThreshold > 0;
-  const freeShippingRemaining = hasFreeShippingGoal ? Math.max(0, freeShippingThreshold - total) : 0;
+  const freeShippingRemaining = hasFreeShippingGoal ? Math.max(0, freeShippingMinimum - total) : 0;
   const freeShippingUnlocked = hasFreeShippingGoal && freeShippingRemaining === 0;
   const freeShippingProgress = hasFreeShippingGoal
-    ? Math.min(100, Math.max(0, (total / freeShippingThreshold) * 100))
+    ? Math.min(100, Math.max(0, (total / freeShippingMinimum) * 100))
     : 0;
 
   const [promoInput, setPromoInput] = useState("");
@@ -381,8 +382,8 @@ export default function CartPage() {
                     role="progressbar"
                     aria-label="Progression vers la livraison gratuite"
                     aria-valuemin={0}
-                    aria-valuemax={freeShippingThreshold}
-                    aria-valuenow={Math.min(total, freeShippingThreshold)}
+                    aria-valuemax={freeShippingMinimum}
+                    aria-valuenow={Math.min(total, freeShippingMinimum)}
                   >
                     <div
                       className="h-full rounded-full bg-emerald-500 transition-[width] duration-500 ease-out"
