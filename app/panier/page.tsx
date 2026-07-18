@@ -244,53 +244,84 @@ export default function CartPage() {
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 sm:py-10">
         {items.length === 0 ? (
-          <section className="mx-auto max-w-3xl overflow-hidden rounded-[28px] border border-neutral-200 bg-white shadow-[0_18px_60px_rgba(0,0,0,0.06)]">
-            <div className="px-5 py-9 text-center sm:px-12 sm:py-11">
-              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#ecfbef] text-[#179b38] ring-1 ring-[#c9f2d2]">
-                <svg width="29" height="29" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                  <circle cx="9" cy="20" r="1"/><circle cx="19" cy="20" r="1"/>
-                  <path d="M3 4h2l2.3 10.4a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4L21 8H7"/>
-                </svg>
+          <section className="empty-cart-enter mx-auto max-w-5xl overflow-hidden rounded-[30px] border border-neutral-200 bg-white shadow-[0_24px_80px_rgba(0,0,0,0.08)]">
+            <div className="grid lg:grid-cols-[1.08fr_0.92fr]">
+              <div className="relative overflow-hidden bg-[linear-gradient(145deg,#070907_0%,#0b0d0b_58%,#101510_100%)] px-7 py-10 text-white sm:px-11 sm:py-12">
+                <div className="pointer-events-none absolute -left-28 -top-36 h-80 w-80 rounded-full border border-[#3ecf4c]/10" />
+                <div className="pointer-events-none absolute -left-10 -top-20 h-52 w-52 rounded-full border border-[#3ecf4c]/10" />
+                <div className="pointer-events-none absolute -bottom-16 -right-5 font-mono text-[13rem] font-black leading-none text-white/[0.018]">0</div>
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-[#3ecf4c]/20 to-transparent" />
+                <div className="relative">
+                  <div className="mb-5 flex items-center gap-3">
+                    <span className="h-px w-8 bg-[#3ecf4c]" />
+                    <p className="text-[9px] font-black uppercase tracking-[0.32em] text-[#3ecf4c]">Votre panier · 0 article</p>
+                  </div>
+                  <h1 className="max-w-md text-[2.35rem] font-black leading-[0.94] tracking-[-0.055em] sm:text-[3rem]">
+                    Votre prochain<br /><span className="text-[#3ecf4c]">coup de cœur</span><br />commence ici.
+                  </h1>
+                  <p className="mt-5 max-w-md text-[13px] leading-6 text-white/50 sm:text-sm">
+                    Votre panier est encore vide. Explorez nos sélections mode, sport et tech pensées pour votre quotidien.
+                  </p>
+
+                  <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                    <Link href="/boutique" className="group inline-flex min-h-12 items-center justify-center gap-3 rounded-xl bg-[#3ecf4c] px-6 text-[11px] font-black uppercase tracking-[0.1em] text-black shadow-[0_10px_28px_rgba(62,207,76,0.16)] transition-all hover:-translate-y-0.5 hover:bg-[#56db63] hover:shadow-[0_14px_34px_rgba(62,207,76,0.22)] active:translate-y-0 active:scale-[0.98]">
+                      Explorer la boutique
+                      <span className="transition-transform group-hover:translate-x-1">→</span>
+                    </Link>
+                    <Link href="/nouveautes" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] px-6 text-[11px] font-black text-white transition-colors hover:border-white/30 hover:bg-white/[0.08]">
+                      Voir les nouveautés
+                    </Link>
+                  </div>
+
+                  <div className="mt-8 grid grid-cols-2 gap-3 border-t border-white/10 pt-5">
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#3ecf4c]/20 bg-[#3ecf4c]/10 text-[#3ecf4c]"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+                      <div><p className="text-[9px] font-black uppercase tracking-[0.08em] text-white/65">Paiement sécurisé</p><p className="mt-0.5 text-[8px] text-white/25">Données protégées</p></div>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#3ecf4c]/20 bg-[#3ecf4c]/10 text-[#3ecf4c]"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg></span>
+                      <div><p className="text-[9px] font-black uppercase tracking-[0.08em] text-white/65">Retours 30 jours</p><p className="mt-0.5 text-[8px] text-white/25">Simple et gratuit</p></div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <p className="mb-2 text-[10px] font-black uppercase tracking-[0.22em] text-[#179b38]">Votre panier</p>
-              <h1 className="text-2xl font-black tracking-[-0.03em] text-neutral-950 sm:text-3xl">Votre panier est vide</h1>
-              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-neutral-500">
-                Découvrez nos nouveautés et trouvez le produit qui vous correspond.
-              </p>
-
-              <div className="mt-7 flex flex-col items-stretch justify-center gap-3 sm:flex-row">
-                <Link
-                  href="/boutique"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-black px-7 text-[12px] font-black text-white transition-all hover:bg-neutral-800 active:scale-[0.98]"
-                >
-                  Découvrir la boutique
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                </Link>
-                <Link
-                  href="/nouveautes"
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-neutral-200 bg-white px-7 text-[12px] font-black text-neutral-900 transition-colors hover:border-neutral-400 hover:bg-neutral-50"
-                >
-                  Voir les nouveautés
-                </Link>
+              <div className="relative hidden min-h-[390px] items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_center,#f5fff6_0%,#fff_66%)] lg:flex">
+                <div className="empty-cart-orbit absolute h-64 w-64 rounded-full border border-[#3ecf4c]/15" />
+                <div className="absolute h-44 w-44 rounded-full border border-neutral-200" />
+                <div className="empty-cart-icon relative flex h-28 w-28 items-center justify-center rounded-[30px] border border-[#bdeec5] bg-white text-[#1fae35] shadow-[0_24px_55px_rgba(33,180,54,0.14)]">
+                  <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M3 4h2.2l1.8 10.1a2 2 0 0 0 2 1.65h8.85a2 2 0 0 0 1.96-1.58L21.3 7H6" />
+                    <circle cx="9.3" cy="19.5" r="1.05"/><circle cx="18.2" cy="19.5" r="1.05"/>
+                  </svg>
+                  <span className="absolute -right-3 -top-3 flex h-9 w-9 items-center justify-center rounded-full border-4 border-white bg-neutral-950 text-[11px] font-black text-white">0</span>
+                </div>
+                <div className="absolute bottom-9 text-center">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-neutral-400">Panier vide</p>
+                  <p className="mt-1 text-[12px] font-semibold text-neutral-500">Prêt à accueillir vos favoris</p>
+                </div>
               </div>
             </div>
 
-            <div className="border-t border-neutral-100 bg-neutral-50/80 px-5 py-5 sm:px-10">
-              <p className="mb-3 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-400">Explorer par catégorie</p>
-              <nav aria-label="Catégories populaires" className="flex flex-wrap justify-center gap-2">
+            <div className="border-t border-neutral-100 bg-white px-5 py-6 sm:px-8">
+              <div className="mb-4 flex items-center justify-between gap-4">
+                <div><p className="text-[9px] font-black uppercase tracking-[0.24em] text-[#28a93b]">Explorer</p><h2 className="mt-1 text-[15px] font-black text-neutral-950">Acheter par catégorie</h2></div>
+                <Link href="/boutique" className="text-[10px] font-black text-neutral-400 transition-colors hover:text-black">Tout voir →</Link>
+              </div>
+              <nav aria-label="Catégories populaires" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {[
-                  { label: "Homme", href: "/homme" },
-                  { label: "Femme", href: "/femme" },
-                  { label: "Chaussures", href: "/chaussures" },
-                  { label: "Accessoires", href: "/accessoires" },
-                ].map((category) => (
-                  <Link
-                    key={category.href}
-                    href={category.href}
-                    className="rounded-full border border-neutral-200 bg-white px-4 py-2 text-[11px] font-bold text-neutral-700 transition-colors hover:border-[#3ecf4c] hover:text-[#168a31]"
-                  >
-                    {category.label}
+                  { label: "Homme", href: "/homme", image: "/images/menu%20category/homme.png", position: "50% 18%" },
+                  { label: "Femme", href: "/femme", image: "/images/menu%20category/femme.png", position: "50% 15%" },
+                  { label: "Chaussures", href: "/chaussures", image: "/images/menu%20category/chaussures.png", position: "50% 50%" },
+                  { label: "Accessoires", href: "/accessoires", image: "/images/menu%20category/accessoires.png", position: "50% 50%" },
+                ].map((category, index) => (
+                  <Link key={category.href} href={category.href} className="empty-cart-category group relative h-24 overflow-hidden rounded-2xl bg-neutral-100 sm:h-28" style={{ animationDelay: `${300 + index * 90}ms` }}>
+                    <Image src={category.image} alt="" fill sizes="(max-width: 640px) 50vw, 220px" className="object-cover transition-transform duration-500 group-hover:scale-105" style={{ objectPosition: category.position }} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-3.5">
+                      <span className="text-[12px] font-black text-white">{category.label}</span>
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-[11px] text-white backdrop-blur transition-transform group-hover:translate-x-0.5">→</span>
+                    </div>
                   </Link>
                 ))}
               </nav>

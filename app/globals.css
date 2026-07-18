@@ -153,6 +153,64 @@ body {
   animation-play-state: paused;
 }
 
+/* Cohesive header action icon system */
+.header-action-button {
+  position: relative;
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 999px;
+  color: #404040;
+  line-height: 0;
+  transition: color 180ms ease, background-color 180ms ease, transform 120ms ease;
+}
+.header-action-button > svg,
+.header-action-button > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.header-action-button svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+.header-action-button:hover {
+  background: #f5f5f5;
+  color: #050505;
+}
+.header-action-button:active {
+  transform: scale(0.94);
+}
+.header-action-button:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 2px;
+}
+.header-action-badge {
+  position: absolute;
+  right: -6px;
+  top: -5px;
+  z-index: 1;
+  display: flex;
+  min-width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #3ecf4c;
+  padding: 0 3px;
+  color: #050505;
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1;
+}
+
 /* Hide scrollbar for horizontal rails */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
@@ -347,6 +405,244 @@ body {
   .hero-cta-arrow {
     animation: none !important;
   }
+}
+
+/* Premium empty-cart state */
+@keyframes empty-cart-enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes empty-cart-float {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+@keyframes empty-cart-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes empty-cart-category-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.empty-cart-enter {
+  animation: empty-cart-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.empty-cart-icon {
+  animation: empty-cart-float 4s 0.6s ease-in-out infinite;
+}
+.empty-cart-orbit {
+  background: conic-gradient(from 90deg, transparent 0 74%, rgba(62,207,76,0.18) 82%, transparent 90%);
+  animation: empty-cart-orbit 14s linear infinite;
+}
+.empty-cart-category {
+  opacity: 0;
+  animation: empty-cart-category-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .empty-cart-enter,
+  .empty-cart-icon,
+  .empty-cart-orbit,
+  .empty-cart-category {
+    animation: none;
+  }
+  .empty-cart-category { opacity: 1; }
+}
+
+/* Order tracking route card */
+@keyframes tracking-card-enter {
+  from { opacity: 0; transform: translateY(18px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes tracking-route-draw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes tracking-step-enter {
+  from { opacity: 0; transform: translateY(8px) scale(0.82); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes tracking-dot-confirmed {
+  0%, 100% { box-shadow: 0 0 0 5px rgba(62, 207, 76, 0.12); }
+  45% { box-shadow: 0 0 0 10px rgba(62, 207, 76, 0); }
+}
+@keyframes tracking-truck-glide {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+@keyframes tracking-image-enter {
+  from { opacity: 0; transform: translateY(24px); clip-path: inset(0 0 18% 0); }
+  to { opacity: 1; transform: translateY(0); clip-path: inset(0 0 0 0); }
+}
+@keyframes tracking-backdrop-enter {
+  from { opacity: 0; transform: scale(1.035) translateX(18px); }
+  to { opacity: 1; transform: scale(1) translateX(0); }
+}
+@keyframes tracking-result-enter {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes tracking-timeline-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes tracking-timeline-step-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes tracking-timeline-check-draw {
+  from { stroke-dashoffset: 28; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes tracking-timeline-latest-pulse {
+  0%, 100% { box-shadow: 0 0 0 6px rgba(62, 207, 76, 0.1); }
+  50% { box-shadow: 0 0 0 11px rgba(62, 207, 76, 0); }
+}
+@keyframes tracking-timeline-spark-pulse {
+  0%, 100% { opacity: 0.7; transform: translateY(-50%) scale(0.8); }
+  50% { opacity: 1; transform: translateY(-50%) scale(1.15); }
+}
+@keyframes tracking-delivered-note-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes tracking-product-row-in {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes tracking-order-total-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes tracking-order-total-sheen {
+  0%, 65% { transform: translateX(-180%) skewX(-18deg); opacity: 0; }
+  72% { opacity: 0.16; }
+  90%, 100% { transform: translateX(520%) skewX(-18deg); opacity: 0; }
+}
+@keyframes tracking-info-card-in {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes tracking-info-row-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tracking-route-card {
+  animation: tracking-card-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.tracking-route-line {
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: tracking-route-draw 0.9s 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.tracking-route-line > span {
+  width: 8%;
+}
+.tracking-route-step {
+  opacity: 0;
+  animation: tracking-step-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.tracking-route-dot--active {
+  animation: tracking-dot-confirmed 2.6s 1.2s ease-out infinite;
+}
+.tracking-route-truck {
+  animation: tracking-truck-glide 2.4s 1s ease-in-out infinite;
+}
+.tracking-delivery-image {
+  animation: tracking-image-enter 0.9s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.tracking-delivery-backdrop {
+  -webkit-mask-image: radial-gradient(ellipse 72% 78% at 62% 54%, #000 18%, rgba(0, 0, 0, 0.82) 52%, transparent 100%);
+  mask-image: radial-gradient(ellipse 72% 78% at 62% 54%, #000 18%, rgba(0, 0, 0, 0.82) 52%, transparent 100%);
+  animation: tracking-backdrop-enter 1.25s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.tracking-delivery-backdrop-right {
+  -webkit-mask-image: radial-gradient(ellipse 52% 72% at 76% 52%, #000 0%, rgba(0, 0, 0, 0.92) 38%, transparent 78%);
+  mask-image: radial-gradient(ellipse 52% 72% at 76% 52%, #000 0%, rgba(0, 0, 0, 0.92) 38%, transparent 78%);
+}
+.tracking-result-enter {
+  animation: tracking-result-enter 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.tracking-timeline-progress,
+.tracking-timeline-mini-progress {
+  transform-origin: left center;
+  animation: tracking-timeline-fill 1.1s 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.tracking-timeline-step {
+  opacity: 0;
+  animation: tracking-timeline-step-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.tracking-timeline-check {
+  stroke-dasharray: 28;
+  stroke-dashoffset: 28;
+  animation: tracking-timeline-check-draw 0.45s 0.65s ease-out forwards;
+}
+.tracking-timeline-dot--latest {
+  animation: tracking-timeline-latest-pulse 2.8s 1.5s ease-in-out infinite;
+}
+.tracking-timeline-spark {
+  animation: tracking-timeline-spark-pulse 1.8s 1.1s ease-in-out infinite;
+}
+.tracking-delivered-note {
+  animation: tracking-delivered-note-in 0.55s 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.tracking-product-row {
+  opacity: 0;
+  animation: tracking-product-row-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.tracking-order-total {
+  animation: tracking-order-total-in 0.55s 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.tracking-order-total::after {
+  content: "";
+  position: absolute;
+  inset: -35% auto -35% 0;
+  width: 14%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, #3ecf4c, transparent);
+  animation: tracking-order-total-sheen 4.8s 1.2s ease-in-out infinite;
+}
+.tracking-info-card {
+  animation: tracking-info-card-in 0.65s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.tracking-info-row {
+  animation: tracking-info-row-in 0.55s 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.tracking-info-row:nth-of-type(3) {
+  animation-delay: 0.58s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tracking-route-card,
+  .tracking-route-line,
+  .tracking-route-step,
+  .tracking-route-dot--active,
+  .tracking-route-truck,
+  .tracking-delivery-image,
+  .tracking-delivery-backdrop,
+  .tracking-result-enter,
+  .tracking-timeline-progress,
+  .tracking-timeline-mini-progress,
+  .tracking-timeline-step,
+  .tracking-timeline-check,
+  .tracking-timeline-dot--latest,
+  .tracking-timeline-spark,
+  .tracking-delivered-note,
+  .tracking-product-row,
+  .tracking-order-total,
+  .tracking-order-total::after,
+  .tracking-info-card,
+  .tracking-info-row {
+    animation: none;
+  }
+  .tracking-route-line,
+  .tracking-route-step,
+  .tracking-timeline-step,
+  .tracking-delivered-note,
+  .tracking-product-row,
+  .tracking-info-card,
+  .tracking-info-row { opacity: 1; transform: none; }
+  .tracking-timeline-check { stroke-dashoffset: 0; }
 }
 
 /* ── Cinematic 3D homepage hero ────────────────────────────────── */
