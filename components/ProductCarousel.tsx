@@ -2,9 +2,9 @@
 
 import { useRef, useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
-import type { Product } from "@/lib/products";
+import type { CardProduct } from "@/lib/products";
 
-export default function ProductCarousel({ products }: { products: Product[] }) {
+export default function ProductCarousel({ products }: { products: CardProduct[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);

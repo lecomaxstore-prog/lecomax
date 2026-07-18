@@ -91,13 +91,18 @@ export default function Header() {
         {/* Left: hamburger + logo */}
         <div className="flex items-center gap-3">
           <button
+            type="button"
             aria-label="Menu"
+            aria-expanded={open}
+            aria-controls="mobile-navigation-drawer"
             className="-ml-1 flex h-11 w-11 shrink-0 items-center justify-center lg:hidden"
             onClick={() => setOpen((o) => !o)}
           >
-            <span className={`block w-[22px] h-[2px] bg-black transition-all duration-300 origin-center ${open ? "rotate-45 translate-y-[7px]" : "mb-[5px]"}`} />
-            <span className={`block w-[22px] h-[2px] bg-black transition-all duration-300 ${open ? "opacity-0 scale-x-0" : "mb-[5px]"}`} />
-            <span className={`block h-[2px] bg-black transition-all duration-300 origin-center ${open ? "-rotate-45 w-[22px] -translate-y-[7px]" : "w-[16px]"}`} />
+            <span aria-hidden="true" className="relative block h-5 w-6">
+              <span className={`absolute left-0 h-[2px] w-6 bg-black transition-all duration-300 ease-out ${open ? "top-1/2 -translate-y-1/2 rotate-45" : "top-[2px]"}`} />
+              <span className={`absolute left-0 top-1/2 h-[2px] w-6 -translate-y-1/2 bg-black transition-all duration-200 ${open ? "scale-x-0 opacity-0" : "scale-x-100 opacity-100"}`} />
+              <span className={`absolute left-0 h-[2px] bg-black transition-all duration-300 ease-out ${open ? "top-1/2 w-6 -translate-y-1/2 -rotate-45" : "bottom-[2px] w-[17px]"}`} />
+            </span>
           </button>
 
           <Link href="/" aria-label="L'ecomax — Accueil" className="flex items-center gap-3">
@@ -197,6 +202,7 @@ export default function Header() {
 
       {/* Slide-in panel */}
       <div
+        id="mobile-navigation-drawer"
         className={`fixed left-0 top-0 z-[9999] flex h-full w-[91vw] max-w-[390px] flex-col overflow-hidden bg-[#fafbf9] shadow-[24px_0_70px_rgba(0,0,0,0.18)] lg:hidden ${open ? "translate-x-0" : "-translate-x-full"}`}
         style={{ transition: "transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)" }}
       >

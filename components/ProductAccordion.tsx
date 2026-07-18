@@ -267,6 +267,8 @@ export default function ProductAccordion({
 }) {
   const hasImages = descriptionImages && descriptionImages.length > 0;
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const detailRows = features.filter((feature) => feature.includes(": "));
+  const highlights = features.filter((feature) => !feature.includes(": "));
 
   return (
     <div className="mt-10 border-b border-neutral-200">
@@ -300,27 +302,64 @@ export default function ProductAccordion({
 
       {/* Détails Du Produit */}
       <AccordionItem title="Détails Du Produit" defaultOpen={true}>
-        <div className="space-y-0 divide-y divide-neutral-100 max-w-xl">
-          {features.map((f) => {
+        <div className="max-w-4xl">
+          {detailRows.length > 0 && <div className="max-w-xl divide-y divide-neutral-100">
+          {detailRows.map((f) => {
             const colonIdx = f.indexOf(": ");
-            if (colonIdx > 0) {
-              // Key: Value format (from __detail: tags)
-              const key = f.slice(0, colonIdx);
-              const val = f.slice(colonIdx + 2);
-              return (
-                <div key={f} className="flex items-baseline gap-3 py-2.5 text-[13px]">
-                  <span className="w-32 shrink-0 font-semibold text-neutral-500 uppercase tracking-wide text-[11px]">{key}</span>
-                  <span className="text-neutral-800">{val}</span>
-                </div>
-              );
-            }
+            const key = f.slice(0, colonIdx);
+            const val = f.slice(colonIdx + 2);
             return (
-              <div key={f} className="flex items-start gap-2 py-2 text-[13px] text-neutral-700">
-                <span className="flex-shrink-0 mt-[2px]">•</span>
-                {f}
+              <div key={f} className="flex items-baseline gap-3 py-3 text-[13px]">
+                <span className="w-32 shrink-0 text-[10px] font-black uppercase tracking-[.12em] text-neutral-400">{key}</span>
+                <span className="font-medium text-neutral-800">{val}</span>
               </div>
             );
           })}
+          </div>}
+
+          {highlights.length > 0 && (
+            <section
+              aria-labelledby="product-highlights-title"
+              className={`${detailRows.length > 0 ? "mt-7" : ""} overflow-hidden rounded-[22px] border border-emerald-100 bg-[linear-gradient(135deg,#f4fff6_0%,#ffffff_58%,#f8faf8_100%)] p-4 sm:p-6`}
+            >
+              <div className="mb-5 flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-white text-emerald-600 shadow-[0_8px_24px_rgba(22,163,74,0.08)]">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="m7.5 12 3 3 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
+                    </svg>
+                  </span>
+                  <div>
+                    <p className="mb-1 text-[9px] font-black uppercase tracking-[.26em] text-emerald-600">L&apos;essentiel</p>
+                    <h3 id="product-highlights-title" className="text-[15px] font-black tracking-[-0.02em] text-neutral-950 sm:text-[17px]">Points forts du produit</h3>
+                  </div>
+                </div>
+                <span className="hidden rounded-full border border-emerald-100 bg-white px-3 py-1.5 text-[9px] font-black uppercase tracking-[.14em] text-neutral-500 sm:inline-flex">
+                  {highlights.length} atouts
+                </span>
+              </div>
+
+              <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                {highlights.map((feature, index) => (
+                  <div
+                    key={feature}
+                    className="group flex min-h-[62px] items-center gap-3 rounded-2xl border border-white bg-white/90 px-3.5 py-3 shadow-[0_8px_28px_rgba(15,23,42,0.045)] transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-emerald-100 hover:shadow-[0_12px_30px_rgba(22,163,74,0.08)] sm:px-4"
+                  >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 transition-colors duration-300 group-hover:bg-emerald-500 group-hover:text-white">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="m4.5 8 2.2 2.2 4.8-4.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    <span className="flex-1 text-[12px] font-bold leading-[1.35] text-neutral-700">{feature}</span>
+                    <span className="self-start pt-0.5 text-[8px] font-black tabular-nums tracking-[.12em] text-neutral-300" aria-hidden="true">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </AccordionItem>
 

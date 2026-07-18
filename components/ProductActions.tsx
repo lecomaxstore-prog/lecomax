@@ -267,6 +267,24 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const wished = wishlistSlugs.has(product.slug);
   const router = useRouter();
 
+  const selectColorAndRevealImage = (nextColor: string, closeModal = false) => {
+    setColor(nextColor);
+    if (closeModal) setColorModalOpen(false);
+
+    // Let React switch the gallery image first, then bring that image back
+    // into view. This also works when the customer taps the active color.
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const galleryImage = document.querySelector<HTMLElement>("[data-main-gallery-img]");
+        if (!galleryImage) return;
+
+        const headerOffset = window.innerWidth < 768 ? 72 : 92;
+        const top = galleryImage.getBoundingClientRect().top + window.scrollY - headerOffset;
+        window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      });
+    });
+  };
+
   // Reset size when color changes if current size is no longer available
   useEffect(() => {
     if (size && !availableSizes.includes(size)) {
@@ -347,7 +365,8 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
                   return (
                     <button
                       key={c}
-                      onClick={() => { setColor(c); setColorModalOpen(false); }}
+                      onClick={() => selectColorAndRevealImage(c, true)}
+                      aria-label={`Voir le produit en couleur ${c}`}
                       className={`flex items-center gap-4 w-full text-left rounded-xl px-3 py-3 transition-all border ${
                         isSelected
                           ? "border-black bg-neutral-50"
@@ -428,7 +447,8 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
                   <button
                     key={c}
                     title={isOOS ? `${c} — Rupture de stock` : c}
-                    onClick={() => setColor(c)}
+                    onClick={() => selectColorAndRevealImage(c)}
+                    aria-label={`Voir le produit en couleur ${c}`}
                     className={`relative flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden border-2 transition-all ${
                       isOOS ? "opacity-50 cursor-pointer" :
                       isSelected ? "border-black shadow-sm" : "border-neutral-200 hover:border-neutral-400"
@@ -449,7 +469,8 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
                 <button
                   key={c}
                   title={isOOS ? `${c} — Rupture de stock` : c}
-                  onClick={() => setColor(c)}
+                  onClick={() => selectColorAndRevealImage(c)}
+                  aria-label={`Voir le produit en couleur ${c}`}
                   className="relative group flex-shrink-0 transition-transform duration-150"
                   style={{ transform: isSelected ? "scale(1.08)" : "scale(1)", cursor: "pointer" }}
                 >
