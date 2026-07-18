@@ -10,6 +10,10 @@ export const DEFAULT_SHIPPING_CONFIG: ShippingConfig = {
   estimatedDays: "2–5 jours ouvrables",
 };
 
+// A one-dirham courtesy margin avoids charging delivery when a cart lands at
+// 499 MAD against a displayed 500 MAD free-shipping threshold.
+export const FREE_SHIPPING_GRACE_AMOUNT = 1;
+
 function deliveryEstimate(value: unknown) {
   if (typeof value !== "string" || !value.trim()) return DEFAULT_SHIPPING_CONFIG.estimatedDays;
   const configured = value.trim();
@@ -33,8 +37,17 @@ export function shippingConfigFromSettings(settings: Record<string, unknown> | n
   };
 }
 
+export function effectiveFreeShippingMinimum(freeThreshold: number) {
+  const graceAmount = freeThreshold > FREE_SHIPPING_GRACE_AMOUNT ? FREE_SHIPPING_GRACE_AMOUNT : 0;
+  return Math.max(0, freeThreshold - graceAmount);
+}
+
+export function qualifiesForFreeShipping(subtotal: number, freeThreshold: number) {
+  return freeThreshold > 0 && subtotal >= effectiveFreeShippingMinimum(freeThreshold);
+}
+
 export function calculateShipping(subtotal: number, config: ShippingConfig) {
-  return config.freeThreshold > 0 && subtotal >= config.freeThreshold ? 0 : config.cost;
+  return qualifiesForFreeShipping(subtotal, config.freeThreshold) ? 0 : config.cost;
 }
 
 export function formatShippingAmount(value: number) {
