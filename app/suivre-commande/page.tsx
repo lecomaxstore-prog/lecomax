@@ -91,16 +91,21 @@ function SuivreCommandeInner() {
             alt=""
             fill
             sizes="72vw"
-            className="object-cover object-center opacity-[0.34] saturate-[0.72] contrast-110"
+            className="object-cover object-center opacity-[0.92] brightness-[1.1] saturate-[0.98] contrast-100"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#080a09] via-[#080a09]/45 to-[#080a09]/10" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#080a09]/65 via-transparent to-[#080a09]" />
           <Image
             src="/images/pages/suivre commande.png"
             alt=""
             fill
             sizes="72vw"
-            className="tracking-delivery-backdrop-right object-cover object-center opacity-[0.2] saturate-90"
+            className="tracking-delivery-backdrop-right object-cover object-center opacity-[0.58] brightness-[1.28] saturate-[0.96] contrast-100"
+          />
+          <Image
+            src="/images/pages/suivre commande.png"
+            alt=""
+            fill
+            sizes="72vw"
+            className="tracking-delivery-backdrop-courier object-cover object-center opacity-[0.9] brightness-[1.3] saturate-[1] contrast-100"
           />
         </div>
 
