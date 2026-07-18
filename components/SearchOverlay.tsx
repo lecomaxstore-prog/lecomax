@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import type { SearchableProduct } from "@/lib/product-search";
+import { collectEvent } from "@/lib/collect";
+import { recordProductSignal } from "@/lib/personalization";
 
 interface Props {
   open: boolean;
@@ -189,9 +191,13 @@ export default function SearchOverlay({ open, onClose }: Props) {
   const submitSearch = () => {
     const clean = query.trim();
     if (activeIndex >= 0 && results[activeIndex]) {
+      const selected = results[activeIndex];
+      collectEvent("search", { query: clean, extra: { result_count: total, selected_product: selected.slug } });
+      recordProductSignal(selected, 3);
       remember(clean); onClose(); window.location.href = `/produit/${results[activeIndex].slug}`; return;
     }
     if (clean.length >= 2) {
+      collectEvent("search", { query: clean, extra: { result_count: total } });
       remember(clean); onClose(); window.location.href = `/boutique?search=${encodeURIComponent(clean)}`;
     }
   };

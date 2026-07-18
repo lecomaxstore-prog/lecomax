@@ -1,22 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
+import { loyaltyTierForPoints } from "@/lib/loyalty";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
-
-const POINTS_PER_ORDER = 50;
-const TIERS = [
-  { name: "Gold",   min: 1000, next: null,  nextLabel: null },
-  { name: "Silver", min: 500,  next: 1000,  nextLabel: "Gold" },
-  { name: "Bronze", min: 0,    next: 500,   nextLabel: "Silver" },
-];
-
-function getTier(points: number) {
-  return TIERS.find((t) => points >= t.min) ?? TIERS[TIERS.length - 1];
-}
 
 // GET /api/points?email=xxx
 export async function GET(req: NextRequest) {
@@ -28,48 +18,59 @@ export async function GET(req: NextRequest) {
   if (!admin && requestedEmail && requestedEmail !== email) return NextResponse.json({ error: "Accès interdit." }, { status: 403 });
   if (!email) return NextResponse.json({ error: "email required" }, { status: 400 });
 
-  const { data, error } = await supabase
-    .from("user_points")
-    .select("points")
-    .eq("email", email)
-    .single();
+  const [balanceResult, pendingResult] = await Promise.all([
+    supabase.from("user_points").select("points").eq("email", email).maybeSingle(),
+    supabase.from("loyalty_transactions").select("points").eq("email", email).eq("status", "pending"),
+  ]);
 
-  if (error && error.code !== "PGRST116") {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (balanceResult.error) {
+    return NextResponse.json({ error: balanceResult.error.message }, { status: 500 });
   }
 
-  const points = data?.points ?? 0;
-  const tier = getTier(points);
+  const points = Number(balanceResult.data?.points ?? 0);
+  const pending = (pendingResult.data ?? []).reduce((sum, transaction) => sum + Number(transaction.points || 0), 0);
+  const tier = loyaltyTierForPoints(points);
 
-  return NextResponse.json({ points, tier: tier.name, next: tier.next, nextLabel: tier.nextLabel });
+  return NextResponse.json(
+    {
+      points,
+      pending,
+      tier: tier.name,
+      tierMin: tier.min,
+      next: tier.next,
+      nextLabel: tier.nextLabel,
+      progress: tier.progress,
+      remaining: tier.remaining,
+    },
+    { headers: { "Cache-Control": "private, no-store" } },
+  );
 }
 
-// POST /api/points — add POINTS_PER_ORDER to a user's balance
-// Body: { email: string, amount?: number }
+// POST /api/points — administrator adjustment with idempotency support.
 export async function POST(req: NextRequest) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
-  let body: { email?: string; amount?: number };
+  let body: { email?: string; amount?: number; request_id?: string };
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
-  const { email, amount = POINTS_PER_ORDER } = body;
+  const { email, amount = 50 } = body;
   if (!email) return NextResponse.json({ error: "email required" }, { status: 400 });
-  if (typeof amount !== "number" || amount <= 0) return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
-
-  // Upsert: increment if exists, create with `amount` if not
-  const { data: existing } = await supabase
-    .from("user_points")
-    .select("points")
-    .eq("email", email)
-    .single();
-
-  const newPoints = (existing?.points ?? 0) + amount;
-
-  const { error } = await supabase
-    .from("user_points")
-    .upsert({ email, points: newPoints, updated_at: new Date().toISOString() }, { onConflict: "email" });
-
+  if (!Number.isInteger(amount) || amount <= 0 || amount > 1000000) return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
+  const requestId = typeof body.request_id === "string" && /^[a-zA-Z0-9_-]{8,120}$/.test(body.request_id)
+    ? body.request_id
+    : crypto.randomUUID();
+  const { data, error } = await supabase.rpc("add_loyalty_points", {
+    p_email: email.trim().toLowerCase(),
+    p_amount: amount,
+    p_reference: `admin:${requestId}`,
+  });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  const tier = getTier(newPoints);
-  return NextResponse.json({ points: newPoints, tier: tier.name, next: tier.next, nextLabel: tier.nextLabel, awarded: amount });
+  const result = data as { balance?: number; awarded?: number } | null;
+  const tier = loyaltyTierForPoints(Number(result?.balance ?? 0));
+  return NextResponse.json({
+    points: Number(result?.balance ?? 0),
+    awarded: Number(result?.awarded ?? 0),
+    tier: tier.name,
+    next: tier.next,
+    nextLabel: tier.nextLabel,
+  });
 }

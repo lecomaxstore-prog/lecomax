@@ -301,7 +301,7 @@ export default function ProductAccordion({
       </AccordionItem>
 
       {/* Détails Du Produit */}
-      <AccordionItem title="Détails Du Produit" defaultOpen={true}>
+      <AccordionItem title="Détails Du Produit">
         <div className="max-w-4xl">
           {detailRows.length > 0 && <div className="max-w-xl divide-y divide-neutral-100">
           {detailRows.map((f) => {
@@ -320,41 +320,25 @@ export default function ProductAccordion({
           {highlights.length > 0 && (
             <section
               aria-labelledby="product-highlights-title"
-              className={`${detailRows.length > 0 ? "mt-7" : ""} overflow-hidden rounded-[22px] border border-emerald-100 bg-[linear-gradient(135deg,#f4fff6_0%,#ffffff_58%,#f8faf8_100%)] p-4 sm:p-6`}
+              className={`${detailRows.length > 0 ? "mt-8" : ""}`}
             >
-              <div className="mb-5 flex items-start justify-between gap-4">
-                <div className="flex items-center gap-3.5">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-white text-emerald-600 shadow-[0_8px_24px_rgba(22,163,74,0.08)]">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path d="m7.5 12 3 3 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
-                    </svg>
-                  </span>
-                  <div>
-                    <p className="mb-1 text-[9px] font-black uppercase tracking-[.26em] text-emerald-600">L&apos;essentiel</p>
-                    <h3 id="product-highlights-title" className="text-[15px] font-black tracking-[-0.02em] text-neutral-950 sm:text-[17px]">Points forts du produit</h3>
-                  </div>
-                </div>
-                <span className="hidden rounded-full border border-emerald-100 bg-white px-3 py-1.5 text-[9px] font-black uppercase tracking-[.14em] text-neutral-500 sm:inline-flex">
-                  {highlights.length} atouts
-                </span>
+              <div className="mb-3 flex items-end justify-between gap-4">
+                <h3 id="product-highlights-title" className="text-[14px] font-bold tracking-[-0.01em] text-neutral-950 sm:text-[15px]">Points forts</h3>
+                <span className="h-px flex-1 bg-neutral-200" aria-hidden="true" />
               </div>
 
-              <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-                {highlights.map((feature, index) => (
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 sm:gap-x-8 lg:grid-cols-3">
+                {highlights.map((feature) => (
                   <div
                     key={feature}
-                    className="group flex min-h-[62px] items-center gap-3 rounded-2xl border border-white bg-white/90 px-3.5 py-3 shadow-[0_8px_28px_rgba(15,23,42,0.045)] transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-emerald-100 hover:shadow-[0_12px_30px_rgba(22,163,74,0.08)] sm:px-4"
+                    className="flex min-h-10 items-center gap-2 border-b border-neutral-100 py-2.5"
                   >
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 transition-colors duration-300 group-hover:bg-emerald-500 group-hover:text-white">
-                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                        <path d="m4.5 8 2.2 2.2 4.8-4.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                      <svg width="9" height="9" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="m4.5 8 2.2 2.2 4.8-4.8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </span>
-                    <span className="flex-1 text-[12px] font-bold leading-[1.35] text-neutral-700">{feature}</span>
-                    <span className="self-start pt-0.5 text-[8px] font-black tabular-nums tracking-[.12em] text-neutral-300" aria-hidden="true">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
+                    <span className="text-[11px] font-medium leading-[1.35] text-neutral-700 sm:text-[12px]">{feature}</span>
                   </div>
                 ))}
               </div>

@@ -41,6 +41,22 @@ export async function POST(req: NextRequest) {
     ? body.source.trim().slice(0, 60)
     : "website";
 
+  const { data: existingSubscriber, error: lookupError } = await supabase
+    .from("newsletter_subscribers")
+    .select("id, active")
+    .eq("email", email)
+    .maybeSingle();
+  if (lookupError) {
+    console.error("Newsletter lookup failed", lookupError);
+    return NextResponse.json({ error: "Inscription impossible pour le moment" }, { status: 500 });
+  }
+  if (existingSubscriber?.active) {
+    return NextResponse.json({
+      alreadySubscribed: true,
+      message: "Vous êtes déjà inscrit(e) à notre newsletter.",
+    });
+  }
+
   const { data, error } = await supabase
     .from("newsletter_subscribers")
     .upsert({ email, name, active: true, source }, { onConflict: "email" })
@@ -50,5 +66,5 @@ export async function POST(req: NextRequest) {
     console.error("Newsletter signup failed", error);
     return NextResponse.json({ error: "Inscription impossible pour le moment" }, { status: 500 });
   }
-  return NextResponse.json(data, { status: 201 });
+  return NextResponse.json({ ...data, alreadySubscribed: false }, { status: 201 });
 }

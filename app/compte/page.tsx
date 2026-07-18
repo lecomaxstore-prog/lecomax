@@ -42,6 +42,8 @@ export default function ComptePage() {
   const [orderCount, setOrderCount] = useState<number | null>(null);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [points, setPoints] = useState(0);
+  const [pendingPoints, setPendingPoints] = useState(0);
+  const [tierProgress, setTierProgress] = useState(0);
   const [tierName, setTierName] = useState("Bronze");
   const [tierNext, setTierNext] = useState<number | null>(500);
   const [tierNextLabel, setTierNextLabel] = useState<string | null>("Silver");
@@ -87,7 +89,14 @@ export default function ComptePage() {
         customerApiFetch(`/api/points?email=${encodeURIComponent(email)}`)
           .then(r => r.json())
           .then(d => {
-            if (typeof d.points === "number") { setPoints(d.points); setTierName(d.tier ?? "Bronze"); setTierNext(d.next ?? null); setTierNextLabel(d.nextLabel ?? null); }
+            if (typeof d.points === "number") {
+              setPoints(d.points);
+              setPendingPoints(Number(d.pending ?? 0));
+              setTierProgress(Number(d.progress ?? 0));
+              setTierName(d.tier ?? "Bronze");
+              setTierNext(d.next ?? null);
+              setTierNextLabel(d.nextLabel ?? null);
+            }
           })
           .catch(() => {});
       }
@@ -227,16 +236,19 @@ export default function ComptePage() {
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{
-                width: tierNext ? `${Math.min(100, Math.round((points / tierNext) * 100))}%` : "100%",
+                width: `${tierProgress}%`,
                 background: "linear-gradient(90deg, #cd7f32, #f59e0b)",
               }}
             />
           </div>
-          {tierNext && tierNextLabel && (
-            <p className="text-[10px] text-neutral-500 mt-1.5">
-              {(tierNext - points).toLocaleString("fr-MA")} pts pour atteindre <span className="text-neutral-300 font-semibold">{tierNextLabel}</span>
-            </p>
-          )}
+          <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 text-[10px]">
+            {tierNext && tierNextLabel ? (
+              <p className="text-neutral-500">
+                {(tierNext - points).toLocaleString("fr-MA")} pts pour atteindre <span className="font-semibold text-neutral-300">{tierNextLabel}</span>
+              </p>
+            ) : <p className="text-neutral-500">Niveau maximum</p>}
+            {pendingPoints > 0 && <p className="font-semibold text-amber-400">+{pendingPoints.toLocaleString("fr-MA")} pts en attente</p>}
+          </div>
         </div>
         <Link href="/ecoclub" className="shrink-0 text-[10px] font-black uppercase tracking-widest text-neutral-400 hover:text-white transition-colors">
           Détails →

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, type User } from "@supabase/supabase-js";
 import { getEcomediaUser, communityDisplayName } from "@/lib/ecomedia-auth";
+import { awardEligibleProfileRewards } from "@/lib/profile-loyalty";
 import {
   ECOMEDIA_COMMUNITY_AUTHOR_PREFIX,
   decodeEcomediaCommentContent,
@@ -136,13 +137,17 @@ export async function POST(req: NextRequest) {
   const avatarUrl = sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
   const previousAvatar = user.user_metadata?.avatar_url ?? user.user_metadata?.picture;
   try {
-    await updateAvatar(user, avatarUrl);
+    const updatedUser = await updateAvatar(user, avatarUrl);
     if (previousAvatar !== avatarUrl) await removeStoredAvatar(previousAvatar, user.id);
+    const loyalty = await awardEligibleProfileRewards(updatedUser).catch(reason => {
+      console.error("Avatar loyalty reward failed", reason);
+      return null;
+    });
+    return NextResponse.json({ avatarUrl, loyalty }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch {
     await sb.storage.from(bucket).remove([path]);
     return NextResponse.json({ error: "La photo a été envoyée, mais le profil n’a pas pu être mis à jour." }, { status: 500 });
   }
-  return NextResponse.json({ avatarUrl }, { status: 201, headers: { "Cache-Control": "no-store" } });
 }
 
 export async function DELETE(req: NextRequest) {

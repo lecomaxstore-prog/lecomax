@@ -13,6 +13,7 @@ import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-co
 import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
 import { supabase } from "@/lib/supabase";
 import { PAYPAL_CURRENCY, paypalAmountFromMad } from "@/lib/paypal-money";
+import { collectEvent } from "@/lib/collect";
 
 type Field = {
   prenom: string; nom: string; email: string; telephone: string;
@@ -503,6 +504,18 @@ export default function CheckoutPage() {
       })),
       total
     );
+    collectEvent("checkout_start", {
+      path: window.location.pathname,
+      extra: {
+        value: total,
+        items: items.map((item) => ({
+          product_id: item.slug,
+          product_name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      },
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -848,6 +861,19 @@ export default function CheckoutPage() {
           quantity: i.quantity,
           item_variant: [i.color, i.size].filter(Boolean).join(" / ") || undefined,
         })),
+      });
+      collectEvent("checkout_complete", {
+        path: window.location.pathname,
+        extra: {
+          transaction_id: number,
+          value: grandTotal,
+          items: items.map((item) => ({
+            product_id: item.slug,
+            product_name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        },
       });
 
       clearAbandonedCartToken();

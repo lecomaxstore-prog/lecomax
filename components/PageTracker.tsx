@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 function anonymousId(prefix: string) {
@@ -11,9 +11,27 @@ function anonymousId(prefix: string) {
 
 export default function PageTracker() {
   const pathname = usePathname();
+  const [analyticsConsent, setAnalyticsConsent] = useState(false);
 
   useEffect(() => {
-    if (pathname.startsWith("/admin")) return;
+    const readConsent = () => {
+      try {
+        const raw = localStorage.getItem("lecomax_cookie_consent");
+        setAnalyticsConsent(raw ? JSON.parse(raw)?.analytics === true : false);
+      } catch {
+        setAnalyticsConsent(false);
+      }
+    };
+    readConsent();
+    const onConsent = (event: Event) => {
+      setAnalyticsConsent(Boolean((event as CustomEvent<{ analytics?: boolean }>).detail?.analytics));
+    };
+    window.addEventListener("lecomax-consent-change", onConsent);
+    return () => window.removeEventListener("lecomax-consent-change", onConsent);
+  }, []);
+
+  useEffect(() => {
+    if (!analyticsConsent || pathname.startsWith("/admin")) return;
 
     let sessionId: string | null = null;
     let visitorId: string | null = null;
@@ -50,7 +68,7 @@ export default function PageTracker() {
 
     const analyticsWindow = window as unknown as Record<string, (...args: unknown[]) => void>;
     if (analyticsWindow.gtag) analyticsWindow.gtag("config", "G-9N1CPZQ1HG", { page_path: pathname });
-  }, [pathname]);
+  }, [analyticsConsent, pathname]);
 
   return null;
 }

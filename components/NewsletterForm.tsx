@@ -4,7 +4,7 @@ import { useSettings } from "@/lib/use-settings";
 
 export default function NewsletterForm({ variant = "dark" }: { variant?: "dark" | "light" }) {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
   const siteSettings = useSettings();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,22 +17,29 @@ export default function NewsletterForm({ variant = "dark" }: { variant?: "dark" 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), source: "product" }),
       });
-      if (res.ok) { setStatus("success"); setEmail(""); }
-      else setStatus("error");
+      const data = await res.json().catch(() => null);
+      if (res.ok) {
+        setStatus(data?.alreadySubscribed ? "already" : "success");
+        setEmail("");
+      } else setStatus("error");
     } catch { setStatus("error"); }
   };
 
   if (siteSettings.enable_newsletter === "false") return null;
 
-  if (status === "success") {
+  if (status === "success" || status === "already") {
     return (
       <div role="status" className={`flex items-center gap-3.5 border border-[#3ecf4c]/30 p-4 ${variant === "light" ? "rounded-2xl bg-gradient-to-br from-emerald-50 to-white" : "bg-[#3ecf4c]/8"}`}>
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center border border-[#3ecf4c]/30 bg-[#3ecf4c]/12 ${variant === "light" ? "rounded-xl" : ""}`}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
         </div>
         <div>
-          <p className={`text-[13px] font-black leading-tight ${variant === "light" ? "text-neutral-950" : "text-white"}`}>Bienvenue dans la famille !</p>
-          <p className={`mt-1 text-[11px] leading-4 ${variant === "light" ? "text-neutral-500" : "text-neutral-400"}`}>Votre inscription a bien été prise en compte.</p>
+          <p className={`text-[13px] font-black leading-tight ${variant === "light" ? "text-neutral-950" : "text-white"}`}>
+            {status === "already" ? "Vous êtes déjà inscrit(e)" : "Bienvenue dans la famille !"}
+          </p>
+          <p className={`mt-1 text-[11px] leading-4 ${variant === "light" ? "text-neutral-500" : "text-neutral-400"}`}>
+            {status === "already" ? "Cette adresse e-mail reçoit déjà notre newsletter." : "Votre inscription a bien été prise en compte."}
+          </p>
         </div>
       </div>
     );

@@ -6,6 +6,22 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+function maskIp(ip: string | null) {
+  if (!ip) return null;
+  if (ip.includes(".")) {
+    const parts = ip.split(".");
+    return parts.length === 4 ? `${parts[0]}.${parts[1]}.xxx.xxx` : null;
+  }
+  const parts = ip.split(":").filter(Boolean);
+  return parts.length ? `${parts.slice(0, 3).join(":")}:…` : null;
+}
+
+function approximateCoordinate(value: string | null) {
+  if (!value) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Number(parsed.toFixed(2)) : null;
+}
+
 // POST — register a new consent
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
@@ -23,7 +39,7 @@ export async function POST(req: NextRequest) {
   // Extract IP — Vercel sets x-forwarded-for
   const forwarded = req.headers.get("x-forwarded-for");
   const realIp = req.headers.get("x-real-ip");
-  const ip_address = forwarded ? forwarded.split(",")[0].trim() : (realIp ?? null);
+  const ip_address = maskIp(forwarded ? forwarded.split(",")[0].trim() : (realIp ?? null));
 
   // Geo — populated automatically by Vercel Edge Network
   const country = req.headers.get("x-vercel-ip-country") ?? null;
@@ -47,8 +63,8 @@ export async function POST(req: NextRequest) {
       ip_address,
       country,
       city,
-      latitude: latitude ? parseFloat(latitude) : null,
-      longitude: longitude ? parseFloat(longitude) : null,
+      latitude: approximateCoordinate(latitude),
+      longitude: approximateCoordinate(longitude),
     },
     { onConflict: "session_id" }
   );

@@ -107,7 +107,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Aucune modification valide." }, { status: 400 });
   }
 
-  // Fetch previous status so we only award points on the transition to delivered
+  // Previous status is only used for one-time customer communications. Loyalty
+  // uses idempotent database functions and is safe to retry on every update.
   const { data: prev } = await supabase
     .from("orders")
     .select("status, customer")
@@ -122,7 +123,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Award 50 EcoClub points + send Trustpilot review invite when delivered for the first time
+  let loyalty: unknown = null;
+  if (update.status === "delivered") {
+    const result = await supabase.rpc("award_order_loyalty_points", { p_order_id: id });
+    loyalty = result.data;
+    if (result.error) console.error("EcoClub award failed:", result.error.message);
+  } else if (update.status === "cancelled") {
+    const result = await supabase.rpc("reverse_order_loyalty_points", { p_order_id: id });
+    loyalty = result.data;
+    if (result.error) console.error("EcoClub reversal failed:", result.error.message);
+  }
+
+  // Send the Trustpilot invite only on the first transition to delivered.
   if (update.status === "delivered" && prev?.status !== "delivered") {
     const customer = prev?.customer as { email?: string; name?: string; first_name?: string } | undefined;
     const email = customer?.email;
@@ -130,20 +142,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const orderNumber = (data as { order_number?: string }).order_number || id;
 
     if (email) {
-      // EcoClub points
-      supabase
-        .from("user_points")
-        .select("points")
-        .eq("email", email)
-        .single()
-        .then(({ data: existing }) => {
-          const newPoints = (existing?.points ?? 0) + 50;
-          supabase
-            .from("user_points")
-            .upsert({ email, points: newPoints, updated_at: new Date().toISOString() }, { onConflict: "email" })
-            .then(() => {});
-        });
-
       // Trustpilot review invite email
       if (resend) {
         resend.emails.send({
@@ -157,7 +155,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json({ ...data, loyalty });
 }
 
 // DELETE /api/orders/[id]

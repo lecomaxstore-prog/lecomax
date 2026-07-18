@@ -16,6 +16,7 @@ import AdminLayoutWrapper from "@/components/AdminLayoutWrapper";
 import SiteProtection from "@/components/SiteProtection";
 import CookieBanner from "@/components/CookieBanner";
 import DataCollector from "@/components/DataCollector";
+import ConsentScripts from "@/components/ConsentScripts";
 import BackToTop from "@/components/BackToTop";
 import AdsDisplay from "@/components/AdsDisplay";
 import PushPrompt from "@/components/PushPrompt";
@@ -183,27 +184,9 @@ export default async function RootLayout({
   return (
     <html lang="fr" className={`${inter.variable} ${sora.variable}`}>
       <head>
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <meta name="theme-color" content="#3ecf4c" />
-        {/* Google Analytics GA4 */}
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-9N1CPZQ1HG" strategy="afterInteractive" />
-        <Script id="ga-init" strategy="afterInteractive">{`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-9N1CPZQ1HG', { page_path: window.location.pathname });
-        `}</Script>
         {/* Trustpilot TrustBox widget bootstrap */}
         <Script src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" strategy="lazyOnload" />
-        {/* Microsoft Clarity — heatmaps & session recordings */}
-        <Script id="clarity-init" strategy="lazyOnload">{`
-          (function(c,l,a,r,i,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-          })(window,document,"clarity","script","x510dwwy6k");
-        `}</Script>
         {/* Organization + WebSite structured data — server-rendered for Googlebot */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: `{
   "@context": "https://schema.org",
@@ -290,6 +273,7 @@ export default async function RootLayout({
             <CookieBanner />
           </AdminLayoutWrapper>
           <DataCollector />
+          <ConsentScripts />
           <BackToTop />
           <AdsDisplay />
           <PushPrompt />

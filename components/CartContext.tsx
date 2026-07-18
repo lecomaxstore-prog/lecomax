@@ -72,6 +72,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const reconcileInventory = useCallback(() => {
     if (inventoryRequestRef.current) return inventoryRequestRef.current;
+    if (itemsRef.current.length === 0) return Promise.resolve();
 
     const request = (async () => {
       try {
@@ -149,9 +150,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || items.length === 0) return;
     void reconcileInventory();
-    const interval = window.setInterval(() => void reconcileInventory(), 60_000);
+    const interval = window.setInterval(() => void reconcileInventory(), 120_000);
     const onFocus = () => void reconcileInventory();
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") void reconcileInventory();
@@ -163,7 +164,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [hydrated, reconcileInventory]);
+  }, [hydrated, items.length, reconcileInventory]);
 
   const value = useMemo<CartCtx>(
     () => ({

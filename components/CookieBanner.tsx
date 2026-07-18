@@ -24,17 +24,26 @@ export default function CookieBanner() {
     }
   }, []);
 
-  const save = (consent: Consent) => {
+  const save = async (consent: Consent) => {
     try {
       localStorage.setItem("lecomax_cookie_consent", JSON.stringify(consent));
+      if (!consent.analytics) {
+        localStorage.removeItem("_lx_vid");
+        sessionStorage.removeItem("_lx_sid");
+      }
+      if (!consent.preferences && !consent.data_collection) {
+        localStorage.removeItem("lecomax_shop_profile_v1");
+      }
     } catch {
       // ignore
     }
-    // Register or revoke data collection consent on the server
+    setVisible(false);
+    // Register or revoke data collection consent on the server before custom
+    // events begin, avoiding a race where the first page view is rejected.
     try {
       const sessionId = getOrCreateSessionId();
       if (consent.data_collection) {
-        fetch("/api/client-data/consent", {
+        await fetch("/api/client-data/consent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -47,21 +56,20 @@ export default function CookieBanner() {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             referrer: document.referrer || null,
           }),
-        }).catch(() => {});
+        });
       } else {
         // Revoke: send revoke signal
-        fetch("/api/client-data/consent", {
+        await fetch("/api/client-data/consent", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ session_id: sessionId }),
-        }).catch(() => {});
+        });
       }
-      // Notify DataCollector
-      window.dispatchEvent(new CustomEvent("lecomax-data-consent", { detail: consent.data_collection }));
     } catch {
       // ignore
     }
-    setVisible(false);
+    window.dispatchEvent(new CustomEvent("lecomax-data-consent", { detail: consent.data_collection }));
+    window.dispatchEvent(new CustomEvent("lecomax-consent-change", { detail: consent }));
   };
 
   function getOrCreateSessionId(): string {
@@ -77,9 +85,9 @@ export default function CookieBanner() {
     }
   }
 
-  const acceptAll = () => save({ essential: true, analytics: true, preferences: true, data_collection: true });
-  const rejectAll = () => save({ essential: true, analytics: false, preferences: false, data_collection: false });
-  const saveCustom = () => save({ essential: true, analytics, preferences, data_collection: dataCollection });
+  const acceptAll = () => void save({ essential: true, analytics: true, preferences: true, data_collection: true });
+  const rejectAll = () => void save({ essential: true, analytics: false, preferences: false, data_collection: false });
+  const saveCustom = () => void save({ essential: true, analytics, preferences, data_collection: dataCollection });
 
   if (!visible) return null;
 
@@ -107,7 +115,7 @@ export default function CookieBanner() {
                 </div>
                 <p className="text-[12px] text-neutral-500 leading-relaxed">
                   Nous utilisons des cookies pour améliorer votre expérience et analyser notre trafic.
-                  En continuant, vous acceptez notre{" "}
+                  Choisissez vos préférences dans notre{" "}
                   <Link href="/cookies" className="underline underline-offset-2 hover:text-black transition-colors">
                     politique de cookies
                   </Link>
