@@ -11,7 +11,10 @@ export async function GET() {
     .from("newsletter_subscribers")
     .select("*")
     .order("created_at", { ascending: false });
-  if (error) return NextResponse.json([], { status: 200 });
+  if (error) {
+    console.error("Newsletter list failed", error);
+    return NextResponse.json({ error: "Impossible de charger les abonnés" }, { status: 500 });
+  }
   return NextResponse.json(data);
 }
 
@@ -25,12 +28,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "La newsletter est temporairement désactivée" }, { status: 403 });
   }
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
+  const email = typeof body?.email === "string" ? body.email.normalize("NFKC").trim().toLowerCase() : "";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+    return NextResponse.json({ error: "Adresse e-mail invalide" }, { status: 400 });
+  }
+
+  const name = typeof body?.name === "string" && body.name.trim()
+    ? body.name.trim().slice(0, 120)
+    : null;
+  const source = typeof body?.source === "string" && body.source.trim()
+    ? body.source.trim().slice(0, 60)
+    : "website";
+
   const { data, error } = await supabase
     .from("newsletter_subscribers")
-    .insert({ email: body.email, name: body.name ?? null, active: true, source: body.source ?? "admin" })
+    .upsert({ email, name, active: true, source }, { onConflict: "email" })
     .select()
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("Newsletter signup failed", error);
+    return NextResponse.json({ error: "Inscription impossible pour le moment" }, { status: 500 });
+  }
   return NextResponse.json(data, { status: 201 });
 }

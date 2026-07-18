@@ -200,10 +200,13 @@ export async function middleware(req: NextRequest) {
   // ── Protect write operations on sensitive API routes ──
   // NOTE: /api/admin/auth/* is intentionally excluded — it is the login/logout
   // endpoint and must be reachable without a pre-existing session.
+  const isPublicNewsletterSignup = pathname === "/api/newsletter" && req.method === "POST";
+  const isNewsletterAdminApi = pathname.startsWith("/api/newsletter") && !isPublicNewsletterSignup;
   const isAdminApiWrite =
     req.method !== "GET" &&
     !pathname.startsWith("/api/admin/auth/") &&
     !pathname.startsWith("/api/coupons/validate") &&
+    !isPublicNewsletterSignup &&
     /^\/api\/(products|coupons|promotions|categories|settings|announcements|shipping|size-guide|newsletter|admin\/|ads|ai-(?:broadcast|product|reply|review)|send-confirmation|upload(?:-media)?|media|trustpilot-featured)/.test(
       pathname
     );
@@ -211,7 +214,11 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/api/coupons") &&
     !pathname.startsWith("/api/coupons/validate");
 
-  if (isAdminApiWrite || isCouponManagementApi) {
+  if (isPublicNewsletterSignup && !isSameOrigin(req)) {
+    return NextResponse.json({ error: "Origine non autorisée" }, { status: 403 });
+  }
+
+  if (isAdminApiWrite || isCouponManagementApi || isNewsletterAdminApi) {
     // Reject cross-origin write requests (CSRF defence in depth)
     if (!isSameOrigin(req)) {
       return NextResponse.json({ error: "Origine non autorisée" }, { status: 403 });
