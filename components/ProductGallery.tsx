@@ -52,7 +52,7 @@ export default function ProductGallery({
 }) {
   // active: index into images, or "video" sentinel
   const [active, setActive] = useState<number | "video">(video ? "video" : 0);
-  const [hasGallerySelection, setHasGallerySelection] = useState(false);
+  const [mainControlsVisible, setMainControlsVisible] = useState(false);
   const { color: selectedColor, setColor: setSelectedColor } = useProductColor();
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const thumbsRef = useRef<HTMLDivElement>(null);
@@ -75,9 +75,8 @@ export default function ProductGallery({
   const activeIndex = slides.indexOf(active);
 
   const selectSlide = useCallback(
-    (slide: "video" | number, customerSelected = true) => {
+    (slide: "video" | number) => {
       setActive(slide);
-      if (customerSelected) setHasGallerySelection(true);
 
       // Gallery navigation is an explicit customer action. When the selected
       // slide belongs to a color variant, update the shared color once here
@@ -113,6 +112,7 @@ export default function ProductGallery({
   }, [activeIndex]);
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    setMainControlsVisible(true);
     touchStartX.current = event.touches[0]?.clientX ?? null;
   };
 
@@ -151,6 +151,13 @@ export default function ProductGallery({
       <div
         data-main-gallery-img
         className="group relative aspect-square touch-pan-y overflow-hidden bg-neutral-100"
+        onMouseEnter={() => setMainControlsVisible(true)}
+        onMouseLeave={() => setMainControlsVisible(false)}
+        onClick={() => setMainControlsVisible(true)}
+        onFocusCapture={() => setMainControlsVisible(true)}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) setMainControlsVisible(false);
+        }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -201,7 +208,7 @@ export default function ProductGallery({
           </div>
         )}
         {/* Main image prev/next arrows */}
-        {slides.length > 1 && hasGallerySelection && (
+        {slides.length > 1 && mainControlsVisible && (
           <>
             <button
               onClick={goPrev}
@@ -228,7 +235,7 @@ export default function ProductGallery({
       {/* Thumbnail strip with prev/next arrows */}
       <div className="relative flex min-w-0 items-center justify-center gap-2 sm:gap-3">
         {/* Prev arrow */}
-        {hasGallerySelection && slides.length > 1 && (
+        {slides.length > 1 && (
           <button
             onClick={goPrev}
             aria-label="Image précédente"
@@ -300,7 +307,7 @@ export default function ProductGallery({
         </div>
 
         {/* Next arrow */}
-        {hasGallerySelection && slides.length > 1 && (
+        {slides.length > 1 && (
           <button
             onClick={goNext}
             aria-label="Image suivante"

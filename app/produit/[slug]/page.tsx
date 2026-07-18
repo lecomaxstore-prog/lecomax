@@ -1,7 +1,8 @@
 ﻿import { notFound } from "next/navigation";
 import Link from "next/link";
-import { formatMAD, getProduct, products, type Product } from "@/lib/products";
-import { getDbProductRaw } from "@/lib/db-server";
+import { formatMAD, getProduct, products, type CardProduct, type Product } from "@/lib/products";
+import { getDbProductRaw, getDbProducts } from "@/lib/db-server";
+import { rankSimilarProducts } from "@/lib/product-recommendations";
 import ProductActions from "@/components/ProductActions";
 import ProductCard from "@/components/ProductCard";
 import ProductGallery from "@/components/ProductGallery";
@@ -16,6 +17,7 @@ import { formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
 import { cleanColorStock, resolveProductAvailability } from "@/lib/product-inventory";
 import { inferProductBrand, serializeJsonLd } from "@/lib/seo";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { getProductShareData } from "@/lib/product-share";
 
 
 export const dynamic = "force-dynamic";
@@ -25,75 +27,49 @@ const PRODUCT_SITE_URL = "https://lecomax.com";
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const shippingConfig = await getServerShippingConfig();
-  const product = getProduct(slug);
-  if (product) {
-    const name = product.displayName ?? product.name;
-    const desc = product.description
-      ? product.description.slice(0, 155) + (product.description.length > 155 ? "…" : "")
-      : `Achetez ${name} sur L'ecomax. ${shippingSummary(shippingConfig)} Paiement à la livraison.`;
-    const imgUrl = product.image
-      ? product.image.startsWith("http")
-        ? product.image
-        : `${PRODUCT_SITE_URL}${product.image}`
-      : `${PRODUCT_SITE_URL}/ecomax-hero-banner.jpg.png`;
-    const title = `${name} — Acheter au Maroc | L'ecomax`;
-    return {
+  const shareProduct = await getProductShareData(slug);
+  if (!shareProduct) return { title: "Produit | L'ecomax" };
+
+  const price = formatMAD(shareProduct.price);
+  const availability = shareProduct.stock === 0 ? "Rupture de stock" : "En stock";
+  const canonicalUrl = `${PRODUCT_SITE_URL}/produit/${encodeURIComponent(slug)}/`;
+  const socialImageUrl = `${PRODUCT_SITE_URL}/api/og/product/${encodeURIComponent(slug)}`;
+  const title = `${shareProduct.name} — ${price} | L'ecomax`;
+  const productSummary = shareProduct.description.trim().replace(/\s+/g, " ").slice(0, 85);
+  const description = `${price} · ${availability} · ${shippingSummary(shippingConfig)} Paiement à la livraison.${productSummary ? ` ${productSummary}` : ""}`.slice(0, 190);
+
+  return {
+    title,
+    description,
+    keywords: [shareProduct.name, shareProduct.category, "L'ecomax", "acheter Maroc", "livraison Maroc", "paiement à la livraison", `${shareProduct.category} Maroc`],
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      type: "website",
+      locale: "fr_MA",
+      siteName: "L'ecomax",
+      url: canonicalUrl,
       title,
-      description: desc,
-      keywords: [name, product.category, "L'ecomax", "acheter Maroc", "livraison Maroc", "paiement à la livraison", `${product.category} Maroc`],
-      alternates: { canonical: `${PRODUCT_SITE_URL}/produit/${slug}/` },
-      openGraph: {
-        type: "website",
-        locale: "fr_MA",
-        url: `${PRODUCT_SITE_URL}/produit/${slug}/`,
-        title,
-        description: desc,
-        images: [{ url: imgUrl, width: 800, height: 800, alt: name }],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description: desc,
-        images: [imgUrl],
-      },
-    };
-  }
-  // Try DB product
-  try {
-    const { getDbProductRaw: getDb } = await import("@/lib/db-server");
-    const dbProd = await getDb(slug);
-    if (dbProd) {
-      const img = (dbProd.images ?? [])[0];
-      const imgUrl = img
-        ? img.startsWith("http") ? img : `${PRODUCT_SITE_URL}${img}`
-        : `${PRODUCT_SITE_URL}/ecomax-hero-banner.jpg.png`;
-      const desc = dbProd.description
-        ? dbProd.description.slice(0, 155) + (dbProd.description.length > 155 ? "…" : "")
-        : `Achetez ${dbProd.name} sur L'ecomax. ${shippingSummary(shippingConfig)} Paiement à la livraison.`;
-      const dbTitle = `${dbProd.name} — Acheter au Maroc | L'ecomax`;
-      return {
-        title: dbTitle,
-        description: desc,
-        keywords: [dbProd.name, dbProd.category, "L'ecomax", "acheter Maroc", "livraison Maroc", "paiement à la livraison", `${dbProd.category} Maroc`],
-        alternates: { canonical: `${PRODUCT_SITE_URL}/produit/${slug}/` },
-        openGraph: {
-          type: "website",
-          locale: "fr_MA",
-          url: `${PRODUCT_SITE_URL}/produit/${slug}/`,
-          title: dbTitle,
-          description: desc,
-          images: [{ url: imgUrl, width: 800, height: 800, alt: dbProd.name }],
-        },
-        twitter: {
-          card: "summary_large_image",
-          title: dbTitle,
-          description: desc,
-          images: [imgUrl],
-        },
-      };
-    }
-  } catch { /* */ }
-  return { title: "Produit | L'ecomax" };
+      description,
+      images: [{ url: socialImageUrl, width: 1200, height: 630, type: "image/png", alt: `${shareProduct.name} — ${price}` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [socialImageUrl],
+    },
+    other: {
+      "product:price:amount": String(shareProduct.price),
+      "product:price:currency": "MAD",
+      "product:availability": shareProduct.stock === 0 ? "out of stock" : "in stock",
+      "product:condition": "new",
+      "product:retailer_item_id": shareProduct.slug,
+      "twitter:label1": "Prix",
+      "twitter:data1": price,
+      "twitter:label2": "Disponibilité",
+      "twitter:data2": availability,
+    },
+  };
 }
 
 export function generateStaticParams() {
@@ -434,23 +410,22 @@ export default async function ProductPage({
     ],
   };
   const features = (product.specs && product.specs.length > 0) ? product.specs : getFeatures(product.subCategory);
-  // Gender-aware related: femme products only show femme, homme only homme
-  const productGender =
-    product.slug.includes("femme") || product.name.toLowerCase().includes("femme") || product.category === "femme"
-      ? "femme"
-      : product.slug.includes("homme") || product.name.toLowerCase().includes("homme") || product.category === "homme"
-      ? "homme"
-      : null;
-  const related = products
-    .filter((p) => {
-      if (p.category !== product.category || p.slug === product.slug) return false;
-      if (productGender === "femme")
-        return p.slug.includes("femme") || p.name.toLowerCase().includes("femme");
-      if (productGender === "homme")
-        return p.slug.includes("homme") || p.name.toLowerCase().includes("homme");
-      return true;
-    })
-    .slice(0, 4);
+  // Combine the static catalogue with every active database product so future
+  // additions are immediately eligible for recommendations. Live DB fields
+  // override static card data while the richer static taxonomy is preserved.
+  const dbRecommendationProducts = await getDbProducts({ activeOnly: true });
+  const recommendationCatalogue = new Map<string, CardProduct & { subCategory?: string; description?: string }>();
+  for (const catalogueProduct of products) recommendationCatalogue.set(catalogueProduct.slug, catalogueProduct);
+  for (const dbProduct of dbRecommendationProducts) {
+    const staticProduct = recommendationCatalogue.get(dbProduct.slug);
+    recommendationCatalogue.set(dbProduct.slug, {
+      ...staticProduct,
+      ...dbProduct,
+      subCategory: staticProduct?.subCategory,
+      description: staticProduct?.description,
+    });
+  }
+  const related = rankSimilarProducts(product, [...recommendationCatalogue.values()], 4);
   const allImages = [product.image, ...product.gallery].filter(Boolean);
 
   // Only build image-based color swatches when there are real uploaded images.
@@ -592,28 +567,6 @@ export default async function ProductPage({
               </div>
             );
           })()}
-
-          {/* Spec chips */}
-          {product.specs && product.specs.length > 0 && (
-            <div className="product-summary-enter mt-6 border-y border-neutral-100 py-4 [animation-delay:.24s]">
-              <p className="mb-3 text-[9px] font-black uppercase tracking-[.28em] text-neutral-400">Points forts</p>
-              <div className="flex flex-wrap gap-2">
-              {product.specs.map((s, index) => (
-                <span
-                  key={s}
-                  className="product-spec-chip inline-flex min-h-9 items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50/80 px-3.5 py-2 text-[11px] font-bold leading-tight text-neutral-700 shadow-[0_1px_0_rgba(0,0,0,.03)] transition duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-900"
-                  style={{ animationDelay: `${.3 + index * .05}s` }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0 text-emerald-600" aria-hidden="true">
-                    <circle cx="8" cy="8" r="7" fill="currentColor" opacity=".12" />
-                    <path d="m5 8 2 2 4-4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  {s}
-                </span>
-              ))}
-              </div>
-            </div>
-          )}
 
           {/* Price */}
           <div className="flex items-baseline gap-3 mt-5">
