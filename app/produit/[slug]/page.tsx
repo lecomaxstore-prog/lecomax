@@ -278,14 +278,14 @@ export default async function ProductPage({
   const displayRating = reviewRating;
   const displayReviewCount = reviewCount;
 
-  // Fetch the live database inventory even for products that also exist in the
-  // static catalogue. Database values are the single source of truth.
+  // Fetch live commerce data even for products that also exist in the static
+  // catalogue. Admin-managed price and inventory values are authoritative.
   let realStock: number | null = null;
   try {
     const supa2 = createServerSupabaseClient();
     const { data: stockData } = await supa2
       .from("products")
-      .select("color_stock, stock, tags, colors, sizes")
+      .select("price, original_price, color_stock, stock, tags, colors, sizes")
       .eq("slug", slug)
       .maybeSingle();
     if (typeof stockData?.stock === "number" && stockData.stock >= 0) {
@@ -317,6 +317,10 @@ export default async function ProductPage({
         : product.outOfStockSizes;
       product = {
         ...product,
+        price: typeof stockData.price === "number" ? stockData.price : product.price,
+        oldPrice: typeof stockData.original_price === "number"
+          ? stockData.original_price
+          : undefined,
         colors: dbColors,
         sizes: dbSizes,
         stock: realStock ?? undefined,
