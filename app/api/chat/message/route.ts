@@ -24,6 +24,22 @@ function wantsHuman(text: string): boolean {
   return ESCALATION_PATTERNS.some((p) => p.test(text));
 }
 
+const CLOSING_PATTERNS = [
+  /\b(au revoir|bonne journ[ée]e|bonne soir[ée]e|c['’]est tout|merci c['’]est tout|vous pouvez fermer|ferme[rz]? (le |la )?(chat|conversation))\b/i,
+  /\b(goodbye|bye|that['’]?s all|all good|you can close|close (the )?(chat|conversation))\b/i,
+  /(شكرا.*(?:هذا كل شيء|وداعا)|هذا كل شيء|يمكنك إغلاق|أغلق المحادثة|بسلامة|سلام)/i,
+];
+
+function wantsToClose(text: string): boolean {
+  return CLOSING_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+function closingResponse(text: string): string {
+  if (/[\u0600-\u06FF]/.test(text)) return "شكراً لتواصلك مع L'ecomax. سعدنا بخدمتك، ونتمنى لك يوماً سعيداً. يمكنك بدء محادثة جديدة في أي وقت.";
+  if (/\b(goodbye|bye|that['’]?s all|all good|close)\b/i.test(text)) return "Thank you for contacting L'ecomax. It was a pleasure helping you. Have a wonderful day, and feel free to start a new conversation anytime.";
+  return "Merci d'avoir contacté L'ecomax. Ce fut un plaisir de vous aider. Nous vous souhaitons une excellente journée, et restons disponibles à tout moment.";
+}
+
 const STORE_CONTEXT = `You are Eco, the professional and friendly AI assistant for L'ecomax — a Moroccan e-commerce store at lecomax.com, based in Sidi Bennour, Morocco. You were created specifically for L'ecomax. You are not ChatGPT, Gemini, or any other AI — you are Eco, L'ecomax's own assistant.
 
 ## WHO YOU ARE
@@ -115,7 +131,9 @@ const STORE_CONTEXT = `You are Eco, the professional and friendly AI assistant f
 9. GENERAL QUESTIONS: Answer any safe, reasonable question helpfully, even when it is not directly about the store. Do not force a sales pitch into unrelated answers.
 10. SMART CONVERSATION: Use the full conversation context, resolve references such as "it" or "that product", and never repeat a canned greeting in an active conversation.
 11. CLARIFICATION: When essential information is missing, ask one precise follow-up question instead of guessing.
-12. ACTIONS: Clearly distinguish what you know from what requires access to a customer's account or order. Give the exact next step when you cannot perform an account action yourself.`;
+12. ACTIONS: Clearly distinguish what you know from what requires access to a customer's account or order. Give the exact next step when you cannot perform an account action yourself.
+13. COMPLETION: When the customer's issue has clearly been solved and they explicitly indicate they are finished, append [RESOLVE] at the very end. Never use [RESOLVE] while a question, complaint, order problem, or promised action remains open.
+14. ANSWER QUALITY: Start with the direct answer. Do not repeat the customer's question, do not use filler, and do not claim an action was completed unless a tool or the customer confirms it. For broad questions, give a useful concise answer and then offer one relevant next step.`;
 
 // Cache products for 5 minutes to avoid hitting Supabase on every message
 let cachedProducts: string = "";
@@ -275,6 +293,19 @@ export async function POST(req: Request) {
   }
 
   // If already escalated to agent — just store, admin will reply
+  // A clear goodbye completes both AI and live-agent conversations gracefully.
+  if (!aiTakeover && wantsToClose(messageBody)) {
+    const reply = closingResponse(messageBody);
+    await supabase.from("chat_messages").insert({ session_id, direction: "out", body: reply, sent_by: "ai" });
+    await supabase.from("chat_sessions").update({
+      status: "resolved",
+      last_message: reply,
+      last_at: new Date().toISOString(),
+      unread_count: 0,
+    }).eq("id", session_id);
+    return NextResponse.json({ status: "resolved", reply, resolved: true });
+  }
+
   if (session.status === "escalated" && !aiTakeover) {
     await broadcastAdminPushNotification({
       eventKey: `chat-message:${session_id}:${Date.now()}`,
@@ -317,7 +348,7 @@ export async function POST(req: Request) {
     .limit(20);
 
   const chatHistory: OpenAI.ChatCompletionMessageParam[] = (history || [])
-    .filter((m) => m.sent_by !== "agent" && m.body !== "__AI_RESUMED__")
+    .filter((m) => m.body !== "__AI_RESUMED__" && m.body !== "__AGENT_JOINED__")
     .slice(-16)
     .map((m) => ({
       role: m.direction === "in" ? "user" : "assistant",
@@ -348,7 +379,9 @@ export async function POST(req: Request) {
 
   // Check if AI decided to escalate
   const shouldEscalate = !aiTakeover && aiReply.includes("[ESCALATE]");
-  const cleanReply = aiReply.replace("[ESCALATE]", "").trim();
+  const shouldResolve = !shouldEscalate && !aiTakeover && aiReply.includes("[RESOLVE]");
+  const cleanReply = aiReply.replaceAll("[ESCALATE]", "").replaceAll("[RESOLVE]", "").trim()
+    || "Je veux vous répondre correctement. Pouvez-vous reformuler votre demande en une phrase ?";
 
   if (aiTakeover) {
     await supabase.from("chat_messages").insert({
@@ -380,14 +413,16 @@ export async function POST(req: Request) {
   }
 
   await supabase.from("chat_sessions").update({
+    ...(shouldResolve ? { status: "resolved", unread_count: 0 } : {}),
     last_message: cleanReply,
     last_at: new Date().toISOString(),
   }).eq("id", session_id);
 
   return NextResponse.json({
-    status: shouldEscalate ? "escalated" : "ai",
+    status: shouldEscalate ? "escalated" : shouldResolve ? "resolved" : "ai",
     reply: cleanReply,
     ai_takeover: aiTakeover,
+    resolved: shouldResolve,
   });
 }
 

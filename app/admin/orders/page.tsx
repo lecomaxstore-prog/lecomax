@@ -149,7 +149,8 @@ export default function OrdersPage() {
       shipped:     `Bonjour ${name},\n\n🚚 *Votre colis est en route*\nLa commande *#${num}* vient de quitter nos locaux.${tracking ? `\n\nNuméro de suivi : *${tracking}*` : ""}\n\nLivraison estimée : 2 à 5 jours ouvrables.\nSuivre la commande :\nhttps://lecomax.com/suivre-commande\n\nL'équipe *L'ecomax*`,
       delivered:   `Bonjour ${name},\n\n✅ *Commande livrée*\nLa commande *#${num}* est indiquée comme livrée. Nous espérons que tout est conforme à vos attentes.\n\nVotre facture :\nhttps://lecomax.com/facture/${order.id}\n\nVous recevrez également un lien sécurisé pour partager votre avis sur les produits reçus.\n\nMerci pour votre confiance,\nL'équipe *L'ecomax*`,
       cancelled:   `Bonjour ${name},\n\nVotre commande *#${num}* a été annulée.\n\nSi cette annulation vous surprend ou si vous souhaitez être accompagné(e), répondez simplement à ce message.\n\nL'équipe *L'ecomax*`,
-      trustpilot:  `Bonjour ${name},\n\n⭐ *Votre expérience compte*\nDeux jours se sont écoulés depuis la livraison de la commande *#${num}*. Si tout s'est bien passé, votre avis aide notre équipe et les futurs clients.\n\nPartager mon avis :\nhttps://www.trustpilot.com/evaluate/lecomax.com\n\nMerci,\nL'équipe *L'ecomax*`,
+      productReview: `Bonjour ${name.split(" ")[0] || "Client"},\n\nVotre commande *#${num}* a bien été livrée. Nous espérons que vos articles vous plaisent.\n\n*Partagez votre avis sur les produits achetés :*\n\n${(order.items ?? []).slice(0, 5).map((item, index) => `${index + 1}. ${item.name}\nhttps://lecomax.com/produit/${encodeURIComponent(item.slug || "")}?review=1&email=${encodeURIComponent(order.customer?.email || "")}#avis`).join("\n\n") || "https://lecomax.com/boutique"}\n\nVotre retour aide les autres clients à choisir et nous permet de mieux vous servir. Merci pour votre confiance.\n\nL'équipe *L'ecomax*`,
+      trustpilot: `Bonjour ${name.split(" ")[0] || "Client"},\n\n*Comment s'est passée votre expérience avec la commande #${num} ?* Votre avis honnête aide les futurs clients et notre équipe.\n\nPartager mon expérience sur Trustpilot :\nhttps://www.trustpilot.com/evaluate/lecomax.com\n\nMerci pour votre confiance.\nL'équipe *L'ecomax*`,
     };
     return `https://wa.me/${wa}?text=${encodeURIComponent(msgs[type] ?? "")}`;
   }
@@ -207,12 +208,14 @@ export default function OrdersPage() {
 
       const automation = data.reviewAutomation as {
         productReview?: "sent" | "missing_email" | "not_configured" | "failed";
+        productWhatsApp?: "sent" | "missing_phone" | "not_configured" | "failed";
         followupScheduled?: boolean;
       } | null;
       if (!automation) {
         showToast("Livraison déjà confirmée. Aucun nouvel email n'a été envoyé.");
       } else if (automation.productReview === "sent" && automation.followupScheduled) {
-        showToast("Livraison confirmée. L'avis produit est envoyé et le rappel produits J+2 est programmé.");
+        const wa = automation.productWhatsApp === "sent" ? " WhatsApp et email envoyés." : " Email envoyé.";
+        showToast(`Livraison confirmée.${wa} Rappel produits + Trustpilot programmé à J+2.`);
       } else if (automation.productReview === "missing_email") {
         showToast("Livraison confirmée, mais aucun email client n'est disponible.", false);
       } else if (automation.productReview === "not_configured") {
@@ -280,6 +283,11 @@ export default function OrdersPage() {
   function handleTrustpilotWhatsApp(id: string) {
     const order = orders.find((o) => o.id === id);
     if (order) window.open(buildWaUrl(order, "trustpilot"), "_blank");
+  }
+
+  function handleProductReviewWhatsApp(id: string) {
+    const order = orders.find((o) => o.id === id);
+    if (order) window.open(buildWaUrl(order, "productReview"), "_blank", "noopener,noreferrer");
   }
 
   function exportCSV() {
@@ -684,11 +692,19 @@ export default function OrdersPage() {
                   <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs ${detail.status === "delivered" ? "bg-emerald-600 text-white" : "bg-white text-neutral-400 shadow-sm"}`}>{detail.status === "delivered" ? "✓" : "⏱"}</span>
                   <div>
                     <p className="text-[11px] font-black text-neutral-800">{detail.status === "delivered" ? "Séquence automatique activée" : "Démarre automatiquement à la livraison"}</p>
-                    <p className="mt-1 text-[10px] leading-4 text-neutral-500">Avis produit envoyé dès la livraison, puis rappel personnalisé sur les produits 2 jours plus tard.</p>
+                    <p className="mt-1 text-[10px] leading-4 text-neutral-500">Avis produit par email et WhatsApp dès la livraison, puis rappel produits + Trustpilot 2 jours plus tard. WhatsApp automatique utilise vos modèles Meta approuvés.</p>
                   </div>
                 </div>
               </div>
-              <p className="mb-3 text-[10px] font-semibold text-neutral-400">Envoi manuel exceptionnel</p>
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-neutral-400">Avis produits achetés</p>
+              {detail.customer?.phone ? (
+                <button onClick={() => handleProductReviewWhatsApp(detail.id)} disabled={!!sending}
+                  className="mb-3 flex w-full items-center justify-between rounded-xl bg-[#111] px-4 py-3 text-left text-white transition hover:bg-neutral-800 disabled:opacity-50">
+                  <span><span className="block text-xs font-bold">WhatsApp · Avis produits</span><span className="mt-0.5 block text-[10px] text-white/60">Liens directs vers les articles achetés</span></span>
+                  <WaIcon />
+                </button>
+              ) : null}
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-wide text-neutral-400">Avis Trustpilot</p>
               <div className="grid grid-cols-2 gap-2">
                 {/* Email */}
                 {detail.customer?.email ? (

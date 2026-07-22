@@ -8,6 +8,7 @@ import {
   initialReviewAutomationState,
   type ReviewOrderItem,
 } from "@/lib/order-review-automation";
+import { sendReviewWhatsAppTemplate } from "@/lib/whatsapp-review";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -145,6 +146,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     followupScheduled: boolean;
     followupDueAt: string;
     error?: string;
+    productWhatsApp?: "sent" | "missing_phone" | "not_configured" | "failed";
   } | null = null;
 
   // First delivery transition: send one product-review request immediately and
@@ -157,6 +159,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const orderNumber = (data as { order_number?: string }).order_number || id;
     const items = ((data as { items?: ReviewOrderItem[] }).items ?? []);
     const automation = initialReviewAutomationState(id);
+    const whatsapp = await sendReviewWhatsAppTemplate({
+      kind: "product",
+      phone: (customer as { phone?: string } | undefined)?.phone,
+      customerName: name,
+      orderNumber,
+    });
+    if (whatsapp.status === "sent") automation.productWhatsAppSentAt = new Date().toISOString();
     let productReview: "sent" | "missing_email" | "not_configured" | "failed" = "sent";
 
     if (!email) {
@@ -195,6 +204,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       productReview,
       followupScheduled: !automationError,
       followupDueAt: automation.followupDueAt,
+      productWhatsApp: whatsapp.status,
       ...(automationError ? { error: automationError.message } : {}),
     };
   }

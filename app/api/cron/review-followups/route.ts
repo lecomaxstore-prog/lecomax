@@ -6,6 +6,7 @@ import {
   buildProductReviewFollowupEmailHtml,
   parseReviewAutomationState,
 } from "@/lib/order-review-automation";
+import { sendReviewWhatsAppTemplate } from "@/lib/whatsapp-review";
 
 export const maxDuration = 60;
 
@@ -22,7 +23,6 @@ function authorized(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   if (!authorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!resend) return NextResponse.json({ error: "Resend not configured" }, { status: 503 });
 
   const now = new Date();
   const staleClaimBefore = now.getTime() - 30 * 60 * 1000;
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
 
   const due = (rows ?? []).flatMap((row) => {
     const state = parseReviewAutomationState(row.value);
-    if (!state || state.followupSentAt || Date.parse(state.followupDueAt) > now.getTime()) return [];
+    if (!state || (state.followupSentAt && state.followupWhatsAppSentAt) || Date.parse(state.followupDueAt) > now.getTime()) return [];
     if (state.processingAt && Date.parse(state.processingAt) > staleClaimBefore) return [];
     return [{ key: row.key as string, rawValue: row.value as string, state }];
   });
@@ -71,13 +71,9 @@ export async function GET(req: NextRequest) {
       job.state.lastError = `skipped_status_${order.status}`;
       results.push({ orderId: job.state.orderId, status: "skipped" });
     } else {
-      const customer = order.customer as { email?: string; name?: string; first_name?: string } | null;
+      const customer = order.customer as { email?: string; phone?: string; name?: string; first_name?: string } | null;
       const email = customer?.email;
-      if (!email) {
-        job.state.processingAt = null;
-        job.state.lastError = "no_customer_email";
-        results.push({ orderId: job.state.orderId, status: "no_email" });
-      } else {
+      if (!job.state.followupSentAt && email && resend) {
         const name = customer?.name || customer?.first_name || "Client";
         const orderNumber = order.order_number || job.state.orderId;
         const sent = await resend.emails.send({
@@ -99,8 +95,26 @@ export async function GET(req: NextRequest) {
         } else {
           job.state.followupSentAt = new Date().toISOString();
           job.state.lastError = null;
-          results.push({ orderId: job.state.orderId, status: "sent" });
+          results.push({ orderId: job.state.orderId, status: "email_sent" });
         }
+      } else {
+        job.state.processingAt = null;
+        job.state.lastError = email ? "resend_not_configured" : "no_customer_email";
+      }
+
+      const whatsapp = job.state.followupWhatsAppSentAt
+        ? { status: "sent" as const }
+        : await sendReviewWhatsAppTemplate({
+            kind: "followup",
+            phone: customer?.phone,
+            customerName: customer?.name || customer?.first_name || "Client",
+            orderNumber: order.order_number || job.state.orderId,
+          });
+      if (whatsapp.status === "sent") job.state.followupWhatsAppSentAt = new Date().toISOString();
+      results.push({ orderId: job.state.orderId, status: `whatsapp_${whatsapp.status}` });
+      if ((!email || !resend) && whatsapp.status === "sent") {
+        job.state.followupSentAt = new Date().toISOString();
+        job.state.lastError = null;
       }
     }
 

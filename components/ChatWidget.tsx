@@ -462,6 +462,25 @@ export default function ChatWidget() {
     }
   }
 
+  async function requestHumanAgent() {
+    if (!sessionId || loading) return;
+    const text = "Je souhaite parler à un conseiller humain";
+    setMessages(prev => [...prev, { id: genId(), direction: "in", body: text, sent_by: "visitor", timestamp: new Date().toISOString() }]);
+    setLoading(true);
+    try {
+      const response = await fetch("/api/chat/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId, body: text }),
+      });
+      const data = await response.json();
+      if (data.reply) setMessages(prev => [...prev, { id: genId(), direction: "out", body: data.reply, sent_by: "ai", timestamp: new Date().toISOString() }]);
+      if (data.status) { setCallVisible(true); setStatus(data.status); }
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function handleKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   }
@@ -583,6 +602,7 @@ export default function ChatWidget() {
             @keyframes chatPanelIn  { from{opacity:0;transform:translateY(16px) scale(.98);} to{opacity:1;transform:translateY(0) scale(1);} }
             @keyframes quickCardIn  { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
             .chat-msg { animation: msgIn 0.25s cubic-bezier(0.22,1,0.36,1) both; }
+            .chat-scrollbar-hidden::-webkit-scrollbar { display:none; width:0; height:0; }
             @media (min-width:640px){.chat-premium-panel{animation:chatPanelIn .4s cubic-bezier(.16,1,.3,1) both}}
             @media (prefers-reduced-motion:reduce){.chat-msg,.chat-premium-panel,.chat-quick-card,.agent-call-icon{animation:none!important}}
           `}</style>
@@ -714,10 +734,10 @@ export default function ChatWidget() {
 
           {/* Messages area */}
           <div className="relative flex-1 min-h-0" style={{ overflow: "hidden" }}>
-          <div ref={scrollRef} className="h-full overflow-y-auto px-4 py-4"
+          <div ref={scrollRef} className="chat-scrollbar-hidden h-full overflow-y-auto px-4 py-4"
             style={{
               scrollBehavior:"smooth",overscrollBehavior:"contain",
-              scrollbarWidth:"thin",scrollbarColor:"#3ecf4c transparent",
+              scrollbarWidth:"none",
               display:"flex",flexDirection:"column",gap:"10px",
               background:"linear-gradient(180deg,#f7faf8 0%,#f7f8f7 45%,#f3f5f4 100%)",
               backgroundImage:"radial-gradient(circle at 15% 5%,rgba(62,207,76,.07),transparent 28%)",
@@ -733,7 +753,7 @@ export default function ChatWidget() {
             {/* Welcome card */}
             {!starting && messages.length === 0 && (
               <div className="chat-msg flex flex-col gap-3">
-                <div className="overflow-hidden rounded-[24px]" style={{ background:"white",border:"1px solid rgba(15,23,18,.08)",boxShadow:"0 14px 36px rgba(15,23,18,.07)" }}>
+                <div className="overflow-hidden rounded-2xl" style={{ background:"white",border:"1px solid rgba(15,23,18,.08)",boxShadow:"0 12px 30px rgba(15,23,18,.065)" }}>
                   <div className="flex items-center gap-3 px-4 pb-3 pt-4" style={{ background:"linear-gradient(135deg,#f2fff5 0%,#fbfffc 58%,#fff 100%)" }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <div className="relative flex-shrink-0">
@@ -787,8 +807,8 @@ export default function ChatWidget() {
                           if (data.status) { if (data.status === "escalated" && status !== "escalated") setCallVisible(true); setStatus(data.status); }
                         } finally { setLoading(false); }
                       }}
-                      className="chat-quick-card group flex min-h-[56px] items-center gap-2.5 rounded-2xl px-3 py-2.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-[#3ecf4c]/40 hover:shadow-[0_10px_24px_rgba(15,23,18,.08)] active:scale-[0.97]"
-                      style={{ background:"white",border:"1px solid rgba(15,23,18,.07)",boxShadow:"0 3px 10px rgba(15,23,18,.035)",animation:`quickCardIn .35s cubic-bezier(.16,1,.3,1) ${QUICK_CHIPS.indexOf(chip) * 45}ms both` }}>
+                      className="chat-quick-card group flex min-h-[60px] items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-[#3ecf4c]/40 hover:shadow-[0_10px_24px_rgba(15,23,18,.08)] active:scale-[0.97]"
+                      style={{ background:"white",border:"1px solid rgba(15,23,18,.08)",boxShadow:"0 3px 10px rgba(15,23,18,.035)" }}>
                       <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105" style={{ background:chip.soft,color:chip.color }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={chip.path}/></svg>
                       </span>
@@ -797,6 +817,15 @@ export default function ChatWidget() {
                     </button>
                   ))}
                 </div>
+                <button
+                  type="button"
+                  onClick={requestHumanAgent}
+                  disabled={loading}
+                  className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-[11px] font-extrabold text-emerald-800 transition hover:bg-emerald-100 active:scale-[.98] disabled:opacity-50"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
+                  Parler &agrave; un conseiller humain
+                </button>
               </div>
             )}
 
@@ -1103,7 +1132,7 @@ export default function ChatWidget() {
                           if (data.status) { setCallVisible(true); setStatus(data.status); }
                         } finally { setLoading(false); }
                       }}
-                      className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-400 transition-colors hover:text-[#16a34a] active:scale-95"
+                      className="flex min-h-8 items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 text-[10px] font-bold text-neutral-600 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-[#15803d] active:scale-95"
                     >
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
                       Parler à un conseiller

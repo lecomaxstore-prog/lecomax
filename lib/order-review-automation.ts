@@ -9,6 +9,8 @@ export type ReviewAutomationState = {
   followupDueAt: string;
   productReviewSentAt: string | null;
   followupSentAt: string | null;
+  productWhatsAppSentAt?: string | null;
+  followupWhatsAppSentAt?: string | null;
   processingAt?: string | null;
   lastError?: string | null;
 };
@@ -36,9 +38,27 @@ function absoluteImage(src?: string) {
   return src.startsWith("http") ? src : `${siteUrl}${src.startsWith("/") ? "" : "/"}${src}`;
 }
 
-function productReviewUrl(slug: string | undefined, email: string) {
+export function productReviewUrl(slug: string | undefined, email = "") {
   if (!slug) return `${siteUrl}/boutique`;
   return `${siteUrl}/produit/${encodeURIComponent(slug)}?review=1&email=${encodeURIComponent(email)}#avis`;
+}
+
+export function buildProductReviewWhatsAppText(args: {
+  customerName: string;
+  customerEmail?: string;
+  orderNumber: string;
+  items: ReviewOrderItem[];
+}) {
+  const firstName = args.customerName.split(" ")[0] || "Client";
+  const links = args.items.slice(0, 5).map((item, index) =>
+    `${index + 1}. ${item.name}\n${productReviewUrl(item.slug, args.customerEmail || "")}`
+  ).join("\n\n");
+  return `Bonjour ${firstName},\n\nVotre commande #${args.orderNumber} a bien été livrée. Nous espérons que vos articles vous plaisent.\n\nPartagez votre avis sur les produits achetés :\n\n${links || `${siteUrl}/boutique`}\n\nVotre retour aide les autres clients à choisir et nous permet de mieux vous servir. Merci pour votre confiance.\n\nL'équipe L'ecomax`;
+}
+
+export function buildTrustpilotWhatsAppText(customerName: string, orderNumber: string) {
+  const firstName = customerName.split(" ")[0] || "Client";
+  return `Bonjour ${firstName},\n\nComment s'est passée votre expérience avec la commande #${orderNumber} ? Votre avis honnête aide les futurs clients et notre équipe.\n\nPartager mon expérience sur Trustpilot :\nhttps://www.trustpilot.com/evaluate/lecomax.com\n\nMerci pour votre confiance.\nL'équipe L'ecomax`;
 }
 
 function emailShell(content: string, preview: string) {
@@ -128,6 +148,8 @@ export function initialReviewAutomationState(orderId: string, deliveredAt = new 
     followupDueAt: new Date(deliveredAt.getTime() + REVIEW_FOLLOWUP_DELAY_MS).toISOString(),
     productReviewSentAt: null,
     followupSentAt: null,
+    productWhatsAppSentAt: null,
+    followupWhatsAppSentAt: null,
     processingAt: null,
     lastError: null,
   };
