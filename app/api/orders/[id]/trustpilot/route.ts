@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { isAdminRequest } from "@/lib/request-auth";
+import {
+  REVIEW_AUTOMATION_KEY_PREFIX,
+  buildTrustpilotFollowupEmailHtml,
+  initialReviewAutomationState,
+  parseReviewAutomationState,
+} from "@/lib/order-review-automation";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -99,12 +105,24 @@ export async function POST(
     replyTo: "contact@lecomax.com",
     to: email,
     subject: `⭐ Partagez votre avis sur votre commande ${orderNumber}`,
-    html: buildTrustpilotInviteHtml(name, orderNumber),
+    html: buildTrustpilotFollowupEmailHtml(name, orderNumber),
   });
 
   if (emailError) {
     return NextResponse.json({ error: emailError.message }, { status: 500 });
   }
+
+  const key = `${REVIEW_AUTOMATION_KEY_PREFIX}${id}`;
+  const { data: saved } = await supabase.from("settings").select("value").eq("key", key).maybeSingle();
+  const automation = parseReviewAutomationState(saved?.value) ?? initialReviewAutomationState(id);
+  automation.followupSentAt = new Date().toISOString();
+  automation.processingAt = null;
+  automation.lastError = null;
+  await supabase.from("settings").upsert({
+    key,
+    value: JSON.stringify(automation),
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "key" });
 
   return NextResponse.json({ success: true, to: email });
 }

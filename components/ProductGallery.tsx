@@ -51,11 +51,12 @@ export default function ProductGallery({
   video?: string;
 }) {
   // active: index into images, or "video" sentinel
-  const [active, setActive] = useState<number | "video">(video ? "video" : 0);
+  const [active, setActive] = useState<number | "video">(0);
+  const [videoPlaybackKey, setVideoPlaybackKey] = useState(0);
   const [mainControlsVisible, setMainControlsVisible] = useState(false);
   const { color: selectedColor, setColor: setSelectedColor } = useProductColor();
-  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const thumbsRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const touchStartX = useRef<number | null>(null);
 
   // Filter out empty/invalid image strings and ensure at least a placeholder
@@ -76,6 +77,11 @@ export default function ProductGallery({
 
   const selectSlide = useCallback(
     (slide: "video" | number) => {
+      if (slide === "video") {
+        // Incrementing the key remounts the player, so clicking an already
+        // selected video thumbnail reliably restarts playback as well.
+        setVideoPlaybackKey((key) => key + 1);
+      }
       setActive(slide);
 
       // Gallery navigation is an explicit customer action. When the selected
@@ -125,14 +131,17 @@ export default function ProductGallery({
     else goNext();
   };
 
-  // When viewing a photo and video exists, return to video after 30s of inactivity
+  // The video element mounts after the click state update. Calling play here
+  // makes playback reliable across browsers while muted autoplay remains safe.
   useEffect(() => {
-    if (!video || active === "video") return;
-    idleTimer.current = setTimeout(() => setActive("video"), 30_000);
-    return () => {
-      if (idleTimer.current) clearTimeout(idleTimer.current);
-    };
-  }, [active, video]);
+    if (active !== "video" || !video || isYouTube(video)) return;
+    const player = videoRef.current;
+    if (!player) return;
+    player.currentTime = 0;
+    void player.play().catch(() => {
+      // A later click on the video thumbnail retries playback.
+    });
+  }, [active, video, videoPlaybackKey]);
 
   const hasColorPicker = !!(colors && colors.length > 0 && colorImages);
 
@@ -164,21 +173,29 @@ export default function ProductGallery({
         {active === "video" && video ? (
           isYouTube(video) ? (
             <iframe
-              key={video}
+              key={`${video}-${videoPlaybackKey}`}
               src={`https://www.youtube.com/embed/${getYouTubeId(video)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeId(video)}&controls=1&rel=0&modestbranding=1`}
-              allow="autoplay; encrypted-media"
+              title={`${name} — vidéo du produit`}
+              allow="autoplay; encrypted-media; picture-in-picture"
               allowFullScreen
               className="absolute inset-0 w-full h-full border-0"
             />
           ) : (
           <video
-            key={video}
+            ref={videoRef}
+            key={`${video}-${videoPlaybackKey}`}
             src={video}
             autoPlay
             muted
             loop
             playsInline
+            preload="metadata"
             poster={safeImages[0]}
+            onCanPlay={(event) => {
+              void event.currentTarget.play().catch(() => {
+                // A later click on the video thumbnail retries playback.
+              });
+            }}
             className="absolute inset-0 w-full h-full object-cover"
           />
           )
@@ -233,13 +250,13 @@ export default function ProductGallery({
       </div>
 
       {/* Thumbnail strip with prev/next arrows */}
-      <div className="relative flex min-w-0 items-center justify-center gap-2 sm:gap-3">
+      <div className="relative flex w-full min-w-0 max-w-full items-center gap-1.5 overflow-hidden rounded-2xl border border-neutral-200/80 bg-neutral-50/80 p-1.5 shadow-[0_1px_2px_rgba(0,0,0,.03)] sm:gap-2 sm:p-2">
         {/* Prev arrow */}
         {slides.length > 1 && (
           <button
             onClick={goPrev}
             aria-label="Image précédente"
-            className="flex h-11 w-11 flex-shrink-0 items-center justify-center border border-neutral-200 bg-white text-neutral-900 shadow-sm transition-all duration-200 hover:border-black hover:bg-black hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-700 shadow-sm transition-all duration-200 hover:-translate-x-0.5 hover:border-neutral-900 hover:bg-neutral-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 sm:h-11 sm:w-11"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M15 18l-6-6 6-6" />
@@ -250,9 +267,9 @@ export default function ProductGallery({
         {/* Thumbnails */}
         <div
           ref={thumbsRef}
-          className="min-w-0 flex-1 snap-x snap-mandatory overflow-x-auto scroll-smooth px-1 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="w-0 min-w-0 flex-1 snap-x snap-mandatory overflow-x-auto scroll-smooth px-0.5 py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <div className="mx-auto flex w-max min-w-max items-center gap-2 sm:gap-2.5">
+          <div className="mx-auto flex w-max min-w-max items-center gap-1.5 sm:gap-2">
             {/* Video thumbnail */}
             {video && (
               <button
@@ -261,10 +278,10 @@ export default function ProductGallery({
                 data-gallery-thumb="0"
                 aria-label="Voir la vidéo du produit"
                 aria-pressed={active === "video"}
-                className={`relative flex h-16 w-16 flex-shrink-0 snap-center items-center justify-center overflow-hidden border bg-neutral-900 shadow-sm transition-all duration-200 sm:h-[72px] sm:w-[72px] ${
+                className={`relative flex h-16 w-16 flex-shrink-0 snap-center items-center justify-center overflow-hidden rounded-xl border bg-neutral-900 shadow-sm transition-all duration-200 sm:h-[72px] sm:w-[72px] ${
                   active === "video"
-                    ? "z-[1] border-black ring-1 ring-black"
-                    : "border-neutral-200 opacity-75 hover:border-neutral-400 hover:opacity-100"
+                    ? "z-[1] border-neutral-950 ring-2 ring-neutral-950 ring-offset-2 ring-offset-neutral-50"
+                    : "border-neutral-200 opacity-80 hover:-translate-y-0.5 hover:border-neutral-400 hover:opacity-100 hover:shadow-md"
                 } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -286,10 +303,10 @@ export default function ProductGallery({
                   data-gallery-thumb={slideIndex}
                   aria-label={`${name}, vue ${i + 1}`}
                   aria-pressed={active === i}
-                  className={`relative h-16 w-16 flex-shrink-0 snap-center overflow-hidden border bg-neutral-100 shadow-sm transition-all duration-200 sm:h-[72px] sm:w-[72px] ${
+                  className={`relative h-16 w-16 flex-shrink-0 snap-center overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-200 sm:h-[72px] sm:w-[72px] ${
                     active === i
-                      ? "z-[1] border-black ring-1 ring-black"
-                      : "border-neutral-200 opacity-75 hover:border-neutral-400 hover:opacity-100"
+                      ? "z-[1] border-neutral-950 ring-2 ring-neutral-950 ring-offset-2 ring-offset-neutral-50"
+                      : "border-neutral-200 opacity-80 hover:-translate-y-0.5 hover:border-neutral-400 hover:opacity-100 hover:shadow-md"
                   } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2`}
                 >
                   <Image
@@ -297,7 +314,7 @@ export default function ProductGallery({
                     alt=""
                     fill
                     sizes="(max-width: 639px) 64px, 72px"
-                    className="object-cover transition-transform duration-300 hover:scale-105"
+                    className="object-contain p-1.5 transition-transform duration-300 hover:scale-105"
                     loading="lazy"
                   />
                 </button>
@@ -311,7 +328,7 @@ export default function ProductGallery({
           <button
             onClick={goNext}
             aria-label="Image suivante"
-            className="flex h-11 w-11 flex-shrink-0 items-center justify-center border border-neutral-200 bg-white text-neutral-900 shadow-sm transition-all duration-200 hover:border-black hover:bg-black hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-700 shadow-sm transition-all duration-200 hover:translate-x-0.5 hover:border-neutral-900 hover:bg-neutral-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 sm:h-11 sm:w-11"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M9 18l6-6-6-6" />

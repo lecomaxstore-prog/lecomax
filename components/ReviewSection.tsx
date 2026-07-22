@@ -119,6 +119,20 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
       .finally(() => setLoading(false));
   }, [productSlug]);
 
+  // Review-request emails deep-link here and prefill the verified order email.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("review") !== "1") return;
+    const requestedEmail = params.get("email")?.trim() ?? "";
+    setShowForm(true);
+    if (requestedEmail) {
+      setEmail(requestedEmail);
+      void checkEmail(requestedEmail);
+    }
+  // Run once for this product; checkEmail intentionally uses current state setters.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productSlug]);
+
   // Real average — only from actual DB reviews
   const avg = reviews.length
     ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) * 10) / 10
@@ -194,7 +208,7 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
   if (siteSettings.enable_reviews === "false") return null;
 
   return (
-    <section className="mt-16 border-t border-neutral-100 pt-12">
+    <section id="avis" className="mt-16 scroll-mt-28 border-t border-neutral-100 pt-12">
       {/* Header */}
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
