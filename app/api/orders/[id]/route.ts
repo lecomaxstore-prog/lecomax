@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { isAdminRequest } from "@/lib/request-auth";
+import {
+  REVIEW_AUTOMATION_KEY_PREFIX,
+  buildProductReviewEmailHtml,
+  initialReviewAutomationState,
+  type ReviewOrderItem,
+} from "@/lib/order-review-automation";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -134,25 +140,44 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (result.error) console.error("EcoClub reversal failed:", result.error.message);
   }
 
-  // Send the Trustpilot invite only on the first transition to delivered.
+  // First delivery transition: send one product-review request immediately and
+  // persist the two-day Trustpilot follow-up schedule. The persisted state
+  // makes the workflow idempotent across retries and deployments.
   if (update.status === "delivered" && prev?.status !== "delivered") {
     const customer = prev?.customer as { email?: string; name?: string; first_name?: string } | undefined;
     const email = customer?.email;
     const name = customer?.name || customer?.first_name || "Client";
     const orderNumber = (data as { order_number?: string }).order_number || id;
+    const items = ((data as { items?: ReviewOrderItem[] }).items ?? []);
+    const automation = initialReviewAutomationState(id);
 
-    if (email) {
-      // Trustpilot review invite email
-      if (resend) {
-        resend.emails.send({
-          from: "L'ecomax <noreply@lecomax.com>",
-          replyTo: "contact@lecomax.com",
-          to: email,
-          subject: `⭐ Votre commande est livrée — partagez votre avis !`,
-          html: buildTrustpilotInviteHtml(name, orderNumber),
-        }).catch(console.error);
-      }
+    if (!email) {
+      automation.lastError = "no_customer_email";
+    } else if (!resend) {
+      automation.lastError = "resend_not_configured";
+    } else {
+      const result = await resend.emails.send({
+        from: "L'ecomax <noreply@lecomax.com>",
+        replyTo: "contact@lecomax.com",
+        to: email,
+        subject: `Votre commande #${orderNumber} est livrée — donnez votre avis`,
+        html: buildProductReviewEmailHtml({
+          customerName: name,
+          customerEmail: email,
+          orderNumber,
+          items,
+        }),
+      });
+      if (result.error) automation.lastError = result.error.message;
+      else automation.productReviewSentAt = new Date().toISOString();
     }
+
+    const { error: automationError } = await supabase.from("settings").upsert({
+      key: `${REVIEW_AUTOMATION_KEY_PREFIX}${id}`,
+      value: JSON.stringify(automation),
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "key" });
+    if (automationError) console.error("Review automation schedule failed:", automationError.message);
   }
 
   return NextResponse.json({ ...data, loyalty });

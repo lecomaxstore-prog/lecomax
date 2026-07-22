@@ -53,16 +53,36 @@ export default function OrdersPage() {
   const load = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
-    const res = await fetch("/api/orders");
-    if (!res.ok) {
-      const json = await res.json();
-      setLoadError(json.error ?? "Erreur inconnue");
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 15_000);
+    try {
+      const res = await fetch("/api/orders", {
+        signal: controller.signal,
+        cache: "no-store",
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setLoadError(data?.error ?? `Impossible de charger les commandes (${res.status}).`);
+        setOrders([]);
+        return;
+      }
+      if (!Array.isArray(data)) {
+        setLoadError("La réponse des commandes est invalide.");
+        setOrders([]);
+        return;
+      }
+      setOrders(data);
+    } catch (error) {
       setOrders([]);
-    } else {
-      const data = await res.json();
-      setOrders(Array.isArray(data) ? data : []);
+      setLoadError(
+        error instanceof DOMException && error.name === "AbortError"
+          ? "Le chargement des commandes a expiré. Réessayez."
+          : "Impossible de joindre le serveur des commandes."
+      );
+    } finally {
+      window.clearTimeout(timeout);
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -125,22 +145,35 @@ export default function OrdersPage() {
     const num  = order.order_number;
     const tracking = order.tracking_number ?? "";
     const msgs: Record<string, string> = {
-      confirmed:   `Bonjour ${name},\n\nVotre commande *#${num}* chez L'ECOMAX a bien été *confirmée* !\n\nNous préparons votre colis et vous tiendrons informé(e) de l'expédition.\n\nMerci pour votre confiance !\nL'équipe L'ECOMAX`,
-      shipped:     `Bonjour ${name},\n\nVotre commande *#${num}* a été *expédiée* !${tracking ? `\n\nNuméro de suivi : *${tracking}*` : ""}\n\nElle sera livrée dans les prochains jours.\n\nMerci !\nL'équipe L'ECOMAX`,
-      delivered:   `Bonjour ${name} ! 🎉\n\nVotre commande *#${num}* a bien été livrée !\n\n🧾 *Voir votre facture :*\nhttps://lecomax.com/facture/${order.id}\n\n(Enregistrez-la ou faites une capture d'écran)\n\nMerci pour votre confiance !\nL'équipe *L'ecomax* 🛍`,
-      cancelled:   `Bonjour ${name},\n\nNous vous informons que votre commande *#${num}* a été *annulée*.\n\nPour toute question, contactez-nous.\n\nL'équipe L'ECOMAX`,
-      trustpilot:  `Bonjour ${name} ! ⭐\n\nMerci pour votre commande *#${num}* chez L'ECOMAX !\n\nVotre satisfaction est notre priorité. Si vous êtes satisfait(e), votre avis nous aiderait énormément 🙏\n\n👉 Laisser un avis (2 min) :\nhttps://www.trustpilot.com/evaluate/lecomax.com\n\nMerci infiniment !\nL'équipe *L'ecomax* 🛍`,
+      confirmed:   `Bonjour ${name},\n\n✅ *Commande confirmée*\nVotre commande *#${num}* a bien été enregistrée. Notre équipe commence sa préparation avec soin.\n\nVous recevrez un nouveau message dès son expédition.\n\nSuivre la commande :\nhttps://lecomax.com/suivre-commande\n\nMerci pour votre confiance,\nL'équipe *L'ecomax*`,
+      shipped:     `Bonjour ${name},\n\n🚚 *Votre colis est en route*\nLa commande *#${num}* vient de quitter nos locaux.${tracking ? `\n\nNuméro de suivi : *${tracking}*` : ""}\n\nLivraison estimée : 2 à 5 jours ouvrables.\nSuivre la commande :\nhttps://lecomax.com/suivre-commande\n\nL'équipe *L'ecomax*`,
+      delivered:   `Bonjour ${name},\n\n✅ *Commande livrée*\nLa commande *#${num}* est indiquée comme livrée. Nous espérons que tout est conforme à vos attentes.\n\nVotre facture :\nhttps://lecomax.com/facture/${order.id}\n\nVous recevrez également un lien sécurisé pour partager votre avis sur les produits reçus.\n\nMerci pour votre confiance,\nL'équipe *L'ecomax*`,
+      cancelled:   `Bonjour ${name},\n\nVotre commande *#${num}* a été annulée.\n\nSi cette annulation vous surprend ou si vous souhaitez être accompagné(e), répondez simplement à ce message.\n\nL'équipe *L'ecomax*`,
+      trustpilot:  `Bonjour ${name},\n\n⭐ *Votre expérience compte*\nDeux jours se sont écoulés depuis la livraison de la commande *#${num}*. Si tout s'est bien passé, votre avis aide notre équipe et les futurs clients.\n\nPartager mon avis :\nhttps://www.trustpilot.com/evaluate/lecomax.com\n\nMerci,\nL'équipe *L'ecomax*`,
     };
     return `https://wa.me/${wa}?text=${encodeURIComponent(msgs[type] ?? "")}`;
   }
 
   async function handleEmail(id: string, type: "confirmed" | "shipped" | "delivered" | "cancelled") {
     setSending("email");
-    await fetch(`/api/orders/${id}`, {
+    const updateResponse = await fetch(`/api/orders/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: type }),
     });
+    if (!updateResponse.ok) {
+      const failure = await updateResponse.json().catch(() => ({}));
+      setSending(null);
+      showToast(`Mise à jour impossible : ${failure.error ?? "erreur inconnue"}`, false);
+      return;
+    }
+    if (type === "delivered") {
+      await load();
+      setSending(null);
+      setPendingAction(null);
+      showToast("Livraison confirmée · Avis produit envoyé · rappel J+2 programmé ✓");
+      return;
+    }
     const res = await fetch(`/api/orders/${id}/notify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -170,7 +203,9 @@ export default function OrdersPage() {
     await load();
     setSending(null);
     setPendingAction(null);
-    showToast("Statut mis à jour · WhatsApp ouvert ✓");
+    showToast(type === "delivered"
+      ? "Livraison confirmée · Avis produit envoyé · rappel J+2 programmé ✓"
+      : "Statut mis à jour · WhatsApp ouvert ✓");
   }
 
   async function handleTrustpilotInvite(id: string) {
@@ -258,7 +293,9 @@ export default function OrdersPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-xl font-black">Commandes</h1>
-            <p className="text-neutral-500 text-xs mt-0.5">{orders.length} commande{orders.length !== 1 ? "s" : ""}</p>
+            <p className="text-neutral-500 text-xs mt-0.5">
+              {loading ? "Chargement…" : `${orders.length} commande${orders.length !== 1 ? "s" : ""}`}
+            </p>
           </div>
           <button onClick={exportCSV}
             className="flex items-center gap-2 px-3 py-2 border border-neutral-200 rounded-xl text-xs font-semibold hover:border-black transition-colors">
@@ -284,7 +321,12 @@ export default function OrdersPage() {
         </div>
 
         {loadError && (
-          <div className="mb-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">{loadError}</div>
+          <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
+            <span>{loadError}</span>
+            <button type="button" onClick={() => void load()} className="shrink-0 rounded-lg border border-red-200 bg-white px-3 py-2 font-black text-red-700 transition hover:border-red-400">
+              Réessayer
+            </button>
+          </div>
         )}
 
         {loading ? (
@@ -404,20 +446,27 @@ export default function OrdersPage() {
 
       {/* RIGHT: Detail panel */}
       {detail && (
-        <div className="fixed inset-0 z-50 bg-white overflow-y-auto pb-20 lg:relative lg:inset-auto lg:z-auto lg:flex-1 lg:min-w-0 lg:pb-0" style={{maxHeight: "calc(100vh - 7rem)"}}>
+        <div className="fixed inset-0 z-50 h-[100dvh] overflow-y-auto bg-neutral-50 pb-8 lg:relative lg:inset-auto lg:z-auto lg:h-auto lg:max-h-[calc(100vh-7rem)] lg:min-w-0 lg:flex-1 lg:bg-white lg:pb-0">
           {/* Mobile back header */}
-          <div className="lg:hidden sticky top-0 bg-white border-b border-neutral-100 px-4 py-3 flex items-center gap-3 z-10 mb-4">
+          <div className="sticky top-0 z-20 mb-3 flex items-center gap-3 border-b border-neutral-200/80 bg-white/95 px-3 py-3 backdrop-blur-xl lg:hidden">
             <button onClick={() => router.replace("/admin/orders")}
-              className="p-2 -ml-1 rounded-xl text-neutral-600 hover:bg-neutral-100 active:bg-neutral-100 transition-colors">
+              aria-label="Retour aux commandes"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-neutral-200 text-neutral-600 transition-colors hover:bg-neutral-100 active:bg-neutral-100">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
             <div className="flex-1 min-w-0">
-              <p className="font-black text-sm">#{detail.order_number}</p>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColor(detail.status)}`}>{statusLabel(detail.status)}</span>
+              <div className="flex items-center gap-2">
+                <p className="truncate text-sm font-black">#{detail.order_number}</p>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold ${statusColor(detail.status)}`}>{statusLabel(detail.status)}</span>
+              </div>
+              <p className="mt-0.5 text-[10px] text-neutral-400">{new Date(detail.created_at).toLocaleString("fr-FR")}</p>
             </div>
+            <button onClick={() => window.open(`/admin/orders/invoice?id=${detail.id}`, "_blank")} aria-label="Ouvrir la facture" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-neutral-950 text-white">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
+            </button>
           </div>
           {/* Header */}
-          <div className="flex items-start justify-between mb-4">
+          <div className="mb-4 hidden items-start justify-between lg:flex">
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-lg font-black">#{detail.order_number}</h2>
@@ -454,7 +503,7 @@ export default function OrdersPage() {
             </div>
           )}
 
-          <div className="space-y-3">
+          <div className="space-y-3 px-3 lg:px-0">
 
             {/* Actions — pick status then channel */}
             <Section title="Actions">
@@ -521,25 +570,25 @@ export default function OrdersPage() {
                 );
               })() : (
                 <>
-                  <p className="text-[11px] text-neutral-400 mb-3">
-                    Choisissez une action, puis sélectionnez le canal de notification.
+                  <p className="mb-3 text-[11px] leading-5 text-neutral-500">
+                    Mettez à jour l&apos;étape de la commande. Vous pourrez ensuite choisir comment prévenir le client.
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {([
-                      { type: "confirmed", label: "Confirmer",  icon: "✓",  cls: "bg-blue-600 hover:bg-blue-700" },
-                      { type: "shipped",   label: "Expédier",   icon: "🚚", cls: "bg-purple-600 hover:bg-purple-700" },
-                      { type: "delivered", label: "Livrée",     icon: "🎉", cls: "bg-emerald-600 hover:bg-emerald-700" },
-                      { type: "cancelled", label: "Annuler",    icon: "✕",  cls: "bg-red-500 hover:bg-red-600" },
+                      { type: "confirmed", label: "Confirmer",  icon: "✓",  cls: "text-blue-700 bg-blue-50 border-blue-100 hover:border-blue-300" },
+                      { type: "shipped",   label: "Expédier",   icon: "↗", cls: "text-violet-700 bg-violet-50 border-violet-100 hover:border-violet-300" },
+                      { type: "delivered", label: "Marquer livrée", icon: "✓", cls: "text-emerald-700 bg-emerald-50 border-emerald-100 hover:border-emerald-300" },
+                      { type: "cancelled", label: "Annuler",    icon: "×",  cls: "text-red-700 bg-red-50 border-red-100 hover:border-red-300" },
                     ] as const).map(({ type, label, icon, cls }) => {
                       const isCurrent = detail.status === type;
                       return (
                         <button key={type}
                           onClick={() => setPendingAction(type)}
-                          className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-xs font-bold transition-all
-                            ${isCurrent ? "ring-2 ring-offset-1 ring-current opacity-70" : ""} ${cls}`}>
-                          <span>{icon}</span>
+                          className={`flex min-h-12 items-center justify-start gap-2.5 rounded-xl border px-3 py-2.5 text-left text-[11px] font-bold transition-all
+                            ${isCurrent ? "ring-2 ring-current ring-offset-1" : ""} ${cls}`}>
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/80 text-sm shadow-sm">{icon}</span>
                           {label}
-                          {isCurrent && <span className="text-[9px] opacity-70">(actuel)</span>}
+                          {isCurrent && <span className="ml-auto text-[8px] uppercase opacity-60">Actuel</span>}
                         </button>
                       );
                     })}
@@ -553,10 +602,17 @@ export default function OrdersPage() {
             </Section>
 
             {/* Trustpilot */}
-            <Section title="Trustpilot">
-              <p className="text-[11px] text-neutral-400 mb-3">
-                Demandez un avis Trustpilot par email ou WhatsApp. L&apos;email est aussi envoyé automatiquement à chaque livraison.
-              </p>
+            <Section title="Avis clients · Autopilote">
+              <div className={`mb-3 rounded-xl border p-3 ${detail.status === "delivered" ? "border-emerald-200 bg-emerald-50" : "border-neutral-200 bg-neutral-50"}`}>
+                <div className="flex items-start gap-2.5">
+                  <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs ${detail.status === "delivered" ? "bg-emerald-600 text-white" : "bg-white text-neutral-400 shadow-sm"}`}>{detail.status === "delivered" ? "✓" : "⏱"}</span>
+                  <div>
+                    <p className="text-[11px] font-black text-neutral-800">{detail.status === "delivered" ? "Séquence automatique activée" : "Démarre automatiquement à la livraison"}</p>
+                    <p className="mt-1 text-[10px] leading-4 text-neutral-500">Avis produit envoyé dès la livraison, puis un rappel Trustpilot unique 2 jours plus tard.</p>
+                  </div>
+                </div>
+              </div>
+              <p className="mb-3 text-[10px] font-semibold text-neutral-400">Envoi manuel exceptionnel</p>
               <div className="grid grid-cols-2 gap-2">
                 {/* Email */}
                 {detail.customer?.email ? (
@@ -568,7 +624,7 @@ export default function OrdersPage() {
                       ? <svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 11-18 0"/></svg>
                       : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>}
                     <span>Email ⭐</span>
-                    <span className="text-[10px] opacity-70">Automatique</span>
+                    <span className="text-[10px] opacity-70">Envoyer maintenant</span>
                   </button>
                 ) : (
                   <div className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-xl border border-dashed border-neutral-200 text-neutral-300">

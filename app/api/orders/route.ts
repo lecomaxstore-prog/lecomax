@@ -82,6 +82,7 @@ export async function GET(req: NextRequest) {
   if (safeEmail) query = query.eq("customer->>email", safeEmail.toLowerCase());
   if (status && status !== "all") query = query.eq("status", status);
   if (limit) query = query.limit(parseInt(limit));
+  query = query.abortSignal(AbortSignal.timeout(12_000));
 
   const { data, error, count } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

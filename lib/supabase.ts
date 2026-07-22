@@ -53,6 +53,7 @@ export type Order = {
   };
   items: {
     id: string;
+    slug?: string;
     name: string;
     price: number;
     qty: number;

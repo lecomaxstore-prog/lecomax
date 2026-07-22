@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,6 +23,8 @@ const SORTS = [
 
 type CategoryId = (typeof CATEGORIES)[number]["id"];
 type SortId = (typeof SORTS)[number]["id"];
+const MOBILE_PRODUCTS_PER_PAGE = 12;
+const DESKTOP_PRODUCTS_PER_PAGE = 16;
 
 export default function BoutiquePage() {
   return <BoutiqueContent />;
@@ -32,26 +34,50 @@ function BoutiqueContent() {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
   const [activeSort, setActiveSort] = useState<SortId>("default");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage, setProductsPerPage] = useState(DESKTOP_PRODUCTS_PER_PAGE);
   const [dbProducts, setDbProducts] = useState<CardProduct[]>([]);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const category = params.get("cat");
     const sort = params.get("sort");
+    const page = Number.parseInt(params.get("page") ?? "1", 10);
     if (CATEGORIES.some((item) => item.id === category)) setActiveCategory(category as CategoryId);
     if (SORTS.some((item) => item.id === sort)) setActiveSort(sort as SortId);
+    if (Number.isFinite(page) && page > 1) setCurrentPage(page);
   }, []);
 
-  const updateURL = (cat: CategoryId, sort: SortId) => {
+  useEffect(() => {
+    const mobileQuery = window.matchMedia("(max-width: 639px)");
+    const syncPageSize = () => {
+      setProductsPerPage(mobileQuery.matches ? MOBILE_PRODUCTS_PER_PAGE : DESKTOP_PRODUCTS_PER_PAGE);
+    };
+    syncPageSize();
+    mobileQuery.addEventListener("change", syncPageSize);
+    return () => mobileQuery.removeEventListener("change", syncPageSize);
+  }, []);
+
+  const updateURL = (cat: CategoryId, sort: SortId, page = 1) => {
     const params = new URLSearchParams();
     if (cat !== "all") params.set("cat", cat);
     if (sort !== "default") params.set("sort", sort);
+    if (page > 1) params.set("page", String(page));
     const qs = params.toString();
     router.replace(`/boutique${qs ? `?${qs}` : ""}`, { scroll: false });
   };
 
-  const setCategory = (cat: CategoryId) => { setActiveCategory(cat); updateURL(cat, activeSort); };
-  const setSort = (sort: SortId) => { setActiveSort(sort); updateURL(activeCategory, sort); };
+  const setCategory = (cat: CategoryId) => {
+    setActiveCategory(cat);
+    setCurrentPage(1);
+    updateURL(cat, activeSort, 1);
+  };
+  const setSort = (sort: SortId) => {
+    setActiveSort(sort);
+    setCurrentPage(1);
+    updateURL(activeCategory, sort, 1);
+  };
 
   useEffect(() => {
     Promise.all([
@@ -86,6 +112,24 @@ function BoutiqueContent() {
     return list;
   }, [activeCategory, activeSort, allProducts]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / productsPerPage));
+  const visiblePage = Math.min(currentPage, totalPages);
+  const paginatedProducts = filtered.slice(
+    (visiblePage - 1) * productsPerPage,
+    visiblePage * productsPerPage
+  );
+
+  const goToPage = (page: number) => {
+    const nextPage = Math.min(Math.max(page, 1), totalPages);
+    if (nextPage === visiblePage) return;
+    setCurrentPage(nextPage);
+    updateURL(activeCategory, activeSort, nextPage);
+    requestAnimationFrame(() => {
+      const top = (resultsRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY - 132;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    });
+  };
+
   return (
     <div className="min-h-screen bg-[#f7f7f8]">
       {/* ── Hero ── */}
@@ -94,9 +138,13 @@ function BoutiqueContent() {
           src="/images/pages images/notre boutique image.png"
           alt="Notre Boutique"
           fill
-          className="object-cover opacity-30"
+          className="object-cover"
           style={{ objectPosition: 'center 15%' }}
           priority
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.92)_0%,rgba(0,0,0,.78)_28%,rgba(0,0,0,.42)_44%,rgba(0,0,0,.08)_58%,transparent_70%)]"
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-20">
           {/* Breadcrumb */}
@@ -145,45 +193,58 @@ function BoutiqueContent() {
       </div>
 
       {/* ── Sticky filter bar ── */}
-      <div className="sticky top-0 z-30 bg-white border-b border-neutral-200 shadow-sm">
+      <div className="sticky top-[60px] z-30 border-b border-neutral-200/80 bg-white/95 shadow-[0_8px_24px_rgba(0,0,0,.04)] backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="flex items-center justify-between gap-4 py-3 overflow-x-auto">
+          <div className="flex flex-col items-stretch gap-2.5 py-2.5 sm:flex-row sm:items-center sm:gap-4 sm:py-3">
             {/* Category tabs */}
-            <div className="flex items-center gap-1 shrink-0">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setCategory(cat.id)}
-                  className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-wide transition-all duration-150 whitespace-nowrap ${
-                    activeCategory === cat.id
-                      ? "bg-black text-white"
-                      : "bg-transparent text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100"
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
+            <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain [scrollbar-width:none] sm:flex-1 [&::-webkit-scrollbar]:hidden">
+              <div className="flex w-max items-center gap-1 rounded-2xl bg-neutral-100 p-1">
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setCategory(cat.id)}
+                    aria-pressed={activeCategory === cat.id}
+                    className={`min-h-10 whitespace-nowrap rounded-xl px-3.5 text-[11px] font-black uppercase tracking-[0.06em] transition-all duration-200 sm:min-h-9 sm:px-4 ${
+                      activeCategory === cat.id
+                        ? "bg-neutral-950 text-white shadow-[0_4px_12px_rgba(0,0,0,.16)]"
+                        : "text-neutral-500 hover:bg-white hover:text-neutral-950 hover:shadow-sm"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Sort select */}
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-[11px] text-neutral-400 font-semibold uppercase tracking-wider hidden sm:block">Trier</span>
-              <select
-                value={activeSort}
-                onChange={(e) => setSort(e.target.value as SortId)}
-                className="text-[12px] font-bold border border-neutral-200 rounded-xl px-3 py-2 bg-white outline-none cursor-pointer focus:border-neutral-400 transition-colors"
-              >
-                {SORTS.map((s) => (
-                  <option key={s.id} value={s.id}>{s.label}</option>
-                ))}
-              </select>
+            <div className="flex w-full shrink-0 items-center gap-3 border-t border-neutral-200/80 pt-2.5 sm:w-auto sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
+              <span className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.14em] text-neutral-400 sm:hidden md:block">Trier par</span>
+              <div className="relative min-w-0 flex-1 sm:flex-none">
+                <svg aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M3 6h18M7 12h10M11 18h2" />
+                </svg>
+                <select
+                  value={activeSort}
+                  onChange={(e) => setSort(e.target.value as SortId)}
+                  aria-label="Trier les produits"
+                  className="h-11 w-full cursor-pointer appearance-none rounded-xl border border-neutral-200 bg-white py-0 pl-9 pr-9 text-[11px] font-black text-neutral-800 shadow-sm outline-none transition-all hover:border-neutral-400 focus:border-neutral-950 focus:ring-2 focus:ring-neutral-950/10 sm:min-w-[164px] sm:text-[12px]"
+                >
+                  {SORTS.map((s) => (
+                    <option key={s.id} value={s.id}>{s.label}</option>
+                  ))}
+                </select>
+                <svg aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* ── Product grid ── */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-10">
+      <div ref={resultsRef} data-product-grid className="max-w-7xl mx-auto px-4 md:px-6 py-10">
         {filtered.length === 0 ? (
           <div className="py-32 flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-full bg-neutral-100 flex items-center justify-center mb-5">
@@ -194,7 +255,12 @@ function BoutiqueContent() {
             <h3 className="font-black text-xl uppercase tracking-wide mb-2">Aucun article trouvé</h3>
             <p className="text-neutral-400 text-sm mb-6">Essayez une autre catégorie ou un autre filtre.</p>
             <button
-              onClick={() => { setCategory("all"); setSort("default"); }}
+              onClick={() => {
+                setActiveCategory("all");
+                setActiveSort("default");
+                setCurrentPage(1);
+                updateURL("all", "default", 1);
+              }}
               className="px-6 py-3 bg-black text-white font-black uppercase text-[11px] tracking-[0.12em] rounded-xl hover:opacity-80 transition-opacity"
             >
               Réinitialiser les filtres
@@ -203,13 +269,57 @@ function BoutiqueContent() {
         ) : (
           <>
             <p className="text-[12px] text-neutral-400 font-semibold mb-5">
+              {filtered.length > productsPerPage
+                ? `${(visiblePage - 1) * productsPerPage + 1}–${Math.min(visiblePage * productsPerPage, filtered.length)} sur `
+                : ""}
               {filtered.length} article{filtered.length > 1 ? "s" : ""}
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-              {filtered.map((product) => (
+              {paginatedProducts.map((product) => (
                 <ProductCard key={product.slug} product={product} />
               ))}
             </div>
+
+            {totalPages > 1 && (
+              <nav aria-label="Pagination des produits" className="mt-10 flex max-w-full items-center justify-start gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden">
+                <button
+                  type="button"
+                  onClick={() => goToPage(visiblePage - 1)}
+                  disabled={visiblePage === 1}
+                  aria-label="Page précédente"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-700 shadow-sm transition-all hover:border-neutral-950 hover:bg-neutral-950 hover:text-white disabled:pointer-events-none disabled:opacity-35"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+                </button>
+
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => goToPage(page)}
+                    aria-label={`Page ${page}`}
+                    aria-current={page === visiblePage ? "page" : undefined}
+                    className={`h-11 min-w-11 rounded-xl px-3 text-[12px] font-black transition-all ${
+                      page === visiblePage
+                        ? "bg-neutral-950 text-white shadow-[0_6px_16px_rgba(0,0,0,.18)]"
+                        : "border border-neutral-200 bg-white text-neutral-600 shadow-sm hover:border-neutral-950 hover:text-neutral-950"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => goToPage(visiblePage + 1)}
+                  disabled={visiblePage === totalPages}
+                  aria-label="Page suivante"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-700 shadow-sm transition-all hover:border-neutral-950 hover:bg-neutral-950 hover:text-white disabled:pointer-events-none disabled:opacity-35"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+                </button>
+              </nav>
+            )}
           </>
         )}
       </div>
