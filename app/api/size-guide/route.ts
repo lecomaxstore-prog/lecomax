@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { isAdminRequest } from "@/lib/request-auth";
+import { revalidatePath } from "next/cache";
 
 function sb() {
   return createClient(
@@ -48,13 +50,26 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  if (!(await isAdminRequest(req))) {
+    return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
+  }
   try {
     const { clothing, shoes } = await req.json();
-    await sb().from("settings").upsert([
+    if (!Array.isArray(clothing) || !Array.isArray(shoes) || clothing.length > 100 || shoes.length > 100) {
+      return NextResponse.json({ error: "Guide des tailles invalide." }, { status: 400 });
+    }
+    const validRows = [...clothing, ...shoes].every((row) =>
+      row && typeof row === "object" && !Array.isArray(row) &&
+      Object.keys(row).length <= 10 && Object.values(row).every((value) => typeof value === "string" && value.length <= 60)
+    );
+    if (!validRows) return NextResponse.json({ error: "Une valeur du guide des tailles est invalide." }, { status: 400 });
+    const { error } = await sb().from("settings").upsert([
       { key: "size_guide_clothing", value: JSON.stringify(clothing) },
       { key: "size_guide_shoes",    value: JSON.stringify(shoes) },
     ], { onConflict: "key" });
+    if (error) return NextResponse.json({ error: "Impossible d'enregistrer le guide des tailles." }, { status: 500 });
+    revalidatePath("/", "layout");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });

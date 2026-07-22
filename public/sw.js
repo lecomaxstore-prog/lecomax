@@ -6,7 +6,7 @@ self.addEventListener('activate', event => {
 
 // ── Push notification received ──────────────────────────────
 self.addEventListener('push', event => {
-  let payload = { title: "L'ecomax", body: "Vous avez un nouveau message.", icon: '/favicon.png', badge: '/favicon.png', url: '/' };
+  let payload = { title: "L'ecomax", body: "Vous avez un nouveau message.", icon: '/favicon.png?v=4', badge: '/icons/icon-192.png?v=4', url: '/' };
   try {
     if (event.data) payload = { ...payload, ...event.data.json() };
   } catch (e) {
@@ -15,8 +15,8 @@ self.addEventListener('push', event => {
 
   const options = {
     body: payload.body,
-    icon: payload.icon || '/favicon.png',
-    badge: payload.badge || '/favicon.png',
+    icon: !payload.icon || payload.icon === '/favicon.png' ? '/favicon.png?v=4' : payload.icon,
+    badge: payload.badge || '/icons/icon-192.png?v=4',
     image: payload.image || undefined,
     tag: payload.tag || 'lecomax-push',
     renotify: true,

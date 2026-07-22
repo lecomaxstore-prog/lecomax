@@ -17,6 +17,11 @@ export type PushPayload = {
 export type PushResult = { sent: number; failed: number; total: number };
 
 export const ADMIN_PUSH_USER_AGENT_PREFIX = "[LECOMAX_ADMIN] ";
+const DEFAULT_PUSH_ICON = "/favicon.png?v=4";
+
+function pushIcon(icon?: string) {
+  return !icon || icon === "/favicon.png" ? DEFAULT_PUSH_ICON : icon;
+}
 
 function getSupabase() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
@@ -42,8 +47,8 @@ export async function broadcastPushNotification(payload: PushPayload): Promise<P
   const message = JSON.stringify({
     title: payload.title,
     body: payload.body ?? "",
-    icon: payload.icon ?? "/favicon.png",
-    badge: "/favicon.png",
+    icon: pushIcon(payload.icon),
+    badge: "/icons/icon-192.png?v=4",
     image: payload.image,
     url: payload.url ?? "/ecomedia/",
     tag: payload.tag ?? "ecomedia-new-post",
@@ -99,8 +104,8 @@ export async function broadcastAdminPushNotification(payload: PushPayload): Prom
   const message = JSON.stringify({
     title: payload.title,
     body: payload.body ?? "",
-    icon: payload.icon ?? "/favicon.png",
-    badge: "/favicon.png",
+    icon: pushIcon(payload.icon),
+    badge: "/icons/icon-192.png?v=4",
     image: payload.image,
     url: payload.url ?? "/admin/dashboard/",
     tag: payload.tag ?? "lecomax-admin-alert",

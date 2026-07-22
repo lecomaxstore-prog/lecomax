@@ -20,12 +20,16 @@ const DEFAULT_SETTINGS: SettingsMap = {
   free_shipping_threshold: "500",
   shipping_cost: "35",
   shipping_estimated_days: "2-5 jours ouvrables",
+  checkout_minimum_order: "0",
+  checkout_notice: "",
   maintenance_mode: "false",
   enable_reviews: "true",
   enable_coupons: "true",
   enable_newsletter: "true",
   enable_wishlist: "true",
   enable_ecoclub: "true",
+  enable_cod: "true",
+  enable_paypal: "true",
   announcement_1: "LIVRAISON GRATUITE DÈS 500 MAD AU MAROC",
   announcement_2: "RETOURS GRATUITS SOUS 30 JOURS",
   announcement_3: "PAIEMENT À LA LIVRAISON DISPONIBLE",
@@ -48,7 +52,7 @@ const DEFAULT_SETTINGS: SettingsMap = {
   hero_image: "/images/hero secrtion/hero section web version.png",
   hero_image_mobile: "/images/hero secrtion/hero section mobile version.png",
   email_banner_image: "/images/email image/email image.png",
-  og_image: "/images/lecomax logo.png",
+  og_image: "/ecomax-hero-banner.jpg.png?v=2",
 };
 
 const IMAGE_FIELDS = [
@@ -405,6 +409,16 @@ export default function SettingsPage() {
                 className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm outline-none transition focus:border-black focus:bg-white"
               />
             </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1.5">Commande minimum (MAD)</label>
+                <input type="number" min="0" value={settings.checkout_minimum_order ?? "0"} onChange={e => setSettings(s => ({ ...s, checkout_minimum_order: e.target.value }))} className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm outline-none transition focus:border-black focus:bg-white" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1.5">Message affiché au checkout</label>
+                <input value={settings.checkout_notice ?? ""} maxLength={240} onChange={e => setSettings(s => ({ ...s, checkout_notice: e.target.value }))} placeholder="Ex. Livraison offerte cette semaine à Rabat" className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm outline-none transition focus:border-black focus:bg-white" />
+              </div>
+            </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
                 <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Tarif standard</p>
@@ -505,6 +519,8 @@ export default function SettingsPage() {
               { key: "enable_newsletter", label: "Newsletter", desc: "Afficher le formulaire d'inscription à la newsletter" },
               { key: "enable_wishlist", label: "Liste de souhaits", desc: "Permettre aux clients de sauvegarder leurs favoris" },
               { key: "enable_ecoclub", label: "ecoClub (fidélité)", desc: "Programme de points et récompenses pour les clients" },
+              { key: "enable_cod", label: "Paiement à la livraison", desc: "Autoriser les commandes payées au moment de la livraison" },
+              { key: "enable_paypal", label: "Paiement PayPal", desc: "Autoriser le paiement en ligne via PayPal" },
             ].map(item => (
               <div key={item.key} className="flex items-center justify-between py-3 border-b border-neutral-100 last:border-0">
                 <div>

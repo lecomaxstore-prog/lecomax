@@ -5,7 +5,8 @@ import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
 import { products as catalogProducts } from "@/lib/products";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
 import { calculateCouponDiscount, calculateCouponPricing } from "@/lib/coupon-pricing";
-import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
+import { shippingConfigFromSettings } from "@/lib/shipping-config";
+import { resolveShippingQuote, type ShippingZoneRule } from "@/lib/shipping-zones";
 import { verifyPayPalCapture } from "@/lib/paypal-server";
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
 import { loyaltyTierForPoints } from "@/lib/loyalty";
@@ -218,8 +219,12 @@ export async function POST(req: NextRequest) {
   const { data: featureRows } = await supabase
     .from("settings")
     .select("key,value")
-    .in("key", ["enable_coupons", "enable_ecoclub"]);
+    .in("key", ["enable_coupons", "enable_ecoclub", "enable_cod", "enable_paypal", "checkout_minimum_order"]);
   const featureSettings = Object.fromEntries((featureRows ?? []).map((row) => [row.key, String(row.value ?? "")]));
+  const minimumOrder = Number(featureSettings.checkout_minimum_order ?? 0);
+  if (Number.isFinite(minimumOrder) && minimumOrder > 0 && calculatedSubtotal < minimumOrder) {
+    return NextResponse.json({ error: `Le montant minimum de commande est de ${minimumOrder} MAD.` }, { status: 409 });
+  }
 
   let couponDiscount = 0;
   if (coupon_id) {
@@ -255,20 +260,19 @@ export async function POST(req: NextRequest) {
   const safeDiscount = couponDiscount + loyaltyDiscount;
 
   const [{ data: zones }, { data: settingRows }] = await Promise.all([
-    supabase.from("shipping_zones").select("standard_rate, free_threshold").eq("active", true).order("sort_order").limit(1),
-    supabase.from("settings").select("key, value").in("key", ["shipping_cost", "free_shipping_threshold"]),
+    supabase.from("shipping_zones").select("id,name,cities,standard_rate,free_threshold,estimated_days,sort_order,active").eq("active", true),
+    supabase.from("settings").select("key, value").in("key", ["shipping_cost", "free_shipping_threshold", "shipping_estimated_days"]),
   ]);
   const settings = Object.fromEntries((settingRows ?? []).map((row) => [row.key, row.value]));
-  const zone = zones?.[0];
-  // Global Settings are authoritative. Shipping zones are retained only as a
-  // fallback for stores that have not configured the global values yet.
-  const shippingConfig = shippingConfigFromSettings({
-    shipping_cost: settings.shipping_cost ?? zone?.standard_rate,
-    free_shipping_threshold: settings.free_shipping_threshold ?? zone?.free_threshold,
-  });
-  const shippingRate = shippingConfig.cost;
-  const isLocalDelivery = customer.city.toLowerCase().replace(/[-\s]/g, "") === "sidibennour";
-  const safeShipping = isLocalDelivery ? 0 : calculateShipping(calculatedSubtotal, shippingConfig);
+  const shippingConfig = shippingConfigFromSettings(settings);
+  const shippingQuote = resolveShippingQuote(
+    customer.city,
+    calculatedSubtotal,
+    (zones ?? []) as ShippingZoneRule[],
+    shippingConfig,
+  );
+  const shippingRate = shippingQuote.cost;
+  const safeShipping = shippingQuote.cost;
 
   if (Math.abs(Number(shipping ?? 0) - safeShipping) > 0.01 || Math.abs(Number(discount ?? 0) - safeDiscount) > 0.01) {
     return NextResponse.json({ error: "Les frais ou la remise ont changé. Actualisez la page puis réessayez." }, { status: 409 });
@@ -280,6 +284,12 @@ export async function POST(req: NextRequest) {
 
   const provider = payment_provider === "paypal" ? "paypal" : payment_provider === "cod" ? "cod" : null;
   if (!provider) return NextResponse.json({ error: "Mode de paiement invalide." }, { status: 400 });
+  if (provider === "cod" && featureSettings.enable_cod === "false") {
+    return NextResponse.json({ error: "Le paiement à la livraison est temporairement désactivé." }, { status: 409 });
+  }
+  if (provider === "paypal" && featureSettings.enable_paypal === "false") {
+    return NextResponse.json({ error: "Le paiement PayPal est temporairement désactivé." }, { status: 409 });
+  }
 
   let paymentReference: string | null = null;
   let paymentStatus = provider === "paypal" ? "captured" : "pending";
@@ -472,7 +482,7 @@ export async function POST(req: NextRequest) {
       from: "L'ecomax <noreply@lecomax.com>",
       replyTo: "contact@lecomax.com",
       to: customer.email,
-      subject: `🧾 Votre facture ${invoiceNumber} — L'ecomax`,
+      subject: `Commande ${order_number} confirmée | Merci pour votre confiance | L'ecomax`,
       attachments: [
         {
           path: EMAIL_LOGO_URL,
@@ -698,7 +708,7 @@ export async function POST(req: NextRequest) {
     </tr></table>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:14px;border-top:1px solid #e5e7eb;padding-top:14px;"><tr>
       <td class="trust-cell" style="font-size:10px;color:#9ca3af;">&#10003; Retours accept&#233;s sous 30 jours</td>
-      <td class="trust-cell" style="font-size:10px;color:#9ca3af;text-align:center;">&#10003; Livraison ${shippingRate.toFixed(0)} MAD partout au Maroc</td>
+      <td class="trust-cell" style="font-size:10px;color:#9ca3af;text-align:center;">&#10003; Livraison ${shippingRate.toFixed(0)} MAD</td>
       <td class="trust-cell" style="font-size:10px;color:#9ca3af;text-align:right;">&#10003; Paiement s&#233;curis&#233;</td>
     </tr></table>
   </td></tr>

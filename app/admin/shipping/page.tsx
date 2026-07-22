@@ -118,7 +118,7 @@ export default function ShippingPage() {
   const showForm = isNew || !!editId;
 
   if (showForm) return (
-    <div className="max-w-2xl">
+    <div className="w-full max-w-2xl">
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => router.replace("/admin/shipping")} className="p-2 hover:bg-neutral-100 rounded-lg transition-colors">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -130,18 +130,18 @@ export default function ShippingPage() {
       </div>
 
       <form onSubmit={handleSave} className="space-y-4">
-        <div className="bg-white rounded-2xl border border-neutral-100 p-6 space-y-5">
+        <div className="space-y-5 rounded-xl border border-neutral-200 bg-white p-4 sm:p-6">
           <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Informations générales</h2>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
               <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Nom de la zone *</label>
               <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="ex: Casablanca, Grand Casablanca…"
                 className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
             </div>
 
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
               <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">
                 Villes couvertes
                 <span className="ml-1 text-[10px] text-neutral-400 font-normal normal-case">Séparées par des virgules — vide = toutes les villes</span>
@@ -166,10 +166,23 @@ export default function ShippingPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-neutral-100 p-6 space-y-5">
+        <div className="space-y-5 rounded-xl border border-neutral-200 bg-white p-4 sm:p-6">
           <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Tarification</h2>
 
-          <div className="grid grid-cols-3 gap-4">
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5">
+            <input
+              type="checkbox"
+              checked={Number(form.standard_rate) === 0}
+              onChange={(event) => setForm({ ...form, standard_rate: event.target.checked ? "0" : "35" })}
+              className="mt-0.5 h-4 w-4 rounded border-emerald-300 accent-emerald-600"
+            />
+            <span>
+              <span className="block text-sm font-black text-emerald-900">Livraison toujours gratuite dans cette zone</span>
+              <span className="mt-0.5 block text-[11px] leading-4 text-emerald-700">S'applique uniquement aux villes listées ci-dessus, quel que soit le montant du panier.</span>
+            </span>
+          </label>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Tarif standard *</label>
               <div className="flex items-center border border-neutral-200 rounded-xl overflow-hidden focus-within:border-black bg-neutral-50 focus-within:bg-white transition-all">
@@ -216,7 +229,7 @@ export default function ShippingPage() {
           </div>
         )}
 
-        <div className="flex gap-3">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row">
           <button type="submit" disabled={saving}
             className="flex-1 bg-black text-white font-bold py-3 rounded-xl hover:bg-neutral-800 disabled:opacity-50 flex items-center justify-center gap-2">
             {saving ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Enregistrement…</> : "Enregistrer"}
@@ -239,26 +252,26 @@ export default function ShippingPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-black">Livraison</h1>
           <p className="text-neutral-500 text-sm mt-0.5">Zones de livraison et tarifs pour le Maroc</p>
         </div>
         <button onClick={() => router.push("/admin/shipping?new=1")}
-          className="bg-black text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-neutral-800 flex items-center gap-2">
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-black px-5 py-2.5 text-sm font-bold text-white hover:bg-neutral-800 sm:w-auto">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Nouvelle zone
         </button>
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-3 min-[420px]:grid-cols-3 sm:gap-4">
         <div className="bg-white rounded-2xl border border-neutral-100 p-4">
           <p className="text-2xl font-black">{zones.filter(z => z.active).length}</p>
           <p className="text-xs text-neutral-500 mt-0.5">Zones actives</p>
         </div>
         <div className="bg-white rounded-2xl border border-neutral-100 p-4">
-          <p className="text-2xl font-black">{zones.length > 0 ? `${Math.min(...zones.filter(z => z.active).map(z => z.standard_rate))} MAD` : "—"}</p>
+          <p className="text-2xl font-black">{zones.some(z => z.active) ? `${Math.min(...zones.filter(z => z.active).map(z => z.standard_rate))} MAD` : "—"}</p>
           <p className="text-xs text-neutral-500 mt-0.5">Tarif minimum</p>
         </div>
         <div className="bg-white rounded-2xl border border-neutral-100 p-4">
@@ -286,8 +299,8 @@ export default function ShippingPage() {
       ) : (
         <div className="space-y-2">
           {zones.map((zone) => (
-            <div key={zone.id} className={`bg-white rounded-2xl border p-5 transition-all ${zone.active ? "border-neutral-100" : "border-neutral-100 opacity-60"}`}>
-              <div className="flex items-start gap-4">
+            <div key={zone.id} className={`rounded-xl border bg-white p-4 transition-all sm:p-5 ${zone.active ? "border-neutral-200" : "border-neutral-100 opacity-60"}`}>
+              <div className="flex flex-col items-start gap-4 sm:flex-row">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${zone.active ? "bg-emerald-50" : "bg-neutral-100"}`}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={zone.active ? "#10b981" : "#9ca3af"} strokeWidth="1.5" strokeLinecap="round">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
@@ -326,7 +339,7 @@ export default function ShippingPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex w-full items-center justify-end gap-2 border-t border-neutral-100 pt-3 sm:w-auto sm:border-0 sm:pt-0 shrink-0">
                   <button onClick={() => toggleActive(zone)}
                     className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${zone.active ? "bg-neutral-100 text-neutral-600 hover:bg-neutral-200" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}>
                     {zone.active ? "Désactiver" : "Activer"}

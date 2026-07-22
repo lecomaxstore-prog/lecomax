@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import {
   REVIEW_AUTOMATION_KEY_PREFIX,
-  buildTrustpilotFollowupEmailHtml,
+  buildProductReviewFollowupEmailHtml,
   parseReviewAutomationState,
 } from "@/lib/order-review-automation";
 
@@ -37,21 +37,26 @@ export async function GET(req: NextRequest) {
     const state = parseReviewAutomationState(row.value);
     if (!state || state.followupSentAt || Date.parse(state.followupDueAt) > now.getTime()) return [];
     if (state.processingAt && Date.parse(state.processingAt) > staleClaimBefore) return [];
-    return [{ key: row.key as string, state }];
+    return [{ key: row.key as string, rawValue: row.value as string, state }];
   });
 
   const results: Array<{ orderId: string; status: string }> = [];
   for (const job of due) {
     job.state.processingAt = now.toISOString();
     job.state.lastError = null;
-    await supabase.from("settings").update({
-      value: JSON.stringify(job.state),
+    const claimedValue = JSON.stringify(job.state);
+    const { data: claim } = await supabase.from("settings").update({
+      value: claimedValue,
       updated_at: now.toISOString(),
-    }).eq("key", job.key);
+    }).eq("key", job.key).eq("value", job.rawValue).select("key").maybeSingle();
+    if (!claim) {
+      results.push({ orderId: job.state.orderId, status: "claimed_elsewhere" });
+      continue;
+    }
 
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("order_number,status,customer")
+      .select("order_number,status,customer,items")
       .eq("id", job.state.orderId)
       .maybeSingle();
 
@@ -79,8 +84,13 @@ export async function GET(req: NextRequest) {
           from: "L'ecomax <noreply@lecomax.com>",
           replyTo: "contact@lecomax.com",
           to: email,
-          subject: `Votre expérience avec la commande #${orderNumber}`,
-          html: buildTrustpilotFollowupEmailHtml(name, orderNumber),
+          subject: `Votre avis sur les produits de la commande #${orderNumber}`,
+          html: buildProductReviewFollowupEmailHtml({
+            customerName: name,
+            customerEmail: email,
+            orderNumber,
+            items: (order.items ?? []) as Array<{ slug?: string; name: string; image?: string; qty?: number }>,
+          }),
         });
         job.state.processingAt = null;
         if (sent.error) {

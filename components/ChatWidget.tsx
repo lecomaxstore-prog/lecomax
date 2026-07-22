@@ -224,8 +224,10 @@ export default function ChatWidget() {
         // Load existing messages
         const msgsRes = await fetch(`/api/chat/poll/${data.id}`);
         const msgsData = await msgsRes.json();
-        setMessages(msgsData.messages || []);
-        prevMsgCount.current = (msgsData.messages || []).length;
+        const loadedMessages: ChatMsg[] = msgsData.messages || [];
+        setMessages(loadedMessages);
+        prevMsgCount.current = loadedMessages.length;
+        setCallVisible(data.status === "escalated" && !agentIsActive(loadedMessages));
       }
     } finally {
       setStarting(false);
@@ -244,7 +246,9 @@ export default function ChatWidget() {
         setStatus(d.status || "ai");
         prevMsgCount.current = loadedMsgs.length;
         // If agent already replied, mark as joined (no animation banner on resume)
-        setHasAgentJoined(agentIsActive(loadedMsgs));
+        const agentActive = agentIsActive(loadedMsgs);
+        setHasAgentJoined(agentActive);
+        setCallVisible(d.status === "escalated" && !agentActive);
       });
     } else {
       startSession();
@@ -303,7 +307,7 @@ export default function ChatWidget() {
         if (!hadAgentBefore && hasAgentNow) {
           setAgentJoined(true); // trigger 5s banner
           setHasAgentJoined(true); // persistent — keeps agent header
-          setCallVisible(false);
+          setCallVisible(!hasAgentJoined);
           if (agentJoinedTimer.current) clearTimeout(agentJoinedTimer.current);
           agentJoinedTimer.current = setTimeout(() => setAgentJoined(false), 5000);
         }
@@ -372,6 +376,16 @@ export default function ChatWidget() {
       scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
     }
   }, [messages]);
+
+  // The connecting card mounts after the reply. Scroll once it is in the DOM,
+  // otherwise mobile users only see its cropped edge below the conversation.
+  useEffect(() => {
+    if (!callVisible || status !== "escalated" || loading) return;
+    const frame = requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [callVisible, status, loading]);
 
   function signalClientTyping(typing: boolean) {
     if (!sessionId) return;
@@ -564,12 +578,13 @@ export default function ChatWidget() {
             @keyframes slideDown    { from{opacity:0;transform:translateY(-8px);} to{opacity:1;transform:translateY(0);} }
             @keyframes callRipple   { 0%{transform:scale(1);opacity:1;} 100%{transform:scale(2.2);opacity:0;} }
             @keyframes callShake    { 0%,100%{transform:rotate(0deg);} 20%{transform:rotate(-15deg);} 40%{transform:rotate(15deg);} 60%{transform:rotate(-10deg);} 80%{transform:rotate(10deg);} }
+            @keyframes callGlow     { 0%,100%{box-shadow:0 0 0 0 rgba(251,146,60,.35),0 0 8px rgba(251,146,60,.25);} 50%{box-shadow:0 0 0 5px rgba(251,146,60,0),0 0 14px rgba(251,146,60,.55);} }
             @keyframes callSlideIn  { 0%{transform:translateY(20px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
             @keyframes chatPanelIn  { from{opacity:0;transform:translateY(16px) scale(.98);} to{opacity:1;transform:translateY(0) scale(1);} }
             @keyframes quickCardIn  { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
             .chat-msg { animation: msgIn 0.25s cubic-bezier(0.22,1,0.36,1) both; }
             @media (min-width:640px){.chat-premium-panel{animation:chatPanelIn .4s cubic-bezier(.16,1,.3,1) both}}
-            @media (prefers-reduced-motion:reduce){.chat-msg,.chat-premium-panel,.chat-quick-card{animation:none!important}}
+            @media (prefers-reduced-motion:reduce){.chat-msg,.chat-premium-panel,.chat-quick-card,.agent-call-icon{animation:none!important}}
           `}</style>
 
           {/* Header */}
@@ -617,13 +632,15 @@ export default function ChatWidget() {
                   <p className="text-[9px] font-black uppercase tracking-[.2em] text-[#76ed8a]">Assistance L&apos;ecomax</p>
                   <p className="mt-1 text-[14px] font-bold leading-tight tracking-tight">Eco, votre assistant</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    {status === "escalated" && callVisible ? (
-                      <>
-                        <span className="relative inline-flex flex-shrink-0" style={{ width:8,height:8 }}>
-                          <span style={{ position:"absolute",inset:0,borderRadius:"50%",background:"#f97316",animation:"agentPing 1s cubic-bezier(0,0,0.2,1) infinite" }} />
-                          <span style={{ position:"relative",display:"inline-block",width:8,height:8,borderRadius:"50%",background:"#fb923c" }} />
-                        </span>
-                        <span className="text-[11px] text-white/75" style={{ animation:"agentFade 1.8s ease-in-out infinite" }}>Agent en route&hellip;</span>
+	                    {status === "escalated" && callVisible ? (
+	                      <>
+	                        <span className="agent-call-icon relative inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-orange-500" style={{ animation:"callGlow 1.4s ease-in-out infinite" }}>
+	                          <span className="absolute inset-0 rounded-full bg-orange-400" style={{ animation:"agentPing 1.4s cubic-bezier(0,0,0.2,1) infinite" }} />
+	                          <svg className="relative z-10" width="11" height="11" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+	                            <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>
+	                          </svg>
+	                        </span>
+	                        <span className="text-[11px] font-semibold text-white/85" style={{ animation:"agentFade 1.8s ease-in-out infinite" }}>Appel d&apos;un agent&hellip;</span>
                       </>
                     ) : status === "resolved" ? (
                       <span className="text-[11px] text-white/60">&#10003; Conversation termin&eacute;e</span>

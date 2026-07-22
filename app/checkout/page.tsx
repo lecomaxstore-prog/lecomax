@@ -10,6 +10,7 @@ import { formatMAD } from "@/lib/products";
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
 import { useSettings } from "@/lib/use-settings";
 import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
+import type { ShippingQuote } from "@/lib/shipping-zones";
 import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
 import { supabase } from "@/lib/supabase";
 import { PAYPAL_CURRENCY, paypalAmountFromMad } from "@/lib/paypal-money";
@@ -406,6 +407,9 @@ export default function CheckoutPage() {
   } | null>(null);
   const [couponError, setCouponError] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
+  const [shippingQuote, setShippingQuote] = useState<ShippingQuote | null>(null);
+  const [shippingQuoteLoading, setShippingQuoteLoading] = useState(false);
+  const [shippingQuoteRevision, setShippingQuoteRevision] = useState(0);
   // EcoClub loyalty discount
   const [loyaltyTier, setLoyaltyTier] = useState<"Bronze" | "Silver" | "Gold">("Bronze");
   const [loyaltyDiscountPct, setLoyaltyDiscountPct] = useState(0); // 0, 30, or 50
@@ -416,7 +420,7 @@ export default function CheckoutPage() {
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const paypalRendered = useRef(false);
   // Always-fresh ref for PayPal callbacks (prevents stale closure bug)
-  const paypalDataRef = useRef({ form, items, grandTotal: 0, shipping: 0, couponApplied, discount: 0 });
+  const paypalDataRef = useRef({ form, items, subtotal: 0, minimumOrder: 0, shippingReady: false, grandTotal: 0, shipping: 0, couponApplied, discount: 0 });
   // Track if error originated from form validation (not from PayPal itself)
   const paypalFormErrorRef = useRef(false);
 
@@ -562,9 +566,29 @@ export default function CheckoutPage() {
   }, []);
 
   const shippingConfig = shippingConfigFromSettings(siteSettings);
-  const defaultFreeAbove = shippingConfig.freeThreshold;
-  const isSidiBennour = form.ville.trim().toLowerCase().replace(/[-\s]/g, "") === "sidibennour";
-  const shipping = isSidiBennour ? 0 : calculateShipping(total, shippingConfig);
+  const defaultFreeAbove = shippingQuote?.freeThreshold ?? shippingConfig.freeThreshold;
+  const shipping = shippingQuote?.cost ?? calculateShipping(total, shippingConfig);
+  const shippingEstimate = shippingQuote?.estimatedDays ?? shippingConfig.estimatedDays;
+  const codEnabled = siteSettings.enable_cod !== "false";
+  const paypalEnabled = siteSettings.enable_paypal !== "false";
+  const minimumOrder = Math.max(0, Number(siteSettings.checkout_minimum_order) || 0);
+  const minimumOrderMet = total >= minimumOrder;
+  const shippingReady = !form.ville.trim() || (!shippingQuoteLoading && shippingQuote !== null);
+  const checkoutCopy = {
+    contactTitle: siteSettings.checkout_contact_title || "Vos coordonnées",
+    contactSubtitle: siteSettings.checkout_contact_subtitle || "Pour vous contacter au sujet de votre commande",
+    deliveryTitle: siteSettings.checkout_delivery_title || "Adresse de livraison",
+    deliverySubtitle: siteSettings.checkout_delivery_subtitle || "Indiquez précisément où recevoir votre colis",
+    paymentTitle: siteSettings.checkout_payment_title || "Mode de paiement",
+    paymentSubtitle: siteSettings.checkout_payment_subtitle || "Choisissez votre option de règlement",
+    buttonLabel: siteSettings.checkout_button_label || "Confirmer ma commande",
+    trustTitle: siteSettings.checkout_trust_title || "Commande 100% sécurisée",
+    trustDelivery: siteSettings.checkout_trust_delivery || `Livraison ${shippingEstimate}`,
+    trustPayment: siteSettings.checkout_trust_payment || "Paiement sûr",
+    trustReturns: siteSettings.checkout_trust_returns || "Retours 30j",
+    termsNote: siteSettings.checkout_terms_note || (codEnabled ? "Paiement à la livraison disponible." : "Paiement en ligne sécurisé."),
+    showReassurance: siteSettings.checkout_show_reassurance !== "false",
+  };
   const couponDiscount = couponApplied?.discount ?? 0;
   const effectiveLoyaltyDiscountPct = siteSettings.enable_ecoclub === "false" ? 0 : loyaltyDiscountPct;
   // Loyalty discount applies on subtotal (after coupon); Silver 30%, Gold 50%
@@ -573,8 +597,52 @@ export default function CheckoutPage() {
   const grandTotal = Math.max(0, total + shipping - discount);
   const selectedAddress = savedAddresses.find((address) => address.id === selectedAddressId) ?? null;
 
+  useEffect(() => {
+    const refresh = () => setShippingQuoteRevision((value) => value + 1);
+    window.addEventListener("focus", refresh);
+    return () => window.removeEventListener("focus", refresh);
+  }, []);
+
+  useEffect(() => {
+    const city = form.ville.trim();
+    if (!city) {
+      setShippingQuote(null);
+      setShippingQuoteLoading(false);
+      return;
+    }
+    const controller = new AbortController();
+    setShippingQuote(null);
+    setShippingQuoteLoading(true);
+    const timer = window.setTimeout(() => {
+      fetch(`/api/shipping/quote?city=${encodeURIComponent(city)}&subtotal=${encodeURIComponent(total)}`, {
+        cache: "no-store",
+        signal: controller.signal,
+      })
+        .then(async (response) => {
+          if (!response.ok) throw new Error("quote_unavailable");
+          return response.json() as Promise<ShippingQuote>;
+        })
+        .then(setShippingQuote)
+        .catch((error) => {
+          if (!(error instanceof DOMException && error.name === "AbortError")) setShippingQuote(null);
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setShippingQuoteLoading(false);
+        });
+    }, 250);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [form.ville, total, shippingConfig.cost, shippingConfig.freeThreshold, shippingConfig.estimatedDays, shippingQuoteRevision]);
+
   // Keep paypalDataRef in sync with latest state so PayPal callbacks are never stale
-  paypalDataRef.current = { form, items, grandTotal, shipping, couponApplied, discount };
+  paypalDataRef.current = { form, items, subtotal: total, minimumOrder, shippingReady, grandTotal, shipping, couponApplied, discount };
+
+  useEffect(() => {
+    if (payment === "livraison" && !codEnabled && paypalEnabled) setPayment("paypal");
+    if (payment === "paypal" && !paypalEnabled && codEnabled) setPayment("livraison");
+  }, [payment, codEnabled, paypalEnabled]);
 
   // Load vanilla PayPal SDK and render buttons when PayPal selected
   useEffect(() => {
@@ -585,7 +653,7 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    if (payment !== "paypal") return;
+    if (payment !== "paypal" || !paypalEnabled) return;
     const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "";
     let active = true;
     let loadTimer: ReturnType<typeof setTimeout> | null = null;
@@ -618,7 +686,7 @@ export default function CheckoutPage() {
         style: { layout: "vertical", color: "blue", shape: "rect", label: "pay", height: 48 },
         createOrder: (_data: unknown, actions: any) => {
           // Use ref to get latest form data (avoids stale closure)
-          const { form: f, grandTotal: gt, items: its } = paypalDataRef.current;
+          const { form: f, subtotal, minimumOrder: minimum, shippingReady: quoteReady, grandTotal: gt, items: its } = paypalDataRef.current;
           const errs = validate(f);
           if (Object.keys(errs).length) {
             setErrors(errs);
@@ -629,6 +697,16 @@ export default function CheckoutPage() {
             }, 50);
             paypalFormErrorRef.current = true;
             return Promise.reject(new Error("Form invalid"));
+          }
+          if (subtotal < minimum) {
+            setOrderError(`Le montant minimum de commande est de ${formatMAD(minimum)}.`);
+            paypalFormErrorRef.current = true;
+            return Promise.reject(new Error("Minimum order not met"));
+          }
+          if (!quoteReady) {
+            setOrderError("Veuillez patienter pendant le calcul des frais de livraison.");
+            paypalFormErrorRef.current = true;
+            return Promise.reject(new Error("Shipping quote unavailable"));
           }
           paypalFormErrorRef.current = false;
           const usdAmount = paypalAmountFromMad(gt);
@@ -726,7 +804,7 @@ export default function CheckoutPage() {
       if (loadTimer) clearTimeout(loadTimer);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [payment, paypalRetry, paypalServerReady]);
+  }, [payment, paypalRetry, paypalServerReady, paypalEnabled]);
 
   // Reset rendered flag when payment changes away from paypal
   useEffect(() => {
@@ -798,6 +876,9 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (payment === "paypal") return; // PayPal uses its own button flow
     if (loading) return;
+    if (!codEnabled) { setOrderError("Le paiement à la livraison est temporairement indisponible."); return; }
+    if (!minimumOrderMet) { setOrderError(`Le montant minimum de commande est de ${formatMAD(minimumOrder)}.`); return; }
+    if (!shippingReady) { setOrderError("Veuillez patienter pendant le calcul des frais de livraison."); return; }
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
@@ -1010,7 +1091,7 @@ export default function CheckoutPage() {
           <div className="flex flex-col gap-4">
 
             {/* Section 1 */}
-            <Section step={1} title="Vos coordonnées" subtitle="Pour vous contacter au sujet de votre commande" icon={
+            <Section step={1} title={checkoutCopy.contactTitle} subtitle={checkoutCopy.contactSubtitle} icon={
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             }>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-4">
@@ -1027,7 +1108,7 @@ export default function CheckoutPage() {
             </Section>
 
             {/* Section 2 */}
-            <Section step={2} title="Adresse de livraison" subtitle="Indiquez précisément où recevoir votre colis" icon={
+            <Section step={2} title={checkoutCopy.deliveryTitle} subtitle={checkoutCopy.deliverySubtitle} icon={
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             }>
               {!accountDetailsLoaded ? (
@@ -1110,7 +1191,7 @@ export default function CheckoutPage() {
             </Section>
 
             {/* Section 3 */}
-            <Section step={3} title="Mode de paiement" subtitle="Choisissez votre option de règlement" icon={
+            <Section step={3} title={checkoutCopy.paymentTitle} subtitle={checkoutCopy.paymentSubtitle} icon={
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
             }>
               <div className="flex flex-col gap-3">
@@ -1118,7 +1199,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPayment("livraison")}
-                  className={`group relative flex items-center gap-4 rounded-xl p-4 border-2 text-left transition-all duration-150 ${
+                  className={`${!codEnabled ? "hidden " : ""}group relative flex items-center gap-4 rounded-xl p-4 border-2 text-left transition-all duration-150 ${
                     payment === "livraison"
                       ? "border-[#3ecf4c] text-black"
                       : "border-neutral-200 bg-white hover:border-neutral-300"
@@ -1155,7 +1236,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPayment("paypal")}
-                  className={`group relative flex items-center gap-4 rounded-xl p-4 border-2 text-left transition-all duration-150 ${
+                  className={`${!paypalEnabled ? "hidden " : ""}group relative flex items-center gap-4 rounded-xl p-4 border-2 text-left transition-all duration-150 ${
                     payment === "paypal"
                       ? "border-[#0070ba]"
                       : "border-neutral-200 bg-white hover:border-neutral-300"
@@ -1185,6 +1266,17 @@ export default function CheckoutPage() {
                     {payment === "paypal" && <span className="w-2 h-2 rounded-full bg-[#0070ba]" />}
                   </div>
                 </button>
+
+                {!codEnabled && !paypalEnabled && (
+                  <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+                    Les paiements sont temporairement indisponibles. Veuillez nous contacter pour finaliser votre commande.
+                  </div>
+                )}
+                {siteSettings.checkout_notice?.trim() && (
+                  <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs font-medium leading-5 text-neutral-600">
+                    {siteSettings.checkout_notice.trim()}
+                  </div>
+                )}
 
                 {/* PayPal Buttons — shown when PayPal is selected */}
                 {payment === "paypal" && (
@@ -1230,16 +1322,16 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Trust banner */}
-                <div className="mt-1 border border-neutral-100 overflow-hidden">
+                {checkoutCopy.showReassurance && <div className="mt-1 border border-neutral-100 overflow-hidden">
                   <div className="bg-neutral-50 px-4 py-2.5 flex items-center justify-center gap-1.5 border-b border-neutral-100">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-green-700">Commande 100% sécurisée</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-green-700">{checkoutCopy.trustTitle}</span>
                   </div>
                   <div className="grid grid-cols-3 divide-x divide-neutral-100">
                     {[
-                      { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, label: `Livraison ${shippingConfig.estimatedDays}` },
-                      { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>, label: "Paiement sûr" },
-                      { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>, label: "Retours 30j" },
+                      { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, label: checkoutCopy.trustDelivery },
+                      { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>, label: checkoutCopy.trustPayment },
+                      { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>, label: checkoutCopy.trustReturns },
                     ].map((b) => (
                       <div key={b.label} className="flex flex-col items-center gap-2 py-3.5 bg-white">
                         <span className="text-neutral-600">{b.icon}</span>
@@ -1247,7 +1339,7 @@ export default function CheckoutPage() {
                       </div>
                     ))}
                   </div>
-                </div>
+                </div>}
               </div>
             </Section>
 
@@ -1264,14 +1356,14 @@ export default function CheckoutPage() {
               )}
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !codEnabled || !minimumOrderMet || !shippingReady}
                 className="flex w-full items-center justify-center gap-3 py-4 text-sm font-black uppercase tracking-[0.1em] transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
                 style={{ background: "#000", color: "#fff", boxShadow: "0 4px 18px rgba(0,0,0,0.18)" }}
               >
                 {loading ? (
                   <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Traitement…</>
                 ) : (
-                  <>Confirmer ma commande <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></>
+                  <>{!minimumOrderMet ? `Minimum ${formatMAD(minimumOrder)}` : shippingQuoteLoading ? "Calcul de la livraison…" : checkoutCopy.buttonLabel} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></>
                 )}
               </button>
             </div>
@@ -1355,11 +1447,17 @@ export default function CheckoutPage() {
                   <span className="font-semibold text-black">{formatMAD(total)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-neutral-500">
-                  <span>Livraison</span>
+                  <span>
+                    Livraison
+                    {shippingQuote?.zoneName && <small className="ml-1 text-[10px] text-neutral-400">· {shippingQuote.zoneName}</small>}
+                  </span>
                   <span className={`font-semibold ${shipping === 0 ? "text-emerald-600" : "text-black"}`}>
-                    {shipping === 0 ? "Gratuite 🎉" : formatMAD(shipping)}
+                    {shippingQuoteLoading ? "Calcul…" : shipping === 0 ? "Gratuite 🎉" : formatMAD(shipping)}
                   </span>
                 </div>
+                {form.ville.trim() && (
+                  <p className="text-[10px] text-neutral-400">Délai estimé : <strong className="text-neutral-600">{shippingEstimate}</strong></p>
+                )}
                 {shipping > 0 && defaultFreeAbove > 0 && (
                   <p className="text-[10px] text-neutral-400 bg-neutral-100 px-3 py-2">
                     Livraison <strong>gratuite</strong> dès <strong>{defaultFreeAbove} MAD</strong> d&apos;achats
@@ -1400,7 +1498,7 @@ export default function CheckoutPage() {
                 )}
                 <button
                   type="submit"
-                  disabled={loading || payment === "paypal"}
+                  disabled={loading || payment === "paypal" || !codEnabled || !minimumOrderMet || !shippingReady}
                   className={`hidden lg:flex w-full py-4 font-black uppercase text-sm tracking-[0.1em] hover:opacity-90 transition-all duration-200 active:scale-[0.99] disabled:opacity-60 items-center justify-center gap-2.5 ${
                     payment === "paypal" ? "opacity-0 pointer-events-none" : ""
                   }`}
@@ -1409,7 +1507,7 @@ export default function CheckoutPage() {
                   {loading ? (
                     <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Traitement…</>
                   ) : (
-                    <>Confirmer ma commande <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></>
+                    <>{!minimumOrderMet ? `Minimum ${formatMAD(minimumOrder)}` : shippingQuoteLoading ? "Calcul de la livraison…" : checkoutCopy.buttonLabel} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></>
                   )}
                 </button>
                 <div className="mt-4 flex items-center justify-center gap-3 text-[10px] text-neutral-400 font-semibold">
@@ -1418,7 +1516,7 @@ export default function CheckoutPage() {
                     SSL sécurisé
                   </span>
                   <span className="w-1 h-1 rounded-full bg-neutral-300" />
-                  <span>Livraison {shippingConfig.estimatedDays}</span>
+                  <span>Livraison {shippingEstimate}</span>
                   <span className="w-1 h-1 rounded-full bg-neutral-300" />
                   <span>Retours 30j</span>
                 </div>
@@ -1427,7 +1525,7 @@ export default function CheckoutPage() {
 
             {/* Reassurance note */}
             <p className="mt-3 text-center text-[11px] text-neutral-400 leading-relaxed px-2">
-              En confirmant, vous acceptez nos <Link href="/conditions-utilisation" target="_blank" className="underline hover:text-black transition-colors">conditions générales</Link>. Paiement à la livraison — aucune carte requise.
+              En confirmant, vous acceptez nos <Link href="/conditions-utilisation" target="_blank" className="underline hover:text-black transition-colors">conditions générales</Link>. {checkoutCopy.termsNote}
             </p>
           </aside>
         </div>

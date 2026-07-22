@@ -253,6 +253,7 @@ export default function MessagesPage() {
   const [waReplyText, setWaReplyText] = useState("");
   const [waSending, setWaSending] = useState(false);
   const [waSent, setWaSent] = useState(false);
+  const [waSendError, setWaSendError] = useState("");
   const waBottomRef = useRef<HTMLDivElement>(null);
 
   async function loadWaConvs() {
@@ -265,15 +266,21 @@ export default function MessagesPage() {
 
   async function sendWaReply() {
     if (!selectedConv || !waReplyText.trim()) return;
+    const message = waReplyText.trim();
     setWaSending(true);
+    setWaSendError("");
     try {
-      await fetch(`/api/whatsapp/conversations/${selectedConv!.id}/reply`, {
+      const response = await fetch("/api/whatsapp/send", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: waReplyText }),
+        body: JSON.stringify({ conversation_id: selectedConv.id, phone: selectedConv.phone, body: message }),
       });
-      setWaMessages(prev => [...prev, { id: Date.now().toString(), direction: "out", body: waReplyText, created_at: new Date().toISOString() }]);
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(typeof result.error === "string" ? result.error : "Le message WhatsApp n'a pas pu être envoyé.");
+      setWaMessages(prev => [...prev, { id: Date.now().toString(), direction: "out", body: message, created_at: new Date().toISOString() }]);
       setWaReplyText(""); setWaSent(true);
-    } catch { /* silent */ } finally { setWaSending(false); }
+    } catch (error) {
+      setWaSendError(error instanceof Error ? error.message : "Le message WhatsApp n'a pas pu être envoyé.");
+    } finally { setWaSending(false); }
   }
 
   async function updateConvStatus(id: string, status: WaConversation["status"]) {
@@ -1049,10 +1056,13 @@ export default function MessagesPage() {
                   {waSent && (
                     <div className="text-[10px] text-green-600 font-semibold bg-green-50 rounded-xl p-2 text-center mb-2">✓ Message envoyé</div>
                   )}
+                  {waSendError && (
+                    <div role="alert" className="mb-2 rounded-xl bg-red-50 p-2 text-center text-[10px] font-semibold text-red-700">{waSendError}</div>
+                  )}
                   <div className="flex gap-2">
                     <textarea
                       value={waReplyText}
-                      onChange={(e) => { setWaReplyText(e.target.value); setWaSent(false); }}
+                      onChange={(e) => { setWaReplyText(e.target.value); setWaSent(false); setWaSendError(""); }}
                       onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendWaReply(); } }}
                       placeholder={selectedConv!.status === "ai" ? "Prenez en charge pour répondre…" : "Répondre… (Entrée pour envoyer)"}
                       rows={2}

@@ -140,6 +140,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (result.error) console.error("EcoClub reversal failed:", result.error.message);
   }
 
+  let reviewAutomation: {
+    productReview: "sent" | "missing_email" | "not_configured" | "failed";
+    followupScheduled: boolean;
+    followupDueAt: string;
+    error?: string;
+  } | null = null;
+
   // First delivery transition: send one product-review request immediately and
   // persist the two-day Trustpilot follow-up schedule. The persisted state
   // makes the workflow idempotent across retries and deployments.
@@ -150,11 +157,14 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const orderNumber = (data as { order_number?: string }).order_number || id;
     const items = ((data as { items?: ReviewOrderItem[] }).items ?? []);
     const automation = initialReviewAutomationState(id);
+    let productReview: "sent" | "missing_email" | "not_configured" | "failed" = "sent";
 
     if (!email) {
       automation.lastError = "no_customer_email";
+      productReview = "missing_email";
     } else if (!resend) {
       automation.lastError = "resend_not_configured";
+      productReview = "not_configured";
     } else {
       const result = await resend.emails.send({
         from: "L'ecomax <noreply@lecomax.com>",
@@ -168,7 +178,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
           items,
         }),
       });
-      if (result.error) automation.lastError = result.error.message;
+      if (result.error) {
+        automation.lastError = result.error.message;
+        productReview = "failed";
+      }
       else automation.productReviewSentAt = new Date().toISOString();
     }
 
@@ -178,9 +191,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       updated_at: new Date().toISOString(),
     }, { onConflict: "key" });
     if (automationError) console.error("Review automation schedule failed:", automationError.message);
+    reviewAutomation = {
+      productReview,
+      followupScheduled: !automationError,
+      followupDueAt: automation.followupDueAt,
+      ...(automationError ? { error: automationError.message } : {}),
+    };
   }
 
-  return NextResponse.json({ ...data, loyalty });
+  return NextResponse.json({ ...data, loyalty, reviewAutomation });
 }
 
 // DELETE /api/orders/[id]

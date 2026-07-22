@@ -14,6 +14,7 @@
     "validate:course": "node scripts/validate-course.mjs",
     "audit:supabase": "node --env-file=.env.local scripts/audit-supabase.mjs",
     "audit:loyalty": "node --env-file=.env.local scripts/audit-loyalty.mjs",
+    "audit:admin-api": "node scripts/audit-admin-api-contracts.mjs",
     "smoke:course-ui": "node scripts/smoke-course-ui.mjs",
     "smoke:admin-dashboard": "node scripts/smoke-admin-dashboard-ui.mjs"
   },

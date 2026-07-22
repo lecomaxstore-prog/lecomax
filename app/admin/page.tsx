@@ -91,7 +91,7 @@ export default function AdminLoginPage() {
           {/* Logo */}
           <div className="flex items-center gap-3 mb-12">
             <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0">
-              <img src="/favicon.png" alt="L'ecomax" width={36} height={36} className="w-full h-full object-cover" />
+              <img src="/favicon.png?v=5" alt="L'ecomax" width={36} height={36} className="w-full h-full object-cover" />
             </div>
             <div>
               <p className="text-white font-black tracking-wide text-sm">L&apos;ECOMAX</p>
@@ -162,7 +162,7 @@ export default function AdminLoginPage() {
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-16">
             <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0">
-              <img src="/favicon.png" alt="L'ecomax" width={36} height={36} className="w-full h-full object-cover" />
+              <img src="/favicon.png?v=5" alt="L'ecomax" width={36} height={36} className="w-full h-full object-cover" />
             </div>
             <div>
               <p className="text-white font-black tracking-wide text-sm">L&apos;ECOMAX</p>
@@ -196,7 +196,7 @@ export default function AdminLoginPage() {
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-10 lg:hidden">
             <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0">
-              <img src="/favicon.png" alt="L'ecomax" width={36} height={36} className="w-full h-full object-cover" />
+              <img src="/favicon.png?v=5" alt="L'ecomax" width={36} height={36} className="w-full h-full object-cover" />
             </div>
             <div>
               <p className="font-black tracking-wide text-sm">L&apos;ECOMAX</p>

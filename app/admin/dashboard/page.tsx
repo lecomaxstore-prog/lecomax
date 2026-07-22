@@ -127,10 +127,10 @@ function DashboardSkeleton() {
   return (
     <div role="status" aria-live="polite" className="space-y-5">
       <span className="sr-only">Chargement du tableau de bord…</span>
-      <div className="h-32 rounded-3xl bg-white motion-safe:animate-pulse" />
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <div className="col-span-2 h-40 rounded-3xl bg-neutral-200 motion-safe:animate-pulse lg:col-span-1" />
-        {[0, 1, 2].map((item) => <div key={item} className="h-40 rounded-3xl bg-white motion-safe:animate-pulse" />)}
+      <div className="h-32 rounded-2xl bg-white motion-safe:animate-pulse" />
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
+        <div className="col-span-2 h-36 rounded-2xl bg-neutral-200 motion-safe:animate-pulse sm:h-40 lg:col-span-1" />
+        {[0, 1, 2].map((item) => <div key={item} className="h-36 rounded-2xl bg-white motion-safe:animate-pulse sm:h-40" />)}
       </div>
       <div className="h-80 rounded-3xl bg-white motion-safe:animate-pulse" />
     </div>
@@ -153,7 +153,7 @@ function MetricCard({
   featured?: boolean;
 }) {
   const featuredAmount = featured && value.endsWith(" MAD") ? value.slice(0, -4) : null;
-  const classes = `group relative min-w-0 overflow-hidden rounded-3xl border p-4 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] focus-visible:ring-offset-2 sm:p-5 ${
+  const classes = `group relative min-w-0 overflow-hidden rounded-2xl border p-3.5 transition-all active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] focus-visible:ring-offset-2 sm:p-5 ${
     featured
       ? "col-span-2 border-black bg-[#101512] text-white shadow-[0_18px_40px_rgba(15,23,18,0.16)] lg:col-span-1"
       : "border-neutral-200/80 bg-white text-neutral-950 hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-lg"
@@ -163,16 +163,16 @@ function MetricCard({
     <>
       {featured && <div className="pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full bg-[#3ecf4c]/15 blur-3xl" />}
       <div className="relative flex items-start justify-between gap-3">
-        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${featured ? "bg-white/10 text-[#62e36e]" : "bg-neutral-100 text-neutral-700"}`}>
+        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${featured ? "bg-white/10 text-[#62e36e]" : "bg-neutral-100 text-neutral-700"}`}>
           <Icon name={icon} className="h-[18px] w-[18px]" />
         </span>
         {href && <Icon name="arrow" className={`h-4 w-4 transition-transform group-hover:translate-x-1 ${featured ? "text-white/35" : "text-neutral-300"}`} />}
       </div>
-      <p className={`relative mt-5 text-[11px] font-extrabold uppercase tracking-[0.14em] ${featured ? "text-white/45" : "text-neutral-400"}`}>{label}</p>
+      <p className={`relative mt-4 text-[10px] font-extrabold uppercase tracking-[0.12em] sm:mt-5 sm:text-[11px] ${featured ? "text-white/45" : "text-neutral-400"}`}>{label}</p>
       <p data-metric-value className={`relative mt-1 min-w-0 font-black tabular-nums tracking-[-0.04em] ${featured ? "whitespace-nowrap text-[clamp(1.55rem,7vw,2.25rem)] lg:text-[1.75rem] xl:text-[2rem] 2xl:text-[2.25rem]" : "break-words text-2xl sm:text-3xl"}`}>
         {featuredAmount === null ? value : <>{featuredAmount}<span className="ml-1 text-[0.42em] tracking-normal text-[#62e36e]">MAD</span></>}
       </p>
-      <p className={`relative mt-2 text-xs leading-5 ${featured ? "text-white/55" : "text-neutral-500"}`}>{helper}</p>
+      <p className={`relative mt-2 text-[11px] leading-4 sm:text-xs sm:leading-5 ${featured ? "text-white/55" : "text-neutral-500"}`}>{helper}</p>
     </>
   );
 
@@ -370,7 +370,7 @@ export default function DashboardPage() {
   ].filter((item): item is NonNullable<typeof item> => item !== null) : [];
 
   return (
-    <div className="mx-auto w-full max-w-[1500px] space-y-5 sm:space-y-6">
+    <div className="mx-auto w-full max-w-[1500px] space-y-4 sm:space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-emerald-700">{todayLabel}</p>
@@ -384,7 +384,7 @@ export default function DashboardPage() {
           type="button"
           onClick={() => setRetryToken((value) => value + 1)}
           disabled={refreshing || loading}
-          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-neutral-200 bg-white px-4 text-sm font-bold text-neutral-700 shadow-sm transition hover:border-neutral-300 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 text-sm font-bold text-neutral-700 shadow-sm transition active:scale-[.99] hover:border-neutral-300 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] disabled:cursor-wait disabled:opacity-60 sm:min-h-11 sm:w-auto"
           aria-label="Actualiser les données du tableau de bord"
         >
           <Icon name="refresh" className={`h-4 w-4 ${refreshing ? "motion-safe:animate-spin" : ""}`} />
@@ -392,7 +392,7 @@ export default function DashboardPage() {
         </button>
       </header>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-neutral-200/80 bg-white p-2 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-xl border border-neutral-200/80 bg-white p-2 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div role="group" aria-label="Période d’analyse" className="grid grid-cols-2 gap-1 rounded-xl bg-neutral-100 p-1">
           {([7, 30] as const).map((value) => (
             <button
@@ -422,7 +422,7 @@ export default function DashboardPage() {
         <div className="rounded-3xl border border-neutral-200 bg-white px-5 py-16 text-center"><p className="font-black text-neutral-800">Aucune donnée disponible</p><p className="mt-2 text-sm text-neutral-500">Utilisez le bouton Réessayer pour relancer le chargement.</p></div>
       ) : (
         <div aria-busy={refreshing} className={`space-y-5 transition-opacity sm:space-y-6 ${refreshing ? "opacity-70" : "opacity-100"}`}>
-          <section aria-labelledby="attention-title" className="overflow-hidden rounded-3xl border border-neutral-200/80 bg-white shadow-sm">
+          <section aria-labelledby="attention-title" className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm">
             <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-4 py-4 sm:px-5">
               <div><p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-neutral-400">Priorités</p><h2 id="attention-title" className="mt-0.5 text-base font-black text-neutral-950">À traiter maintenant</h2></div>
               {attentionItems.length > 0 && <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-black tabular-nums text-red-700">{attentionItems.reduce((sum, item) => sum + item.count, 0)} action{attentionItems.reduce((sum, item) => sum + item.count, 0) > 1 ? "s" : ""}</span>}
@@ -435,7 +435,7 @@ export default function DashboardPage() {
             ) : (
               <div className="grid gap-2 p-3 sm:grid-cols-3 sm:p-4">
                 {attentionItems.map((item) => (
-                  <Link key={item.href} href={item.href} className={`group flex min-h-[76px] items-center gap-3 rounded-2xl p-3.5 ring-1 ring-inset transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] ${item.tone}`}>
+                  <Link key={item.href} href={item.href} className={`group flex min-h-[76px] items-center gap-3 rounded-xl p-3.5 ring-1 ring-inset transition active:scale-[.99] hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] ${item.tone}`}>
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/80"><Icon name={item.icon} /></span>
                     <span className="min-w-0 flex-1"><span className="block text-sm font-black">{item.label}</span><span className="mt-0.5 block truncate text-xs opacity-75">{item.helper}</span></span>
                     <span className="text-2xl font-black tabular-nums">{item.count}</span>
@@ -446,7 +446,7 @@ export default function DashboardPage() {
             )}
           </section>
 
-          <section aria-label="Indicateurs principaux" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <section aria-label="Indicateurs principaux" className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
             <MetricCard
               label="Valeur des commandes"
               value={formatMoney(stats.orderValue)}
@@ -463,19 +463,19 @@ export default function DashboardPage() {
           {quickActions.length > 0 && (
             <section aria-labelledby="quick-actions-title">
               <div className="mb-3 flex items-end justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-neutral-400">Raccourcis</p><h2 id="quick-actions-title" className="mt-0.5 text-base font-black">Actions rapides</h2></div></div>
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-2.5 min-[440px]:grid-cols-2 sm:gap-3 lg:grid-cols-4">
                 {quickActions.map((action) => (
-                  <Link key={action.href} href={action.href} className="group flex min-h-[92px] min-w-0 items-center gap-3 rounded-2xl border border-neutral-200/80 bg-white p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] sm:p-4">
+                  <Link key={action.href} href={action.href} className="group flex min-h-[76px] min-w-0 items-center gap-3 rounded-xl border border-neutral-200/80 bg-white p-3.5 shadow-sm transition active:scale-[.99] hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] min-[440px]:min-h-[92px] sm:p-4">
                     <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${action.accent}`}><Icon name={action.icon} /></span>
                     <span className="min-w-0 flex-1"><span className="block truncate text-sm font-black text-neutral-900">{action.label}</span><span className="mt-1 block text-xs leading-4 text-neutral-500">{action.helper}</span></span>
-                    <Icon name="chevron" className="hidden h-4 w-4 shrink-0 text-neutral-300 transition-transform group-hover:translate-x-0.5 sm:block" />
+                    <Icon name="chevron" className="h-4 w-4 shrink-0 text-neutral-300 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 ))}
               </div>
             </section>
           )}
 
-          <section aria-labelledby="recent-orders-title" className="overflow-hidden rounded-3xl border border-neutral-200/80 bg-white shadow-sm">
+          <section aria-labelledby="recent-orders-title" className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm">
             <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-4 py-4 sm:px-5">
               <div><p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-neutral-400">Activité</p><h2 id="recent-orders-title" className="mt-0.5 text-base font-black">Commandes récentes</h2></div>
               {can("orders.view") && <Link href="/admin/orders" className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-2 text-xs font-bold text-neutral-500 transition hover:bg-neutral-50 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]">Voir tout<Icon name="arrow" className="h-3.5 w-3.5" /></Link>}
@@ -488,12 +488,12 @@ export default function DashboardPage() {
                   const status = statusStyles[order.status] ?? { label: order.status || "Inconnu", pill: "bg-neutral-100 text-neutral-600 ring-neutral-200", dot: "bg-neutral-400" };
                   const row = (
                     <>
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-neutral-100 text-neutral-500"><Icon name="orders" className="h-[18px] w-[18px]" /></span>
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-neutral-500"><Icon name="orders" className="h-[18px] w-[18px]" /></span>
                       <span className="min-w-0 flex-1">
                         <span className="flex min-w-0 items-center gap-2"><span className="truncate text-sm font-black text-neutral-900">{order.customerName || "Client"}</span><span className="shrink-0 text-[11px] font-bold text-neutral-400">#{order.orderNumber}</span></span>
                         <span className="mt-1 flex min-w-0 items-center gap-2"><time dateTime={order.createdAt} className="truncate text-xs text-neutral-400">{new Date(order.createdAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}</time><span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-extrabold ring-1 ring-inset ${status.pill}`}><span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />{status.label}</span></span>
                       </span>
-                      <span className="flex shrink-0 flex-col items-end gap-1"><span className="text-sm font-black tabular-nums text-neutral-950 sm:text-base">{formatMoney(order.total)}</span><Icon name="chevron" className="h-4 w-4 text-neutral-300" /></span>
+                      <span className="flex max-w-[92px] shrink-0 flex-col items-end gap-1 min-[430px]:max-w-none"><span className="text-right text-xs font-black tabular-nums text-neutral-950 min-[430px]:text-sm sm:text-base">{formatMoney(order.total)}</span><Icon name="chevron" className="h-4 w-4 text-neutral-300" /></span>
                     </>
                   );
                   return can("orders.view")
@@ -511,7 +511,7 @@ export default function DashboardPage() {
               onClick={() => setShowAnalytics((value) => !value)}
               aria-expanded={showAnalytics}
               aria-controls="dashboard-analytics-panels"
-              className="flex min-h-[72px] w-full items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-white px-4 text-left shadow-sm outline-none transition hover:border-neutral-300 focus-visible:ring-2 focus-visible:ring-[#3ecf4c] lg:hidden"
+              className="flex min-h-[72px] w-full items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-4 text-left shadow-sm outline-none transition active:scale-[.99] hover:border-neutral-300 focus-visible:ring-2 focus-visible:ring-[#3ecf4c] lg:hidden"
             >
               <span className="flex min-w-0 items-center gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700"><Icon name="chart" /></span><span className="min-w-0"><span className="block text-sm font-black">Analyses de la période</span><span className="mt-0.5 block truncate text-xs text-neutral-500">{formatMoney(periodData.orderValue)} · {periodData.orders} commande{periodData.orders > 1 ? "s" : ""}</span></span></span>
               <Icon name="chevron" className={`h-5 w-5 shrink-0 text-neutral-400 transition-transform ${showAnalytics ? "rotate-90" : ""}`} />
@@ -520,7 +520,7 @@ export default function DashboardPage() {
             <div className="mb-3 hidden items-end justify-between lg:flex"><div><p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-neutral-400">Tendances</p><p className="mt-0.5 text-base font-black">Analyses de la période</p></div>{can("analytics.view") && <Link href="/admin/analytics" className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-500 hover:text-black">Explorer les analyses<Icon name="arrow" className="h-3.5 w-3.5" /></Link>}</div>
 
             <div id="dashboard-analytics-panels" className={`${showAnalytics ? "mt-3 grid" : "hidden"} gap-4 lg:grid lg:grid-cols-[minmax(0,1.65fr)_minmax(300px,0.75fr)]`}>
-              <article className="min-w-0 rounded-3xl border border-neutral-200/80 bg-white p-4 shadow-sm sm:p-6">
+              <article className="min-w-0 rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm sm:p-6">
                 <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h3 id="dashboard-revenue-title" className="text-sm font-black text-neutral-900">Valeur quotidienne des commandes</h3><p className="mt-1 text-xs text-neutral-400">Les commandes annulées sont exclues.</p></div><div className="sm:text-right"><p className="text-xl font-black tabular-nums text-emerald-700">{formatMoney(periodData.orderValue)}</p><p className="text-[11px] text-neutral-400">sur {periodData.days} jours</p></div></div>
                 <RevenueChart daily={periodData.daily} days={periodData.days} total={periodData.orderValue} />
               </article>

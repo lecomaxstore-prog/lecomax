@@ -40,10 +40,13 @@ const sora = Sora({
 });
 
 const SITE_URL = "https://lecomax.com";
+const OFFICIAL_SOCIAL_IMAGE = "/ecomax-hero-banner.jpg.png?v=2";
+const SOCIAL_TITLE = "L'ecomax | Mode, Tech & Sport au Maroc";
+const SOCIAL_DESCRIPTION = "Chaussures, vêtements et accessoires tech sélectionnés pour vous. Livraison partout au Maroc, paiement sécurisé et retours sous 30 jours.";
 
 const defaultMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  manifest: "/manifest.json?v=3",
+  manifest: "/manifest.json?v=5",
   title: {
     default: "L'ecomax — Mode, Tech & Sport · Livraison partout au Maroc",
     template: "%s",
@@ -69,44 +72,44 @@ const defaultMetadata: Metadata = {
     "accessoires Sidi Bennour",
   ],
   applicationName: "L'ecomax",
+  alternates: { canonical: SITE_URL },
   authors: [{ name: "L'ecomax", url: SITE_URL }],
   creator: "L'ecomax",
   publisher: "L'ecomax",
   category: "shopping",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any", type: "image/x-icon" },
-      { url: "/icons/icon-192.png?v=3", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512.png?v=3", sizes: "512x512", type: "image/png" },
+      { url: "/favicon.ico?v=5", sizes: "any", type: "image/x-icon" },
+      { url: "/favicon.png?v=5", sizes: "1200x1200", type: "image/png" },
+      { url: "/icons/icon-192.png?v=5", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png?v=5", sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/icons/apple-touch-icon.png?v=3", sizes: "180x180", type: "image/png" },
+      { url: "/icons/apple-touch-icon.png?v=5", sizes: "180x180", type: "image/png" },
     ],
-    shortcut: "/favicon.ico",
+    shortcut: "/favicon.ico?v=5",
   },
   openGraph: {
     type: "website",
     locale: "fr_MA",
     url: SITE_URL,
     siteName: "L'ecomax",
-    title: "L'ecomax | Chaussures, Vêtements & Accessoires Tech au Maroc",
-    description:
-      "Boutique en ligne au Maroc — chaussures, vêtements sport, écouteurs, enceintes et gaming. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
+    title: SOCIAL_TITLE,
+    description: SOCIAL_DESCRIPTION,
     images: [
       {
-        url: "/ecomax-hero-banner.jpg.png",
-        width: 1200,
-        height: 630,
-        alt: "L'ecomax — Boutique en ligne Maroc",
+        url: OFFICIAL_SOCIAL_IMAGE,
+        width: 1536,
+        height: 1024,
+        alt: "Sélection officielle L'ecomax : mode, sport, gaming et accessoires tech",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "L'ecomax | Chaussures, Vêtements & Accessoires Tech au Maroc",
-    description:
-      "Boutique en ligne Maroc — chaussures, vêtements, écouteurs, enceintes. Livraison 35 MAD. Paiement à la livraison.",
-    images: ["/ecomax-hero-banner.jpg.png"],
+    title: SOCIAL_TITLE,
+    description: SOCIAL_DESCRIPTION,
+    images: [OFFICIAL_SOCIAL_IMAGE],
   },
   robots: {
     index: true,
@@ -143,8 +146,8 @@ export async function generateMetadata(): Promise<Metadata> {
     const storeName = settings.store_name || "L'ecomax";
     const seoTitle = settings.seo_title?.trim();
     const seoDescription = settings.seo_description?.trim();
-    const favicon = settings.favicon_image?.trim();
-    const ogImage = settings.og_image?.trim();
+    const configuredOgImage = settings.og_image?.trim();
+    const ogImage = configuredOgImage === "/images/lecomax logo.png" ? OFFICIAL_SOCIAL_IMAGE : configuredOgImage;
     const shippingConfig = shippingConfigFromSettings(settings);
     const replaceShipping = (value: unknown) => typeof value === "string"
       ? value.replace(/35 MAD/g, `${formatShippingAmount(shippingConfig.cost)} MAD`)
@@ -155,13 +158,19 @@ export async function generateMetadata(): Promise<Metadata> {
       applicationName: storeName,
       title: seoTitle ? { default: seoTitle, template: "%s" } : defaultMetadata.title,
       description: seoDescription || replaceShipping(defaultMetadata.description),
-      icons: favicon ? { icon: favicon, shortcut: favicon, apple: favicon } : defaultMetadata.icons,
+      // Keep the browser identity pinned to the official L'ecomax mark.
+      icons: defaultMetadata.icons,
       openGraph: {
         ...defaultMetadata.openGraph,
         siteName: storeName,
         title: seoTitle || defaultMetadata.openGraph?.title,
         description: seoDescription || replaceShipping(defaultMetadata.openGraph?.description),
-        images: ogImage ? [{ url: ogImage, alt: storeName }] : defaultMetadata.openGraph?.images,
+        images: ogImage ? [{
+          url: ogImage,
+          width: ogImage.includes("ecomax-hero-banner") ? 1536 : undefined,
+          height: ogImage.includes("ecomax-hero-banner") ? 1024 : undefined,
+          alt: `${storeName} — boutique officielle au Maroc`,
+        }] : defaultMetadata.openGraph?.images,
       },
       twitter: {
         ...defaultMetadata.twitter,

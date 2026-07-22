@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
+import NewsletterCampaignBuilder from "@/components/admin/NewsletterCampaignBuilder";
 
 type Subscriber = { id: string; email: string; name: string | null; active: boolean; created_at: string; source?: string };
 
@@ -95,14 +96,14 @@ export default function NewsletterPage() {
   const active = subscribers.filter((s) => s.active).length;
 
   return (
-    <div className="max-w-4xl">
+    <div className="mx-auto max-w-[1400px]">
       <div className="mb-6">
         <h1 className="text-xl font-black">Newsletter</h1>
         <p className="text-xs text-neutral-400 mt-0.5">Gérez vos abonnés et exportez la liste</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-5">
+      <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         {[
           { label: "Total abonnés", value: subscribers.length, color: "text-black" },
           { label: "Actifs", value: active, color: "text-green-600" },
@@ -131,8 +132,10 @@ export default function NewsletterPage() {
         {msg && <p className={`mt-2 text-xs font-semibold ${msg.type === "ok" ? "text-green-600" : "text-red-600"}`}>{msg.text}</p>}
       </div>
 
-      {/* Send campaign */}
-      <div className="bg-white border border-neutral-100 rounded-2xl p-6 mb-5">
+      <NewsletterCampaignBuilder activeSubscribers={active} />
+
+      {/* Legacy composer retained temporarily for draft compatibility. */}
+      <div className="hidden">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Envoyer un email à tous les abonnés</h2>
           <span className="text-xs font-semibold text-neutral-500 bg-neutral-100 rounded-full px-2.5 py-1">

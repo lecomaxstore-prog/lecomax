@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
+import { buildOrderLifecycleEmail, ORDER_LIFECYCLE_SUBJECTS } from "@/lib/order-lifecycle-email";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const supabase = createClient(
@@ -14,25 +15,25 @@ type NotifyType = "confirmed" | "shipped" | "delivered" | "cancelled";
 function buildEmailHtml(type: NotifyType, name: string, orderNumber: string, items: string, total: string | number, tracking?: string) {
   const configs: Record<NotifyType, { title: string; icon: string; color: string; bgColor: string; body: string }> = {
     confirmed: {
-      title: "Votre commande est confirmée",
+      title: "Commande confirmée",
       icon: "✓",
       color: "#065f46",
       bgColor: "#ecfdf5",
-      body: `Merci pour votre confiance. Votre commande a bien été enregistrée et notre équipe commence sa préparation. Nous vous informerons dès qu'elle quittera nos locaux.`,
+      body: `Merci pour votre commande. Elle a bien été enregistrée et notre équipe prépare maintenant vos articles avec soin. Vous recevrez automatiquement un nouvel email dès que le colis sera remis au transporteur.`,
     },
     shipped: {
       title: "Votre colis est en route",
       icon: "🚚",
       color: "#1e40af",
       bgColor: "#eff6ff",
-      body: `Bonne nouvelle : votre commande a quitté nos locaux.${tracking ? ` Votre numéro de suivi est <strong>${tracking}</strong>.` : ""} La livraison est généralement effectuée sous 2 à 5 jours ouvrables.`,
+      body: `Votre colis a quitté nos locaux et poursuit son chemin vers vous.${tracking ? ` Votre numéro de suivi est <strong>${tracking}</strong>.` : ""} La livraison est généralement effectuée sous 2 à 5 jours ouvrables.`,
     },
     delivered: {
       title: "Votre commande a été livrée",
       icon: "🎉",
       color: "#5b21b6",
       bgColor: "#f5f3ff",
-      body: `Votre commande est indiquée comme livrée. Nous espérons que tout est conforme à vos attentes. Un message séparé vous permet de partager facilement votre avis sur chaque produit.`,
+      body: `Votre commande est maintenant indiquée comme livrée. Nous espérons que chaque article répond à vos attentes. Un email séparé vous permet de partager simplement votre avis sur les produits reçus.`,
     },
     cancelled: {
       title: "Commande annulée",
@@ -125,10 +126,10 @@ function buildInvoiceEmailHtml(order: Record<string, unknown>) {
 }
 
 const SUBJECTS: Record<NotifyType, string> = {
-  confirmed:  "✓ Votre commande est confirmée — L'ECOMAX",
-  shipped:    "🚚 Votre commande est en route — L'ECOMAX",
-  delivered:  "🧾 Votre facture & livraison confirmée — L'ecomax",
-  cancelled:  "Votre commande a été annulée — L'ECOMAX",
+  confirmed:  "Commande confirmée · Voici la suite — L'ecomax",
+  shipped:    "Votre colis est en route — L'ecomax",
+  delivered:  "Livraison confirmée et facture — L'ecomax",
+  cancelled:  "Mise à jour de votre commande — L'ecomax",
 };
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -166,14 +167,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     } else if (!process.env.RESEND_API_KEY) {
       results.email = "not_configured";
     } else {
-      const html = body.type === "delivered"
-        ? buildInvoiceEmailHtml(order)
-        : buildEmailHtml(body.type, name, orderNumber, items, total, tracking);
+      const html = buildOrderLifecycleEmail({
+        type: body.type,
+        customerName: name,
+        orderNumber,
+        items: order.items ?? [],
+        total: Number(total),
+        trackingNumber: tracking,
+      });
       const { error: emailError } = await resend.emails.send({
         from: "L'ecomax <noreply@lecomax.com>",
         replyTo: "contact@lecomax.com",
         to: [email],
-        subject: SUBJECTS[body.type],
+        subject: ORDER_LIFECYCLE_SUBJECTS[body.type](orderNumber),
         html,
       });
       results.email = emailError ? `error: ${emailError.message}` : "sent";

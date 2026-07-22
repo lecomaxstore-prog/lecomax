@@ -47,7 +47,7 @@ export default function OrdersPage() {
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 6000);
   };
 
   const load = useCallback(async () => {
@@ -171,7 +171,7 @@ export default function OrdersPage() {
       await load();
       setSending(null);
       setPendingAction(null);
-      showToast("Livraison confirmée · Avis produit envoyé · rappel J+2 programmé ✓");
+      showToast("Livraison confirmée · Avis produit envoyé · rappel produits J+2 programmé ✓");
       return;
     }
     const res = await fetch(`/api/orders/${id}/notify`, {
@@ -191,6 +191,44 @@ export default function OrdersPage() {
     else showToast(`Email échoué : ${r.replace("error: ", "")}`, false);
   }
 
+  async function confirmDelivery(id: string) {
+    setSending("delivery");
+    try {
+      const response = await fetch(`/api/orders/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "delivered" }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        showToast(`Livraison non confirmée : ${data.error ?? "erreur inconnue"}`, false);
+        return;
+      }
+
+      const automation = data.reviewAutomation as {
+        productReview?: "sent" | "missing_email" | "not_configured" | "failed";
+        followupScheduled?: boolean;
+      } | null;
+      if (!automation) {
+        showToast("Livraison déjà confirmée. Aucun nouvel email n'a été envoyé.");
+      } else if (automation.productReview === "sent" && automation.followupScheduled) {
+        showToast("Livraison confirmée. L'avis produit est envoyé et le rappel produits J+2 est programmé.");
+      } else if (automation.productReview === "missing_email") {
+        showToast("Livraison confirmée, mais aucun email client n'est disponible.", false);
+      } else if (automation.productReview === "not_configured") {
+        showToast("Livraison confirmée, mais Resend n'est pas configuré. Vérifiez RESEND_API_KEY.", false);
+      } else {
+        showToast("Livraison confirmée, mais l'email d'avis n'a pas pu être envoyé. Vérifiez Resend.", false);
+      }
+      setPendingAction(null);
+      await load();
+    } catch {
+      showToast("Impossible de confirmer la livraison. Vérifiez la connexion puis réessayez.", false);
+    } finally {
+      setSending(null);
+    }
+  }
+
   async function handleWhatsApp(id: string, type: "confirmed" | "shipped" | "delivered" | "cancelled") {
     setSending("whatsapp");
     const order = orders.find((o) => o.id === id);
@@ -204,7 +242,7 @@ export default function OrdersPage() {
     setSending(null);
     setPendingAction(null);
     showToast(type === "delivered"
-      ? "Livraison confirmée · Avis produit envoyé · rappel J+2 programmé ✓"
+      ? "Livraison confirmée · Avis produit envoyé · rappel produits J+2 programmé ✓"
       : "Statut mis à jour · WhatsApp ouvert ✓");
   }
 
@@ -446,7 +484,7 @@ export default function OrdersPage() {
 
       {/* RIGHT: Detail panel */}
       {detail && (
-        <div className="fixed inset-0 z-50 h-[100dvh] overflow-y-auto bg-neutral-50 pb-8 lg:relative lg:inset-auto lg:z-auto lg:h-auto lg:max-h-[calc(100vh-7rem)] lg:min-w-0 lg:flex-1 lg:bg-white lg:pb-0">
+        <div className="fixed inset-0 z-50 h-[100dvh] overflow-y-auto bg-neutral-50 pb-[max(2rem,env(safe-area-inset-bottom))] lg:relative lg:inset-auto lg:z-auto lg:h-auto lg:max-h-[calc(100vh-7rem)] lg:min-w-0 lg:flex-1 lg:bg-white lg:pb-0">
           {/* Mobile back header */}
           <div className="sticky top-0 z-20 mb-3 flex items-center gap-3 border-b border-neutral-200/80 bg-white/95 px-3 py-3 backdrop-blur-xl lg:hidden">
             <button onClick={() => router.replace("/admin/orders")}
@@ -498,12 +536,16 @@ export default function OrdersPage() {
           </div>
 
           {toast && (
-            <div className={`mb-3 px-4 py-2.5 rounded-xl text-xs font-semibold ${toast.ok ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-red-50 border border-red-200 text-red-700"}`}>
-              {toast.msg}
+            <div role="status" className={`mx-3 mb-3 flex items-start gap-3 rounded-xl border px-3.5 py-3 text-xs shadow-sm lg:mx-0 ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-red-200 bg-red-50 text-red-900"}`}>
+              <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-black text-white ${toast.ok ? "bg-emerald-600" : "bg-red-600"}`}>{toast.ok ? "✓" : "!"}</span>
+              <div>
+                <p className="font-black">{toast.ok ? "Action terminée" : "Action à vérifier"}</p>
+                <p className="mt-0.5 leading-5 opacity-80">{toast.msg}</p>
+              </div>
             </div>
           )}
 
-          <div className="space-y-3 px-3 lg:px-0">
+          <div className="mx-auto max-w-2xl space-y-3 px-3 lg:max-w-none lg:px-0">
 
             {/* Actions — pick status then channel */}
             <Section title="Actions">
@@ -515,6 +557,40 @@ export default function OrdersPage() {
                   cancelled: { label: "Annuler",    icon: "✕",  cls: "bg-red-500" },
                 };
                 const meta = ACTION_META[pendingAction];
+                if (pendingAction === "delivered") {
+                  return (
+                    <div>
+                      <div className="mb-4 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-sm font-black text-white">✓</span>
+                        <div className="min-w-0">
+                          <p className="text-sm font-black text-emerald-950">Confirmer la livraison ?</p>
+                          <p className="mt-1 text-[11px] leading-5 text-emerald-800">
+                            Cette action marque la commande comme livrée et lance automatiquement la séquence d&apos;avis client.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mb-4 space-y-3 border-l-2 border-emerald-200 pl-4">
+                        <div>
+                          <p className="text-[11px] font-black text-neutral-800">Maintenant · Avis produit</p>
+                          <p className="mt-0.5 text-[10px] leading-4 text-neutral-500">Un email personnalisé présente chaque article avec un lien direct pour déposer un avis.</p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-black text-neutral-800">Dans 2 jours · Avis sur les produits</p>
+                          <p className="mt-0.5 text-[10px] leading-4 text-neutral-500">Un rappel personnalisé affiche les articles achetés, avec un bouton d'avis pour chacun et Trustpilot en option.</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => confirmDelivery(detail.id)}
+                        disabled={!!sending}
+                        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-black text-white transition-colors hover:bg-emerald-700 disabled:opacity-50">
+                        {sending === "delivery" ? "Confirmation en cours…" : "Confirmer et lancer l'autopilote"}
+                      </button>
+                      <button onClick={() => setPendingAction(null)} className="mt-2 w-full py-2 text-xs font-semibold text-neutral-400 transition-colors hover:text-neutral-700">
+                        Retour aux actions
+                      </button>
+                    </div>
+                  );
+                }
                 return (
                   <div>
                     <div className="flex items-center gap-2 mb-3">
@@ -608,7 +684,7 @@ export default function OrdersPage() {
                   <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs ${detail.status === "delivered" ? "bg-emerald-600 text-white" : "bg-white text-neutral-400 shadow-sm"}`}>{detail.status === "delivered" ? "✓" : "⏱"}</span>
                   <div>
                     <p className="text-[11px] font-black text-neutral-800">{detail.status === "delivered" ? "Séquence automatique activée" : "Démarre automatiquement à la livraison"}</p>
-                    <p className="mt-1 text-[10px] leading-4 text-neutral-500">Avis produit envoyé dès la livraison, puis un rappel Trustpilot unique 2 jours plus tard.</p>
+                    <p className="mt-1 text-[10px] leading-4 text-neutral-500">Avis produit envoyé dès la livraison, puis rappel personnalisé sur les produits 2 jours plus tard.</p>
                   </div>
                 </div>
               </div>
@@ -663,13 +739,13 @@ export default function OrdersPage() {
                   <span className="text-sm font-black text-purple-700 tracking-widest">{detail.tracking_number}</span>
                 </div>
               )}
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 min-[380px]:flex-row">
                 <input value={trackingInput} onChange={(e) => setTrackingInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && saveTracking(detail.id)}
                   placeholder="Ex: MA123456789FR"
                   className="flex-1 border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black transition-colors" />
                 <button onClick={() => saveTracking(detail.id)} disabled={trackingSaving}
-                  className="px-3 py-2 bg-black text-white text-xs font-bold rounded-xl hover:bg-neutral-800 transition-colors disabled:opacity-50 whitespace-nowrap">
+                  className="min-h-11 w-full rounded-xl bg-black px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-neutral-800 disabled:opacity-50 min-[380px]:w-auto whitespace-nowrap">
                   {trackingSaving ? "…" : "Sauver"}
                 </button>
               </div>
@@ -851,10 +927,10 @@ export default function OrdersPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl border border-neutral-100 p-4">
+    <section className="rounded-xl border border-neutral-200 bg-white p-3.5 shadow-[0_1px_2px_rgba(0,0,0,0.02)] sm:p-4">
       <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-3">{title}</p>
       {children}
-    </div>
+    </section>
   );
 }
 
@@ -862,7 +938,7 @@ function Row({ label, value }: { label: string; value?: string }) {
   return (
     <div className="flex gap-3 text-sm">
       <span className="text-neutral-400 w-16 flex-shrink-0">{label}</span>
-      <span className="font-medium">{value || "—"}</span>
+      <span className="min-w-0 break-words font-medium">{value || "—"}</span>
     </div>
   );
 }

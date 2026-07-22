@@ -216,6 +216,15 @@ const nav = [
     ),
   },
   {
+    label: "Checkout",
+    href: "/admin/checkout",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d="M3 5h18v14H3z"/><path d="M3 10h18"/><path d="M7 15h4"/>
+      </svg>
+    ),
+  },
+  {
     label: "Guide tailles",
     href: "/admin/size-guide",
     icon: (
@@ -362,7 +371,7 @@ const navSections: { title: string; hrefs: string[] }[] = [
   { title: "CLIENTS",     hrefs: ["/admin/customers", "/admin/client-data", "/admin/loyalty", "/admin/abandoned-carts"] },
   { title: "MARKETING",   hrefs: ["/admin/ecomedia", "/admin/promotions", "/admin/ads", "/admin/push", "/admin/newsletter", "/admin/coupons", "/admin/announcement", "/admin/broadcast"] },
   { title: "SAV",         hrefs: ["/admin/messages", "/admin/chat-kb", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
-  { title: "LOGISTIQUE",  hrefs: ["/admin/shipping", "/admin/size-guide"] },
+  { title: "LOGISTIQUE",  hrefs: ["/admin/checkout", "/admin/shipping", "/admin/size-guide"] },
   { title: "CONFIG",      hrefs: ["/admin/settings"] },
   { title: "ÉQUIPE",      hrefs: ["/admin/roles", "/admin/staff", "/admin/approvals"] },
 ];
@@ -393,6 +402,7 @@ const NAV_PERMISSIONS: Record<string, string | null | undefined> = {
   "/admin/media":          "media.manage",
   "/admin/studio":         "studio.access",
   "/admin/shipping":       "shipping.edit",
+  "/admin/checkout":       "settings.edit",
   "/admin/size-guide":     "size-guide.edit",
   "/admin/announcement":   "announcement.edit",
   "/admin/promotions":     "promotions.edit",
@@ -416,7 +426,7 @@ const pageLabels: Record<string, string> = {
   stock: "Stock", promotions: "Promotions", newsletter: "Newsletter",
   coupons: "Codes promo", announcement: "Annonce", messages: "Messages",
   "chat-kb": "Base de connaissance bot",
-  reviews: "Avis", returns: "Retours", trustpilot: "Trustpilot", shipping: "Livraison",
+  reviews: "Avis", returns: "Retours", trustpilot: "Trustpilot", shipping: "Livraison", checkout: "Checkout",
   "size-guide": "Guide tailles", settings: "Paramètres",
   "abandoned-carts": "Paniers abandonnés", loyalty: "Fidélité", broadcast: "Broadcast",
   pages: "Pages", banners: "Bannières", media: "Médiathèque",
@@ -814,7 +824,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Brand header */}
         <div className="px-4 py-4 border-b border-white/[0.07] flex items-center gap-3 shrink-0">
           <img
-            src="/favicon.png"
+            src="/favicon.png?v=5"
             alt="L'ecomax"
             width={36}
             height={36}
@@ -1026,7 +1036,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           {/* Logo on mobile */}
           <div className="lg:hidden flex items-center gap-2 flex-1 min-w-0">
-            <img src="/favicon.png" alt="L'ecomax" width={24} height={24} className="rounded-md shrink-0" />
+            <img src="/favicon.png?v=5" alt="L'ecomax" width={24} height={24} className="rounded-md shrink-0" />
             <span className="font-black text-[13px] truncate">{pageLabel}</span>
           </div>
 
@@ -1075,14 +1085,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* ──────────────── MOBILE BOTTOM NAV ──────────────── */}
         <nav
           aria-label="Navigation admin mobile"
-          className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-200/80 bg-white/95 shadow-[0_-2px_20px_rgba(0,0,0,0.08)] backdrop-blur-md lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-200/80 bg-white/95 shadow-[0_-4px_24px_rgba(0,0,0,0.10)] backdrop-blur-xl lg:hidden"
           style={{
             paddingBottom: "env(safe-area-inset-bottom)",
             paddingLeft: "env(safe-area-inset-left)",
             paddingRight: "env(safe-area-inset-right)",
           }}
         >
-          <div className="flex h-16 items-stretch px-1">
+          <div className="flex h-[68px] items-stretch px-1.5">
             {mobileNavItems.map(item => {
               const active = pathname.startsWith(item.activePath);
               const badgeKey = "badge" in item ? item.badge : undefined;

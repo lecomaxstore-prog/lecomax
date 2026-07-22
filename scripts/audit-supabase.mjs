@@ -75,8 +75,13 @@ settingsUrl.searchParams.set("key", `in.(${Object.keys(requiredSettings).join(",
 const settingsResponse = await fetch(settingsUrl, { headers });
 const rows = settingsResponse.ok ? await settingsResponse.json() : [];
 const settings = Object.fromEntries(rows.map((row) => [row.key, String(row.value ?? "")]));
+const normalizeSetting = (value) => String(value ?? "")
+  .normalize("NFKC")
+  .replace(/[\u2010-\u2015\u2212]/g, "-")
+  .replace(/\s+/g, " ")
+  .trim();
 const invalidSettings = Object.entries(requiredSettings)
-  .filter(([keyName, value]) => settings[keyName] !== value)
+  .filter(([keyName, value]) => normalizeSetting(settings[keyName]) !== normalizeSetting(value))
   .map(([keyName, expected]) => ({ key: keyName, expected, actual: settings[keyName] ?? null }));
 
 console.log(JSON.stringify({
