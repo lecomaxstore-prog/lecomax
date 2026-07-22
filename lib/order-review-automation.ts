@@ -58,7 +58,7 @@ export function buildProductReviewWhatsAppText(args: {
 
 export function buildTrustpilotWhatsAppText(customerName: string, orderNumber: string) {
   const firstName = customerName.split(" ")[0] || "Client";
-  return `Bonjour ${firstName},\n\nComment s'est passée votre expérience avec la commande #${orderNumber} ? Votre avis honnête aide les futurs clients et notre équipe.\n\nPartager mon expérience sur Trustpilot :\nhttps://www.trustpilot.com/evaluate/lecomax.com\n\nMerci pour votre confiance.\nL'équipe L'ecomax`;
+  return `Bonjour ${firstName},\n\nNous espérons que vous êtes pleinement satisfait(e) de votre commande #${orderNumber}.\n\nVotre expérience compte beaucoup pour nous. En partageant un avis sincère sur Trustpilot, vous aidez d'autres clients à faire leur choix et notre équipe à continuer d'améliorer la qualité de ses services.\n\nPartager mon expérience :\nhttps://www.trustpilot.com/evaluate/lecomax.com\n\nCela ne prend que quelques instants. Chaque retour est lu avec attention par notre équipe.\n\nMerci d'avoir choisi L'ecomax et de nous accorder votre confiance.\n\nBien cordialement,\nL'équipe Expérience Client L'ecomax`;
 }
 
 function emailShell(content: string, preview: string) {
