@@ -42,12 +42,19 @@ function refreshPublicCatalogue(change: ProductDiscoveryChange) {
 }
 
 function urlsChanged(change: ProductDiscoveryChange): string[] {
-  const urls = new Set<string>();
+  const urls = new Set<string>([
+    `${SITE_URL}/`,
+    `${SITE_URL}/boutique/`,
+    `${SITE_URL}/nouveautes/`,
+  ]);
   const current = change.current;
   const previous = change.previous;
 
   // A current, public product should be discovered or refreshed.
   if (current?.active && current.slug) urls.add(productUrl(current.slug));
+  if (current?.active && current.category) {
+    urls.add(`${SITE_URL}/${encodeURIComponent(current.category)}/`);
+  }
 
   // A removed, deactivated or renamed URL should be revisited and dropped.
   if (
@@ -56,6 +63,9 @@ function urlsChanged(change: ProductDiscoveryChange): string[] {
     (!current?.active || current.slug !== previous.slug)
   ) {
     urls.add(productUrl(previous.slug));
+  }
+  if (previous?.category) {
+    urls.add(`${SITE_URL}/${encodeURIComponent(previous.category)}/`);
   }
 
   return [...urls];

@@ -65,12 +65,12 @@ export default function NewsletterForm({ variant = "dark" }: { variant?: "dark" 
             required
             aria-invalid={status === "error"}
             aria-describedby={status === "error" ? "newsletter-error" : undefined}
-            className={`min-h-14 w-full border py-3.5 pl-12 pr-4 text-[13px] font-medium transition-all duration-200 focus:border-[#3ecf4c] focus:outline-none focus:ring-4 focus:ring-[#3ecf4c]/10 ${variant === "light" ? `rounded-xl bg-[#fafbfa] text-neutral-950 placeholder:font-normal placeholder:text-neutral-400 ${status === "error" ? "border-red-300 bg-red-50/40" : "border-neutral-200 hover:border-neutral-300"}` : "border-white/10 bg-white/5 text-white placeholder:text-neutral-600 focus:bg-[#3ecf4c]/5"}`}
+            className={`min-h-[50px] w-full border py-3 pl-12 pr-4 text-[13px] font-medium transition-all duration-200 focus:border-[#3ecf4c] focus:outline-none focus:ring-4 focus:ring-[#3ecf4c]/10 sm:min-h-14 sm:py-3.5 ${variant === "light" ? `rounded-xl bg-neutral-50/70 text-neutral-950 placeholder:font-normal placeholder:text-neutral-400 ${status === "error" ? "border-red-300 bg-red-50/40" : "border-neutral-200 hover:border-neutral-300"}` : "border-white/10 bg-white/5 text-white placeholder:text-neutral-600 focus:bg-[#3ecf4c]/5"}`}
           />
         </div>
         <button
           type="submit" disabled={status === "loading"}
-          className={`group inline-flex min-h-14 w-full items-center justify-center gap-3 px-5 py-3.5 text-[10px] font-black uppercase tracking-[0.22em] transition-all duration-200 active:scale-[0.985] disabled:cursor-wait disabled:opacity-60 ${variant === "light" ? "rounded-xl bg-neutral-950 text-white shadow-[0_12px_26px_rgba(0,0,0,.14)] hover:-translate-y-0.5 hover:bg-[#3ecf4c] hover:text-black hover:shadow-[0_14px_28px_rgba(62,207,76,.22)]" : "bg-[#3ecf4c] text-black hover:bg-[#2db83a]"}`}
+          className={`group inline-flex min-h-[50px] w-full items-center justify-center gap-2.5 px-5 py-3 text-[10px] font-black uppercase tracking-[0.14em] transition-all duration-200 active:scale-[0.985] disabled:cursor-wait disabled:opacity-60 sm:min-h-14 sm:py-3.5 sm:tracking-[0.18em] ${variant === "light" ? "rounded-xl bg-neutral-950 text-white shadow-[0_8px_18px_rgba(0,0,0,.12)] hover:bg-emerald-600" : "bg-[#3ecf4c] text-black hover:bg-[#2db83a]"}`}
         >
           {status === "loading" ? (
             <><svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg><span>Inscription…</span></>

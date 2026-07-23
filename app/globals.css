@@ -19,6 +19,53 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Site-wide page entrance */
+.page-enter {
+  position: relative;
+  min-height: 100%;
+  animation: page-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.page-enter::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: 60;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #3ecf4c 35%, #3ecf4c 65%, transparent 100%);
+  transform-origin: left;
+  animation: page-accent 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes page-accent {
+  0% { opacity: 0; transform: scaleX(0); }
+  35% { opacity: 1; }
+  72% { opacity: 1; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  .page-enter::before {
+    animation: none;
+  }
+}
+
 /* Premium display headings */
 .h-display {
   font-family: var(--font-display), var(--font-sans), "Helvetica Neue", Arial, sans-serif;
@@ -216,27 +263,28 @@ body {
 .no-scrollbar { scrollbar-width: none; }
 
 /* ── Custom green scrollbar ──────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+html::-webkit-scrollbar {
+  width: 8px;
 }
-::-webkit-scrollbar-track {
+html::-webkit-scrollbar-track {
   background: transparent;
 }
-::-webkit-scrollbar-thumb {
+html::-webkit-scrollbar-thumb {
   background: #3ecf4c;
+  background-clip: padding-box;
+  border: 2px solid transparent;
   border-radius: 99px;
-  transition: background 0.2s;
 }
-::-webkit-scrollbar-thumb:hover {
+html::-webkit-scrollbar-thumb:hover {
   background: #2db83a;
+  background-clip: padding-box;
 }
-::-webkit-scrollbar-corner {
+html::-webkit-scrollbar-corner {
   background: transparent;
 }
 
 /* Firefox */
-* {
+html {
   scrollbar-width: thin;
   scrollbar-color: #3ecf4c transparent;
 }

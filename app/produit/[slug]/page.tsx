@@ -9,6 +9,8 @@ import ProductGallery from "@/components/ProductGallery";
 import { ProductColorProvider } from "@/components/ProductColorContext";
 import ProductCarousel from "@/components/ProductCarousel";
 import ReviewSection from "@/components/ReviewSection";
+import RatingSummaryPopover from "@/components/RatingSummaryPopover";
+import LowStockReveal from "@/components/LowStockReveal";
 import ProductAccordion from "@/components/ProductAccordion";
 import ShareButtons from "@/components/ShareButtons";
 import NewsletterSection from "@/components/NewsletterSection";
@@ -117,12 +119,6 @@ function ratingFor(slug: string) {
   const rating = 4.3 + (h % 7) / 10;
   const count = 2 + (h % 5); // deterministic count, consistent with ProductCard
   return { rating: Math.round(rating * 10) / 10, count };
-}
-
-function stockFor(slug: string) {
-  let h = 0;
-  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
-  return 3 + (h % 5); // 3–7 units
 }
 
 /* ── Dynamic features by product type ── */
@@ -484,11 +480,20 @@ export default async function ProductPage({
         {/* ── Info panel ── */}
         <div className="lg:sticky lg:top-24 self-start min-w-0">
 
-          <div className="product-summary-enter mb-3 flex items-center gap-3">
-            <span aria-hidden="true" className="h-px w-7 bg-[#3ecf4c]" />
-            <p className="text-[10px] font-black uppercase tracking-[0.32em] text-neutral-400">
-              {product.subCategory}
-            </p>
+          <div className="product-summary-enter relative z-[60] mb-3 flex min-h-7 items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <span aria-hidden="true" className="h-px w-7 shrink-0 bg-[#3ecf4c]" />
+              <p className="truncate text-[10px] font-black uppercase tracking-[0.32em] text-neutral-400">
+                {product.subCategory}
+              </p>
+            </div>
+            {displayReviewCount > 0 && (
+              <RatingSummaryPopover
+                productSlug={product.slug}
+                rating={displayRating}
+                reviewCount={displayReviewCount}
+              />
+            )}
           </div>
 
           <h1 className={`product-summary-enter h-display max-w-2xl leading-[.98] tracking-[-.035em] [animation-delay:.08s] ${
@@ -498,79 +503,6 @@ export default async function ProductPage({
           }`}>
             {product.displayName ?? product.name}
           </h1>
-
-          {/* Rating + stock */}
-          {(() => {
-            const rating = displayRating;
-            const count = displayReviewCount;
-            const full = Math.round(rating);
-            const isOutOfStock = realStock === 0;
-            const isLowStock = typeof realStock === "number" && realStock > 0 && realStock <= 5;
-            const stockTone = isOutOfStock
-              ? {
-                  shell: "border-red-200/90 bg-gradient-to-br from-white via-white to-red-50/90 text-red-800 hover:border-red-300",
-                  icon: "bg-red-500 text-white shadow-[0_5px_14px_rgba(239,68,68,.24)]",
-                  detail: "text-red-500/70",
-                }
-              : isLowStock
-                ? {
-                    shell: "border-amber-200/90 bg-gradient-to-br from-white via-white to-amber-50/90 text-amber-900 hover:border-amber-300",
-                    icon: "bg-amber-400 text-amber-950 shadow-[0_5px_14px_rgba(245,158,11,.24)]",
-                    detail: "text-amber-600/75",
-                  }
-                : {
-                    shell: "border-emerald-200/90 bg-gradient-to-br from-white via-white to-emerald-50/90 text-emerald-900 hover:border-emerald-300 hover:shadow-[0_10px_28px_rgba(16,185,129,.13)]",
-                    icon: "bg-emerald-500 text-white shadow-[0_5px_14px_rgba(16,185,129,.28)]",
-                    detail: "text-emerald-600/70",
-                  };
-            return (
-              <div className="product-summary-enter mt-4 flex flex-wrap items-center gap-2.5 [animation-delay:.16s]">
-                {count > 0 && (
-                  <>
-                    <span aria-label={`${rating} sur 5, ${count} avis`} className="inline-flex min-h-9 items-center gap-2 rounded-full border border-amber-200/80 bg-amber-50/70 px-3">
-                    <span className="flex gap-0.5">
-                      {[1,2,3,4,5].map(s => (
-                        <svg key={s} width="12" height="12" viewBox="0 0 24 24"
-                          fill={s <= full ? "#facc15" : "none"}
-                          stroke={s <= full ? "#facc15" : "#d4d4d4"}
-                          strokeWidth="1.5">
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                        </svg>
-                      ))}
-                    </span>
-                    <span className="text-[11px] font-black text-neutral-900">{rating}</span>
-                    <span className="text-[10px] text-neutral-500">{count} avis</span>
-                    </span>
-                  </>
-                )}
-                <span
-                  role="status"
-                  aria-label={isOutOfStock ? "Produit épuisé" : isLowStock ? `Stock limité, ${realStock} unités restantes` : "Produit disponible en stock"}
-                  className={`group relative inline-flex min-h-11 items-center gap-2.5 overflow-hidden rounded-2xl border py-1.5 pl-1.5 pr-3.5 shadow-[0_5px_18px_rgba(15,23,42,.055)] transition duration-300 hover:-translate-y-0.5 ${stockTone.shell}`}
-                >
-                  <span aria-hidden="true" className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
-                  <span className={`relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${stockTone.icon}`}>
-                    {!isOutOfStock && !isLowStock && <span className="absolute inset-0 animate-ping rounded-xl bg-emerald-400 opacity-[.12]" />}
-                    {isOutOfStock ? (
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="m7 7 10 10M17 7 7 17"/></svg>
-                    ) : isLowStock ? (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v5M12 17h.01"/><path d="M10.3 3.7 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z"/></svg>
-                    ) : (
-                      <svg className="relative" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><path d="m6 12 4 4 8-9"/></svg>
-                    )}
-                  </span>
-                  <span className="flex min-w-0 flex-col leading-none">
-                    <span className="text-[11px] font-black tracking-[-.015em]">
-                      {isOutOfStock ? "Produit épuisé" : isLowStock ? "Stock limité" : "Disponible"}
-                    </span>
-                    <span className={`mt-1.5 whitespace-nowrap text-[8px] font-black uppercase tracking-[.1em] ${stockTone.detail}`}>
-                      {isOutOfStock ? "Bientôt de retour" : isLowStock ? `${realStock} restant${realStock === 1 ? "" : "s"}` : "En stock · Prêt à expédier"}
-                    </span>
-                  </span>
-                </span>
-              </div>
-            );
-          })()}
 
           {/* Price */}
           <div className="flex items-baseline gap-3 mt-5">
@@ -591,27 +523,31 @@ export default async function ProductPage({
           <p className="text-[11px] text-neutral-400 mt-1">
             Taxes incluses · Livraison {formatShippingAmount(shippingConfig.cost)} MAD partout au Maroc
           </p>
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h11v11H3zM14 10h4l3 3v4h-7z" />
+                  <circle cx="7" cy="18" r="2" />
+                  <circle cx="18" cy="18" r="2" />
+                </svg>
+              </span>
+              <div className="min-w-0">
+                <p className="text-[12px] font-bold leading-4 text-neutral-900">
+                  Livraison estimée <span className="font-extrabold text-emerald-700">sous {shippingConfig.estimatedDays}</span>
+                </p>
+                <p className="mt-0.5 text-[10px] leading-4 text-neutral-400">Partout au Maroc · Suivi de commande inclus</p>
+              </div>
+            </div>
+            <LowStockReveal stock={realStock} />
+          </div>
 
           <div className="w-full h-px bg-neutral-100 my-6" />
 
-          {/* Urgency / scarcity signal */}
-          {(() => {
-            const stock = realStock !== null
-              ? (realStock > 0 && realStock <= 10 ? realStock : null)
-              : (product.urgencyStock ?? stockFor(product.slug));
-            if (!stock) return null;
-            return (
-              <div className="flex items-center gap-2 py-2.5 px-3.5 bg-amber-50 border border-amber-200 rounded-lg mb-4">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
-                <span className="text-[12px] text-amber-800 font-semibold">
-                  Plus que <strong>{stock} en stock</strong> — commandez vite !
-                </span>
-              </div>
-            );
-          })()}
-
           {/* Size + Add to cart */}
-          <ProductActions product={product} colorImages={resolvedColorImages} />
+          <div data-product-selection>
+            <ProductActions product={product} colorImages={resolvedColorImages} />
+          </div>
 
           <div className="w-full h-px bg-neutral-100 my-6" />
 

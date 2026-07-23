@@ -40,6 +40,7 @@ const sora = Sora({
 });
 
 const SITE_URL = "https://lecomax.com";
+const BING_SITE_VERIFICATION = process.env.BING_SITE_VERIFICATION?.trim();
 const OFFICIAL_SOCIAL_IMAGE = "/ecomax-hero-banner.jpg.png?v=2";
 const SOCIAL_TITLE = "L'ecomax | Mode, Tech & Sport au Maroc";
 const SOCIAL_DESCRIPTION = "Chaussures, vêtements et accessoires tech sélectionnés pour vous. Livraison partout au Maroc, paiement sécurisé et retours sous 30 jours.";
@@ -124,6 +125,9 @@ const defaultMetadata: Metadata = {
   },
   verification: {
     google: "NkVjvr5b1I2GKIs6YjwtU1HEPQNHUjPBgY8RHD1kRWQ",
+    ...(BING_SITE_VERIFICATION
+      ? { other: { "msvalidate.01": BING_SITE_VERIFICATION } }
+      : {}),
   },
   formatDetection: { telephone: false },
   other: {

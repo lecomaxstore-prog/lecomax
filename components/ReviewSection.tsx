@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { ratingFor } from "@/components/ProductCard";
 import { useSettings } from "@/lib/use-settings";
 
@@ -15,7 +16,18 @@ type Review = {
   created_at: string;
   admin_reply?: string | null;
   image_url?: string | null;
+  image_urls?: string[] | null;
 };
+
+function reviewPhotos(review: Review) {
+  if (Array.isArray(review.image_urls)) return review.image_urls.filter(Boolean);
+  if (!review.image_url) return [];
+  try {
+    const parsed = JSON.parse(review.image_url);
+    if (Array.isArray(parsed)) return parsed.filter((value): value is string => typeof value === "string");
+  } catch {}
+  return [review.image_url];
+}
 
 function StarRow({ rating, size = 12 }: { rating: number; size?: number }) {
   return (
@@ -44,7 +56,31 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [colorFilter, setColorFilter] = useState<string>("Tous");
+  const [photoViewer, setPhotoViewer] = useState<{ photos: string[]; index: number; author: string } | null>(null);
+  const [mounted, setMounted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (!photoViewer) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPhotoViewer(null);
+      if (event.key === "ArrowLeft") {
+        setPhotoViewer((current) => current && ({ ...current, index: (current.index - 1 + current.photos.length) % current.photos.length }));
+      }
+      if (event.key === "ArrowRight") {
+        setPhotoViewer((current) => current && ({ ...current, index: (current.index + 1) % current.photos.length }));
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [photoViewer]);
 
   const scroll = (dir: "left" | "right") => {
     const el = scrollRef.current;
@@ -65,12 +101,31 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
   const [submitted, setSubmitted] = useState(false);
 
   // Photo upload state
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const MAX_REVIEW_PHOTOS = 5;
+
+  const addPhotos = (files: File[]) => {
+    const valid = files.filter((file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type) && file.size <= 5 * 1024 * 1024);
+    const selected = valid.slice(0, MAX_REVIEW_PHOTOS - photoFiles.length);
+    if (valid.length !== files.length) setFormError("Certaines photos ont été ignorées. Utilisez JPG, PNG ou WebP, 5 Mo maximum.");
+    if (selected.length < valid.length) setFormError(`Vous pouvez ajouter jusqu'à ${MAX_REVIEW_PHOTOS} photos.`);
+    setPhotoFiles((current) => [...current, ...selected]);
+    setPhotoPreviews((current) => [...current, ...selected.map((file) => URL.createObjectURL(file))]);
+    setShowPhotoOptions(false);
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotoPreviews((current) => {
+      URL.revokeObjectURL(current[index]);
+      return current.filter((_, photoIndex) => photoIndex !== index);
+    });
+    setPhotoFiles((current) => current.filter((_, photoIndex) => photoIndex !== index));
+  };
 
   // Email order-check state
   const [emailChecking, setEmailChecking] = useState(false);
@@ -161,22 +216,25 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
     setFormError(null);
 
     // Upload photo if selected
-    let uploadedImageUrl: string | null = null;
-    if (photoFile) {
+    let uploadedImageUrls: string[] = [];
+    if (photoFiles.length) {
       setPhotoUploading(true);
-      const fd = new FormData();
-      fd.append("photo", photoFile);
-      fd.append("slug", productSlug);
-      const uploadRes = await fetch("/api/reviews/upload-photo", { method: "POST", body: fd });
+      const uploads = await Promise.all(photoFiles.map(async (photoFile) => {
+        const fd = new FormData();
+        fd.append("photo", photoFile);
+        fd.append("slug", productSlug);
+        const response = await fetch("/api/reviews/upload-photo", { method: "POST", body: fd });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error ?? "Erreur lors de l'envoi d'une photo.");
+        return data.url as string;
+      })).catch(() => null);
       setPhotoUploading(false);
-      if (!uploadRes.ok) {
-        const uploadData = await uploadRes.json().catch(() => ({}));
-        setFormError(uploadData.error ?? "Erreur lors de l'envoi de la photo. Réessayez ou soumettez sans photo.");
+      if (!uploads) {
+        setFormError("Une photo n'a pas pu être envoyée. Veuillez réessayer.");
         setSubmitting(false);
         return;
       }
-      const uploadData = await uploadRes.json();
-      uploadedImageUrl = uploadData.url ?? null;
+      uploadedImageUrls = uploads;
     }
 
     const res = await fetch("/api/reviews", {
@@ -190,7 +248,8 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
         rating,
         title,
         review_body: body,
-        image_url: uploadedImageUrl,
+        image_url: uploadedImageUrls[0] ?? null,
+        image_urls: uploadedImageUrls,
       }),
     });
     const data = await res.json();
@@ -394,12 +453,11 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
               ref={photoInputRef}
               type="file"
               accept="image/jpeg,image/png,image/webp"
+              multiple
               className="hidden"
               onChange={(e) => {
-                const file = e.target.files?.[0] ?? null;
-                setPhotoFile(file);
-                setPhotoPreview(file ? URL.createObjectURL(file) : null);
-                setShowPhotoOptions(false);
+                addPhotos(Array.from(e.target.files ?? []));
+                e.target.value = "";
               }}
             />
             {/* hidden input: camera */}
@@ -411,13 +469,12 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0] ?? null;
-                setPhotoFile(file);
-                setPhotoPreview(file ? URL.createObjectURL(file) : null);
-                setShowPhotoOptions(false);
+                if (file) addPhotos([file]);
+                e.target.value = "";
               }}
             />
 
-            {!photoPreview ? (
+            {photoFiles.length < MAX_REVIEW_PHOTOS && (
               <div className="relative">
                 <button
                   type="button"
@@ -428,7 +485,7 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
                     <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
                     <polyline points="21 15 16 10 5 21"/>
                   </svg>
-                  Ajouter une photo de votre produit
+                  Ajouter des photos <span className="text-neutral-400">({photoFiles.length}/{MAX_REVIEW_PHOTOS})</span>
                 </button>
                 {showPhotoOptions && (
                   <div className="absolute left-0 top-full mt-1 z-20 bg-white border border-neutral-200 shadow-lg w-full">
@@ -455,26 +512,21 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="relative w-32 h-32 group">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photoPreview} alt="Aperçu" className="w-32 h-32 object-cover border border-neutral-200" />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPhotoFile(null);
-                    setPhotoPreview(null);
-                    if (photoInputRef.current) photoInputRef.current.value = "";
-                    if (cameraInputRef.current) cameraInputRef.current.value = "";
-                  }}
-                  className="absolute top-1 right-1 w-6 h-6 bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="Supprimer la photo"
-                >
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
+            )}
+            {photoPreviews.length > 0 && (
+              <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
+                {photoPreviews.map((preview, index) => (
+                  <div key={preview} className="group relative aspect-square overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={preview} alt={`Aperçu ${index + 1}`} className="h-full w-full object-cover" />
+                    <button type="button" onClick={() => removePhoto(index)} aria-label={`Supprimer la photo ${index + 1}`} className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/75 text-white backdrop-blur transition hover:bg-red-600 sm:opacity-0 sm:group-hover:opacity-100">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
-            <p className="text-[10px] text-neutral-400 mt-1.5">JPG, PNG ou WebP — max 5 Mo</p>
+            <p className="mt-2 text-[10px] text-neutral-400">Jusqu&apos;à 5 photos · JPG, PNG ou WebP · 5 Mo maximum par photo</p>
           </div>
 
           {formError && (
@@ -592,39 +644,48 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
                   )}
                 </div>
 
-                <div ref={scrollRef} className="flex gap-4 overflow-x-auto no-scrollbar pb-2 scroll-smooth">
+                <div ref={scrollRef} className="flex gap-5 overflow-x-auto no-scrollbar pb-5 scroll-smooth">
                   {filtered.map((r) => (
-            <div key={r.id} className="flex flex-col gap-3 p-5 border border-neutral-100 bg-white flex-none w-[300px] md:w-[340px]">
+            <article key={r.id} className="flex w-[310px] flex-none flex-col gap-4 rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-[0_8px_28px_rgba(15,23,42,.045)] transition duration-300 hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-[0_14px_36px_rgba(15,23,42,.08)] md:w-[360px]">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-neutral-900 text-white flex items-center justify-center text-[13px] font-black flex-shrink-0">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-neutral-950 text-[13px] font-black text-white ring-4 ring-neutral-100">
                     {r.author_name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="font-black text-[13px] leading-tight">{r.author_name}</p>
-                    {r.city && <p className="text-[11px] text-neutral-400">{r.city}</p>}
+                    <p className="text-[13px] font-extrabold leading-tight">{r.author_name}</p>
+                    {r.city && <p className="mt-0.5 text-[11px] text-neutral-400">{r.city}</p>}
                   </div>
                 </div>
-                <span className="text-[11px] text-neutral-400 whitespace-nowrap mt-0.5">{formatDate(r.created_at)}</span>
+                <span className="mt-0.5 whitespace-nowrap text-[10px] font-medium text-neutral-400">{formatDate(r.created_at)}</span>
               </div>
 
               <div>
-                <StarRow rating={r.rating} size={12} />
-                {r.title && <p className="font-black text-[13px] mt-1">{r.title}</p>}
+                <StarRow rating={r.rating} size={13} />
+                {r.title && <p className="mt-2 text-[14px] font-extrabold leading-snug">{r.title}</p>}
               </div>
 
-              <p className="text-[13px] text-neutral-600 leading-relaxed flex-1">{r.body}</p>
+              <p className="flex-1 text-[13px] leading-6 text-neutral-600">{r.body}</p>
 
-              {/* Customer photo */}
-              {r.image_url && (
-                <a href={r.image_url} target="_blank" rel="noopener noreferrer" className="block mt-1">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={r.image_url}
-                    alt={`Photo de ${r.author_name}`}
-                    className="w-24 h-24 object-cover border border-neutral-100 hover:opacity-90 transition-opacity"
-                  />
-                </a>
+              {/* Customer photo gallery */}
+              {reviewPhotos(r).length > 0 && (
+                <div className="grid grid-cols-3 gap-1.5 overflow-hidden rounded-xl">
+                  {reviewPhotos(r).map((photo, index) => (
+                    <button
+                      key={`${photo}-${index}`}
+                      type="button"
+                      onClick={() => setPhotoViewer({ photos: reviewPhotos(r), index, author: r.author_name })}
+                      aria-label={`Agrandir la photo ${index + 1} de ${r.author_name}`}
+                      className={`group/photo relative block cursor-zoom-in overflow-hidden bg-neutral-100 ${reviewPhotos(r).length === 1 ? "col-span-2 aspect-[4/3]" : "aspect-square"}`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={photo} alt={`Photo ${index + 1} de ${r.author_name}`} className="h-full w-full object-cover transition duration-300 group-hover/photo:scale-105" />
+                      <span className="absolute inset-0 flex items-center justify-center bg-black/0 text-white opacity-0 transition group-hover/photo:bg-black/15 group-hover/photo:opacity-100">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M11 8v6M8 11h6"/></svg>
+                      </span>
+                    </button>
+                  ))}
+                </div>
               )}
 
               {r.admin_reply && (
@@ -637,22 +698,79 @@ export default function ReviewSection({ productSlug }: { productSlug: string }) 
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-3 border-t border-neutral-100">
+              <div className="flex items-center justify-between border-t border-neutral-100 pt-3">
                 {r.color ? (
                   <span className="text-[11px] text-neutral-400">Couleur : <span className="text-neutral-600 font-medium">{r.color}</span></span>
                 ) : <span />}
-                <span className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 ring-1 ring-inset ring-emerald-200/70">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="8 12 11 15 16 9" /></svg>
                   Achat vérifié
                 </span>
               </div>
-            </div>
+            </article>
           ))}
             </div>
               </>
             );
           })()}
         </>
+      )}
+      {mounted && photoViewer && createPortal(
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Photos de l'avis de ${photoViewer.author}`}
+          className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm sm:p-8"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setPhotoViewer(null);
+          }}
+        >
+          <div className="absolute left-4 top-4 z-20 rounded-full bg-white/10 px-3 py-2 text-[11px] font-semibold text-white/80 backdrop-blur sm:left-6 sm:top-6">
+            {photoViewer.index + 1} / {photoViewer.photos.length}
+          </div>
+          <button
+            type="button"
+            onClick={() => setPhotoViewer(null)}
+            aria-label="Fermer la photo"
+            className="fixed right-4 top-4 z-[2147483647] flex h-12 items-center gap-2 rounded-full border-2 border-black bg-white px-4 text-[12px] font-black uppercase tracking-[.06em] text-black shadow-[0_8px_30px_rgba(0,0,0,.45)] transition hover:scale-105 hover:bg-black hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:right-7 sm:top-7"
+          >
+            <span>Fermer</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+
+          {photoViewer.photos.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() => setPhotoViewer((current) => current && ({ ...current, index: (current.index - 1 + current.photos.length) % current.photos.length }))}
+                aria-label="Photo précédente"
+                className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition hover:bg-white hover:text-black sm:left-6"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPhotoViewer((current) => current && ({ ...current, index: (current.index + 1) % current.photos.length }))}
+                aria-label="Photo suivante"
+                className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition hover:bg-white hover:text-black sm:right-6"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </>
+          )}
+
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={photoViewer.photos[photoViewer.index]}
+            alt={`Photo ${photoViewer.index + 1} de ${photoViewer.author}`}
+            className="max-h-[88vh] max-w-[92vw] select-none rounded-lg object-contain shadow-2xl"
+            draggable={false}
+          />
+          <p className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] font-medium text-white/60 sm:bottom-6">
+            Échap ou cliquez à l&apos;extérieur pour fermer
+          </p>
+        </div>,
+        document.body
       )}
     </section>
   );

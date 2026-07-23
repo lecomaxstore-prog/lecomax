@@ -36,6 +36,18 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+    if (!open) return;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [open]);
+
+  useEffect(() => {
     fetch("/api/categories", { cache: "no-store" }).then((response) => response.json()).then((data) => {
       if (Array.isArray(data) && data.length) setNavCategories(data.filter((category) => category.active !== false).map((category) => ({ slug: category.slug, label: category.label })));
     }).catch(() => {});
@@ -203,24 +215,67 @@ export default function Header() {
       {/* Slide-in panel */}
       <div
         id="mobile-navigation-drawer"
-        className={`fixed left-0 top-0 z-[9999] flex h-full w-[91vw] max-w-[390px] flex-col overflow-hidden bg-[#fafbf9] shadow-[24px_0_70px_rgba(0,0,0,0.18)] lg:hidden ${open ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed left-0 top-0 z-[9999] flex h-full w-full flex-col overflow-hidden bg-white lg:hidden ${open ? "translate-x-0" : "-translate-x-full"}`}
         style={{ transition: "transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)" }}
       >
         {/* ── Header ── */}
-        <div className={`flex h-[68px] shrink-0 items-center justify-between border-b border-black/[0.06] bg-white/90 px-5 backdrop-blur-xl ${open ? "drawer-item" : ""}`}
+        <div className={`flex h-[60px] shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-4 ${open ? "drawer-item" : ""}`}
           style={{ animationDelay: "20ms" }}>
-          <Link href="/" onClick={() => setOpen(false)}>
-            <Logo showWordmark />
-          </Link>
-          <button
-            aria-label="Fermer"
-            onClick={() => setOpen(false)}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-neutral-500 shadow-sm transition duration-200 active:scale-95 active:bg-neutral-100 active:text-black"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M18 6 6 18M6 6l12 12"/>
-            </svg>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              aria-label="Fermer le menu"
+              onClick={() => setOpen(false)}
+              className="-ml-1 flex h-11 w-11 shrink-0 items-center justify-center"
+            >
+              <span aria-hidden="true" className="relative block h-5 w-6">
+                <span className="absolute left-0 top-1/2 h-[2px] w-6 -translate-y-1/2 rotate-45 bg-black" />
+                <span className="absolute left-0 top-1/2 h-[2px] w-6 -translate-y-1/2 -rotate-45 bg-black" />
+              </span>
+            </button>
+            <Link href="/" onClick={() => setOpen(false)} aria-label="L'ecomax — Accueil" className="flex items-center gap-3">
+              <Logo showWordmark />
+            </Link>
+          </div>
+          <div className="flex shrink-0 items-center gap-0">
+            <button
+              aria-label="Recherche"
+              onClick={() => { setOpen(false); setSearchOpen(true); }}
+              className="header-action-button"
+            >
+              <SearchIcon />
+            </button>
+            <Link
+              href={isLoggedIn ? "/compte" : "/connexion"}
+              onClick={() => setOpen(false)}
+              aria-label="Mon compte"
+              className="header-action-button"
+            >
+              <UserIcon />
+            </Link>
+            {siteSettings.enable_wishlist !== "false" && (
+              <Link href="/wishlist" onClick={() => setOpen(false)} aria-label="Mes favoris" className="header-action-button">
+                <span className="relative inline-flex h-6 w-6 items-center justify-center">
+                  <HeartIcon />
+                  {wishlistCount > 0 && (
+                    <span className="header-action-badge">
+                      {wishlistCount > 99 ? "99+" : wishlistCount}
+                    </span>
+                  )}
+                </span>
+              </Link>
+            )}
+            <Link href="/panier" onClick={() => setOpen(false)} aria-label="Panier" className="header-action-button">
+              <span className="relative inline-flex h-6 w-6 items-center justify-center">
+                <BagIcon />
+                {count > 0 && (
+                  <span className="header-action-badge">
+                    {count > 99 ? "99+" : count}
+                  </span>
+                )}
+              </span>
+            </Link>
+          </div>
         </div>
 
         {/* ── Scrollable body wrapper (fade mask at bottom) ── */}
@@ -229,7 +284,7 @@ export default function Header() {
           <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-12 bg-gradient-to-t from-[#fafbf9] to-transparent" />
 
         {/* Scrollable body */}
-        <div className="h-full overflow-y-auto drawer-scroll" key={open ? "open" : "closed"}
+        <div className="drawer-scroll h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" key={open ? "open" : "closed"}
           style={{
             WebkitOverflowScrolling: "touch",
             overscrollBehaviorY: "contain",
@@ -239,7 +294,7 @@ export default function Header() {
 
           {/* Account quick-access */}
           <Link href={isLoggedIn ? "/compte" : "/connexion"} onClick={() => setOpen(false)}
-            className={`group mx-4 mt-4 flex items-center gap-3 rounded-[20px] border border-emerald-200/80 bg-[linear-gradient(135deg,#effdf2_0%,#f9fff7_58%,#f5ffe9_100%)] px-4 py-3.5 shadow-[0_10px_28px_rgba(16,120,65,0.08)] transition duration-200 active:scale-[0.985] ${open ? "drawer-item" : ""}`}
+            className="hidden"
             style={{ animationDelay: "60ms" }}>
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border border-emerald-200 bg-white text-emerald-600 shadow-[0_6px_16px_rgba(16,185,129,0.10)]">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2" strokeLinecap="round">
@@ -258,31 +313,36 @@ export default function Header() {
 
           {/* ── Nav rows ── */}
           <div className={`mx-4 mt-5 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "110ms" }}>
-            <div className="mb-2 flex items-center justify-between px-1">
+            <div className="hidden">
               <p className="text-[9px] font-black uppercase tracking-[0.24em] text-neutral-400">Explorer les catégories</p>
-              <Link href="/boutique" onClick={() => setOpen(false)} className="text-[9px] font-black uppercase tracking-[0.08em] text-emerald-700">Tout voir</Link>
+              <Link href="/boutique" onClick={() => setOpen(false)} className="group/all inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-[0.08em] text-emerald-700 transition-colors hover:text-emerald-800">
+                Tout voir
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" className="transition-transform group-hover/all:translate-x-0.5"><path d="M5 12h14M14 7l5 5-5 5"/></svg>
+              </Link>
             </div>
-            <div className="overflow-hidden rounded-[22px] border border-black/[0.07] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.045)]">
+            <div>
             {([
               { slug: "homme",       label: "Homme",       sub: "Vestes, Pulls & Sport",     img: "/images/menu%20category/homme.png" },
               { slug: "femme",       label: "Femme",        sub: "Mode, Robes & Lifestyle",  img: "/images/menu%20category/femme.png" },
               { slug: "chaussures",  label: "Chaussures",   sub: "Running, Sneakers & Style", img: "/images/menu%20category/chaussures.png" },
               { slug: "accessoires", label: "Accessoires",  sub: "Tech, Audio & Sacs",        img: "/images/menu%20category/accessoires.png" },
-            ] as { slug:string; label:string; sub:string; img:string }[]).map((c, i, arr) => (
+              { slug: "nouveautes",  label: "Nouveautés",   sub: "",                          img: "" },
+              { slug: "promotions",  label: "Promotions",   sub: "",                          img: "" },
+            ] as { slug:string; label:string; sub:string; img:string }[]).map((c, i) => (
               <Link key={c.slug} href={`/${c.slug}`} onClick={() => setOpen(false)}
-                className={`group flex items-center gap-3 px-3 py-2.5 transition duration-200 active:bg-emerald-50/60 ${open ? "drawer-item" : ""}`}
-                style={{ borderBottom: i < arr.length - 1 ? "1px solid #f1f2f0" : "none", animationDelay: `${140 + i * 55}ms` }}>
+                className={`group flex min-h-[60px] items-center justify-between border-b border-neutral-200 px-1 transition-colors active:bg-neutral-50 ${open ? "drawer-item" : ""}`}
+                style={{ animationDelay: `${140 + i * 55}ms` }}>
                 {/* Category photo */}
-                <div className="h-[52px] w-[52px] shrink-0 overflow-hidden rounded-[16px] border border-black/[0.06] bg-neutral-100 shadow-sm">
-                  <img src={c.img} alt={c.label}
-                    className="h-full w-full object-cover transition duration-300 group-active:scale-105" />
+                <div className="hidden">
+                  {c.img && <img src={c.img} alt={c.label}
+                    className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[15px] font-black leading-snug tracking-[-0.02em] text-neutral-950">{c.label}</p>
-                  <p className="mt-0.5 text-[10px] font-medium leading-snug text-neutral-400">{c.sub}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[18px] font-black uppercase leading-none tracking-[-0.02em] text-neutral-950">{c.label}</p>
+                  <p className="hidden">{c.sub}</p>
                 </div>
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-neutral-50 text-neutral-300 transition group-active:bg-emerald-100 group-active:text-emerald-700">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center text-neutral-950 transition-transform group-active:translate-x-1">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
                 </span>
               </Link>
             ))}
@@ -290,7 +350,7 @@ export default function Header() {
           </div>
 
           {/* ── Promotions + Nouveautés photo banners ── */}
-          <div className={`mt-3 grid grid-cols-2 gap-2.5 px-4 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "380ms" }}>
+          <div className="hidden">
             {/* Nouveautés */}
             <Link href="/nouveautes" onClick={() => setOpen(false)}
               className="group relative h-[124px] overflow-hidden rounded-[20px] border border-white/70 shadow-[0_10px_24px_rgba(0,0,0,.10)] transition active:scale-[.98]">
@@ -327,23 +387,41 @@ export default function Header() {
           </div>
 
           {/* ── Useful links ── */}
-          <div className={`mb-7 mt-5 px-4 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "440ms" }}>
-            <p className="mb-2 px-1 text-[9px] font-black uppercase tracking-[0.24em] text-neutral-400">Aide & Services</p>
-            <div className="grid grid-cols-2 gap-2">
+          <div className={`mb-8 mt-7 px-5 ${open ? "drawer-item" : ""}`} style={{ animationDelay: "440ms" }}>
+            <p className="hidden">Aide & Services</p>
+            <div>
               {visibleUtilLinks.map((u) => (
                 <Link key={u.label} href={u.href} onClick={() => setOpen(false)}
-                  className="flex min-h-[58px] items-center gap-2.5 rounded-[16px] border border-black/[0.07] bg-white px-3 py-2.5 shadow-[0_5px_18px_rgba(0,0,0,.035)] transition active:scale-[.98] active:border-emerald-200 active:bg-emerald-50/40">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">{u.icon}</span>
-                  <span className="text-[11px] font-bold leading-tight text-neutral-700">{u.label}</span>
+                  className="flex min-h-[52px] items-center border-b border-neutral-200 text-[15px] font-medium text-neutral-800 transition-colors active:bg-neutral-50">
+                  <span className="hidden">{u.icon}</span>
+                  <span>{u.label}</span>
                 </Link>
               ))}
+            </div>
+            <div className="mt-7 space-y-2.5">
+              <Link
+                href={isLoggedIn ? "/compte" : "/connexion"}
+                onClick={() => setOpen(false)}
+                className="flex min-h-[54px] items-center justify-center border border-neutral-950 bg-neutral-950 px-5 text-[13px] font-black uppercase tracking-[.08em] text-white"
+              >
+                {isLoggedIn ? "Mon compte" : "Se connecter"}
+              </Link>
+              {!isLoggedIn && (
+                <Link
+                  href="/inscription"
+                  onClick={() => setOpen(false)}
+                  className="flex min-h-[54px] items-center justify-center border border-neutral-950 bg-white px-5 text-[13px] font-black uppercase tracking-[.08em] text-neutral-950"
+                >
+                  S&apos;inscrire
+                </Link>
+              )}
             </div>
           </div>
         </div>
         </div>
 
         {/* ── Footer ── */}
-        <div className="flex shrink-0 items-center justify-between border-t border-black/[0.06] bg-white px-5 py-3.5">
+        <div className="hidden">
           <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-neutral-300">L&apos;ecomax &copy; 2026</p>
           <div className="flex items-center gap-3">
             <Link href="/nous-contacter" onClick={() => setOpen(false)}

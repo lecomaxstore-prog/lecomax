@@ -22,9 +22,17 @@ export async function GET(req: NextRequest) {
 
     ({ data, error } = await supabase
       .from("reviews")
-      .select("id, author_name, city, rating, title, body, color, created_at, image_url")
+      .select("id, author_name, city, rating, title, body, color, created_at, image_url, image_urls")
       .eq("product_slug", slug)
       .order("created_at", { ascending: false }));
+
+    if (error && error.message.includes("image_urls")) {
+      ({ data, error } = await supabase
+        .from("reviews")
+        .select("id, author_name, city, rating, title, body, color, created_at, image_url")
+        .eq("product_slug", slug)
+        .order("created_at", { ascending: false }));
+    }
 
     if (error && error.message.includes("image_url")) {
       ({ data, error } = await supabase
@@ -59,7 +67,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { product_slug, email, author_name, city, rating, title, review_body, color, image_url } = body;
+  const { product_slug, email, author_name, city, rating, title, review_body, color, image_url, image_urls } = body;
 
   if (!product_slug || !email || !author_name || !rating || !review_body) {
     return NextResponse.json({ error: "Champs manquants." }, { status: 400 });
@@ -139,11 +147,24 @@ export async function POST(req: NextRequest) {
     color: color?.trim() ?? null,
   };
 
-  // Try insert with image_url; fall back if column doesn't exist yet
+  const cleanImageUrls = Array.isArray(image_urls)
+    ? image_urls.filter((url): url is string => typeof url === "string" && /^https?:\/\//.test(url)).slice(0, 5)
+    : image_url ? [image_url] : [];
+
+  // Prefer the multi-photo column. Older databases remain compatible by
+  // storing the URL array as JSON in the existing text column.
   let { error: insertError } = await supabase.from("reviews").insert({
     ...baseInsert,
-    image_url: image_url?.trim() ?? null,
+    image_url: cleanImageUrls[0] ?? null,
+    image_urls: cleanImageUrls,
   });
+
+  if (insertError && insertError.message.includes("image_urls")) {
+    ({ error: insertError } = await supabase.from("reviews").insert({
+      ...baseInsert,
+      image_url: cleanImageUrls.length > 1 ? JSON.stringify(cleanImageUrls) : cleanImageUrls[0] ?? null,
+    }));
+  }
 
   if (insertError && insertError.message.includes("image_url")) {
     ({ error: insertError } = await supabase.from("reviews").insert(baseInsert));
