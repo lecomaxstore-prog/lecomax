@@ -23,7 +23,12 @@ body {
 .page-enter {
   position: relative;
   min-height: 100%;
-  animation: page-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  /*
+   * Do not retain the animation's final transform/filter. Either property
+   * creates a containing block for fixed descendants, which pushed product
+   * drawers and color modals outside the mobile viewport after page load.
+   */
+  animation: page-enter 480ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .page-enter::before {
