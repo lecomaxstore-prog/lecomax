@@ -277,7 +277,16 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const wished = wishlistSlugs.has(product.slug);
   const router = useRouter();
 
-  const selectColorAndRevealImage = (nextColor: string, closeModal = false) => {
+  const selectColorAndRevealImage = (
+    nextColor: string,
+    closeModal = false,
+    event?: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    // Color selection and the size guide are independent actions. Keeping
+    // this explicit also prevents a mobile tap from leaving the guide open.
+    setSizeGuideOpen(false);
     setColor(nextColor);
     if (closeModal) setColorModalOpen(false);
 
@@ -382,8 +391,9 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
                   const img = effectiveColorImages?.[c] ?? product.image;
                   return (
                     <button
+                      type="button"
                       key={c}
-                      onClick={() => selectColorAndRevealImage(c, true)}
+                      onClick={(event) => selectColorAndRevealImage(c, true, event)}
                       aria-label={`Voir le produit en couleur ${c}`}
                       className={`flex items-center gap-4 w-full text-left rounded-xl px-3 py-3 transition-all border ${
                         isSelected
@@ -463,9 +473,10 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
               if (hasColorImages && effectiveColorImages?.[c]) {
                 return (
                   <button
+                    type="button"
                     key={c}
                     title={isOOS ? `${c} — Rupture de stock` : c}
-                    onClick={() => selectColorAndRevealImage(c)}
+                    onClick={(event) => selectColorAndRevealImage(c, false, event)}
                     aria-label={`Voir le produit en couleur ${c}`}
                     className={`relative flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden border-2 transition-all ${
                       isOOS ? "opacity-50 cursor-pointer" :
@@ -485,9 +496,10 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
 
               return (
                 <button
+                  type="button"
                   key={c}
                   title={isOOS ? `${c} — Rupture de stock` : c}
-                  onClick={() => selectColorAndRevealImage(c)}
+                  onClick={(event) => selectColorAndRevealImage(c, false, event)}
                   aria-label={`Voir le produit en couleur ${c}`}
                   className="relative group flex-shrink-0 transition-transform duration-150"
                   style={{ transform: isSelected ? "scale(1.08)" : "scale(1)", cursor: "pointer" }}
@@ -537,6 +549,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
             </span>
             {(product.category === "homme" || product.category === "femme" || product.category === "chaussures") && (
               <button
+                type="button"
                 onClick={() => setSizeGuideOpen(true)}
                 className="text-[12px] text-neutral-500 underline underline-offset-4 hover:text-black transition-colors"
               >
