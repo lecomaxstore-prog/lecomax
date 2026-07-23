@@ -272,6 +272,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const [added, setAdded] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [colorModalOpen, setColorModalOpen] = useState(false);
+  const sizeGuideIntentRef = React.useRef(false);
   const { add } = useCart();
   const { slugs: wishlistSlugs, pending: wishlistPending, toggle: toggleWishlist } = useWishlist();
   const wished = wishlistSlugs.has(product.slug);
@@ -286,6 +287,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
     event?.stopPropagation();
     // Color selection and the size guide are independent actions. Keeping
     // this explicit also prevents a mobile tap from leaving the guide open.
+    sizeGuideIntentRef.current = false;
     setSizeGuideOpen(false);
     setColor(nextColor);
     if (closeModal) setColorModalOpen(false);
@@ -315,6 +317,15 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const sizeLabel = getSizeLabel(product.subCategory);
   const hasNoAvailableSize = product.sizes.length > 0 && availableSizes.length === 0;
   const isUnavailable = isProductOOS || isCurrentColorOOS || hasNoAvailableSize;
+
+  const openSizeGuide = (event: React.MouseEvent<HTMLButtonElement>) => {
+    // A real tap sends pointerdown before click. Requiring that intent keeps
+    // mobile browsers from retargeting a color-selection tap to this button.
+    const openedWithKeyboard = event.detail === 0;
+    if (!openedWithKeyboard && !sizeGuideIntentRef.current) return;
+    sizeGuideIntentRef.current = false;
+    setSizeGuideOpen(true);
+  };
 
   const handleAdd = (goToCart = false, btnEl?: HTMLElement) => {
     if (isUnavailable) {
@@ -550,7 +561,9 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
             {(product.category === "homme" || product.category === "femme" || product.category === "chaussures") && (
               <button
                 type="button"
-                onClick={() => setSizeGuideOpen(true)}
+                onPointerDown={() => { sizeGuideIntentRef.current = true; }}
+                onPointerCancel={() => { sizeGuideIntentRef.current = false; }}
+                onClick={openSizeGuide}
                 className="text-[12px] text-neutral-500 underline underline-offset-4 hover:text-black transition-colors"
               >
                 Guide des tailles
@@ -671,17 +684,22 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
         </div>
       </div>
 
-      <SizeGuideModal
-        open={sizeGuideOpen}
-        onClose={() => setSizeGuideOpen(false)}
-        type={
-          product.sizeGuideType === "shoes" ? "chaussures"
-          : product.sizeGuideType === "clothing" ? "vetements"
-          : product.category === "chaussures" ? "chaussures" : "vetements"
-        }
-        availableSizes={availableSizes}
-        selectedSize={size ?? undefined}
-      />
+      {sizeGuideOpen && (
+        <SizeGuideModal
+          open
+          onClose={() => {
+            sizeGuideIntentRef.current = false;
+            setSizeGuideOpen(false);
+          }}
+          type={
+            product.sizeGuideType === "shoes" ? "chaussures"
+            : product.sizeGuideType === "clothing" ? "vetements"
+            : product.category === "chaussures" ? "chaussures" : "vetements"
+          }
+          availableSizes={availableSizes}
+          selectedSize={size ?? undefined}
+        />
+      )}
     </div>
   );
 }
