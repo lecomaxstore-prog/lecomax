@@ -4,6 +4,7 @@ import { formatMAD, getProduct, products, type CardProduct, type Product } from 
 import { getDbProductRaw, getDbProducts } from "@/lib/db-server";
 import { rankSimilarProducts } from "@/lib/product-recommendations";
 import ProductActions from "@/components/ProductActions";
+import { colorPricesFromTags } from "@/lib/product-variant-pricing";
 import ProductCard from "@/components/ProductCard";
 import ProductGallery from "@/components/ProductGallery";
 import { ProductColorProvider } from "@/components/ProductColorContext";
@@ -15,7 +16,7 @@ import ProductAccordion from "@/components/ProductAccordion";
 import ShareButtons from "@/components/ShareButtons";
 import NewsletterSection from "@/components/NewsletterSection";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
-import { formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
+import { calculateShipping, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
 import { cleanColorStock, resolveProductAvailability } from "@/lib/product-inventory";
 import { inferProductBrand, serializeJsonLd } from "@/lib/seo";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
@@ -211,13 +212,14 @@ export default async function ProductPage({
   const { slug } = await params;
   const shippingConfig = await getServerShippingConfig();
 
-  // Try static first, then fall back to DB
+  // Supabase is the shared source of truth for the website, mobile app and
+  // admin. The bundled catalogue is only a resilience fallback when the live
+  // product cannot be reached.
+  const dbProd = await getDbProductRaw(slug);
   let product: Product | null = getProduct(slug) ?? null;
 
-  if (!product) {
-    const dbProd = await getDbProductRaw(slug);
-    if (!dbProd) notFound();
-    // Convert API product to Product-compatible shape
+  if (dbProd) {
+    // Convert the live product to the website's Product-compatible shape.
     const dbTags = (dbProd.tags as string[] | null) ?? [];
     product = {
       slug: dbProd.slug,
@@ -228,6 +230,7 @@ export default async function ProductPage({
       price: dbProd.price,
       oldPrice: dbProd.original_price ?? undefined,
       colors: (dbProd.colors as string[]) ?? [],
+      colorPrices: colorPricesFromTags(dbTags),
       sizes: (dbProd.sizes as string[]) ?? [],
       image: (dbProd.images ?? [])[0] || "",
       gallery: (dbProd.images ?? []).filter(Boolean).slice(1),
@@ -337,12 +340,14 @@ export default async function ProductPage({
     .filter((image): image is string => Boolean(image))
     .map((image) => image.startsWith("http") ? image : `${SITE_URL}${image.startsWith("/") ? "" : "/"}${image}`);
   const productBrand = inferProductBrand(product.displayName ?? product.name, product.brand);
+  const merchantShippingCost = calculateShipping(product.price, shippingConfig);
 
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.displayName ?? product.name,
     "description": product.description ?? `Achetez ${product.name} sur L'ecomax.`,
+    "url": `${SITE_URL}/produit/${product.slug}/`,
     ...(productImages.length > 0 ? { "image": productImages } : {}),
     "sku": product.slug,
     ...(productBrand ? { "brand": { "@type": "Brand", "name": productBrand } } : {}),
@@ -350,6 +355,7 @@ export default async function ProductPage({
       "@type": "Offer",
       "price": product.price,
       "priceCurrency": "MAD",
+      "itemCondition": "https://schema.org/NewCondition",
       "availability": realStock === 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
       "url": `${SITE_URL}/produit/${product.slug}/`,
       "seller": { "@type": "Organization", "name": "L'ecomax", "url": SITE_URL },
@@ -357,7 +363,7 @@ export default async function ProductPage({
         "@type": "OfferShippingDetails",
         "shippingRate": {
           "@type": "MonetaryAmount",
-          "value": shippingConfig.cost,
+          "value": merchantShippingCost,
           "currency": "MAD",
         },
         "shippingDestination": {
@@ -386,7 +392,6 @@ export default async function ProductPage({
         "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
         "merchantReturnDays": 30,
         "returnMethod": "https://schema.org/ReturnByMail",
-        "returnFees": "https://schema.org/FreeReturn",
       },
     },
     ...(reviewCount > 0 ? {

@@ -18,6 +18,7 @@
   descriptionImage?: string;
   descriptionImages?: string[];
   colorImages?: Record<string, string>;
+  colorPrices?: Record<string, { price: number; originalPrice?: number }>;
   colorSizes?: Record<string, string[]>;
   outOfStockColors?: string[];
   outOfStockSizes?: string[];

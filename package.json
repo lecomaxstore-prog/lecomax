@@ -7,6 +7,7 @@
     "dev": "next dev",
     "prebuild": "npm run validate:course",
     "build": "node scripts/next-build.mjs",
+    "test": "node --test tests/*.test.ts",
     "start": "next start",
     "lint": "next lint",
     "generate:course": "node scripts/generate-course.mjs",
@@ -15,8 +16,11 @@
     "audit:supabase": "node --env-file=.env.local scripts/audit-supabase.mjs",
     "audit:loyalty": "node --env-file=.env.local scripts/audit-loyalty.mjs",
     "audit:admin-api": "node scripts/audit-admin-api-contracts.mjs",
+    "audit:mobile-secrets": "node scripts/audit-mobile-secrets.mjs",
+    "audit:mobile-interactions": "node scripts/audit-mobile-interactions.mjs",
     "smoke:course-ui": "node scripts/smoke-course-ui.mjs",
-    "smoke:admin-dashboard": "node scripts/smoke-admin-dashboard-ui.mjs"
+    "smoke:admin-dashboard": "node scripts/smoke-admin-dashboard-ui.mjs",
+    "smoke:mobile-responsive": "node scripts/smoke-mobile-responsive-ui.mjs"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -35,7 +39,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "resend": "^6.17.2",
-    "sharp": "^0.34.5",
+    "sharp": "0.35.3",
     "web-push": "^3.6.7"
   },
   "devDependencies": {
@@ -45,12 +49,14 @@
     "acorn": "^8.17.0",
     "autoprefixer": "^10.4.20",
     "pg": "^8.22.0",
-    "postcss": "8.5.10",
+    "postcss": "8.5.23",
     "tailwindcss": "^3.4.15",
+    "tus-js-client": "^4.3.1",
     "typescript": "^5.7.2"
   },
   "overrides": {
     "postcss": "$postcss",
+    "sharp": "$sharp",
     "ws": "8.21.0"
   }
 }

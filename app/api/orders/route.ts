@@ -2,14 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
-import { products as catalogProducts } from "@/lib/products";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
 import { calculateCouponDiscount, calculateCouponPricing } from "@/lib/coupon-pricing";
+import { calculateCheckoutTotal } from "@/lib/checkout-total";
 import { shippingConfigFromSettings } from "@/lib/shipping-config";
 import { resolveShippingQuote, type ShippingZoneRule } from "@/lib/shipping-zones";
 import { verifyPayPalCapture } from "@/lib/paypal-server";
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
+import { colorPricesFromTags } from "@/lib/product-variant-pricing";
 import { loyaltyTierForPoints } from "@/lib/loyalty";
+import { enforceRateLimit } from "@/lib/api-security";
+import {
+  PAYMENT_SETTING_KEYS,
+  paymentMethodAvailability,
+  paymentMethodsFromSettings,
+} from "@/lib/payment-methods";
+import { sizeStockFromTags } from "@/lib/product-inventory";
 
 // Use service role key server-side so RLS doesn't block order insertion
 const supabase = createClient(
@@ -64,6 +72,7 @@ export async function GET(req: NextRequest) {
   const email = searchParams.get("email");
   const status = searchParams.get("status");
   const limit = searchParams.get("limit");
+  const orderSource = searchParams.get("order_source");
 
   // Single order lookup by order_number
   if (order_number) {
@@ -78,10 +87,13 @@ export async function GET(req: NextRequest) {
   }
 
   // List orders filtered by customer email (for client dashboard)
-  let query = supabase.from("orders").select("id, order_number, status, total, created_at, customer, items", { count: "exact" }).order("created_at", { ascending: false });
+  let query = supabase.from("orders").select("id, order_number, status, total, created_at, customer, items, tracking_number, payment_method, payment_status", { count: "exact" }).order("created_at", { ascending: false });
   const safeEmail = admin ? email : user!.email!;
   if (safeEmail) query = query.eq("customer->>email", safeEmail.toLowerCase());
   if (status && status !== "all") query = query.eq("status", status);
+  if (admin && ["website", "mobile_app"].includes(orderSource ?? "")) {
+    query = query.eq("order_source", orderSource);
+  }
   if (limit) query = query.limit(parseInt(limit));
   query = query.abortSignal(AbortSignal.timeout(12_000));
 
@@ -94,6 +106,8 @@ export async function GET(req: NextRequest) {
 
 // POST /api/orders — create a new order
 export async function POST(req: NextRequest) {
+  const blocked = enforceRateLimit(req, "orders:create", 12, 60_000);
+  if (blocked) return blocked;
   let body: unknown;
   try {
     body = await req.json();
@@ -101,7 +115,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { customer, items, total, shipping, payment_provider, paypal_order_id, paypal_capture_id, coupon_id, discount, notes, abandoned_cart_token } = body as {
+  const { customer, items, total, shipping, payment_fee, payment_provider, paypal_order_id, paypal_capture_id, coupon_id, discount, notes, abandoned_cart_token } = body as {
     customer: {
       name: string;
       phone: string;
@@ -120,6 +134,7 @@ export async function POST(req: NextRequest) {
     }[];
     total: number;
     shipping?: number;
+    payment_fee?: number;
     payment_provider?: "cod" | "paypal";
     paypal_order_id?: string;
     paypal_capture_id?: string;
@@ -128,6 +143,40 @@ export async function POST(req: NextRequest) {
     notes?: string;
     abandoned_cart_token?: string | null;
   };
+  const rawIdempotencyKey = req.headers.get("idempotency-key") ?? "";
+  const idempotencyKey = /^[A-Za-z0-9_-]{16,120}$/.test(rawIdempotencyKey)
+    ? rawIdempotencyKey
+    : null;
+  const orderSource = req.headers.get("x-lecomax-client") === "mobile_app"
+    ? "mobile_app"
+    : "website";
+  if (rawIdempotencyKey && !idempotencyKey) {
+    return NextResponse.json({ error: "Clé d’idempotence invalide." }, { status: 400 });
+  }
+  if (idempotencyKey) {
+    const { data: existingOrder, error: lookupError } = await supabase
+      .from("orders")
+      .select("id,order_number,total")
+      .eq("idempotency_key", idempotencyKey)
+      .maybeSingle();
+    if (lookupError && !["42703", "PGRST204"].includes(lookupError.code ?? "")) {
+      console.error("Order idempotency lookup failed:", lookupError);
+      return NextResponse.json({ error: "Impossible de sécuriser cette commande." }, { status: 503 });
+    }
+    if (lookupError && orderSource === "mobile_app") {
+      console.error("Mobile order idempotency migration is missing.");
+      return NextResponse.json(
+        {
+          error: "La création sécurisée des commandes mobiles est momentanément indisponible.",
+          code: "ORDER_IDEMPOTENCY_MIGRATION_REQUIRED",
+        },
+        { status: 503 },
+      );
+    }
+    if (existingOrder) {
+      return NextResponse.json({ ...existingOrder, duplicate: true }, { status: 200 });
+    }
+  }
 
   // Validate and normalize all browser-provided order data.
   if (!customer?.name || !customer?.phone || !customer?.city || !Array.isArray(items) || items.length === 0) {
@@ -165,23 +214,36 @@ export async function POST(req: NextRequest) {
   const { data: databaseProducts, error: productsError } = await supabase
     .from("products")
     .select("*")
-    .in("slug", slugs);
+    .in("slug", slugs)
+    .eq("active", true);
   if (productsError) {
     console.error("Order product verification error:", productsError);
     return NextResponse.json({ error: "Impossible de vérifier les articles pour le moment." }, { status: 503 });
   }
   const productBySlug = new Map<string, Record<string, unknown>>();
-  for (const product of catalogProducts) productBySlug.set(product.slug, product as unknown as Record<string, unknown>);
   for (const product of databaseProducts ?? []) productBySlug.set(String(product.slug), product as Record<string, unknown>);
 
   const requestedBySlug = new Map<string, number>();
+  const requestedByColor = new Map<string, number>();
+  const requestedBySize = new Map<string, number>();
   for (const item of items) {
     requestedBySlug.set(item.slug, (requestedBySlug.get(item.slug) ?? 0) + item.qty);
+    if (item.color) {
+      const key = `${item.slug}\u0000${item.color}`;
+      requestedByColor.set(key, (requestedByColor.get(key) ?? 0) + item.qty);
+    }
+    if (item.size) {
+      const key = `${item.slug}\u0000${item.size}`;
+      requestedBySize.set(key, (requestedBySize.get(key) ?? 0) + item.qty);
+    }
   }
 
   for (const item of items) {
     const product = productBySlug.get(item.slug);
-    const authoritativePrice = Number(product?.price);
+    const variantPrices = colorPricesFromTags(product?.tags);
+    const authoritativePrice = Number(item.color && variantPrices[item.color]?.price !== undefined
+      ? variantPrices[item.color].price
+      : product?.price);
     if (!product || !Number.isFinite(authoritativePrice) || authoritativePrice <= 0) {
       return NextResponse.json({ error: `L'article « ${item.name} » n'est plus disponible.` }, { status: 409 });
     }
@@ -195,8 +257,14 @@ export async function POST(req: NextRequest) {
     const variantStock = item.color && colorStock && item.color in colorStock
       ? Number(colorStock[item.color])
       : null;
-    if (variantStock !== null && Number.isFinite(variantStock) && item.qty > variantStock) {
+    const requestedColorQuantity = item.color ? (requestedByColor.get(`${item.slug}\u0000${item.color}`) ?? item.qty) : item.qty;
+    if (variantStock !== null && Number.isFinite(variantStock) && requestedColorQuantity > variantStock) {
       return NextResponse.json({ error: `La couleur choisie pour « ${item.name} » est épuisée ou insuffisante.` }, { status: 409 });
+    }
+    const sizeStock = sizeStockFromTags(product.tags);
+    const requestedSizeQuantity = item.size ? (requestedBySize.get(`${item.slug}\u0000${item.size}`) ?? item.qty) : item.qty;
+    if (item.size && item.size in sizeStock && requestedSizeQuantity > sizeStock[item.size]) {
+      return NextResponse.json({ error: `La taille choisie pour « ${item.name} » est épuisée ou insuffisante.` }, { status: 409 });
     }
     item.price = authoritativePrice;
     item.name = cleanText(product.name, 200) || item.name;
@@ -219,7 +287,14 @@ export async function POST(req: NextRequest) {
   const { data: featureRows } = await supabase
     .from("settings")
     .select("key,value")
-    .in("key", ["enable_coupons", "enable_ecoclub", "enable_cod", "enable_paypal", "checkout_minimum_order"]);
+    .in("key", [
+      "enable_coupons",
+      "enable_ecoclub",
+      "enable_cod",
+      "enable_paypal",
+      "checkout_minimum_order",
+      ...PAYMENT_SETTING_KEYS,
+    ]);
   const featureSettings = Object.fromEntries((featureRows ?? []).map((row) => [row.key, String(row.value ?? "")]));
   const minimumOrder = Number(featureSettings.checkout_minimum_order ?? 0);
   if (Number.isFinite(minimumOrder) && minimumOrder > 0 && calculatedSubtotal < minimumOrder) {
@@ -277,13 +352,42 @@ export async function POST(req: NextRequest) {
   if (Math.abs(Number(shipping ?? 0) - safeShipping) > 0.01 || Math.abs(Number(discount ?? 0) - safeDiscount) > 0.01) {
     return NextResponse.json({ error: "Les frais ou la remise ont changé. Actualisez la page puis réessayez." }, { status: 409 });
   }
-  const expectedTotal = Math.max(0, calculatedSubtotal + safeShipping - safeDiscount);
+  const provider = payment_provider === "paypal" ? "paypal" : payment_provider === "cod" ? "cod" : null;
+  if (!provider) return NextResponse.json({ error: "Mode de paiement invalide." }, { status: 400 });
+  const paymentMethod = paymentMethodsFromSettings(featureSettings).find(
+    (method) => method.provider === provider,
+  );
+  if (!paymentMethod) {
+    return NextResponse.json({ error: "Mode de paiement indisponible." }, { status: 409 });
+  }
+  const paymentAvailability = paymentMethodAvailability(
+    paymentMethod,
+    customer.city,
+    calculatedSubtotal,
+  );
+  if (!paymentAvailability.available) {
+    return NextResponse.json(
+      { error: paymentAvailability.reason || "Mode de paiement indisponible." },
+      { status: 409 },
+    );
+  }
+  const safePaymentFee = paymentMethod.fee;
+  if (Math.abs(Number(payment_fee ?? 0) - safePaymentFee) > 0.01) {
+    return NextResponse.json(
+      { error: "Les frais du moyen de paiement ont changé. Actualisez puis réessayez." },
+      { status: 409 },
+    );
+  }
+  const expectedTotal = calculateCheckoutTotal({
+    subtotal: calculatedSubtotal,
+    shipping: safeShipping,
+    paymentFee: safePaymentFee,
+    discount: safeDiscount,
+  });
   if (Math.abs(expectedTotal - total) > 0.01) {
     return NextResponse.json({ error: "Le total de la commande a changé. Actualisez la page puis réessayez." }, { status: 409 });
   }
 
-  const provider = payment_provider === "paypal" ? "paypal" : payment_provider === "cod" ? "cod" : null;
-  if (!provider) return NextResponse.json({ error: "Mode de paiement invalide." }, { status: 400 });
   if (provider === "cod" && featureSettings.enable_cod === "false") {
     return NextResponse.json({ error: "Le paiement à la livraison est temporairement désactivé." }, { status: 409 });
   }
@@ -334,7 +438,7 @@ export async function POST(req: NextRequest) {
   const isPayPal = provider === "paypal";
   const displayPaymentMethod = isPayPal ? "PayPal" : "Paiement à la livraison";
 
-  const { data, error } = await supabase.from("orders").insert({
+  const orderInsert = {
     order_number,
     customer,
     items,
@@ -348,9 +452,63 @@ export async function POST(req: NextRequest) {
     tracking_number: null,
     notes: safeNotes,
     created_at: new Date().toISOString(),
-  }).select("id, order_number").single();
+    order_source: orderSource,
+    idempotency_key: idempotencyKey,
+  };
+  let inventoryReserved = false;
+  const inventoryPayload = items.map(({ slug, qty, color, size }) => ({ slug, qty, color: color || null, size: size || null }));
+  const { error: reservationError } = await supabase.rpc("reserve_order_inventory", {
+    p_items: inventoryPayload,
+  });
+  if (reservationError) {
+    const migrationPending = ["PGRST202", "42883"].includes(reservationError.code ?? "");
+    if (!migrationPending) {
+      const unavailable = /INSUFFICIENT_(PRODUCT|VARIANT)_STOCK/.test(reservationError.message);
+      console.error("Inventory reservation failed:", reservationError.message);
+      return NextResponse.json(
+        { error: unavailable ? "Un article ou une variante vient d’être épuisé. Actualisez votre panier." : "Impossible de réserver le stock pour le moment." },
+        { status: unavailable ? 409 : 503 },
+      );
+    }
+    if (orderSource === "mobile_app") {
+      console.error("Atomic inventory migration is missing for mobile checkout.");
+      return NextResponse.json(
+        {
+          error: "La réservation sécurisée du stock est momentanément indisponible.",
+          code: "ATOMIC_INVENTORY_MIGRATION_REQUIRED",
+        },
+        { status: 503 },
+      );
+    }
+    // Additive deployment compatibility: the legacy path remains available
+    // only until the inventory migration reaches the database.
+    console.warn("Atomic inventory migration is pending; using the legacy stock path.");
+  } else {
+    inventoryReserved = true;
+  }
+  let { data, error } = await supabase.from("orders").insert(orderInsert).select("id, order_number").single();
+
+  // Preserve website checkout compatibility while a deployment is waiting for
+  // the additive migration above. Mobile idempotency becomes active as soon as
+  // the migration is applied.
+  if (error && orderSource === "website" && ["42703", "PGRST204"].includes(error.code ?? "")) {
+    const { order_source: _source, idempotency_key: _key, ...legacyInsert } = orderInsert;
+    ({ data, error } = await supabase.from("orders").insert(legacyInsert).select("id, order_number").single());
+  }
 
   if (error) {
+    if (inventoryReserved) {
+      await supabase.rpc("release_order_inventory", { p_items: inventoryPayload });
+      inventoryReserved = false;
+    }
+    if (error.code === "23505" && idempotencyKey) {
+      const { data: existingOrder } = await supabase
+        .from("orders")
+        .select("id,order_number")
+        .eq("idempotency_key", idempotencyKey)
+        .maybeSingle();
+      if (existingOrder) return NextResponse.json({ ...existingOrder, duplicate: true });
+    }
     if (isPayPal && error.code === "23505" && paymentReference) {
       const { data: existingOrder } = await supabase
         .from("orders")
@@ -361,6 +519,9 @@ export async function POST(req: NextRequest) {
     }
     console.error("Order insert error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  if (!data) {
+    return NextResponse.json({ error: "La commande n’a pas pu être créée." }, { status: 500 });
   }
 
   if (featureSettings.enable_ecoclub !== "false") {
@@ -403,31 +564,25 @@ export async function POST(req: NextRequest) {
     requireInteraction: true,
   }).catch((pushError) => console.error("Admin order push failed:", pushError));
 
-  // Decrement stock for each ordered item (non-blocking, best-effort)
-  for (const item of items) {
-    if (item.slug) {
-      supabase
+  // Backward-compatible fallback used only while the additive inventory RPC
+  // migration has not reached the database yet.
+  if (!inventoryReserved && orderSource === "website") {
+    for (const item of items) {
+      if (!item.slug) continue;
+      const { data: prod } = await supabase
         .from("products")
         .select("stock, color_stock, slug")
         .eq("slug", item.slug)
-        .single()
-        .then(({ data: prod }) => {
-          if (prod && typeof prod.stock === "number") {
-            const newStock = Math.max(0, prod.stock - item.qty);
-            const updates: Record<string, unknown> = { stock: newStock };
-
-            // Also decrement color-specific stock if applicable
-            if (item.color && prod.color_stock && typeof prod.color_stock === "object") {
-              const cs = prod.color_stock as Record<string, number>;
-              if (typeof cs[item.color] === "number") {
-                const newColorStock = { ...cs, [item.color]: Math.max(0, cs[item.color] - item.qty) };
-                updates.color_stock = newColorStock;
-              }
-            }
-
-            supabase.from("products").update(updates).eq("slug", item.slug).then(() => {});
-          }
-        });
+        .single();
+      if (!prod || typeof prod.stock !== "number") continue;
+      const updates: Record<string, unknown> = { stock: Math.max(0, prod.stock - item.qty) };
+      if (item.color && prod.color_stock && typeof prod.color_stock === "object") {
+        const cs = prod.color_stock as Record<string, number>;
+        if (typeof cs[item.color] === "number") {
+          updates.color_stock = { ...cs, [item.color]: Math.max(0, cs[item.color] - item.qty) };
+        }
+      }
+      await supabase.from("products").update(updates).eq("slug", item.slug);
     }
   }
 

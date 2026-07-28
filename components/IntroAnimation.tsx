@@ -21,35 +21,40 @@ export default function IntroAnimation() {
 
   useEffect(() => {
     // Skip for bots/Lighthouse (no localStorage persistence) and return visits
-    if (sessionStorage.getItem("intro_shown") || !localStorage) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      sessionStorage.setItem("intro_done", "1");
+      setPhase("done");
+      return;
+    }
+    if (sessionStorage.getItem("intro_shown_v3") || !localStorage) {
       sessionStorage.setItem("intro_done", "1");
       setPhase("done");
       return;
     }
     // Mark as shown in localStorage so it only plays once ever per browser
-    const hasSeenBefore = localStorage.getItem("intro_seen");
+    const hasSeenBefore = localStorage.getItem("intro_seen_v3");
     if (hasSeenBefore) {
       sessionStorage.setItem("intro_done", "1");
       setPhase("done");
       return;
     }
-    localStorage.setItem("intro_seen", "1");
-    sessionStorage.setItem("intro_shown", "1");
+    localStorage.setItem("intro_seen_v3", "1");
+    sessionStorage.setItem("intro_shown_v3", "1");
     setPhase("black");
 
     const ts = [
-      setTimeout(() => setPhase("aurora"),                          80),
-      setTimeout(() => setPhase("welcome"),                        850),
-      setTimeout(() => setPhase("reveal"),                        1550),
-      setTimeout(() => setSmile(true),                            1980),
-      setTimeout(() => { setFlare(true); setPhase("flare"); },    2200),
-      setTimeout(() => setPhase("hold"),                          2650),
-      setTimeout(() => setPhase("exit"),                          4300),
+      setTimeout(() => setPhase("aurora"),                          60),
+      setTimeout(() => setPhase("welcome"),                        420),
+      setTimeout(() => setPhase("reveal"),                         900),
+      setTimeout(() => setSmile(true),                             1240),
+      setTimeout(() => { setFlare(true); setPhase("flare"); },    1450),
+      setTimeout(() => setPhase("hold"),                          1760),
+      setTimeout(() => setPhase("exit"),                          2700),
       setTimeout(() => {
         sessionStorage.setItem("intro_done", "1");
         window.dispatchEvent(new Event("introDone"));
         setPhase("done");
-      }, 5400),
+      }, 3350),
     ];
     return () => ts.forEach(clearTimeout);
   }, []);
@@ -260,7 +265,7 @@ export default function IntroAnimation() {
           opacity:    taglineVis ? 1 : 0,
           transition: "opacity 1.2s ease 0.25s, letter-spacing 2s cubic-bezier(0.4,0,0.2,1) 0.1s",
         }}>
-          Performance &amp; Style
+          Mode&nbsp;&nbsp;â€¢&nbsp;&nbsp;Sport&nbsp;&nbsp;â€¢&nbsp;&nbsp;Tech
         </p>
 
       </div>
@@ -277,7 +282,7 @@ export default function IntroAnimation() {
             height: "100%",
             background: "linear-gradient(90deg, transparent, rgba(62,207,76,0.45) 50%, #3ecf4c)",
             boxShadow: "0 0 6px rgba(62,207,76,0.4)",
-            animation: auroraOn ? "__prog 4s linear forwards" : "none",
+            animation: auroraOn ? "__prog 2.55s linear forwards" : "none",
           }} />
         </div>
       </div>

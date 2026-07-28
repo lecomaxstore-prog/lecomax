@@ -39,6 +39,7 @@ export type Product = {
   created_at: string;
   colors?: string[];
   color_stock?: Record<string, number> | null;
+  color_prices?: Record<string, { price: number; originalPrice?: number }>;
 };
 
 export type Order = {
@@ -63,6 +64,7 @@ export type Order = {
   }[];
   total: number;
   payment_method: string;
+  order_source?: "website" | "mobile_app";
   status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
   tracking_number: string | null;
   notes: string | null;

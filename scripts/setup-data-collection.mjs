@@ -1,14 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
+import { serviceRoleKey, supabaseUrl } from "./supabase-admin-env.mjs";
 
 const supabase = createClient(
-  "https://yddqwgdgeljkzfsmtein.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZHF3Z2RnZWxqa3pmc210ZWluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzMxNDM5MywiZXhwIjoyMDkyODkwMzkzfQ.76uWpxv2hnt665DmOf0xjYnm61Nbot0FWB5Bf9XCTnQ"
+  supabaseUrl,
+  serviceRoleKey
 );
 
-// Create tables by inserting a dummy row and letting it fail — or use direct SQL via the pg REST
+// Create tables by inserting a dummy row and letting it fail â€” or use direct SQL via the pg REST
 // We'll use the Supabase SQL editor endpoint
-const url = "https://yddqwgdgeljkzfsmtein.supabase.co";
-const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZHF3Z2RnZWxqa3pmc210ZWluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzMxNDM5MywiZXhwIjoyMDkyODkwMzkzfQ.76uWpxv2hnt665DmOf0xjYnm61Nbot0FWB5Bf9XCTnQ";
+const url = supabaseUrl;
+const key = serviceRoleKey;
 
 const queries = [
   `CREATE TABLE IF NOT EXISTS data_collection_consents (

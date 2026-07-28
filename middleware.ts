@@ -72,6 +72,7 @@ async function hasHowBuiltPin(req: NextRequest): Promise<boolean> {
 // "slug"    = staff must have this permission
 const ROUTE_PERMISSIONS: Record<string, string | null | undefined> = {
   "dashboard":       null,
+  "mobile-app":      "settings.edit",
   "analytics":       "analytics.view",
   "recordings":      "recordings.view",
   "products":        "products.view",
@@ -123,6 +124,34 @@ function isSameOrigin(req: NextRequest): boolean {
   }
 }
 
+const MOBILE_PUBLIC_API =
+  /^\/api\/(?:products|search|categories|promotions|settings|banners|recommendations|reviews(?:\/(?:stats|check))?|shipping\/quote|checkout\/quote|payment-methods|paypal\/mobile\/(?:create|capture)|orders|wishlist|points|coupons\/validate|newsletter|size-guide|account\/(?:profile|avatar|delete-request)|mobile\/push-subscribe|app-releases\/android\/latest)$/;
+const MOBILE_WEB_ORIGINS = new Set([
+  "https://app.lecomax.com",
+  "http://localhost:8081",
+  "http://127.0.0.1:8081",
+]);
+
+function isAllowedMobileOrigin(origin: string) {
+  if (MOBILE_WEB_ORIGINS.has(origin)) return true;
+  return /^http:\/\/(?:localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+)(?::\d+)?$/i.test(origin);
+}
+
+function mobileCorsHeaders(req: NextRequest, response: NextResponse, pathname: string) {
+  if (!MOBILE_PUBLIC_API.test(pathname)) return response;
+  const origin = req.headers.get("origin");
+  if (!origin || !isAllowedMobileOrigin(origin)) return response;
+  response.headers.set("Access-Control-Allow-Origin", origin);
+  response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, Idempotency-Key, X-Lecomax-Client",
+  );
+  response.headers.set("Access-Control-Max-Age", "86400");
+  response.headers.set("Vary", "Origin");
+  return response;
+}
+
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const lowerPath = pathname.toLowerCase();
@@ -130,6 +159,10 @@ export async function middleware(req: NextRequest) {
   // ── Block well-known scanner / attack paths immediately ────────────────────
   if (BLOCKED_PATH_FRAGMENTS.some((frag) => lowerPath.includes(frag))) {
     return new NextResponse(null, { status: 404 });
+  }
+
+  if (req.method === "OPTIONS" && MOBILE_PUBLIC_API.test(pathname)) {
+    return mobileCorsHeaders(req, new NextResponse(null, { status: 204 }), pathname);
   }
 
   // ── Skip static files, API and admin routes for maintenance check ──
@@ -214,7 +247,12 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/api/coupons") &&
     !pathname.startsWith("/api/coupons/validate");
 
-  if (isPublicNewsletterSignup && !isSameOrigin(req)) {
+  const requestOrigin = req.headers.get("origin");
+  if (
+    isPublicNewsletterSignup
+    && !isSameOrigin(req)
+    && (!requestOrigin || !isAllowedMobileOrigin(requestOrigin))
+  ) {
     return NextResponse.json({ error: "Origine non autorisée" }, { status: 403 });
   }
 
@@ -229,7 +267,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  return applyRobotsHeader(NextResponse.next(), pathname);
+  return mobileCorsHeaders(req, applyRobotsHeader(NextResponse.next(), pathname), pathname);
 }
 
 export const config = {

@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
+import { serviceRoleKey, supabaseUrl } from './supabase-admin-env.mjs';
 const sb = createClient(
-  'https://yddqwgdgeljkzfsmtein.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZHF3Z2RnZWxqa3pmc210ZWluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzMxNDM5MywiZXhwIjoyMDkyODkwMzkzfQ.76uWpxv2hnt665DmOf0xjYnm61Nbot0FWB5Bf9XCTnQ'
+  supabaseUrl,
+  serviceRoleKey
 );
 
 const sacImages = [1,2,3,4,5,6].map(n => `/images/products/sac-dos-voyage/${n}.avif`);

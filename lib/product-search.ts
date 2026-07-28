@@ -8,6 +8,7 @@ export type SearchableProduct = {
   original_price?: number | null;
   description?: string | null;
   images?: string[] | null;
+  colors?: string[] | null;
   tags?: string[] | null;
   featured?: boolean | null;
   stock?: number | null;
@@ -20,7 +21,13 @@ const SYNONYM_GROUPS = [
   ["manette", "controller", "gamepad", "gaming", "jeu", "jeux"],
   ["sac", "sacs", "bag", "voyage", "weekend", "valise"],
   ["montre", "montres", "watch", "smartwatch"],
+  ["chausson", "chaussons", "pantoufle", "pantoufles", "slipper", "slippers"],
+  ["claquette", "claquettes", "sandale", "sandales", "mule", "mules"],
+  ["sac a dos", "backpack", "cartable"],
+  ["sac banane", "banane", "waistbag", "beltbag"],
   ["veste", "vestes", "jacket", "manteau"],
+  ["pantalon", "pantalons", "jogging", "jogger", "legging"],
+  ["noir", "black"], ["gris", "gray", "grey"], ["blanc", "white"],
   ["femme", "femmes", "woman", "women"],
   ["homme", "hommes", "man", "men"],
 ] as const;
@@ -91,9 +98,11 @@ export function rankProducts(products: SearchableProduct[], query: string) {
       const brand = normalizeSearchText(product.brand || "");
       const category = normalizeSearchText(product.category || "");
       const tags = normalizeSearchText((product.tags || []).join(" "));
+      const colors = normalizeSearchText((product.colors || []).join(" "));
       const description = normalizeSearchText(product.description || "");
       const nameWords = tokenize(name);
-      const catalogueWords = tokenize(`${name} ${brand} ${category} ${tags}`);
+      const catalogueText = `${name} ${brand} ${category} ${colors} ${tags}`;
+      const catalogueWords = tokenize(catalogueText);
       let score = 0;
 
       if (name === phrase) score += 220;
@@ -102,20 +111,21 @@ export function rankProducts(products: SearchableProduct[], query: string) {
       if (brand === phrase) score += 130;
       else if (brand.includes(phrase)) score += 75;
       if (category.includes(phrase)) score += 55;
+      if (colors.includes(phrase)) score += 52;
       if (tags.includes(phrase)) score += 48;
       if (description.includes(phrase)) score += 16;
 
       let coveredBaseTokens = 0;
       for (const token of base) {
         const direct = tokenScore(token, nameWords, name) * 2
-          + tokenScore(token, catalogueWords, `${name} ${brand} ${category} ${tags}`)
+          + tokenScore(token, catalogueWords, catalogueText)
           + Math.min(8, tokenScore(token, tokenize(description), description));
         if (direct > 0) coveredBaseTokens += 1;
         score += direct;
       }
 
       for (const token of expanded.filter((token) => !base.includes(token))) {
-        score += Math.min(16, tokenScore(token, catalogueWords, `${name} ${brand} ${category} ${tags}`));
+        score += Math.min(16, tokenScore(token, catalogueWords, catalogueText));
       }
 
       if (coveredBaseTokens === base.length) score += 35;

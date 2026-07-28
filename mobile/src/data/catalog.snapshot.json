@@ -1,0 +1,646 @@
+{
+  "generatedAt": "2026-07-26T16:07:51.659Z",
+  "source": "lecomax.com",
+  "products": [
+    {
+      "id": "67f4f477-ec2f-4d3f-a353-e993e9d6c225",
+      "slug": "c-chaussons-fleurs-rose-femme",
+      "name": "Chaussons fleuris pour femme — Confort intérieur",
+      "brand": null,
+      "category": "femme",
+      "price": 69,
+      "original_price": 89,
+      "description": "Chaussons motif fleurs de rose pour femme — douceur et féminité au quotidien. Matière souple et confortable, semelle épaisse antidérapante, style fleuri délicat. Disponibles en gris clair et kaki. Parfaits pour l'intérieur comme pour de courtes sorties, légers et faciles à enfiler.",
+      "images": [
+        "/images/products/Chaussons à fleurs de rose/1 gris clair.avif",
+        "/images/products/Chaussons à fleurs de rose/2 gris clair.avif",
+        "/images/products/Chaussons à fleurs de rose/1 kaki.avif",
+        "/images/products/Chaussons à fleurs de rose/2 kaki.avif"
+      ],
+      "colors": [],
+      "sizes": [],
+      "featured": false,
+      "stock": 1,
+      "color_stock": {
+        "Kaki": 0,
+        "Gris Clair": 1
+      },
+      "active": true,
+      "tags": [
+        "__guide:shoes",
+        "chaussons",
+        "femme",
+        "fleurs",
+        "__oos:Kaki"
+      ],
+      "created_at": "2026-06-25T20:59:49.773627+00:00"
+    },
+    {
+      "id": "4cb1611d-e87f-414e-921a-c4a37d7d8f07",
+      "slug": "c-chaussons-exterieur-poils-femme",
+      "name": "Chaussons fourrés pour femme à cœur brodé — Automne/Hiver",
+      "brand": null,
+      "category": "femme",
+      "price": 89,
+      "original_price": 89,
+      "description": "Chaussons d'extérieur en peluche pour femme avec cœur brodé — parfaits pour l'automne et l'hiver. Semelle antidérapante robuste pour une utilisation en extérieur, revêtement intérieur chaud et moelleux, style tendance avec broderie cœur décorative. Légèreté et chaleur garanties toute la saison froide.",
+      "images": [
+        "/images/products/Chaussons d'extérieur à poils pour femme/1.avif",
+        "/images/products/Chaussons d'extérieur à poils pour femme/2.avif",
+        "/images/products/Chaussons d'extérieur à poils pour femme/3.avif"
+      ],
+      "colors": [],
+      "sizes": [],
+      "featured": false,
+      "stock": 1,
+      "color_stock": {},
+      "active": true,
+      "tags": [
+        "__guide:shoes",
+        "chaussons",
+        "femme",
+        "hiver"
+      ],
+      "created_at": "2026-06-25T20:49:29.389187+00:00"
+    },
+    {
+      "id": "9623f51c-caed-421c-9711-8d5921769ed4",
+      "slug": "c-chaussons-mode-femme-peluche",
+      "name": "Chaussons en peluche pour femme — Lanières croisées",
+      "brand": null,
+      "category": "femme",
+      "price": 69,
+      "original_price": 89,
+      "description": "Chaussons de mode en peluche pour femme avec lanières croisées tendance — confort et style pour la maison. Matériau peluche ultra-doux, lanières croisées élégantes, couleur unie sobre. Disponibles en kaki et blanc. Semelle épaisse antidérapante pour un confort optimal au quotidien.",
+      "images": [
+        "/images/products/Chaussons de mode pour femme/1 kaki.avif",
+        "/images/products/Chaussons de mode pour femme/2 kaki.avif",
+        "/images/products/Chaussons de mode pour femme/1 blanc.avif",
+        "/images/products/Chaussons de mode pour femme/2 blanc.avif"
+      ],
+      "colors": [],
+      "sizes": [],
+      "featured": false,
+      "stock": 1,
+      "color_stock": {
+        "Kaki": 1,
+        "Blanc": 0
+      },
+      "active": true,
+      "tags": [
+        "__oos:Blanc",
+        "__guide:shoes",
+        "chaussons",
+        "femme",
+        "peluche"
+      ],
+      "created_at": "2026-06-25T20:38:58.219632+00:00"
+    },
+    {
+      "id": "e7ee6da0-63bc-4710-bea5-88d1775dd7a3",
+      "slug": "c-chaussons-interieur-femme",
+      "name": "Chaussons d’intérieur pour femme — Semelles épaisses",
+      "brand": null,
+      "category": "femme",
+      "price": 69,
+      "original_price": 89,
+      "description": "Chaussons d interieur pour femme avec semelles epaisses ultra-confortables — ideaux pour le printemps et l automne. Matiere douce et respirante, semelle antiderapante securisee, maintien parfait du pied. Disponibles en blanc et rose dans les pointures 37 et 39. Legers et durables pour un usage quotidien a la maison.",
+      "images": [
+        "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/1%20blanc.avif",
+        "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/2%20blanc.avif",
+        "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/3%20blanc.avif",
+        "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/1%20rose.avif",
+        "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/2%20rose.avif",
+        "/images/products/Chaussons%20d%27int%C3%A9rieur%20pour%20femme/3%20rose.avif"
+      ],
+      "colors": [
+        "Blanc",
+        "Rose"
+      ],
+      "sizes": [
+        "37",
+        "39"
+      ],
+      "featured": true,
+      "stock": 1,
+      "color_stock": {
+        "Rose": 0,
+        "Blanc": 0
+      },
+      "active": true,
+      "tags": [
+        "__oos:Rose",
+        "__guide:shoes",
+        "chaussons",
+        "femme"
+      ],
+      "created_at": "2026-06-25T20:14:06.672573+00:00"
+    },
+    {
+      "id": "f0a2d306-b544-4f3e-a932-684f62b8b4f0",
+      "slug": "a-sac-dos-voyage-compression-sous-vide-43cm",
+      "name": "Sac à dos de voyage 43 cm avec compression sous vide",
+      "brand": null,
+      "category": "accessoires",
+      "price": 849,
+      "original_price": null,
+      "description": "Sac à dos voyage avec technologie de compression sous vide — 43,18 cm de grande capacité. Parfait pour l'école, la randonnée et les voyages d'affaires. Compartiments organisés, bretelles ergonomiques rembourrées, matériaux imperméables haute qualité. Disponible en noir et gris.",
+      "images": [
+        "/images/products/sac-dos-voyage/1.avif",
+        "/images/products/sac-dos-voyage/2.avif",
+        "/images/products/sac-dos-voyage/3.avif",
+        "/images/products/sac-dos-voyage/4.avif",
+        "/images/products/sac-dos-voyage/5.avif",
+        "/images/products/sac-dos-voyage/6.avif"
+      ],
+      "colors": [
+        "Noir",
+        "Gris"
+      ],
+      "sizes": [
+        "Taille unique"
+      ],
+      "featured": true,
+      "stock": 1,
+      "color_stock": {
+        "Gris": 1
+      },
+      "active": true,
+      "tags": [
+        "sac",
+        "voyage",
+        "randonnee",
+        "accessoires",
+        "__oos:Noir"
+      ],
+      "created_at": "2026-06-07T19:10:09.114454+00:00"
+    },
+    {
+      "id": "3277d49a-d486-45c8-a788-d3dffdb46f42",
+      "slug": "a-valise-voyage-antivol-extensible-60l",
+      "name": "Valise de voyage antivol extensible 60 L avec sac à dos",
+      "brand": null,
+      "category": "accessoires",
+      "price": 849,
+      "original_price": null,
+      "description": "Valise de voyage anti-vol extensible 60L avec sac à dos sous vide intégré. Conception unisexe robuste avec serrure de sécurité avancée, système d'extension pratique pour augmenter la capacité, matériaux durables résistants aux chocs et à l'eau. Idéale pour les voyages longue durée, les déplacements professionnels et les aventures en famille.",
+      "images": [
+        "/images/products/valise-60l/1.avif",
+        "/images/products/valise-60l/2.avif",
+        "/images/products/valise-60l/3.avif",
+        "/images/products/valise-60l/4.avif",
+        "/images/products/valise-60l/5.avif",
+        "/images/products/valise-60l/6.avif"
+      ],
+      "colors": [
+        "Noir"
+      ],
+      "sizes": [
+        "Taille unique"
+      ],
+      "featured": true,
+      "stock": 1,
+      "color_stock": {
+        "Noir": 1
+      },
+      "active": true,
+      "tags": [
+        "valise",
+        "voyage",
+        "anti-vol",
+        "accessoires"
+      ],
+      "created_at": "2026-06-07T19:10:08.980971+00:00"
+    },
+    {
+      "id": "23cd15ee-4378-481e-a9d8-7ec06b9e657a",
+      "slug": "a-manette-sans-fil-rgb-v2",
+      "name": "Manette sans fil RGB anti-drift — iOS, Switch, PC et Android",
+      "brand": null,
+      "category": "accessoires",
+      "price": 499,
+      "original_price": null,
+      "description": "Manette gaming sans fil avec technologie No Drift (sticks à effet Hall) pour une précision maximale sans dérive. Compatible iOS, Nintendo Switch, PC, Android et Steam Deck. Éclairage RGB personnalisable, gâchettes progressives à effet Hall, boutons remappables, batterie 1800 mAh avec station de charge incluse. Non compatible Xbox et PS5.",
+      "images": [
+        "/images/products/Manette%20de%20Jeu%20Sans%20Fil/1.avif",
+        "/images/products/Manette%20de%20Jeu%20Sans%20Fil/2.avif",
+        "/images/products/Manette%20de%20Jeu%20Sans%20Fil/3.avif",
+        "/images/products/Manette%20de%20Jeu%20Sans%20Fil/4.avif",
+        "/images/products/Manette%20de%20Jeu%20Sans%20Fil/5.avif",
+        "/images/products/Manette%20de%20Jeu%20Sans%20Fil/6.avif",
+        "/images/products/Manette%20de%20Jeu%20Sans%20Fil/7.avif"
+      ],
+      "colors": [
+        "Noir"
+      ],
+      "sizes": [
+        "Taille unique"
+      ],
+      "featured": true,
+      "stock": 1,
+      "color_stock": {
+        "Noir": 1
+      },
+      "active": true,
+      "tags": [
+        "gaming",
+        "manette",
+        "sans-fil",
+        "rgb",
+        "ios",
+        "switch",
+        "pc"
+      ],
+      "created_at": "2026-06-05T23:06:37.338741+00:00"
+    },
+    {
+      "id": "97d42e54-868d-44cd-98f0-ed55c0b13f50",
+      "slug": "a-genai-tws-hd",
+      "name": "Écouteurs Bluetooth GENAI TWS — Stéréo HD sans fil",
+      "brand": "GENAI",
+      "category": "accessoires",
+      "price": 149,
+      "original_price": null,
+      "description": "Mini écouteurs sans fil TWS avec son stéréo HD haute fidélité. Contrôle tactile du volume intégré, longue autonomie avec boîtier de charge compact. Idéals pour le sport, les déplacements et le quotidien. Connexion Bluetooth stable, ajustement confortable dans l'oreille et microphone intégré pour les appels.",
+      "images": [
+        "/images/products/GENAI%20%C3%89couteurs%20st%C3%A9r%C3%A9o%20HD%20sans%20fil%20TWS/1%20white.avif",
+        "/images/products/GENAI%20%C3%89couteurs%20st%C3%A9r%C3%A9o%20HD%20sans%20fil%20TWS/2%20black.avif"
+      ],
+      "colors": [
+        "Blanc",
+        "Noir"
+      ],
+      "sizes": [
+        "Taille unique"
+      ],
+      "featured": true,
+      "stock": 2,
+      "color_stock": {
+        "Noir": 0,
+        "Blanc": 2
+      },
+      "active": true,
+      "tags": [
+        "audio",
+        "ecouteurs",
+        "tws",
+        "bluetooth",
+        "__oos:Noir"
+      ],
+      "created_at": "2026-06-05T23:06:37.338741+00:00"
+    },
+    {
+      "id": "b60cd95c-8288-444e-adaa-748e701dff33",
+      "slug": "a-sac-bandouliere-antivol-code",
+      "name": "Sac bandoulière antivol pour homme — Verrou à code",
+      "brand": null,
+      "category": "accessoires",
+      "price": 99,
+      "original_price": null,
+      "description": "Sac bandoulière anti-vol pour hommes avec verrou à code numérique et technologie anti-vol avancée. Sangle réglable, finitions métalliques dorées élégantes, tissu durable résistant aux rayures. Compartiments zippés organisés et port USB intégré. Idéal pour la moto, le voyage, la salle de sport et l'usage quotidien.",
+      "images": [
+        "/images/products/Sac%20bandouli%C3%A8re/1.avif",
+        "/images/products/Sac%20bandouli%C3%A8re/2.avif",
+        "/images/products/Sac%20bandouli%C3%A8re/3.avif",
+        "/images/products/Sac%20bandouli%C3%A8re/4.avif"
+      ],
+      "colors": [
+        "Noir"
+      ],
+      "sizes": [
+        "Taille unique"
+      ],
+      "featured": true,
+      "stock": 8,
+      "color_stock": {
+        "Noir": 8
+      },
+      "active": true,
+      "tags": [
+        "sac",
+        "accessoires",
+        "anti-vol",
+        "voyage"
+      ],
+      "created_at": "2026-06-05T23:06:37.338741+00:00"
+    },
+    {
+      "id": "92452bdd-884b-4c91-a411-aad4e9150c95",
+      "slug": "c-baasploa-course-homme",
+      "name": "Baskets de running Baasploa pour homme — Respirantes et légères",
+      "brand": "Baasploa",
+      "category": "chaussures",
+      "price": 199,
+      "original_price": 349,
+      "description": "Chaussures de marche décontractées et respirantes pour hommes. Baskets tendance ultra-légères, idéales pour la course, la marche et le tennis au quotidien. Semelle souple et aérée pour un confort toute la journée.",
+      "images": [
+        "/images/products/BAASPLOA%20Men's%20Lightweight%20Running%20Sneakers/Yellow.avif",
+        "/images/products/BAASPLOA%20Men's%20Lightweight%20Running%20Sneakers/Blue.avif",
+        "/images/products/BAASPLOA%20Men's%20Lightweight%20Running%20Sneakers/grey.avif"
+      ],
+      "colors": [
+        "Jaune",
+        "Bleu",
+        "Gris"
+      ],
+      "sizes": [
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45"
+      ],
+      "featured": true,
+      "stock": 3,
+      "color_stock": {
+        "Bleu": 0,
+        "Gris": 0,
+        "Jaune": 3
+      },
+      "active": true,
+      "tags": [
+        "running",
+        "sport",
+        "chaussures",
+        "homme",
+        "__oos:Bleu",
+        "__oos:Gris"
+      ],
+      "created_at": "2026-06-05T23:06:37.338741+00:00"
+    },
+    {
+      "id": "d24db506-8e8d-4b49-a664-fe96231915ed",
+      "slug": "a-lenovo-k3-pro-enceinte",
+      "name": "Enceinte Bluetooth Lenovo K3 Pro — Son stéréo Hi-Fi",
+      "brand": "Lenovo",
+      "category": "accessoires",
+      "price": 99,
+      "original_price": null,
+      "description": "L'enceinte Lenovo K3 PRO délivre un son stéréo HiFi à qualité cinéma dans un format ultra-léger et portable. Idéale pour écouter de la musique, regarder des films ou prendre des appels en déplacement. Connexion Bluetooth simple et rapide, autonomie longue durée.",
+      "images": [
+        "/images/products/Lenovo%20K3%20PRO/1.avif",
+        "/images/products/Lenovo%20K3%20PRO/2.avif",
+        "/images/products/Lenovo%20K3%20PRO/3.avif",
+        "/images/products/Lenovo%20K3%20PRO/4.avif",
+        "/images/products/Lenovo%20K3%20PRO/5.avif"
+      ],
+      "colors": [
+        "Édition Standard"
+      ],
+      "sizes": [
+        "Taille unique"
+      ],
+      "featured": true,
+      "stock": 60,
+      "color_stock": {
+        "Édition Standard": 20
+      },
+      "active": true,
+      "tags": [
+        "audio",
+        "bluetooth",
+        "enceinte",
+        "lenovo"
+      ],
+      "created_at": "2026-06-05T23:06:37.338741+00:00"
+    },
+    {
+      "id": "43a7cf9e-2191-44ee-995c-23028d20507c",
+      "slug": "a-sac-banane-pu-polyvalent",
+      "name": "Sac banane polyvalent en PU — Ceinture, bandoulière et poitrine",
+      "brand": null,
+      "category": "accessoires",
+      "price": 69,
+      "original_price": null,
+      "description": "Sac banane polyvalent en matériau PU de qualité premium. Réglable pour se porter à la taille, en bandoulière, à l'épaule ou sur la poitrine. Fermeture éclair ultra-lisse, plusieurs poches organisées et dos en maille respirante pour un confort optimal. Idéal pour le voyage, la randonnée et le quotidien.",
+      "images": [
+        "/images/products/Sac%20banane/1.avif",
+        "/images/products/Sac%20banane/2.avif",
+        "/images/products/Sac%20banane/3.avif",
+        "/images/products/Sac%20banane/4.avif",
+        "/images/products/Sac%20banane/5.avif"
+      ],
+      "colors": [
+        "Noir",
+        "Gris"
+      ],
+      "sizes": [
+        "Taille unique"
+      ],
+      "featured": true,
+      "stock": 25,
+      "color_stock": {
+        "Gris": 5,
+        "Noir": 20
+      },
+      "active": true,
+      "tags": [
+        "sac",
+        "accessoires",
+        "banane",
+        "voyage"
+      ],
+      "created_at": "2026-06-05T23:06:37.338741+00:00"
+    }
+  ],
+  "categories": [
+    {
+      "id": "bc52bed3-be0e-4195-9fe4-27edf1311724",
+      "name": "Homme",
+      "slug": "homme",
+      "description": "Vestes, bombers, sweats et hoodies pour hommes. Du casual au sport.",
+      "image": "/images/pages images/homme.png",
+      "sort_order": 10,
+      "active": true,
+      "created_at": "2026-07-15T09:24:10.055914+00:00",
+      "label": "Homme",
+      "image_mobile": "/images/pages images/homme.png",
+      "image_position": "50% 50%",
+      "image_mobile_position": "50% 50%"
+    },
+    {
+      "id": "3ae6d65c-4afd-4e6d-a6a4-7d23d425825a",
+      "name": "Femme",
+      "slug": "femme",
+      "description": "Vestes, bombers et hoodies pour femmes. Style et confort au quotidien.",
+      "image": "/images/pages images/femme.png",
+      "sort_order": 20,
+      "active": true,
+      "created_at": "2026-07-15T09:24:10.055914+00:00",
+      "label": "Femme",
+      "image_mobile": "/images/pages images/femme.png",
+      "image_position": "50% 50%",
+      "image_mobile_position": "65% 50%"
+    },
+    {
+      "id": "43de396a-e0a2-464f-a848-9c57be24b33c",
+      "name": "Chaussures",
+      "slug": "chaussures",
+      "description": "Running, trail et lifestyle — la chaussure parfaite pour chaque usage.",
+      "image": "/images/pages images/chaussures.png",
+      "sort_order": 30,
+      "active": true,
+      "created_at": "2026-07-15T09:24:10.055914+00:00",
+      "label": "Chaussures",
+      "image_mobile": "/images/pages images/chaussures.png",
+      "image_position": "50% 65%",
+      "image_mobile_position": "50% 50%"
+    },
+    {
+      "id": "2d008034-908d-4df1-9cb9-329b8437ce52",
+      "name": "Accessoires",
+      "slug": "accessoires",
+      "description": "Manettes gaming, écouteurs, sacs à dos et accessoires tech.",
+      "image": "/images/pages images/accessoires.png",
+      "sort_order": 40,
+      "active": true,
+      "created_at": "2026-07-15T09:24:10.055914+00:00",
+      "label": "Accessoires",
+      "image_mobile": "/images/pages images/accessoires.png",
+      "image_position": "50% 50%",
+      "image_mobile_position": "50% 50%"
+    }
+  ],
+  "promotions": [],
+  "settings": [
+    {
+      "key": "announcement_enabled",
+      "value": "false"
+    },
+    {
+      "key": "announcement_1",
+      "value": "LIVRAISON GRATUITE DÈS 499 MAD AU MAROC"
+    },
+    {
+      "key": "announcement_2",
+      "value": "RETOURS GRATUITS SOUS 30 JOURS"
+    },
+    {
+      "key": "announcement_3",
+      "value": "PAIEMENT À LA LIVRAISON DISPONIBLE"
+    },
+    {
+      "key": "announcement_4",
+      "value": ""
+    },
+    {
+      "key": "announcement_5",
+      "value": ""
+    },
+    {
+      "key": "announcement_background",
+      "value": "#09090b"
+    },
+    {
+      "key": "announcement_accent",
+      "value": "#3ecf4c"
+    },
+    {
+      "key": "free_shipping_threshold",
+      "value": "500"
+    },
+    {
+      "key": "shipping_estimated_days",
+      "value": "2–5 jours ouvrables"
+    },
+    {
+      "key": "announcement_text_color",
+      "value": "#ffffff"
+    },
+    {
+      "key": "announcement_speed",
+      "value": "36"
+    },
+    {
+      "key": "announcement_pause_hover",
+      "value": "true"
+    },
+    {
+      "key": "announcement_show_icons",
+      "value": "true"
+    },
+    {
+      "key": "announcement_uppercase",
+      "value": "true"
+    },
+    {
+      "key": "announcement_mobile_enabled",
+      "value": "true"
+    },
+    {
+      "key": "store_name",
+      "value": "L'ECOMAX"
+    },
+    {
+      "key": "store_email",
+      "value": "contact@lecomax.com"
+    },
+    {
+      "key": "store_phone",
+      "value": ""
+    },
+    {
+      "key": "store_address",
+      "value": ""
+    },
+    {
+      "key": "store_city",
+      "value": "Sidi Bennour "
+    },
+    {
+      "key": "currency",
+      "value": "MAD"
+    },
+    {
+      "key": "whatsapp_number",
+      "value": "212699289568"
+    },
+    {
+      "key": "instagram_url",
+      "value": "https://www.instagram.com/lecomaxcom"
+    },
+    {
+      "key": "facebook_url",
+      "value": "https://www.facebook.com/lecomaxcom"
+    },
+    {
+      "key": "tiktok_url",
+      "value": "https://www.tiktok.com/@lecomaxcom"
+    },
+    {
+      "key": "shipping_cost",
+      "value": "35"
+    },
+    {
+      "key": "maintenance_mode",
+      "value": "false"
+    },
+    {
+      "key": "enable_reviews",
+      "value": "true"
+    },
+    {
+      "key": "enable_coupons",
+      "value": "true"
+    },
+    {
+      "key": "enable_newsletter",
+      "value": "true"
+    },
+    {
+      "key": "enable_wishlist",
+      "value": "true"
+    },
+    {
+      "key": "enable_ecoclub",
+      "value": "true"
+    },
+    {
+      "key": "logo_image",
+      "value": "/images/lecomax logo.png"
+    }
+  ]
+}

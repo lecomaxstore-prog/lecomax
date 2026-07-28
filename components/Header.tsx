@@ -11,6 +11,7 @@ import { useSettings } from "@/lib/use-settings";
 import { useWishlist } from "./WishlistContext";
 
 const utilLinks = [
+  { label: "Application Android", href: "/download", icon: <DownloadIcon /> },
   { label: "Aide", href: "/aide", icon: <HelpIcon /> },
   { label: "Suivre la commande", href: "/suivre-commande", icon: <TruckIcon /> },
   { label: "ecoClub", href: "/ecoclub", icon: <StarIcon /> },
@@ -499,6 +500,13 @@ function BagIcon() {
       <path d="M3 4h2.25l1.7 10.1a2 2 0 0 0 1.97 1.67h8.95a2 2 0 0 0 1.95-1.55L21.25 7H6" />
       <circle cx="9.25" cy="19.5" r="1.15" />
       <circle cx="18.25" cy="19.5" r="1.15" />
+    </svg>
+  );
+}
+function DownloadIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M5 21h14" />
     </svg>
   );
 }

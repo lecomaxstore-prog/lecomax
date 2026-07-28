@@ -139,6 +139,23 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const result = await supabase.rpc("reverse_order_loyalty_points", { p_order_id: id });
     loyalty = result.data;
     if (result.error) console.error("EcoClub reversal failed:", result.error.message);
+
+    if (prev?.status !== "cancelled") {
+      const inventoryItems = ((data as {
+        items?: { slug?: string; qty?: number; quantity?: number; color?: string; size?: string }[];
+      }).items ?? [])
+        .map((item) => ({
+          slug: item.slug,
+          qty: Number(item.qty ?? item.quantity),
+          color: item.color || null,
+          size: item.size || null,
+        }))
+        .filter((item) => item.slug && Number.isInteger(item.qty) && item.qty > 0);
+      if (inventoryItems.length > 0) {
+        const released = await supabase.rpc("release_order_inventory", { p_items: inventoryItems });
+        if (released.error) console.error("Cancelled order inventory release failed:", released.error.message);
+      }
+    }
   }
 
   let reviewAutomation: {

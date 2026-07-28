@@ -1,25 +1,21 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
-import { formatShippingAmount } from "@/lib/shipping-config";
+import { calculateShipping, formatShippingAmount } from "@/lib/shipping-config";
 
 const SITE_URL = "https://lecomax.com";
 const SHOP_NAME = "L'ecomax";
 const CURRENCY = "MAD";
 
-// Map L'ecomax categories → Google product taxonomy IDs (fr)
-const GOOGLE_CATEGORY: Record<string, string> = {
-  chaussures: "Vêtements et accessoires > Chaussures",
-  homme:      "Vêtements et accessoires > Vêtements",
-  femme:      "Vêtements et accessoires > Vêtements",
-  accessoires: "Électronique",
-};
-
 // Ensure image URL is absolute and uses a crawlable format
 function imgUrl(raw: string | null | undefined): string | null {
   if (!raw) return null;
-  const url = raw.startsWith("http") ? raw : `${SITE_URL}${raw}`;
-  return url;
+  try {
+    const url = new URL(raw, `${SITE_URL}/`);
+    return ["http:", "https:"].includes(url.protocol) ? url.toString() : null;
+  } catch {
+    return null;
+  }
 }
 
 function escapeXml(str: string): string {
@@ -33,6 +29,30 @@ function escapeXml(str: string): string {
 
 function price(val: number) {
   return `${val.toFixed(2)} ${CURRENCY}`;
+}
+
+function normalizedProductText(product: Record<string, unknown>) {
+  return [product.name, product.description, product.category, ...(Array.isArray(product.tags) ? product.tags : [])]
+    .filter((value): value is string => typeof value === "string")
+    .join(" ")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+// product_type is the merchant's own taxonomy. Google can then assign its
+// continuously evolving Google Product Category without an inaccurate override.
+function merchantProductType(product: Record<string, unknown>) {
+  const text = normalizedProductText(product);
+  if (/chausson|basket|chaussure|running|sneaker/.test(text)) return "Mode > Chaussures";
+  if (/sac a dos|backpack/.test(text)) return "Bagages et sacs > Sacs à dos";
+  if (/valise|bagage/.test(text)) return "Bagages et sacs > Valises";
+  if (/sac banane/.test(text)) return "Bagages et sacs > Sacs banane";
+  if (/sac bandouliere/.test(text)) return "Bagages et sacs > Sacs bandoulière";
+  if (/ecouteur|casque|tws/.test(text)) return "Électronique > Audio > Écouteurs";
+  if (/enceinte|haut-parleur/.test(text)) return "Électronique > Audio > Enceintes";
+  if (/manette|gamepad|gaming/.test(text)) return "Électronique > Gaming > Manettes";
+  return String(product.category || "Catalogue L'ecomax");
 }
 
 export const revalidate = 3600; // regenerate every hour
@@ -54,9 +74,13 @@ export async function GET() {
     return new NextResponse("Failed to fetch products", { status: 500 });
   }
 
-  const items = products.map((p) => {
+  const items = products.flatMap((p) => {
     const link = `${SITE_URL}/produit/${p.slug}/`;
     const mainImg = imgUrl(p.images?.[0]);
+    const currentPrice = Number(p.price);
+    if (!p.id || !p.slug || !p.name || !mainImg || !Number.isFinite(currentPrice) || currentPrice <= 0) {
+      return [];
+    }
     const additionalImgs: string[] = (p.images?.slice(1, 11) ?? [])
       .map(imgUrl)
       .filter(Boolean) as string[];
@@ -68,45 +92,38 @@ export async function GET() {
       totalStock > 0 || colorStockValues.some((s) => (s as number) > 0);
     const availability = hasStock ? "in stock" : "out of stock";
 
-    // Colors & sizes
-    const colors: string[] = p.colors ?? [];
-    const sizes: string[] = p.sizes ?? [];
     const brand = p.brand || SHOP_NAME;
-
-    const googleCategory = GOOGLE_CATEGORY[p.category] ?? "Vêtements et accessoires";
 
     const title = escapeXml(p.name ?? "");
     const desc = escapeXml(
-      (p.description ?? "").slice(0, 5000)
+      String(p.description || `${p.name} disponible sur L'ecomax.`).slice(0, 5000)
     );
+    const originalPrice = Number(p.original_price);
+    const onSale = Number.isFinite(originalPrice) && originalPrice > currentPrice;
+    const shippingCost = calculateShipping(currentPrice, shippingConfig);
 
-    let xml = `    <item>
-      <g:id>${escapeXml(p.slug)}</g:id>
+    const xml = `    <item>
+      <g:id>${escapeXml(String(p.id).slice(0, 50))}</g:id>
       <g:title>${title}</g:title>
       <g:description>${desc}</g:description>
-      <g:link>${link}</g:link>
-      ${mainImg ? `<g:image_link>${imgUrl(mainImg)}</g:image_link>` : ""}
-      ${additionalImgs.map((u) => `<g:additional_image_link>${u}</g:additional_image_link>`).join("\n      ")}
+      <g:link>${escapeXml(link)}</g:link>
+      <g:image_link>${escapeXml(mainImg)}</g:image_link>
+      ${additionalImgs.map((u) => `<g:additional_image_link>${escapeXml(u)}</g:additional_image_link>`).join("\n      ")}
       <g:availability>${availability}</g:availability>
-      <g:price>${p.original_price ? price(p.original_price) : price(p.price)}</g:price>
-      ${p.original_price ? `<g:sale_price>${price(p.price)}</g:sale_price>` : ""}
+      <g:price>${onSale ? price(originalPrice) : price(currentPrice)}</g:price>
+      ${onSale ? `<g:sale_price>${price(currentPrice)}</g:sale_price>` : ""}
       <g:brand>${escapeXml(brand)}</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>false</g:identifier_exists>
-      <g:google_product_category>${escapeXml(googleCategory)}</g:google_product_category>
-      <g:product_type>${escapeXml(p.category)}</g:product_type>
-      ${colors.length > 0 ? `<g:color>${escapeXml(colors[0])}</g:color>` : ""}
-      ${sizes.filter((s) => s !== "Taille unique").length > 0
-        ? `<g:size>${escapeXml(sizes[0])}</g:size>`
-        : ""}
+      <g:product_type>${escapeXml(merchantProductType(p))}</g:product_type>
       <g:shipping>
         <g:country>MA</g:country>
         <g:service>Standard</g:service>
-        <g:price>${shippingConfig.cost.toFixed(2)} ${CURRENCY}</g:price>
+        <g:price>${shippingCost.toFixed(2)} ${CURRENCY}</g:price>
       </g:shipping>
     </item>`;
 
-    return xml;
+    return [xml];
   });
 
   const feed = `<?xml version="1.0" encoding="UTF-8"?>

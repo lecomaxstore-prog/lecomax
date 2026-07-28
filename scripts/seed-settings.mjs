@@ -1,8 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
+import { serviceRoleKey, supabaseUrl } from "./supabase-admin-env.mjs";
 
 const sb = createClient(
-  "https://yddqwgdgeljkzfsmtein.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZHF3Z2RnZWxqa3pmc210ZWluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzMxNDM5MywiZXhwIjoyMDkyODkwMzkzfQ.76uWpxv2hnt665DmOf0xjYnm61Nbot0FWB5Bf9XCTnQ"
+  supabaseUrl,
+  serviceRoleKey
 );
 
 const rows = [
@@ -32,5 +33,5 @@ if (error) {
   console.error("ERROR:", error.message);
   process.exit(1);
 } else {
-  console.log(`✅  All ${rows.length} settings synced to Supabase`);
+  console.log(`âœ…  All ${rows.length} settings synced to Supabase`);
 }

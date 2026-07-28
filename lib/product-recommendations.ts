@@ -23,7 +23,10 @@ const PRODUCT_FAMILIES: Array<{ name: string; terms: string[] }> = [
   { name: "hoodies", terms: ["sweat", "sweats", "hoodie", "hoodies", "sweatshirt"] },
   { name: "shirts", terms: ["chemise", "chemises", "shirt", "shirts", "t shirt", "tee shirt"] },
   { name: "pants", terms: ["pantalon", "pantalons", "jogging", "joggers", "legging", "leggings"] },
-  { name: "bags", terms: ["sac", "sacs", "bag", "bags", "sacoche", "sacoches"] },
+  { name: "backpacks", terms: ["sac a dos", "sacs a dos", "backpack", "backpacks", "cartable"] },
+  { name: "waist-bags", terms: ["sac banane", "banane", "waist bag", "belt bag", "sacoche ceinture"] },
+  { name: "handbags", terms: ["sac a main", "handbag", "cabas", "pochette"] },
+  { name: "travel-bags", terms: ["sac de voyage", "voyage", "duffle", "weekend bag", "bagage"] },
   { name: "watches", terms: ["montre", "montres", "watch", "watches"] },
 ];
 
@@ -39,7 +42,10 @@ const FAMILY_GROUPS: Record<string, string> = {
   hoodies: "clothing",
   shirts: "clothing",
   pants: "clothing",
-  bags: "accessories",
+  backpacks: "bags",
+  "waist-bags": "bags",
+  handbags: "bags",
+  "travel-bags": "bags",
   watches: "accessories",
 };
 
@@ -114,6 +120,19 @@ function similarityScore(current: RecommendationProduct, candidate: Recommendati
   return score;
 }
 
+function isActuallySimilar(current: RecommendationProduct, candidate: RecommendationProduct) {
+  const currentFamily = familyOf(current);
+  const candidateFamily = familyOf(candidate);
+  const currentSubcategory = normalize(current.subCategory);
+  const candidateSubcategory = normalize(candidate.subCategory);
+  if (currentFamily) return candidateFamily === currentFamily;
+  if (currentSubcategory && candidateSubcategory === currentSubcategory) return true;
+  if (normalize(current.category) !== normalize(candidate.category)) return false;
+  const currentTokens = meaningfulTokens(current);
+  const sharedTokens = [...meaningfulTokens(candidate)].filter((token) => currentTokens.has(token));
+  return sharedTokens.length >= 2;
+}
+
 /**
  * Rank catalogue products by real product similarity. The function is data-driven:
  * newly added products participate automatically through their name, category,
@@ -131,11 +150,9 @@ export function rankSimilarProducts<T extends RecommendationProduct>(
     }
   }
 
-  const minimumRelevantScore = familyOf(current) ? 40 : 24;
-
   return [...unique.values()]
+    .filter((candidate) => isActuallySimilar(current, candidate))
     .map((candidate) => ({ candidate, score: similarityScore(current, candidate) }))
-    .filter(({ score }) => score >= minimumRelevantScore)
     .sort((a, b) => b.score - a.score || a.candidate.name.localeCompare(b.candidate.name, "fr"))
     .slice(0, limit)
     .map(({ candidate }) => candidate);

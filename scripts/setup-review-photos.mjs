@@ -1,19 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
+import { serviceRoleKey, supabaseUrl } from './supabase-admin-env.mjs';
 
 const sb = createClient(
-  'https://yddqwgdgeljkzfsmtein.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZHF3Z2RnZWxqa3pmc210ZWluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzMxNDM5MywiZXhwIjoyMDkyODkwMzkzfQ.76uWpxv2hnt665DmOf0xjYnm61Nbot0FWB5Bf9XCTnQ'
+  supabaseUrl,
+  serviceRoleKey
 );
 
 // 1. Add image_url column via direct SQL (using REST API)
 const sqlRes = await fetch(
-  'https://yddqwgdgeljkzfsmtein.supabase.co/rest/v1/rpc/exec_sql',
+  `${supabaseUrl}/rest/v1/rpc/exec_sql`,
   {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZHF3Z2RnZWxqa3pmc210ZWluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzMxNDM5MywiZXhwIjoyMDkyODkwMzkzfQ.76uWpxv2hnt665DmOf0xjYnm61Nbot0FWB5Bf9XCTnQ',
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZHF3Z2RnZWxqa3pmc210ZWluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzMxNDM5MywiZXhwIjoyMDkyODkwMzkzfQ.76uWpxv2hnt665DmOf0xjYnm61Nbot0FWB5Bf9XCTnQ',
+      'apikey': serviceRoleKey,
+      'Authorization': `Bearer ${serviceRoleKey}`,
     },
     body: JSON.stringify({ sql: 'ALTER TABLE reviews ADD COLUMN IF NOT EXISTS image_url TEXT;' }),
   }

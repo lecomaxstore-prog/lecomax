@@ -68,6 +68,19 @@ export function syncOutOfStockTags(
   return [...regularTags, ...unavailableTags];
 }
 
+export function sizeStockFromTags(value: unknown): Record<string, number> {
+  if (!Array.isArray(value)) return {};
+  const stock: Record<string, number> = {};
+  for (const rawTag of value) {
+    if (typeof rawTag !== "string" || !rawTag.startsWith("__sstock:")) continue;
+    const parts = rawTag.slice("__sstock:".length).split(":");
+    const quantity = asStock(parts.pop());
+    const size = parts.join(":").trim();
+    if (size && quantity !== null) stock[size] = quantity;
+  }
+  return stock;
+}
+
 export function resolveProductAvailability(input: {
   stock: number | null;
   colors: string[];

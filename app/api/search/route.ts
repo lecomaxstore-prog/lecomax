@@ -8,7 +8,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-const SEARCH_FIELDS = "id,slug,name,brand,category,price,original_price,description,images,tags,featured,stock,created_at";
+const SEARCH_FIELDS = "id,slug,name,brand,category,price,original_price,description,images,colors,tags,featured,stock,created_at";
 
 export async function GET(request: NextRequest) {
   const blocked = enforceRateLimit(request, "products:search", 120, 60_000);

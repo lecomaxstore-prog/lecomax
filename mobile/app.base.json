@@ -1,0 +1,104 @@
+{
+  "expo": {
+    "name": "Lecomax",
+    "slug": "lecomax",
+    "version": "1.0.3",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/298c2ed9-078f-4c41-b46f-282c17e1e532",
+      "enabled": true,
+      "checkAutomatically": "ON_ERROR_RECOVERY",
+      "fallbackToCacheTimeout": 0
+    },
+    "orientation": "default",
+    "icon": "./assets/images/app-icon-v2.png",
+    "scheme": "lecomax",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "icon": "./assets/images/app-icon-v2.png",
+      "bundleIdentifier": "com.lecomax.app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "associatedDomains": [
+        "applinks:lecomax.com"
+      ]
+    },
+    "android": {
+      "package": "com.lecomax.app",
+      "predictiveBackGestureEnabled": true,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "lecomax.com",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ],
+      "adaptiveIcon": {
+        "backgroundColor": "#0A0A0A",
+        "foregroundImage": "./assets/images/android-icon-foreground-v2.png",
+        "backgroundImage": "./assets/images/android-icon-background-v2.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome-v2.png"
+      }
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon-v2.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0A0A0A",
+          "image": "./assets/images/splash-icon-v2.png",
+          "imageWidth": 96
+        }
+      ],
+      "expo-secure-store",
+      "expo-localization",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Autoriser Lecomax à sélectionner une photo pour votre profil.",
+          "cameraPermission": "Autoriser Lecomax à prendre une photo pour votre profil.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon-v2.png",
+          "color": "#12B83F",
+          "defaultChannel": "marketing"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Autoriser Lecomax à scanner les codes produits.",
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

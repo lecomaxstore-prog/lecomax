@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { products as catalogProducts } from "@/lib/products";
 import {
   calculateCouponDiscount,
   calculateCouponPricing,
   type CouponCartLine,
 } from "@/lib/coupon-pricing";
+import { enforceRateLimit } from "@/lib/api-security";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,6 +13,8 @@ const supabase = createClient(
 );
 
 export async function POST(req: NextRequest) {
+  const blocked = enforceRateLimit(req, "coupons:validate", 40, 60_000);
+  if (blocked) return blocked;
   const { data: featureSetting } = await supabase
     .from("settings")
     .select("value")
@@ -66,14 +68,14 @@ export async function POST(req: NextRequest) {
   const { data: databaseProducts, error: productsError } = await supabase
     .from("products")
     .select("slug,price,original_price")
-    .in("slug", slugs);
+    .in("slug", slugs)
+    .eq("active", true);
   if (productsError) {
     console.error("Coupon product verification error:", productsError);
     return NextResponse.json({ error: "Impossible de vérifier le panier pour le moment" }, { status: 503 });
   }
 
   const productBySlug = new Map<string, Record<string, unknown>>();
-  for (const product of catalogProducts) productBySlug.set(product.slug, product as unknown as Record<string, unknown>);
   for (const product of databaseProducts ?? []) productBySlug.set(String(product.slug), product as Record<string, unknown>);
   if (slugs.some((slug) => !productBySlug.has(slug))) {
     return NextResponse.json({ error: "Un article du panier n'est plus disponible" }, { status: 409 });

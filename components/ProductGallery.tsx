@@ -52,7 +52,7 @@ export default function ProductGallery({
   video?: string;
 }) {
   // active: index into images, or "video" sentinel
-  const [active, setActive] = useState<number | "video">(0);
+  const [active, setActive] = useState<number | "video">(() => video ? "video" : 0);
   const [videoPlaybackKey, setVideoPlaybackKey] = useState(0);
   const [mainControlsVisible, setMainControlsVisible] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -217,7 +217,7 @@ export default function ProductGallery({
           isYouTube(video) ? (
             <iframe
               key={`${video}-${videoPlaybackKey}`}
-              src={`https://www.youtube.com/embed/${getYouTubeId(video)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeId(video)}&controls=1&rel=0&modestbranding=1`}
+              src={`https://www.youtube.com/embed/${getYouTubeId(video)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeId(video)}&controls=1&rel=0&modestbranding=1&vq=hd1080`}
               title={`${name} — vidéo du produit`}
               allow="autoplay; encrypted-media; picture-in-picture"
               allowFullScreen
@@ -232,7 +232,7 @@ export default function ProductGallery({
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="auto"
             poster={safeImages[0]}
             onCanPlay={(event) => {
               void event.currentTarget.play().catch(() => {

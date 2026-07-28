@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import type { Product } from "@/lib/supabase";
 import Link from "next/link";
 import { useApproval } from "@/lib/use-approval";
+import { colorPricesFromTags, colorPriceTags, type ColorPrice } from "@/lib/product-variant-pricing";
 
 const CATEGORIES = ["homme", "femme", "chaussures", "accessoires"];
 
@@ -35,6 +36,7 @@ type ExtendedProduct = Product & {
   weight?: number;
   description_images?: string[];
   video?: string | null;
+  color_stock?: Record<string, number> | null;
 };
 
 export default function ProductsPage() {
@@ -49,6 +51,8 @@ export default function ProductsPage() {
   const [form, setForm] = useState({ ...emptyForm });
   const [images, setImages] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [colorStocks, setColorStocks] = useState<Record<string, number>>({});
+  const [colorPrices, setColorPrices] = useState<Record<string, ColorPrice>>({});
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [sizeGuideType, setSizeGuideType] = useState<"none" | "clothing" | "shoes" | "custom">("none");
   const [customSizes, setCustomSizes] = useState<string[]>([]);
@@ -132,6 +136,8 @@ export default function ProductsPage() {
     setImages([]);
     setDescImages([]);
     setSelectedColors([]);
+    setColorStocks({});
+    setColorPrices({});
     setSelectedSizes([]);
     setSizeGuideType("none");
     setCustomSizes([]);
@@ -161,7 +167,7 @@ export default function ProductsPage() {
       description: p.description ?? "",
       stock: String(p.stock), active: p.active,
       featured: p.featured ?? false,
-      tags: tags.filter((t) => !t.startsWith("__guide:") && !t.startsWith("__sstock:") && !t.startsWith("__detail:")).join(", "),
+      tags: tags.filter((t) => !t.startsWith("__guide:") && !t.startsWith("__sstock:") && !t.startsWith("__detail:") && !t.startsWith("__cprice:") && !t.startsWith("__oos:")).join(", "),
       weight: p.weight ? String(p.weight) : "",
       video: (p as ExtendedProduct).video ?? "",
     });
@@ -179,6 +185,8 @@ export default function ProductsPage() {
       setDescImages((p as ExtendedProduct).description_images ?? []);
     }
     setSelectedColors(p.colors ?? []);
+    setColorStocks(p.color_stock ?? {});
+    setColorPrices(colorPricesFromTags(tags));
     const detailTags = tags.filter((t) => t.startsWith("__detail:"));
     setProductDetails(detailTags.map((t) => {
       const parts = t.slice("__detail:".length).split(":");
@@ -269,16 +277,22 @@ export default function ProductsPage() {
     e.preventDefault();
     setSaving(true);
     setMsg(null);
+    const selectedColorStocks = Object.fromEntries(selectedColors.map((color) => [color, Math.max(0, Math.trunc(colorStocks[color] ?? 0))]));
+    const selectedColorPrices = Object.fromEntries(selectedColors.filter((color) => colorPrices[color]).map((color) => [color, colorPrices[color]]));
+    const variantStockTotal = Object.values(selectedColorStocks).reduce((total, quantity) => total + quantity, 0);
+    const variantPriceValues = Object.values(selectedColorPrices).map((value) => value.price).filter((value) => Number.isFinite(value) && value >= 0);
+    const cataloguePrice = variantPriceValues.length ? Math.min(...variantPriceValues) : parseFloat(form.price);
     const payload = {
       slug: form.slug.trim().toLowerCase().replace(/\s+/g, "-"),
       name: form.name.trim(),
       brand: form.brand.trim() || null,
       category: form.category,
-      price: parseFloat(form.price),
+      price: cataloguePrice,
       original_price: form.original_price ? parseFloat(form.original_price) : null,
       description: form.description.trim() || null,
       images: images.filter(Boolean),
-      stock: parseInt(form.stock) || 0,
+      stock: selectedColors.length ? variantStockTotal : parseInt(form.stock) || 0,
+      color_stock: selectedColors.length ? selectedColorStocks : {},
       active: form.active,
       featured: form.featured,
       tags: [
@@ -286,6 +300,7 @@ export default function ProductsPage() {
         ...(sizeGuideType !== "none" ? [`__guide:${sizeGuideType}`] : []),
         ...Object.entries(sizeStocks).filter(([, qty]) => qty > 0).map(([s, qty]) => `__sstock:${s}:${qty}`),
         ...productDetails.filter((d) => d.key.trim()).map((d) => `__detail:${d.key.trim()}:${d.value.trim()}`),
+        ...colorPriceTags(selectedColorPrices),
       ],
       colors: selectedColors,
       sizes: selectedSizes,
@@ -372,8 +387,11 @@ export default function ProductsPage() {
     load();
   }
 
-  const toggleColor = (label: string) =>
+  const toggleColor = (label: string) => {
     setSelectedColors((prev) => prev.includes(label) ? prev.filter((c) => c !== label) : [...prev, label]);
+    setColorStocks((prev) => ({ ...prev, [label]: prev[label] ?? 0 }));
+    setColorPrices((prev) => ({ ...prev, [label]: prev[label] ?? { price: Number(form.price) || 0, ...(Number(form.original_price) > Number(form.price) ? { originalPrice: Number(form.original_price) } : {}) } }));
+  };
 
   const toggleSize = (s: string) =>
     setSelectedSizes((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
@@ -838,6 +856,49 @@ export default function ProductsPage() {
                   );
                 })}
               </div>
+              {selectedColors.length > 0 && (
+                <div className="mt-6 overflow-hidden rounded-2xl border border-neutral-200">
+                  <div className="flex flex-col gap-2 border-b border-neutral-200 bg-neutral-950 px-4 py-3 text-white sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-[.16em]">Prix et stock par couleur</p>
+                      <p className="mt-0.5 text-[10px] text-white/55">Chaque variante sera publiée sur le site et dans l’application.</p>
+                    </div>
+                    <span className="w-fit rounded-full bg-[#3ecf4c] px-2.5 py-1 text-[9px] font-black text-black">
+                      {Object.values(colorStocks).reduce((total, quantity) => total + Math.max(0, Number(quantity) || 0), 0)} UNITÉS
+                    </span>
+                  </div>
+                  <div className="divide-y divide-neutral-100 bg-white">
+                    {selectedColors.map((color, index) => {
+                      const swatch = AVAILABLE_COLORS.find((item) => item.label === color);
+                      const pricing = colorPrices[color] ?? { price: Number(form.price) || 0 };
+                      return (
+                        <div key={color} className="p-4">
+                          <div className="mb-3 flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-neutral-200 bg-white">
+                                <span className="h-4 w-4 rounded-full" style={{ backgroundColor: swatch?.hex ?? "#ddd" }} />
+                              </span>
+                              <div><p className="text-sm font-black text-neutral-900">{color}</p><p className="text-[9px] font-bold uppercase tracking-wider text-neutral-400">Variante {String(index + 1).padStart(2, "0")}</p></div>
+                            </div>
+                            <button type="button" onClick={() => toggleColor(color)} className="rounded-lg px-2 py-1 text-[10px] font-bold text-red-500 transition hover:bg-red-50">Retirer</button>
+                          </div>
+                          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Prix de vente
+                              <span className="mt-1 flex h-11 items-center rounded-xl border border-neutral-200 bg-neutral-50 px-3 focus-within:border-black focus-within:bg-white"><input required type="number" min="0" step="0.01" value={pricing.price} onChange={(event) => setColorPrices((current) => ({ ...current, [color]: { ...pricing, price: Number(event.target.value) } }))} className="min-w-0 flex-1 bg-transparent text-sm font-bold outline-none" /><span className="text-[10px] text-neutral-400">MAD</span></span>
+                            </label>
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Ancien prix
+                              <span className="mt-1 flex h-11 items-center rounded-xl border border-neutral-200 bg-neutral-50 px-3 focus-within:border-black focus-within:bg-white"><input type="number" min="0" step="0.01" value={pricing.originalPrice ?? ""} onChange={(event) => setColorPrices((current) => ({ ...current, [color]: { ...pricing, originalPrice: event.target.value ? Number(event.target.value) : undefined } }))} className="min-w-0 flex-1 bg-transparent text-sm outline-none" /><span className="text-[10px] text-neutral-400">MAD</span></span>
+                            </label>
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Stock disponible
+                              <span className="mt-1 flex h-11 items-center rounded-xl border border-neutral-200 bg-neutral-50 px-3 focus-within:border-black focus-within:bg-white"><input required type="number" min="0" step="1" value={colorStocks[color] ?? 0} onChange={(event) => setColorStocks((current) => ({ ...current, [color]: Math.max(0, Math.trunc(Number(event.target.value) || 0)) }))} className="min-w-0 flex-1 bg-transparent text-center text-sm font-black outline-none" /><span className="text-[10px] text-neutral-400">UNITÉS</span></span>
+                            </label>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Sizes */}

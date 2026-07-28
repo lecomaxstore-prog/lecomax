@@ -30,6 +30,25 @@ const nav = [
     ),
   },
   {
+    label: "Application mobile",
+    href: "/admin/mobile-app",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <rect x="6" y="2" width="12" height="20" rx="2" />
+        <path d="M10 18h4" />
+      </svg>
+    ),
+  },
+  {
+    label: "Versions Android",
+    href: "/admin/app-releases",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M5 21h14" />
+      </svg>
+    ),
+  },
+  {
     label: "Analytiques",
     href: "/admin/analytics",
     icon: (
@@ -372,7 +391,7 @@ const navSections: { title: string; hrefs: string[] }[] = [
   { title: "MARKETING",   hrefs: ["/admin/ecomedia", "/admin/promotions", "/admin/ads", "/admin/push", "/admin/newsletter", "/admin/coupons", "/admin/announcement", "/admin/broadcast"] },
   { title: "SAV",         hrefs: ["/admin/messages", "/admin/chat-kb", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
   { title: "LOGISTIQUE",  hrefs: ["/admin/checkout", "/admin/shipping", "/admin/size-guide"] },
-  { title: "CONFIG",      hrefs: ["/admin/settings"] },
+  { title: "CONFIG",      hrefs: ["/admin/mobile-app", "/admin/app-releases", "/admin/settings"] },
   { title: "ÉQUIPE",      hrefs: ["/admin/roles", "/admin/staff", "/admin/approvals"] },
 ];
 
@@ -382,6 +401,8 @@ const navSections: { title: string; hrefs: string[] }[] = [
 // "slug" → visible if staff has that permission
 const NAV_PERMISSIONS: Record<string, string | null | undefined> = {
   "/admin/dashboard":             null,
+  "/admin/mobile-app":     "settings.edit",
+  "/admin/app-releases":   "settings.edit",
   "/admin/ecomedia":              undefined, // owner-only (matches the route guard)
   "/admin/analytics":      "analytics.view",
   "/admin/recordings":     "recordings.view",
@@ -421,6 +442,8 @@ const NAV_PERMISSIONS: Record<string, string | null | undefined> = {
 
 // Page label map
 const pageLabels: Record<string, string> = {
+  "mobile-app": "Application mobile",
+  "app-releases": "Versions Android",
   dashboard: "Tableau de bord", analytics: "Analytiques", recordings: "Enregistrements", orders: "Commandes",
   customers: "Clients", products: "Produits", categories: "Catégories",
   stock: "Stock", promotions: "Promotions", newsletter: "Newsletter",
@@ -511,6 +534,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       "/admin/shipping":           "Livraison",
       "/admin/returns":            "Retours",
       "/admin/settings":           "Paramètres",
+      "/admin/app-releases":       "Versions Android",
       "/admin/staff":              "Équipe",
       "/admin/roles":              "Rôles",
       "/admin/approvals":          "Approbations",
