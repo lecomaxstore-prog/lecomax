@@ -1,6 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import * as Clipboard from "expo-clipboard";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -47,11 +48,35 @@ export function HomeSignupOffer() {
   >("idle");
   const [message, setMessage] = useState("");
   const [couponCode, setCouponCode] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const [focused, setFocused] = useState(false);
+  const copyResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveCoupon = useCommerceStore((state) => state.setCoupon);
   const normalizedEmail = email.normalize("NFKC").trim().toLowerCase();
   const validEmail =
     emailPattern.test(normalizedEmail) && normalizedEmail.length <= 254;
+
+  useEffect(
+    () => () => {
+      if (copyResetTimer.current) clearTimeout(copyResetTimer.current);
+    },
+    [],
+  );
+
+  const copyCoupon = async () => {
+    if (!couponCode) return;
+    try {
+      await Clipboard.setStringAsync(couponCode);
+      setCopyFailed(false);
+      setCopied(true);
+      if (copyResetTimer.current) clearTimeout(copyResetTimer.current);
+      copyResetTimer.current = setTimeout(() => setCopied(false), 2_000);
+    } catch {
+      setCopied(false);
+      setCopyFailed(true);
+    }
+  };
 
   const submit = async () => {
     if (status === "loading") return;
@@ -112,13 +137,35 @@ export function HomeSignupOffer() {
         <Text accessibilityRole="header" style={styles.successTitle}>
           TON -10% EST PRÊT
         </Text>
-        <View style={styles.codePill}>
+        <AnimatedPressable
+          accessibilityHint="Copie le code dans le presse-papiers"
+          accessibilityLabel={`Copier le code promotionnel ${couponCode}`}
+          haptic={false}
+          onPress={() => void copyCoupon()}
+          pressedScale={0.985}
+          style={styles.codePill}
+        >
           <Text selectable style={styles.codeText}>
             {couponCode}
           </Text>
-          <Ionicons name="ticket-outline" size={18} color={colors.ink} />
-        </View>
-        <Text style={styles.successMessage}>{message}</Text>
+          <View style={[styles.copyAction, copied && styles.copyActionDone]}>
+            <Ionicons
+              name={copied ? "checkmark" : "copy-outline"}
+              size={15}
+              color={copied ? colors.white : colors.ink}
+            />
+            <Text style={[styles.copyText, copied && styles.copyTextDone]}>
+              {copied ? "COPIÉ" : "COPIER"}
+            </Text>
+          </View>
+        </AnimatedPressable>
+        <Text accessibilityLiveRegion="polite" style={styles.successMessage}>
+          {copied
+            ? "Code copié. Tu peux maintenant l’utiliser au panier."
+            : copyFailed
+              ? "Copie indisponible. Appuie longuement sur le code pour le sélectionner."
+              : message}
+        </Text>
         <Text style={styles.successFinePrint}>
           Valable 30 jours, une seule fois, uniquement sur les produits hors
           promotion.
@@ -524,11 +571,14 @@ const styles = StyleSheet.create({
     letterSpacing: -0.8,
   },
   codePill: {
+    width: "100%",
     minHeight: 48,
     marginTop: 16,
-    paddingHorizontal: 18,
+    paddingLeft: 16,
+    paddingRight: 7,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     gap: 10,
     borderWidth: 1,
     borderStyle: "dashed",
@@ -537,11 +587,34 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   codeText: {
+    minWidth: 0,
+    flex: 1,
     color: colors.ink,
     fontFamily: typography.black,
-    fontSize: 14,
-    letterSpacing: 1,
+    fontSize: 13,
+    letterSpacing: 0.7,
   },
+  copyAction: {
+    minWidth: 82,
+    minHeight: 34,
+    paddingHorizontal: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    borderRadius: 9,
+    backgroundColor: "#E8F7EC",
+  },
+  copyActionDone: {
+    backgroundColor: colors.greenDark,
+  },
+  copyText: {
+    color: colors.ink,
+    fontFamily: typography.black,
+    fontSize: 8,
+    letterSpacing: 0.45,
+  },
+  copyTextDone: { color: colors.white },
   successMessage: {
     marginTop: 13,
     color: "#315B3D",
