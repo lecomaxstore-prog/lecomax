@@ -9,7 +9,11 @@ const packageJson = JSON.parse(fs.readFileSync(path.join(root, "package.json"), 
 if (base.expo.version !== release.versionName || packageJson.version !== release.versionName) {
   throw new Error("Mobile package, Expo config, and release metadata versions do not match.");
 }
-if (base.expo.android.versionCode !== release.versionCode) {
+if (!Number.isInteger(release.versionCode) || release.versionCode <= 0) {
+  throw new Error("Release versionCode must be a positive integer.");
+}
+const configuredVersionCode = base.expo.android?.versionCode;
+if (configuredVersionCode != null && configuredVersionCode !== release.versionCode) {
   throw new Error("Expo versionCode and release metadata versionCode do not match.");
 }
 const refName = process.argv[2] ?? "";
