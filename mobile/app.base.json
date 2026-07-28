@@ -19,15 +19,16 @@
     "ios": {
       "icon": "./assets/images/app-icon-v2.png",
       "bundleIdentifier": "com.lecomax.app",
-      "buildNumber": "11",
       "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
       "associatedDomains": [
         "applinks:lecomax.com"
       ]
     },
     "android": {
       "package": "com.lecomax.app",
-      "versionCode": 11,
       "predictiveBackGestureEnabled": true,
       "intentFilters": [
         {
