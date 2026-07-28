@@ -1,62 +1,104 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { getProduct } from "@/lib/products";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
+import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
 
-// Use service role for admin operations; anon for public reads is fine but service role covers all
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  { auth: { autoRefreshToken: false, persistSession: false } },
 );
 
-// GET /api/reviews?slug=xxx  OR  GET /api/reviews  (admin, no slug = all reviews)
+const DELIVERED_STATUSES = new Set([
+  "delivered",
+  "livré",
+  "livree",
+  "livrée",
+  "completed",
+  "complete",
+]);
+
+function cleanText(value: unknown, maxLength: number) {
+  return typeof value === "string"
+    ? value.replace(/[<>\u0000-\u001F\u007F]/g, "").trim().slice(0, maxLength)
+    : "";
+}
+
+function isMissingReviewColumn(error: { message?: string; code?: string } | null) {
+  return Boolean(error && (
+    error.code === "42703" ||
+    error.code === "PGRST204" ||
+    /verified_purchase|user_id|order_id|image_urls|image_url/i.test(error.message ?? "")
+  ));
+}
+
+function orderContainsProduct(items: unknown, slug: string) {
+  return Array.isArray(items) && items.some((item) => (
+    item &&
+    typeof item === "object" &&
+    "slug" in item &&
+    String(item.slug) === slug
+  ));
+}
+
 export async function GET(req: NextRequest) {
   const slug = req.nextUrl.searchParams.get("slug");
 
-  if (slug) {
-    // Try with image_url first; fall back if column doesn't exist yet in the DB
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let data: any[] | null = null;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let error: any = null;
-
-    ({ data, error } = await supabase
-      .from("reviews")
-      .select("id, author_name, city, rating, title, body, color, created_at, image_url, image_urls")
-      .eq("product_slug", slug)
-      .order("created_at", { ascending: false }));
-
-    if (error && error.message.includes("image_urls")) {
-      ({ data, error } = await supabase
-        .from("reviews")
-        .select("id, author_name, city, rating, title, body, color, created_at, image_url")
-        .eq("product_slug", slug)
-        .order("created_at", { ascending: false }));
+  if (!slug) {
+    if (!await isAdminRequest(req)) {
+      return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
     }
-
-    if (error && error.message.includes("image_url")) {
-      ({ data, error } = await supabase
-        .from("reviews")
-        .select("id, author_name, city, rating, title, body, color, created_at")
-        .eq("product_slug", slug)
-        .order("created_at", { ascending: false }));
-    }
-
+    const { data, error } = await supabase.from("reviews").select("*").order("created_at", { ascending: false });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ reviews: data });
+    return NextResponse.json(data);
   }
 
-  // Admin: return all reviews
-  const { data, error } = await supabase
+  const primaryResult = await supabase
     .from("reviews")
-    .select("*")
+    .select("id, author_name, city, rating, title, body, color, created_at, image_url, image_urls, verified_purchase, admin_reply")
+    .eq("product_slug", slug)
     .order("created_at", { ascending: false });
+  let data = primaryResult.data as Record<string, unknown>[] | null;
+  let error = primaryResult.error;
+
+  if (error && isMissingReviewColumn(error)) {
+    const fallbackResult = await supabase
+      .from("reviews")
+      .select("id, author_name, city, rating, title, body, color, created_at, image_url")
+      .eq("product_slug", slug)
+      .order("created_at", { ascending: false });
+    data = fallbackResult.data as Record<string, unknown>[] | null;
+    error = fallbackResult.error;
+  }
+
+  if (error && /image_url/i.test(error.message ?? "")) {
+    const legacyResult = await supabase
+      .from("reviews")
+      .select("id, author_name, city, rating, title, body, color, created_at")
+      .eq("product_slug", slug)
+      .order("created_at", { ascending: false });
+    data = legacyResult.data as Record<string, unknown>[] | null;
+    error = legacyResult.error;
+  }
+
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  return NextResponse.json({
+    reviews: (data ?? []).map((review) => ({
+      ...review,
+      verified_purchase: "verified_purchase" in review ? review.verified_purchase === true : true,
+    })),
+  });
 }
 
-// POST /api/reviews
 export async function POST(req: NextRequest) {
+  const user = await getCustomerUser(req);
+  if (!user?.email) {
+    return NextResponse.json(
+      { error: "Connectez-vous avec l’adresse utilisée pour votre commande." },
+      { status: 401 },
+    );
+  }
+
   const { data: featureSetting } = await supabase
     .from("settings")
     .select("value")
@@ -66,121 +108,122 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Les avis sont temporairement désactivés." }, { status: 403 });
   }
 
-  const body = await req.json();
-  const { product_slug, email, author_name, city, rating, title, review_body, color, image_url, image_urls } = body;
-
-  if (!product_slug || !email || !author_name || !rating || !review_body) {
-    return NextResponse.json({ error: "Champs manquants." }, { status: 400 });
+  let input: Record<string, unknown>;
+  try {
+    input = await req.json() as Record<string, unknown>;
+  } catch {
+    return NextResponse.json({ error: "Corps JSON invalide." }, { status: 400 });
   }
 
-  const normalizedEmail = email.trim().toLowerCase();
+  const productSlug = cleanText(input.product_slug, 160);
+  const rating = Number(input.rating);
+  const reviewBody = cleanText(input.review_body, 1200);
+  const title = cleanText(input.title, 100);
+  const city = cleanText(input.city, 80);
+  const color = cleanText(input.color, 50);
+  const normalizedEmail = user.email.trim().toLowerCase();
+  const metadataName = cleanText(user.user_metadata?.full_name ?? user.user_metadata?.name, 60);
+  const authorName = metadataName || normalizedEmail.split("@")[0].slice(0, 40);
 
-  // Look up product name for fallback matching (old orders stored name not slug)
-  const product = getProduct(product_slug);
-  const productName = product?.name?.toLowerCase() ?? "";
+  if (!productSlug || !Number.isInteger(rating) || rating < 1 || rating > 5 || reviewBody.length < 20) {
+    return NextResponse.json(
+      { error: "Choisissez une note et rédigez un avis d’au moins 20 caractères." },
+      { status: 400 },
+    );
+  }
 
-  // Check if the customer has ordered this product and it was delivered
   const { data: orders, error: ordersError } = await supabase
     .from("orders")
     .select("id, items, status")
-    .filter("customer->>email", "ilike", normalizedEmail);
+    .eq("customer->>email", normalizedEmail)
+    .order("created_at", { ascending: false });
 
   if (ordersError) {
-    return NextResponse.json({ error: "Erreur de vérification." }, { status: 500 });
+    return NextResponse.json({ error: "Impossible de vérifier votre achat." }, { status: 503 });
   }
 
-  const matchingOrders = orders?.filter((order) => {
-    if (!Array.isArray(order.items)) return false;
-    return order.items.some(
-      (item: { slug?: string; name?: string }) => {
-        if (item.slug) return item.slug === product_slug;
-        if (typeof item.name === "string" && productName) {
-          return item.name.toLowerCase().includes(productName.slice(0, 20));
-        }
-        return false;
-      }
-    );
-  }) ?? [];
-
-  if (matchingOrders.length === 0) {
+  const matchingOrders = (orders ?? []).filter((order) => orderContainsProduct(order.items, productSlug));
+  if (!matchingOrders.length) {
     return NextResponse.json(
-      { error: "Seuls les clients ayant commandé ce produit peuvent laisser un avis." },
-      { status: 403 }
+      { error: "Seuls les clients ayant acheté ce produit peuvent laisser un avis." },
+      { status: 403 },
     );
   }
 
-  const DELIVERED_STATUSES = ["delivered", "livré", "livree", "shipped", "expédié", "expedie", "completed"];
-  const isDelivered = matchingOrders.some((o) =>
-    DELIVERED_STATUSES.includes((o.status ?? "").toLowerCase())
+  const deliveredOrder = matchingOrders.find((order) =>
+    DELIVERED_STATUSES.has(String(order.status ?? "").trim().toLowerCase()),
   );
-
-  if (!isDelivered) {
+  if (!deliveredOrder) {
     return NextResponse.json(
-      { error: "Votre commande est en cours de livraison. Vous pourrez laisser un avis dès réception." },
-      { status: 403 }
+      { error: "Vous pourrez laisser un avis lorsque votre commande aura été livrée." },
+      { status: 403 },
     );
   }
 
-  // Check if they already reviewed this product
-  const { data: existing } = await supabase
+  let { data: existing, error: existingError } = await supabase
     .from("reviews")
     .select("id")
-    .eq("product_slug", product_slug)
-    .ilike("email", normalizedEmail)
+    .eq("product_slug", productSlug)
+    .eq("user_id", user.id)
     .maybeSingle();
 
-  if (existing) {
-    return NextResponse.json(
-      { error: "Vous avez déjà laissé un avis pour ce produit." },
-      { status: 409 }
-    );
+  if (existingError && isMissingReviewColumn(existingError)) {
+    ({ data: existing, error: existingError } = await supabase
+      .from("reviews")
+      .select("id")
+      .eq("product_slug", productSlug)
+      .ilike("email", normalizedEmail)
+      .maybeSingle());
   }
+  if (existingError) return NextResponse.json({ error: "Impossible de vérifier vos avis." }, { status: 503 });
+  if (existing) {
+    return NextResponse.json({ error: "Vous avez déjà évalué ce produit." }, { status: 409 });
+  }
+
+  const imageUrls = Array.isArray(input.image_urls)
+    ? input.image_urls
+      .filter((url): url is string => typeof url === "string" && /^https:\/\//.test(url))
+      .slice(0, 5)
+    : [];
 
   const baseInsert = {
-    product_slug,
+    product_slug: productSlug,
     email: normalizedEmail,
-    author_name: author_name.trim(),
-    city: city?.trim() ?? null,
-    rating: Number(rating),
-    title: title?.trim() ?? null,
-    body: review_body.trim(),
-    color: color?.trim() ?? null,
+    author_name: authorName,
+    city: city || null,
+    rating,
+    title: title || null,
+    body: reviewBody,
+    color: color || null,
+    image_url: imageUrls[0] ?? null,
+    image_urls: imageUrls,
   };
 
-  const cleanImageUrls = Array.isArray(image_urls)
-    ? image_urls.filter((url): url is string => typeof url === "string" && /^https?:\/\//.test(url)).slice(0, 5)
-    : image_url ? [image_url] : [];
-
-  // Prefer the multi-photo column. Older databases remain compatible by
-  // storing the URL array as JSON in the existing text column.
   let { error: insertError } = await supabase.from("reviews").insert({
     ...baseInsert,
-    image_url: cleanImageUrls[0] ?? null,
-    image_urls: cleanImageUrls,
+    user_id: user.id,
+    order_id: deliveredOrder.id,
+    verified_purchase: true,
   });
 
-  if (insertError && insertError.message.includes("image_urls")) {
-    ({ error: insertError } = await supabase.from("reviews").insert({
-      ...baseInsert,
-      image_url: cleanImageUrls.length > 1 ? JSON.stringify(cleanImageUrls) : cleanImageUrls[0] ?? null,
-    }));
-  }
-
-  if (insertError && insertError.message.includes("image_url")) {
+  if (insertError && isMissingReviewColumn(insertError)) {
     ({ error: insertError } = await supabase.from("reviews").insert(baseInsert));
   }
-
-  if (insertError) {
-    return NextResponse.json({ error: insertError.message }, { status: 500 });
+  if (insertError && /image_url/i.test(insertError.message ?? "")) {
+    const { image_url: _imageUrl, image_urls: _imageUrls, ...legacyInsert } = baseInsert;
+    void _imageUrl;
+    void _imageUrls;
+    ({ error: insertError } = await supabase.from("reviews").insert(legacyInsert));
   }
+  if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 });
 
   await broadcastAdminPushNotification({
-    eventKey: `review:${product_slug}:${normalizedEmail}`,
-    title: `Nouvel avis client · ${Number(rating)}/5`,
-    body: `${author_name.trim()} — ${review_body.trim().replace(/\s+/g, " ").slice(0, 120)}`,
+    eventKey: `review:${productSlug}:${user.id}`,
+    title: `Nouvel avis vérifié · ${rating}/5`,
+    body: `${authorName} — ${reviewBody.replace(/\s+/g, " ").slice(0, 120)}`,
     url: "/admin/reviews/",
-    tag: `admin-review-${product_slug}`,
+    tag: `admin-review-${productSlug}`,
   }).catch((error) => console.error("Admin review push failed:", error));
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, verified_purchase: true }, { status: 201 });
 }

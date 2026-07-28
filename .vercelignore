@@ -2,6 +2,10 @@ node_modules/
 .next/
 .next-broken-*/
 out/
+release/
+*.apk
+*.aab
+mobile/.credentials/
 .git/
 !.gitignore
 .vercel/

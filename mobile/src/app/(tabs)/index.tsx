@@ -1,0 +1,489 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { router } from "expo-router";
+import { useCallback, useMemo } from "react";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { AnimatedPressable } from "@/components/animated-pressable";
+import { useAppViewport } from "@/components/app-viewport";
+import { CampaignHero } from "@/components/campaign-hero";
+import { CategoryShortcuts } from "@/components/category-shortcuts";
+import { HomeHeader } from "@/components/home-header";
+import { HomePromotionSection } from "@/components/home-promotion-section";
+import { HomeSearchBar } from "@/components/home-search-bar";
+import { HomeSignupOffer } from "@/components/home-signup-offer";
+import { NewArrivalsSection } from "@/components/new-arrivals-section";
+import { ProductCard } from "@/components/product-card";
+import { SkeletonLoader } from "@/components/skeleton-loader";
+import { TrustStrip } from "@/components/trust-strip";
+import { typography } from "@/constants/theme";
+import {
+  useBanners,
+  useCategories,
+  useProducts,
+  usePromotions,
+  useSettings,
+} from "@/hooks/use-catalog";
+import { discount } from "@/lib/format";
+import { productGridColumns } from "@/lib/responsive";
+import type { Product } from "@/types/commerce";
+
+const colors = {
+  background: "#FFFFFF",
+  surface: "#F6F7F5",
+  text: "#111111",
+  textSecondary: "#626662",
+  primary: "#32CD57",
+  primaryDark: "#11843A",
+  border: "#E3E6E2",
+};
+
+export default function HomeScreen() {
+  const productsQuery = useProducts();
+  const categoriesQuery = useCategories();
+  const bannersQuery = useBanners();
+  const promotionsQuery = usePromotions();
+  const settingsQuery = useSettings();
+  const settingEnabled = useCallback(
+    (key: string) => {
+      const setting = settingsQuery.data?.find((item) => item.key === key);
+      return setting ? setting.value !== "false" : true;
+    },
+    [settingsQuery.data],
+  );
+  const refreshing =
+    productsQuery.isRefetching ||
+    categoriesQuery.isRefetching ||
+    bannersQuery.isRefetching ||
+    promotionsQuery.isRefetching;
+
+  const newArrivals = useMemo(() => {
+    const products = productsQuery.data ?? [];
+    const selected = products.filter((product) => product.newArrival);
+    return [...(selected.length ? selected : products)]
+      .sort(
+        (left, right) =>
+          Date.parse(right.created_at) - Date.parse(left.created_at),
+      )
+      .slice(0, 4);
+  }, [productsQuery.data]);
+
+  const promotionProducts = useMemo(() => {
+    const products = productsQuery.data ?? [];
+    const promotionIds = new Set(
+      (promotionsQuery.data ?? []).flatMap(
+        (promotion) => promotion.product_ids ?? [],
+      ),
+    );
+    const selected = products.filter((product) => promotionIds.has(product.id));
+    const discounted = products
+      .filter((product) => discount(product.price, product.original_price) > 0)
+      .sort(
+        (left, right) =>
+          discount(right.price, right.original_price) -
+          discount(left.price, left.original_price),
+      );
+    const featured = products.filter((product) => product.featured);
+    return [
+      ...new Map(
+        [...selected, ...discounted, ...featured].map((product) => [
+          product.id,
+          product,
+        ]),
+      ).values(),
+    ].slice(0, 5);
+  }, [productsQuery.data, promotionsQuery.data]);
+
+  const catalogProducts = useMemo(() => {
+    const products = productsQuery.data ?? [];
+    const reserved = new Set([
+      ...newArrivals.map((product) => product.id),
+      ...promotionProducts.map((product) => product.id),
+    ]);
+    const remaining = products
+      .filter((product) => !reserved.has(product.id))
+      .sort(
+        (left, right) =>
+          Number(right.featured) - Number(left.featured) ||
+          (right.rating ?? 0) - (left.rating ?? 0) ||
+          Date.parse(right.created_at) - Date.parse(left.created_at),
+      );
+    return (remaining.length ? remaining : products).slice(0, 8);
+  }, [newArrivals, productsQuery.data, promotionProducts]);
+
+  const refresh = useCallback(() => {
+    void Promise.all([
+      productsQuery.refetch(),
+      categoriesQuery.refetch(),
+      bannersQuery.refetch(),
+      promotionsQuery.refetch(),
+      settingsQuery.refetch(),
+    ]);
+  }, [
+    bannersQuery,
+    categoriesQuery,
+    productsQuery,
+    promotionsQuery,
+    settingsQuery,
+  ]);
+
+  const productError =
+    productsQuery.error instanceof Error
+      ? productsQuery.error.message
+      : "Impossible de charger les nouveautés.";
+
+  return (
+    <SafeAreaView edges={["top"]} style={styles.safeArea}>
+      <ScrollView
+        style={styles.list}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={refresh}
+            tintColor={colors.primaryDark}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.background}
+          />
+        }
+      >
+        <HomeHeader />
+        <HomeSearchBar />
+
+        {bannersQuery.isPending ? (
+          <View style={styles.heroSkeleton}>
+            <SkeletonLoader count={1} />
+          </View>
+        ) : (
+          <CampaignHero banner={bannersQuery.data?.[0]} />
+        )}
+
+        <CategoryShortcuts categories={categoriesQuery.data ?? []} />
+        {categoriesQuery.isError ? (
+          <Text style={styles.categoryError}>
+            Les catégories n’ont pas pu être actualisées.
+          </Text>
+        ) : null}
+
+        {productsQuery.isPending ? (
+          <View style={styles.productSkeleton}>
+            <SkeletonLoader count={4} />
+          </View>
+        ) : productsQuery.isError ? (
+          <InlineState
+            icon="cloud-offline-outline"
+            title="Connexion impossible"
+            description={productError}
+            action="Réessayer"
+            onPress={() => void productsQuery.refetch()}
+          />
+        ) : (
+          <>
+            {settingEnabled("app_home_promotions") ? (
+              <HomePromotionSection products={promotionProducts} />
+            ) : null}
+
+            {settingEnabled("app_home_new_arrivals") ? (
+              <>
+                <NewArrivalsSection count={newArrivals.length} />
+                <ProductGrid products={newArrivals} />
+              </>
+            ) : null}
+
+            {settingEnabled("app_home_products") ? (
+              <>
+                <CollectionHeader
+                  eyebrow="LA BOUTIQUE L’ECOMAX"
+                  title="NOS PRODUITS"
+                  description="Une sélection pensée pour votre quotidien."
+                  action="Tout explorer"
+                  onPress={() => router.push("/catalog")}
+                />
+                <ProductGrid products={catalogProducts} />
+              </>
+            ) : null}
+
+            <AnimatedPressable
+              accessibilityLabel="Explorer toute la boutique"
+              onPress={() => router.push("/catalog")}
+              style={styles.catalogCta}
+            >
+              <Text style={styles.catalogCtaText}>
+                EXPLORER TOUTE LA BOUTIQUE
+              </Text>
+              <Ionicons
+                name="arrow-forward"
+                size={18}
+                color={colors.background}
+              />
+            </AnimatedPressable>
+          </>
+        )}
+
+        <TrustStrip />
+        {settingEnabled("enable_newsletter") &&
+        settingEnabled("app_home_welcome_offer") ? (
+          <HomeSignupOffer />
+        ) : null}
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+function InlineState({
+  icon,
+  title,
+  description,
+  action,
+  onPress,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  description: string;
+  action?: string;
+  onPress?: () => void;
+}) {
+  return (
+    <View accessibilityLiveRegion="polite" style={styles.state}>
+      <View style={styles.stateIcon}>
+        <Ionicons name={icon} size={24} color={colors.primaryDark} />
+      </View>
+      <View style={styles.stateCopy}>
+        <Text style={styles.stateTitle}>{title}</Text>
+        <Text style={styles.stateDescription}>{description}</Text>
+      </View>
+      {action && onPress ? (
+        <AnimatedPressable
+          accessibilityLabel={action}
+          onPress={onPress}
+          style={styles.retry}
+        >
+          <Text style={styles.retryText}>{action}</Text>
+        </AnimatedPressable>
+      ) : null}
+    </View>
+  );
+}
+
+function ProductGrid({ products }: { products: Product[] }) {
+  const { contentWidth } = useAppViewport();
+  const columns = productGridColumns(contentWidth);
+  if (!products.length) {
+    return (
+      <InlineState
+        icon="sparkles-outline"
+        title="De nouveaux produits arrivent"
+        description="Revenez bientôt pour découvrir la prochaine sélection."
+      />
+    );
+  }
+
+  return (
+    <View style={styles.productGrid}>
+      {products.map((product) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          grid
+          columns={columns}
+        />
+      ))}
+    </View>
+  );
+}
+
+function CollectionHeader({
+  eyebrow,
+  title,
+  description,
+  action,
+  onPress,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  action: string;
+  onPress: () => void;
+}) {
+  return (
+    <View style={styles.collectionHeader}>
+      <View style={styles.collectionCopy}>
+        <Text style={styles.collectionEyebrow}>{eyebrow}</Text>
+        <Text accessibilityRole="header" style={styles.collectionTitle}>
+          {title}
+        </Text>
+        <Text style={styles.collectionDescription}>{description}</Text>
+      </View>
+      <AnimatedPressable
+        accessibilityLabel={action}
+        onPress={onPress}
+        style={styles.collectionAction}
+      >
+        <Text style={styles.collectionActionText}>{action}</Text>
+        <Ionicons name="arrow-forward" size={15} color={colors.primaryDark} />
+      </AnimatedPressable>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  list: {
+    width: "100%",
+    maxWidth: "100%",
+    overflow: "hidden",
+  },
+  content: {
+    width: "100%",
+    maxWidth: "100%",
+    paddingBottom: 118,
+    backgroundColor: colors.background,
+  },
+  heroSkeleton: {
+    minHeight: 360,
+    marginHorizontal: 16,
+    overflow: "hidden",
+    borderRadius: 14,
+    backgroundColor: colors.surface,
+  },
+  productGrid: {
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  productSkeleton: {
+    minHeight: 330,
+    marginHorizontal: 16,
+    marginTop: 28,
+  },
+  collectionHeader: {
+    marginTop: 40,
+    marginBottom: 15,
+    paddingHorizontal: 16,
+    paddingTop: 27,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+    gap: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  collectionCopy: { minWidth: 0, flex: 1 },
+  collectionEyebrow: {
+    color: colors.primaryDark,
+    fontFamily: typography.black,
+    fontSize: 7.5,
+    letterSpacing: 1.3,
+  },
+  collectionTitle: {
+    marginTop: 4,
+    color: colors.text,
+    fontFamily: typography.black,
+    fontSize: 24,
+    lineHeight: 27,
+    letterSpacing: -0.7,
+  },
+  collectionDescription: {
+    marginTop: 4,
+    color: colors.textSecondary,
+    fontFamily: typography.regular,
+    fontSize: 9,
+    lineHeight: 13,
+  },
+  collectionAction: {
+    minWidth: 86,
+    minHeight: 44,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: 5,
+  },
+  collectionActionText: {
+    color: colors.primaryDark,
+    fontFamily: typography.bold,
+    fontSize: 9.5,
+  },
+  catalogCta: {
+    minHeight: 54,
+    marginHorizontal: 16,
+    marginTop: 22,
+    paddingHorizontal: 19,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderRadius: 12,
+    backgroundColor: colors.text,
+  },
+  catalogCtaText: {
+    color: colors.background,
+    fontFamily: typography.black,
+    fontSize: 9,
+    letterSpacing: 0.8,
+  },
+  categoryError: {
+    marginHorizontal: 16,
+    marginTop: 8,
+    color: colors.textSecondary,
+    fontFamily: typography.medium,
+    fontSize: 9,
+    textAlign: "center",
+  },
+  state: {
+    minHeight: 104,
+    marginHorizontal: 16,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 14,
+    backgroundColor: colors.surface,
+  },
+  stateIcon: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+    backgroundColor: "#E7F6EB",
+  },
+  stateCopy: { minWidth: 0, marginLeft: 11, flex: 1 },
+  stateTitle: {
+    color: colors.text,
+    fontFamily: typography.black,
+    fontSize: 12,
+  },
+  stateDescription: {
+    marginTop: 4,
+    color: colors.textSecondary,
+    fontFamily: typography.regular,
+    fontSize: 9,
+    lineHeight: 13,
+  },
+  retry: {
+    minWidth: 72,
+    minHeight: 44,
+    marginLeft: 8,
+    paddingHorizontal: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+    backgroundColor: colors.text,
+  },
+  retryText: {
+    color: colors.background,
+    fontFamily: typography.black,
+    fontSize: 8,
+  },
+});

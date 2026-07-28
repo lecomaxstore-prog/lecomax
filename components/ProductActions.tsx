@@ -277,6 +277,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const { slugs: wishlistSlugs, pending: wishlistPending, toggle: toggleWishlist } = useWishlist();
   const wished = wishlistSlugs.has(product.slug);
   const router = useRouter();
+  const selectedPrice = product.colorPrices?.[color]?.price ?? product.price;
 
   const selectColorAndRevealImage = (
     nextColor: string,
@@ -338,12 +339,12 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
     }
     setError(null);
     const colorImg = effectiveColorImages?.[color] ?? product.image;
-    add(product, size, 1, color, colorImg);
+    add({ ...product, price: selectedPrice, oldPrice: product.colorPrices?.[color]?.originalPrice ?? product.oldPrice }, size, 1, color, colorImg);
     trackAddToCart({
       item_id: product.slug,
       item_name: product.name,
       item_category: product.category,
-      price: product.price,
+      price: selectedPrice,
       quantity: 1,
       item_variant: [color, size].filter(Boolean).join(" / ") || undefined,
     });
@@ -353,7 +354,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
       product_id: product.slug,
       product_name: product.name,
       category: product.category,
-      extra: { price: product.price, quantity: 1, color, size },
+      extra: { price: selectedPrice, quantity: 1, color, size },
     });
     if (goToCart) {
       router.push("/checkout");
@@ -435,7 +436,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
                         <p className={`text-[14px] font-semibold truncate ${isSelected ? "text-black" : "text-neutral-700"}`}>{c}</p>
                         {isOOS
                           ? <p className="text-[12px] text-neutral-400 mt-0.5">Rupture de stock</p>
-                          : <p className="text-[12px] text-neutral-400 mt-0.5">{product.price} MAD</p>
+                          : <p className="text-[12px] font-bold text-neutral-700 mt-0.5">{product.colorPrices?.[c]?.price ?? product.price} MAD</p>
                         }
                       </div>
 

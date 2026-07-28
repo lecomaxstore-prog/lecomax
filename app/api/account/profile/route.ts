@@ -21,6 +21,10 @@ function normalizePhone(value: unknown) {
   return "";
 }
 
+function hasPhoneValue(value: unknown) {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 export async function POST(req: NextRequest) {
   const user = await getCustomerUser(req);
   if (!user) return NextResponse.json({ error: "Votre session a expiré. Reconnectez-vous." }, { status: 401 });
@@ -35,7 +39,7 @@ export async function POST(req: NextRequest) {
   if (!prenom || !nom) {
     return NextResponse.json({ error: "Renseignez votre prénom et votre nom." }, { status: 400 });
   }
-  if (!phone) {
+  if (hasPhoneValue(body.phone) && !phone) {
     return NextResponse.json({ error: "Saisissez un numéro marocain valide (06 ou 07)." }, { status: 400 });
   }
 

@@ -7,6 +7,11 @@ node_modules/
 .next/
 .next-broken-*/
 out/
+mobile/.expo/
+mobile/dist*/
+mobile/android/
+mobile/ios/
+.expo/
 
 # production
 build/
@@ -18,7 +23,9 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*
 !.env.example
+!mobile/.env.example
 
 # debug logs
 npm-debug.log*
@@ -44,3 +51,17 @@ next-env.d.ts
 
 # Supabase CLI local link/cache data
 supabase/.temp/
+
+# Android release signing and generated artifacts
+*.apk
+*.aab
+*.jks
+*.keystore
+credentials.json
+local.properties
+google-services.json
+mobile/.credentials/
+release/android/
+
+# Local browser-inspection context exported by the integrated browser
+lib/Attached Element Context from Integrated.txt

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-const sb = createClient('https://yddqwgdgeljkzfsmtein.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZHF3Z2RnZWxqa3pmc210ZWluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzMxNDM5MywiZXhwIjoyMDkyODkwMzkzfQ.76uWpxv2hnt665DmOf0xjYnm61Nbot0FWB5Bf9XCTnQ');
+import { serviceRoleKey, supabaseUrl } from './supabase-admin-env.mjs';
+const sb = createClient(supabaseUrl, serviceRoleKey);
 
 const { data } = await sb.from('products').select('slug,name').in('slug', ['a-sac-dos-voyage-compression-sous-vide-43cm','a-valise-voyage-antivol-extensible-60l']);
 console.log(JSON.stringify(data, null, 2));

@@ -31,6 +31,7 @@ export default function OrdersPage() {
   const [loading, setLoading]     = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState(initialStatus);
+  const [filterSource, setFilterSource] = useState<"all" | "website" | "mobile_app">("all");
   const [search, setSearch]       = useState("");
   const [trackingInput, setTrackingInput]   = useState("");
   const [trackingSaving, setTrackingSaving] = useState(false);
@@ -291,9 +292,9 @@ export default function OrdersPage() {
   }
 
   function exportCSV() {
-    const cols = ["Commande","Date","Nom","Téléphone","Email","Ville","Adresse","Produits","Total","Statut","Paiement","Suivi","Notes"];
+    const cols = ["Commande","Source","Date","Nom","Téléphone","Email","Ville","Adresse","Produits","Total","Statut","Paiement","Suivi","Notes"];
     const rows = orders.map((o) => [
-      o.order_number, new Date(o.created_at).toLocaleDateString("fr-FR"),
+      o.order_number, o.order_source === "mobile_app" ? "Application" : "Site web", new Date(o.created_at).toLocaleDateString("fr-FR"),
       o.customer?.name ?? "", o.customer?.phone ?? "", o.customer?.email ?? "",
       o.customer?.city ?? "", o.customer?.address ?? "",
       (o.items ?? []).map((i) => `${i.name} x${i.qty}`).join(" | "),
@@ -322,13 +323,14 @@ export default function OrdersPage() {
 
   const filtered = orders.filter((o) => {
     const matchStatus = filterStatus === "all" || o.status === filterStatus;
+    const matchSource = filterSource === "all" || (o.order_source ?? "website") === filterSource;
     const q = search.toLowerCase();
     const matchSearch = !q ||
       o.customer?.name?.toLowerCase().includes(q) ||
       o.order_number?.includes(q) ||
       o.customer?.phone?.includes(q) ||
       o.customer?.email?.toLowerCase().includes(q);
-    return matchStatus && matchSearch;
+    return matchStatus && matchSource && matchSearch;
   });
 
   return (
@@ -362,6 +364,25 @@ export default function OrdersPage() {
               className={`text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border transition-all
                 ${filterStatus === s.value ? "bg-black text-white border-black" : "border-neutral-200 text-neutral-500 hover:border-neutral-400"}`}>
               {s.label}
+            </button>
+          ))}
+          <span aria-hidden="true" className="mx-1 h-7 w-px bg-neutral-200" />
+          {([
+            { value: "all", label: "Tous les canaux" },
+            { value: "website", label: "Site web" },
+            { value: "mobile_app", label: "Application" },
+          ] as const).map((source) => (
+            <button
+              key={source.value}
+              type="button"
+              onClick={() => setFilterSource(source.value)}
+              className={`rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition-all ${
+                filterSource === source.value
+                  ? "border-emerald-700 bg-emerald-700 text-white"
+                  : "border-neutral-200 text-neutral-500 hover:border-emerald-500"
+              }`}
+            >
+              {source.label}
             </button>
           ))}
         </div>
@@ -401,7 +422,10 @@ export default function OrdersPage() {
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 ${statusColor(o.status)}`}>{statusLabel(o.status)}</span>
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-xs text-neutral-400 font-mono">#{o.order_number}</p>
+                          <p className="flex items-center gap-1.5 text-xs text-neutral-400 font-mono">
+                            #{o.order_number}
+                            {o.order_source === "mobile_app" && <span className="rounded bg-emerald-50 px-1.5 py-0.5 font-sans text-[8px] font-black uppercase text-emerald-700">App</span>}
+                          </p>
                           <p className="text-xs font-bold shrink-0">{o.total} MAD</p>
                         </div>
                         <p className="text-[11px] text-neutral-400 mt-0.5">{o.customer?.phone} · {new Date(o.created_at).toLocaleDateString("fr-FR")}</p>
@@ -450,7 +474,10 @@ export default function OrdersPage() {
                         <p className={`font-semibold text-sm ${detailId === o.id ? "text-white" : ""}`}>{o.customer?.name}</p>
                         <p className={`text-xs ${detailId === o.id ? "text-white/60" : "text-neutral-400"}`}>{o.customer?.phone}</p>
                       </td>
-                      <td className={`px-3 py-3 text-xs font-mono ${detailId === o.id ? "text-white/70" : "text-neutral-400"}`}>#{o.order_number}</td>
+                      <td className={`px-3 py-3 text-xs font-mono ${detailId === o.id ? "text-white/70" : "text-neutral-400"}`}>
+                        #{o.order_number}
+                        {o.order_source === "mobile_app" && <span className={`ml-1.5 rounded px-1.5 py-0.5 font-sans text-[8px] font-black uppercase ${detailId === o.id ? "bg-white/15 text-white" : "bg-emerald-50 text-emerald-700"}`}>App</span>}
+                      </td>
                       <td className={`px-3 py-3 text-right font-bold text-sm ${detailId === o.id ? "text-white" : ""}`}>{o.total} MAD</td>
                       <td className="px-3 py-3 text-center">
                         {(o.payment_method ?? "").toLowerCase().startsWith("paypal")

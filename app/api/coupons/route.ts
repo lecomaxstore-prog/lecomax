@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
+import { cleanCouponPayload } from "@/lib/coupon-admin";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const blocked = await protectAdminRead(req, { key: "coupons:list", limit: 90 });
+  if (blocked) return blocked;
   const { data, error } = await supabase
     .from("coupons")
     .select("*")
@@ -16,18 +20,18 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  const blocked = await protectAdminMutation(req, { key: "coupons:create", limit: 20 });
+  if (blocked) return blocked;
+  const body = await req.json().catch(() => null);
+  const cleaned = cleanCouponPayload({ ...((body && typeof body === "object") ? body : {}), active: true });
+  if (!cleaned.payload) {
+    return NextResponse.json({ error: cleaned.error }, { status: 400 });
+  }
   const { data, error } = await supabase
     .from("coupons")
     .insert({
-      code: body.code.toUpperCase().trim(),
-      type: body.type,
-      value: body.value,
-      min_order: body.min_order ?? null,
-      max_uses: body.max_uses ?? null,
+      ...cleaned.payload,
       used_count: 0,
-      expires_at: body.expires_at ?? null,
-      active: true,
     })
     .select()
     .single();

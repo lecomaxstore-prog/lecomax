@@ -11,6 +11,7 @@ type PayPalCapture = {
 type PayPalOrder = {
   id?: string;
   status?: string;
+  links?: Array<{ href?: string; rel?: string }>;
   purchase_units?: Array<{
     payments?: { captures?: PayPalCapture[] };
   }>;
@@ -52,6 +53,95 @@ async function paypalAccessToken() {
   const body = await response.json().catch(() => ({})) as { access_token?: string };
   if (!response.ok || !body.access_token) throw new Error("PAYPAL_AUTH_FAILED");
   return body.access_token;
+}
+
+export async function createPayPalCheckout(input: {
+  amountMad: number;
+  requestId: string;
+}) {
+  if (
+    !Number.isFinite(input.amountMad) ||
+    input.amountMad <= 0 ||
+    input.amountMad > 1_000_000
+  ) {
+    throw new Error("PAYPAL_AMOUNT_INVALID");
+  }
+  if (!/^[A-Za-z0-9_-]{16,120}$/.test(input.requestId)) {
+    throw new Error("PAYPAL_REQUEST_ID_INVALID");
+  }
+
+  const token = await paypalAccessToken();
+  const siteUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://lecomax.com"
+  ).replace(/\/+$/, "");
+  const response = await fetch(`${apiBase()}/v2/checkout/orders`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      "PayPal-Request-Id": input.requestId,
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify({
+      intent: "CAPTURE",
+      purchase_units: [
+        {
+          amount: {
+            currency_code: PAYPAL_CURRENCY,
+            value: paypalAmountFromMad(input.amountMad),
+          },
+          description: "Commande L'ECOMAX",
+          custom_id: input.requestId,
+        },
+      ],
+      application_context: {
+        brand_name: "L'ECOMAX",
+        landing_page: "LOGIN",
+        shipping_preference: "NO_SHIPPING",
+        user_action: "PAY_NOW",
+        return_url: `${siteUrl}/api/paypal/mobile/return`,
+        cancel_url: `${siteUrl}/api/paypal/mobile/cancel`,
+      },
+    }),
+    cache: "no-store",
+  });
+  const order = (await response.json().catch(() => ({}))) as PayPalOrder;
+  const approveUrl = order.links?.find((link) => link.rel === "approve")?.href;
+  if (!response.ok || !order.id || !approveUrl) {
+    throw new Error("PAYPAL_ORDER_CREATE_FAILED");
+  }
+  return { orderId: order.id, approveUrl };
+}
+
+export async function capturePayPalCheckout(orderId: string) {
+  if (!PAYPAL_ID.test(orderId)) throw new Error("PAYPAL_ID_INVALID");
+  const token = await paypalAccessToken();
+  const response = await fetch(
+    `${apiBase()}/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Prefer: "return=representation",
+      },
+      body: "{}",
+      cache: "no-store",
+    },
+  );
+  const order = (await response.json().catch(() => ({}))) as PayPalOrder;
+  const capture = order.purchase_units
+    ?.flatMap((unit) => unit.payments?.captures ?? [])
+    .find((candidate) => candidate.status === "COMPLETED");
+  if (
+    !response.ok ||
+    order.id !== orderId ||
+    order.status !== "COMPLETED" ||
+    !capture?.id
+  ) {
+    throw new Error("PAYPAL_CAPTURE_FAILED");
+  }
+  return { orderId, captureId: capture.id };
 }
 
 export async function verifyPayPalCapture(input: {

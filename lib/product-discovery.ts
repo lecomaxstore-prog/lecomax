@@ -33,6 +33,7 @@ function refreshPublicCatalogue(change: ProductDiscoveryChange) {
   revalidatePath("/promotions");
   revalidatePath("/sitemap.xml");
   revalidatePath("/api/feed/products.xml");
+  revalidatePath("/merchant-feed.xml");
 
   const products = [change.current, change.previous].filter(Boolean) as DiscoverableProduct[];
   for (const product of products) {

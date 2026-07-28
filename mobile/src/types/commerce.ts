@@ -1,0 +1,83 @@
+export type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  price: number;
+  original_price: number | null;
+  oldPrice?: number | null;
+  discount?: number;
+  description: string | null;
+  images: string[];
+  thumbnail?: string;
+  description_images?: string[];
+  stock: number;
+  active: boolean;
+  created_at: string;
+  colors?: string[];
+  color_stock?: Record<string, number>;
+  color_prices?: Record<string, { price: number; originalPrice?: number }>;
+  color_sizes?: Record<string, string[]>;
+  out_of_stock_colors?: string[];
+  out_of_stock_sizes?: string[];
+  tags?: string[];
+  sizes?: string[];
+  brand?: string;
+  sku?: string;
+  barcode?: string;
+  video?: string;
+  rating?: number;
+  review_count?: number;
+  reviews?: number;
+  featured?: boolean;
+  newArrival?: boolean;
+};
+
+export type CartLine = {
+  product: Product;
+  quantity: number;
+  color?: string;
+  size?: string;
+};
+export type Category = {
+  id: string;
+  slug: string;
+  label: string;
+  image: string | null;
+  image_mobile?: string | null;
+  image_desktop?: string | null;
+  active: boolean;
+  sort_order: number;
+};
+export type Banner = {
+  id: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  image: string | number;
+  href: string;
+  ctaLabel: string;
+  accent: string;
+};
+export type Promotion = {
+  id: string;
+  label: string;
+  product_ids: string[];
+  discount_percent: number | null;
+  expires_at: string | null;
+};
+export type Setting = { key: string; value: string };
+export type Review = {
+  id: string;
+  author_name: string;
+  city?: string | null;
+  rating: number;
+  title?: string | null;
+  body: string;
+  created_at: string;
+  image_url?: string | null;
+  image_urls?: string[];
+  verified_purchase?: boolean;
+  admin_reply?: string | null;
+  color?: string | null;
+};

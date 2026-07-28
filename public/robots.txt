@@ -8,6 +8,7 @@ Disallow: /facture/
 # product-image policy checks. Keep public products and media explicitly open.
 User-agent: Googlebot
 Allow: /
+Allow: /merchant-feed.xml
 Disallow: /admin/
 Disallow: /api/
 Disallow: /facture/
@@ -20,6 +21,7 @@ Disallow: /facture/
 
 User-agent: Storebot-Google
 Allow: /
+Allow: /merchant-feed.xml
 Disallow: /admin/
 Disallow: /api/
 Disallow: /facture/

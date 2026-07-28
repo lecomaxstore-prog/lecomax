@@ -14,6 +14,10 @@ import type { ShippingQuote } from "@/lib/shipping-zones";
 import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
 import { supabase } from "@/lib/supabase";
 import { PAYPAL_CURRENCY, paypalAmountFromMad } from "@/lib/paypal-money";
+import {
+  paymentMethodAvailability,
+  paymentMethodsFromSettings,
+} from "@/lib/payment-methods";
 import { collectEvent } from "@/lib/collect";
 
 type Field = {
@@ -420,7 +424,7 @@ export default function CheckoutPage() {
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const paypalRendered = useRef(false);
   // Always-fresh ref for PayPal callbacks (prevents stale closure bug)
-  const paypalDataRef = useRef({ form, items, subtotal: 0, minimumOrder: 0, shippingReady: false, grandTotal: 0, shipping: 0, couponApplied, discount: 0 });
+  const paypalDataRef = useRef({ form, items, subtotal: 0, minimumOrder: 0, shippingReady: false, grandTotal: 0, shipping: 0, paymentFee: 0, couponApplied, discount: 0 });
   // Track if error originated from form validation (not from PayPal itself)
   const paypalFormErrorRef = useRef(false);
 
@@ -569,8 +573,17 @@ export default function CheckoutPage() {
   const defaultFreeAbove = shippingQuote?.freeThreshold ?? shippingConfig.freeThreshold;
   const shipping = shippingQuote?.cost ?? calculateShipping(total, shippingConfig);
   const shippingEstimate = shippingQuote?.estimatedDays ?? shippingConfig.estimatedDays;
-  const codEnabled = siteSettings.enable_cod !== "false";
-  const paypalEnabled = siteSettings.enable_paypal !== "false";
+  const configuredPaymentMethods = paymentMethodsFromSettings(siteSettings);
+  const codMethod = configuredPaymentMethods.find((method) => method.provider === "cod");
+  const paypalMethod = configuredPaymentMethods.find((method) => method.provider === "paypal");
+  const codEnabled = Boolean(
+    codMethod &&
+      paymentMethodAvailability(codMethod, form.ville, total).available,
+  );
+  const paypalEnabled = Boolean(
+    paypalMethod &&
+      paymentMethodAvailability(paypalMethod, form.ville, total).available,
+  );
   const minimumOrder = Math.max(0, Number(siteSettings.checkout_minimum_order) || 0);
   const minimumOrderMet = total >= minimumOrder;
   const shippingReady = !form.ville.trim() || (!shippingQuoteLoading && shippingQuote !== null);
@@ -594,7 +607,9 @@ export default function CheckoutPage() {
   // Loyalty discount applies on subtotal (after coupon); Silver 30%, Gold 50%
   const loyaltyDiscountAmount = effectiveLoyaltyDiscountPct > 0 ? Math.round(((total - couponDiscount) * effectiveLoyaltyDiscountPct) / 100) : 0;
   const discount = couponDiscount + loyaltyDiscountAmount;
-  const grandTotal = Math.max(0, total + shipping - discount);
+  const paymentFee =
+    payment === "paypal" ? paypalMethod?.fee ?? 0 : codMethod?.fee ?? 0;
+  const grandTotal = Math.max(0, total + shipping + paymentFee - discount);
   const selectedAddress = savedAddresses.find((address) => address.id === selectedAddressId) ?? null;
 
   useEffect(() => {
@@ -637,7 +652,7 @@ export default function CheckoutPage() {
   }, [form.ville, total, shippingConfig.cost, shippingConfig.freeThreshold, shippingConfig.estimatedDays, shippingQuoteRevision]);
 
   // Keep paypalDataRef in sync with latest state so PayPal callbacks are never stale
-  paypalDataRef.current = { form, items, subtotal: total, minimumOrder, shippingReady, grandTotal, shipping, couponApplied, discount };
+  paypalDataRef.current = { form, items, subtotal: total, minimumOrder, shippingReady, grandTotal, shipping, paymentFee, couponApplied, discount };
 
   useEffect(() => {
     if (payment === "livraison" && !codEnabled && paypalEnabled) setPayment("paypal");
@@ -721,7 +736,7 @@ export default function CheckoutPage() {
           const captureId = details.purchase_units?.[0]?.payments?.captures?.[0]?.id;
           if (!details.id || !captureId) throw new Error("PayPal n'a pas retourné les identifiants du paiement.");
           // Use ref to get latest values at the moment of capture
-          const { form: f, items: its, grandTotal: gt, shipping: sh, couponApplied: ca, discount: disc } = paypalDataRef.current;
+          const { form: f, items: its, grandTotal: gt, shipping: sh, paymentFee: pf, couponApplied: ca, discount: disc } = paypalDataRef.current;
           const res = await fetch("/api/orders/", {
             method: "POST",
             headers: { "Content-Type": "application/json", Accept: "application/json" },
@@ -730,7 +745,7 @@ export default function CheckoutPage() {
             body: JSON.stringify({
               customer: { name: `${f.prenom} ${f.nom}`, phone: f.telephone, email: f.email, city: f.ville, address: `${f.adresse}${f.codePostal ? ", " + f.codePostal : ""}` },
               items: its.map((i: any) => ({ slug: i.slug, name: i.name, price: i.price, qty: i.quantity, image: resolveProductVariantImage({ slug: i.slug, color: i.color, fallback: i.image }), size: i.size ?? "", color: i.color ?? "" })),
-               total: gt, shipping: sh, coupon_id: ca?.id ?? null, discount: disc,
+               total: gt, shipping: sh, payment_fee: pf, coupon_id: ca?.id ?? null, discount: disc,
                payment_provider: "paypal",
                paypal_order_id: details.id,
                paypal_capture_id: captureId,
@@ -910,6 +925,7 @@ export default function CheckoutPage() {
           })),
           total: grandTotal,
           shipping,
+          payment_fee: paymentFee,
           coupon_id: couponApplied?.id ?? null,
           discount,
            payment_provider: "cod",
@@ -1214,10 +1230,10 @@ export default function CheckoutPage() {
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-black text-[13px] text-black">Paiement à la livraison</p>
+                    <p className="font-black text-[13px] text-black">{codMethod?.title ?? "Paiement à la livraison"}</p>
                     <p className={`text-[12px] mt-0.5 ${
                       payment === "livraison" ? "text-neutral-500" : "text-neutral-400"
-                    }`}>Payez en espèces à la réception</p>
+                    }`}>{codMethod?.description ?? "Payez en espèces à la réception"}{codMethod?.fee ? ` · Frais ${formatMAD(codMethod.fee)}` : ""}</p>
                     {payment === "livraison" && (
                       <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold" style={{ color: "#16a34a" }}>
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1253,8 +1269,8 @@ export default function CheckoutPage() {
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-black text-[13px] text-black">PayPal</p>
-                    <p className={`text-[12px] mt-0.5 ${payment === "paypal" ? "text-neutral-500" : "text-neutral-400"}`}>Payer en ligne via votre compte PayPal</p>
+                    <p className="font-black text-[13px] text-black">{paypalMethod?.title ?? "PayPal"}</p>
+                    <p className={`text-[12px] mt-0.5 ${payment === "paypal" ? "text-neutral-500" : "text-neutral-400"}`}>{paypalMethod?.description ?? "Payer en ligne via votre compte PayPal"}{paypalMethod?.fee ? ` · Frais ${formatMAD(paypalMethod.fee)}` : ""}</p>
                     {payment === "paypal" && (
                       <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-[#0070ba]">
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1478,6 +1494,12 @@ export default function CheckoutPage() {
                       EcoClub {loyaltyTier} ({effectiveLoyaltyDiscountPct}%)
                     </span>
                     <span className="font-black">− {formatMAD(loyaltyDiscountAmount)}</span>
+                  </div>
+                )}
+                {paymentFee > 0 && (
+                  <div className="flex justify-between text-sm text-neutral-600">
+                    <span>Frais de paiement</span>
+                    <span className="font-bold">{formatMAD(paymentFee)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-black text-[16px] pt-2 border-t border-neutral-200">
