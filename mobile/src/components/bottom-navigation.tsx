@@ -86,15 +86,14 @@ const TabItem = memo(function TabItem({
       <Animated.View
         style={[
           styles.iconWrap,
-          focused && styles.activeIconWrap,
           animatedStyle,
         ]}
       >
         <View style={styles.iconBadgeAnchor}>
           <Ionicons
             name={focused ? activeIcon : icon}
-            size={focused ? 22 : 21}
-            color={focused ? palette.greenDark : "#727873"}
+            size={22}
+            color={focused ? palette.greenDark : "#6F7671"}
           />
           {badge ? <NotificationBadge count={badge} /> : null}
         </View>
@@ -109,7 +108,7 @@ const TabItem = memo(function TabItem({
       <View
         style={[
           styles.activeIndicator,
-          tablet && styles.tabletActiveIndicator,
+          tablet ? styles.tabletActiveIndicator : styles.phoneActiveIndicator,
           focused && styles.activeIndicatorVisible,
         ]}
       />
@@ -204,19 +203,19 @@ export function BottomNavigation({ state, navigation }: BottomTabBarProps) {
 
 const styles = StyleSheet.create({
   shell: {
-    minHeight: 72,
-    paddingTop: 7,
-    paddingHorizontal: 6,
+    minHeight: 70,
+    paddingTop: 8,
+    paddingHorizontal: 8,
     flexDirection: "row",
-    alignItems: "flex-start",
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#E2E7E3",
+    alignItems: "stretch",
+    borderTopWidth: 1,
+    borderTopColor: "#EDF0ED",
     backgroundColor: palette.white,
     shadowColor: palette.ink,
-    shadowOffset: { width: 0, height: -5 },
-    shadowOpacity: 0.07,
-    shadowRadius: 16,
-    elevation: 10,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.055,
+    shadowRadius: 14,
+    elevation: 8,
   },
   item: {
     maxWidth: "20%",
@@ -225,8 +224,9 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 56,
-    borderRadius: 16,
+    minHeight: 54,
+    paddingTop: 1,
+    borderRadius: 14,
   },
   tabletShell: {
     width: 94,
@@ -251,47 +251,48 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   iconWrap: {
-    width: 42,
-    height: 32,
+    width: 38,
+    height: 29,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 13,
-  },
-  activeIconWrap: {
-    backgroundColor: "#EAF8EE",
   },
   iconBadgeAnchor: {
     position: "relative",
-    width: 26,
-    height: 26,
+    width: 28,
+    height: 28,
     alignItems: "center",
     justifyContent: "center",
   },
   label: {
-    marginTop: 2,
-    color: "#686E69",
-    fontFamily: typography.semibold,
-    fontSize: 9.5,
-    lineHeight: 13,
+    marginTop: 4,
+    color: "#68706A",
+    fontFamily: typography.medium,
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: -0.1,
   },
   activeLabel: {
     color: palette.greenDark,
-    fontFamily: typography.black,
+    fontFamily: typography.bold,
   },
   activeIndicator: {
-    width: 4,
-    height: 4,
-    marginTop: 3,
-    borderRadius: 2,
+    position: "absolute",
     backgroundColor: "transparent",
   },
-  activeIndicatorVisible: { backgroundColor: palette.greenDark },
+  phoneActiveIndicator: {
+    top: -9,
+    width: 32,
+    height: 3,
+    borderBottomLeftRadius: 3,
+    borderBottomRightRadius: 3,
+  },
+  activeIndicatorVisible: { backgroundColor: palette.green },
   tabletActiveIndicator: {
-    position: "absolute",
-    left: 0,
+    left: -9,
+    top: 23,
     width: 3,
     height: 24,
-    marginTop: 0,
-    borderRadius: 2,
+    borderTopRightRadius: 3,
+    borderBottomRightRadius: 3,
   },
 });

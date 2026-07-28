@@ -4,6 +4,7 @@ import { Resend } from "resend";
 import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
 import { calculateCouponDiscount, calculateCouponPricing } from "@/lib/coupon-pricing";
+import { couponStateAfterUse } from "@/lib/coupon-redemption";
 import { calculateCheckoutTotal } from "@/lib/checkout-total";
 import { shippingConfigFromSettings } from "@/lib/shipping-config";
 import { resolveShippingQuote, type ShippingZoneRule } from "@/lib/shipping-zones";
@@ -302,6 +303,11 @@ export async function POST(req: NextRequest) {
   }
 
   let couponDiscount = 0;
+  let couponUsage: {
+    id: string;
+    usedCount: number;
+    maxUses: number | null;
+  } | null = null;
   if (coupon_id) {
     if (featureSettings.enable_coupons === "false") {
       return NextResponse.json({ error: "Les codes promotionnels sont désactivés." }, { status: 409 });
@@ -317,6 +323,11 @@ export async function POST(req: NextRequest) {
       couponPricing.eligibleSubtotal > 0 &&
       (coupon.min_order === null || couponPricing.eligibleSubtotal >= Number(coupon.min_order));
     if (!couponValid) return NextResponse.json({ error: "Le code promotionnel n'est plus valide." }, { status: 409 });
+    couponUsage = {
+      id: String(coupon.id),
+      usedCount: Number(coupon.used_count ?? 0),
+      maxUses: coupon.max_uses === null ? null : Number(coupon.max_uses),
+    };
     couponDiscount = calculateCouponDiscount(
       coupon.type,
       couponValue,
@@ -586,11 +597,43 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Increment coupon used_count (non-blocking)
-  if (coupon_id) {
-    supabase.from("coupons").select("used_count").eq("id", coupon_id).single().then(({ data: c }) => {
-      if (c) supabase.from("coupons").update({ used_count: c.used_count + 1 }).eq("id", coupon_id).then(() => {});
-    });
+  // Consume the coupon only after the order exists. The database function uses
+  // one conditional UPDATE, so one-use codes become inactive immediately and
+  // concurrent requests cannot increment beyond max_uses.
+  if (couponUsage) {
+    const { data: consumedCoupon, error: consumeError } = await supabase.rpc(
+      "consume_coupon_use",
+      { p_coupon_id: couponUsage.id },
+    );
+    if (consumeError && ["PGRST202", "42883"].includes(consumeError.code ?? "")) {
+      // Additive deployment fallback until the migration reaches production.
+      const fallbackState = couponStateAfterUse(
+        couponUsage.usedCount,
+        couponUsage.maxUses,
+      );
+      const { data: fallbackCoupon, error: fallbackError } = await supabase
+        .from("coupons")
+        .update({
+          used_count: fallbackState.usedCount,
+          active: fallbackState.active,
+        })
+        .eq("id", couponUsage.id)
+        .eq("active", true)
+        .eq("used_count", couponUsage.usedCount)
+        .select("id")
+        .maybeSingle();
+      if (fallbackError || !fallbackCoupon) {
+        console.error(
+          "Coupon redemption fallback failed:",
+          fallbackError?.message ?? "COUPON_ALREADY_CONSUMED",
+        );
+      }
+    } else if (consumeError || !consumedCoupon) {
+      console.error(
+        "Atomic coupon redemption failed:",
+        consumeError?.message ?? "COUPON_ALREADY_CONSUMED",
+      );
+    }
   }
 
   // EcoClub points are reserved now and released atomically when delivered.
