@@ -1,8 +1,8 @@
 {
-  "versionName": "1.0.3",
-  "versionCode": 15,
+  "versionName": "1.0.4",
+  "versionCode": 17,
   "minimumAndroidVersion": "8.0",
-  "apkFileName": "lecomax-v1.0.3.apk",
+  "apkFileName": "lecomax-v1.0.4.apk",
   "required": false,
   "releaseNotes": [
     "En-tête produit professionnel avec logo parfaitement centré et actions équilibrées.",

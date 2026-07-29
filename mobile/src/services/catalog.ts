@@ -202,6 +202,27 @@ export async function getProducts(signal?: AbortSignal): Promise<Product[]> {
   ];
 }
 
+/** Live catalogue data only. Never falls back to the bundled snapshot. */
+export async function getFreshProducts(signal?: AbortSignal): Promise<Product[]> {
+  const data = await apiRequestValidated(
+    "/api/products?active=true",
+    z.array(productResponseSchema),
+    { signal },
+  );
+  return [
+    ...new Map(
+      data
+        .filter((product) => product.active !== false && product.id && product.slug)
+        .map((product) => [product.id, normalizeProduct(product)]),
+    ).values(),
+  ];
+}
+
+export async function getFreshProduct(slug: string, signal?: AbortSignal) {
+  const products = await getFreshProducts(signal);
+  return products.find((product) => product.slug === slug) ?? null;
+}
+
 export async function getProduct(slug: string, signal?: AbortSignal): Promise<Product | null> {
   const products = await getProducts(signal);
   return products.find((item) => item.slug === slug) ?? null;

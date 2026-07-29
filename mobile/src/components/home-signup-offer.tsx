@@ -24,6 +24,7 @@ type WelcomeOfferResponse = {
     percent: number;
     expires_at: string | null;
     available: boolean;
+    min_order: number;
     eligible_products: "non_promotional_only";
   };
 };
@@ -167,8 +168,8 @@ export function HomeSignupOffer() {
               : message}
         </Text>
         <Text style={styles.successFinePrint}>
-          Valable 30 jours, une seule fois, uniquement sur les produits hors
-          promotion.
+          Valable 30 jours dès 200 MAD d’articles hors promotion. Une seule
+          utilisation par adresse e-mail.
         </Text>
         <AnimatedPressable
           accessibilityLabel="Découvrir les produits éligibles"
@@ -330,8 +331,8 @@ export function HomeSignupOffer() {
           color={colors.green}
         />
         <Text style={styles.termsText}>
-          Offre personnelle, valable une fois et uniquement sur les produits
-          sans promotion.
+          Offre personnelle dès 200 MAD d’articles hors promotion, valable une
+          seule fois par adresse e-mail.
         </Text>
       </View>
     </View>

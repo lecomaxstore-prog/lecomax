@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
-import { router } from "expo-router";
-import { memo, useEffect, useMemo, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -24,7 +24,9 @@ import { Screen } from "@/components/screen";
 import { typography } from "@/constants/theme";
 import { useSettings } from "@/hooks/use-catalog";
 import { imageUrl, money } from "@/lib/format";
+import { cartLineAvailableStock } from "@/lib/cart-reconciliation";
 import { validateCoupon, type AppliedCoupon } from "@/services/coupons";
+import { getFreshProducts } from "@/services/catalog";
 import { getShippingQuote, type ShippingQuote } from "@/services/orders";
 import { useCommerceStore } from "@/stores/commerce";
 import { useUserStore, type SavedAddress } from "@/stores/user";
@@ -58,10 +60,7 @@ function keyFor(line: CartLine) {
 }
 
 function availableStock(line: CartLine) {
-  const colorStock = line.color
-    ? line.product.color_stock?.[line.color]
-    : undefined;
-  return Math.max(0, Math.min(20, colorStock ?? line.product.stock ?? 0));
+  return cartLineAvailableStock(line.product, line);
 }
 
 type CartItemProps = {
@@ -331,6 +330,7 @@ export default function CartScreen() {
   const addToCart = useCommerceStore((state) => state.addToCart);
   const removeCartLine = useCommerceStore((state) => state.removeCartLine);
   const setLineQuantity = useCommerceStore((state) => state.setLineQuantity);
+  const refreshCartProducts = useCommerceStore((state) => state.refreshCartProducts);
   const toggleWishlist = useCommerceStore((state) => state.toggleWishlist);
   const setCoupon = useCommerceStore((state) => state.setCoupon);
   const settingsQuery = useSettings();
@@ -355,6 +355,36 @@ export default function CartScreen() {
   const [shippingQuote, setShippingQuote] = useState<ShippingQuote>();
   const [shippingError, setShippingError] = useState<string>();
   const [shippingLoading, setShippingLoading] = useState(false);
+  const [stockNotice, setStockNotice] = useState<string>();
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!useCommerceStore.getState().cart.length) return undefined;
+      const controller = new AbortController();
+      void getFreshProducts(controller.signal)
+        .then((products) => {
+          const result = refreshCartProducts(products);
+          if (!result.removed.length && !result.adjusted.length) return;
+
+          const messages: string[] = [];
+          if (result.removed.length) {
+            messages.push(
+              `${result.removed.length} article${result.removed.length > 1 ? "s indisponibles ont" : " indisponible a"} été retiré${result.removed.length > 1 ? "s" : ""}`,
+            );
+          }
+          if (result.adjusted.length) {
+            messages.push(
+              `la quantité de ${result.adjusted.length} article${result.adjusted.length > 1 ? "s a été ajustée" : " a été ajustée"} au stock disponible`,
+            );
+          }
+          setStockNotice(`${messages.join(" et ")}.`);
+        })
+        .catch(() => {
+          // Keep the local cart unchanged if live stock cannot be verified.
+        });
+      return () => controller.abort();
+    }, [refreshCartProducts]),
+  );
 
   const legacyAddress =
     userName && userEmail && userPhone && userCity && userAddress
@@ -546,6 +576,7 @@ export default function CartScreen() {
     return (
       <Screen className="bg-white">
         <CartHeader itemCount={0} />
+        {stockNotice ? <StockNotice message={stockNotice} /> : null}
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.empty}
@@ -634,6 +665,7 @@ export default function CartScreen() {
         style={styles.flex}
       >
         <CartHeader itemCount={itemCount} />
+        {stockNotice ? <StockNotice message={stockNotice} /> : null}
 
         <ScrollView
           contentContainerStyle={{
@@ -961,6 +993,20 @@ function CartHeader({ itemCount }: { itemCount: number }) {
   );
 }
 
+function StockNotice({ message }: { message: string }) {
+  return (
+    <View accessibilityLiveRegion="assertive" accessibilityRole="alert" style={styles.stockNotice}>
+      <View style={styles.stockNoticeIcon}>
+        <Ionicons color={colors.primaryDark} name="refresh" size={17} />
+      </View>
+      <View style={styles.stockNoticeCopy}>
+        <Text style={styles.stockNoticeTitle}>PANIER MIS À JOUR</Text>
+        <Text style={styles.stockNoticeText}>{message}</Text>
+      </View>
+    </View>
+  );
+}
+
 function SummaryRow({
   label,
   value,
@@ -1047,6 +1093,40 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 22,
     backgroundColor: "#EAF8EE",
+  },
+  stockNotice: {
+    marginHorizontal: 16,
+    marginTop: 12,
+    padding: 13,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 11,
+    borderWidth: 1,
+    borderColor: "#BFE7CA",
+    borderRadius: 14,
+    backgroundColor: "#F1FBF4",
+  },
+  stockNoticeIcon: {
+    width: 34,
+    height: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 17,
+    backgroundColor: "#DDF5E4",
+  },
+  stockNoticeCopy: { minWidth: 0, flex: 1 },
+  stockNoticeTitle: {
+    color: colors.primaryDark,
+    fontFamily: typography.black,
+    fontSize: 8,
+    letterSpacing: 0.9,
+  },
+  stockNoticeText: {
+    marginTop: 3,
+    color: colors.secondaryText,
+    fontFamily: typography.medium,
+    fontSize: 10,
+    lineHeight: 14,
   },
   section: { padding: 18, borderTopWidth: 1, borderColor: colors.border },
   sectionHeader: {

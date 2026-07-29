@@ -81,19 +81,25 @@ const TabItem = memo(function TabItem({
       accessibilityLabel={label}
       onPress={onPress}
       onLongPress={onLongPress}
-      style={[styles.item, tablet && styles.tabletItem]}
+      style={[
+        styles.item,
+        tablet && styles.tabletItem,
+        tablet && focused && styles.tabletActiveItem,
+      ]}
     >
       <Animated.View
         style={[
           styles.iconWrap,
+          focused && styles.activeIconWrap,
+          tablet && styles.tabletIconWrap,
           animatedStyle,
         ]}
       >
         <View style={styles.iconBadgeAnchor}>
           <Ionicons
             name={focused ? activeIcon : icon}
-            size={22}
-            color={focused ? palette.greenDark : "#6F7671"}
+            size={focused ? 23 : 22}
+            color={focused ? "#137A25" : "#717A74"}
           />
           {badge ? <NotificationBadge count={badge} /> : null}
         </View>
@@ -105,13 +111,15 @@ const TabItem = memo(function TabItem({
       >
         {label}
       </Text>
-      <View
-        style={[
-          styles.activeIndicator,
-          tablet ? styles.tabletActiveIndicator : styles.phoneActiveIndicator,
-          focused && styles.activeIndicatorVisible,
-        ]}
-      />
+      {tablet ? (
+        <View
+          style={[
+            styles.activeIndicator,
+            styles.tabletActiveIndicator,
+            focused && styles.activeIndicatorVisible,
+          ]}
+        />
+      ) : null}
     </AnimatedPressable>
   );
 });
@@ -203,19 +211,19 @@ export function BottomNavigation({ state, navigation }: BottomTabBarProps) {
 
 const styles = StyleSheet.create({
   shell: {
-    minHeight: 70,
-    paddingTop: 8,
+    minHeight: 78,
+    paddingTop: 9,
     paddingHorizontal: 8,
     flexDirection: "row",
     alignItems: "stretch",
     borderTopWidth: 1,
-    borderTopColor: "#EDF0ED",
+    borderTopColor: "#E6EAE7",
     backgroundColor: palette.white,
     shadowColor: palette.ink,
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.055,
-    shadowRadius: 14,
-    elevation: 8,
+    shadowOffset: { width: 0, height: -5 },
+    shadowOpacity: 0.06,
+    shadowRadius: 20,
+    elevation: 9,
   },
   item: {
     maxWidth: "20%",
@@ -224,9 +232,9 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 54,
-    paddingTop: 1,
-    borderRadius: 14,
+    minHeight: 58,
+    paddingTop: 0,
+    borderRadius: 18,
   },
   tabletShell: {
     width: 94,
@@ -250,11 +258,21 @@ const styles = StyleSheet.create({
     flexGrow: 0,
     borderRadius: 16,
   },
+  tabletActiveItem: {
+    backgroundColor: "#F0FAF2",
+  },
   iconWrap: {
-    width: 38,
-    height: 29,
+    width: 44,
+    height: 32,
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 16,
+  },
+  activeIconWrap: {
+    backgroundColor: "#EAF7ED",
+  },
+  tabletIconWrap: {
+    backgroundColor: "transparent",
   },
   iconBadgeAnchor: {
     position: "relative",
@@ -265,26 +283,19 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: 4,
-    color: "#68706A",
+    color: "#6B736E",
     fontFamily: typography.medium,
     fontSize: 10,
     lineHeight: 14,
-    letterSpacing: -0.1,
+    letterSpacing: 0,
   },
   activeLabel: {
-    color: palette.greenDark,
-    fontFamily: typography.bold,
+    color: "#137A25",
+    fontFamily: typography.semibold,
   },
   activeIndicator: {
     position: "absolute",
     backgroundColor: "transparent",
-  },
-  phoneActiveIndicator: {
-    top: -9,
-    width: 32,
-    height: 3,
-    borderBottomLeftRadius: 3,
-    borderBottomRightRadius: 3,
   },
   activeIndicatorVisible: { backgroundColor: palette.green },
   tabletActiveIndicator: {
