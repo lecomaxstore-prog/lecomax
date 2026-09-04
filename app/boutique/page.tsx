@@ -193,7 +193,7 @@ function BoutiqueContent() {
       </div>
 
       {/* ── Sticky filter bar ── */}
-      <div className="sticky top-[60px] z-30 border-b border-neutral-200/80 bg-white/95 shadow-[0_8px_24px_rgba(0,0,0,.04)] backdrop-blur-xl">
+      <div className="sticky top-[60px] z-30 border-b border-neutral-200/80 bg-white/95 shadow-[0_8px_24px_rgba(0,0,0,.04)] backdrop-blur-xl lg:top-[96px]">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex flex-col items-stretch gap-2.5 py-2.5 sm:flex-row sm:items-center sm:gap-4 sm:py-3">
             {/* Category tabs */}
