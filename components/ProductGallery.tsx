@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import { createPortal } from "react-dom";
 import { useProductColor } from "./ProductColorContext";
+import { resolveProductGalleryImages } from "@/lib/product-gallery-images";
 
 const colorMap: Record<string, string> = {
   "Noir": "#0a0a0a", "Blanc": "#f5f5f5", "Blanc casse": "#fafaf5",
@@ -41,6 +42,7 @@ export default function ProductGallery({
   discount,
   colors,
   colorImages,
+  colorImageGalleries,
   video,
 }: {
   images: string[];
@@ -49,27 +51,35 @@ export default function ProductGallery({
   discount?: number;
   colors?: string[];
   colorImages?: Record<string, string>;
+  colorImageGalleries?: Record<string, string[]>;
   video?: string;
 }) {
   // active: index into images, or "video" sentinel
-  const [active, setActive] = useState<number | "video">(() => video ? "video" : 0);
+  const [active, setActive] = useState<number | "video">(0);
   const [videoPlaybackKey, setVideoPlaybackKey] = useState(0);
   const [mainControlsVisible, setMainControlsVisible] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [mounted, setMounted] = useState(false);
-  const { color: selectedColor, setColor: setSelectedColor } = useProductColor();
+  const { color: selectedColor } = useProductColor();
   const thumbsRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const touchStartX = useRef<number | null>(null);
   const dragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
 
-  // Filter out empty/invalid image strings and ensure at least a placeholder
+  // Promote the selected option's photos without hiding the rest of the
+  // product gallery. This keeps every angle available after variant changes.
   const safeImages = useMemo(() => {
-    const validImages = images.filter(Boolean);
-    return validImages.length > 0 ? validImages : ["/images/no-image.svg"];
-  }, [images]);
+    return resolveProductGalleryImages({
+      images,
+      selectedColor,
+      colors,
+      colorImages,
+      colorImageGalleries,
+    });
+  }, [colorImageGalleries, colorImages, colors, images, selectedColor]);
+  const activeImage = typeof active === "number" ? safeImages[active] ?? safeImages[0] : safeImages[0];
 
   // Build the full list of "slides": video first (if any), then images
   const slides = useMemo<Array<"video" | number>>(
@@ -90,17 +100,8 @@ export default function ProductGallery({
       }
       setActive(slide);
 
-      // Gallery navigation is an explicit customer action. When the selected
-      // slide belongs to a color variant, update the shared color once here
-      // instead of running a second effect that can fight the color picker.
-      if (typeof slide !== "number" || !colorImages) return;
-      const image = safeImages[slide];
-      const matchingColor = Object.entries(colorImages).find(([, src]) => src === image)?.[0];
-      if (matchingColor && matchingColor !== selectedColor) {
-        setSelectedColor(matchingColor);
-      }
     },
-    [colorImages, safeImages, selectedColor, setSelectedColor]
+    []
   );
 
   const goTo = useCallback(
@@ -185,16 +186,35 @@ export default function ProductGallery({
     });
   }, [active, video, videoPlaybackKey]);
 
-  const hasColorPicker = !!(colors && colors.length > 0 && colorImages);
+  const hasColorPicker = !!(colors && colors.length > 0 && (colorImageGalleries || colorImages));
 
-  // Sync gallery image when color changes via ProductActions color picker
+  // Each color owns an independent ordered gallery. Always start on its
+  // primary image, without changing scroll position or reopening the video.
   useEffect(() => {
     if (!hasColorPicker || !selectedColor) return;
-    if (colorImages?.[selectedColor]) {
-      const idx = safeImages.indexOf(colorImages[selectedColor]);
-      if (idx >= 0) setActive(idx);
+    setActive(0);
+    resetZoom();
+  }, [hasColorPicker, resetZoom, selectedColor]);
+
+  // Preload only the primary image of the other variants for fast swatches
+  // without downloading every secondary gallery image up front.
+  useEffect(() => {
+    if (!colorImageGalleries) return;
+    for (const [variantColor, variantImages] of Object.entries(colorImageGalleries)) {
+      if (variantColor === selectedColor || !variantImages[0]) continue;
+      const { props } = getImageProps({
+        src: variantImages[0],
+        alt: "",
+        width: 960,
+        height: 960,
+        sizes: "(min-width: 1024px) 55vw, 100vw",
+      });
+      const preload = new window.Image();
+      preload.srcset = props.srcSet ?? "";
+      preload.sizes = props.sizes ?? "";
+      preload.src = String(props.src);
     }
-  }, [colorImages, hasColorPicker, safeImages, selectedColor]);
+  }, [colorImageGalleries, selectedColor]);
 
   return (
     <>
@@ -250,7 +270,7 @@ export default function ProductGallery({
             className="absolute inset-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black"
           >
             <Image
-              src={safeImages[active as number]}
+              src={activeImage}
               alt={name}
               fill
               sizes="(min-width: 1024px) 55vw, 100vw"
@@ -306,13 +326,13 @@ export default function ProductGallery({
       </div>
 
       {/* Thumbnail strip with prev/next arrows */}
-      <div className="relative flex w-full min-w-0 max-w-full items-center gap-1.5 overflow-hidden rounded-2xl border border-neutral-200/80 bg-neutral-50/80 p-1.5 shadow-[0_1px_2px_rgba(0,0,0,.03)] sm:gap-2 sm:p-2">
+      <div className="relative flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden rounded-[22px] border border-neutral-200/80 bg-neutral-50/90 p-2 shadow-[0_10px_32px_rgba(15,23,42,.07)] sm:gap-2.5 sm:p-2.5">
         {/* Prev arrow */}
         {slides.length > 1 && (
           <button
             onClick={goPrev}
             aria-label="Image précédente"
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-700 shadow-sm transition-all duration-200 hover:-translate-x-0.5 hover:border-neutral-900 hover:bg-neutral-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 sm:h-11 sm:w-11"
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-neutral-200/90 bg-white text-neutral-700 shadow-[0_3px_10px_rgba(15,23,42,.07)] transition-all duration-200 hover:scale-105 hover:border-neutral-300 hover:bg-neutral-950 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 sm:h-11 sm:w-11"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M15 18l-6-6 6-6" />
@@ -325,7 +345,7 @@ export default function ProductGallery({
           ref={thumbsRef}
           className="w-0 min-w-0 flex-1 snap-x snap-mandatory overflow-x-auto scroll-smooth px-0.5 py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <div className="mx-auto flex w-max min-w-max items-center gap-1.5 sm:gap-2">
+          <div className="mx-auto flex w-max min-w-max items-center gap-2 sm:gap-2.5">
             {/* Video thumbnail */}
             {video && (
               <button
@@ -334,19 +354,19 @@ export default function ProductGallery({
                 data-gallery-thumb="0"
                 aria-label="Voir la vidéo du produit"
                 aria-pressed={active === "video"}
-                className={`relative flex h-16 w-16 flex-shrink-0 snap-center items-center justify-center overflow-hidden rounded-xl border bg-neutral-900 shadow-sm transition-all duration-200 sm:h-[72px] sm:w-[72px] ${
+                className={`relative flex h-[62px] w-[62px] flex-shrink-0 snap-center items-center justify-center overflow-hidden rounded-2xl border bg-neutral-900 transition-all duration-200 sm:h-[70px] sm:w-[70px] ${
                   active === "video"
-                    ? "z-[1] border-neutral-950 ring-2 ring-neutral-950 ring-offset-2 ring-offset-neutral-50"
-                    : "border-neutral-200 opacity-80 hover:-translate-y-0.5 hover:border-neutral-400 hover:opacity-100 hover:shadow-md"
+                    ? "z-[1] border-2 border-neutral-950 shadow-[0_5px_14px_rgba(15,23,42,.18)]"
+                    : "border-white opacity-90 shadow-sm hover:-translate-y-0.5 hover:opacity-100 hover:shadow-md"
                 } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={isYouTube(video) ? `https://img.youtube.com/vi/${getYouTubeId(video)}/mqdefault.jpg` : safeImages[0]}
                   alt=""
-                  className="absolute inset-0 h-full w-full object-cover opacity-50"
+                  className="absolute inset-0 h-full w-full object-cover opacity-65"
                 />
-                <span className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 pl-0.5 text-[13px] leading-none text-black shadow-sm">▶</span>
+                <span className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 pl-0.5 text-[11px] leading-none text-black shadow-md">▶</span>
               </button>
             )}
             {safeImages.map((src, i) => {
@@ -359,18 +379,19 @@ export default function ProductGallery({
                   data-gallery-thumb={slideIndex}
                   aria-label={`${name}, vue ${i + 1}`}
                   aria-pressed={active === i}
-                  className={`relative h-16 w-16 flex-shrink-0 snap-center overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-200 sm:h-[72px] sm:w-[72px] ${
+                  aria-current={active === i ? "true" : undefined}
+                  className={`relative h-[62px] w-[62px] flex-shrink-0 snap-center overflow-hidden rounded-2xl border bg-white transition-all duration-200 sm:h-[70px] sm:w-[70px] ${
                     active === i
-                      ? "z-[1] border-neutral-950 ring-2 ring-neutral-950 ring-offset-2 ring-offset-neutral-50"
-                      : "border-neutral-200 opacity-80 hover:-translate-y-0.5 hover:border-neutral-400 hover:opacity-100 hover:shadow-md"
+                      ? "z-[1] border-2 border-neutral-950 shadow-[0_5px_14px_rgba(15,23,42,.18)]"
+                      : "border-white shadow-sm hover:-translate-y-0.5 hover:border-neutral-200 hover:shadow-md"
                   } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2`}
                 >
                   <Image
                     src={src}
                     alt=""
                     fill
-                    sizes="(max-width: 639px) 64px, 72px"
-                    className="object-contain p-1.5 transition-transform duration-300 hover:scale-105"
+                    sizes="(max-width: 639px) 62px, 70px"
+                    className="object-cover transition-transform duration-300 hover:scale-[1.04]"
                     loading="lazy"
                   />
                 </button>
@@ -384,7 +405,7 @@ export default function ProductGallery({
           <button
             onClick={goNext}
             aria-label="Image suivante"
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-700 shadow-sm transition-all duration-200 hover:translate-x-0.5 hover:border-neutral-900 hover:bg-neutral-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 sm:h-11 sm:w-11"
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-neutral-200/90 bg-white text-neutral-700 shadow-[0_3px_10px_rgba(15,23,42,.07)] transition-all duration-200 hover:scale-105 hover:border-neutral-300 hover:bg-neutral-950 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 sm:h-11 sm:w-11"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M9 18l6-6-6-6" />
@@ -462,7 +483,7 @@ export default function ProductGallery({
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={safeImages[active]}
+              src={activeImage}
               alt={`${name}, vue ${active + 1}`}
               draggable={false}
               className="h-full w-full select-none object-contain p-4 pb-24 pt-16 transition-transform duration-200 ease-out sm:p-8 sm:pb-28 sm:pt-20"

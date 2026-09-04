@@ -36,7 +36,7 @@ function BoutiqueContent() {
   const [activeSort, setActiveSort] = useState<SortId>("default");
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage, setProductsPerPage] = useState(DESKTOP_PRODUCTS_PER_PAGE);
-  const [dbProducts, setDbProducts] = useState<CardProduct[]>([]);
+  const [dbProducts, setDbProducts] = useState<CardProduct[] | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -90,15 +90,15 @@ function BoutiqueContent() {
           rating: (reviewStats as Record<string, { rating: number; count: number }>)[p.slug]?.rating,
           reviewCount: (reviewStats as Record<string, { rating: number; count: number }>)[p.slug]?.count,
         }));
-        // deduplicate by slug (prefer DB version)
-        const staticSlugs = new Set(cards.map((p: CardProduct) => p.slug));
-        const merged = [...cards, ...staticProducts.filter((p) => !staticSlugs.has(p.slug))];
-        setDbProducts(merged);
+        // A successful API response is the canonical catalogue. Static products
+        // are only an offline fallback; merging them here resurrected products
+        // that had been removed from the database and could not be managed in admin.
+        setDbProducts(cards);
       }
     }).catch(() => {});
   }, []);
 
-  const allProducts: CardProduct[] = dbProducts.length > 0 ? dbProducts : staticProducts;
+  const allProducts: CardProduct[] = dbProducts ?? staticProducts;
 
   const filtered = useMemo(() => {
     let list = activeCategory === "all"

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import HeroBanner from "@/components/HeroBanner";
-import IntroAnimation from "@/components/IntroAnimation";
 import CategoryTiles from "@/components/CategoryTiles";
 import ProductRail from "@/components/ProductRail";
 import Image from "next/image";
@@ -256,7 +255,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <IntroAnimation />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(webPageSchema) }} />
       <HeroBanner

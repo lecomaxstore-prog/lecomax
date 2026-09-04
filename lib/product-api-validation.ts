@@ -1,4 +1,20 @@
-import { asStock, cleanColorStock } from "@/lib/product-inventory";
+import {
+  asStock,
+  cleanColorStock,
+  cleanColorSizeStock,
+  cleanSizeStock,
+  colorSizeStockTotal,
+  colorTotalsFromColorSizeStock,
+  colorStockTotal,
+  CLOTHING_SIZE_VALUES,
+  SHOE_SIZE_VALUES,
+  sizeStockTotal,
+  sizeTotalsFromColorSizeStock,
+  syncColorSizeStockTags,
+  syncSizeInventoryTags,
+  type ProductSizeGuideType,
+} from "@/lib/product-inventory";
+import { cleanColorImageMap, syncColorImageTags } from "@/lib/product-color-images";
 
 const CATEGORIES = new Set(["homme", "femme", "chaussures", "accessoires"]);
 const MAX_TEXT = 10_000;
@@ -70,6 +86,94 @@ export function cleanProductPayload(body: unknown, mode: "create" | "update") {
     const values = stringArray(body[key]);
     if (!values) return { error: `Liste ${key} invalide.` } as const;
     payload[key] = values;
+  }
+
+  if ("color_images" in body) {
+    if (!("tags" in body) || !("colors" in body)) {
+      return { error: "Couleurs et tags requis pour associer les images." } as const;
+    }
+    const colorImages = cleanColorImageMap(body.color_images);
+    if (!colorImages) return { error: "Association des images aux couleurs invalide." } as const;
+    const colors = payload.colors as string[];
+    if (Object.keys(colorImages).some((color) => !colors.includes(color))) {
+      return { error: "Une galerie d’images utilise une couleur non sélectionnée." } as const;
+    }
+    if ("images" in body) {
+      const productImages = urlArray(body.images);
+      if (!productImages || Object.values(colorImages).some((row) => row.some((image) => !productImages.includes(image)))) {
+        return { error: "Chaque image de couleur doit appartenir aux images du produit." } as const;
+      }
+    }
+    payload.tags = syncColorImageTags(payload.tags as string[], colorImages);
+  }
+
+  if ("size_guide_type" in body || "size_stock" in body) {
+    if (!("tags" in body) || !("sizes" in body)) {
+      return { error: "Les tailles et les tags sont requis pour mettre à jour l’inventaire par taille." } as const;
+    }
+    const guideType = String(body.size_guide_type ?? "none") as ProductSizeGuideType;
+    if (!["none", "clothing", "shoes", "custom"].includes(guideType)) {
+      return { error: "Type de tailles invalide." } as const;
+    }
+    const sizes = payload.sizes as string[];
+    const allowedSizes = guideType === "clothing"
+      ? new Set<string>(CLOTHING_SIZE_VALUES)
+      : guideType === "shoes"
+        ? new Set<string>(SHOE_SIZE_VALUES)
+        : null;
+    if (allowedSizes && sizes.some((size) => !allowedSizes.has(size))) {
+      return { error: `Une taille ne correspond pas au guide ${guideType === "shoes" ? "chaussures" : "vêtements"}.` } as const;
+    }
+
+    let sizeStock: Record<string, number> | undefined;
+    if ("size_stock" in body) {
+      const cleanedSizeStock = cleanSizeStock(body.size_stock);
+      if (!cleanedSizeStock) return { error: "Stock des tailles invalide." } as const;
+      if (Object.keys(cleanedSizeStock).some((size) => !sizes.includes(size))) {
+        return { error: "Le stock contient une taille qui n’est pas sélectionnée." } as const;
+      }
+      if (sizes.some((size) => !(size in cleanedSizeStock))) {
+        return { error: "Indiquez le stock de chaque taille sélectionnée." } as const;
+      }
+      sizeStock = cleanedSizeStock;
+      payload.stock = sizeStockTotal(cleanedSizeStock);
+    }
+    payload.tags = syncSizeInventoryTags(payload.tags as string[], guideType, sizeStock);
+  }
+
+  if ("size_stock" in body && "color_stock" in body) {
+    const sizeStock = cleanSizeStock(body.size_stock);
+    const colorStock = cleanColorStock(body.color_stock);
+    if (sizeStock && colorStock && Object.keys(colorStock).length > 0 && sizeStockTotal(sizeStock) !== colorStockTotal(colorStock)) {
+      return { error: "Le total du stock par taille doit correspondre au total du stock par couleur." } as const;
+    }
+  }
+
+  if ("variant_stock" in body) {
+    if (!("colors" in body) || !("sizes" in body) || !("tags" in body)) {
+      return { error: "Couleurs, tailles et tags sont requis pour le stock des combinaisons." } as const;
+    }
+    const variantStock = cleanColorSizeStock(body.variant_stock);
+    if (!variantStock) return { error: "Stock des combinaisons couleur/taille invalide." } as const;
+    const colors = payload.colors as string[];
+    const sizes = payload.sizes as string[];
+    if (
+      Object.keys(variantStock).length !== colors.length ||
+      colors.some((color) => !(color in variantStock)) ||
+      Object.values(variantStock).some((row) =>
+        Object.keys(row).length !== sizes.length || sizes.some((size) => !(size in row)),
+      )
+    ) {
+      return { error: "Indiquez le stock de chaque combinaison couleur/taille sélectionnée." } as const;
+    }
+    const guideType = String(body.size_guide_type ?? "custom") as ProductSizeGuideType;
+    const sizeTotals = sizeTotalsFromColorSizeStock(variantStock);
+    payload.color_stock = colorTotalsFromColorSizeStock(variantStock);
+    payload.stock = colorSizeStockTotal(variantStock);
+    payload.tags = syncColorSizeStockTags(
+      syncSizeInventoryTags(payload.tags as string[], guideType, sizeTotals),
+      variantStock,
+    );
   }
   for (const key of ["images", "description_images"] as const) {
     if (!(key in body)) continue;

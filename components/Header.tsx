@@ -220,29 +220,35 @@ export default function Header() {
         style={{ transition: "transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)" }}
       >
         {/* ── Header ── */}
-        <div className={`flex h-[60px] shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-4 ${open ? "drawer-item" : ""}`}
-          style={{ animationDelay: "20ms" }}>
+        <div
+          className={`relative flex h-[60px] shrink-0 items-center justify-between border-b border-[#3ecf4c]/70 px-4 text-white shadow-[0_8px_24px_rgba(0,0,0,.18)] ${open ? "drawer-item" : ""}`}
+          style={{
+            animationDelay: "20ms",
+            background: "linear-gradient(115deg, #050705 0%, #0b120d 58%, #12351a 100%)",
+          }}
+        >
+          <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#3ecf4c] to-transparent" />
           <div className="flex items-center gap-3">
             <button
               type="button"
               aria-label="Fermer le menu"
               onClick={() => setOpen(false)}
-              className="-ml-1 flex h-11 w-11 shrink-0 items-center justify-center"
+              className="-ml-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]"
             >
               <span aria-hidden="true" className="relative block h-5 w-6">
-                <span className="absolute left-0 top-1/2 h-[2px] w-6 -translate-y-1/2 rotate-45 bg-black" />
-                <span className="absolute left-0 top-1/2 h-[2px] w-6 -translate-y-1/2 -rotate-45 bg-black" />
+                <span className="absolute left-0 top-1/2 h-[2px] w-6 -translate-y-1/2 rotate-45 bg-white" />
+                <span className="absolute left-0 top-1/2 h-[2px] w-6 -translate-y-1/2 -rotate-45 bg-white" />
               </span>
             </button>
             <Link href="/" onClick={() => setOpen(false)} aria-label="L'ecomax — Accueil" className="flex items-center gap-3">
-              <Logo showWordmark />
+              <Logo showWordmark variant="light" />
             </Link>
           </div>
           <div className="flex shrink-0 items-center gap-0">
             <button
               aria-label="Recherche"
               onClick={() => { setOpen(false); setSearchOpen(true); }}
-              className="header-action-button"
+              className="header-action-button !text-white hover:!bg-white/10 hover:!text-white focus-visible:!outline-[#3ecf4c]"
             >
               <SearchIcon />
             </button>
@@ -250,27 +256,27 @@ export default function Header() {
               href={isLoggedIn ? "/compte" : "/connexion"}
               onClick={() => setOpen(false)}
               aria-label="Mon compte"
-              className="header-action-button"
+              className="header-action-button !text-white hover:!bg-white/10 hover:!text-white focus-visible:!outline-[#3ecf4c]"
             >
               <UserIcon />
             </Link>
             {siteSettings.enable_wishlist !== "false" && (
-              <Link href="/wishlist" onClick={() => setOpen(false)} aria-label="Mes favoris" className="header-action-button">
+              <Link href="/wishlist" onClick={() => setOpen(false)} aria-label="Mes favoris" className="header-action-button !text-white hover:!bg-white/10 hover:!text-white focus-visible:!outline-[#3ecf4c]">
                 <span className="relative inline-flex h-6 w-6 items-center justify-center">
                   <HeartIcon />
                   {wishlistCount > 0 && (
-                    <span className="header-action-badge">
+                    <span className="header-action-badge !border-[#0b120d]">
                       {wishlistCount > 99 ? "99+" : wishlistCount}
                     </span>
                   )}
                 </span>
               </Link>
             )}
-            <Link href="/panier" onClick={() => setOpen(false)} aria-label="Panier" className="header-action-button">
+            <Link href="/panier" onClick={() => setOpen(false)} aria-label="Panier" className="header-action-button !text-white hover:!bg-white/10 hover:!text-white focus-visible:!outline-[#3ecf4c]">
               <span className="relative inline-flex h-6 w-6 items-center justify-center">
                 <BagIcon />
                 {count > 0 && (
-                  <span className="header-action-badge">
+                  <span className="header-action-badge !border-[#0b120d]">
                     {count > 99 ? "99+" : count}
                   </span>
                 )}

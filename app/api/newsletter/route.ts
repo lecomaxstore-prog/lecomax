@@ -9,6 +9,7 @@ const supabase = createClient(
 const WELCOME_OFFER = "welcome10";
 const WELCOME_DISCOUNT_PERCENT = 10;
 const WELCOME_COUPON_DAYS = 30;
+const WELCOME_MIN_ORDER = 200;
 
 type WelcomeCouponRow = {
   code: string;
@@ -16,6 +17,7 @@ type WelcomeCouponRow = {
   expires_at: string | null;
   used_count: number | null;
   max_uses: number | null;
+  min_order: number | string | null;
 };
 
 function welcomeCouponCode(subscriberId: string) {
@@ -30,13 +32,14 @@ function welcomeCouponResponse(coupon: WelcomeCouponRow) {
     percent: Number(coupon.value),
     expires_at: coupon.expires_at,
     available: (coupon.used_count ?? 0) < maxUses,
+    min_order: Number(coupon.min_order ?? WELCOME_MIN_ORDER),
     eligible_products: "non_promotional_only" as const,
   };
 }
 
 async function ensureWelcomeCoupon(subscriberId: string) {
   const code = welcomeCouponCode(subscriberId);
-  const couponFields = "code,value,expires_at,used_count,max_uses";
+  const couponFields = "code,value,expires_at,used_count,max_uses,min_order";
   const { data: existing, error: lookupError } = await supabase
     .from("coupons")
     .select(couponFields)
@@ -55,7 +58,7 @@ async function ensureWelcomeCoupon(subscriberId: string) {
       code,
       type: "percent",
       value: WELCOME_DISCOUNT_PERCENT,
-      min_order: null,
+      min_order: WELCOME_MIN_ORDER,
       max_uses: 1,
       used_count: 0,
       expires_at: expiresAt,
@@ -136,11 +139,21 @@ export async function POST(req: NextRequest) {
   const { data: existingSubscriber, error: lookupError } = await supabase
     .from("newsletter_subscribers")
     .select("id,active")
-    .eq("email", email)
+    .ilike("email", email)
     .maybeSingle();
   if (lookupError) {
     console.error("Newsletter lookup failed", lookupError);
     return NextResponse.json({ error: "Inscription impossible pour le moment" }, { status: 500 });
+  }
+
+  if (wantsWelcomeOffer && existingSubscriber) {
+    return NextResponse.json(
+      {
+        error: "Cette adresse e-mail a déjà reçu son offre de bienvenue.",
+        code: "WELCOME_EMAIL_ALREADY_USED",
+      },
+      { status: 409 },
+    );
   }
 
   let subscriber = existingSubscriber;

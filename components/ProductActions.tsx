@@ -10,6 +10,7 @@ import { trackAddToCart } from "@/lib/analytics";
 import { useWishlist } from "./WishlistContext";
 import { collectEvent } from "@/lib/collect";
 import { recordProductSignal } from "@/lib/personalization";
+import { sortProductSizes } from "@/lib/product-inventory";
 
 /* ── Cart fly animation (pure DOM, Web Animations API) ── */
 function celebrateCart(cartEl: HTMLElement | null, x: number, y: number) {
@@ -231,18 +232,38 @@ function getSizeLabel(subCategory: string): string {
   return "Taille";
 }
 
-export default function ProductActions({ product, colorImages: colorImagesProp }: { product: Product; colorImages?: Record<string, string> }) {
+export default function ProductActions({
+  product,
+  colorImages: colorImagesProp,
+  colorImageGalleries,
+}: {
+  product: Product;
+  colorImages?: Record<string, string>;
+  colorImageGalleries?: Record<string, string[]>;
+}) {
   const { color, setColor } = useProductColor();
   const hasColors = product.colors.length > 0 && product.colors[0] !== "Taille unique";
-  const effectiveColorImages = colorImagesProp ?? product.colorImages;
-  const hasColorImages = !!(effectiveColorImages);
+  const effectiveColorImages = React.useMemo(() => {
+    const productImages = [product.image, ...product.gallery].filter(Boolean);
+    return Object.fromEntries(product.colors.flatMap((variantColor, index) => {
+      const image = colorImageGalleries?.[variantColor]?.[0]
+        ?? colorImagesProp?.[variantColor]
+        ?? product.colorImages?.[variantColor]
+        ?? productImages[index]
+        ?? product.image;
+      return image ? [[variantColor, image]] : [];
+    }));
+  }, [colorImageGalleries, colorImagesProp, product.colorImages, product.colors, product.gallery, product.image]);
+  const hasColorImages = Object.keys(effectiveColorImages).length > 0;
   const outOfStockColors = product.outOfStockColors ?? [];
   const outOfStockSizes = product.outOfStockSizes ?? [];
+  const colorSizeStock = product.colorSizeStock ?? {};
+  const hasColorSizeStock = Object.keys(colorSizeStock).length > 0;
   const isProductOOS = product.stock !== undefined && product.stock <= 0;
-  const isCurrentColorOOS = outOfStockColors.includes(color);
+  const isCurrentColorOOS = outOfStockColors.includes(color) || (hasColorSizeStock && color && !Object.values(colorSizeStock[color] ?? {}).some((quantity) => quantity > 0));
   const availableSizes = ((isProductOOS || isCurrentColorOOS) ? [] : (((product.colorSizes && color && product.colorSizes[color])
     ? product.colorSizes[color]
-    : product.sizes) ?? []).filter((s) => !outOfStockSizes.includes(s)));
+    : product.sizes) ?? []).filter((s) => !outOfStockSizes.includes(s) && (!hasColorSizeStock || !color || (colorSizeStock[color]?.[s] ?? 0) > 0)));
 
   const [size, setSize] = useState<string | null>(
     (product.sizes ?? []).length === 1 && product.sizes[0] === "Taille unique" ? "Taille unique" : null
@@ -279,32 +300,17 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const router = useRouter();
   const selectedPrice = product.colorPrices?.[color]?.price ?? product.price;
 
-  const selectColorAndRevealImage = (
+  const selectColor = (
     nextColor: string,
     closeModal = false,
     event?: React.MouseEvent<HTMLButtonElement>
   ) => {
     event?.preventDefault();
     event?.stopPropagation();
-    // Color selection and the size guide are independent actions. Keeping
-    // this explicit also prevents a mobile tap from leaving the guide open.
     sizeGuideIntentRef.current = false;
     setSizeGuideOpen(false);
     setColor(nextColor);
     if (closeModal) setColorModalOpen(false);
-
-    // Let React switch the gallery image first, then bring that image back
-    // into view. This also works when the customer taps the active color.
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        const galleryImage = document.querySelector<HTMLElement>("[data-main-gallery-img]");
-        if (!galleryImage) return;
-
-        const headerOffset = window.innerWidth < 768 ? 72 : 92;
-        const top = galleryImage.getBoundingClientRect().top + window.scrollY - headerOffset;
-        window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-      });
-    });
   };
 
   // Reset size when color changes if current size is no longer available
@@ -318,6 +324,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
   const sizeLabel = getSizeLabel(product.subCategory);
   const hasNoAvailableSize = product.sizes.length > 0 && availableSizes.length === 0;
   const isUnavailable = isProductOOS || isCurrentColorOOS || hasNoAvailableSize;
+  const orderedSizes = sortProductSizes(product.sizes);
 
   const openSizeGuide = (event: React.MouseEvent<HTMLButtonElement>) => {
     // A real tap sends pointerdown before click. Requiring that intent keeps
@@ -405,8 +412,9 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
                     <button
                       type="button"
                       key={c}
-                      onClick={(event) => selectColorAndRevealImage(c, true, event)}
-                      aria-label={`Voir le produit en couleur ${c}`}
+                      onClick={(event) => selectColor(c, true, event)}
+                      aria-label={`Sélectionner la couleur ${c}`}
+                      aria-pressed={isSelected}
                       className={`flex items-center gap-4 w-full text-left rounded-xl px-3 py-3 transition-all border ${
                         isSelected
                           ? "border-black bg-neutral-50"
@@ -463,6 +471,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
           <div className="flex items-center justify-between mb-3">
             <p className="text-[12px] font-black uppercase tracking-wide">Couleur</p>
             <button
+              data-color-modal-trigger
               onClick={() => setColorModalOpen(true)}
               className="flex items-center gap-1.5 text-[12px] text-neutral-600 hover:text-black transition-colors font-medium"
             >
@@ -488,8 +497,9 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
                     type="button"
                     key={c}
                     title={isOOS ? `${c} — Rupture de stock` : c}
-                    onClick={(event) => selectColorAndRevealImage(c, false, event)}
-                    aria-label={`Voir le produit en couleur ${c}`}
+                    onClick={(event) => selectColor(c, false, event)}
+                    aria-label={`Sélectionner la couleur ${c}`}
+                    aria-pressed={isSelected}
                     className={`relative flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden border-2 transition-all ${
                       isOOS ? "opacity-50 cursor-pointer" :
                       isSelected ? "border-black shadow-sm" : "border-neutral-200 hover:border-neutral-400"
@@ -511,8 +521,9 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
                   type="button"
                   key={c}
                   title={isOOS ? `${c} — Rupture de stock` : c}
-                  onClick={(event) => selectColorAndRevealImage(c, false, event)}
-                  aria-label={`Voir le produit en couleur ${c}`}
+                  onClick={(event) => selectColor(c, false, event)}
+                  aria-label={`Sélectionner la couleur ${c}`}
+                  aria-pressed={isSelected}
                   className="relative group flex-shrink-0 transition-transform duration-150"
                   style={{ transform: isSelected ? "scale(1.08)" : "scale(1)", cursor: "pointer" }}
                 >
@@ -542,6 +553,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
           {/* "See all colors" button when there are many colors or color images */}
           {(product.colors.length > 4 || hasColorImages) && (
             <button
+              data-color-modal-trigger
               onClick={() => setColorModalOpen(true)}
               className="mt-3 flex items-center gap-1.5 text-[12px] text-neutral-500 hover:text-black transition-colors font-medium group"
             >
@@ -572,7 +584,7 @@ export default function ProductActions({ product, colorImages: colorImagesProp }
             )}
           </div>
           <div className="grid grid-cols-4 gap-2">
-            {product.sizes.map((s) => {
+            {orderedSizes.map((s) => {
               const soldOut = !availableSizes.includes(s);
               return (
                 <button

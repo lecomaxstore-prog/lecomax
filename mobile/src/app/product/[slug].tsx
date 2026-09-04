@@ -31,6 +31,7 @@ import { runtimeConfig } from "@/lib/runtime-config";
 import { safeParentPath } from "@/lib/navigation-policy";
 import { realSimilarProducts } from "@/lib/product-similarity";
 import { useCommerceStore } from "@/stores/commerce";
+import { getFreshProduct } from "@/services/catalog";
 
 const PRODUCT_BACKGROUND = "#FAF8F4";
 const PRODUCT_BORDER = "#E8E5DF";
@@ -309,8 +310,7 @@ export default function ProductScreen() {
     }
     setIsAdding(true);
     try {
-      const result = await refetch();
-      const fresh = result.data?.find((item) => item.slug === slug);
+      const fresh = await getFreshProduct(slug);
       if (!fresh?.active) throw new Error("Ce produit n’est plus disponible.");
       const freshColorStock = selectedColor
         ? Number(fresh.color_stock?.[selectedColor])

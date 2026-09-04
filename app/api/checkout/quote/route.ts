@@ -13,7 +13,7 @@ import { getCustomerUser } from "@/lib/request-auth";
 import { shippingConfigFromSettings } from "@/lib/shipping-config";
 import { resolveShippingQuote, type ShippingZoneRule } from "@/lib/shipping-zones";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
-import { sizeStockFromTags } from "@/lib/product-inventory";
+import { colorSizeStockFromTags, sizeStockFromTags } from "@/lib/product-inventory";
 
 type QuoteItem = {
   slug: string;
@@ -115,6 +115,7 @@ export async function POST(request: NextRequest) {
   const requestedBySlug = new Map<string, number>();
   const requestedByColor = new Map<string, number>();
   const requestedBySize = new Map<string, number>();
+  const requestedByVariant = new Map<string, number>();
   for (const item of items) {
     requestedBySlug.set(
       item.slug,
@@ -127,6 +128,10 @@ export async function POST(request: NextRequest) {
     if (item.size) {
       const key = `${item.slug}\u0000${item.size}`;
       requestedBySize.set(key, (requestedBySize.get(key) ?? 0) + item.quantity);
+    }
+    if (item.color && item.size) {
+      const key = `${item.slug}\u0000${item.color}\u0000${item.size}`;
+      requestedByVariant.set(key, (requestedByVariant.get(key) ?? 0) + item.quantity);
     }
   }
   for (const item of items) {
@@ -188,6 +193,14 @@ export async function POST(request: NextRequest) {
       }
     }
     const sizeStock = sizeStockFromTags(product.tags);
+    const variantStock = colorSizeStockFromTags(product.tags);
+    if (Object.keys(variantStock).length > 0) {
+      const available = item.color && item.size ? variantStock[item.color]?.[item.size] ?? 0 : 0;
+      const requested = item.color && item.size ? requestedByVariant.get(`${item.slug}\u0000${item.color}\u0000${item.size}`) ?? item.quantity : item.quantity;
+      if (!item.color || !item.size || requested > available) {
+        return NextResponse.json({ error: `Cette combinaison couleur/taille n’est plus disponible pour « ${String(product.name ?? item.slug)} ».`, code: "OUT_OF_STOCK", details: { slug: item.slug, color: item.color, size: item.size, requestedQuantity: requested, availableQuantity: available } }, { status: 409 });
+      }
+    }
     if (item.size && item.size in sizeStock) {
       const requested = requestedBySize.get(`${item.slug}\u0000${item.size}`) ?? item.quantity;
       const available = sizeStock[item.size];

@@ -2,7 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { router, usePathname } from "expo-router";
 import { memo, useEffect, useRef, useState } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Platform, StyleSheet, Text, View } from "react-native";
 import Animated, { ZoomIn } from "react-native-reanimated";
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { Price } from "@/components/price";
@@ -10,6 +10,7 @@ import { Rating } from "@/components/rating";
 import { palette, typography } from "@/constants/theme";
 import { useSettings } from "@/hooks/use-catalog";
 import { triggerSuccessHaptic } from "@/services/haptics";
+import { getFreshProduct } from "@/services/catalog";
 import { discount, imageUrl } from "@/lib/format";
 import { productCardWidth } from "@/lib/responsive";
 import { useCartFeedbackStore } from "@/stores/cart-feedback";
@@ -66,6 +67,7 @@ export const ProductCard = memo(function ProductCard({
   const productImage = imageUrl(product.images[0]);
   const [imageFailed, setImageFailed] = useState(false);
   const [added, setAdded] = useState(false);
+  const [checkingStock, setCheckingStock] = useState(false);
   const addedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => setImageFailed(false), [productImage]);
@@ -192,8 +194,8 @@ export const ProductCard = memo(function ProductCard({
               requiresOptions ? "Choisir les options" : "Ajouter au panier"
             }
             accessibilityHint={requiresOptions ? "Ouvre la fiche pour choisir la couleur et la taille" : undefined}
-            disabled={product.stock <= 0}
-            onPress={(event) => {
+            disabled={product.stock <= 0 || checkingStock}
+            onPress={async (event) => {
               event.stopPropagation();
               if (requiresOptions) {
                 router.push({
@@ -202,7 +204,28 @@ export const ProductCard = memo(function ProductCard({
                 });
                 return;
               }
-              addToCart(product);
+              if (checkingStock) return;
+              setCheckingStock(true);
+              let fresh: Product | null = null;
+              try {
+                fresh = await getFreshProduct(product.slug);
+              } catch {
+                Alert.alert(
+                  "Vérification impossible",
+                  "Vérifiez votre connexion puis réessayez.",
+                );
+                setCheckingStock(false);
+                return;
+              }
+              if (!fresh?.active || fresh.stock <= 0) {
+                Alert.alert(
+                  "Produit épuisé",
+                  "Cet article n’est plus disponible pour le moment.",
+                );
+                setCheckingStock(false);
+                return;
+              }
+              addToCart(fresh);
               const { pageX, pageY } = event.nativeEvent;
               startCartFlight({
                 image: product.thumbnail || product.images[0],
@@ -215,20 +238,23 @@ export const ProductCard = memo(function ProductCard({
               if (Platform.OS !== "web") {
                 void triggerSuccessHaptic();
               }
+              setCheckingStock(false);
             }}
             style={[
               styles.add,
               grid && styles.gridAdd,
               added && styles.addConfirmed,
-              product.stock <= 0 && styles.disabled,
+              (product.stock <= 0 || checkingStock) && styles.disabled,
             ]}
           >
-            {added ? (
+            {checkingStock ? (
+              <ActivityIndicator color={palette.white} size="small" />
+            ) : added ? (
               <Animated.View entering={ZoomIn.duration(220).springify()}>
                 <Ionicons name="checkmark" size={19} color={palette.white} />
               </Animated.View>
             ) : (
-              <Ionicons name={requiresOptions ? "arrow-forward" : "add"} size={19} color={palette.white} />
+              <Ionicons name="add" size={22} color={palette.white} />
             )}
           </AnimatedPressable>
         </View>
@@ -451,11 +477,12 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   add: {
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
     flexShrink: 0,
-    borderRadius: 20,
-    borderWidth: 0,
+    borderRadius: 21,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: palette.ink,
@@ -466,10 +493,9 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   gridAdd: {
-    width: 38,
-    height: 38,
-    borderWidth: 0,
-    borderRadius: 19,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: palette.ink,
     shadowColor: palette.ink,
     shadowOffset: { width: 0, height: 2 },

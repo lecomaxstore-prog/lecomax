@@ -1,8 +1,9 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useLocalSearchParams } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
+  Keyboard,
   Platform,
   Pressable,
   StyleSheet,
@@ -13,6 +14,7 @@ import {
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { AnimatedPressable } from "@/components/animated-pressable";
+import { useAndroidBackInterceptor } from "@/components/android-back-controller";
 import { HorizontalRail } from "@/components/horizontal-rail";
 import { ProductCard } from "@/components/product-card";
 import { Screen } from "@/components/screen";
@@ -35,14 +37,27 @@ const webInputReset =
     : undefined;
 
 export default function CatalogScreen() {
-  const { t } = useT();
-  const { contentWidth } = useAppViewport();
-  const columns = productGridColumns(contentWidth);
   const params = useLocalSearchParams<{
     category?: string;
     sort?: Sort;
     filters?: string;
   }>();
+  return (
+    <CatalogContent
+      key={`${params.category ?? "all"}:${params.sort ?? "popular"}:${params.filters ?? "closed"}`}
+      params={params}
+    />
+  );
+}
+
+function CatalogContent({
+  params,
+}: {
+  params: { category?: string; sort?: Sort; filters?: string };
+}) {
+  const { t } = useT();
+  const { contentWidth } = useAppViewport();
+  const columns = productGridColumns(contentWidth);
   const { data = [], isLoading, refetch, isRefetching } = useProducts();
   const { data: categories = [] } = useCategories();
   const [category, setCategory] = useState(params.category ?? "all");
@@ -51,6 +66,29 @@ export default function CatalogScreen() {
   const [stockOnly, setStockOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(params.filters === "open");
   const [searchFocused, setSearchFocused] = useState(false);
+  const searchInputRef = useRef<TextInput>(null);
+
+  const interceptAndroidBack = useCallback(() => {
+    if (searchFocused) {
+      searchInputRef.current?.blur();
+      Keyboard.dismiss();
+      return true;
+    }
+    if (filtersOpen) {
+      setFiltersOpen(false);
+      return true;
+    }
+    return false;
+  }, [filtersOpen, searchFocused]);
+  useAndroidBackInterceptor(interceptAndroidBack);
+
+  useEffect(() => {
+    if (Platform.OS !== "android" || !searchFocused) return;
+    const subscription = Keyboard.addListener("keyboardDidHide", () => {
+      searchInputRef.current?.blur();
+    });
+    return () => subscription.remove();
+  }, [searchFocused]);
 
   const sorts = [
     { value: "popular" as const, label: t.popular },
@@ -128,6 +166,7 @@ export default function CatalogScreen() {
               color={searchFocused ? palette.ink : "#777D78"}
             />
             <TextInput
+              ref={searchInputRef}
               accessibilityLabel={t.searchShop}
               value={query}
               onChangeText={setQuery}

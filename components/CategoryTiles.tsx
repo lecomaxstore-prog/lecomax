@@ -103,7 +103,7 @@ function CategoryTile({ category, index, visible }: { category: StoreCategory & 
   const desktopPosition = category.image_position || "50% 50%";
   const mobilePosition = category.image_mobile_position || desktopPosition;
   return (
-    <Link href={`/${category.slug}`} className="group relative block aspect-[3/4] overflow-hidden rounded-sm bg-neutral-900 md:aspect-[4/3]" style={{ opacity: visible ? 1 : 0, clipPath: visible ? "inset(0)" : "inset(100% 0 0 0)", transition: `opacity .1s, clip-path .8s cubic-bezier(.76,0,.24,1) ${.08 + index * .1}s` }}>
+    <Link href={`/boutique?cat=${encodeURIComponent(category.slug)}`} className="group relative block aspect-[3/4] overflow-hidden rounded-sm bg-neutral-900 md:aspect-[4/3]" style={{ opacity: visible ? 1 : 0, clipPath: visible ? "inset(0)" : "inset(100% 0 0 0)", transition: `opacity .1s, clip-path .8s cubic-bezier(.76,0,.24,1) ${.08 + index * .1}s` }}>
       {/* Separate responsive elements allow independent crop positions. */}
       <img src={mobile} alt={category.label} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04] md:hidden" style={{ objectPosition: mobilePosition }} />
       <img src={desktop} alt={category.label} className="hidden h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04] md:block" style={{ objectPosition: desktopPosition }} />

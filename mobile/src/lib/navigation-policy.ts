@@ -34,6 +34,8 @@ export function safeParentPath(
       : "/";
   }
   if (path === "/checkout") return "/cart";
+  if (path === "/support-chat") return "/support";
+  if (path === "/support") return "/account";
   if (path === "/order-confirmation" || path === "/orders") return "/account";
   if (path === "/addresses" || path === "/profile" || path === "/auth") {
     return "/account";

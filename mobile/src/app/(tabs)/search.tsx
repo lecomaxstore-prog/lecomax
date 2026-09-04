@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ActivityIndicator,
   FlatList,
+  Keyboard,
   Platform,
   Pressable,
   StyleSheet,
@@ -17,6 +18,7 @@ import {
   View,
 } from "react-native";
 import { AnimatedPressable } from "@/components/animated-pressable";
+import { useAndroidBackInterceptor } from "@/components/android-back-controller";
 import { BrandLogo } from "@/components/brand-logo";
 import { HeaderActionButton } from "@/components/header-action-button";
 import { Screen } from "@/components/screen";
@@ -65,6 +67,28 @@ export default function SearchScreen() {
   const [sort, setSort] = useState<Sort>("popular");
   const [stockOnly, setStockOnly] = useState(false);
   const [promotionOnly, setPromotionOnly] = useState(false);
+
+  const interceptAndroidBack = useCallback(() => {
+    if (focused) {
+      inputRef.current?.blur();
+      Keyboard.dismiss();
+      return true;
+    }
+    if (filtersOpen) {
+      setFiltersOpen(false);
+      return true;
+    }
+    return false;
+  }, [filtersOpen, focused]);
+  useAndroidBackInterceptor(interceptAndroidBack);
+
+  useEffect(() => {
+    if (Platform.OS !== "android" || !focused) return;
+    const subscription = Keyboard.addListener("keyboardDidHide", () => {
+      inputRef.current?.blur();
+    });
+    return () => subscription.remove();
+  }, [focused]);
 
   const cartCount = useCommerceStore((state) =>
     state.cart.reduce((total, line) => total + line.quantity, 0),

@@ -2,6 +2,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { WishlistVariant } from "@/lib/wishlist-utils";
+import {
+  cartLineAvailableStock,
+  reconcileCartProducts,
+  type CartReconciliationResult,
+} from "@/lib/cart-reconciliation";
 import type { CartLine, Product } from "@/types/commerce";
 import { triggerMediumHaptic, triggerSelectionHaptic } from "@/services/haptics";
 
@@ -24,7 +29,7 @@ type CommerceState = {
     color?: string,
     size?: string,
   ) => void;
-  refreshCartProducts: (products: Product[]) => void;
+  refreshCartProducts: (products: Product[]) => CartReconciliationResult;
   toggleWishlist: (id: string, selection?: WishlistVariant) => void;
   replaceWishlist: (ids: string[]) => void;
   replaceWishlistSelections: (
@@ -38,7 +43,7 @@ type CommerceState = {
 
 export const useCommerceStore = create<CommerceState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       cart: [],
       wishlist: [],
       wishlistSelections: {},
@@ -56,18 +61,29 @@ export const useCommerceStore = create<CommerceState>()(
               line.color === options?.color &&
               line.size === options?.size,
           );
+          const maximum = cartLineAvailableStock(product, {
+            product,
+            quantity: amount,
+            color: options?.color,
+            size: options?.size,
+          });
+          if (maximum <= 0) return state;
           return {
             cart: existing
               ? state.cart.map((line) =>
                   line === existing
-                    ? { ...line, quantity: line.quantity + amount }
+                    ? {
+                        ...line,
+                        product,
+                        quantity: Math.min(maximum, line.quantity + amount),
+                      }
                     : line,
                 )
               : [
                   ...state.cart,
                   {
                     product,
-                    quantity: amount,
+                    quantity: Math.min(maximum, amount),
                     color: options?.color,
                     size: options?.size,
                   },
@@ -110,24 +126,17 @@ export const useCommerceStore = create<CommerceState>()(
             return quantity <= 0 ? [] : [{ ...line, quantity }];
           }),
         })),
-      refreshCartProducts: (products) =>
-        set((state) => {
-          const byId = new Map(
-            products.map((product) => [product.id, product]),
-          );
-          const bySlug = new Map(
-            products.map((product) => [product.slug, product]),
-          );
-          return {
-            cart: state.cart.map((line) => ({
-              ...line,
-              product:
-                byId.get(line.product.id) ??
-                bySlug.get(line.product.slug) ??
-                line.product,
-            })),
-          };
-        }),
+      refreshCartProducts: (products) => {
+        const result = reconcileCartProducts(get().cart, products);
+        set((state) => ({
+          cart: result.cart,
+          coupon:
+            result.removed.length || result.adjusted.length
+              ? undefined
+              : state.coupon,
+        }));
+        return result;
+      },
       toggleWishlist: (id, selection) => {
         void triggerSelectionHaptic();
         set((state) => {

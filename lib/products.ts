@@ -18,10 +18,13 @@
   descriptionImage?: string;
   descriptionImages?: string[];
   colorImages?: Record<string, string>;
+  /** Ordered image galleries keyed by the exact color label. */
+  colorImageGalleries?: Record<string, string[]>;
   colorPrices?: Record<string, { price: number; originalPrice?: number }>;
   colorSizes?: Record<string, string[]>;
   outOfStockColors?: string[];
   outOfStockSizes?: string[];
+  colorSizeStock?: Record<string, Record<string, number>>;
   video?: string;
   sizeGuideType?: "clothing" | "shoes" | "none";
   urgencyStock?: number;

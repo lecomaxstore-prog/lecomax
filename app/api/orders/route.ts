@@ -18,7 +18,13 @@ import {
   paymentMethodAvailability,
   paymentMethodsFromSettings,
 } from "@/lib/payment-methods";
-import { sizeStockFromTags } from "@/lib/product-inventory";
+import {
+  colorSizeStockFromTags,
+  sizeStockFromTags,
+  syncColorSizeStockTags,
+  syncSizeInventoryTags,
+  type ProductSizeGuideType,
+} from "@/lib/product-inventory";
 
 // Use service role key server-side so RLS doesn't block order insertion
 const supabase = createClient(
@@ -227,6 +233,7 @@ export async function POST(req: NextRequest) {
   const requestedBySlug = new Map<string, number>();
   const requestedByColor = new Map<string, number>();
   const requestedBySize = new Map<string, number>();
+  const requestedByVariant = new Map<string, number>();
   for (const item of items) {
     requestedBySlug.set(item.slug, (requestedBySlug.get(item.slug) ?? 0) + item.qty);
     if (item.color) {
@@ -236,6 +243,10 @@ export async function POST(req: NextRequest) {
     if (item.size) {
       const key = `${item.slug}\u0000${item.size}`;
       requestedBySize.set(key, (requestedBySize.get(key) ?? 0) + item.qty);
+    }
+    if (item.color && item.size) {
+      const key = `${item.slug}\u0000${item.color}\u0000${item.size}`;
+      requestedByVariant.set(key, (requestedByVariant.get(key) ?? 0) + item.qty);
     }
   }
 
@@ -263,6 +274,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `La couleur choisie pour « ${item.name} » est épuisée ou insuffisante.` }, { status: 409 });
     }
     const sizeStock = sizeStockFromTags(product.tags);
+    const matrixStock = colorSizeStockFromTags(product.tags);
+    if (Object.keys(matrixStock).length > 0) {
+      const available = item.color && item.size ? matrixStock[item.color]?.[item.size] ?? 0 : 0;
+      const requested = item.color && item.size ? requestedByVariant.get(`${item.slug}\u0000${item.color}\u0000${item.size}`) ?? item.qty : item.qty;
+      if (!item.color || !item.size || requested > available) {
+        return NextResponse.json({ error: `Cette combinaison couleur/taille n’est plus disponible pour « ${item.name} ».`, code: "OUT_OF_STOCK" }, { status: 409 });
+      }
+    }
     const requestedSizeQuantity = item.size ? (requestedBySize.get(`${item.slug}\u0000${item.size}`) ?? item.qty) : item.qty;
     if (item.size && item.size in sizeStock && requestedSizeQuantity > sizeStock[item.size]) {
       return NextResponse.json({ error: `La taille choisie pour « ${item.name} » est épuisée ou insuffisante.` }, { status: 409 });
@@ -582,7 +601,7 @@ export async function POST(req: NextRequest) {
       if (!item.slug) continue;
       const { data: prod } = await supabase
         .from("products")
-        .select("stock, color_stock, slug")
+        .select("stock, color_stock, slug, tags")
         .eq("slug", item.slug)
         .single();
       if (!prod || typeof prod.stock !== "number") continue;
@@ -592,6 +611,18 @@ export async function POST(req: NextRequest) {
         if (typeof cs[item.color] === "number") {
           updates.color_stock = { ...cs, [item.color]: Math.max(0, cs[item.color] - item.qty) };
         }
+      }
+      const tags = Array.isArray(prod.tags) ? prod.tags as string[] : [];
+      const guideTag = tags.find((tag) => tag.startsWith("__guide:"));
+      const guideType = (["none", "clothing", "shoes", "custom"].includes(guideTag?.slice(8) ?? "") ? guideTag!.slice(8) : "custom") as ProductSizeGuideType;
+      const sizeStock = sizeStockFromTags(tags);
+      if (item.size && item.size in sizeStock) sizeStock[item.size] = Math.max(0, sizeStock[item.size] - item.qty);
+      const matrix = colorSizeStockFromTags(tags);
+      if (item.color && item.size && matrix[item.color] && item.size in matrix[item.color]) {
+        matrix[item.color][item.size] = Math.max(0, matrix[item.color][item.size] - item.qty);
+      }
+      if (Object.keys(sizeStock).length > 0 || Object.keys(matrix).length > 0) {
+        updates.tags = syncColorSizeStockTags(syncSizeInventoryTags(tags, guideType, Object.keys(sizeStock).length ? sizeStock : undefined), Object.keys(matrix).length ? matrix : undefined);
       }
       await supabase.from("products").update(updates).eq("slug", item.slug);
     }
