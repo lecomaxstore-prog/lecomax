@@ -59,7 +59,7 @@ export default function CategoryFilters({
   return (
     <>
       {/* Filter + sort bar */}
-      <div className="sticky top-[60px] z-[55] border-b border-neutral-100 bg-white/95 shadow-sm backdrop-blur-sm">
+      <div className="sticky top-[60px] z-30 border-b border-neutral-100 bg-white/95 shadow-sm backdrop-blur-sm lg:top-[96px]">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex items-center gap-2 py-3">
 
