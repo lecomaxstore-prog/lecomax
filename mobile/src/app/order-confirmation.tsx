@@ -3,7 +3,7 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
-import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -233,11 +233,7 @@ export default function OrderConfirmationScreen() {
         <Animated.View entering={FadeInDown.delay(530).duration(420)}>
           <AnimatedPressable
             accessibilityLabel="Contacter l’assistance au sujet de cette commande"
-            onPress={() =>
-              void Linking.openURL(
-                `mailto:contact@lecomax.com?subject=${encodeURIComponent(`Question sur la commande ${orderNumber}`)}`,
-              )
-            }
+            onPress={() => router.push({ pathname: "/support", params: { orderNumber } })}
             style={styles.helpRow}
           >
             <View style={styles.helpIcon}>

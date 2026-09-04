@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
   const colorStock = cleanColorStock(payload.color_stock);
   if (colorStock) {
     payload.color_stock = colorStock;
-    payload.stock = colorStockTotal(colorStock);
+    if (Object.keys(colorStock).length > 0) payload.stock = colorStockTotal(colorStock);
     payload.tags = syncOutOfStockTags(
       (payload.tags as string[] | undefined) ?? [],
       colorStock,

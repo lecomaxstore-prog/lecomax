@@ -234,23 +234,7 @@ export default function AccountScreen() {
     void WebBrowser.openBrowserAsync(`${runtimeConfig.apiUrl}${pathname}`);
   };
 
-  const openSupport = async () => {
-    const contact = settings.app_support_contact?.trim();
-    if (!contact) {
-      openWebsitePage("/aide");
-      return;
-    }
-    const destination = /^https?:\/\//i.test(contact)
-      ? contact
-      : contact.includes("@")
-        ? `mailto:${contact}`
-        : `tel:${contact.replace(/[^\d+]/g, "")}`;
-    if (await Linking.canOpenURL(destination)) {
-      await Linking.openURL(destination);
-    } else {
-      openWebsitePage("/aide");
-    }
-  };
+  const openSupport = () => router.push("/support");
 
   const toggleNotifications = async (enabled: boolean) => {
     if (notificationSaving || !notificationsEnabled) return;
@@ -524,7 +508,7 @@ export default function AccountScreen() {
           <ServiceTile
             dark={dark}
             icon="headset-outline"
-            onPress={() => void openSupport()}
+            onPress={openSupport}
             subtitle={
               settings.checkout_contact_subtitle?.trim() ||
               "Nous sommes là pour vous aider"
@@ -834,7 +818,7 @@ export default function AccountScreen() {
                       if (enabled) void triggerSelectionHaptic();
                     }}
                   />
-                  <SettingsRow dark={dark} icon="headset-outline" label="Assistance" subtitle="Nous sommes là pour vous aider" onPress={() => { setSheet(null); void openSupport(); }} />
+                  <SettingsRow dark={dark} icon="headset-outline" label="Assistance" subtitle="Nous sommes là pour vous aider" onPress={() => { setSheet(null); openSupport(); }} />
                 </View>
                 {session ? (
                   <View style={[styles.settingsGroup, styles.dangerGroup, dark && styles.darkSurface]}>

@@ -7,7 +7,6 @@ import { unstable_cache } from "next/cache";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import AnnouncementBar from "@/components/AnnouncementBar";
 
 import { CartProvider } from "@/components/CartContext";
 import { WishlistProvider } from "@/components/WishlistContext";
@@ -271,7 +270,6 @@ export default async function RootLayout({
           <SiteProtection />
           <PageTracker />
           <AdminLayoutWrapper>
-            <AnnouncementBar />
             <Header />
           </AdminLayoutWrapper>
           <main id="main-content" tabIndex={-1} className="flex-1 outline-none">{children}</main>

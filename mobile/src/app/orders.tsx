@@ -302,6 +302,30 @@ function OrderCard({ order }: { order: CustomerOrder }) {
             </View>
             <Ionicons name="arrow-forward" size={18} color={palette.green} />
           </AnimatedPressable>
+          <AnimatedPressable
+            accessibilityLabel={`Contacter l’assistance pour la commande ${order.order_number}`}
+            onPress={() => router.push({ pathname: "/support", params: { orderNumber: order.order_number } })}
+            style={{
+              minHeight: 48,
+              marginTop: 9,
+              paddingHorizontal: 15,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              borderWidth: 1,
+              borderColor: "#DDE4DE",
+              borderRadius: 14,
+              backgroundColor: palette.white,
+            }}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <Ionicons name="headset-outline" size={17} color={palette.greenDark} />
+              <Text style={{ color: palette.ink, fontFamily: typography.black, fontSize: 10 }}>
+                CONTACTER L’ASSISTANCE
+              </Text>
+            </View>
+            <Ionicons name="arrow-forward" size={18} color={palette.greenDark} />
+          </AnimatedPressable>
         </View>
       ) : null}
     </View>

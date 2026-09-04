@@ -17,10 +17,11 @@ import ShareButtons from "@/components/ShareButtons";
 import NewsletterSection from "@/components/NewsletterSection";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { calculateShipping, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
-import { cleanColorStock, resolveProductAvailability } from "@/lib/product-inventory";
+import { cleanColorStock, colorSizeStockFromTags, resolveProductAvailability, sizeStockFromTags } from "@/lib/product-inventory";
 import { inferProductBrand, serializeJsonLd } from "@/lib/seo";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { getProductShareData } from "@/lib/product-share";
+import { colorImageMapFromTags, legacyColorImageMap, primaryColorImages } from "@/lib/product-color-images";
 
 
 export const dynamic = "force-dynamic";
@@ -231,6 +232,7 @@ export default async function ProductPage({
       oldPrice: dbProd.original_price ?? undefined,
       colors: (dbProd.colors as string[]) ?? [],
       colorPrices: colorPricesFromTags(dbTags),
+      colorImageGalleries: colorImageMapFromTags(dbTags),
       sizes: (dbProd.sizes as string[]) ?? [],
       image: (dbProd.images ?? [])[0] || "",
       gallery: (dbProd.images ?? []).filter(Boolean).slice(1),
@@ -301,18 +303,13 @@ export default async function ProductPage({
         fallbackOutOfStockColors: product.outOfStockColors,
       });
       const tags = Array.isArray(stockData.tags) ? stockData.tags as string[] : [];
-      const sizeStock = new Map<string, number>();
-      for (const tag of tags.filter((value) => value.startsWith("__sstock:"))) {
-        const parts = tag.slice("__sstock:".length).split(":");
-        const quantity = Number(parts.pop());
-        const size = parts.join(":");
-        if (size && Number.isInteger(quantity) && quantity >= 0) sizeStock.set(size, quantity);
-      }
+      const sizeStock = sizeStockFromTags(tags);
+      const colorSizeStock = colorSizeStockFromTags(tags);
       const dbSizes = Array.isArray(stockData.sizes) && stockData.sizes.length > 0
         ? stockData.sizes as string[]
         : product.sizes;
-      const outOfStockSizes = sizeStock.size > 0
-        ? dbSizes.filter((size) => (sizeStock.get(size) ?? 0) <= 0)
+      const outOfStockSizes = Object.keys(sizeStock).length > 0
+        ? dbSizes.filter((size) => (sizeStock[size] ?? 0) <= 0)
         : product.outOfStockSizes;
       product = {
         ...product,
@@ -325,6 +322,7 @@ export default async function ProductPage({
         stock: realStock ?? undefined,
         outOfStockColors: availability.outOfStockColors,
         outOfStockSizes,
+        colorSizeStock,
       };
     }
   } catch { /* non-critical */ }
@@ -436,13 +434,17 @@ export default async function ProductPage({
   // Only build image-based color swatches when there are real uploaded images.
   // If we used a placeholder, the swatch would show a gray no-image thumbnail.
   const hasRealImages = allImages.some(
-    (img) => img && img.startsWith("http") && !img.includes("no-image") && !img.includes("placeholder")
+    (img) => img && !img.includes("no-image") && !img.includes("placeholder")
   );
-  const resolvedColorImages: Record<string, string> | undefined =
-    product.colorImages ??
-    (product.colors.length > 0 && hasRealImages
-      ? Object.fromEntries(product.colors.map((c, i) => [c, allImages[i] ?? allImages[0]]))
-      : undefined);
+  const explicitColorGalleries = product.colorImageGalleries && Object.keys(product.colorImageGalleries).length > 0
+    ? product.colorImageGalleries
+    : undefined;
+  const resolvedColorImageGalleries = explicitColorGalleries ?? (
+    product.colors.length > 0 && hasRealImages
+      ? legacyColorImageMap(product.colors, allImages, product.colorImages)
+      : undefined
+  );
+  const resolvedColorImages = primaryColorImages(resolvedColorImageGalleries);
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
@@ -479,6 +481,7 @@ export default async function ProductPage({
           discount={discount}
           colors={product.colors}
           colorImages={resolvedColorImages}
+          colorImageGalleries={resolvedColorImageGalleries}
           video={product.video}
         />
 
@@ -551,7 +554,11 @@ export default async function ProductPage({
 
           {/* Size + Add to cart */}
           <div data-product-selection>
-            <ProductActions product={product} colorImages={resolvedColorImages} />
+            <ProductActions
+              product={product}
+              colorImages={resolvedColorImages}
+              colorImageGalleries={resolvedColorImageGalleries}
+            />
           </div>
 
           <div className="w-full h-px bg-neutral-100 my-6" />

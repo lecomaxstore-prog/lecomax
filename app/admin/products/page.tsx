@@ -5,6 +5,19 @@ import type { Product } from "@/lib/supabase";
 import Link from "next/link";
 import { useApproval } from "@/lib/use-approval";
 import { colorPricesFromTags, colorPriceTags, type ColorPrice } from "@/lib/product-variant-pricing";
+import {
+  CLOTHING_SIZE_VALUES,
+  SHOE_SIZE_VALUES,
+  colorSizeStockFromTags,
+  colorSizeStockTotal,
+  colorTotalsFromColorSizeStock,
+  sizeStockFromTags,
+  sizeStockTotal,
+  sizeTotalsFromColorSizeStock,
+  type ColorSizeStock,
+  type ProductSizeGuideType,
+} from "@/lib/product-inventory";
+import { colorImageMapFromTags, type ProductColorImageMap } from "@/lib/product-color-images";
 
 const CATEGORIES = ["homme", "femme", "chaussures", "accessoires"];
 
@@ -18,8 +31,8 @@ const AVAILABLE_COLORS = [
   { label: "Beige", hex: "#D4B896" }, { label: "Marron", hex: "#92400E" },
 ];
 
-const CLOTHING_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
-const SHOE_SIZES = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"];
+const CLOTHING_SIZES: string[] = [...CLOTHING_SIZE_VALUES];
+const SHOE_SIZES: string[] = [...SHOE_SIZE_VALUES];
 
 const emptyForm = {
   slug: "", name: "", brand: "", category: "homme", price: "", original_price: "",
@@ -51,13 +64,15 @@ export default function ProductsPage() {
   const [form, setForm] = useState({ ...emptyForm });
   const [images, setImages] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [colorImagesByColor, setColorImagesByColor] = useState<ProductColorImageMap>({});
   const [colorStocks, setColorStocks] = useState<Record<string, number>>({});
   const [colorPrices, setColorPrices] = useState<Record<string, ColorPrice>>({});
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [sizeGuideType, setSizeGuideType] = useState<"none" | "clothing" | "shoes" | "custom">("none");
+  const [sizeGuideType, setSizeGuideType] = useState<ProductSizeGuideType>("none");
   const [customSizes, setCustomSizes] = useState<string[]>([]);
   const [customSizeInput, setCustomSizeInput] = useState("");
   const [sizeStocks, setSizeStocks] = useState<Record<string, number>>({});
+  const [colorSizeStocks, setColorSizeStocks] = useState<ColorSizeStock>({});
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);  const [descImages, setDescImages] = useState<string[]>([]);
@@ -136,12 +151,14 @@ export default function ProductsPage() {
     setImages([]);
     setDescImages([]);
     setSelectedColors([]);
+    setColorImagesByColor({});
     setColorStocks({});
     setColorPrices({});
     setSelectedSizes([]);
     setSizeGuideType("none");
     setCustomSizes([]);
     setSizeStocks({});
+    setColorSizeStocks({});
     setProductDetails([]);
     // Clear any leftover sessionStorage draft from a previous session
     sessionStorage.removeItem("__new_product_images");
@@ -159,7 +176,16 @@ export default function ProductsPage() {
     initializedEditIdRef.current = editId;
     const tags = p.tags ?? [];
     const guideTag = tags.find((t) => t.startsWith("__guide:"));
-    setSizeGuideType(guideTag === "__guide:shoes" ? "shoes" : guideTag === "__guide:clothing" ? "clothing" : guideTag === "__guide:custom" ? "custom" : "none");
+    const savedSizes = p.sizes ?? [];
+    const inferredGuideType: ProductSizeGuideType =
+      guideTag === "__guide:shoes" ? "shoes"
+      : guideTag === "__guide:clothing" ? "clothing"
+      : guideTag === "__guide:custom" ? "custom"
+      : p.category === "chaussures" || (savedSizes.length > 0 && savedSizes.every((size) => SHOE_SIZES.includes(size))) ? "shoes"
+      : savedSizes.length > 0 && savedSizes.every((size) => CLOTHING_SIZES.includes(size)) ? "clothing"
+      : savedSizes.length > 0 ? "custom"
+      : "none";
+    setSizeGuideType(inferredGuideType);
     setForm({
       slug: p.slug, name: p.name, brand: p.brand ?? "",
       category: p.category,
@@ -167,7 +193,7 @@ export default function ProductsPage() {
       description: p.description ?? "",
       stock: String(p.stock), active: p.active,
       featured: p.featured ?? false,
-      tags: tags.filter((t) => !t.startsWith("__guide:") && !t.startsWith("__sstock:") && !t.startsWith("__detail:") && !t.startsWith("__cprice:") && !t.startsWith("__oos:")).join(", "),
+      tags: tags.filter((t) => !t.startsWith("__guide:") && !t.startsWith("__sstock:") && !t.startsWith("__vstock:") && !t.startsWith("__detail:") && !t.startsWith("__cprice:") && !t.startsWith("__cimages:") && !t.startsWith("__oos:")).join(", "),
       weight: p.weight ? String(p.weight) : "",
       video: (p as ExtendedProduct).video ?? "",
     });
@@ -185,6 +211,10 @@ export default function ProductsPage() {
       setDescImages((p as ExtendedProduct).description_images ?? []);
     }
     setSelectedColors(p.colors ?? []);
+    const savedColorImages = colorImageMapFromTags(tags);
+    setColorImagesByColor(Object.keys(savedColorImages).length > 0
+      ? savedColorImages
+      : Object.fromEntries((p.colors ?? []).flatMap((color, index) => p.images?.[index] ? [[color, [p.images[index]]]] : [])));
     setColorStocks(p.color_stock ?? {});
     setColorPrices(colorPricesFromTags(tags));
     const detailTags = tags.filter((t) => t.startsWith("__detail:"));
@@ -192,16 +222,11 @@ export default function ProductsPage() {
       const parts = t.slice("__detail:".length).split(":");
       return { key: parts[0] ?? "", value: parts.slice(1).join(":") };
     }));
-    const savedSizes = p.sizes ?? [];
     setSelectedSizes(savedSizes);
-    const sstocks: Record<string, number> = {};
-    tags.filter((t) => t.startsWith("__sstock:")).forEach((t) => {
-      const [, size, qty] = t.split(":");
-      if (size && qty) sstocks[size] = parseInt(qty) || 0;
-    });
+    const sstocks = sizeStockFromTags(tags);
     setSizeStocks(sstocks);
-    const guideT = guideTag === "__guide:shoes" ? "shoes" : guideTag === "__guide:clothing" ? "clothing" : guideTag === "__guide:custom" ? "custom" : "none";
-    if (guideT === "custom") setCustomSizes(savedSizes);
+    setColorSizeStocks(colorSizeStockFromTags(tags));
+    if (inferredGuideType === "custom") setCustomSizes(savedSizes);
     else setCustomSizes([]);
   }, [editId, products]);
 
@@ -278,7 +303,16 @@ export default function ProductsPage() {
     setSaving(true);
     setMsg(null);
     const selectedColorStocks = Object.fromEntries(selectedColors.map((color) => [color, Math.max(0, Math.trunc(colorStocks[color] ?? 0))]));
+    const hasColorSizeStock = selectedColors.some((color) => selectedSizes.some((size) => Object.prototype.hasOwnProperty.call(colorSizeStocks[color] ?? {}, size)));
+    const selectedColorSizeStocks = Object.fromEntries(selectedColors.map((color) => [color, Object.fromEntries(selectedSizes.map((size) => [size, Math.max(0, Math.trunc(colorSizeStocks[color]?.[size] ?? 0))]))]));
+    const hasPerSizeStock = selectedSizes.some((size) => Object.prototype.hasOwnProperty.call(sizeStocks, size));
+    const selectedSizeStocks = hasColorSizeStock ? sizeTotalsFromColorSizeStock(selectedColorSizeStocks) : Object.fromEntries(selectedSizes.map((size) => [size, Math.max(0, Math.trunc(sizeStocks[size] ?? 0))]));
+    const effectiveColorStocks = hasColorSizeStock ? colorTotalsFromColorSizeStock(selectedColorSizeStocks) : selectedColorStocks;
     const selectedColorPrices = Object.fromEntries(selectedColors.filter((color) => colorPrices[color]).map((color) => [color, colorPrices[color]]));
+    const selectedColorImages = Object.fromEntries(selectedColors.map((color) => [
+      color,
+      (colorImagesByColor[color] ?? []).filter((image) => images.includes(image)),
+    ]));
     const variantStockTotal = Object.values(selectedColorStocks).reduce((total, quantity) => total + quantity, 0);
     const variantPriceValues = Object.values(selectedColorPrices).map((value) => value.price).filter((value) => Number.isFinite(value) && value >= 0);
     const cataloguePrice = variantPriceValues.length ? Math.min(...variantPriceValues) : parseFloat(form.price);
@@ -291,19 +325,21 @@ export default function ProductsPage() {
       original_price: form.original_price ? parseFloat(form.original_price) : null,
       description: form.description.trim() || null,
       images: images.filter(Boolean),
-      stock: selectedColors.length ? variantStockTotal : parseInt(form.stock) || 0,
-      color_stock: selectedColors.length ? selectedColorStocks : {},
+      stock: hasColorSizeStock ? colorSizeStockTotal(selectedColorSizeStocks) : selectedColors.length ? variantStockTotal : hasPerSizeStock ? sizeStockTotal(selectedSizeStocks) : parseInt(form.stock) || 0,
+      color_stock: selectedColors.length ? effectiveColorStocks : {},
       active: form.active,
       featured: form.featured,
       tags: [
         ...form.tags.split(",").map((s) => s.trim()).filter(Boolean),
-        ...(sizeGuideType !== "none" ? [`__guide:${sizeGuideType}`] : []),
-        ...Object.entries(sizeStocks).filter(([, qty]) => qty > 0).map(([s, qty]) => `__sstock:${s}:${qty}`),
         ...productDetails.filter((d) => d.key.trim()).map((d) => `__detail:${d.key.trim()}:${d.value.trim()}`),
         ...colorPriceTags(selectedColorPrices),
       ],
       colors: selectedColors,
+      color_images: selectedColorImages,
       sizes: selectedSizes,
+      size_guide_type: sizeGuideType,
+      ...(hasPerSizeStock || hasColorSizeStock ? { size_stock: selectedSizeStocks } : {}),
+      ...(hasColorSizeStock ? { variant_stock: selectedColorSizeStocks } : {}),
       weight: form.weight ? parseFloat(form.weight) : null,
       description_images: descImages.filter(Boolean),
       video: form.video.trim() || null,
@@ -391,6 +427,24 @@ export default function ProductsPage() {
     setSelectedColors((prev) => prev.includes(label) ? prev.filter((c) => c !== label) : [...prev, label]);
     setColorStocks((prev) => ({ ...prev, [label]: prev[label] ?? 0 }));
     setColorPrices((prev) => ({ ...prev, [label]: prev[label] ?? { price: Number(form.price) || 0, ...(Number(form.original_price) > Number(form.price) ? { originalPrice: Number(form.original_price) } : {}) } }));
+    setColorImagesByColor((prev) => ({ ...prev, [label]: prev[label] ?? [] }));
+  };
+
+  const toggleColorImage = (color: string, image: string) => {
+    setColorImagesByColor((current) => {
+      const row = current[color] ?? [];
+      return {
+        ...current,
+        [color]: row.includes(image) ? row.filter((item) => item !== image) : [...row, image],
+      };
+    });
+  };
+
+  const removeProductImage = (image: string) => {
+    setImages((current) => current.filter((item) => item !== image));
+    setColorImagesByColor((current) => Object.fromEntries(
+      Object.entries(current).map(([color, row]) => [color, row.filter((item) => item !== image)]),
+    ));
   };
 
   const toggleSize = (s: string) =>
@@ -402,6 +456,11 @@ export default function ProductsPage() {
     : sizeGuideType === "custom" ? customSizes
     : form.category === "chaussures" ? SHOE_SIZES
     : CLOTHING_SIZES;
+  const hasColorSizeStock = selectedColors.some((color) => selectedSizes.some((size) => Object.prototype.hasOwnProperty.call(colorSizeStocks[color] ?? {}, size)));
+
+  function enableColorSizeStock() {
+    setColorSizeStocks(Object.fromEntries(selectedColors.map((color) => [color, Object.fromEntries(selectedSizes.map((size) => [size, 0]))])));
+  }
 
   function addCustomSize() {
     const val = customSizeInput.trim().toUpperCase();
@@ -607,6 +666,13 @@ export default function ProductsPage() {
         <div className="mt-3 flex items-center gap-3 lg:hidden">
           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200"><div className="h-full rounded-full bg-[#3ecf4c] transition-[width] duration-500" style={{ width: `${editorCompletion}%` }} /></div>
           <span className="text-[9px] font-black text-neutral-500">{editorCompletion}%</span>
+          <button
+            type="button"
+            onClick={() => document.getElementById("product-size-inventory")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+            className="min-h-9 shrink-0 rounded-xl border border-neutral-200 bg-white px-3 text-[10px] font-black text-neutral-700 shadow-sm"
+          >
+            Tailles & pointures
+          </button>
         </div>
       </div>
 
@@ -719,7 +785,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Product Details */}
-            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+            <div id="product-size-inventory" className="scroll-mt-40 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Détails du produit</h2>
@@ -920,7 +986,7 @@ export default function ProductsPage() {
                 {(["none", "clothing", "shoes", "custom"] as const).map((opt) => {
                   const labels = { none: "Aucun", clothing: "Vêtements", shoes: "Chaussures", custom: "Personnalisé" };
                   return (
-                    <button key={opt} type="button" onClick={() => { setSizeGuideType(opt); setSelectedSizes([]); if (opt !== "custom") setCustomSizes([]); }}
+                    <button key={opt} type="button" onClick={() => { setSizeGuideType(opt); setSelectedSizes([]); setSizeStocks({}); setColorSizeStocks({}); if (opt !== "custom") setCustomSizes([]); }}
                       className={`px-3 py-1 rounded-lg border text-[11px] font-bold transition-all ${
                         sizeGuideType === opt ? "border-black bg-black text-white" : "border-neutral-200 text-neutral-500 hover:border-neutral-400"
                       }`}>
@@ -997,9 +1063,19 @@ export default function ProductsPage() {
                   </div>
 
                   {/* Per-size stock */}
-                  {selectedSizes.length > 0 && (
+                  {selectedSizes.length > 0 && !hasColorSizeStock && (
                     <div className="mt-5 border-t border-neutral-100 pt-4">
-                      <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-3">Stock par taille <span className="normal-case font-normal text-neutral-300">(optionnel)</span></p>
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-600">Stock par taille</p>
+                          <p className="mt-0.5 text-[10px] text-neutral-400">Saisissez 0 pour rendre une pointure ou taille indisponible.</p>
+                        </div>
+                        <span className="rounded-full bg-[#3ecf4c]/15 px-2.5 py-1 text-[10px] font-black text-emerald-700">
+                          {selectedSizes.some((size) => Object.prototype.hasOwnProperty.call(sizeStocks, size))
+                            ? `${sizeStockTotal(Object.fromEntries(selectedSizes.map((size) => [size, sizeStocks[size] ?? 0])))} UNITÉS`
+                            : "À RÉPARTIR"}
+                        </span>
+                      </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {selectedSizes.map((s) => (
                           <div key={s} className="flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2">
@@ -1019,6 +1095,40 @@ export default function ProductsPage() {
                           </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+
+                  {selectedColors.length > 0 && selectedSizes.length > 0 && (
+                    <div className="mt-5 border-t border-neutral-100 pt-4">
+                      <div className="mb-3 flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-[11px] font-black uppercase tracking-wider text-neutral-700">Stock par couleur et taille</p>
+                          <p className="mt-1 text-[10px] leading-4 text-neutral-400">Définissez exactement les combinaisons vendables, par exemple Jaune / 45 = 1.</p>
+                        </div>
+                        {hasColorSizeStock && <span className="shrink-0 rounded-full bg-[#3ecf4c]/15 px-2.5 py-1 text-[10px] font-black text-emerald-700">{colorSizeStockTotal(Object.fromEntries(selectedColors.map((color) => [color, Object.fromEntries(selectedSizes.map((size) => [size, colorSizeStocks[color]?.[size] ?? 0]))])))} UNITÉS</span>}
+                      </div>
+                      {!hasColorSizeStock ? (
+                        <button type="button" onClick={enableColorSizeStock} className="min-h-11 w-full rounded-xl border border-dashed border-neutral-300 bg-neutral-50 px-4 text-xs font-black text-neutral-700 transition hover:border-black hover:bg-white">
+                          Activer le stock couleur × taille
+                        </button>
+                      ) : (
+                        <div className="space-y-3">
+                          {selectedColors.map((color) => (
+                            <div key={color} className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-3">
+                              <div className="mb-2 flex items-center justify-between"><span className="text-xs font-black text-neutral-800">{color}</span><span className="text-[10px] font-bold text-neutral-400">{sizeStockTotal(Object.fromEntries(selectedSizes.map((size) => [size, colorSizeStocks[color]?.[size] ?? 0])))} unités</span></div>
+                              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                {selectedSizes.map((size) => (
+                                  <label key={`${color}-${size}`} className="flex min-h-10 items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3">
+                                    <span className="w-8 shrink-0 text-[11px] font-black text-neutral-600">{size}</span>
+                                    <input type="number" min="0" step="1" value={colorSizeStocks[color]?.[size] ?? 0} onChange={(event) => setColorSizeStocks((current) => ({ ...current, [color]: { ...(current[color] ?? {}), [size]: Math.max(0, Math.trunc(Number(event.target.value) || 0)) } }))} aria-label={`Stock ${color}, taille ${size}`} className="min-w-0 flex-1 bg-transparent text-center text-xs font-black outline-none" />
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                          <button type="button" onClick={() => setColorSizeStocks({})} className="text-[10px] font-bold text-red-500 underline underline-offset-2">Désactiver la matrice</button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </>
@@ -1073,13 +1183,60 @@ export default function ProductsPage() {
                           <button type="button" onClick={() => setImages((prev) => { const a = [...prev]; [a[0], a[i]] = [a[i], a[0]]; return a; })}
                             className="w-7 h-7 bg-white rounded-full flex items-center justify-center text-xs font-bold text-black">★</button>
                         )}
-                        <button type="button" onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
+                        <button type="button" onClick={() => removeProductImage(url)} aria-label="Supprimer cette image"
                           className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-white">
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                         </button>
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+              {images.length > 0 && selectedColors.length > 0 && (
+                <div className="mt-5 border-t border-neutral-100 pt-5">
+                  <div className="mb-3">
+                    <p className="text-[11px] font-black uppercase tracking-[.14em] text-neutral-800">Images par couleur</p>
+                    <p className="mt-1 text-[10px] leading-4 text-neutral-400">Choisissez une ou plusieurs photos. La n°1 devient l’image principale de la couleur.</p>
+                  </div>
+                  <div className="space-y-4">
+                    {selectedColors.map((color) => {
+                      const assigned = colorImagesByColor[color] ?? [];
+                      const swatch = AVAILABLE_COLORS.find((item) => item.label === color);
+                      return (
+                        <fieldset key={color} className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-3">
+                          <legend className="px-1 text-[11px] font-black text-neutral-800">
+                            <span className="mr-2 inline-block h-2.5 w-2.5 rounded-full border border-black/10 align-middle" style={{ backgroundColor: swatch?.hex ?? "#ddd" }} />
+                            {color} · {assigned.length} photo{assigned.length !== 1 ? "s" : ""}
+                          </legend>
+                          <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-5">
+                            {images.map((url, index) => {
+                              const position = assigned.indexOf(url);
+                              const selected = position >= 0;
+                              return (
+                                <button
+                                  key={`${color}-${url}`}
+                                  type="button"
+                                  onClick={() => toggleColorImage(color, url)}
+                                  aria-label={`${selected ? "Retirer" : "Associer"} l’image ${index + 1} ${selected ? "de" : "à"} la couleur ${color}`}
+                                  aria-pressed={selected}
+                                  className={`relative aspect-square overflow-hidden rounded-xl border-2 bg-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black ${selected ? "border-black shadow-sm" : "border-transparent opacity-55 hover:opacity-100"}`}
+                                >
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img src={url} alt="" className="h-full w-full object-cover" />
+                                  {selected && (
+                                    <span className="absolute left-1 top-1 rounded-full bg-black px-1.5 py-0.5 text-[8px] font-black text-white">
+                                      {position === 0 ? "PRINCIPALE" : position + 1}
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          {assigned.length === 0 && <p className="mt-2 text-[10px] font-semibold text-amber-700">Aucune image assignée : la galerie générale sera utilisée.</p>}
+                        </fieldset>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -1233,7 +1390,7 @@ export default function ProductsPage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-7xl pb-12">
+    <div className="mx-auto w-full max-w-7xl pb-28 md:pb-12">
       <div className="relative mb-5 overflow-hidden rounded-3xl border border-neutral-200 bg-white px-5 py-6 shadow-[0_1px_2px_rgba(0,0,0,.03)] sm:px-7 lg:px-8">
         <div className="pointer-events-none absolute -right-12 -top-24 h-52 w-52 rounded-full bg-[#3ecf4c]/10 blur-3xl" />
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -1268,17 +1425,17 @@ export default function ProductsPage() {
         </div>
       )}
 
-      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-2.5 sm:mb-5 sm:gap-3 lg:grid-cols-4">
         {[
           { label: "Produits actifs", value: activeProducts, detail: `${products.length - activeProducts} masqué${products.length - activeProducts !== 1 ? "s" : ""}`, tone: "emerald", icon: <path d="m5 12 4 4L19 6"/> },
           { label: "Stock faible", value: lowStockProducts, detail: "5 unités ou moins", tone: "amber", icon: <path d="M12 9v4M12 17h.01"/> },
           { label: "Ruptures", value: outOfStockProducts, detail: "À réapprovisionner", tone: "red", icon: <path d="M18 6 6 18M6 6l12 12"/> },
           { label: "Valeur du stock", value: `${inventoryValue.toLocaleString("fr-MA")} MAD`, detail: "Au prix de vente", tone: "neutral", icon: <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7H14a3.5 3.5 0 010 7H6"/> },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,.025)] sm:p-5">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-[10px] font-black uppercase tracking-[.14em] text-neutral-400">{stat.label}</p>
-              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${stat.tone === "emerald" ? "bg-emerald-50 text-emerald-600" : stat.tone === "amber" ? "bg-amber-50 text-amber-600" : stat.tone === "red" ? "bg-red-50 text-red-600" : "bg-neutral-100 text-neutral-600"}`}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">{stat.icon}</svg></span>
+          <div key={stat.label} className="rounded-[18px] border border-neutral-200 bg-white p-3.5 shadow-[0_1px_2px_rgba(0,0,0,.025)] sm:rounded-2xl sm:p-5">
+            <div className="mb-2.5 flex items-center justify-between gap-2 sm:mb-3">
+              <p className="text-[9px] font-black uppercase tracking-[.12em] text-neutral-400 sm:text-[10px] sm:tracking-[.14em]">{stat.label}</p>
+              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg sm:h-8 sm:w-8 ${stat.tone === "emerald" ? "bg-emerald-50 text-emerald-600" : stat.tone === "amber" ? "bg-amber-50 text-amber-600" : stat.tone === "red" ? "bg-red-50 text-red-600" : "bg-neutral-100 text-neutral-600"}`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">{stat.icon}</svg></span>
             </div>
             <p className="truncate text-xl font-black tracking-tight sm:text-2xl">{stat.value}</p>
             <p className="mt-1 text-[10px] text-neutral-400 sm:text-[11px]">{stat.detail}</p>
@@ -1326,7 +1483,7 @@ export default function ProductsPage() {
         </div>
       )}
 
-      <div className="mb-4 rounded-2xl border border-neutral-200 bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,.025)]">
+      <div className="mb-4 rounded-[20px] border border-neutral-200 bg-white p-3 shadow-[0_4px_18px_rgba(0,0,0,.035)]">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <div className="relative min-w-0 flex-1 lg:max-w-sm">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400">
@@ -1335,11 +1492,12 @@ export default function ProductsPage() {
           <input type="text" placeholder="Rechercher…" value={search} onChange={(e) => setSearch(e.target.value)}
             className="h-11 w-full rounded-xl border border-neutral-200 bg-neutral-50/70 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-neutral-400 focus:border-black focus:bg-white focus:ring-4 focus:ring-black/[.04]" />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1 lg:pb-0">
+        <div className="flex snap-x gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none] lg:pb-0 [&::-webkit-scrollbar]:hidden">
         {["all", ...CATEGORIES].map((c) => (
           <button key={c} onClick={() => router.replace(c === "all" ? "/admin/products" : `/admin/products?cat=${c}`)}
-            className={`shrink-0 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${filterCat === c ? "bg-black text-white shadow-md shadow-black/10" : "border border-neutral-200 bg-white text-neutral-600 hover:border-black"}`}>
-            {c === "all" ? "Tous" : c.charAt(0).toUpperCase() + c.slice(1)}
+            className={`flex min-h-10 shrink-0 snap-start items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${filterCat === c ? "bg-black text-white shadow-md shadow-black/10" : "border border-neutral-200 bg-white text-neutral-600 hover:border-black"}`}>
+            <span>{c === "all" ? "Tous" : c.charAt(0).toUpperCase() + c.slice(1)}</span>
+            <span className={`rounded-md px-1.5 py-0.5 text-[9px] ${filterCat === c ? "bg-white/15 text-white/80" : "bg-neutral-100 text-neutral-400"}`}>{c === "all" ? products.length : products.filter((product) => product.category === c).length}</span>
           </button>
         ))}
         </div>
@@ -1479,11 +1637,11 @@ export default function ProductsPage() {
             </tbody>
           </table>
         </div>
-        <div className="space-y-3 md:hidden">
+        <div className="space-y-2.5 md:hidden">
           {filtered.map((p) => (
-            <article key={p.id} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-[0_1px_2px_rgba(0,0,0,.03)]">
-              <div className="flex gap-3 p-4">
-                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-neutral-100 bg-neutral-100">
+            <article key={p.id} className="overflow-hidden rounded-[20px] border border-neutral-200 bg-white shadow-[0_4px_16px_rgba(0,0,0,.035)]">
+              <div className="flex gap-3 p-3.5">
+                <div className="h-[88px] w-[88px] shrink-0 overflow-hidden rounded-[14px] border border-neutral-100 bg-neutral-100">
                   {p.images?.[0]
                     // eslint-disable-next-line @next/next/no-img-element
                     ? <img src={p.images[0]} alt="" className="h-full w-full object-cover" />
@@ -1491,21 +1649,25 @@ export default function ProductsPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex items-start justify-between gap-2">
-                    <p className="line-clamp-2 text-sm font-black leading-snug">{p.name} {p.featured && <span className="text-yellow-400">★</span>}</p>
-                    <span className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${p.active ? "bg-emerald-500" : "bg-neutral-300"}`} />
+                    <p className="line-clamp-2 text-[13px] font-black leading-[1.25rem] text-neutral-950">{p.name} {p.featured && <span className="text-amber-400">★</span>}</p>
+                    <span className={`shrink-0 rounded-full px-2 py-1 text-[8px] font-black uppercase tracking-wide ${p.active ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}>{p.active ? "Actif" : "Masqué"}</span>
                   </div>
-                  <p className="truncate text-[10px] text-neutral-400">{p.brand ? `${p.brand} · ` : ""}{p.slug}</p>
-                  <div className="mt-3 flex items-end justify-between gap-2">
+                  <p className="truncate text-[9px] text-neutral-400">{p.brand ? `${p.brand} · ` : ""}{p.slug}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {(p.colors?.length ?? 0) > 0 && <span className="rounded-md bg-neutral-100 px-1.5 py-1 text-[8px] font-bold text-neutral-500">{p.colors!.length} couleur{p.colors!.length > 1 ? "s" : ""}</span>}
+                    {(p.sizes?.length ?? 0) > 0 && <span className="rounded-md bg-neutral-100 px-1.5 py-1 text-[8px] font-bold text-neutral-500">{p.sizes!.length} taille{p.sizes!.length > 1 ? "s" : ""}</span>}
+                  </div>
+                  <div className="mt-2 flex items-end justify-between gap-2">
                     <div><p className="text-base font-black">{p.price} MAD</p>{p.original_price && <p className="text-[10px] text-neutral-400 line-through">{p.original_price} MAD</p>}</div>
                     <span className={`rounded-full px-2.5 py-1 text-[10px] font-black ${p.stock === 0 ? "bg-red-50 text-red-600" : p.stock <= 5 ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{p.stock === 0 ? "Épuisé" : `${p.stock} en stock`}</span>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 border-t border-neutral-100 bg-neutral-50/60 p-2.5">
-                <span className="mr-auto rounded-lg bg-white px-2.5 py-1.5 text-[10px] font-bold capitalize text-neutral-600 ring-1 ring-neutral-200">{p.category}</span>
-                <Link href={`/produit/${p.slug}`} target="_blank" className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-neutral-500 ring-1 ring-neutral-200" aria-label={`Voir ${p.name}`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></Link>
-                <button onClick={() => router.push(`/admin/products?id=${p.id}`)} className="flex h-9 items-center gap-2 rounded-xl bg-black px-3 text-[10px] font-black text-white"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="m18.5 2.5 3 3L12 15l-4 1 1-4z"/></svg>Modifier</button>
-                <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id} className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600 disabled:opacity-50" aria-label={`Supprimer ${p.name}`}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6"/></svg></button>
+              <div className="flex items-center gap-2 border-t border-neutral-100 bg-neutral-50/70 p-2.5">
+                <span className="mr-auto rounded-lg bg-white px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wide text-neutral-500 ring-1 ring-neutral-200">{p.category}</span>
+                <Link href={`/produit/${p.slug}`} target="_blank" className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-neutral-500 shadow-sm ring-1 ring-neutral-200" aria-label={`Voir ${p.name}`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></Link>
+                <button onClick={() => router.push(`/admin/products?id=${p.id}`)} className="flex h-10 items-center gap-2 rounded-xl bg-black px-4 text-[10px] font-black text-white shadow-sm"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="m18.5 2.5 3 3L12 15l-4 1 1-4z"/></svg>Modifier</button>
+                <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id} className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600 ring-1 ring-red-100 disabled:opacity-50" aria-label={`Supprimer ${p.name}`}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6"/></svg></button>
               </div>
             </article>
           ))}

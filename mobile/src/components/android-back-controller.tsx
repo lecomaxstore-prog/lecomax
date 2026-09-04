@@ -38,11 +38,21 @@ export function AndroidBackController() {
   const params = useGlobalSearchParams() as NavigationParams;
   const pathnameRef = useRef(pathname);
   const paramsRef = useRef(params);
+  const routeHistoryRef = useRef<string[]>([pathname]);
+  const pendingBackTargetRef = useRef<string | null>(null);
   const exitDialogVisible = useRef(false);
 
   useEffect(() => {
     pathnameRef.current = pathname;
     paramsRef.current = params;
+
+    if (pendingBackTargetRef.current === pathname) {
+      pendingBackTargetRef.current = null;
+      return;
+    }
+
+    const history = routeHistoryRef.current;
+    if (history.at(-1) !== pathname) history.push(pathname);
   }, [params, pathname]);
 
   useEffect(() => {
@@ -60,8 +70,27 @@ export function AndroidBackController() {
         // handler. Inline sheets and focused fields register an interceptor.
         if (focusedInterceptor?.()) return true;
 
+        const history = routeHistoryRef.current;
+        const previousPath = history.length > 1
+          ? history[history.length - 2]
+          : null;
+
         if (router.canGoBack()) {
+          if (previousPath) {
+            history.pop();
+            pendingBackTargetRef.current = previousPath;
+          }
           router.back();
+          return true;
+        }
+
+        // Tab switches and restored sessions do not always create a native
+        // stack entry. Keep an app-level route trail so Android Back still
+        // returns to the last screen the customer actually visited.
+        if (previousPath) {
+          history.pop();
+          pendingBackTargetRef.current = previousPath;
+          router.replace(previousPath as never);
           return true;
         }
 

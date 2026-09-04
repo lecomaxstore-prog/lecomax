@@ -37,14 +37,27 @@ const webInputReset =
     : undefined;
 
 export default function CatalogScreen() {
-  const { t } = useT();
-  const { contentWidth } = useAppViewport();
-  const columns = productGridColumns(contentWidth);
   const params = useLocalSearchParams<{
     category?: string;
     sort?: Sort;
     filters?: string;
   }>();
+  return (
+    <CatalogContent
+      key={`${params.category ?? "all"}:${params.sort ?? "popular"}:${params.filters ?? "closed"}`}
+      params={params}
+    />
+  );
+}
+
+function CatalogContent({
+  params,
+}: {
+  params: { category?: string; sort?: Sort; filters?: string };
+}) {
+  const { t } = useT();
+  const { contentWidth } = useAppViewport();
+  const columns = productGridColumns(contentWidth);
   const { data = [], isLoading, refetch, isRefetching } = useProducts();
   const { data: categories = [] } = useCategories();
   const [category, setCategory] = useState(params.category ?? "all");

@@ -30,7 +30,7 @@
     },
     "android": {
       "package": "com.lecomax.app",
-      "predictiveBackGestureEnabled": true,
+      "predictiveBackGestureEnabled": false,
       "intentFilters": [
         {
           "action": "VIEW",

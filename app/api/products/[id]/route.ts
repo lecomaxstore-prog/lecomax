@@ -65,7 +65,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if ("color_stock" in payload) {
     synchronizedColorStock = payload.color_stock as Record<string, number>;
-    payload.stock = colorStockTotal(synchronizedColorStock);
+    if (Object.keys(synchronizedColorStock).length > 0) {
+      payload.stock = colorStockTotal(synchronizedColorStock);
+    }
   } else if ("stock" in payload) {
     synchronizedColorStock = reconcileColorStock(currentColorStock, colors, payload.stock as number);
     if (synchronizedColorStock) payload.color_stock = synchronizedColorStock;

@@ -267,6 +267,8 @@ export default function RootLayout() {
                     />
                     <Stack.Screen name="notifications" />
                     <Stack.Screen name="orders" />
+                    <Stack.Screen name="support" />
+                    <Stack.Screen name="support-chat" />
                     <Stack.Screen name="addresses" />
                     <Stack.Screen name="profile" />
                     <Stack.Screen
