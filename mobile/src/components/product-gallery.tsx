@@ -16,7 +16,6 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { AppViewportOverlay, useAppViewport } from "@/components/app-viewport";
-import { BrandLogo } from "@/components/brand-logo";
 import { palette, typography } from "@/constants/theme";
 import { imageUrl } from "@/lib/format";
 
@@ -30,8 +29,6 @@ type Props = {
   wishlistEnabled?: boolean;
   cartCount: number;
   onBack: () => void;
-  onOpenHome: () => void;
-  onOpenSearch: () => void;
   onOpenCart: () => void;
   onToggleFavorite: () => void;
 };
@@ -108,15 +105,13 @@ export const ProductGallery = memo(function ProductGallery({
   wishlistEnabled = true,
   cartCount,
   onBack,
-  onOpenHome,
-  onOpenSearch,
   onOpenCart,
   onToggleFavorite,
 }: Props) {
   const insets = useSafeAreaInsets();
   const { contentWidth, windowHeight } = useAppViewport();
-  const galleryWidth = contentWidth - 40;
-  const galleryHeight = Math.min(galleryWidth * 1.04, 610);
+  const galleryWidth = contentWidth;
+  const galleryHeight = Math.min(Math.max(galleryWidth * 1.12, 430), 640);
   const media = useMemo<GalleryItem[]>(
     () => [
       ...(video
@@ -180,62 +175,57 @@ export const ProductGallery = memo(function ProductGallery({
 
   return (
     <View style={[styles.shell, { width: contentWidth }]}>
-      <View style={[styles.header, { paddingTop: Math.max(insets.top, 10) }]}>
-        <View style={[styles.headerZone, styles.headerZoneLeft]}>
-          <AnimatedPressable
-            accessibilityLabel="Revenir à l’écran précédent"
-            accessibilityRole="button"
-            onPress={onBack}
-            pressedScale={0.92}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={22} color={palette.ink} />
-          </AnimatedPressable>
-        </View>
-        <AnimatedPressable
-          accessibilityLabel="Accueil L’ECOMAX"
-          accessibilityRole="button"
-          onPress={onOpenHome}
-          pressedScale={0.96}
-          style={styles.logoButton}
-        >
-          <BrandLogo header />
-        </AnimatedPressable>
-        <View style={[styles.headerZone, styles.headerActions]}>
-          <AnimatedPressable
-            accessibilityLabel="Rechercher"
-            accessibilityRole="button"
-            onPress={onOpenSearch}
-            pressedScale={0.92}
-            style={styles.headerButton}
-          >
-            <Ionicons name="search-outline" size={22} color={palette.ink} />
-          </AnimatedPressable>
-          <AnimatedPressable
-            accessibilityLabel="Ouvrir le panier"
-            accessibilityRole="button"
-            onPress={onOpenCart}
-            pressedScale={0.92}
-            style={styles.headerButton}
-          >
-            <Ionicons name="bag-handle-outline" size={22} color={palette.ink} />
-            {cartCount > 0 ? (
-              <View style={styles.cartBadge}>
-                <Text style={styles.cartBadgeText}>
-                  {cartCount > 99 ? "99+" : cartCount}
-                </Text>
-              </View>
-            ) : null}
-          </AnimatedPressable>
-        </View>
-      </View>
-
       <View
         style={[
           styles.galleryCard,
           { width: galleryWidth, height: galleryHeight },
         ]}
       >
+        <View style={[styles.floatingHeader, { top: Math.max(insets.top, 14) }]}>
+          <AnimatedPressable
+            accessibilityLabel="Revenir à l’écran précédent"
+            accessibilityRole="button"
+            onPress={onBack}
+            pressedScale={0.92}
+            style={styles.roundButton}
+          >
+            <Ionicons name="arrow-back" size={24} color={palette.ink} />
+          </AnimatedPressable>
+          <View style={styles.headerActions}>
+            <AnimatedPressable
+              accessibilityLabel="Ouvrir le panier"
+              accessibilityRole="button"
+              onPress={onOpenCart}
+              pressedScale={0.92}
+              style={styles.roundButton}
+            >
+              <Ionicons name="bag-handle-outline" size={22} color={palette.ink} />
+              {cartCount > 0 ? (
+                <View style={styles.cartBadge}>
+                  <Text style={styles.cartBadgeText}>
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </Text>
+                </View>
+              ) : null}
+            </AnimatedPressable>
+            {wishlistEnabled ? (
+              <AnimatedPressable
+                accessibilityLabel={
+                  favorite ? "Retirer des favoris" : "Ajouter aux favoris"
+                }
+                accessibilityState={{ selected: favorite }}
+                onPress={onToggleFavorite}
+                style={[styles.roundButton, favorite && styles.favoriteActive]}
+              >
+                <Ionicons
+                  name={favorite ? "heart" : "heart-outline"}
+                  size={25}
+                  color={favorite ? palette.white : palette.ink}
+                />
+              </AnimatedPressable>
+            ) : null}
+          </View>
+        </View>
         <FlatList
           ref={galleryRef}
           horizontal
@@ -293,41 +283,43 @@ export const ProductGallery = memo(function ProductGallery({
           )}
         />
 
+        {media.length > 1 ? (
+          <>
+            <AnimatedPressable
+              accessibilityLabel="Afficher le média précédent"
+              disabled={activeIndex === 0}
+              onPress={() => moveTo(activeIndex - 1)}
+              pressedScale={0.9}
+              style={[
+                styles.galleryArrow,
+                styles.galleryArrowLeft,
+                activeIndex === 0 && styles.galleryArrowDisabled,
+              ]}
+            >
+              <Ionicons name="chevron-back" size={26} color={palette.ink} />
+            </AnimatedPressable>
+            <AnimatedPressable
+              accessibilityLabel="Afficher le média suivant"
+              disabled={activeIndex === media.length - 1}
+              onPress={() => moveTo(activeIndex + 1)}
+              pressedScale={0.9}
+              style={[
+                styles.galleryArrow,
+                styles.galleryArrowRight,
+                activeIndex === media.length - 1 && styles.galleryArrowDisabled,
+              ]}
+            >
+              <Ionicons name="chevron-forward" size={26} color={palette.ink} />
+            </AnimatedPressable>
+          </>
+        ) : null}
+
         <View style={styles.counter}>
           <Text style={styles.counterText}>
             {activeIndex + 1} / {media.length}
           </Text>
         </View>
-        {wishlistEnabled ? (
-          <AnimatedPressable
-            accessibilityLabel={
-              favorite ? "Retirer des favoris" : "Ajouter aux favoris"
-            }
-            accessibilityState={{ selected: favorite }}
-            onPress={onToggleFavorite}
-            style={[styles.favorite, favorite && styles.favoriteActive]}
-          >
-            <Ionicons
-              name={favorite ? "heart" : "heart-outline"}
-              size={25}
-              color={favorite ? palette.white : palette.ink}
-            />
-          </AnimatedPressable>
-        ) : null}
       </View>
-
-      {media.length > 1 ? (
-        <View style={styles.dots}>
-          {media.map((item, index) => (
-            <AnimatedPressable
-              key={`dot-${item.id}`}
-              accessibilityLabel={`Afficher le média ${index + 1}`}
-              onPress={() => moveTo(index)}
-              style={[styles.dot, index === activeIndex && styles.dotActive]}
-            />
-          ))}
-        </View>
-      ) : null}
 
       <Modal
         animationType="fade"
@@ -360,47 +352,32 @@ export const ProductGallery = memo(function ProductGallery({
 });
 
 const styles = StyleSheet.create({
-  shell: { alignSelf: "center", backgroundColor: "#FAF8F4" },
-  header: {
-    minHeight: 72,
-    paddingBottom: 8,
-    paddingHorizontal: 16,
+  shell: { alignSelf: "center", backgroundColor: "#FFFFFF" },
+  floatingHeader: {
+    position: "absolute",
+    left: 18,
+    right: 18,
+    zIndex: 5,
     flexDirection: "row",
     alignItems: "center",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#ECE9E4",
-    backgroundColor: "#FFFFFF",
+    justifyContent: "space-between",
   },
-  backButton: {
-    width: 44,
-    height: 44,
+  roundButton: {
+    width: 50,
+    height: 50,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "#E7E4DF",
-    borderRadius: 22,
-    backgroundColor: "#FAFAF9",
+    borderRadius: 25,
+    backgroundColor: "rgba(255,255,255,0.97)",
+    shadowColor: "#171A18",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  logoButton: {
-    width: 106,
-    height: 44,
-    flexShrink: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerZone: { flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center" },
-  headerZoneLeft: { justifyContent: "flex-start" },
-  headerActions: { justifyContent: "flex-end", gap: 6 },
-  headerButton: {
-    width: 44,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "transparent",
-    borderRadius: 22,
-    backgroundColor: "#FFFFFF",
-  },
+  headerActions: { flexDirection: "row", alignItems: "center", gap: 10 },
   cartBadge: {
     position: "absolute",
     right: 0,
@@ -423,10 +400,9 @@ const styles = StyleSheet.create({
   galleryCard: {
     alignSelf: "center",
     overflow: "hidden",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "#EEEAE4",
-    backgroundColor: "#F2EEE8",
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEEAE4",
+    backgroundColor: "#FFFFFF",
   },
   media: { width: "100%", height: "100%" },
   missingImage: {
@@ -474,42 +450,42 @@ const styles = StyleSheet.create({
   },
   counter: {
     position: "absolute",
-    left: 14,
-    bottom: 14,
+    right: 18,
+    bottom: 18,
     minWidth: 53,
     height: 34,
     paddingHorizontal: 12,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 17,
-    backgroundColor: "rgba(255,255,255,0.94)",
+    backgroundColor: "rgba(32,34,32,0.72)",
   },
   counterText: {
-    color: palette.ink,
+    color: palette.white,
     fontFamily: typography.semibold,
     fontSize: 12,
   },
-  favorite: {
+  galleryArrow: {
     position: "absolute",
-    right: 14,
-    bottom: 14,
+    top: "51%",
     width: 48,
     height: 48,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 24,
-    backgroundColor: "rgba(255,255,255,0.96)",
+    borderWidth: 1,
+    borderColor: "#E8E5DF",
+    backgroundColor: "rgba(255,255,255,0.94)",
+    shadowColor: "#171A18",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 7,
+    elevation: 2,
   },
+  galleryArrowLeft: { left: 16 },
+  galleryArrowRight: { right: 16 },
+  galleryArrowDisabled: { opacity: 0.28 },
   favoriteActive: { backgroundColor: "#16883A" },
-  dots: {
-    minHeight: 28,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-  },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#D4D0CA" },
-  dotActive: { width: 18, backgroundColor: "#16883A" },
   zoom: {
     flex: 1,
     alignItems: "center",

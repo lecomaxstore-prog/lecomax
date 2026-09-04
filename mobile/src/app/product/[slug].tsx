@@ -281,9 +281,6 @@ export default function ProductScreen() {
   const deliveryLabel =
     settingsMap.checkout_trust_delivery?.trim() ||
     `Livraison ${settingsMap.shipping_estimated_days?.trim() || "2–5 jours ouvrables"}`;
-  const paymentLabel =
-    settingsMap.checkout_trust_payment?.trim() || "Paiement 100% sécurisé";
-
   const selectColor = (value: string) => {
     if (outOfStockColors.includes(value)) return;
     const imageIndex = findColorImageIndex(product.images, product.colors, value);
@@ -379,8 +376,6 @@ export default function ProductScreen() {
           wishlistEnabled={wishlistEnabled}
           cartCount={cart.reduce((total, line) => total + line.quantity, 0)}
           onBack={goBack}
-          onOpenHome={() => router.replace("/")}
-          onOpenSearch={() => router.push("/search")}
           onOpenCart={() => router.push("/cart")}
           onToggleFavorite={() =>
             toggleWishlist(product.id, {
@@ -393,9 +388,27 @@ export default function ProductScreen() {
         <View style={[styles.content, { width: contentWidth }]}>
           <View style={styles.categoryRow}>
             <View style={styles.collectionLabel}>
-              <Text style={styles.collectionEyebrow}>Collection</Text>
               <View style={styles.collectionDivider} />
-              <Text style={styles.category}>{product.category}</Text>
+              <Text style={styles.category}>{product.brand || product.category}</Text>
+            </View>
+            <View style={[styles.stockBadge, selectionUnavailable && styles.stockBadgeUnavailable]}>
+              <View style={[styles.stockDot, selectionUnavailable && styles.stockDotUnavailable]} />
+              <Text style={[styles.stockText, selectionUnavailable && styles.stockTextUnavailable]}>
+                {selectionUnavailable ? "INDISPONIBLE" : "PRÊT À EXPÉDIER"}
+              </Text>
+            </View>
+          </View>
+          <Text maxFontSizeMultiplier={1.15} selectable style={styles.productName}>
+            {product.name}
+          </Text>
+          <View style={styles.ratingShareRow}>
+            <View style={styles.ratingGroup}>
+              <Ionicons name="star" size={17} color="#C49A00" />
+              <Text style={styles.ratingValue}>
+                {Number(product.rating ?? 0).toFixed(1)}
+              </Text>
+              <View style={styles.ratingDivider} />
+              <Text style={styles.reviewCount}>{reviewCount} avis vérifiés</Text>
             </View>
             <AnimatedPressable
               accessibilityLabel="Partager ce produit"
@@ -407,12 +420,26 @@ export default function ProductScreen() {
               }
               style={styles.shareButton}
             >
-              <Ionicons name="share-outline" size={21} color={palette.ink} />
+              <Ionicons name="share-social-outline" size={19} color="#4D514E" />
+              <Text style={styles.shareText}>PARTAGER</Text>
             </AnimatedPressable>
           </View>
-          <Text maxFontSizeMultiplier={1.15} selectable style={styles.productName}>
-            {product.name}
-          </Text>
+
+          <View style={styles.trustRow}>
+            <View style={styles.trustItem}>
+              <Ionicons name="shield-checkmark-outline" size={23} color="#16883A" />
+              <Text numberOfLines={2} style={styles.trustText}>
+                Produit authentique
+              </Text>
+            </View>
+            <View style={styles.trustDivider} />
+            <View style={styles.trustItem}>
+              <Ionicons name="location-outline" size={23} color="#16883A" />
+              <Text numberOfLines={2} style={styles.trustText}>
+                Livraison partout au Maroc
+              </Text>
+            </View>
+          </View>
           {shortDescription ? (
             <View style={styles.descriptionBlock}>
               <Text
@@ -446,6 +473,13 @@ export default function ProductScreen() {
           ) : null}
 
           <View style={styles.priceCard}>
+            <View style={styles.priceHeader}>
+              <Text style={styles.priceEyebrow}>PRIX L’ECOMAX</Text>
+              <View style={styles.deliveryTag}>
+                <Ionicons name="cube-outline" size={15} color="#16883A" />
+                <Text style={styles.deliveryTagText}>LIVRAISON RAPIDE</Text>
+              </View>
+            </View>
             <View style={styles.priceRow}>
               <Text style={[styles.price, saving > 0 && styles.promotionalPrice]}>
                 {money(selectedPrice, currency)}
@@ -593,19 +627,42 @@ export default function ProductScreen() {
             </View>
           ) : null}
 
-          <View style={styles.trustRow}>
-            <View style={styles.trustItem}>
-              <Ionicons name="car-outline" size={25} color="#16883A" />
-              <Text numberOfLines={2} style={styles.trustText}>
-                {deliveryLabel}
+          <View style={styles.quantitySection}>
+            <Text style={styles.sectionTitle}>Quantité</Text>
+            <View style={styles.quantity}>
+              <Pressable
+                accessibilityLabel="Réduire la quantité"
+                disabled={quantity <= 1 || isAdding}
+                onPress={() => setQuantity((value) => Math.max(1, value - 1))}
+                style={({ pressed }) => [
+                  styles.quantityButton,
+                  pressed && styles.quantityButtonPressed,
+                ]}
+              >
+                <Ionicons
+                  name="remove"
+                  size={21}
+                  color={quantity <= 1 ? "#B8BAB8" : palette.ink}
+                />
+              </Pressable>
+              <Text accessibilityLabel={`Quantité ${quantity}`} style={styles.quantityValue}>
+                {quantity}
               </Text>
-            </View>
-            <View style={styles.trustDivider} />
-            <View style={styles.trustItem}>
-              <Ionicons name="lock-closed-outline" size={23} color="#16883A" />
-              <Text numberOfLines={2} style={styles.trustText}>
-                {paymentLabel}
-              </Text>
+              <Pressable
+                accessibilityLabel="Augmenter la quantité"
+                disabled={quantity >= maximumQuantity || selectionUnavailable || isAdding}
+                onPress={() => setQuantity((value) => Math.min(maximumQuantity, value + 1))}
+                style={({ pressed }) => [
+                  styles.quantityButton,
+                  pressed && styles.quantityButtonPressed,
+                ]}
+              >
+                <Ionicons
+                  name="add"
+                  size={21}
+                  color={quantity >= maximumQuantity || selectionUnavailable ? "#B8BAB8" : palette.ink}
+                />
+              </Pressable>
             </View>
           </View>
 
@@ -716,51 +773,16 @@ export default function ProductScreen() {
           { paddingBottom: Math.max(insets.bottom, 12) },
         ]}
       >
-        <View style={styles.quantity}>
-          <Pressable
-            accessibilityLabel="Réduire la quantité"
-            disabled={quantity <= 1 || isAdding}
-            onPress={() => setQuantity((value) => Math.max(1, value - 1))}
-            style={({ pressed }) => [
-              styles.quantityButton,
-              pressed && styles.quantityButtonPressed,
-            ]}
-          >
-            <Ionicons
-              name="remove"
-              size={21}
-              color={quantity <= 1 ? "#B8BAB8" : palette.ink}
-            />
-          </Pressable>
-          <Text
-            accessibilityLabel={`Quantité ${quantity}`}
-            style={styles.quantityValue}
-          >
-            {quantity}
+        <View style={styles.purchasePrice}>
+          <Text style={styles.purchasePriceLabel}>
+            {selectedSize || selectedColor || "PRIX"}
           </Text>
-          <Pressable
-            accessibilityLabel="Augmenter la quantité"
-            disabled={
-              quantity >= maximumQuantity || selectionUnavailable || isAdding
-            }
-            onPress={() =>
-              setQuantity((value) => Math.min(maximumQuantity, value + 1))
-            }
-            style={({ pressed }) => [
-              styles.quantityButton,
-              pressed && styles.quantityButtonPressed,
-            ]}
+          <Text
+            numberOfLines={1}
+            style={[styles.purchasePriceValue, saving > 0 && styles.promotionalPrice]}
           >
-            <Ionicons
-              name="add"
-              size={21}
-              color={
-                quantity >= maximumQuantity || selectionUnavailable
-                  ? "#B8BAB8"
-                  : palette.ink
-              }
-            />
-          </Pressable>
+            {money(selectedPrice, currency)}
+          </Text>
         </View>
         <AnimatedPressable
           accessibilityLabel={
@@ -862,10 +884,15 @@ const styles = StyleSheet.create({
     fontSize: 9,
     letterSpacing: 1,
   },
-  content: { alignSelf: "center", paddingHorizontal: 20, paddingBottom: 30 },
+  content: {
+    alignSelf: "center",
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 30,
+    backgroundColor: PRODUCT_BACKGROUND,
+  },
   categoryRow: {
-    minHeight: 52,
-    marginTop: 6,
+    minHeight: 34,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -873,46 +900,78 @@ const styles = StyleSheet.create({
   collectionLabel: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 7,
-  },
-  collectionEyebrow: {
-    color: "#656A65",
-    fontFamily: typography.semibold,
-    fontSize: 9.5,
-    letterSpacing: 0.65,
-    textTransform: "uppercase",
+    gap: 10,
   },
   collectionDivider: {
-    width: 5,
-    height: 5,
-    borderRadius: 3,
+    width: 28,
+    height: 2,
     backgroundColor: "#16883A",
   },
   category: {
     color: "#16883A",
     fontFamily: typography.black,
-    fontSize: 10.5,
-    letterSpacing: 0.75,
+    fontSize: 10,
+    letterSpacing: 1.5,
     textTransform: "uppercase",
   },
-  shareButton: {
-    width: 40,
-    height: 40,
+  stockBadge: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: 7,
+  },
+  stockBadgeUnavailable: { opacity: 0.8 },
+  stockDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: "#16883A" },
+  stockDotUnavailable: { backgroundColor: "#A83A3F" },
+  stockText: {
+    color: "#16883A",
+    fontFamily: typography.black,
+    fontSize: 8,
+    letterSpacing: 1.1,
+  },
+  stockTextUnavailable: { color: "#A83A3F" },
+  shareButton: {
+    minHeight: 42,
+    paddingLeft: 12,
+    alignItems: "center",
+    flexDirection: "row",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#DEDBD5",
-    borderRadius: 20,
-    backgroundColor: "transparent",
+    gap: 7,
+  },
+  shareText: {
+    color: "#6B6E6B",
+    fontFamily: typography.black,
+    fontSize: 8,
+    letterSpacing: 1.1,
   },
   productName: {
     maxWidth: 660,
-    marginTop: 4,
+    marginTop: 17,
     color: "#171A18",
+    fontFamily: "serif",
+    fontSize: 34,
+    lineHeight: 41,
+    letterSpacing: -0.8,
+  },
+  ratingShareRow: {
+    minHeight: 58,
+    marginTop: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: "#DEDAD3",
+  },
+  ratingGroup: { minWidth: 0, flexDirection: "row", alignItems: "center", gap: 7 },
+  ratingValue: {
+    color: palette.ink,
     fontFamily: typography.black,
-    fontSize: 27,
-    lineHeight: 32,
-    letterSpacing: -0.65,
+    fontSize: 12,
+  },
+  ratingDivider: { width: 1, height: 17, marginHorizontal: 2, backgroundColor: "#CFCAC2" },
+  reviewCount: {
+    color: "#81837F",
+    fontFamily: typography.regular,
+    fontSize: 10,
   },
   descriptionBlock: {
     marginTop: 13,
@@ -949,17 +1008,34 @@ const styles = StyleSheet.create({
     backgroundColor: "#EAF6ED",
   },
   priceCard: {
-    marginTop: 12,
+    marginTop: 22,
     marginBottom: 2,
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    borderWidth: 1,
-    borderColor: "#E8E4DE",
-    borderRadius: 18,
-    backgroundColor: "#FFFFFF",
+    paddingTop: 17,
+    borderTopWidth: 1,
+    borderTopColor: "#DEDAD3",
+    backgroundColor: "transparent",
+  },
+  priceHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  priceEyebrow: {
+    color: "#747773",
+    fontFamily: typography.black,
+    fontSize: 8,
+    letterSpacing: 1.4,
+  },
+  deliveryTag: { flexDirection: "row", alignItems: "center", gap: 6 },
+  deliveryTagText: {
+    color: "#16883A",
+    fontFamily: typography.black,
+    fontSize: 8,
+    letterSpacing: 0.8,
   },
   priceRow: {
     minHeight: 45,
+    marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
     flexWrap: "wrap",
@@ -1119,15 +1195,12 @@ const styles = StyleSheet.create({
     transform: [{ rotate: "-34deg" }],
   },
   trustRow: {
-    minHeight: 76,
-    marginTop: 22,
-    paddingHorizontal: 12,
+    minHeight: 72,
+    marginTop: 4,
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: PRODUCT_BORDER,
-    borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,0.66)",
+    borderBottomWidth: 1,
+    borderBottomColor: "#DEDAD3",
   },
   trustItem: {
     minWidth: 0,
@@ -1139,7 +1212,7 @@ const styles = StyleSheet.create({
   trustDivider: {
     width: 1,
     height: 34,
-    marginHorizontal: 12,
+    marginHorizontal: 16,
     backgroundColor: PRODUCT_BORDER,
   },
   trustText: {
@@ -1147,8 +1220,16 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "#3E423F",
     fontFamily: typography.semibold,
-    fontSize: 10,
-    lineHeight: 14,
+    fontSize: 10.5,
+    lineHeight: 15,
+  },
+  quantitySection: {
+    paddingVertical: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: PRODUCT_BORDER,
   },
   accordions: {
     marginTop: 24,
@@ -1287,7 +1368,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 14,
     borderTopWidth: 1,
     borderTopColor: PRODUCT_BORDER,
     backgroundColor: "rgba(255,255,255,0.98)",
@@ -1323,6 +1404,25 @@ const styles = StyleSheet.create({
     fontFamily: typography.black,
     fontSize: 15,
     textAlign: "center",
+  },
+  purchasePrice: {
+    width: 112,
+    minWidth: 0,
+    justifyContent: "center",
+  },
+  purchasePriceLabel: {
+    color: "#7B7E7A",
+    fontFamily: typography.bold,
+    fontSize: 8,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+  },
+  purchasePriceValue: {
+    marginTop: 4,
+    color: palette.ink,
+    fontFamily: typography.black,
+    fontSize: 20,
+    letterSpacing: -0.5,
   },
   addButton: {
     minWidth: 0,
