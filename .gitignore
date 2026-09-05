@@ -67,3 +67,6 @@ release/android/
 
 # Local browser-inspection context exported by the integrated browser
 lib/Attached Element Context from Integrated.txt
+
+# Local design and verification screenshots taken while iterating on mobile UI
+mobile/*.png
