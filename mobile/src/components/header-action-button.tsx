@@ -4,6 +4,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  View,
   useWindowDimensions,
   type PressableProps,
 } from "react-native";
@@ -31,7 +32,7 @@ type HeaderActionButtonProps = Pick<
   active?: boolean;
   badge?: number;
   shape?: "circle" | "rounded";
-  tone?: "default" | "soft" | "contrast";
+  tone?: "default" | "soft" | "contrast" | "ghost";
   text?: string;
   expandedWidth?: number;
 };
@@ -54,27 +55,96 @@ export const HeaderActionButton = memo(function HeaderActionButton({
   const interaction = useSharedValue(0);
   const pressed = useSharedValue(0);
   const focused = useSharedValue(0);
-  const compact = width < 360;
-  const size = compact ? 42 : 44;
+  const size = 44;
   const showText = Boolean(text) && width >= 350;
   const dark = colorScheme === "dark";
   const soft = tone === "soft";
   const contrast = tone === "contrast";
+  const ghost = tone === "ghost";
 
   const animatedStyle = useAnimatedStyle(() => {
-    const baseColor = contrast ? (dark ? palette.white : palette.ink) : active ? (dark ? palette.white : palette.ink) : dark ? "#171817" : soft ? "#F3F6F3" : palette.white;
-    const hoverColor = contrast ? (dark ? "#E6E8E6" : "#242624") : active ? (dark ? "#E6E8E6" : "#262826") : dark ? "#292B29" : soft ? "#E8EDE9" : "#EEF1EE";
-    const baseBorder = contrast ? (dark ? palette.white : palette.ink) : active ? (dark ? palette.white : palette.ink) : dark ? "#3A3D3A" : soft ? "#E5EAE6" : "#DDE2DE";
-    const hoverBorder = active ? (dark ? "#E6E8E6" : "#262826") : dark ? "#626862" : "#BEC6C0";
+    const baseColor = ghost
+      ? "transparent"
+      : contrast
+        ? dark
+          ? palette.white
+          : palette.ink
+        : active
+          ? dark
+            ? palette.white
+            : palette.ink
+          : dark
+            ? "#171817"
+            : soft
+              ? "#F3F6F3"
+              : palette.white;
+    const hoverColor = ghost
+      ? "transparent"
+      : contrast
+        ? dark
+          ? "#E6E8E6"
+          : "#242624"
+        : active
+          ? dark
+            ? "#E6E8E6"
+            : "#262826"
+          : dark
+            ? "#292B29"
+            : soft
+              ? "#E8EDE9"
+              : "#EEF1EE";
+    const baseBorder = ghost
+      ? "transparent"
+      : contrast
+        ? dark
+          ? palette.white
+          : palette.ink
+        : active
+          ? dark
+            ? palette.white
+            : palette.ink
+          : dark
+            ? "#3A3D3A"
+            : soft
+              ? "#E5EAE6"
+              : "#DDE2DE";
+    const hoverBorder = ghost
+      ? "transparent"
+      : active
+        ? dark
+          ? "#E6E8E6"
+          : "#262826"
+        : dark
+          ? "#626862"
+          : "#BEC6C0";
 
     return {
-      backgroundColor: interpolateColor(interaction.value, [0, 1], [baseColor, hoverColor]),
+      backgroundColor: interpolateColor(
+        interaction.value,
+        [0, 1],
+        [baseColor, hoverColor],
+      ),
       borderColor: focused.value
         ? palette.greenDark
-        : interpolateColor(interaction.value, [0, 1], [baseBorder, hoverBorder]),
-      shadowOpacity: interpolate(interaction.value, [0, 1], [dark ? 0.2 : 0.09, dark ? 0.3 : 0.17]),
+        : interpolateColor(
+            interaction.value,
+            [0, 1],
+            [baseBorder, hoverBorder],
+          ),
+      shadowOpacity:
+        soft || ghost
+          ? 0
+          : interpolate(
+              interaction.value,
+              [0, 1],
+              [dark ? 0.2 : 0.09, dark ? 0.3 : 0.17],
+            ),
       transform: [
-        { translateY: interpolate(interaction.value, [0, 1], [0, -1.5]) },
+        {
+          translateY: ghost
+            ? 0
+            : interpolate(interaction.value, [0, 1], [0, -1.5]),
+        },
         { scale: interpolate(pressed.value, [0, 1], [1, 0.96]) },
       ],
     };
@@ -102,11 +172,30 @@ export const HeaderActionButton = memo(function HeaderActionButton({
         styles.button,
         shape === "rounded" && styles.roundedButton,
         { width: showText ? expandedWidth : size, height: size },
+        (soft || ghost) && styles.flatButton,
         animatedStyle,
       ]}
     >
       <Ionicons
-        color={contrast ? (dark ? palette.ink : palette.white) : active ? (dark ? palette.ink : palette.white) : dark ? palette.white : palette.ink}
+        color={
+          ghost
+            ? active
+              ? palette.greenDark
+              : dark
+                ? palette.white
+                : palette.ink
+            : contrast
+              ? dark
+                ? palette.ink
+                : palette.white
+              : active
+                ? dark
+                  ? palette.ink
+                  : palette.white
+                : dark
+                  ? palette.white
+                  : palette.ink
+        }
         name={active && activeIcon ? activeIcon : icon}
         size={21}
       />
@@ -115,13 +204,37 @@ export const HeaderActionButton = memo(function HeaderActionButton({
           allowFontScaling={false}
           style={[
             styles.buttonText,
-            { color: contrast ? (dark ? palette.ink : palette.white) : active ? (dark ? palette.ink : palette.white) : dark ? palette.white : palette.ink },
+            {
+              color: ghost
+                ? active
+                  ? palette.greenDark
+                  : dark
+                    ? palette.white
+                    : palette.ink
+                : contrast
+                  ? dark
+                    ? palette.ink
+                    : palette.white
+                  : active
+                    ? dark
+                      ? palette.ink
+                      : palette.white
+                    : dark
+                      ? palette.white
+                      : palette.ink,
+            },
           ]}
         >
           {text}
         </Text>
       ) : null}
-      <NotificationBadge count={badge} />
+      {ghost ? (
+        <View pointerEvents="none" style={styles.inlineBadge}>
+          <NotificationBadge count={badge} />
+        </View>
+      ) : (
+        <NotificationBadge count={badge} />
+      )}
     </AnimatedPressable>
   );
 });
@@ -142,8 +255,10 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   roundedButton: {
-    borderRadius: ui.radius.lg,
+    borderRadius: 12,
   },
+  flatButton: { elevation: 0 },
+  inlineBadge: { position: "absolute", top: 7, right: 5 },
   buttonText: {
     fontFamily: typography.bold,
     fontSize: 11,

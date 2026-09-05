@@ -111,7 +111,10 @@ export const ProductGallery = memo(function ProductGallery({
   const insets = useSafeAreaInsets();
   const { contentWidth, windowHeight } = useAppViewport();
   const galleryWidth = contentWidth;
-  const galleryHeight = Math.min(Math.max(galleryWidth * 1.12, 430), 640);
+  const galleryHeight = Math.max(
+    320,
+    Math.min(galleryWidth * 1.02, windowHeight * 0.52, 520),
+  );
   const media = useMemo<GalleryItem[]>(
     () => [
       ...(video
@@ -181,25 +184,30 @@ export const ProductGallery = memo(function ProductGallery({
           { width: galleryWidth, height: galleryHeight },
         ]}
       >
-        <View style={[styles.floatingHeader, { top: Math.max(insets.top, 14) }]}>
+        <View
+          style={[
+            styles.floatingHeader,
+            { top: Math.max(insets.top + 6, 12) },
+          ]}
+        >
           <AnimatedPressable
             accessibilityLabel="Revenir à l’écran précédent"
             accessibilityRole="button"
             onPress={onBack}
-            pressedScale={0.92}
+            pressedScale={0.94}
             style={styles.roundButton}
           >
-            <Ionicons name="arrow-back" size={24} color={palette.ink} />
+            <Ionicons name="arrow-back" size={21} color={palette.ink} />
           </AnimatedPressable>
           <View style={styles.headerActions}>
             <AnimatedPressable
               accessibilityLabel="Ouvrir le panier"
               accessibilityRole="button"
               onPress={onOpenCart}
-              pressedScale={0.92}
+              pressedScale={0.94}
               style={styles.roundButton}
             >
-              <Ionicons name="bag-handle-outline" size={22} color={palette.ink} />
+              <Ionicons name="bag-handle-outline" size={21} color={palette.ink} />
               {cartCount > 0 ? (
                 <View style={styles.cartBadge}>
                   <Text style={styles.cartBadgeText}>
@@ -213,13 +221,15 @@ export const ProductGallery = memo(function ProductGallery({
                 accessibilityLabel={
                   favorite ? "Retirer des favoris" : "Ajouter aux favoris"
                 }
+                accessibilityRole="button"
                 accessibilityState={{ selected: favorite }}
                 onPress={onToggleFavorite}
+                pressedScale={0.94}
                 style={[styles.roundButton, favorite && styles.favoriteActive]}
               >
                 <Ionicons
                   name={favorite ? "heart" : "heart-outline"}
-                  size={25}
+                  size={21}
                   color={favorite ? palette.white : palette.ink}
                 />
               </AnimatedPressable>
@@ -260,10 +270,11 @@ export const ProductGallery = memo(function ProductGallery({
                     <Image
                       source={imageUrl(item.uri)}
                       contentFit="contain"
+                      contentPosition="center"
                       transition={180}
                       cachePolicy="memory-disk"
                       recyclingKey={item.id}
-                      style={styles.media}
+                      style={styles.productImage}
                     />
                   ) : (
                     <View style={styles.missingImage}>
@@ -296,7 +307,7 @@ export const ProductGallery = memo(function ProductGallery({
                 activeIndex === 0 && styles.galleryArrowDisabled,
               ]}
             >
-              <Ionicons name="chevron-back" size={26} color={palette.ink} />
+              <Ionicons name="chevron-back" size={20} color={palette.ink} />
             </AnimatedPressable>
             <AnimatedPressable
               accessibilityLabel="Afficher le média suivant"
@@ -309,7 +320,7 @@ export const ProductGallery = memo(function ProductGallery({
                 activeIndex === media.length - 1 && styles.galleryArrowDisabled,
               ]}
             >
-              <Ionicons name="chevron-forward" size={26} color={palette.ink} />
+              <Ionicons name="chevron-forward" size={20} color={palette.ink} />
             </AnimatedPressable>
           </>
         ) : null}
@@ -352,43 +363,43 @@ export const ProductGallery = memo(function ProductGallery({
 });
 
 const styles = StyleSheet.create({
-  shell: { alignSelf: "center", backgroundColor: "#FFFFFF" },
+  shell: { alignSelf: "center", backgroundColor: "#F8F7F4" },
   floatingHeader: {
     position: "absolute",
-    left: 18,
-    right: 18,
+    left: 14,
+    right: 14,
     zIndex: 5,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
   roundButton: {
-    width: 50,
-    height: 50,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#E7E4DF",
-    borderRadius: 25,
-    backgroundColor: "rgba(255,255,255,0.97)",
+    borderColor: "rgba(23,26,24,0.07)",
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.96)",
     shadowColor: "#171A18",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.045,
+    shadowRadius: 9,
+    elevation: 1,
   },
-  headerActions: { flexDirection: "row", alignItems: "center", gap: 10 },
+  headerActions: { flexDirection: "row", alignItems: "center", gap: 8 },
   cartBadge: {
     position: "absolute",
-    right: 0,
-    top: 1,
-    minWidth: 18,
-    height: 18,
-    paddingHorizontal: 4,
+    right: 2,
+    top: 2,
+    minWidth: 15,
+    height: 15,
+    paddingHorizontal: 3,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 9,
-    borderWidth: 2,
+    borderRadius: 7.5,
+    borderWidth: 1.5,
     borderColor: "#FFFFFF",
     backgroundColor: "#16883A",
   },
@@ -401,10 +412,21 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     overflow: "hidden",
     borderBottomWidth: 1,
-    borderBottomColor: "#EEEAE4",
+    borderBottomColor: "rgba(0,0,0,0.06)",
     backgroundColor: "#FFFFFF",
   },
-  media: { width: "100%", height: "100%" },
+  media: {
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFFFFF",
+  },
+  productImage: {
+    width: "100%",
+    height: "96%",
+    transform: [{ translateY: 6 }],
+  },
   missingImage: {
     width: "100%",
     height: "100%",
@@ -450,41 +472,43 @@ const styles = StyleSheet.create({
   },
   counter: {
     position: "absolute",
-    right: 18,
-    bottom: 18,
-    minWidth: 53,
-    height: 34,
-    paddingHorizontal: 12,
+    right: 16,
+    bottom: 12,
+    minWidth: 46,
+    height: 28,
+    paddingHorizontal: 10,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 17,
-    backgroundColor: "rgba(32,34,32,0.72)",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(23,26,24,0.08)",
+    backgroundColor: "rgba(255,255,255,0.9)",
   },
   counterText: {
-    color: palette.white,
+    color: "#5C605D",
     fontFamily: typography.semibold,
-    fontSize: 12,
+    fontSize: 11.5,
   },
   galleryArrow: {
     position: "absolute",
-    top: "51%",
-    width: 48,
-    height: 48,
+    top: "53%",
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 24,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "#E8E5DF",
-    backgroundColor: "rgba(255,255,255,0.94)",
+    borderColor: "rgba(23,26,24,0.06)",
+    backgroundColor: "rgba(255,255,255,0.82)",
     shadowColor: "#171A18",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.035,
     shadowRadius: 7,
-    elevation: 2,
+    elevation: 1,
   },
-  galleryArrowLeft: { left: 16 },
-  galleryArrowRight: { right: 16 },
-  galleryArrowDisabled: { opacity: 0.28 },
+  galleryArrowLeft: { left: 14 },
+  galleryArrowRight: { right: 14 },
+  galleryArrowDisabled: { opacity: 0.14 },
   favoriteActive: { backgroundColor: "#16883A" },
   zoom: {
     flex: 1,

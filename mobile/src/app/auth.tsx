@@ -216,17 +216,13 @@ export default function AuthScreen() {
         ]}
       >
         <Animated.View entering={FadeIn.duration(320)} style={styles.intro}>
-          <Text style={styles.introEyebrow}>
-            {mode === "login" ? "ESPACE CLIENT" : "REJOIGNEZ L’ECOMAX"}
-          </Text>
           <Text style={styles.title}>
-            {mode === "login" ? "Connexion" : "Créer un compte"}
+            {mode === "login" ? "Bon retour parmi nous." : "Bienvenue chez L’ecomax."}
           </Text>
-          <View style={styles.titleAccent} />
           <Text style={styles.subtitle}>
             {mode === "login"
-              ? "Retrouvez vos commandes, vos favoris et vos avantages ecoClub."
-              : "Créez votre espace et profitez pleinement de tous vos avantages."}
+              ? "Connectez-vous pour retrouver votre compte."
+              : "Créez votre compte en quelques instants."}
           </Text>
         </Animated.View>
 
@@ -234,6 +230,7 @@ export default function AuthScreen() {
           entering={FadeInDown.delay(100).duration(380)}
           style={styles.form}
         >
+          <Text style={styles.formTitle}>{mode === "login" ? "Connexion" : "Créer un compte"}</Text>
           {feedback ? (
             <View
               style={[
@@ -450,7 +447,7 @@ export default function AuthScreen() {
                     onSubmitEditing={
                       mode === "login" ? () => void submit() : undefined
                     }
-                    placeholder="8 caractères minimum"
+                    placeholder={mode === "login" ? "Votre mot de passe" : "8 caractères minimum"}
                     placeholderTextColor="#A1A5A2"
                     autoCapitalize="none"
                     autoComplete={
@@ -565,7 +562,7 @@ export default function AuthScreen() {
           >
             {isSubmitting ? (
               <ActivityIndicator
-                color={mode === "signup" ? palette.ink : palette.white}
+                color={palette.ink}
               />
             ) : (
               <>
@@ -575,7 +572,7 @@ export default function AuthScreen() {
                     mode === "signup" && styles.submitButtonTextSignup,
                   ]}
                 >
-                  {mode === "login" ? "SE CONNECTER" : "CRÉER MON COMPTE"}
+                  {mode === "login" ? "Se connecter" : "Créer mon compte"}
                 </Text>
                 {mode === "signup" ? (
                   <View style={styles.signupArrow}>
@@ -586,11 +583,11 @@ export default function AuthScreen() {
                     />
                   </View>
                 ) : (
-                  <Ionicons
+                  <View style={styles.signupArrow}><Ionicons
                     name="arrow-forward"
                     size={18}
-                    color={palette.green}
-                  />
+                    color={palette.ink}
+                  /></View>
                 )}
               </>
             )}
@@ -637,14 +634,14 @@ export default function AuthScreen() {
             onPress={switchMode}
             style={styles.alternateButton}
           >
-            <Text style={styles.alternatePrefix}>
+            <View style={styles.alternateCopy}><Text style={styles.alternatePrefix}>
               {mode === "login"
-                ? "NOUVEAU CHEZ L’ECOMAX ?"
-                : "DÉJÀ UN COMPTE ?"}
+                ? "Nouveau chez L’ecomax ?"
+                : "Déjà un compte ?"}
             </Text>
             <Text style={styles.alternateLabel}>
-              {mode === "login" ? " CRÉER UN COMPTE" : " SE CONNECTER"}
-            </Text>
+              {mode === "login" ? "Créer un compte" : "Se connecter"}
+            </Text></View>
             <Ionicons
               name="arrow-forward"
               size={17}
@@ -659,7 +656,7 @@ export default function AuthScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: palette.white },
+  screen: { flex: 1, backgroundColor: "#F6F7F4" },
   header: {
     minHeight: 70,
     paddingHorizontal: 16,
@@ -667,9 +664,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E8EAE8",
-    backgroundColor: palette.white,
+    backgroundColor: "#F6F7F4",
   },
   closeButton: {
     width: 44,
@@ -700,43 +695,27 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 480,
     alignSelf: "center",
-    paddingHorizontal: 22,
-    paddingTop: 37,
+    paddingHorizontal: 20,
+    paddingTop: 14,
   },
-  intro: { alignItems: "center" },
-  introEyebrow: {
-    color: palette.greenDark,
-    fontFamily: typography.black,
-    fontSize: 9,
-    letterSpacing: 1.8,
-  },
+  intro: { paddingHorizontal: 4, paddingTop: 24, paddingBottom: 18 },
   title: {
-    marginTop: 10,
-    color: palette.ink,
-    fontFamily: typography.black,
-    fontSize: 32,
-    lineHeight: 38,
-    letterSpacing: -1,
-    textAlign: "center",
-    textTransform: "uppercase",
-  },
-  titleAccent: {
-    width: 42,
-    height: 3,
-    marginTop: 10,
-    borderRadius: 2,
-    backgroundColor: palette.green,
+    color: "#18251D",
+    fontFamily: typography.bold,
+    fontSize: 26,
+    lineHeight: 33,
+    letterSpacing: -0.8,
   },
   subtitle: {
     maxWidth: 320,
-    marginTop: 13,
-    color: palette.muted,
+    marginTop: 10,
+    color: "#70766F",
     fontFamily: typography.regular,
-    fontSize: 12,
-    lineHeight: 18,
-    textAlign: "center",
+    fontSize: 13,
+    lineHeight: 20,
   },
-  form: { marginTop: 31 },
+  form: { marginTop: 16, padding: 20, borderRadius: 24, backgroundColor: palette.white, borderWidth: 1, borderColor: "#E7EAE3" },
+  formTitle: { fontFamily: typography.bold, fontSize: 20, letterSpacing: -0.6, color: "#12291F", marginBottom: 22 },
   feedback: {
     marginBottom: 18,
     padding: 13,
@@ -764,7 +743,7 @@ const styles = StyleSheet.create({
     color: "#5D625E",
     fontFamily: typography.black,
     fontSize: 9,
-    letterSpacing: 1.25,
+    letterSpacing: 0.8,
   },
   passwordLabelRow: {
     flexDirection: "row",
@@ -773,24 +752,24 @@ const styles = StyleSheet.create({
   },
   forgotText: {
     marginBottom: 8,
-    color: palette.ink,
+    color: "#27643B",
     fontFamily: typography.semibold,
     fontSize: 10,
     textDecorationLine: "underline",
   },
   inputShell: {
-    height: 60,
+    height: 56,
     paddingHorizontal: 10,
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#DDE1DE",
-    borderRadius: 14,
-    backgroundColor: palette.white,
+    borderRadius: 15,
+    backgroundColor: "#FAFBF8",
   },
   inputShellFocused: {
     borderWidth: 1.5,
-    borderColor: palette.ink,
+    borderColor: "#458853",
     shadowColor: palette.ink,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
@@ -804,7 +783,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 11,
-    backgroundColor: "#F3F5F3",
+    backgroundColor: "#EFF3E9",
   },
   inputIconFocused: { backgroundColor: "#EAF7ED" },
   input: {
@@ -829,54 +808,52 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     height: 56,
-    paddingHorizontal: 22,
+    paddingHorizontal: 18,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     gap: 12,
     borderWidth: 1,
-    borderColor: "#202220",
-    borderRadius: 12,
-    backgroundColor: palette.ink,
+    borderColor: "#B8F28B",
+    borderRadius: 15,
+    backgroundColor: "#B8F28B",
     shadowColor: palette.ink,
     shadowOffset: { width: 0, height: 7 },
-    shadowOpacity: 0.13,
+    shadowOpacity: 0,
     shadowRadius: 13,
-    elevation: 5,
+    elevation: 0,
   },
   buttonDisabled: { opacity: 0.65 },
   submitButtonSignup: {
-    borderColor: palette.green,
-    backgroundColor: palette.green,
+    borderColor: "#B8F28B",
+    backgroundColor: "#B8F28B",
     shadowColor: palette.greenDark,
-    shadowOpacity: 0.2,
+    shadowOpacity: 0,
   },
   submitButtonText: {
-    color: palette.white,
+    color: palette.ink,
     fontFamily: typography.black,
-    fontSize: 11,
-    letterSpacing: 1.35,
+    fontSize: 13,
+    letterSpacing: 0,
   },
   submitButtonTextSignup: { color: palette.ink },
   signupArrow: {
     position: "absolute",
     right: 8,
-    width: 40,
-    height: 40,
+    width: 32,
+    height: 32,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 12,
-    backgroundColor: "rgba(255,255,255,0.78)",
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.35)",
   },
   reassurance: {
     marginTop: 13,
     padding: 10,
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#DCEFE0",
     borderRadius: 13,
-    backgroundColor: "#F2FAF4",
+    backgroundColor: "#F6F8F2",
   },
   reassuranceIcon: {
     width: 34,
@@ -913,7 +890,7 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
   dividerRow: {
-    marginVertical: 22,
+    marginVertical: 18,
     flexDirection: "row",
     alignItems: "center",
   },
@@ -926,32 +903,31 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   alternateButton: {
-    minHeight: 56,
+    minHeight: 64,
     paddingHorizontal: 17,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     borderWidth: 1,
-    borderColor: "#C9CECA",
-    borderRadius: 12,
+    borderColor: "#E0E5DA",
+    borderRadius: 15,
     backgroundColor: palette.white,
     shadowColor: palette.ink,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0,
     shadowRadius: 9,
-    elevation: 1,
+    elevation: 0,
   },
+  alternateCopy: { flex: 1, gap: 5 },
   alternatePrefix: {
     color: palette.muted,
     fontFamily: typography.bold,
-    fontSize: 9,
-    letterSpacing: 0.4,
+    fontSize: 10,
   },
   alternateLabel: {
     color: palette.ink,
     fontFamily: typography.black,
-    fontSize: 9,
-    letterSpacing: 0.4,
+    fontSize: 12,
   },
   alternateArrow: { marginLeft: 9 },
 });

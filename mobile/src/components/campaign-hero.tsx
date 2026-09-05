@@ -35,9 +35,11 @@ export const CampaignHero = memo(function CampaignHero({
   const [imageFailed, setImageFailed] = useState(false);
   const compact = contentWidth < 360;
   const campaign = banner ?? fallbackBanner;
+  const title = campaign.title || fallbackBanner.title;
+  const displayTitle = title === fallbackBanner.title ? "Bougez plus.\nVivez mieux." : title;
 
   return (
-    <View style={[styles.card, { height: compact ? 330 : 370 }]}>
+    <View style={[styles.card, { minHeight: compact ? 420 : 460 }]}>
       {imageFailed ? (
         <View style={styles.imageFallback}>
           <Ionicons name="image-outline" size={35} color="#8B918C" />
@@ -50,7 +52,7 @@ export const CampaignHero = memo(function CampaignHero({
           accessibilityLabel={campaign.title || "Campagne L’ECOMAX"}
           source={campaign.image}
           contentFit="cover"
-          contentPosition="center"
+          contentPosition="right center"
           cachePolicy="memory-disk"
           recyclingKey={campaign.id}
           transition={220}
@@ -59,20 +61,26 @@ export const CampaignHero = memo(function CampaignHero({
         />
       )}
       <LinearGradient
-        colors={["rgba(0,0,0,0.02)", "rgba(0,0,0,0.18)", "rgba(0,0,0,0.88)"]}
-        locations={[0, 0.38, 1]}
+        colors={["rgba(10,15,11,0.06)", "rgba(10,15,11,0)", "rgba(10,15,11,0.72)", "rgba(10,15,11,0.96)"]}
+        locations={[0, 0.38, 0.72, 1]}
         style={StyleSheet.absoluteFill}
       />
+      <View style={styles.topline}>
+        <View style={styles.collectionBadge}>
+          <View style={styles.collectionDot} />
+          <Text style={styles.eyebrow}>
+            {campaign.eyebrow || "NOUVELLE COLLECTION"}
+          </Text>
+        </View>
+        <Ionicons name="arrow-forward" size={18} color="#F8F6EF" style={{ transform: [{ rotate: "-45deg" }] }} />
+      </View>
       <View style={styles.content}>
-        <Text style={styles.eyebrow}>
-          {campaign.eyebrow || "NOUVELLE COLLECTION"}
-        </Text>
         <Text
           maxFontSizeMultiplier={1.18}
           numberOfLines={3}
           style={[styles.title, compact && styles.titleCompact]}
         >
-          {campaign.title || "BOUGEZ PLUS. VIVEZ MIEUX."}
+          {displayTitle}
         </Text>
         <Text
           maxFontSizeMultiplier={1.25}
@@ -83,6 +91,7 @@ export const CampaignHero = memo(function CampaignHero({
             "Performance, style et innovation pour chaque journée."}
         </Text>
         <AnimatedPressable
+          accessibilityRole="button"
           accessibilityLabel={`${campaign.ctaLabel || "Découvrir"} : ${campaign.title}`}
           onPress={() =>
             router.push((campaign.href || "/catalog?sort=new") as Href)
@@ -90,8 +99,10 @@ export const CampaignHero = memo(function CampaignHero({
           pressedScale={0.96}
           style={styles.cta}
         >
-          <Text style={styles.ctaText}>{campaign.ctaLabel || "DÉCOUVRIR"}</Text>
-          <Ionicons name="arrow-forward" size={16} color={colors.text} />
+          <Text style={styles.ctaText}>{(campaign.ctaLabel || "Découvrir").toLocaleLowerCase("fr").replace(/^./, (letter) => letter.toLocaleUpperCase("fr"))}</Text>
+          <View style={styles.ctaArrow}>
+            <Ionicons name="arrow-forward" size={17} color="#F8F6EF" />
+          </View>
         </AnimatedPressable>
       </View>
     </View>
@@ -102,7 +113,7 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
     overflow: "hidden",
-    borderRadius: 14,
+    borderRadius: 24,
     backgroundColor: colors.surfaceStrong,
   },
   imageFallback: {
@@ -121,50 +132,77 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 26,
+    paddingTop: 145,
     alignItems: "flex-start",
     justifyContent: "flex-end",
   },
   eyebrow: {
-    color: colors.primary,
-    fontFamily: typography.black,
-    fontSize: 9,
-    letterSpacing: 1.7,
-  },
-  title: {
-    maxWidth: 330,
-    marginTop: 7,
-    color: "#FFFFFF",
-    fontFamily: typography.black,
-    fontSize: 30,
-    lineHeight: 30,
-    letterSpacing: -1,
-  },
-  titleCompact: { fontSize: 26, lineHeight: 27 },
-  description: {
-    maxWidth: 295,
-    marginTop: 9,
-    color: "rgba(255,255,255,0.84)",
+    color: "#F8F6EF",
     fontFamily: typography.medium,
-    fontSize: 11.5,
-    lineHeight: 17,
+    fontSize: 8,
+    letterSpacing: 1.5,
   },
-  cta: {
-    minWidth: 132,
-    minHeight: 46,
-    marginTop: 17,
-    paddingHorizontal: 17,
+  topline: {
+    padding: 22,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    borderRadius: 10,
-    backgroundColor: colors.primary,
+    justifyContent: "space-between",
+  },
+  collectionBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
+    backgroundColor: "rgba(12,20,14,0.24)",
+  },
+  collectionDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: "#9DD8AC" },
+  title: {
+    maxWidth: 450,
+    color: "#F8F6EF",
+    fontFamily: typography.medium,
+    fontSize: 38,
+    lineHeight: 41,
+    letterSpacing: -1.6,
+  },
+  titleCompact: { fontSize: 32, lineHeight: 36 },
+  description: {
+    maxWidth: 295,
+    marginTop: 12,
+    color: "rgba(248,246,239,0.76)",
+    fontFamily: typography.regular,
+    fontSize: 12,
+    lineHeight: 19,
+  },
+  cta: {
+    minWidth: 158,
+    minHeight: 50,
+    marginTop: 22,
+    paddingLeft: 20,
+    paddingRight: 7,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 24,
+    borderRadius: 30,
+    backgroundColor: "#F8F6EF",
   },
   ctaText: {
     color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 9,
-    letterSpacing: 1.1,
+    fontFamily: typography.semibold,
+    fontSize: 12,
+    letterSpacing: 0.2,
+  },
+  ctaArrow: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#182A20",
   },
 });

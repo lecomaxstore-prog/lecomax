@@ -1,7 +1,6 @@
 import { Tabs } from "expo-router";
 import { StyleSheet, View } from "react-native";
 import { BottomNavigation } from "@/components/bottom-navigation";
-import { CartFlyOverlay } from "@/components/cart-fly-overlay";
 import { useT } from "@/lib/i18n";
 import { useAppViewport } from "@/components/app-viewport";
 
@@ -11,7 +10,7 @@ export default function TabsLayout() {
   return (
     <View style={styles.root}>
       <Tabs
-        backBehavior="history"
+        backBehavior="fullHistory"
         tabBar={(props) => <BottomNavigation {...props} />}
         screenOptions={{
           headerShown: false,
@@ -26,7 +25,6 @@ export default function TabsLayout() {
         <Tabs.Screen name="account" options={{ title: t.account }} />
         <Tabs.Screen name="catalog" options={{ href: null }} />
       </Tabs>
-      <CartFlyOverlay />
     </View>
   );
 }

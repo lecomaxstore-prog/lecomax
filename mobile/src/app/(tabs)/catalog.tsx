@@ -23,7 +23,9 @@ import { ProductSkeleton } from "@/components/skeleton";
 import { palette, typography } from "@/constants/theme";
 import { useCategories, useProducts } from "@/hooks/use-catalog";
 import { useT } from "@/lib/i18n";
-import { productGridColumns } from "@/lib/responsive";
+import { productGridColumns, TABLET_NAV_RAIL } from "@/lib/responsive";
+
+import { buildProductSearchIndex, searchProductIndex } from "@/lib/product-search";
 
 type Sort = "popular" | "low" | "high" | "new";
 
@@ -41,10 +43,11 @@ export default function CatalogScreen() {
     category?: string;
     sort?: Sort;
     filters?: string;
+    promotion?: string;
   }>();
   return (
     <CatalogContent
-      key={`${params.category ?? "all"}:${params.sort ?? "popular"}:${params.filters ?? "closed"}`}
+      key={`${params.category ?? "all"}:${params.sort ?? "popular"}:${params.filters ?? "closed"}:${params.promotion ?? "false"}`}
       params={params}
     />
   );
@@ -53,11 +56,14 @@ export default function CatalogScreen() {
 function CatalogContent({
   params,
 }: {
-  params: { category?: string; sort?: Sort; filters?: string };
+  params: { category?: string; sort?: Sort; filters?: string; promotion?: string };
 }) {
   const { t } = useT();
-  const { contentWidth } = useAppViewport();
-  const columns = productGridColumns(contentWidth);
+  const promotionOnly = params.promotion === "true";
+  const { contentWidth, isTablet } = useAppViewport();
+  const columns = productGridColumns(
+    isTablet ? contentWidth - TABLET_NAV_RAIL : contentWidth,
+  );
   const { data = [], isLoading, refetch, isRefetching } = useProducts();
   const { data: categories = [] } = useCategories();
   const [category, setCategory] = useState(params.category ?? "all");
@@ -97,19 +103,17 @@ function CatalogContent({
     { value: "high" as const, label: t.priceHigh },
   ];
 
+  const searchIndex = useMemo(() => buildProductSearchIndex(data), [data]);
   const products = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    const filtered = data.filter((item) => {
+    const ranked = searchProductIndex(searchIndex, query);
+    const filtered = ranked.filter((item) => {
       const matchesCategory =
         category === "all" ||
         item.category.toLowerCase().includes(category.toLowerCase()) ||
         category.includes(item.category.toLowerCase());
-      const matchesQuery =
-        !normalized ||
-        [item.name, item.brand, item.category].some((value) =>
-          value?.toLowerCase().includes(normalized),
-        );
-      return matchesCategory && matchesQuery && (!stockOnly || item.stock > 0);
+      const matchesPromotion =
+        !promotionOnly || (item.original_price ?? 0) > item.price;
+      return matchesCategory && matchesPromotion && (!stockOnly || item.stock > 0);
     });
 
     return [...filtered].sort((left, right) =>
@@ -119,9 +123,9 @@ function CatalogContent({
           ? right.price - left.price
           : sort === "new"
             ? Date.parse(right.created_at) - Date.parse(left.created_at)
-            : (right.rating ?? 0) - (left.rating ?? 0),
+            : query.trim() ? 0 : (right.rating ?? 0) - (left.rating ?? 0),
     );
-  }, [category, data, query, sort, stockOnly]);
+  }, [category, searchIndex, query, sort, stockOnly, promotionOnly]);
 
   const activeFilterCount = Number(stockOnly) + Number(sort !== "popular");
   const renderProduct = useCallback(
@@ -140,7 +144,7 @@ function CatalogContent({
               <View style={styles.eyebrowLine} />
               <Text style={styles.eyebrow}>LECOMAX SHOP</Text>
             </View>
-            <Text style={styles.title}>{t.shopTitle}</Text>
+            <Text style={styles.title}>{promotionOnly ? "Promotions" : t.shopTitle}</Text>
             <View style={styles.titleAccent} />
           </View>
           <View style={styles.inventoryCard}>

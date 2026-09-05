@@ -1,12 +1,12 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { HorizontalRail } from "@/components/horizontal-rail";
-import { typography } from "@/constants/theme";
+import { useAppViewport } from "@/components/app-viewport";
+import { palette, typography } from "@/constants/theme";
 import { discount, imageUrl, money } from "@/lib/format";
 import type { Product } from "@/types/commerce";
 
@@ -23,6 +23,8 @@ export const HomePromotionSection = memo(function HomePromotionSection({
 }: {
   products: Product[];
 }) {
+  const { contentWidth } = useAppViewport();
+  const cardWidth = Math.min(280, contentWidth - 64);
   if (!products.length) return null;
 
   return (
@@ -31,7 +33,7 @@ export const HomePromotionSection = memo(function HomePromotionSection({
         <View style={styles.headingCopy}>
           <Text style={styles.eyebrow}>PRIX L’ECOMAX</Text>
           <Text accessibilityRole="header" style={styles.title}>
-            PROMOTIONS
+            Promotions
           </Text>
           <Text style={styles.subtitle}>
             Des offres sélectionnées, pour une durée limitée.
@@ -40,7 +42,10 @@ export const HomePromotionSection = memo(function HomePromotionSection({
         <AnimatedPressable
           accessibilityLabel="Voir toutes les promotions"
           onPress={() =>
-            router.push({ pathname: "/catalog", params: { sort: "low" } })
+            router.push({
+              pathname: "/catalog",
+              params: { promotion: "true", sort: "low" },
+            })
           }
           style={styles.viewAll}
         >
@@ -53,14 +58,14 @@ export const HomePromotionSection = memo(function HomePromotionSection({
         decelerationRate="fast"
         disableIntervalMomentum
         snapToAlignment="start"
-        snapToInterval={352}
+        snapToInterval={cardWidth + 16}
         contentContainerStyle={styles.rail}
       >
-        {products.map((product, index) => (
+        {products.map((product) => (
           <PromotionFeatureCard
             key={product.id}
             product={product}
-            featured={index === 0}
+            width={cardWidth}
           />
         ))}
       </HorizontalRail>
@@ -70,10 +75,10 @@ export const HomePromotionSection = memo(function HomePromotionSection({
 
 const PromotionFeatureCard = memo(function PromotionFeatureCard({
   product,
-  featured,
+  width,
 }: {
   product: Product;
-  featured: boolean;
+  width: number;
 }) {
   const saving = discount(product.price, product.original_price);
   const savedAmount = Math.max(
@@ -95,51 +100,14 @@ const PromotionFeatureCard = memo(function PromotionFeatureCard({
         })
       }
       pressedScale={0.985}
-      style={[styles.card, featured && styles.cardFeatured]}
+      style={[styles.card, { width }]}
     >
-      {featured ? <View style={styles.featuredAccent} /> : null}
-      <LinearGradient
-        colors={featured ? ["#173A22", "#101612"] : ["#191C1A", "#0D0F0E"]}
-        end={{ x: 1, y: 1 }}
-        start={{ x: 0, y: 0 }}
-        style={styles.cardCopy}
-      >
+      <View style={styles.imageWrap}>
         <View style={styles.offerBadge}>
-          <Ionicons name="flash" size={11} color={colors.text} />
           <Text style={styles.offerBadgeText}>
             {saving ? `-${saving}%` : "OFFRE"}
           </Text>
         </View>
-
-        <Text numberOfLines={1} style={styles.category}>
-          {(product.brand || product.category).toUpperCase()}
-        </Text>
-        <Text numberOfLines={3} style={styles.productName}>
-          {product.name}
-        </Text>
-
-        <View style={styles.priceRow}>
-          <Text style={styles.price}>{money(product.price)}</Text>
-          {saving ? (
-            <Text numberOfLines={1} style={styles.oldPrice}>
-              {money(product.original_price ?? 0)}
-            </Text>
-          ) : null}
-        </View>
-        {savedAmount > 0 ? (
-          <Text style={styles.savedAmount}>
-            Vous économisez {money(savedAmount)}
-          </Text>
-        ) : null}
-
-        <View style={styles.discover}>
-          <Text style={styles.discoverText}>DÉCOUVRIR</Text>
-          <Ionicons name="arrow-forward-circle" size={17} color={colors.text} />
-        </View>
-      </LinearGradient>
-
-      <View style={styles.imageWrap}>
-        <View style={styles.imageGlow} />
         <Image
           accessibilityLabel={product.name}
           cachePolicy="memory-disk"
@@ -160,221 +128,191 @@ const PromotionFeatureCard = memo(function PromotionFeatureCard({
           </Text>
         </View>
       </View>
+      <View style={styles.cardCopy}>
+        <Text numberOfLines={1} style={styles.category}>
+          {(product.brand || product.category).toUpperCase()}
+        </Text>
+        <Text numberOfLines={2} style={styles.productName}>
+          {product.name}
+        </Text>
+
+        <View style={styles.priceRow}>
+          <Text style={styles.price}>{money(product.price)}</Text>
+          {saving ? (
+            <Text numberOfLines={1} style={styles.oldPrice}>
+              {money(product.original_price ?? 0)}
+            </Text>
+          ) : null}
+        </View>
+        {savedAmount > 0 ? (
+          <Text style={styles.savedAmount}>
+            Vous économisez {money(savedAmount)}
+          </Text>
+        ) : null}
+
+        <View style={styles.discover}>
+          <Text style={styles.discoverText}>Découvrir</Text>
+          <Ionicons name="arrow-forward" size={17} color={colors.text} />
+        </View>
+      </View>
     </AnimatedPressable>
   );
 });
 
 const styles = StyleSheet.create({
   section: {
-    marginTop: 30,
-    paddingTop: 27,
+    marginTop: 28,
+    paddingTop: 24,
     borderTopWidth: 1,
-    borderTopColor: "#E5E8E5",
+    borderTopColor: palette.border,
   },
   heading: {
     paddingHorizontal: 16,
     flexDirection: "row",
-    alignItems: "flex-end",
+    alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
   },
-  headingCopy: {
-    flex: 1,
-    minWidth: 0,
-  },
+  headingCopy: { flex: 1, minWidth: 0 },
   eyebrow: {
-    color: colors.primaryDark,
-    fontFamily: typography.black,
-    fontSize: 7.5,
-    letterSpacing: 1.35,
+    color: palette.greenDark,
+    fontFamily: typography.semibold,
+    fontSize: 9,
+    letterSpacing: 1.4,
   },
   title: {
-    marginTop: 4,
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 24,
-    lineHeight: 27,
+    marginTop: 6,
+    color: palette.ink,
+    fontFamily: typography.bold,
+    fontSize: 26,
+    lineHeight: 32,
     letterSpacing: -0.7,
   },
   subtitle: {
-    maxWidth: 260,
-    marginTop: 4,
-    color: "#676C68",
+    marginTop: 5,
+    color: palette.muted,
     fontFamily: typography.regular,
-    fontSize: 9,
-    lineHeight: 13,
+    fontSize: 11,
+    lineHeight: 17,
   },
   viewAll: {
-    minWidth: 82,
+    minWidth: 72,
     minHeight: 44,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
-    gap: 5,
-  },
-  viewAllText: {
-    color: colors.primaryDark,
-    fontFamily: typography.bold,
-    fontSize: 9.5,
-  },
-  rail: {
-    paddingHorizontal: 16,
-    paddingTop: 18,
-    paddingBottom: 12,
-    gap: 12,
-  },
-  card: {
-    width: 340,
-    height: 218,
-    overflow: "hidden",
-    flexDirection: "row",
-    borderWidth: 1,
-    borderColor: "#DDE3DD",
-    borderRadius: 20,
-    backgroundColor: colors.background,
-    boxShadow: "0 12px 28px rgba(17, 32, 20, 0.12)",
-  },
-  cardFeatured: {
-    borderColor: "#BBDDC3",
-  },
-  featuredAccent: {
-    position: "absolute",
-    zIndex: 2,
-    top: 0,
-    left: 20,
-    width: 52,
-    height: 3,
-    borderBottomLeftRadius: 4,
-    borderBottomRightRadius: 4,
-    backgroundColor: colors.primary,
-  },
-  cardCopy: {
-    width: 190,
-    minWidth: 0,
-    paddingHorizontal: 16,
-    paddingBottom: 15,
-    paddingTop: 17,
-    alignItems: "flex-start",
-  },
-  offerBadge: {
-    minHeight: 28,
-    paddingHorizontal: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    borderRadius: 999,
-    backgroundColor: colors.primary,
-  },
-  offerBadgeText: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 8.5,
-    letterSpacing: 0.2,
-  },
-  category: {
-    marginTop: 12,
-    color: colors.primary,
-    fontFamily: typography.black,
-    fontSize: 7.5,
-    letterSpacing: 1,
-  },
-  productName: {
-    minHeight: 51,
-    marginTop: 4,
-    color: colors.background,
-    fontFamily: typography.black,
-    fontSize: 12.5,
-    lineHeight: 16.5,
-    letterSpacing: -0.2,
-  },
-  priceRow: {
-    marginTop: 5,
-    flexDirection: "row",
-    alignItems: "baseline",
     gap: 6,
   },
-  price: {
-    color: colors.primary,
-    fontFamily: typography.black,
-    fontSize: 16,
-    letterSpacing: -0.3,
+  viewAllText: {
+    color: palette.greenDark,
+    fontFamily: typography.semibold,
+    fontSize: 11,
   },
-  oldPrice: {
-    maxWidth: 64,
-    color: "rgba(255,255,255,0.48)",
-    fontFamily: typography.medium,
-    fontSize: 8,
-    textDecorationLine: "line-through",
-  },
-  savedAmount: {
-    marginTop: 2,
-    color: "rgba(255,255,255,0.55)",
-    fontFamily: typography.medium,
-    fontSize: 7.5,
-  },
-  discover: {
-    minHeight: 34,
-    marginTop: "auto",
-    paddingHorizontal: 11,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-    borderRadius: 10,
-    backgroundColor: colors.primary,
-  },
-  discoverText: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 7.5,
-    letterSpacing: 0.75,
-  },
+  rail: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8, gap: 16 },
+  card: { backgroundColor: palette.white },
   imageWrap: {
-    flex: 1,
-    height: "100%",
+    height: 212,
     overflow: "hidden",
-    backgroundColor: "#F7F8F5",
-  },
-  imageGlow: {
-    position: "absolute",
-    top: 28,
-    right: -18,
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    backgroundColor: "rgba(50,205,87,0.10)",
+    borderRadius: 14,
+    backgroundColor: "#F5F6F3",
   },
   productImage: {
     position: "absolute",
-    top: 18,
-    right: 7,
-    bottom: 32,
-    left: 7,
+    top: 32,
+    right: 18,
+    bottom: 24,
+    left: 18,
+  },
+  offerBadge: {
+    position: "absolute",
+    zIndex: 1,
+    top: 12,
+    left: 12,
+    minHeight: 26,
+    paddingHorizontal: 9,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 6,
+    backgroundColor: "#E7F4E8",
+  },
+  offerBadgeText: {
+    color: palette.greenDark,
+    fontFamily: typography.semibold,
+    fontSize: 11,
   },
   imageFooter: {
     position: "absolute",
-    right: 10,
+    right: 12,
     bottom: 10,
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.9)",
-    paddingHorizontal: 7,
-    paddingVertical: 4,
   },
   stockDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: colors.primaryDark,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: palette.greenDark,
   },
-  stockDotUnavailable: {
-    backgroundColor: colors.red,
-  },
+  stockDotUnavailable: { backgroundColor: palette.red },
   imageFooterText: {
-    color: "#303530",
-    fontFamily: typography.black,
-    fontSize: 6,
-    letterSpacing: 0.55,
+    color: palette.muted,
+    fontFamily: typography.medium,
+    fontSize: 8,
+    letterSpacing: 0.4,
+  },
+  cardCopy: { paddingTop: 14, paddingHorizontal: 2, alignItems: "flex-start" },
+  category: {
+    color: palette.muted,
+    fontFamily: typography.medium,
+    fontSize: 9,
+    letterSpacing: 1,
+  },
+  productName: {
+    minHeight: 40,
+    marginTop: 5,
+    color: palette.ink,
+    fontFamily: typography.semibold,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  priceRow: {
+    marginTop: 10,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    gap: 8,
+  },
+  price: {
+    color: palette.ink,
+    fontFamily: typography.bold,
+    fontSize: 21,
+    lineHeight: 26,
+    letterSpacing: -0.5,
+  },
+  oldPrice: {
+    color: "#858B86",
+    fontFamily: typography.regular,
+    fontSize: 12,
+    textDecorationLine: "line-through",
+  },
+  savedAmount: {
+    marginTop: 3,
+    color: palette.greenDark,
+    fontFamily: typography.medium,
+    fontSize: 10,
+    lineHeight: 15,
+  },
+  discover: {
+    minHeight: 44,
+    marginTop: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  discoverText: {
+    color: palette.ink,
+    fontFamily: typography.semibold,
+    fontSize: 12,
   },
 });

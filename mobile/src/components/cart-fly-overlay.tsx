@@ -42,9 +42,16 @@ export function CartFlyOverlay() {
   const animatedStyle = useAnimatedStyle(() => {
     if (!flight) return { opacity: 0 };
 
-    const originX = flight.originX - horizontalInset;
-    const targetX = contentWidth * 0.7 - FLIGHT_SIZE / 2;
-    const targetY = windowHeight - Math.max(insets.bottom, 8) - 48;
+    const originLeft = flight.originX - horizontalInset - FLIGHT_SIZE / 2;
+    const originTop = flight.originY - FLIGHT_SIZE / 2;
+    const targetLeft =
+      (flight.targetX ?? horizontalInset + contentWidth * 0.7) -
+      horizontalInset -
+      FLIGHT_SIZE / 2;
+    const targetTop =
+      (flight.targetY ??
+        windowHeight - Math.max(insets.bottom, 8) - 48) -
+      FLIGHT_SIZE / 2;
     const arc = Math.sin(progress.value * Math.PI) * -92;
 
     return {
@@ -52,16 +59,11 @@ export function CartFlyOverlay() {
       transform: [
         {
           translateX:
-            originX -
-            FLIGHT_SIZE / 2 +
-            (targetX - originX + FLIGHT_SIZE / 2) * progress.value,
+            originLeft + (targetLeft - originLeft) * progress.value,
         },
         {
           translateY:
-            flight.originY -
-            FLIGHT_SIZE / 2 +
-            (targetY - flight.originY + FLIGHT_SIZE / 2) * progress.value +
-            arc,
+            originTop + (targetTop - originTop) * progress.value + arc,
         },
         { scale: 1 - progress.value * 0.66 },
         { rotate: `${progress.value * 16}deg` },

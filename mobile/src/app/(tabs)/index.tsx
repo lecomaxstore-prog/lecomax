@@ -30,7 +30,15 @@ import {
   useSettings,
 } from "@/hooks/use-catalog";
 import { discount } from "@/lib/format";
-import { productGridColumns } from "@/lib/responsive";
+import {
+  completeRowCount,
+  GRID_EDGE,
+  GRID_GUTTER,
+  productCardPixelWidth,
+  productGridColumns,
+  rowAlignedCount,
+  TABLET_NAV_RAIL,
+} from "@/lib/responsive";
 import type { Product } from "@/types/commerce";
 
 const colors = {
@@ -44,6 +52,11 @@ const colors = {
 };
 
 export default function HomeScreen() {
+  const { contentWidth, isTablet } = useAppViewport();
+  // On tablets the navigation rail sits inside contentWidth, so the row the
+  // cards actually get is narrower than the viewport.
+  const gridWidth = isTablet ? contentWidth - TABLET_NAV_RAIL : contentWidth;
+  const columns = productGridColumns(gridWidth);
   const productsQuery = useProducts();
   const categoriesQuery = useCategories();
   const bannersQuery = useBanners();
@@ -65,13 +78,13 @@ export default function HomeScreen() {
   const newArrivals = useMemo(() => {
     const products = productsQuery.data ?? [];
     const selected = products.filter((product) => product.newArrival);
-    return [...(selected.length ? selected : products)]
-      .sort(
-        (left, right) =>
-          Date.parse(right.created_at) - Date.parse(left.created_at),
-      )
-      .slice(0, 4);
-  }, [productsQuery.data]);
+    const sorted = [...(selected.length ? selected : products)].sort(
+      (left, right) =>
+        Date.parse(right.created_at) - Date.parse(left.created_at),
+    );
+    const pool = sorted.slice(0, rowAlignedCount(4, columns));
+    return pool.slice(0, completeRowCount(pool.length, columns));
+  }, [columns, productsQuery.data]);
 
   const promotionProducts = useMemo(() => {
     const products = productsQuery.data ?? [];
@@ -113,8 +126,12 @@ export default function HomeScreen() {
           (right.rating ?? 0) - (left.rating ?? 0) ||
           Date.parse(right.created_at) - Date.parse(left.created_at),
       );
-    return (remaining.length ? remaining : products).slice(0, 8);
-  }, [newArrivals, productsQuery.data, promotionProducts]);
+    const pool = (remaining.length ? remaining : products).slice(
+      0,
+      rowAlignedCount(8, columns),
+    );
+    return pool.slice(0, completeRowCount(pool.length, columns));
+  }, [columns, newArrivals, productsQuery.data, promotionProducts]);
 
   const refresh = useCallback(() => {
     void Promise.all([
@@ -273,8 +290,10 @@ function InlineState({
 }
 
 function ProductGrid({ products }: { products: Product[] }) {
-  const { contentWidth } = useAppViewport();
-  const columns = productGridColumns(contentWidth);
+  const { contentWidth, isTablet } = useAppViewport();
+  const gridWidth = isTablet ? contentWidth - TABLET_NAV_RAIL : contentWidth;
+  const columns = productGridColumns(gridWidth);
+  const cardWidth = productCardPixelWidth(gridWidth, columns);
   if (!products.length) {
     return (
       <InlineState
@@ -293,6 +312,7 @@ function ProductGrid({ products }: { products: Product[] }) {
           product={product}
           grid
           columns={columns}
+          width={cardWidth}
         />
       ))}
     </View>
@@ -346,7 +366,7 @@ const styles = StyleSheet.create({
   content: {
     width: "100%",
     maxWidth: "100%",
-    paddingBottom: 118,
+    paddingBottom: 32,
     backgroundColor: colors.background,
   },
   heroSkeleton: {
@@ -357,10 +377,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   productGrid: {
-    paddingHorizontal: 16,
+    paddingHorizontal: GRID_EDGE,
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: GRID_GUTTER,
   },
   productSkeleton: {
     minHeight: 330,

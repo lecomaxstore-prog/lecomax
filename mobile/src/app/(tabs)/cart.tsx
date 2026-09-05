@@ -16,7 +16,6 @@ import {
   type TextStyle,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { AppViewportOverlay } from "@/components/app-viewport";
 import { CheckoutProgress } from "@/components/checkout-progress";
@@ -97,60 +96,58 @@ const CartItem = memo(function CartItem({
   return (
     <View style={styles.product}>
       <View style={styles.productTop}>
-        <View style={styles.productImage}>
-          <Image
-            accessibilityLabel={line.product.name}
-            cachePolicy="memory-disk"
-            contentFit="contain"
-            recyclingKey={keyFor(line)}
-            source={imageUrl(
-              line.product.thumbnail || line.product.images?.[0],
-            )}
-            style={StyleSheet.absoluteFill}
-            transition={160}
-          />
+        <View>
+          <View style={styles.productImage}>
+            <Image
+              accessibilityLabel={line.product.name}
+              cachePolicy="memory-disk"
+              contentFit="contain"
+              recyclingKey={keyFor(line)}
+              source={imageUrl(
+                line.product.thumbnail || line.product.images?.[0],
+              )}
+              style={StyleSheet.absoluteFill}
+              transition={160}
+            />
+          </View>
+          <View style={styles.productActions}>
+            <AnimatedPressable
+              accessibilityLabel={
+                favourite
+                  ? "Retirer des favoris"
+                  : "Enregistrer dans les favoris"
+              }
+              accessibilityState={{ selected: favourite }}
+              onPress={onToggleFavourite}
+              pressedScale={0.88}
+              style={styles.iconButton}
+            >
+              <Ionicons
+                color={favourite ? colors.primaryDark : colors.secondaryText}
+                name={favourite ? "heart" : "heart-outline"}
+                size={21}
+              />
+            </AnimatedPressable>
+            <AnimatedPressable
+              accessibilityLabel={`Supprimer ${line.product.name}`}
+              onPress={onRemove}
+              pressedScale={0.88}
+              style={styles.iconButton}
+            >
+              <Ionicons
+                color={colors.secondaryText}
+                name="trash-outline"
+                size={20}
+              />
+            </AnimatedPressable>
+          </View>
         </View>
 
         <View style={styles.productDetails}>
           <View style={styles.productHeading}>
-            <Text
-              maxFontSizeMultiplier={1.25}
-              numberOfLines={3}
-              style={styles.productName}
-            >
+            <Text maxFontSizeMultiplier={1.25} style={styles.productName}>
               {line.product.name}
             </Text>
-            <View style={styles.productActions}>
-              <AnimatedPressable
-                accessibilityLabel={
-                  favourite
-                    ? "Retirer des favoris"
-                    : "Enregistrer dans les favoris"
-                }
-                accessibilityState={{ selected: favourite }}
-                onPress={onToggleFavourite}
-                pressedScale={0.88}
-                style={styles.iconButton}
-              >
-                <Ionicons
-                  color={favourite ? colors.primaryDark : colors.text}
-                  name={favourite ? "heart" : "heart-outline"}
-                  size={21}
-                />
-              </AnimatedPressable>
-              <AnimatedPressable
-                accessibilityLabel={`Supprimer ${line.product.name}`}
-                onPress={onRemove}
-                pressedScale={0.88}
-                style={styles.iconButton}
-              >
-                <Ionicons
-                  color={colors.danger}
-                  name="trash-outline"
-                  size={20}
-                />
-              </AnimatedPressable>
-            </View>
           </View>
 
           <Text style={styles.category}>
@@ -260,7 +257,7 @@ function DeliveryAddress({
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>ADRESSE DE LIVRAISON</Text>
+        <Text style={styles.sectionTitle}>Adresse de livraison</Text>
         {address ? (
           <AnimatedPressable
             accessibilityLabel="Modifier l’adresse de livraison"
@@ -284,10 +281,10 @@ function DeliveryAddress({
             <Ionicons color={colors.white} name="checkmark" size={22} />
           </View>
           <View style={styles.addressCopy}>
-            <Text numberOfLines={1} style={styles.addressName}>
+            <Text style={styles.addressName}>
               {address.name} · {address.phone}
             </Text>
-            <Text numberOfLines={2} style={styles.addressLine}>
+            <Text style={styles.addressLine}>
               {address.address}, {address.city}
             </Text>
           </View>
@@ -323,14 +320,15 @@ function DeliveryAddress({
 }
 
 export default function CartScreen() {
-  const insets = useSafeAreaInsets();
   const cart = useCommerceStore((state) => state.cart);
   const wishlist = useCommerceStore((state) => state.wishlist);
   const couponCode = useCommerceStore((state) => state.coupon);
   const addToCart = useCommerceStore((state) => state.addToCart);
   const removeCartLine = useCommerceStore((state) => state.removeCartLine);
   const setLineQuantity = useCommerceStore((state) => state.setLineQuantity);
-  const refreshCartProducts = useCommerceStore((state) => state.refreshCartProducts);
+  const refreshCartProducts = useCommerceStore(
+    (state) => state.refreshCartProducts,
+  );
   const toggleWishlist = useCommerceStore((state) => state.toggleWishlist);
   const setCoupon = useCommerceStore((state) => state.setCoupon);
   const settingsQuery = useSettings();
@@ -426,7 +424,7 @@ export default function CartScreen() {
   const standardShipping =
     Number.isFinite(configuredShipping) && configuredShipping >= 0
       ? configuredShipping
-      : 35;
+      : 40;
   const configuredFreeThreshold = Number(settings.free_shipping_threshold);
   const freeShippingThreshold =
     Number.isFinite(configuredFreeThreshold) && configuredFreeThreshold > 0
@@ -597,7 +595,8 @@ export default function CartScreen() {
           <Text style={styles.emptyEyebrow}>VOTRE SÉLECTION</Text>
           <Text style={styles.emptyTitle}>Votre panier est vide</Text>
           <Text style={styles.emptyCopy}>
-            Découvrez nos collections et composez une sélection qui vous ressemble.
+            Découvrez nos collections et composez une sélection qui vous
+            ressemble.
           </Text>
           <AnimatedPressable
             accessibilityLabel="Découvrir les produits"
@@ -617,11 +616,17 @@ export default function CartScreen() {
               style={styles.emptyShortcut}
             >
               <View style={styles.emptyShortcutIcon}>
-                <Ionicons color={colors.primaryDark} name="sparkles-outline" size={18} />
+                <Ionicons
+                  color={colors.primaryDark}
+                  name="sparkles-outline"
+                  size={18}
+                />
               </View>
               <View style={styles.emptyShortcutCopy}>
                 <Text style={styles.emptyShortcutTitle}>Nouveautés</Text>
-                <Text style={styles.emptyShortcutText}>Les dernières pièces</Text>
+                <Text style={styles.emptyShortcutText}>
+                  Les dernières pièces
+                </Text>
               </View>
               <Ionicons color={colors.text} name="chevron-forward" size={16} />
             </AnimatedPressable>
@@ -631,22 +636,30 @@ export default function CartScreen() {
               style={styles.emptyShortcut}
             >
               <View style={styles.emptyShortcutIcon}>
-                <Ionicons color={colors.primaryDark} name="pricetag-outline" size={18} />
+                <Ionicons
+                  color={colors.primaryDark}
+                  name="pricetag-outline"
+                  size={18}
+                />
               </View>
               <View style={styles.emptyShortcutCopy}>
                 <Text style={styles.emptyShortcutTitle}>Promotions</Text>
-                <Text style={styles.emptyShortcutText}>Nos meilleures offres</Text>
+                <Text style={styles.emptyShortcutText}>
+                  Nos meilleures offres
+                </Text>
               </View>
               <Ionicons color={colors.text} name="chevron-forward" size={16} />
             </AnimatedPressable>
           </View>
 
           <View style={styles.emptyBenefits}>
-            {([
-              ["shield-checkmark-outline", "Paiement sécurisé"],
-              ["car-outline", "Livraison suivie"],
-              ["refresh-outline", "Retours simplifiés"],
-            ] as const).map(([icon, label]) => (
+            {(
+              [
+                ["shield-checkmark-outline", "Paiement sécurisé"],
+                ["car-outline", "Livraison suivie"],
+                ["refresh-outline", "Retours simplifiés"],
+              ] as const
+            ).map(([icon, label]) => (
               <View key={label} style={styles.emptyBenefit}>
                 <Ionicons color={colors.primaryDark} name={icon} size={17} />
                 <Text style={styles.emptyBenefitText}>{label}</Text>
@@ -668,9 +681,8 @@ export default function CartScreen() {
         {stockNotice ? <StockNotice message={stockNotice} /> : null}
 
         <ScrollView
-          contentContainerStyle={{
-            paddingBottom: 112 + Math.max(insets.bottom, 8),
-          }}
+          style={styles.scroll}
+          contentContainerStyle={{ paddingBottom: 24 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -708,7 +720,7 @@ export default function CartScreen() {
 
           <View style={styles.orderSection}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>VOTRE COMMANDE</Text>
+              <Text style={styles.sectionTitle}>Votre commande</Text>
               <View style={styles.countBadge}>
                 <Text style={styles.countBadgeText}>
                   {itemCount} ARTICLE{itemCount > 1 ? "S" : ""}
@@ -827,9 +839,7 @@ export default function CartScreen() {
               accent={shipping === 0}
               label="Livraison"
               loading={shippingLoading}
-              value={
-                shipping === 0 ? "OFFERTE" : money(shipping)
-              }
+              value={shipping === 0 ? "OFFERTE" : money(shipping)}
             />
             {shippingError ? (
               <Text accessibilityRole="alert" style={styles.shippingError}>
@@ -884,12 +894,7 @@ export default function CartScreen() {
           ) : null}
         </ScrollView>
 
-        <View
-          style={[
-            styles.sticky,
-            { paddingBottom: Math.max(insets.bottom, 10) },
-          ]}
-        >
+        <View style={[styles.sticky, { paddingBottom: 10 }]}>
           <AnimatedPressable
             accessibilityLabel="Continuer vers le paiement"
             accessibilityState={{
@@ -903,21 +908,17 @@ export default function CartScreen() {
               !activeAddress && styles.checkoutButtonDisabled,
             ]}
           >
-            <View style={styles.checkoutIcon}>
-              <Ionicons
-                color={colors.primary}
-                name="shield-checkmark-outline"
-                size={20}
-              />
-            </View>
-            <View style={styles.checkoutCopy}>
-              <Text style={styles.checkoutButtonText}>CONTINUER AU PAIEMENT</Text>
-              <Text style={styles.checkoutButtonHint}>Paiement 100 % sécurisé</Text>
-            </View>
-            <View style={styles.checkoutArrow}>
-              <Ionicons color={colors.text} name="arrow-forward" size={18} />
-            </View>
+            <Text style={[styles.checkoutButtonText, !activeAddress && styles.checkoutTextDisabled]}>
+              Continuer au paiement
+            </Text>
+            <Ionicons color={activeAddress ? colors.white : "#858D86"} name="arrow-forward" size={20} />
           </AnimatedPressable>
+          <View style={styles.checkoutReassurance}>
+            <Ionicons color="#737C73" name={activeAddress ? "lock-closed-outline" : "location-outline"} size={12} />
+            <Text style={styles.checkoutButtonHint}>
+              {activeAddress ? "Paiement sécurisé" : "Ajoutez une adresse pour continuer"}
+            </Text>
+          </View>
         </View>
 
         <Modal
@@ -987,7 +988,11 @@ function CartHeader({ itemCount }: { itemCount: number }) {
         </Text>
       </View>
       <View accessibilityLabel="Paiement sécurisé" style={styles.headerSecure}>
-        <Ionicons color={colors.primaryDark} name="shield-checkmark-outline" size={21} />
+        <Ionicons
+          color={colors.primaryDark}
+          name="shield-checkmark-outline"
+          size={21}
+        />
       </View>
     </View>
   );
@@ -995,7 +1000,11 @@ function CartHeader({ itemCount }: { itemCount: number }) {
 
 function StockNotice({ message }: { message: string }) {
   return (
-    <View accessibilityLiveRegion="assertive" accessibilityRole="alert" style={styles.stockNotice}>
+    <View
+      accessibilityLiveRegion="assertive"
+      accessibilityRole="alert"
+      style={styles.stockNotice}
+    >
       <View style={styles.stockNoticeIcon}>
         <Ionicons color={colors.primaryDark} name="refresh" size={17} />
       </View>
@@ -1052,10 +1061,11 @@ function TrustItem({
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
+  flex: { flex: 1, minHeight: 0 },
+  scroll: { flex: 1, minHeight: 0 },
   header: {
-    minHeight: 72,
-    paddingHorizontal: 18,
+    minHeight: 60,
+    paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -1069,7 +1079,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: "rgba(11,11,11,0.07)",
     borderRadius: 22,
     backgroundColor: colors.white,
   },
@@ -1077,8 +1087,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: colors.text,
     fontFamily: typography.black,
-    fontSize: 19,
-    letterSpacing: 0.2,
+    fontSize: 18,
+    letterSpacing: -0.35,
   },
   headerSubtitle: {
     marginTop: 3,
@@ -1087,12 +1097,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   headerSecure: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 22,
-    backgroundColor: "#EAF8EE",
+    borderRadius: 20,
+    backgroundColor: "#F0F8F2",
   },
   stockNotice: {
     marginHorizontal: 16,
@@ -1128,7 +1138,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     lineHeight: 14,
   },
-  section: { padding: 18, borderTopWidth: 1, borderColor: colors.border },
+  section: { paddingHorizontal: 18, paddingTop: 18, paddingBottom: 16 },
   sectionHeader: {
     minHeight: 32,
     flexDirection: "row",
@@ -1138,55 +1148,56 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.text,
     fontFamily: typography.black,
-    fontSize: 18,
-    letterSpacing: -0.3,
+    fontSize: 17,
+    letterSpacing: -0.45,
   },
   textAction: {
-    minWidth: 72,
-    minHeight: 36,
-    paddingHorizontal: 12,
+    minWidth: 66,
+    minHeight: 44,
+    paddingHorizontal: 11,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 18,
-    backgroundColor: "#EAF8EE",
+    backgroundColor: "transparent",
   },
   textActionLabel: {
     color: colors.primaryDark,
     fontFamily: typography.bold,
-    fontSize: 10.5,
+    fontSize: 12,
   },
   addressCard: {
-    minHeight: 96,
+    minHeight: 88,
     marginTop: 13,
-    paddingHorizontal: 14,
-    paddingVertical: 15,
+    paddingHorizontal: 13,
+    paddingVertical: 13,
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#85D69D",
-    borderRadius: 16,
-    backgroundColor: "#F5FBF7",
+    borderColor: colors.border,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
   },
   addressCheck: {
-    width: 42,
-    height: 42,
+    width: 30,
+    height: 30,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 21,
+    borderRadius: 15,
     backgroundColor: colors.primaryDark,
   },
-  addressCopy: { minWidth: 0, flex: 1, marginHorizontal: 14 },
+  addressCopy: { minWidth: 0, flex: 1, marginHorizontal: 13 },
   addressName: {
     color: colors.text,
     fontFamily: typography.black,
-    fontSize: 13.5,
+    fontSize: 14,
+    lineHeight: 20,
   },
   addressLine: {
     marginTop: 5,
     color: colors.secondaryText,
     fontFamily: typography.regular,
-    fontSize: 10.5,
-    lineHeight: 15,
+    fontSize: 11.5,
+    lineHeight: 16,
   },
   missingAddress: {
     minHeight: 64,
@@ -1209,35 +1220,34 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.secondaryText,
     fontFamily: typography.medium,
-    fontSize: 10,
+    fontSize: 12,
   },
   addAddress: {
-    minHeight: 54,
-    marginTop: 11,
+    minHeight: 44,
+    marginTop: 8,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 9,
     borderWidth: 1,
-    borderColor: "#BFC5C0",
-    borderStyle: "dashed",
-    borderRadius: 14,
-    backgroundColor: "#FCFCFB",
+    borderColor: "#D8DCD8",
+    borderRadius: 12,
+    backgroundColor: colors.white,
   },
   addAddressText: {
     color: colors.text,
     fontFamily: typography.bold,
     fontSize: 12,
   },
-  divider: { height: 10, backgroundColor: "#F4F6F3" },
-  orderSection: { paddingHorizontal: 18, paddingTop: 22 },
+  divider: { height: 1, marginHorizontal: 18, backgroundColor: colors.border },
+  orderSection: { paddingHorizontal: 18, paddingTop: 20 },
   countBadge: {
-    minHeight: 30,
-    paddingHorizontal: 11,
+    minHeight: 28,
+    paddingHorizontal: 10,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 15,
-    backgroundColor: "#EAF8EE",
+    borderRadius: 14,
+    backgroundColor: "#EEF8F1",
   },
   countBadgeText: {
     color: colors.primaryDark,
@@ -1245,53 +1255,51 @@ const styles = StyleSheet.create({
     fontSize: 8,
   },
   product: {
-    marginTop: 13,
-    padding: 13,
-    borderWidth: 1,
-    borderColor: "#E0E4E0",
-    borderRadius: 16,
-    backgroundColor: "#FCFCFB",
+    marginTop: 16,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: "#FFFFFF",
   },
   productTop: { flexDirection: "row" },
   productImage: {
-    width: 104,
-    height: 122,
+    width: 88,
+    height: 88,
     overflow: "hidden",
     borderRadius: 12,
     backgroundColor: colors.surface,
   },
-  productDetails: { minWidth: 0, flex: 1, marginLeft: 13 },
-  productHeading: { flexDirection: "row", alignItems: "flex-start" },
+  productDetails: { minWidth: 0, flex: 1, marginLeft: 12 },
+  productHeading: { alignItems: "stretch" },
   productName: {
     minWidth: 0,
-    flex: 1,
     color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 13.5,
-    lineHeight: 18,
+    fontFamily: typography.bold,
+    fontSize: 14,
+    lineHeight: 20,
   },
-  productActions: { marginLeft: 3, gap: 1 },
+  productActions: { flexDirection: "row", alignSelf: "flex-end", marginTop: 4 },
   iconButton: {
-    width: 38,
-    height: 38,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
   },
   category: {
-    marginTop: 8,
-    color: colors.primaryDark,
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 1,
+    marginTop: 7,
+    color: colors.secondaryText,
+    fontFamily: typography.semibold,
+    fontSize: 9,
+    letterSpacing: 0.55,
   },
   options: {
-    marginTop: 7,
+    marginTop: 4,
     color: colors.secondaryText,
     fontFamily: typography.medium,
     fontSize: 10.5,
   },
   deliveryLine: {
-    marginTop: 10,
+    marginTop: 8,
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 7,
@@ -1301,16 +1309,18 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.primaryDark,
     fontFamily: typography.semibold,
-    fontSize: 9,
-    lineHeight: 13,
+    fontSize: 11,
+    lineHeight: 16,
   },
   unavailableText: { color: colors.danger },
   productBottom: {
-    marginTop: 15,
-    paddingTop: 13,
+    marginTop: 14,
+    paddingTop: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
   },
@@ -1319,7 +1329,7 @@ const styles = StyleSheet.create({
     fontFamily: typography.black,
     fontSize: 18,
   },
-  linePricePromotion: { color: colors.danger },
+  linePricePromotion: { color: colors.text },
   oldPrice: {
     marginTop: 3,
     color: "#8A8E8B",
@@ -1328,15 +1338,15 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
   },
   quantity: {
-    height: 42,
+    height: 44,
     flexDirection: "row",
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#C9CECA",
+    borderColor: "#D5D9D5",
     borderRadius: 12,
   },
   quantityButton: {
-    width: 42,
+    width: 40,
     height: "100%",
     alignItems: "center",
     justifyContent: "center",
@@ -1344,7 +1354,7 @@ const styles = StyleSheet.create({
   },
   quantityPressed: { backgroundColor: colors.surface },
   quantityValue: {
-    width: 42,
+    width: 38,
     height: "100%",
     alignItems: "center",
     justifyContent: "center",
@@ -1427,10 +1437,11 @@ const styles = StyleSheet.create({
   },
   summary: {
     marginHorizontal: 16,
-    padding: 16,
-    borderWidth: 1,
+    paddingHorizontal: 4,
+    paddingVertical: 18,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     borderColor: colors.border,
-    borderRadius: 9,
     backgroundColor: colors.white,
   },
   summaryRow: {
@@ -1463,6 +1474,8 @@ const styles = StyleSheet.create({
   },
   totalRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
     alignItems: "center",
     justifyContent: "space-between",
   },
@@ -1531,64 +1544,37 @@ const styles = StyleSheet.create({
     fontSize: 9,
   },
   sticky: {
-    paddingHorizontal: 14,
-    paddingTop: 11,
+    flexShrink: 0,
+    paddingHorizontal: 20,
+    paddingTop: 14,
     borderTopWidth: 1,
     borderTopColor: colors.border,
-    backgroundColor: colors.white,
+    backgroundColor: "rgba(255,255,255,0.98)",
   },
   checkoutButton: {
-    minHeight: 60,
-    paddingHorizontal: 12,
+    minHeight: 54,
+    paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderWidth: 1,
-    borderColor: colors.text,
+    gap: 12,
     borderRadius: 14,
-    backgroundColor: colors.text,
-    shadowColor: "#0B0B0B",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.07,
-    shadowRadius: 8,
-    elevation: 2,
+    backgroundColor: "#183D29",
   },
-  checkoutButtonDisabled: { opacity: 0.52 },
+  checkoutButtonDisabled: { backgroundColor: "#E8ECE6" },
+  checkoutTextDisabled: { color: "#737C73" },
   checkoutButtonText: {
     color: colors.white,
-    fontFamily: typography.black,
-    fontSize: 10.5,
-    letterSpacing: 0.2,
-  },
-  checkoutCopy: {
-    minWidth: 0,
+    fontFamily: typography.semibold,
+    fontSize: 14,
     flex: 1,
-    marginHorizontal: 9,
-    alignItems: "center",
   },
+  checkoutReassurance: { marginTop: 9, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5 },
   checkoutButtonHint: {
-    marginTop: 3,
-    color: "#B7BDB8",
+    color: "#737C73",
     fontFamily: typography.medium,
-    fontSize: 8,
-    letterSpacing: 0.15,
+    fontSize: 10,
     textAlign: "center",
-  },
-  checkoutIcon: {
-    width: 34,
-    height: 34,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 17,
-    backgroundColor: "#1B211C",
-  },
-  checkoutArrow: {
-    width: 34,
-    height: 34,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 17,
-    backgroundColor: colors.primary,
   },
   empty: {
     flexGrow: 1,

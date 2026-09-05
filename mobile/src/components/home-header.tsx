@@ -32,8 +32,10 @@ export const HomeHeader = memo(function HomeHeader() {
       <View style={styles.logoSlot}>
         <BrandLogo header animated />
       </View>
-      <View style={[styles.actions, colorScheme === "dark" && styles.actionsDark]}>
+      <View style={styles.actions}>
         <HeaderActionButton
+          shape="rounded"
+          tone="ghost"
           accessibilityLabel={`Notifications${unreadCount ? `, ${unreadCount} non lues` : ""}`}
           icon="notifications-outline"
           activeIcon="notifications"
@@ -43,6 +45,8 @@ export const HomeHeader = memo(function HomeHeader() {
         />
         <HeaderActionButton
           accessibilityLabel={signedIn ? "Ouvrir mon profil" : "Se connecter"}
+          shape="rounded"
+          tone="ghost"
           icon="person-outline"
           activeIcon="person"
           active={pathname === "/profile" || pathname === "/account"}
@@ -50,6 +54,8 @@ export const HomeHeader = memo(function HomeHeader() {
         />
         <HeaderActionButton
           accessibilityLabel={`Panier${cartCount ? `, ${cartCount} articles` : ""}`}
+          shape="rounded"
+          tone="ghost"
           icon="bag-handle-outline"
           activeIcon="bag-handle"
           active={pathname === "/cart"}
@@ -76,15 +82,6 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
-    padding: 4,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#E2E6E3",
-    borderRadius: 999,
-    backgroundColor: "#F4F6F4",
-  },
-  actionsDark: {
-    borderColor: "#303330",
-    backgroundColor: "#121312",
+    gap: 2,
   },
 });

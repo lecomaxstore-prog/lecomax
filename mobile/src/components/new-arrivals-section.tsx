@@ -3,12 +3,12 @@ import { router } from "expo-router";
 import { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedPressable } from "@/components/animated-pressable";
-import { typography } from "@/constants/theme";
+import { palette, typography } from "@/constants/theme";
 
 const colors = {
-  text: "#111111",
-  textSecondary: "#626662",
-  primaryDark: "#11843A",
+  text: palette.ink,
+  textSecondary: palette.muted,
+  primaryDark: palette.greenDark,
 };
 
 export const NewArrivalsSection = memo(function NewArrivalsSection({
@@ -18,7 +18,7 @@ export const NewArrivalsSection = memo(function NewArrivalsSection({
 }) {
   return (
     <View style={styles.header}>
-      <View>
+      <View style={styles.headerCopy}>
         <Text style={styles.eyebrow}>SÉLECTION L’ECOMAX</Text>
         <Text accessibilityRole="header" style={styles.title}>NOUVEAUTÉS</Text>
         <Text style={styles.count}>{count} produit{count > 1 ? "s" : ""}</Text>
@@ -38,44 +38,50 @@ export const NewArrivalsSection = memo(function NewArrivalsSection({
 
 const styles = StyleSheet.create({
   header: {
-    marginTop: 29,
-    marginBottom: 14,
+    marginTop: 28,
+    marginBottom: 20,
+    paddingTop: 24,
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
+    gap: 12,
+    borderTopWidth: 1,
+    borderTopColor: palette.line,
   },
+  headerCopy: { flex: 1, minWidth: 0 },
   eyebrow: {
-    marginBottom: 4,
     color: colors.primaryDark,
-    fontFamily: typography.black,
-    fontSize: 7.5,
-    letterSpacing: 1.2,
+    fontFamily: typography.semibold,
+    fontSize: 9,
+    letterSpacing: 1.4,
   },
   title: {
+    marginTop: 6,
     color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 23,
-    letterSpacing: -0.55,
+    fontFamily: typography.bold,
+    fontSize: 26,
+    lineHeight: 32,
+    letterSpacing: -0.7,
   },
   count: {
-    marginTop: 3,
+    marginTop: 5,
     color: colors.textSecondary,
-    fontFamily: typography.medium,
-    fontSize: 8,
+    fontFamily: typography.regular,
+    fontSize: 11,
+    lineHeight: 17,
   },
   action: {
-    minWidth: 88,
+    minWidth: 72,
     minHeight: 44,
-    paddingHorizontal: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
-    gap: 5,
+    gap: 6,
   },
   actionText: {
     color: colors.primaryDark,
-    fontFamily: typography.bold,
-    fontSize: 10,
+    fontFamily: typography.semibold,
+    fontSize: 11,
   },
 });

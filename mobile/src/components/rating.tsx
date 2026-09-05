@@ -15,7 +15,7 @@ export const Rating = memo(function Rating({
   if (!hasReviews) {
     return (
       <View style={styles.row}>
-        <Ionicons name="star-outline" size={13} color={palette.gold} />
+        <Ionicons name="sparkles-outline" size={12} color={palette.muted} />
         <Text style={styles.newLabel}>Nouveau</Text>
       </View>
     );

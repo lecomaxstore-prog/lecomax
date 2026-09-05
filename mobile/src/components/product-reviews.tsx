@@ -179,27 +179,41 @@ export const ProductReviews = memo(function ProductReviews({
         </View>
       </View>
 
-      <View style={styles.summary}>
-        <View style={styles.score}>
-          <Text style={styles.scoreValue}>{average.toFixed(1)}</Text>
-          <Stars value={average} size={15} />
-          <Text style={styles.scoreCount}>
-            {total} avis vérifié{total === 1 ? "" : "s"}
-          </Text>
-        </View>
-        <View style={styles.distribution}>
-          {distribution.map((row) => (
-            <View key={row.star} style={styles.distributionRow}>
-              <Text style={styles.distributionLabel}>{row.star}</Text>
-              <Ionicons name="star" size={10} color={palette.gold} />
-              <View style={styles.track}>
-                <View style={[styles.fill, { width: `${row.percent}%` }]} />
+      {total > 0 ? (
+        <View style={styles.summary}>
+          <View style={styles.score}>
+            <Text style={styles.scoreValue}>{average.toFixed(1)}</Text>
+            <Stars value={average} size={15} />
+            <Text style={styles.scoreCount}>
+              {total} avis vérifié{total === 1 ? "" : "s"}
+            </Text>
+          </View>
+          <View style={styles.distribution}>
+            {distribution.map((row) => (
+              <View key={row.star} style={styles.distributionRow}>
+                <Text style={styles.distributionLabel}>{row.star}</Text>
+                <Ionicons name="star" size={10} color={palette.gold} />
+                <View style={styles.track}>
+                  <View style={[styles.fill, { width: `${row.percent}%` }]} />
+                </View>
+                <Text style={styles.distributionCount}>{row.count}</Text>
               </View>
-              <Text style={styles.distributionCount}>{row.count}</Text>
-            </View>
-          ))}
+            ))}
+          </View>
         </View>
-      </View>
+      ) : (
+        <View style={styles.emptySummary}>
+          <View style={styles.emptySummaryIcon}>
+            <Ionicons name="star-outline" size={20} color={palette.greenDark} />
+          </View>
+          <View style={styles.emptySummaryCopy}>
+            <Text style={styles.emptySummaryTitle}>Aucun avis</Text>
+            <Text style={styles.emptySummaryText}>
+              Soyez le premier à partager votre expérience.
+            </Text>
+          </View>
+        </View>
+      )}
 
       <View style={styles.eligibilityCard}>
         <View style={styles.eligibilityIcon}>
@@ -434,6 +448,37 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     flexDirection: "row",
     backgroundColor: palette.canvas,
+  },
+  emptySummary: {
+    marginTop: 24,
+    minHeight: 82,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: palette.canvas,
+  },
+  emptySummaryIcon: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 22,
+    backgroundColor: "#EAF6ED",
+  },
+  emptySummaryCopy: { minWidth: 0, flex: 1, marginLeft: 12 },
+  emptySummaryTitle: {
+    color: palette.ink,
+    fontFamily: typography.bold,
+    fontSize: 13,
+  },
+  emptySummaryText: {
+    marginTop: 3,
+    color: palette.muted,
+    fontFamily: typography.regular,
+    fontSize: 10,
+    lineHeight: 15,
   },
   score: { width: "42%", justifyContent: "center" },
   scoreValue: {

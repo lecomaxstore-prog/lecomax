@@ -350,7 +350,7 @@ export default function AccountScreen() {
   }
 
   return (
-    <Screen className={dark ? "bg-ink" : "bg-white"}>
+    <Screen className={dark ? "bg-ink" : "bg-[#F6F7F4]"}>
       <ScrollView
         contentContainerStyle={[
           styles.content,
@@ -376,10 +376,10 @@ export default function AccountScreen() {
         <View style={styles.heading}>
           <Text style={styles.pageEyebrow}>ESPACE PERSONNEL</Text>
           <Text style={[styles.title, dark && styles.darkText]}>
-            MON COMPTE
+            Mon compte
           </Text>
           <Text style={[styles.subtitle, dark && styles.darkSecondary]}>
-            Gérez votre profil, vos commandes et vos préférences.
+            Votre quotidien, un peu plus simple.
           </Text>
         </View>
 
@@ -446,10 +446,20 @@ export default function AccountScreen() {
           </View>
         ) : (
           <View style={styles.guestCard}>
-            <Text style={styles.guestEyebrow}>ESPACE CLIENT</Text>
-            <Text style={styles.guestTitle}>Connectez-vous à votre compte</Text>
+            <View pointerEvents="none" accessible={false} style={styles.guestOrbit} />
+            <View pointerEvents="none" accessible={false} style={styles.guestOrbitInner} />
+            <View style={styles.guestTopRow}>
+              <View style={styles.guestBadge}>
+                <View style={styles.guestBadgeDot} />
+                <Text style={styles.guestEyebrow}>VOTRE ESPACE, VOS ENVIES</Text>
+              </View>
+              <View style={styles.guestEmblem}>
+                <Ionicons name="person-outline" size={21} color="#C6F6CB" />
+              </View>
+            </View>
+            <Text style={styles.guestTitle}>{"Bienvenue\nchez vous."}</Text>
             <Text style={styles.guestDescription}>
-              Retrouvez vos commandes, favoris et avantages.
+              Vos commandes, vos coups de cœur et tous vos avantages, au même endroit.
             </Text>
             <AnimatedPressable
               accessibilityLabel="Se connecter"
@@ -461,8 +471,10 @@ export default function AccountScreen() {
               }
               style={styles.loginButton}
             >
-              <Text style={styles.loginButtonText}>SE CONNECTER</Text>
-              <Ionicons color={colors.text} name="arrow-forward" size={18} />
+              <Text style={styles.loginButtonText}>Se connecter</Text>
+              <View style={styles.loginArrow}>
+                <Ionicons color={colors.text} name="arrow-forward" size={18} />
+              </View>
             </AnimatedPressable>
             <AnimatedPressable
               accessibilityLabel="Créer un compte"
@@ -475,12 +487,12 @@ export default function AccountScreen() {
               }
               style={styles.registerButton}
             >
-              <Text style={styles.registerText}>Créer un compte</Text>
+              <Text style={styles.registerPrompt}>Nouveau ici ? <Text style={styles.registerText}>Créer un compte</Text></Text>
             </AnimatedPressable>
           </View>
         )}
 
-        <SectionTitle dark={dark} title="VOS SERVICES" />
+        <SectionTitle dark={dark} title="À portée de main" />
         <View style={styles.services}>
           <ServiceTile
             dark={dark}
@@ -1131,7 +1143,7 @@ const styles = StyleSheet.create({
     borderColor: "#343A35",
     backgroundColor: colors.darkSurface,
   },
-  heading: { paddingBottom: 21, paddingTop: 9 },
+  heading: { paddingBottom: 23, paddingTop: 14 },
   pageEyebrow: {
     marginBottom: 7,
     color: colors.primaryDark,
@@ -1142,9 +1154,9 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     fontFamily: typography.black,
-    fontSize: 29,
-    lineHeight: 32,
-    letterSpacing: -0.9,
+    fontSize: 34,
+    lineHeight: 40,
+    letterSpacing: -1.4,
   },
   subtitle: {
     maxWidth: 350,
@@ -1155,49 +1167,57 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   guestCard: {
-    padding: 20,
+    padding: 22,
     overflow: "hidden",
-    borderRadius: 14,
-    backgroundColor: colors.text,
+    borderRadius: 26,
+    backgroundColor: "#12291F",
   },
+  guestOrbit: { position: "absolute", width: 280, height: 280, borderRadius: 140, borderWidth: 1, borderColor: "#2D493A", top: -125, right: -136 },
+  guestOrbitInner: { position: "absolute", width: 206, height: 206, borderRadius: 103, borderWidth: 1, borderColor: "#2D493A", top: -88, right: -99, backgroundColor: "#193526" },
+  guestTopRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  guestBadge: { flexDirection: "row", alignItems: "center", gap: 7, flexShrink: 1 },
+  guestBadgeDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: "#A8EDB1" },
+  guestEmblem: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", backgroundColor: "#2C4939", borderWidth: 1, borderColor: "#42604B" },
   guestEyebrow: {
-    color: colors.primary,
+    color: "#BAE2C1",
     fontFamily: typography.black,
     fontSize: 8,
-    letterSpacing: 1.3,
+    letterSpacing: 1.2,
   },
   guestTitle: {
     maxWidth: 310,
-    marginTop: 10,
+    marginTop: 12,
     color: colors.white,
     fontFamily: typography.black,
-    fontSize: 22,
-    lineHeight: 27,
+    fontSize: 34,
+    lineHeight: 37,
+    letterSpacing: -1.2,
   },
   guestDescription: {
     maxWidth: 300,
     marginTop: 8,
-    color: "#BBC0BB",
+    color: "#C1D0C5",
     fontFamily: typography.regular,
-    fontSize: 11,
-    lineHeight: 17,
+    fontSize: 12,
+    lineHeight: 19,
   },
   loginButton: {
-    minHeight: 52,
+    minHeight: 54,
     marginTop: 18,
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderRadius: 9,
-    backgroundColor: colors.primary,
+    borderRadius: 15,
+    backgroundColor: "#B8F28B",
   },
   loginButtonText: {
     color: colors.text,
     fontFamily: typography.black,
-    fontSize: 10,
-    letterSpacing: 0.8,
+    fontSize: 13,
+    letterSpacing: 0,
   },
+  loginArrow: { width: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.3)" },
   registerButton: {
     minHeight: 44,
     marginTop: 5,
@@ -1207,9 +1227,10 @@ const styles = StyleSheet.create({
   registerText: {
     color: colors.white,
     fontFamily: typography.bold,
-    fontSize: 10,
+    fontSize: 11,
     textDecorationLine: "underline",
   },
+  registerPrompt: { color: "#C1D0C5", fontFamily: typography.regular, fontSize: 11 },
   memberCard: {
     minHeight: 112,
     paddingHorizontal: 16,
@@ -1300,18 +1321,20 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.text,
     fontFamily: typography.black,
-    fontSize: 10,
-    letterSpacing: 1.1,
+    fontSize: 16,
+    letterSpacing: -0.4,
   },
-  services: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  services: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
   serviceTile: {
-    width: "48.6%",
-    minHeight: 142,
-    padding: 15,
+    flexBasis: "46%",
+    flexGrow: 1,
+    minWidth: 0,
+    minHeight: 138,
+    padding: 16,
     alignItems: "flex-start",
     borderWidth: 1,
-    borderColor: "#E0E4E0",
-    borderRadius: 16,
+    borderColor: "#E7EAE3",
+    borderRadius: 21,
     backgroundColor: colors.white,
   },
   serviceTileTop: {
@@ -1321,12 +1344,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   serviceIcon: {
-    width: 42,
-    height: 42,
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 13,
-    backgroundColor: "#EAF8EE",
+    backgroundColor: "#F0F5E9",
   },
   serviceArrow: {
     width: 30,
@@ -1334,21 +1357,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 15,
-    backgroundColor: "#F1F3F0",
+    backgroundColor: "transparent",
   },
   serviceArrowDark: { backgroundColor: "#303530" },
   serviceTitle: {
     marginTop: 14,
     color: colors.text,
     fontFamily: typography.black,
-    fontSize: 12.5,
+    fontSize: 13,
   },
   serviceSubtitle: {
     marginTop: 5,
     color: colors.secondaryText,
     fontFamily: typography.regular,
-    fontSize: 9.5,
-    lineHeight: 14,
+    fontSize: 10.5,
+    lineHeight: 16,
   },
   clubBanner: {
     minHeight: 96,
@@ -1356,8 +1379,8 @@ const styles = StyleSheet.create({
     padding: 14,
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 12,
-    backgroundColor: colors.primary,
+    borderRadius: 20,
+    backgroundColor: "#DDF0CF",
   },
   clubMark: {
     width: 44,
@@ -1396,7 +1419,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 11,
+    borderRadius: 20,
     backgroundColor: colors.white,
   },
   preferenceRow: { minHeight: 70, flexDirection: "row", alignItems: "center" },

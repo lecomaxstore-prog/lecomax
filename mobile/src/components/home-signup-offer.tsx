@@ -185,13 +185,11 @@ export function HomeSignupOffer() {
 
   return (
     <View style={styles.card}>
-      <View pointerEvents="none" style={styles.decorativeCircle} />
       <View style={styles.eyebrowRow}>
-        <View style={styles.eyebrowLine} />
         <Text style={styles.eyebrow}>OFFRE DE BIENVENUE</Text>
       </View>
       <Text accessibilityRole="header" style={styles.title}>
-        INSCRIS-TOI &{"\n"}PROFITE DE <Text style={styles.accent}>-10%</Text>
+        Inscris-toi,{"\n"}profite de <Text style={styles.accent}>-10 %</Text>
       </Text>
       <Text style={styles.description}>
         Rejoins L’ECOMAX et reçois immédiatement ton code personnel de
@@ -279,7 +277,11 @@ export function HomeSignupOffer() {
         </View>
         {message && status === "error" ? (
           <View accessibilityLiveRegion="polite" style={styles.fieldFeedback}>
-            <Ionicons name="alert-circle-outline" size={14} color="#FF9C9C" />
+            <Ionicons
+              name="alert-circle-outline"
+              size={14}
+              color={colors.error}
+            />
             <Text style={styles.fieldFeedbackText}>{message}</Text>
           </View>
         ) : null}
@@ -299,14 +301,14 @@ export function HomeSignupOffer() {
         >
           {status === "loading" ? (
             <View style={styles.loadingContent}>
-              <ActivityIndicator color={colors.ink} size="small" />
+              <ActivityIndicator color={colors.white} size="small" />
               <Text style={styles.submitText}>CRÉATION DU CODE…</Text>
             </View>
           ) : (
             <>
-              <Text style={styles.submitText}>RECEVOIR MON -10%</Text>
+              <Text style={styles.submitText}>Recevoir mon code -10 %</Text>
               <View style={styles.submitIcon}>
-                <Ionicons name="arrow-forward" size={17} color={colors.ink} />
+                <Ionicons name="arrow-forward" size={17} color={colors.white} />
               </View>
             </>
           )}
@@ -344,56 +346,45 @@ const colors = {
   white: "#FFFFFF",
   green: "#3DDC62",
   greenDark: "#168A38",
-  muted: "#A8ADA8",
+  muted: "#697069",
   inputMuted: "#697069",
-  error: "#E65A5A",
+  error: "#B42332",
 };
 
 const styles = StyleSheet.create({
   card: {
-    minHeight: 342,
+    minHeight: 0,
     marginHorizontal: 16,
     marginTop: 14,
     paddingHorizontal: 20,
-    paddingVertical: 23,
+    paddingVertical: 24,
     overflow: "hidden",
-    borderRadius: 18,
-    backgroundColor: colors.ink,
-  },
-  decorativeCircle: {
-    position: "absolute",
-    top: -85,
-    right: -70,
-    width: 210,
-    height: 210,
-    borderWidth: 34,
-    borderColor: "rgba(61,220,98,0.08)",
-    borderRadius: 105,
+    borderRadius: 14,
+    backgroundColor: "#F5F6F3",
   },
   eyebrowRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  eyebrowLine: { width: 22, height: 2, backgroundColor: colors.green },
   eyebrow: {
-    color: colors.green,
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 1.3,
+    color: colors.greenDark,
+    fontFamily: typography.semibold,
+    fontSize: 9,
+    letterSpacing: 1.1,
   },
   title: {
-    marginTop: 14,
-    color: colors.white,
-    fontFamily: typography.black,
-    fontSize: 28,
-    lineHeight: 30,
-    letterSpacing: -1,
+    marginTop: 12,
+    color: colors.ink,
+    fontFamily: typography.bold,
+    fontSize: 27,
+    lineHeight: 33,
+    letterSpacing: -0.7,
   },
-  accent: { color: colors.green },
+  accent: { color: colors.greenDark },
   description: {
     maxWidth: 310,
     marginTop: 10,
-    color: "#C7CBC7",
+    color: colors.inputMuted,
     fontFamily: typography.regular,
-    fontSize: 11,
-    lineHeight: 16,
+    fontSize: 12,
+    lineHeight: 19,
   },
   form: { marginTop: 19, gap: 9 },
   inputHeader: {
@@ -403,10 +394,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   inputLabel: {
-    color: "#DDE1DD",
-    fontFamily: typography.bold,
-    fontSize: 8,
-    letterSpacing: 1,
+    color: colors.ink,
+    fontFamily: typography.medium,
+    fontSize: 10,
+    letterSpacing: 0.4,
   },
   secureLabel: {
     flexDirection: "row",
@@ -420,15 +411,15 @@ const styles = StyleSheet.create({
     letterSpacing: 0.7,
   },
   inputShell: {
-    minHeight: 60,
-    paddingHorizontal: 8,
+    minHeight: 52,
+    paddingHorizontal: 12,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
     borderWidth: 1,
     borderColor: "#D7DDD7",
-    borderRadius: 12,
-    backgroundColor: "#F9FBF9",
+    borderRadius: 10,
+    backgroundColor: colors.white,
   },
   inputShellFocused: {
     borderColor: colors.green,
@@ -436,21 +427,21 @@ const styles = StyleSheet.create({
   },
   inputShellError: { borderColor: colors.error, backgroundColor: "#FFF7F7" },
   inputIcon: {
-    width: 42,
-    height: 42,
+    width: 20,
+    height: 24,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 10,
-    backgroundColor: "#EDF1ED",
+    borderRadius: 0,
+    backgroundColor: "transparent",
   },
-  inputIconFocused: { backgroundColor: "#E6F8EA" },
+  inputIconFocused: { backgroundColor: "transparent" },
   input: {
     minWidth: 0,
-    height: 58,
+    height: 50,
     flex: 1,
     color: colors.ink,
-    fontFamily: typography.semibold,
-    fontSize: 13,
+    fontFamily: typography.regular,
+    fontSize: 14,
   },
   validIndicator: {
     width: 23,
@@ -474,27 +465,27 @@ const styles = StyleSheet.create({
   fieldFeedbackText: {
     minWidth: 0,
     flex: 1,
-    color: "#FFB2B2",
+    color: colors.error,
     fontFamily: typography.medium,
-    fontSize: 8.5,
-    lineHeight: 13,
+    fontSize: 11,
+    lineHeight: 16,
   },
   submitButton: {
-    minHeight: 54,
-    paddingLeft: 17,
-    paddingRight: 8,
+    minHeight: 50,
+    paddingLeft: 16,
+    paddingRight: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderRadius: 11,
-    backgroundColor: colors.green,
+    borderRadius: 10,
+    backgroundColor: colors.greenDark,
   },
   submitButtonDisabled: { opacity: 0.65 },
   submitText: {
-    color: colors.ink,
-    fontFamily: typography.black,
-    fontSize: 10,
-    letterSpacing: 0.7,
+    color: colors.white,
+    fontFamily: typography.semibold,
+    fontSize: 13,
+    letterSpacing: 0,
   },
   loadingContent: {
     flexDirection: "row",
@@ -502,12 +493,12 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   submitIcon: {
-    width: 38,
-    height: 38,
+    width: 20,
+    height: 24,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 8,
-    backgroundColor: "rgba(255,255,255,0.52)",
+    backgroundColor: "transparent",
   },
   feedback: {
     marginTop: 11,
@@ -518,18 +509,18 @@ const styles = StyleSheet.create({
   feedbackTextUsed: {
     minWidth: 0,
     flex: 1,
-    color: "#A9E8B8",
+    color: colors.greenDark,
     fontFamily: typography.medium,
-    fontSize: 9,
-    lineHeight: 13,
+    fontSize: 11,
+    lineHeight: 16,
   },
   terms: {
-    marginTop: 15,
-    paddingTop: 14,
+    marginTop: 14,
+    paddingTop: 0,
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 8,
-    borderTopWidth: 1,
+    borderTopWidth: 0,
     borderTopColor: "#303330",
   },
   termsText: {
@@ -537,8 +528,8 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.muted,
     fontFamily: typography.regular,
-    fontSize: 8,
-    lineHeight: 12,
+    fontSize: 10,
+    lineHeight: 16,
   },
   successCard: {
     minHeight: 340,
@@ -546,8 +537,8 @@ const styles = StyleSheet.create({
     marginTop: 14,
     padding: 22,
     alignItems: "center",
-    borderRadius: 18,
-    backgroundColor: "#E9FBEF",
+    borderRadius: 14,
+    backgroundColor: "#F5F6F3",
   },
   successIcon: {
     width: 44,
@@ -567,8 +558,8 @@ const styles = StyleSheet.create({
   successTitle: {
     marginTop: 6,
     color: colors.ink,
-    fontFamily: typography.black,
-    fontSize: 25,
+    fontFamily: typography.bold,
+    fontSize: 24,
     letterSpacing: -0.8,
   },
   codePill: {
@@ -582,9 +573,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 10,
     borderWidth: 1,
-    borderStyle: "dashed",
-    borderColor: "#6BCB83",
-    borderRadius: 12,
+    borderStyle: "solid",
+    borderColor: "#D7DDD7",
+    borderRadius: 10,
     backgroundColor: colors.white,
   },
   codeText: {
@@ -620,16 +611,17 @@ const styles = StyleSheet.create({
     marginTop: 13,
     color: "#315B3D",
     fontFamily: typography.semibold,
-    fontSize: 9.5,
+    fontSize: 12,
     textAlign: "center",
+    lineHeight: 18,
   },
   successFinePrint: {
     maxWidth: 290,
     marginTop: 5,
     color: "#5D7263",
     fontFamily: typography.regular,
-    fontSize: 8,
-    lineHeight: 12,
+    fontSize: 10,
+    lineHeight: 16,
     textAlign: "center",
   },
   shopButton: {

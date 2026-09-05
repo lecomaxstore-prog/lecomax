@@ -3,11 +3,10 @@ import { Image } from "expo-image";
 import { memo, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedPressable } from "@/components/animated-pressable";
-import { Price } from "@/components/price";
 import { Rating } from "@/components/rating";
 import { palette, typography, ui } from "@/constants/theme";
-import { discount, imageUrl } from "@/lib/format";
-import type { WishlistVariant } from "@/lib/wishlist-utils";
+import { discount, imageUrl, money } from "@/lib/format";
+import { requiresWishlistVariant, type WishlistVariant } from "@/lib/wishlist-utils";
 import type { Product } from "@/types/commerce";
 
 type Props = {
@@ -18,6 +17,7 @@ type Props = {
   onOpen: () => void;
   onRemove: () => void;
   onAdd: () => void;
+  onChoose: () => void;
 };
 
 export const WishlistProductCard = memo(function WishlistProductCard({
@@ -28,6 +28,7 @@ export const WishlistProductCard = memo(function WishlistProductCard({
   onOpen,
   onRemove,
   onAdd,
+  onChoose,
 }: Props) {
   const [imageFailed, setImageFailed] = useState(false);
   const source = imageUrl(product.thumbnail || product.images[0]);
@@ -99,7 +100,7 @@ export const WishlistProductCard = memo(function WishlistProductCard({
           }}
           style={styles.heart}
         >
-          <Ionicons color={palette.red} name="heart" size={21} />
+          <Ionicons color="#A55657" name="heart" size={19} />
         </AnimatedPressable>
       </View>
 
@@ -128,10 +129,10 @@ export const WishlistProductCard = memo(function WishlistProductCard({
           onPress={onOpen}
           style={styles.nameAction}
         >
-          <Text style={styles.name}>{product.name}</Text>
+          <Text numberOfLines={2} style={styles.name}>{product.name}</Text>
         </AnimatedPressable>
 
-        <View style={styles.rating}>
+        {(product.review_count ?? product.reviews ?? 0) > 0 ? <View style={styles.rating}>
           <Rating
             reviews={product.review_count ?? product.reviews ?? 0}
             value={product.rating}
@@ -139,17 +140,20 @@ export const WishlistProductCard = memo(function WishlistProductCard({
           {(product.review_count ?? 0) > 0 ? (
             <Text style={styles.verified}>AVIS VÉRIFIÉS</Text>
           ) : null}
-        </View>
+        </View> : null}
 
-        <View style={styles.variantRow}>
+        {requiresWishlistVariant(product) ? <AnimatedPressable accessibilityRole="button" accessibilityLabel={`Choisir les options de ${product.name}`} disabled={!available || adding} onPress={onChoose} style={styles.variantRow}>
           <Ionicons color="#6D736F" name="options-outline" size={15} />
           <Text style={styles.variantText}>
             {variantLabel || "Choisissez votre couleur et votre taille"}
           </Text>
-        </View>
+          <Ionicons color="#698066" name="chevron-forward" size={14} />
+        </AnimatedPressable> : null}
 
+        <View style={styles.purchaseRow}>
         <View style={styles.priceRow}>
-          <Price price={product.price} oldPrice={product.original_price} />
+          <Text style={styles.price}>{money(product.price)}</Text>
+          {saving > 0 ? <Text style={styles.oldPrice}>{money(product.original_price!)}</Text> : null}
         </View>
 
         <AnimatedPressable
@@ -179,38 +183,22 @@ export const WishlistProductCard = memo(function WishlistProductCard({
             {adding
               ? "AJOUT EN COURS…"
               : available
-                ? "AJOUTER AU PANIER"
-                : "ARTICLE INDISPONIBLE"}
+                ? "Ajouter au panier"
+                : "Indisponible"}
           </Text>
         </AnimatedPressable>
-
-        <AnimatedPressable
-          accessibilityLabel={`Voir le produit ${product.name}`}
-          accessibilityRole="link"
-          haptic={false}
-          onPress={onOpen}
-          style={styles.viewProduct}
-        >
-          <Text style={styles.viewProductText}>Voir le produit</Text>
-          <Ionicons color={palette.ink} name="arrow-forward" size={16} />
-        </AnimatedPressable>
+        </View>
       </View>
     </View>
   );
 });
 
 const styles = StyleSheet.create({
-  card: {
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#DDDFDC",
-    backgroundColor: palette.white,
-  },
-  imageFrame: {
-    height: 316,
-    overflow: "hidden",
-    backgroundColor: "#ECEDEB",
-  },
+  oldPrice: {fontFamily:typography.regular,fontSize:10,color:'#A4AA9E',textDecorationLine:'line-through',marginTop:3},
+  price: {fontFamily:typography.semibold,fontSize:21,letterSpacing:-.6,color:'#244A34'},
+  purchaseRow: {flexDirection:'row',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between',gap:12,marginTop:16,paddingTop:14,borderTopWidth:1,borderTopColor:'#EDF0E8'},
+  card: { overflow:'hidden', padding:7, borderWidth:1, borderColor:'#E5E9DF', borderRadius:25, backgroundColor:'#FFFFFF' },
+  imageFrame: { aspectRatio:1.45, overflow:'hidden', borderRadius:19, backgroundColor:'#ECEEE7' },
   imageAction: { flex: 1 },
   imageFallback: {
     position: "absolute",
@@ -225,59 +213,19 @@ const styles = StyleSheet.create({
     fontSize: 8,
     letterSpacing: 1,
   },
-  badge: {
-    position: "absolute",
-    left: 12,
-    top: 12,
-    minHeight: 27,
-    maxWidth: "65%",
-    paddingHorizontal: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#12B83F",
-  },
-  badgeText: {
-    color: palette.white,
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 0.9,
-  },
-  promotionBadge: { backgroundColor: palette.red },
-  promotionText: {
-    color: palette.white,
-    fontFamily: typography.black,
-    fontSize: 10,
-  },
-  stockBadge: {
-    position: "absolute",
-    bottom: 12,
-    left: 12,
-    minHeight: 27,
-    paddingHorizontal: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(8,8,8,0.88)",
-  },
+  badge: { position:'absolute',left:12,top:12,minHeight:26,maxWidth:'65%',paddingHorizontal:10,alignItems:'center',justifyContent:'center',borderRadius:9,backgroundColor:'#F2F5E9' },
+  badgeText: {color:'#4D6649',fontFamily:typography.semibold,fontSize:8,letterSpacing:.8},
+  promotionBadge: { backgroundColor:'#F8E9E4' },
+  promotionText: {color:'#A34F3C',fontFamily:typography.semibold,fontSize:10},
+  stockBadge: {position:'absolute',bottom:12,left:12,minHeight:27,paddingHorizontal:10,alignItems:'center',justifyContent:'center',borderRadius:9,backgroundColor:'rgba(35,48,34,.85)'},
   stockBadgeText: {
     color: palette.white,
     fontFamily: typography.black,
     fontSize: 8,
     letterSpacing: 0.8,
   },
-  heart: {
-    position: "absolute",
-    right: 12,
-    top: 12,
-    width: 46,
-    height: 46,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#E2E3E1",
-    borderRadius: 23,
-    backgroundColor: palette.white,
-  },
-  body: { padding: 16 },
+  heart: {position:'absolute',right:11,top:11,width:42,height:42,alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'rgba(255,255,255,.8)',borderRadius:21,backgroundColor:'rgba(255,255,255,.96)'},
+  body: { paddingHorizontal:11, paddingTop:16, paddingBottom:11 },
   meta: {
     minWidth: 0,
     flexDirection: "row",
@@ -285,86 +233,27 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 10,
   },
-  category: {
-    minWidth: 0,
-    flex: 1,
-    color: "#109336",
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 1.1,
-  },
-  stock: { flexDirection: "row", alignItems: "center", gap: 5 },
-  stockDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#12B83F",
-  },
+  category: {minWidth:0,flex:1,color:'#8B9584',fontFamily:typography.semibold,fontSize:8,letterSpacing:1.5},
+  stock: {flexDirection:'row',alignItems:'center',gap:4,paddingHorizontal:7,paddingVertical:4,borderRadius:8,backgroundColor:'#F0F5EA'},
+  stockDot: {width:4,height:4,borderRadius:2,backgroundColor:'#729A68'},
   stockDotUnavailable: { backgroundColor: palette.red },
-  stockText: {
-    color: "#3E443F",
-    fontFamily: typography.bold,
-    fontSize: 7,
-    letterSpacing: 0.55,
-  },
+  stockText: {color:'#62805A',fontFamily:typography.medium,fontSize:7,letterSpacing:.5},
   unavailable: { color: palette.red },
-  nameAction: { minHeight: 44, justifyContent: "center", marginTop: 3 },
-  name: {
-    color: palette.ink,
-    fontFamily: typography.black,
-    fontSize: 19,
-    lineHeight: 24,
-    letterSpacing: -0.45,
-  },
-  rating: {
-    minHeight: 30,
-    marginTop: 4,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 9,
-  },
+  nameAction: {minHeight:44,justifyContent:'center',marginTop:7},
+  name: {color:'#23382A',fontFamily:typography.medium,fontSize:16,lineHeight:23,letterSpacing:-.35},
+  rating: {marginTop:8,flexDirection:'row',alignItems:'center',gap:9},
   verified: {
     color: "#747A76",
     fontFamily: typography.bold,
     fontSize: 6.5,
     letterSpacing: 0.55,
   },
-  variantRow: {
-    minHeight: 42,
-    marginTop: 7,
-    paddingHorizontal: 11,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderColor: "#E5E6E3",
-    backgroundColor: "#F6F6F4",
-  },
-  variantText: {
-    minWidth: 0,
-    flex: 1,
-    color: "#555B57",
-    fontFamily: typography.medium,
-    fontSize: 10,
-    lineHeight: 15,
-  },
-  priceRow: { minHeight: 47, justifyContent: "center", marginTop: 6 },
-  addButton: {
-    minHeight: ui.control.large,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 9,
-    backgroundColor: palette.ink,
-  },
+  variantRow: {minHeight:43,marginTop:13,paddingHorizontal:11,flexDirection:'row',alignItems:'center',gap:8,borderWidth:1,borderColor:'#EBEEE5',borderRadius:12,backgroundColor:'#F7F8F3'},
+  variantText: {minWidth:0,flex:1,color:'#78836F',fontFamily:typography.regular,fontSize:10,lineHeight:15},
+  priceRow: {minHeight:46,justifyContent:'center',flexShrink:0},
+  addButton: {minHeight:46,paddingHorizontal:17,flexDirection:'row',alignItems:'center',justifyContent:'center',gap:8,borderRadius:14,backgroundColor:'#244A34'},
   addButtonDisabled: { opacity: 0.46 },
-  addButtonText: {
-    color: palette.white,
-    fontFamily: typography.black,
-    fontSize: 10,
-    letterSpacing: 0.75,
-  },
+  addButtonText: {color:palette.white,fontFamily:typography.semibold,fontSize:11,letterSpacing:0},
   viewProduct: {
     minHeight: 46,
     flexDirection: "row",

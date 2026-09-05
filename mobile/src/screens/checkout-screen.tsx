@@ -5,7 +5,11 @@ import { router, useLocalSearchParams } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { triggerErrorHaptic, triggerSuccessHaptic, triggerWarningHaptic } from "@/services/haptics";
+import {
+  triggerErrorHaptic,
+  triggerSuccessHaptic,
+  triggerWarningHaptic,
+} from "@/services/haptics";
 import {
   ActivityIndicator,
   Alert,
@@ -109,13 +113,9 @@ const schema = z.object({
     .string()
     .trim()
     .min(1, "Le numéro de téléphone est obligatoire")
-    .refine(
-      (value) => /^(?:212|0)[67]\d{8}$/.test(value.replace(/\D/g, "")),
-      {
-        message:
-          "Utilisez un numéro marocain valide : 06, 07, +212 6 ou +212 7",
-      },
-    ),
+    .refine((value) => /^(?:212|0)[67]\d{8}$/.test(value.replace(/\D/g, "")), {
+      message: "Utilisez un numéro marocain valide : 06, 07, +212 6 ou +212 7",
+    }),
   city: z.string().trim().min(2, "Saisissez votre ville"),
   address: z.string().trim().min(8, "Saisissez votre adresse complète"),
   notes: z.string().optional(),
@@ -200,15 +200,18 @@ function CheckoutHeader({
         <View style={styles.headerTitleWrap}>
           <Text
             maxFontSizeMultiplier={1.15}
-            numberOfLines={1}
+            numberOfLines={2}
             style={[styles.headerTitle, compact && styles.headerTitleCompact]}
           >
-            FINALISER LA COMMANDE
+            Finaliser la commande
           </Text>
           <View style={styles.headerSecurity}>
             <Ionicons name="lock-closed" size={11} color={C.greenDark} />
-            <Text maxFontSizeMultiplier={1.15} style={styles.headerSecurityText}>
-              {paymentStep ? "PAIEMENT SÉCURISÉ" : "LIVRAISON SÉCURISÉE"}
+            <Text
+              maxFontSizeMultiplier={1.15}
+              style={styles.headerSecurityText}
+            >
+              {paymentStep ? "Paiement sécurisé" : "Livraison sécurisée"}
             </Text>
           </View>
         </View>
@@ -216,11 +219,7 @@ function CheckoutHeader({
           accessibilityLabel="Commande protégée"
           style={styles.headerShield}
         >
-          <Ionicons
-            name="shield-checkmark-outline"
-            size={21}
-            color={C.green}
-          />
+          <Ionicons name="shield-checkmark-outline" size={21} color={C.green} />
         </View>
       </View>
     </View>
@@ -283,11 +282,7 @@ function StatusBanner({
         name={icon}
         size={19}
         color={
-          tone === "error"
-            ? C.red
-            : tone === "warning"
-              ? C.amber
-              : C.greenDark
+          tone === "error" ? C.red : tone === "warning" ? C.amber : C.greenDark
         }
       />
       <View style={styles.statusCopy}>
@@ -390,10 +385,7 @@ function OrderSummary({
     <View style={styles.orderBlock}>
       <View style={styles.orderMetaRow}>
         <View style={styles.orderMetaTitle}>
-          <View style={styles.orderBagIcon}>
-            <Ionicons name="bag-handle-outline" size={15} color={C.greenDark} />
-          </View>
-          <Text style={styles.eyebrow}>RÉCAPITULATIF</Text>
+          <Text style={styles.eyebrow}>Votre commande</Text>
         </View>
         <View style={styles.orderCountBadge}>
           <Text style={styles.orderCount}>
@@ -424,7 +416,7 @@ function OrderSummary({
           style={styles.orderToggle}
         >
           <Text style={styles.orderToggleText}>
-            {expanded ? "MASQUER" : "VOIR LE DÉTAIL"}
+            {expanded ? "Masquer" : "Voir le détail"}
           </Text>
           <Ionicons
             name={expanded ? "chevron-up" : "chevron-down"}
@@ -444,13 +436,9 @@ function OrderSummary({
           </>
         ) : quoteReady && !stockProblem ? (
           <>
-            <Ionicons
-              name="shield-checkmark"
-              size={17}
-              color={C.greenDark}
-            />
+            <Ionicons name="checkmark" size={14} color={C.greenDark} />
             <Text style={styles.orderVerificationOk}>
-              Total vérifié par L’ecomax
+              Prix et disponibilité vérifiés
             </Text>
           </>
         ) : null}
@@ -479,7 +467,7 @@ function OrderSummary({
                   style={styles.orderImage}
                 />
                 <View style={styles.orderProductCopy}>
-                  <Text numberOfLines={2} style={styles.orderProductName}>
+                  <Text style={styles.orderProductName}>
                     {line.product.name}
                   </Text>
                   <Text style={styles.orderVariant}>
@@ -582,13 +570,10 @@ function PaymentMethodRow({
             {method.title}
           </Text>
           {method.recommended && method.available ? (
-            <Text style={styles.recommended}>RECOMMANDÉ</Text>
+            <Text style={styles.recommended}>Recommandé</Text>
           ) : null}
         </View>
-        <Text
-          maxFontSizeMultiplier={1.35}
-          style={styles.paymentDescription}
-        >
+        <Text maxFontSizeMultiplier={1.35} style={styles.paymentDescription}>
           {method.available
             ? `${method.description}${method.fee > 0 ? ` · Frais ${money(method.fee)}` : ""}`
             : method.unavailableReason || "INDISPONIBLE POUR LE MOMENT"}
@@ -726,13 +711,6 @@ function CheckoutFooter({
             </>
           ) : (
             <>
-              <View style={styles.confirmIcon}>
-                <Ionicons
-                  name="shield-checkmark-outline"
-                  size={19}
-                  color={disabled ? C.disabledText : C.green}
-                />
-              </View>
               <View style={styles.confirmCopy}>
                 <Text
                   adjustsFontSizeToFit
@@ -743,18 +721,20 @@ function CheckoutFooter({
                   ]}
                 >
                   {paymentStep
-                    ? "CONFIRMER LA COMMANDE"
-                    : "CONTINUER VERS LE PAIEMENT"}
+                    ? "Confirmer la commande"
+                    : "Continuer au paiement"}
                 </Text>
-                <Text style={styles.confirmHint}>
-                  {paymentStep ? `${money(total)} · total sécurisé` : "Étape suivante sécurisée"}
+                <Text style={[styles.confirmHint, disabled && styles.confirmTextDisabled]}>
+                  {paymentStep
+                    ? `${money(total)} · total à payer`
+                    : "Choisissez votre moyen de paiement"}
                 </Text>
               </View>
               <View style={styles.confirmArrow}>
                 <Ionicons
                   name="arrow-forward"
                   size={18}
-                  color={disabled ? C.disabledText : C.ink}
+                  color={disabled ? C.disabledText : C.white}
                 />
               </View>
             </>
@@ -782,7 +762,13 @@ function CheckoutFooter({
   );
 }
 
-function EmptyCart({ topInset, bottomInset }: { topInset: number; bottomInset: number }) {
+function EmptyCart({
+  topInset,
+  bottomInset,
+}: {
+  topInset: number;
+  bottomInset: number;
+}) {
   return (
     <View
       style={[
@@ -910,10 +896,7 @@ export default function CheckoutScreen() {
 
   const subtotal = useMemo(
     () =>
-      cart.reduce(
-        (sum, line) => sum + line.product.price * line.quantity,
-        0,
-      ),
+      cart.reduce((sum, line) => sum + line.product.price * line.quantity, 0),
     [cart],
   );
   const itemCount = useMemo(
@@ -950,8 +933,7 @@ export default function CheckoutScreen() {
   });
 
   const leaveCheckout = useCallback(() => {
-    if (router.canGoBack()) router.back();
-    else router.replace("/cart");
+    router.replace("/cart");
   }, []);
   const confirmCheckoutExit = useCallback(() => {
     Alert.alert(
@@ -965,7 +947,7 @@ export default function CheckoutScreen() {
   }, [leaveCheckout]);
   const requestCheckoutBack = useCallback(() => {
     if (step === 2) {
-      setStep(1);
+      leaveCheckout();
       return;
     }
     if (isDirty) {
@@ -975,14 +957,9 @@ export default function CheckoutScreen() {
     leaveCheckout();
   }, [confirmCheckoutExit, isDirty, leaveCheckout, step]);
   const interceptAndroidBack = useCallback(() => {
-    if (step === 2) {
-      setStep(1);
-      return true;
-    }
-    if (!isDirty) return false;
-    confirmCheckoutExit();
+    requestCheckoutBack();
     return true;
-  }, [confirmCheckoutExit, isDirty, step]);
+  }, [requestCheckoutBack]);
   useAndroidBackInterceptor(interceptAndroidBack);
   const selectedPayment = useWatch({ control, name: "payment" });
   const shipping = checkoutQuote?.shipping ?? shippingQuote?.cost ?? 0;
@@ -1315,8 +1292,7 @@ export default function CheckoutScreen() {
           total: String(total),
           payment: values.payment,
           email: values.email,
-          estimatedDays:
-            shippingQuote.estimatedDays || "2–5 jours ouvrables",
+          estimatedDays: shippingQuote.estimatedDays || "2–5 jours ouvrables",
         },
       });
     } catch (error) {
@@ -1377,6 +1353,7 @@ export default function CheckoutScreen() {
       />
 
       <ScrollView
+        style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         refreshControl={
@@ -1491,7 +1468,10 @@ export default function CheckoutScreen() {
                             />
                           </View>
                           {error ? (
-                            <Text accessibilityRole="alert" style={styles.fieldMessage}>
+                            <Text
+                              accessibilityRole="alert"
+                              style={styles.fieldMessage}
+                            >
                               {error.message}
                             </Text>
                           ) : null}
@@ -1552,18 +1532,8 @@ export default function CheckoutScreen() {
               <View style={styles.sectionHeading}>
                 <Text style={styles.pageTitle}>Mode de paiement</Text>
                 <Text style={styles.pageSubtitle}>
-                  Choisissez comment vous souhaitez régler votre commande.
+                  Comment souhaitez-vous régler ?
                 </Text>
-                <View style={styles.securityLine}>
-                  <Ionicons
-                    name="shield-checkmark-outline"
-                    size={16}
-                    color={C.greenDark}
-                  />
-                  <Text style={styles.securityLineText}>
-                    Transaction chiffrée et protégée
-                  </Text>
-                </View>
               </View>
 
               {paymentMethodsLoading ? (
@@ -1603,7 +1573,7 @@ export default function CheckoutScreen() {
 
               {couponsEnabled ? (
                 <View style={styles.couponSection}>
-                  <Text style={styles.sectionEyebrow}>CODE PROMOTIONNEL</Text>
+                  <Text style={styles.sectionEyebrow}>Un code promotionnel ?</Text>
                   <View
                     style={[
                       styles.couponRow,
@@ -1612,7 +1582,9 @@ export default function CheckoutScreen() {
                   >
                     <Ionicons
                       color={appliedCoupon ? C.greenDark : C.muted}
-                      name={appliedCoupon ? "checkmark-circle" : "ticket-outline"}
+                      name={
+                        appliedCoupon ? "checkmark-circle" : "ticket-outline"
+                      }
                       size={18}
                     />
                     <TextInput
@@ -1648,7 +1620,7 @@ export default function CheckoutScreen() {
                       {validatingCoupon ? (
                         <ActivityIndicator color={C.white} size="small" />
                       ) : (
-                        <Text style={styles.couponButtonText}>APPLIQUER</Text>
+                        <Text style={styles.couponButtonText}>Appliquer</Text>
                       )}
                     </AnimatedPressable>
                   </View>
@@ -1704,7 +1676,8 @@ export default function CheckoutScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#F7F8F6" },
+  screen: { flex: 1, minHeight: 0, backgroundColor: "#F7F8F5" },
+  scroll: { flex: 1, minHeight: 0 },
   header: {
     paddingBottom: 10,
     paddingHorizontal: 16,
@@ -1734,9 +1707,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   headerTitle: {
+    textAlign: "center",
     color: C.ink,
-    fontFamily: typography.black,
-    fontSize: 17,
+    fontFamily: typography.bold,
+    fontSize: 18,
     letterSpacing: -0.4,
   },
   headerTitleCompact: { fontSize: 15 },
@@ -1748,9 +1722,8 @@ const styles = StyleSheet.create({
   headerSecurityText: {
     marginLeft: 4,
     color: C.greenDark,
-    fontFamily: typography.black,
-    fontSize: 7.5,
-    letterSpacing: 0.75,
+    fontFamily: typography.medium,
+    fontSize: 10,
   },
   headerShield: {
     width: 44,
@@ -1772,12 +1745,12 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   deliverySection: { paddingTop: 10 },
-  paymentSection: { paddingTop: 10, gap: 18 },
+  paymentSection: { paddingTop: 18, gap: 20 },
   pageTitle: {
     color: C.ink,
-    fontFamily: typography.black,
-    fontSize: 25,
-    lineHeight: 30,
+    fontFamily: typography.bold,
+    fontSize: 22,
+    lineHeight: 28,
     letterSpacing: -0.55,
   },
   pageSubtitle: {
@@ -1789,16 +1762,16 @@ const styles = StyleSheet.create({
   },
   sectionHeading: { marginTop: 6 },
   securityLine: {
-    minHeight: 38,
-    marginTop: 13,
-    paddingHorizontal: 13,
+    minHeight: 28,
+    marginTop: 8,
+    paddingHorizontal: 0,
     alignSelf: "flex-start",
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: "#CDECD5",
     borderRadius: 19,
-    backgroundColor: "#F7FCF8",
+    backgroundColor: "transparent",
   },
   securityLineText: {
     marginLeft: 6,
@@ -1808,22 +1781,20 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     color: C.muted,
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 1.05,
+    fontFamily: typography.semibold,
+    fontSize: 13,
   },
   sectionEyebrow: {
     marginBottom: 12,
-    color: C.greenDark,
-    fontFamily: typography.black,
-    fontSize: 9,
-    letterSpacing: 1.15,
+    color: C.ink,
+    fontFamily: typography.semibold,
+    fontSize: 12,
   },
   orderBlock: {
-    padding: 18,
+    padding: 20,
     borderWidth: 1,
-    borderColor: C.border,
-    borderRadius: 16,
+    borderColor: "#E3E7DE",
+    borderRadius: 20,
     backgroundColor: C.white,
   },
   orderMetaRow: {
@@ -1863,14 +1834,14 @@ const styles = StyleSheet.create({
   orderTotal: {
     marginTop: 3,
     color: C.ink,
-    fontFamily: typography.black,
-    fontSize: 27,
+    fontFamily: typography.bold,
+    fontSize: 30,
     letterSpacing: -0.7,
   },
   orderCount: {
     color: C.muted,
     fontFamily: typography.bold,
-    fontSize: 8.5,
+    fontSize: 10,
   },
   orderToggle: {
     minHeight: 42,
@@ -1878,28 +1849,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    borderWidth: 1,
-    borderColor: C.border,
+    borderWidth: 0,
     borderRadius: 12,
-    backgroundColor: C.soft,
+    backgroundColor: "#F1F4EC",
   },
   orderToggleText: {
-    color: C.ink,
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 0.25,
+    color: "#31553B",
+    fontFamily: typography.semibold,
+    fontSize: 11,
   },
   orderVerification: {
-    minHeight: 36,
-    marginTop: 14,
-    paddingHorizontal: 12,
+    minHeight: 18,
+    marginTop: 8,
+    paddingHorizontal: 0,
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "flex-start",
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: "#C9EBD2",
     borderRadius: 18,
-    backgroundColor: C.greenSoft,
+    backgroundColor: "transparent",
   },
   orderVerificationText: {
     marginLeft: 7,
@@ -1909,8 +1878,8 @@ const styles = StyleSheet.create({
   },
   orderVerificationOk: {
     marginLeft: 7,
-    color: C.greenDark,
-    fontFamily: typography.bold,
+    color: "#6C786C",
+    fontFamily: typography.regular,
     fontSize: 9.5,
     letterSpacing: 0.05,
   },
@@ -1942,14 +1911,14 @@ const styles = StyleSheet.create({
   orderProductName: {
     color: C.ink,
     fontFamily: typography.bold,
-    fontSize: 11,
-    lineHeight: 15,
+    fontSize: 13,
+    lineHeight: 18,
   },
   orderVariant: {
     marginTop: 4,
     color: C.muted,
     fontFamily: typography.medium,
-    fontSize: 9,
+    fontSize: 11,
   },
   orderAvailability: {
     marginTop: 6,
@@ -1975,13 +1944,13 @@ const styles = StyleSheet.create({
   orderProductPrice: {
     color: C.ink,
     fontFamily: typography.black,
-    fontSize: 11,
+    fontSize: 13,
   },
   orderQuantity: {
     marginTop: 5,
     color: C.muted,
     fontFamily: typography.bold,
-    fontSize: 7,
+    fontSize: 10,
   },
   editCart: {
     minHeight: 44,
@@ -2162,13 +2131,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "#E7E9E6",
   },
-  paymentList: { gap: 10 },
+  paymentList: { gap: 12 },
   paymentRow: {
     position: "relative",
-    minHeight: 92,
+    minHeight: 90,
     overflow: "hidden",
-    paddingHorizontal: 16,
-    paddingVertical: 15,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
@@ -2177,27 +2146,27 @@ const styles = StyleSheet.create({
     backgroundColor: C.white,
   },
   paymentRowSelected: {
-    borderColor: "#7BD494",
-    borderWidth: 1.5,
-    backgroundColor: "#F3FBF5",
+    borderColor: "#709777",
+    borderWidth: 1,
+    backgroundColor: "#F0F6EC",
     shadowColor: "#118D35",
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0,
     shadowRadius: 8,
-    elevation: 1,
+    elevation: 0,
   },
   paymentRowUnavailable: { backgroundColor: "#F0F1EF" },
   paymentIcon: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 15,
+    borderRadius: 12,
     backgroundColor: C.greenSoft,
   },
   paymentIconPaypal: { backgroundColor: "#F0F6FA" },
   paymentIconUnavailable: { backgroundColor: "#E5E6E4" },
-  paymentCopy: { minWidth: 0, flex: 1, marginHorizontal: 14 },
+  paymentCopy: { minWidth: 0, flex: 1, marginHorizontal: 12 },
   paymentTitleRow: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -2207,7 +2176,7 @@ const styles = StyleSheet.create({
   paymentTitle: {
     minWidth: 0,
     color: C.ink,
-    fontFamily: typography.black,
+    fontFamily: typography.semibold,
     fontSize: 13.5,
     lineHeight: 18,
   },
@@ -2218,18 +2187,17 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     overflow: "hidden",
     color: C.greenDark,
-    fontFamily: typography.black,
-    fontSize: 7,
-    letterSpacing: 0.4,
+    fontFamily: typography.medium,
+    fontSize: 9,
     borderRadius: 10,
-    backgroundColor: "#DDF5E4",
+    backgroundColor: "#E0EBD8",
   },
   paymentDescription: {
     marginTop: 4,
     color: C.muted,
     fontFamily: typography.regular,
-    fontSize: 10.5,
-    lineHeight: 16,
+    fontSize: 12,
+    lineHeight: 17,
   },
   unavailable: {
     marginTop: 4,
@@ -2239,8 +2207,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.45,
   },
   radio: {
-    width: 28,
-    height: 28,
+    width: 24,
+    height: 24,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
@@ -2248,14 +2216,14 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: C.white,
   },
-  radioSelected: { borderColor: C.green, backgroundColor: C.green },
+  radioSelected: { borderColor: "#315D3C", backgroundColor: "#315D3C" },
   couponSection: {
     marginTop: 3,
-    padding: 14,
-    borderWidth: 1,
+    padding: 0,
+    borderWidth: 0,
     borderColor: C.border,
     borderRadius: 15,
-    backgroundColor: C.white,
+    backgroundColor: "transparent",
   },
   couponRow: {
     minHeight: 56,
@@ -2327,10 +2295,9 @@ const styles = StyleSheet.create({
   },
   priceCard: {
     marginTop: 4,
-    padding: 16,
-    borderWidth: 1,
+    paddingVertical: 16,
+    borderTopWidth: 1,
     borderColor: C.border,
-    borderRadius: 16,
     backgroundColor: C.white,
   },
   priceRow: {
@@ -2342,21 +2309,23 @@ const styles = StyleSheet.create({
   priceLabel: {
     color: C.muted,
     fontFamily: typography.medium,
-    fontSize: 11,
+    fontSize: 12,
   },
   priceValue: {
     color: C.ink,
     fontFamily: typography.bold,
-    fontSize: 11,
+    fontSize: 12,
   },
   priceAccent: { color: C.greenDark },
   totalDivider: {
     height: 1,
     marginVertical: 12,
-    backgroundColor: C.ink,
+    backgroundColor: C.border,
   },
   totalRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
     alignItems: "flex-end",
     justifyContent: "space-between",
   },
@@ -2393,8 +2362,8 @@ const styles = StyleSheet.create({
   fieldLabel: {
     marginBottom: 6,
     color: C.muted,
-    fontFamily: typography.black,
-    fontSize: 8,
+    fontFamily: typography.semibold,
+    fontSize: 10,
     letterSpacing: 0.55,
   },
   fieldLabelFocused: { color: C.greenDark },
@@ -2428,8 +2397,9 @@ const styles = StyleSheet.create({
     fontSize: 9,
   },
   footer: {
+    flexShrink: 0,
     paddingTop: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 20,
     borderTopWidth: 1,
     borderTopColor: C.border,
     backgroundColor: C.white,
@@ -2460,31 +2430,30 @@ const styles = StyleSheet.create({
     lineHeight: 12,
   },
   confirmButton: {
-    minHeight: 64,
-    paddingHorizontal: 12,
+    minHeight: 60,
+    paddingHorizontal: 18,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     borderRadius: 15,
-    backgroundColor: C.ink,
+    backgroundColor: "#183D29",
   },
   confirmButtonDisabled: { backgroundColor: C.disabled },
   confirmText: {
     color: C.white,
-    fontFamily: typography.black,
-    fontSize: 10.5,
-    letterSpacing: 0.15,
+    fontFamily: typography.semibold,
+    fontSize: 14,
   },
   confirmCopy: {
     minWidth: 0,
     flex: 1,
-    marginHorizontal: 11,
+    marginRight: 10,
   },
   confirmHint: {
     marginTop: 3,
-    color: "#AEB5AF",
+    color: "#D2D7D3",
     fontFamily: typography.medium,
-    fontSize: 8,
+    fontSize: 11,
   },
   confirmIcon: {
     width: 36,
@@ -2500,7 +2469,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 18,
-    backgroundColor: C.green,
+    backgroundColor: "transparent",
   },
   confirmTextDisabled: { color: C.disabledText },
   terms: {
@@ -2508,8 +2477,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: C.muted,
     fontFamily: typography.regular,
-    fontSize: 8,
-    lineHeight: 12,
+    fontSize: 9,
+    lineHeight: 14,
   },
   termsLink: {
     color: C.ink,

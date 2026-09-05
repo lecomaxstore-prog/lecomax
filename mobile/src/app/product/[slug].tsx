@@ -1,10 +1,12 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import * as Clipboard from "expo-clipboard";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   Pressable,
   ScrollView,
   Share,
@@ -27,14 +29,15 @@ import {
   useSettings,
 } from "@/hooks/use-catalog";
 import { discount, imageUrl, money } from "@/lib/format";
-import { runtimeConfig } from "@/lib/runtime-config";
 import { safeParentPath } from "@/lib/navigation-policy";
 import { realSimilarProducts } from "@/lib/product-similarity";
 import { useCommerceStore } from "@/stores/commerce";
+import { useCartFeedbackStore } from "@/stores/cart-feedback";
 import { getFreshProduct } from "@/services/catalog";
 
-const PRODUCT_BACKGROUND = "#FAF8F4";
+const PRODUCT_BACKGROUND = "#FFFFFF";
 const PRODUCT_BORDER = "#E8E5DF";
+const PRODUCT_SHARE_ORIGIN = "https://lecomax.com";
 
 const COLOR_IMAGE_TOKENS: Record<string, string[]> = {
   beige: ["beige", "nude", "camel"],
@@ -132,7 +135,7 @@ function LoadingState() {
 
 export default function ProductScreen() {
   const insets = useSafeAreaInsets();
-  const { contentWidth } = useAppViewport();
+  const { contentWidth, horizontalInset } = useAppViewport();
   const { slug, origin, parentCategory } = useLocalSearchParams<{
     slug: string;
     origin?: string;
@@ -150,6 +153,7 @@ export default function ProductScreen() {
   const wishlist = useCommerceStore((state) => state.wishlist);
   const cart = useCommerceStore((state) => state.cart);
   const view = useCommerceStore((state) => state.view);
+  const startCartFlight = useCartFeedbackStore((state) => state.startFlight);
   const pageRef = useRef<ScrollView>(null);
   const successTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
@@ -162,7 +166,6 @@ export default function ProductScreen() {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
-  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
   const goBack = useCallback(() => {
     if (router.canGoBack()) {
@@ -187,7 +190,6 @@ export default function ProductScreen() {
       setSize(undefined);
       setQuantity(1);
       setGalleryImageIndex(undefined);
-      setDescriptionExpanded(false);
     });
     return () => cancelAnimationFrame(frame);
   }, [slug]);
@@ -275,12 +277,50 @@ export default function ProductScreen() {
   const isFavorite = wishlist.includes(product.id);
   const reviewCount = product.review_count ?? reviews.length;
   const description = product.description?.trim() || "";
-  const shortDescription = description.split(/\n+/)[0]?.trim();
   const related = realSimilarProducts(product, all, 8);
   const currency = settingsMap.currency?.trim().toUpperCase() || "MAD";
   const deliveryLabel =
     settingsMap.checkout_trust_delivery?.trim() ||
     `Livraison ${settingsMap.shipping_estimated_days?.trim() || "2–5 jours ouvrables"}`;
+  const shareProduct = async () => {
+    const productUrl = `${PRODUCT_SHARE_ORIGIN}/produit/${encodeURIComponent(product.slug)}/`;
+    const currentPrice = money(selectedPrice, currency);
+    const originalPrice =
+      selectedOriginalPrice && selectedOriginalPrice > selectedPrice
+        ? money(selectedOriginalPrice, currency)
+        : undefined;
+    const title = `${product.name} — ${currentPrice} | L'ecomax`;
+    const priceLine = originalPrice
+      ? `Prix : ${currentPrice} au lieu de ${originalPrice} · Économisez ${saving}%`
+      : `Prix : ${currentPrice}`;
+    const message = [
+      `Découvrez ${product.name} chez L'ecomax.`,
+      priceLine,
+      "Livraison partout au Maroc · Paiement à la livraison.",
+    ].join("\n");
+    const completeMessage = `${message}\n\nVoir le produit : ${productUrl}`;
+
+    try {
+      if (Platform.OS === "web" && typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title, text: message, url: productUrl });
+        return;
+      }
+
+      await Share.share({
+        title,
+        message: Platform.OS === "ios" ? message : completeMessage,
+        url: productUrl,
+      });
+    } catch (reason) {
+      if (reason instanceof Error && reason.name === "AbortError") return;
+      try {
+        await Clipboard.setStringAsync(completeMessage);
+        Alert.alert("Lien copié", "Le produit, son prix et son lien sont prêts à être partagés.");
+      } catch {
+        Alert.alert("Partage indisponible", "Impossible de partager ce produit pour le moment.");
+      }
+    }
+  };
   const selectColor = (value: string) => {
     if (outOfStockColors.includes(value)) return;
     const imageIndex = findColorImageIndex(product.images, product.colors, value);
@@ -294,7 +334,7 @@ export default function ProductScreen() {
     });
   };
 
-  const addSelectedQuantity = async () => {
+  const addSelectedQuantity = async (origin?: { originX: number; originY: number }) => {
     if (isAdding) return;
     if (selectionUnavailable) {
       Alert.alert(
@@ -335,6 +375,24 @@ export default function ProductScreen() {
         price: freshPricing?.price ?? fresh.price,
         original_price: freshPricing?.originalPrice ?? fresh.original_price,
       }, { color: selectedColor, size: selectedSize, quantity });
+      if (origin) {
+        const selectedImageIndex = selectedColor
+          ? findColorImageIndex(fresh.images, fresh.colors, selectedColor)
+          : 0;
+        startCartFlight({
+          image:
+            fresh.images[selectedImageIndex] ||
+            fresh.thumbnail ||
+            fresh.images[0],
+          originX: origin.originX,
+          originY: origin.originY,
+          targetX:
+            horizontalInset +
+            contentWidth -
+            (wishlistEnabled ? 88 : 36),
+          targetY: Math.max(insets.top + 6, 12) + 22,
+        });
+      }
       setAdded(true);
       if (successTimer.current) clearTimeout(successTimer.current);
       successTimer.current = setTimeout(() => setAdded(false), 1800);
@@ -388,98 +446,26 @@ export default function ProductScreen() {
         <View style={[styles.content, { width: contentWidth }]}>
           <View style={styles.categoryRow}>
             <View style={styles.collectionLabel}>
-              <View style={styles.collectionDivider} />
               <Text style={styles.category}>{product.brand || product.category}</Text>
             </View>
             <View style={[styles.stockBadge, selectionUnavailable && styles.stockBadgeUnavailable]}>
               <View style={[styles.stockDot, selectionUnavailable && styles.stockDotUnavailable]} />
               <Text style={[styles.stockText, selectionUnavailable && styles.stockTextUnavailable]}>
-                {selectionUnavailable ? "INDISPONIBLE" : "PRÊT À EXPÉDIER"}
+                {selectionUnavailable ? "Indisponible" : "En stock"}
               </Text>
             </View>
           </View>
-          <Text maxFontSizeMultiplier={1.15} selectable style={styles.productName}>
+          <Text
+            maxFontSizeMultiplier={1.15}
+            selectable
+            style={[
+              styles.productName,
+              contentWidth <= 360 && styles.productNameCompact,
+            ]}
+          >
             {product.name}
           </Text>
-          <View style={styles.ratingShareRow}>
-            <View style={styles.ratingGroup}>
-              <Ionicons name="star" size={17} color="#C49A00" />
-              <Text style={styles.ratingValue}>
-                {Number(product.rating ?? 0).toFixed(1)}
-              </Text>
-              <View style={styles.ratingDivider} />
-              <Text style={styles.reviewCount}>{reviewCount} avis vérifiés</Text>
-            </View>
-            <AnimatedPressable
-              accessibilityLabel="Partager ce produit"
-              accessibilityRole="button"
-              onPress={() =>
-                void Share.share({
-                  message: `${product.name} — ${runtimeConfig.apiUrl}/produit/${product.slug}`,
-                })
-              }
-              style={styles.shareButton}
-            >
-              <Ionicons name="share-social-outline" size={19} color="#4D514E" />
-              <Text style={styles.shareText}>PARTAGER</Text>
-            </AnimatedPressable>
-          </View>
-
-          <View style={styles.trustRow}>
-            <View style={styles.trustItem}>
-              <Ionicons name="shield-checkmark-outline" size={23} color="#16883A" />
-              <Text numberOfLines={2} style={styles.trustText}>
-                Produit authentique
-              </Text>
-            </View>
-            <View style={styles.trustDivider} />
-            <View style={styles.trustItem}>
-              <Ionicons name="location-outline" size={23} color="#16883A" />
-              <Text numberOfLines={2} style={styles.trustText}>
-                Livraison partout au Maroc
-              </Text>
-            </View>
-          </View>
-          {shortDescription ? (
-            <View style={styles.descriptionBlock}>
-              <Text
-                maxFontSizeMultiplier={1.2}
-                numberOfLines={descriptionExpanded ? undefined : 3}
-                style={styles.shortDescription}
-              >
-                {shortDescription}
-              </Text>
-              {shortDescription.length > 135 ? (
-                <AnimatedPressable
-                  accessibilityLabel={descriptionExpanded ? "Réduire la description" : "Lire toute la description"}
-                  accessibilityRole="button"
-                  onPress={() => setDescriptionExpanded((value) => !value)}
-                  pressedScale={0.97}
-                  style={styles.descriptionToggle}
-                >
-                  <Text style={styles.descriptionToggleText}>
-                    {descriptionExpanded ? "Masquer les détails" : "Voir la description complète"}
-                  </Text>
-                  <View style={styles.descriptionToggleIcon}>
-                    <Ionicons
-                      name={descriptionExpanded ? "chevron-up" : "chevron-down"}
-                      size={14}
-                      color="#16883A"
-                    />
-                  </View>
-                </AnimatedPressable>
-              ) : null}
-            </View>
-          ) : null}
-
           <View style={styles.priceCard}>
-            <View style={styles.priceHeader}>
-              <Text style={styles.priceEyebrow}>PRIX L’ECOMAX</Text>
-              <View style={styles.deliveryTag}>
-                <Ionicons name="cube-outline" size={15} color="#16883A" />
-                <Text style={styles.deliveryTagText}>LIVRAISON RAPIDE</Text>
-              </View>
-            </View>
             <View style={styles.priceRow}>
               <Text style={[styles.price, saving > 0 && styles.promotionalPrice]}>
                 {money(selectedPrice, currency)}
@@ -487,7 +473,6 @@ export default function ProductScreen() {
               {selectedOriginalPrice &&
               selectedOriginalPrice > selectedPrice ? (
                 <View style={styles.originalPriceGroup}>
-                  <Text style={styles.originalPriceLabel}>Prix initial</Text>
                   <Text style={styles.originalPrice}>
                     {money(selectedOriginalPrice, currency)}
                   </Text>
@@ -495,15 +480,14 @@ export default function ProductScreen() {
               ) : null}
               {saving > 0 ? (
                 <View style={styles.discountBadge}>
-                  <Text style={styles.discountText}>ÉCONOMISEZ {saving}%</Text>
+                  <Text style={styles.discountText}>−{saving} %</Text>
                 </View>
               ) : null}
             </View>
             {saving > 0 && selectedOriginalPrice ? (
               <View style={styles.savingsRow}>
-                <Ionicons name="pricetag-outline" size={14} color="#16883A" />
                 <Text style={styles.savingsText}>
-                  Votre avantage : {money(selectedOriginalPrice - selectedPrice, currency)}
+                  Vous économisez {money(selectedOriginalPrice - selectedPrice, currency)}
                 </Text>
               </View>
             ) : null}
@@ -511,7 +495,10 @@ export default function ProductScreen() {
 
           {product.colors?.length ? (
             <View style={styles.variantSection}>
-              <Text style={styles.sectionTitle}>Couleur</Text>
+              <View style={styles.variantHeading}>
+                <Text style={styles.sectionTitle}>Couleur</Text>
+                <Text style={styles.selectedVariant}>{selectedColor}</Text>
+              </View>
               <View style={styles.colors}>
                 {product.colors.map((item) => {
                   const selected = item === selectedColor;
@@ -581,12 +568,16 @@ export default function ProductScreen() {
           {requiresSize ? (
             <View style={styles.variantSection}>
               <View style={styles.sizeHeading}>
-                <Text style={styles.sectionTitle}>Taille</Text>
+                <View style={styles.variantHeading}>
+                  <Text style={styles.sectionTitle}>Taille</Text>
+                  <Text style={styles.selectedVariant}>{selectedSize ? `· ${selectedSize}` : "· À choisir"}</Text>
+                </View>
                 <AnimatedPressable
                   accessibilityLabel="Ouvrir le guide des tailles"
                   onPress={() => setSizeGuideOpen(true)}
                   style={styles.guideButton}
                 >
+                  <Ionicons name="resize-outline" size={14} color="#626D5F" />
                   <Text style={styles.guideText}>Guide des tailles</Text>
                 </AnimatedPressable>
               </View>
@@ -619,7 +610,11 @@ export default function ProductScreen() {
                       >
                         {item}
                       </Text>
-                      {unavailable ? <View style={styles.sizeStrike} /> : null}
+                      {unavailable ? <Text style={styles.sizeStatus}>Épuisé</Text> : selected ? (
+                        <View style={styles.sizeCheck}>
+                          <Ionicons name="checkmark" size={10} color="#FFFFFF" />
+                        </View>
+                      ) : null}
                     </AnimatedPressable>
                   );
                 })}
@@ -666,6 +661,55 @@ export default function ProductScreen() {
             </View>
           </View>
 
+          <View style={styles.ratingShareRow}>
+            <View style={styles.ratingGroup}>
+              <Ionicons
+                name={reviewCount > 0 ? "star" : "star-outline"}
+                size={15}
+                color={reviewCount > 0 ? "#C49A00" : "#8B8E8A"}
+              />
+              {reviewCount > 0 ? (
+                <>
+                  <Text style={styles.ratingValue}>
+                    {Number(product.rating ?? 0).toFixed(1)}
+                  </Text>
+                  <View style={styles.ratingDivider} />
+                  <Text style={styles.reviewCount}>
+                    {reviewCount} avis vérifié{reviewCount === 1 ? "" : "s"}
+                  </Text>
+                </>
+              ) : (
+                <Text style={styles.noReviews}>Aucun avis</Text>
+              )}
+            </View>
+            <AnimatedPressable
+              accessibilityLabel="Partager ce produit"
+              accessibilityRole="button"
+              onPress={() => void shareProduct()}
+              pressedScale={0.96}
+              style={styles.shareButton}
+            >
+              <Ionicons name="share-social-outline" size={16} color="#397A4D" />
+              <Text style={styles.shareText}>Partager</Text>
+            </AnimatedPressable>
+          </View>
+
+          <View style={styles.trustRow}>
+            <View style={styles.trustItem}>
+              <Ionicons name="shield-checkmark-outline" size={20} color="#16883A" />
+              <Text numberOfLines={2} style={styles.trustText}>
+                Produit authentique
+              </Text>
+            </View>
+            <View style={styles.trustDivider} />
+            <View style={styles.trustItem}>
+              <Ionicons name="location-outline" size={20} color="#16883A" />
+              <Text numberOfLines={2} style={styles.trustText}>
+                Livraison partout au Maroc
+              </Text>
+            </View>
+          </View>
+
           <View style={styles.accordions}>
             {description ? (
               <Accordion title="Description" initiallyOpen>
@@ -699,8 +743,8 @@ export default function ProductScreen() {
             <Accordion title="Livraison">
               <Text style={styles.accordionText}>{deliveryLabel}</Text>
               <Text style={[styles.accordionText, { marginTop: 8 }]}>
-                Frais et délai définitifs calculés par le serveur selon votre
-                ville.
+                Retrouvez les frais et le délai de livraison pour votre ville
+                avant de confirmer votre commande.
               </Text>
             </Accordion>
           </View>
@@ -746,21 +790,21 @@ export default function ProductScreen() {
 
         {related.length ? (
           <View style={[styles.related, { width: contentWidth }]}>
-            <Text style={styles.relatedEyebrow}>À DÉCOUVRIR AUSSI</Text>
-            <Text style={styles.relatedTitle}>Produits similaires</Text>
+            <Text style={styles.relatedTitle}>Vous aimerez aussi</Text>
+            <Text style={styles.relatedSubtitle}>À découvrir dans le même esprit.</Text>
             <HorizontalRail
-              snapToInterval={290}
+              snapToInterval={254}
               snapToAlignment="start"
               disableIntervalMomentum
-              style={{ height: 438, marginTop: 18 }}
+              style={{ marginTop: 18 }}
               contentContainerStyle={{
-                gap: 16,
+                gap: 14,
                 paddingRight: 30,
-                alignItems: "flex-start",
+                alignItems: "stretch",
               }}
             >
               {related.map((item) => (
-                <ProductCard key={item.id} product={item} wide />
+                <ProductCard key={item.id} product={item} wide related />
               ))}
             </HorizontalRail>
           </View>
@@ -770,13 +814,16 @@ export default function ProductScreen() {
       <View
         style={[
           styles.purchaseBar,
-          { paddingBottom: Math.max(insets.bottom, 12) },
+          { paddingBottom: Math.max(insets.bottom, 9) },
         ]}
       >
-        <View style={styles.purchasePrice}>
-          <Text style={styles.purchasePriceLabel}>
-            {selectedSize || selectedColor || "PRIX"}
-          </Text>
+        <View
+          style={[
+            styles.purchasePrice,
+            contentWidth <= 340 && styles.purchasePriceCompact,
+          ]}
+        >
+          <Text style={styles.purchasePriceLabel}>PRIX</Text>
           <Text
             numberOfLines={1}
             style={[styles.purchasePriceValue, saving > 0 && styles.promotionalPrice]}
@@ -790,9 +837,16 @@ export default function ProductScreen() {
           }
           accessibilityState={{ disabled: selectionUnavailable || isAdding }}
           disabled={selectionUnavailable || isAdding}
-          onPress={() => void addSelectedQuantity()}
+          onPress={(event) =>
+            void addSelectedQuantity({
+              originX: event.nativeEvent.pageX,
+              originY: event.nativeEvent.pageY,
+            })
+          }
+          pressedScale={0.985}
           style={[
             styles.addButton,
+            contentWidth <= 340 && styles.addButtonCompact,
             (selectionUnavailable || isAdding) && styles.addButtonDisabled,
           ]}
         >
@@ -800,14 +854,25 @@ export default function ProductScreen() {
             <ActivityIndicator color={palette.white} />
           ) : (
             <>
-              <View style={styles.addButtonIcon}>
+              <View
+                style={[
+                  styles.addButtonIcon,
+                  contentWidth <= 340 && styles.addButtonIconCompact,
+                ]}
+              >
                 <Ionicons
                   name={added ? "checkmark" : "bag-handle-outline"}
-                  size={19}
+                  size={18}
                   color={palette.white}
                 />
               </View>
-              <Text style={styles.addButtonText}>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.addButtonText,
+                  contentWidth <= 340 && styles.addButtonTextCompact,
+                ]}
+              >
                 {added
                   ? "Ajouté au panier"
                   : selectionUnavailable
@@ -887,81 +952,90 @@ const styles = StyleSheet.create({
   content: {
     alignSelf: "center",
     paddingHorizontal: 20,
-    paddingTop: 24,
+    paddingTop: 20,
     paddingBottom: 30,
     backgroundColor: PRODUCT_BACKGROUND,
   },
   categoryRow: {
-    minHeight: 34,
+    minHeight: 30,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
   collectionLabel: {
+    minWidth: 0,
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
   },
   collectionDivider: {
-    width: 28,
-    height: 2,
+    width: 22,
+    height: 1.5,
     backgroundColor: "#16883A",
   },
   category: {
-    color: "#16883A",
-    fontFamily: typography.black,
+    color: "#697267",
+    fontFamily: typography.bold,
     fontSize: 10,
-    letterSpacing: 1.5,
+    letterSpacing: 1.25,
     textTransform: "uppercase",
   },
   stockBadge: {
+    flexShrink: 0,
     flexDirection: "row",
     alignItems: "center",
     gap: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: "#F0F5ED",
   },
   stockBadgeUnavailable: { opacity: 0.8 },
-  stockDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: "#16883A" },
+  stockDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#16883A" },
   stockDotUnavailable: { backgroundColor: "#A83A3F" },
   stockText: {
     color: "#16883A",
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 1.1,
+    fontFamily: typography.bold,
+    fontSize: 10,
   },
   stockTextUnavailable: { color: "#A83A3F" },
   shareButton: {
-    minHeight: 42,
-    paddingLeft: 12,
+    minHeight: 44,
+    paddingHorizontal: 12,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
     gap: 7,
+    borderRadius: 22,
+    backgroundColor: "#F4F6F0",
   },
   shareText: {
-    color: "#6B6E6B",
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 1.1,
+    color: "#505652",
+    fontFamily: typography.semibold,
+    fontSize: 10.5,
+    letterSpacing: 0.1,
   },
   productName: {
-    maxWidth: 660,
-    marginTop: 17,
+    maxWidth: 680,
+    marginTop: 13,
     color: "#171A18",
-    fontFamily: "serif",
-    fontSize: 34,
-    lineHeight: 41,
+    fontFamily: typography.semibold,
+    fontSize: 26,
+    lineHeight: 33,
     letterSpacing: -0.8,
   },
+  productNameCompact: { fontSize: 24, lineHeight: 30, letterSpacing: -0.6 },
   ratingShareRow: {
-    minHeight: 58,
-    marginTop: 16,
+    minHeight: 50,
+    marginTop: 0,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     borderBottomWidth: 1,
-    borderBottomColor: "#DEDAD3",
+    borderBottomColor: "rgba(0,0,0,0.07)",
   },
-  ratingGroup: { minWidth: 0, flexDirection: "row", alignItems: "center", gap: 7 },
+  ratingGroup: { minWidth: 0, flex: 1, flexDirection: "row", alignItems: "center", gap: 7 },
   ratingValue: {
     color: palette.ink,
     fontFamily: typography.black,
@@ -973,9 +1047,13 @@ const styles = StyleSheet.create({
     fontFamily: typography.regular,
     fontSize: 10,
   },
+  noReviews: {
+    color: "#696D69",
+    fontFamily: typography.semibold,
+    fontSize: 10.5,
+  },
   descriptionBlock: {
-    marginTop: 13,
-    paddingBottom: 13,
+    paddingVertical: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "#DCD9D3",
   },
@@ -1008,11 +1086,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#EAF6ED",
   },
   priceCard: {
-    marginTop: 22,
+    marginTop: 12,
     marginBottom: 2,
-    paddingTop: 17,
-    borderTopWidth: 1,
-    borderTopColor: "#DEDAD3",
+    paddingBottom: 22,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0,0,0,0.07)",
     backgroundColor: "transparent",
   },
   priceHeader: {
@@ -1023,19 +1101,19 @@ const styles = StyleSheet.create({
   priceEyebrow: {
     color: "#747773",
     fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 1.4,
+    fontSize: 8.5,
+    letterSpacing: 1.2,
   },
-  deliveryTag: { flexDirection: "row", alignItems: "center", gap: 6 },
+  deliveryTag: { flexDirection: "row", alignItems: "center", gap: 5 },
   deliveryTagText: {
-    color: "#16883A",
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 0.8,
+    color: "#397A4D",
+    fontFamily: typography.bold,
+    fontSize: 7.5,
+    letterSpacing: 0.7,
   },
   priceRow: {
     minHeight: 45,
-    marginTop: 10,
+    marginTop: 0,
     flexDirection: "row",
     alignItems: "center",
     flexWrap: "wrap",
@@ -1043,12 +1121,12 @@ const styles = StyleSheet.create({
   },
   price: {
     color: "#171A18",
-    fontFamily: typography.black,
-    fontSize: 30,
-    letterSpacing: -0.8,
+    fontFamily: typography.bold,
+    fontSize: 27,
+    letterSpacing: -0.7,
   },
   promotionalPrice: {
-    color: "#D62F35",
+    color: "#183D29",
   },
   originalPriceGroup: {
     alignItems: "flex-start",
@@ -1063,66 +1141,64 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   originalPrice: {
-    color: "#777B77",
-    fontFamily: typography.semibold,
-    fontSize: 15,
+    color: "#93988F",
+    fontFamily: typography.regular,
+    fontSize: 14,
     textDecorationLine: "line-through",
   },
   discountBadge: {
-    minHeight: 30,
-    paddingHorizontal: 11,
+    minHeight: 26,
+    paddingHorizontal: 9,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 10,
-    backgroundColor: "#FBE9EA",
+    borderRadius: 7,
+    backgroundColor: "#EEF4E8",
   },
   discountText: {
-    color: "#C8232C",
-    fontFamily: typography.black,
-    fontSize: 9,
-    letterSpacing: 0.45,
-  },
-  savingsRow: {
-    minHeight: 28,
-    marginTop: 9,
-    paddingTop: 9,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#E8EDE9",
-  },
-  savingsText: {
-    color: "#16883A",
+    color: "#3C6540",
     fontFamily: typography.semibold,
     fontSize: 11,
   },
+  savingsRow: {
+    minHeight: 20,
+    marginTop: 3,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+  },
+  savingsText: {
+    color: "#778171",
+    fontFamily: typography.regular,
+    fontSize: 11,
+  },
   variantSection: {
-    paddingVertical: 22,
+    paddingVertical: 20,
     borderBottomWidth: 1,
     borderBottomColor: PRODUCT_BORDER,
   },
   sectionTitle: {
     color: palette.ink,
-    fontFamily: typography.black,
-    fontSize: 15,
+    fontFamily: typography.semibold,
+    fontSize: 14,
   },
-  colors: { marginTop: 16, flexDirection: "row", flexWrap: "wrap", gap: 16 },
+  variantHeading: { flexDirection: "row", alignItems: "center", gap: 10 },
+  selectedVariant: { color: "#7A8276", fontFamily: typography.regular, fontSize: 12 },
+  colors: { marginTop: 14, flexDirection: "row", flexWrap: "wrap", gap: 12 },
   colorOption: { width: 72, alignItems: "center" },
   colorImageShell: {
-    width: 64,
-    height: 64,
-    padding: 4,
+    width: 68,
+    height: 76,
+    padding: 6,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#DDD9D2",
-    borderRadius: 32,
-    backgroundColor: "#F4F0EA",
+    borderColor: "#E3E7DF",
+    borderRadius: 14,
+    backgroundColor: "#F7F8F4",
   },
-  colorImageSelected: { borderWidth: 2, borderColor: "#16883A" },
-  colorImage: { width: "100%", height: "100%", borderRadius: 28 },
+  colorImageSelected: { borderWidth: 1.5, borderColor: "#315D3C" },
+  colorImage: { width: "100%", height: "100%", borderRadius: 8 },
   selectedCheck: {
     position: "absolute",
     right: 0,
@@ -1134,7 +1210,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: PRODUCT_BACKGROUND,
     borderRadius: 11,
-    backgroundColor: "#16883A",
+    backgroundColor: "#315D3C",
   },
   unavailable: { opacity: 0.45 },
   unavailableLine: {
@@ -1160,47 +1236,47 @@ const styles = StyleSheet.create({
   guideButton: {
     minHeight: 44,
     paddingHorizontal: 6,
+    flexDirection: "row",
+    gap: 6,
     alignItems: "center",
     justifyContent: "center",
   },
   guideText: {
-    color: "#16883A",
-    fontFamily: typography.bold,
-    fontSize: 10,
-    textDecorationLine: "underline",
+    color: "#626D5F",
+    fontFamily: typography.medium,
+    fontSize: 11,
   },
-  sizes: { marginTop: 13, flexDirection: "row", flexWrap: "wrap", gap: 9 },
+  sizes: { marginTop: 10, flexDirection: "row", flexWrap: "wrap", gap: 10 },
   sizeOption: {
-    minWidth: 54,
-    height: 48,
-    paddingHorizontal: 13,
+    minWidth: 76,
+    minHeight: 58,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    gap: 3,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#D9D6D0",
-    borderRadius: 13,
+    borderColor: "#E0E5DA",
+    borderRadius: 14,
     backgroundColor: palette.white,
   },
-  sizeSelected: { borderColor: "#16883A", backgroundColor: "#16883A" },
-  sizeUnavailable: { backgroundColor: "#F1EFEB" },
-  sizeText: { color: palette.ink, fontFamily: typography.bold, fontSize: 12 },
-  sizeTextSelected: { color: palette.white },
-  sizeTextUnavailable: { color: "#A4A5A3" },
-  sizeStrike: {
-    position: "absolute",
-    width: 68,
-    height: 1,
-    backgroundColor: "#B6B6B3",
-    transform: [{ rotate: "-34deg" }],
-  },
+  sizeSelected: { borderColor: "#426A45", backgroundColor: "#EFF5E9" },
+  sizeUnavailable: { backgroundColor: "#F7F8F5", borderColor: "#ECEFE7" },
+  sizeText: { color: palette.ink, fontFamily: typography.semibold, fontSize: 14 },
+  sizeTextSelected: { color: "#23482D" },
+  sizeTextUnavailable: { color: "#939B8B" },
+  sizeStatus: { color: "#969E8F", fontFamily: typography.regular, fontSize: 9 },
+  sizeCheck: { position: "absolute", top: 5, right: 5, width: 14, height: 14, borderRadius: 7, alignItems: "center", justifyContent: "center", backgroundColor: "#426A45" },
   trustRow: {
-    minHeight: 72,
-    marginTop: 4,
+    minHeight: 64,
+    marginTop: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 16,
+    backgroundColor: "#F5F7F1",
     flexDirection: "row",
     alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#DEDAD3",
   },
   trustItem: {
     minWidth: 0,
@@ -1211,17 +1287,17 @@ const styles = StyleSheet.create({
   },
   trustDivider: {
     width: 1,
-    height: 34,
-    marginHorizontal: 16,
-    backgroundColor: PRODUCT_BORDER,
+    height: 24,
+    marginHorizontal: 12,
+    backgroundColor: "#E1E7DA",
   },
   trustText: {
     minWidth: 0,
     flex: 1,
     color: "#3E423F",
-    fontFamily: typography.semibold,
-    fontSize: 10.5,
-    lineHeight: 15,
+    fontFamily: typography.medium,
+    fontSize: 11,
+    lineHeight: 16,
   },
   quantitySection: {
     paddingVertical: 20,
@@ -1233,24 +1309,17 @@ const styles = StyleSheet.create({
   },
   accordions: {
     marginTop: 24,
-    gap: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "#E3E7DE",
   },
   accordion: {
     overflow: "hidden",
-    paddingHorizontal: 14,
-    borderWidth: 1,
-    borderColor: PRODUCT_BORDER,
-    borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,0.72)",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#E3E7DE",
+    backgroundColor: "#FFFFFF",
   },
   accordionOpen: {
-    borderColor: "#C9E5D0",
     backgroundColor: "#FFFFFF",
-    shadowColor: "#172319",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 2,
   },
   accordionHeader: {
     minHeight: 64,
@@ -1260,20 +1329,19 @@ const styles = StyleSheet.create({
   },
   accordionHeading: { minWidth: 0, flex: 1, flexDirection: "row", alignItems: "center" },
   accordionIcon: {
-    width: 36,
-    height: 36,
-    marginRight: 12,
+    width: 24,
+    height: 28,
+    marginRight: 10,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 11,
-    backgroundColor: "#F0F1EE",
+    backgroundColor: "transparent",
   },
-  accordionIconOpen: { backgroundColor: "#E8F7EC" },
+  accordionIconOpen: { backgroundColor: "transparent" },
   accordionTitle: {
     flexShrink: 1,
     color: palette.ink,
-    fontFamily: typography.black,
-    fontSize: 13.5,
+    fontFamily: typography.semibold,
+    fontSize: 14,
   },
   accordionToggle: {
     width: 32,
@@ -1282,23 +1350,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
-    backgroundColor: "#F0F1EE",
+    backgroundColor: "transparent",
   },
-  accordionToggleOpen: { backgroundColor: "#E8F7EC" },
+  accordionToggleOpen: { backgroundColor: "#F2F5ED" },
   accordionBody: {
-    paddingTop: 16,
-    paddingBottom: 18,
-    borderTopWidth: 1,
-    borderTopColor: PRODUCT_BORDER,
+    paddingTop: 0,
+    paddingBottom: 22,
   },
   accordionText: {
-    color: "#686B68",
+    color: "#687164",
     fontFamily: typography.regular,
-    fontSize: 12,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 23,
   },
   detailLine: {
-    minHeight: 32,
+    minHeight: 38,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -1307,13 +1373,13 @@ const styles = StyleSheet.create({
   detailLabel: {
     color: "#777A77",
     fontFamily: typography.regular,
-    fontSize: 11,
+    fontSize: 12,
   },
   detailValue: {
     maxWidth: "64%",
     color: palette.ink,
     fontFamily: typography.semibold,
-    fontSize: 11,
+    fontSize: 12,
     textAlign: "right",
   },
   reviewError: {
@@ -1350,33 +1416,29 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     overflow: "hidden",
   },
-  relatedEyebrow: {
-    color: "#16883A",
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 1.5,
-  },
+  relatedSubtitle: { marginTop: 6, color: "#7B8375", fontFamily: typography.regular, fontSize: 12 },
   relatedTitle: {
-    marginTop: 7,
     color: palette.ink,
-    fontFamily: typography.black,
-    fontSize: 24,
+    fontFamily: typography.semibold,
+    fontSize: 22,
     letterSpacing: -0.6,
   },
   purchaseBar: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    minHeight: 72,
+    paddingHorizontal: 14,
+    paddingTop: 9,
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    justifyContent: "center",
+    gap: 10,
     borderTopWidth: 1,
-    borderTopColor: PRODUCT_BORDER,
-    backgroundColor: "rgba(255,255,255,0.98)",
+    borderTopColor: "rgba(0,0,0,0.07)",
+    backgroundColor: "rgba(255,254,252,0.98)",
     shadowColor: "#171A18",
-    shadowOffset: { width: 0, height: -5 },
-    shadowOpacity: 0.06,
-    shadowRadius: 14,
-    elevation: 12,
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.045,
+    shadowRadius: 10,
+    elevation: 6,
   },
   quantity: {
     height: 58,
@@ -1406,58 +1468,63 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   purchasePrice: {
-    width: 112,
+    width: 104,
     minWidth: 0,
     justifyContent: "center",
   },
+  purchasePriceCompact: { width: 90 },
   purchasePriceLabel: {
     color: "#7B7E7A",
     fontFamily: typography.bold,
     fontSize: 8,
-    letterSpacing: 0.8,
+    letterSpacing: 0.9,
     textTransform: "uppercase",
   },
   purchasePriceValue: {
-    marginTop: 4,
+    marginTop: 2,
     color: palette.ink,
-    fontFamily: typography.black,
+    fontFamily: typography.bold,
     fontSize: 20,
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
   },
   addButton: {
     minWidth: 0,
-    height: 58,
-    paddingHorizontal: 12,
+    maxWidth: 580,
+    height: 52,
+    paddingHorizontal: 16,
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 9,
-    borderRadius: 19,
-    backgroundColor: "#117A33",
+    gap: 8,
+    borderRadius: 14,
+    backgroundColor: "#183D29",
     shadowColor: "#0C6329",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.18,
-    shadowRadius: 11,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0,
+    shadowRadius: 8,
+    elevation: 0,
   },
+  addButtonCompact: { paddingHorizontal: 10, gap: 7 },
   addButtonDisabled: {
     backgroundColor: "#A9ADA9",
     shadowOpacity: 0,
     elevation: 0,
   },
   addButtonIcon: {
-    width: 32,
-    height: 32,
+    width: 22,
+    height: 22,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 11,
-    backgroundColor: "rgba(255,255,255,0.14)",
+    borderRadius: 0,
+    backgroundColor: "transparent",
   },
+  addButtonIconCompact: { width: 20, height: 20, borderRadius: 0 },
   addButtonText: {
     color: palette.white,
-    fontFamily: typography.black,
+    fontFamily: typography.bold,
     fontSize: 12.5,
     letterSpacing: 0.1,
   },
+  addButtonTextCompact: { fontSize: 11.5 },
 });

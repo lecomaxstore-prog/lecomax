@@ -21,6 +21,7 @@ import { OtaUpdateGate } from "@/components/ota-update-gate";
 import { AndroidBackController } from "@/components/android-back-controller";
 import { LaunchIntro } from "@/components/launch-intro";
 import { MobileNotificationLifecycle } from "@/components/mobile-notification-lifecycle";
+import { CartFlyOverlay } from "@/components/cart-fly-overlay";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -276,6 +277,7 @@ export default function RootLayout() {
                       options={{ presentation: "modal" }}
                     />
                   </Stack>
+                  <CartFlyOverlay />
                 </OnboardingGate>
               </AppGate>
             </LaunchIntro>

@@ -7,12 +7,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  useReducedMotion,
   withSequence,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
 import { AnimatedPressable } from "@/components/animated-pressable";
-import { NotificationBadge } from "@/components/notification-badge";
 import { palette, typography } from "@/constants/theme";
 import { useT } from "@/lib/i18n";
 import { useCartFeedbackStore } from "@/stores/cart-feedback";
@@ -30,11 +29,11 @@ const tabConfig: Record<
     activeIcon: keyof typeof Ionicons.glyphMap;
   }
 > = {
-  index: { icon: "home-outline", activeIcon: "home" },
-  search: { icon: "search-outline", activeIcon: "search" },
-  wishlist: { icon: "heart-outline", activeIcon: "heart" },
-  cart: { icon: "bag-handle-outline", activeIcon: "bag-handle" },
-  account: { icon: "person-outline", activeIcon: "person" },
+  index: { icon: "home-outline", activeIcon: "home-outline" },
+  search: { icon: "search-outline", activeIcon: "search-outline" },
+  wishlist: { icon: "heart-outline", activeIcon: "heart-outline" },
+  cart: { icon: "bag-handle-outline", activeIcon: "bag-handle-outline" },
+  account: { icon: "person-outline", activeIcon: "person-outline" },
 };
 
 type ItemProps = {
@@ -61,15 +60,25 @@ const TabItem = memo(function TabItem({
   tablet = false,
 }: ItemProps) {
   const pulse = useSharedValue(1);
+  const reduceMotion = useReducedMotion();
+  const activeOpacity = useSharedValue(focused ? 1 : 0);
   useEffect(() => {
-    if (!feedbackToken) return;
+    activeOpacity.set(
+      withTiming(focused ? 1 : 0, { duration: reduceMotion ? 0 : 180 }),
+    );
+  }, [focused, activeOpacity, reduceMotion]);
+  const activeStyle = useAnimatedStyle(() => ({
+    opacity: activeOpacity.value,
+  }));
+  useEffect(() => {
+    if (!feedbackToken || reduceMotion) return;
     pulse.set(
       withSequence(
-        withTiming(1.2, { duration: 120 }),
-        withSpring(1, { damping: 9, stiffness: 260 }),
+        withTiming(1.04, { duration: 120 }),
+        withTiming(1, { duration: 150 }),
       ),
     );
-  }, [feedbackToken, pulse]);
+  }, [feedbackToken, pulse, reduceMotion]);
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pulse.value }],
   }));
@@ -78,30 +87,32 @@ const TabItem = memo(function TabItem({
     <AnimatedPressable
       accessibilityRole="tab"
       accessibilityState={{ selected: focused }}
+      aria-selected={focused}
       accessibilityLabel={label}
       onPress={onPress}
       onLongPress={onLongPress}
-      style={[
-        styles.item,
-        tablet && styles.tabletItem,
-        tablet && focused && styles.tabletActiveItem,
-      ]}
+      pressedScale={reduceMotion ? 1 : 0.98}
+      style={[styles.item, tablet && styles.tabletItem]}
     >
-      <Animated.View
-        style={[
-          styles.iconWrap,
-          focused && styles.activeIconWrap,
-          tablet && styles.tabletIconWrap,
-          animatedStyle,
-        ]}
-      >
+      <Animated.View style={[styles.iconWrap, animatedStyle]}>
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.activeIconWrap, activeStyle]}
+        />
         <View style={styles.iconBadgeAnchor}>
           <Ionicons
             name={focused ? activeIcon : icon}
-            size={focused ? 23 : 22}
-            color={focused ? "#137A25" : "#717A74"}
+            size={23}
+            color={focused ? palette.white : "#69716C"}
+            style={styles.icon}
           />
-          {badge ? <NotificationBadge count={badge} /> : null}
+          {badge && badge > 0 ? (
+            <View pointerEvents="none" style={styles.badge}>
+              <Text maxFontSizeMultiplier={1} style={styles.badgeText}>
+                {badge > 99 ? "99+" : badge}
+              </Text>
+            </View>
+          ) : null}
         </View>
       </Animated.View>
       <Text
@@ -111,15 +122,6 @@ const TabItem = memo(function TabItem({
       >
         {label}
       </Text>
-      {tablet ? (
-        <View
-          style={[
-            styles.activeIndicator,
-            styles.tabletActiveIndicator,
-            focused && styles.activeIndicatorVisible,
-          ]}
-        />
-      ) : null}
     </AnimatedPressable>
   );
 });
@@ -161,7 +163,11 @@ export function BottomNavigation({ state, navigation }: BottomTabBarProps) {
                 paddingBottom: Math.max(insets.bottom, 18),
               },
             ]
-          : { paddingBottom: Math.max(insets.bottom, 8) },
+          : {
+              paddingBottom: Math.max(insets.bottom, 8),
+              paddingLeft: 10 + insets.left,
+              paddingRight: 10 + insets.right,
+            },
       ]}
     >
       {visibleRoutes.map((route) => {
@@ -211,19 +217,21 @@ export function BottomNavigation({ state, navigation }: BottomTabBarProps) {
 
 const styles = StyleSheet.create({
   shell: {
-    minHeight: 78,
-    paddingTop: 9,
-    paddingHorizontal: 8,
+    flexShrink: 0,
+    paddingTop: 10,
+    paddingHorizontal: 10,
     flexDirection: "row",
     alignItems: "stretch",
     borderTopWidth: 1,
-    borderTopColor: "#E6EAE7",
+    borderTopColor: "rgba(15, 23, 42, 0.06)",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     backgroundColor: palette.white,
     shadowColor: palette.ink,
-    shadowOffset: { width: 0, height: -5 },
+    shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.06,
-    shadowRadius: 20,
-    elevation: 9,
+    shadowRadius: 14,
+    elevation: 6,
   },
   item: {
     maxWidth: "20%",
@@ -232,7 +240,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 58,
+    minHeight: 56,
     paddingTop: 0,
     borderRadius: 18,
   },
@@ -258,21 +266,30 @@ const styles = StyleSheet.create({
     flexGrow: 0,
     borderRadius: 16,
   },
-  tabletActiveItem: {
-    backgroundColor: "#F0FAF2",
-  },
   iconWrap: {
-    width: 44,
-    height: 32,
+    width: 48,
+    height: 34,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 16,
+    borderRadius: 17,
   },
   activeIconWrap: {
-    backgroundColor: "#EAF7ED",
+    position: "absolute",
+    inset: 0,
+    borderRadius: 17,
+    backgroundColor: palette.greenDark,
+    shadowColor: palette.greenDark,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.22,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  tabletIconWrap: {
-    backgroundColor: "transparent",
+  icon: {
+    width: 26,
+    height: 26,
+    lineHeight: 26,
+    textAlign: "center",
+    includeFontPadding: false,
   },
   iconBadgeAnchor: {
     position: "relative",
@@ -282,28 +299,38 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   label: {
-    marginTop: 4,
-    color: "#6B736E",
+    marginTop: 5,
+    color: "#69716C",
     fontFamily: typography.medium,
-    fontSize: 10,
-    lineHeight: 14,
+    fontSize: 11,
+    lineHeight: 15,
     letterSpacing: 0,
+    textAlign: "center",
+    includeFontPadding: false,
   },
   activeLabel: {
-    color: "#137A25",
+    color: palette.ink,
     fontFamily: typography.semibold,
   },
-  activeIndicator: {
+  badge: {
     position: "absolute",
-    backgroundColor: "transparent",
+    top: -6,
+    left: 19,
+    minWidth: 19,
+    height: 19,
+    paddingHorizontal: 4,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: palette.white,
+    backgroundColor: palette.red,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  activeIndicatorVisible: { backgroundColor: palette.green },
-  tabletActiveIndicator: {
-    left: -9,
-    top: 23,
-    width: 3,
-    height: 24,
-    borderTopRightRadius: 3,
-    borderBottomRightRadius: 3,
+  badgeText: {
+    color: palette.white,
+    fontFamily: typography.bold,
+    fontSize: 10,
+    lineHeight: 13,
+    includeFontPadding: false,
   },
 });

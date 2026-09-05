@@ -51,9 +51,10 @@ export const CategoryShortcuts = memo(function CategoryShortcuts({
         return (
           <AnimatedPressable
             key={category.id}
+            accessibilityRole="button"
             accessibilityLabel={`Voir la catégorie ${category.label}`}
             onPress={() => router.push({ pathname: "/catalog", params: { category: category.slug } })}
-            pressedScale={0.95}
+            pressedScale={0.97}
             style={styles.tile}
           >
             <View style={styles.imageWrap}>
@@ -62,6 +63,7 @@ export const CategoryShortcuts = memo(function CategoryShortcuts({
                   accessibilityLabel={`Collection ${category.label}`}
                   cachePolicy="memory-disk"
                   contentFit="cover"
+                  contentPosition="top center"
                   source={image}
                   style={StyleSheet.absoluteFill}
                   transition={180}
@@ -82,37 +84,37 @@ export const CategoryShortcuts = memo(function CategoryShortcuts({
 
 const styles = StyleSheet.create({
   row: {
-    marginTop: 16,
+    marginTop: 24,
+    marginBottom: 12,
     paddingHorizontal: 16,
     flexDirection: "row",
-    gap: 8,
+    gap: 10,
   },
   tile: {
     minWidth: 0,
-    minHeight: 108,
-    padding: 5,
+    minHeight: 112,
     flex: 1,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    backgroundColor: "#FFFFFF",
   },
   imageWrap: {
     width: "100%",
-    height: 70,
+    aspectRatio: 0.8,
+    maxHeight: 160,
+    borderRadius: 18,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(24,42,32,0.16)",
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 8,
     backgroundColor: colors.surface,
   },
   label: {
-    marginTop: 7,
-    color: colors.text,
-    fontFamily: typography.bold,
-    fontSize: 8.5,
-    lineHeight: 11,
+    marginTop: 11,
+    color: "#26362C",
+    fontFamily: typography.semibold,
+    fontSize: 10,
+    lineHeight: 16,
+    letterSpacing: 0.15,
     textAlign: "center",
   },
   empty: {

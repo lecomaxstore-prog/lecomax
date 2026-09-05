@@ -8,22 +8,35 @@ export const Price = memo(function Price({
   oldPrice,
   inverse = false,
   compact = false,
+  tight = false,
 }: {
   price: number;
   oldPrice?: number | null;
   inverse?: boolean;
   compact?: boolean;
+  /** Narrow cards (<152px) where the full-size price would truncate. */
+  tight?: boolean;
 }) {
   const previousPrice = oldPrice ?? 0;
   const promotional = previousPrice > price;
 
   return (
     <View style={[styles.row, compact && styles.compactRow]}>
-      <Text style={[styles.current, promotional && styles.promotional, compact && styles.compactCurrent, inverse && styles.inverse]}>
+      <Text
+        adjustsFontSizeToFit={compact}
+        minimumFontScale={0.85}
+        numberOfLines={1}
+        style={[styles.current, promotional && styles.promotional, compact && styles.compactCurrent, tight && styles.tightCurrent, inverse && styles.inverse]}
+      >
         {money(price)}
       </Text>
       {promotional ? (
-        <Text numberOfLines={1} style={[styles.old, compact && styles.compactOld]}>
+        <Text
+          adjustsFontSizeToFit={compact}
+          minimumFontScale={0.85}
+          numberOfLines={1}
+          style={[styles.old, compact && styles.compactOld]}
+        >
           {money(previousPrice)}
         </Text>
       ) : null}
@@ -33,16 +46,30 @@ export const Price = memo(function Price({
 
 const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "baseline", gap: 7 },
-  compactRow: { minWidth: 0, flex: 1, gap: 4 },
-  current: { color: palette.ink, fontFamily: typography.black, fontSize: 16 },
-  promotional: { color: palette.red },
-  compactCurrent: { fontSize: 15 },
+  compactRow: {
+    minWidth: 0,
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "center",
+    gap: 2,
+  },
+  current: {
+    color: palette.ink,
+    fontFamily: typography.bold,
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  promotional: { color: palette.ink },
+  compactCurrent: { maxWidth: "100%", fontSize: 14, lineHeight: 20 },
+  tightCurrent: { fontSize: 13, lineHeight: 18 },
   inverse: { color: palette.white },
   old: {
-    color: "#999999",
+    color: palette.muted,
     fontFamily: typography.medium,
     fontSize: 11,
+    lineHeight: 15,
     textDecorationLine: "line-through",
   },
-  compactOld: { minWidth: 0, flexShrink: 1, fontSize: 9 },
+  compactOld: { maxWidth: "100%", fontSize: 10, lineHeight: 14 },
 });

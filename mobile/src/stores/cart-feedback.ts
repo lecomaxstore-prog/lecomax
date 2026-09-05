@@ -5,6 +5,8 @@ type CartFlight = {
   image?: string;
   originX: number;
   originY: number;
+  targetX?: number;
+  targetY?: number;
 };
 
 type CartFeedbackState = {

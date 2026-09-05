@@ -75,6 +75,14 @@ export const palette = {
   red: "#D32F2F",
   gold: "#F5A623",
   border: "#E9E9E9",
+  /** Deep brand green for premium surfaces. Already used in product-card/[slug]. */
+  forest: "#183D29",
+  /** Soft green wash behind badges and chips. */
+  tint: "#E7F4E8",
+  /** Neutral page surface behind cards. */
+  surface: "#F6F7F5",
+  /** The one hairline colour for cards, rows and section rules. */
+  line: "#E3E6E2",
 } as const;
 
 export const typography = {

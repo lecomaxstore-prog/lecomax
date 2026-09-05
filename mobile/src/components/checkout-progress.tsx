@@ -19,14 +19,6 @@ export const CheckoutProgress = memo(function CheckoutProgress({
       accessibilityLabel={`Étape ${currentStep} sur 3 : ${steps[currentStep - 1].toLowerCase()}`}
       style={styles.container}
     >
-      <View style={styles.meta}>
-        <Text maxFontSizeMultiplier={1.25} style={styles.eyebrow}>
-          ÉTAPE {currentStep} SUR 3
-        </Text>
-        <Text maxFontSizeMultiplier={1.25} style={styles.count}>
-          {currentStep} / 3
-        </Text>
-      </View>
       <View style={styles.track}>
         {steps.map((label, index) => {
           const step = (index + 1) as StepNumber;
@@ -46,6 +38,7 @@ export const CheckoutProgress = memo(function CheckoutProgress({
               <AnimatedPressable
                 accessibilityLabel={`${label}, étape ${step}${complete ? ", terminée" : active ? ", actuelle" : ""}`}
                 accessibilityState={{ disabled: !enabled, selected: active }}
+                hitSlop={6}
                 disabled={!enabled}
                 haptic={enabled}
                 onPress={() => onStepPress?.(step)}
@@ -89,29 +82,11 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     paddingHorizontal: 18,
-    paddingTop: 14,
-    paddingBottom: 16,
+    paddingTop: 12,
+    paddingBottom: 13,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "#E1E5E1",
-    backgroundColor: "#F8FAF8",
-  },
-  meta: {
-    marginBottom: 13,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  eyebrow: {
-    color: "#737873",
-    fontFamily: typography.black,
-    fontSize: 8.5,
-    letterSpacing: 1.15,
-  },
-  count: {
-    color: "#0B7E2B",
-    fontFamily: typography.black,
-    fontSize: 9.5,
-    letterSpacing: 0.5,
+    backgroundColor: "#FFFFFF",
   },
   track: {
     flexDirection: "row",
@@ -124,7 +99,7 @@ const styles = StyleSheet.create({
   connector: {
     position: "absolute",
     zIndex: 0,
-    top: 18,
+    top: 16,
     left: "50%",
     right: "-50%",
     marginHorizontal: 18,
@@ -136,13 +111,13 @@ const styles = StyleSheet.create({
   },
   node: {
     zIndex: 1,
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "#C9CCC8",
-    borderRadius: 18,
+    borderRadius: 16,
     backgroundColor: "#FFFFFF",
   },
   nodeComplete: {
@@ -150,24 +125,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#118D35",
   },
   nodeActive: {
-    borderWidth: 2.5,
+    borderWidth: 2,
     borderColor: "#12B83F",
     backgroundColor: "#FFFFFF",
   },
   number: {
     color: "#686C68",
     fontFamily: typography.bold,
-    fontSize: 13,
+    fontSize: 12,
   },
   numberActive: {
     color: "#080808",
     fontFamily: typography.black,
   },
   label: {
-    marginTop: 7,
+    marginTop: 6,
     color: "#727672",
     fontFamily: typography.bold,
-    fontSize: 8,
+    fontSize: 10,
     letterSpacing: 0.55,
   },
   labelComplete: {
