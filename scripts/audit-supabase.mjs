@@ -78,7 +78,7 @@ const requiredFunctions = [
 ];
 
 const requiredSettings = {
-  shipping_cost: "35",
+  shipping_cost: "40",
   free_shipping_threshold: "500",
   shipping_estimated_days: "2-5 jours ouvrables",
   app_minimum_version: "1.0.0",
@@ -150,14 +150,26 @@ const normalizeSetting = (value) =>
     .replace(/[\u2010-\u2015\u2212]/g, "-")
     .replace(/\s+/g, " ")
     .trim();
+// Branding copy the merchant edits from /admin/settings. The values above are only
+// seed defaults, so require these keys to be present and non-empty, not equal.
+// Routes, enums, flags and prices stay exact-matched: those are behaviour, not copy.
+const editableSettings = new Set([
+  "app_club_title",
+  "app_club_description",
+  "app_club_cta_label",
+  "app_wishlist_section_title",
+  "app_wishlist_recommendations_title",
+  "app_wishlist_promotional_label",
+]);
 const invalidSettings = Object.entries(requiredSettings)
-  .filter(
-    ([keyName, value]) =>
-      normalizeSetting(settings[keyName]) !== normalizeSetting(value),
+  .filter(([keyName, value]) =>
+    editableSettings.has(keyName)
+      ? normalizeSetting(settings[keyName]) === ""
+      : normalizeSetting(settings[keyName]) !== normalizeSetting(value),
   )
   .map(([keyName, expected]) => ({
     key: keyName,
-    expected,
+    expected: editableSettings.has(keyName) ? "(any non-empty value)" : expected,
     actual: settings[keyName] ?? null,
   }));
 
