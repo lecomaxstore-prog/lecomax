@@ -125,7 +125,7 @@ function isSameOrigin(req: NextRequest): boolean {
 }
 
 const MOBILE_PUBLIC_API =
-  /^\/api\/(?:products|search|categories|promotions|settings|banners|recommendations|reviews(?:\/(?:stats|check))?|shipping\/quote|checkout\/quote|payment-methods|paypal\/mobile\/(?:create|capture)|orders|wishlist|points|coupons\/validate|newsletter|size-guide|account\/(?:profile|avatar|delete-request)|mobile\/push-subscribe|app-releases\/android\/latest)$/;
+  /^\/api\/(?:products|search|categories|promotions|settings|banners|recommendations|reviews(?:\/(?:stats|check))?|shipping\/quote|checkout\/quote|payment-methods|paypal\/mobile\/(?:create|capture)|orders|wishlist|points|coupons\/validate|newsletter|size-guide|account\/(?:profile|avatar|delete-request)|mobile\/push-subscribe|app-releases\/android\/latest|support\/conversations(?:\/[0-9a-f-]+(?:\/messages)?)?)$/;
 const MOBILE_WEB_ORIGINS = new Set([
   "https://app.lecomax.com",
   "http://localhost:8081",

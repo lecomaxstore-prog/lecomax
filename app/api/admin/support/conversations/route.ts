@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { supportPreview } from '@/lib/support-attachments';
 import { protectAdminRead } from "@/lib/api-security";
-import { supportDatabase } from "@/lib/support-server";
+import { supportDatabase, supportFailure } from "@/lib/support-server";
 import { validSupportStatus } from "@/lib/support-validation";
 
 export async function GET(req: NextRequest) {
@@ -12,5 +13,5 @@ export async function GET(req: NextRequest) {
   if (status && validSupportStatus(status)) query = query.eq("status", status);
   if (search) query = query.or(`customer_name.ilike.%${search.replace(/[%_,()]/g, "")}%,customer_email.ilike.%${search.replace(/[%_,()]/g, "")}%,subject.ilike.%${search.replace(/[%_,()]/g, "")}%`);
   const { data, error } = await query;
-  return error ? NextResponse.json({ error: "Inbox indisponible." }, { status: 500 }) : NextResponse.json({ conversations: data ?? [] });
+  return error ? supportFailure(error, "Inbox indisponible.") : NextResponse.json({ conversations: (data ?? []).map(item => ({ ...item, last_message: supportPreview(item.last_message) })) }, { headers: { "Cache-Control": "no-store" } });
 }

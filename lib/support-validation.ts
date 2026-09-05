@@ -3,6 +3,10 @@ export const SUPPORT_SUBJECT_MAX_LENGTH = 120;
 
 export type SupportStatus = "open" | "waiting" | "resolved";
 
+export function validSupportId(value: unknown): value is string {
+  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
 export function cleanSupportText(value: unknown, maxLength: number) {
   if (typeof value !== "string") return "";
   return value.replace(/\u0000/g, "").replace(/\r\n/g, "\n").trim().slice(0, maxLength);
@@ -14,6 +18,7 @@ export function validSupportStatus(value: unknown): value is SupportStatus {
 
 export function parseSupportMessage(value: unknown) {
   const body = cleanSupportText(value, SUPPORT_MESSAGE_MAX_LENGTH);
+  if (body.startsWith('[LECOMAX_FILE_V1]')) return { ok: false, error: 'Format de message réservé.' } as const;
   if (!body) return { ok: false, error: "Le message ne peut pas être vide." } as const;
   return { ok: true, body } as const;
 }

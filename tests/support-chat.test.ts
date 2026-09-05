@@ -5,7 +5,22 @@ import {
   parseSupportConversation,
   parseSupportMessage,
   validSupportStatus,
+  validSupportId,
 } from "../lib/support-validation.ts";
+
+test("mobile browser CORS includes support list, detail and message endpoints only", () => {
+  const middleware = readFileSync(new URL("../middleware.ts", import.meta.url), "utf8");
+  const literal = middleware.match(/const MOBILE_PUBLIC_API\s*=\s*\/(.+)\/;/);
+  assert.ok(literal, "mobile API origin policy exists");
+  const allowed = new RegExp(literal[1]);
+  const id = "7330b73a-f65a-4d79-a9ea-69943699cb6d";
+  for (const path of ["/api/support/conversations", `/api/support/conversations/${id}`, `/api/support/conversations/${id}/messages`]) {
+    assert.equal(allowed.test(path), true, path);
+  }
+  for (const path of ["/api/admin/support/conversations", "/api/support", `/api/support/conversations/${id}/delete`]) {
+    assert.equal(allowed.test(path), false, path);
+  }
+});
 
 test("support messages are trimmed, bounded and reject empty input", () => {
   assert.deepEqual(parseSupportMessage("   "), {
@@ -48,9 +63,16 @@ test("customer support routes require authenticated ownership", () => {
     "utf8",
   );
   assert.match(customerRoute, /getCustomerUser\(req\)/);
-  assert.match(customerRoute, /\.eq\("user_id", user\.id\)/);
-  assert.match(messageRoute, /\.eq\("user_id", user\.id\)/);
+  assert.match(customerRoute, /p_reader: "customer", p_user_id: user\.id/);
+  assert.match(messageRoute, /p_sender: "customer", p_user_id: user\.id/);
   assert.match(messageRoute, /enforceRateLimit/);
+});
+
+test("support IDs reject malformed values before reaching the database", () => {
+  assert.equal(validSupportId("7330b73a-f65a-4d79-a9ea-69943699cb6d"), true);
+  assert.equal(validSupportId("-".repeat(36)), false);
+  assert.equal(validSupportId("not-an-id"), false);
+  assert.equal(validSupportId(null), false);
 });
 
 test("admin support mutations use signed admin authorization", () => {
