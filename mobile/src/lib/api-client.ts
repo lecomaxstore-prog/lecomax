@@ -1,5 +1,6 @@
 import { runtimeConfig } from "@/lib/runtime-config";
 import { supabase } from "@/lib/supabase";
+import { withSessionTimeout } from "@/lib/session-timeout";
 import type { ZodType } from "zod";
 
 const DEFAULT_TIMEOUT_MS = 12_000;
@@ -100,7 +101,11 @@ export async function apiRequest<T>(pathname: string, options: ApiRequestOptions
   const method = (options.method ?? "GET").toUpperCase();
   const safeRequest = method === "GET" || method === "HEAD";
   const maxRetries = safeRequest ? Math.max(0, options.retries ?? 2) : 0;
-  const token = await accessToken(options.authenticated === true);
+  const token = await withSessionTimeout(accessToken(options.authenticated === true), options.timeoutMs ?? DEFAULT_TIMEOUT_MS)
+    .catch((error: unknown) => {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError("Impossible de vérifier votre session. Réessayez.", 0, "SESSION_READ_FAILED");
+    });
   let attempt = 0;
 
   while (true) {
