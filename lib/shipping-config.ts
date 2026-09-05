@@ -5,7 +5,7 @@ export type ShippingConfig = {
 };
 
 export const DEFAULT_SHIPPING_CONFIG: ShippingConfig = {
-  cost: 35,
+  cost: 40,
   freeThreshold: 500,
   estimatedDays: "2–5 jours ouvrables",
 };

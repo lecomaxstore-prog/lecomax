@@ -153,7 +153,7 @@ export default function ProductInformationScreen() {
   );
   const estimatedDays =
     values.shipping_estimated_days?.trim() || "2–5 jours ouvrables";
-  const shippingCost = values.shipping_cost?.trim() || "35";
+  const shippingCost = values.shipping_cost?.trim() || "40";
   const freeThreshold = values.free_shipping_threshold?.trim() || "500";
 
   const colorSizes = product?.color_sizes;

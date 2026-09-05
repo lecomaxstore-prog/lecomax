@@ -3,6 +3,7 @@ import test from "node:test";
 import { calculateCheckoutTotal } from "../lib/checkout-total.ts";
 import {
   calculateShipping,
+  DEFAULT_SHIPPING_CONFIG,
   effectiveFreeShippingMinimum,
   qualifiesForFreeShipping,
 } from "../lib/shipping-config.ts";
@@ -12,6 +13,12 @@ const fallback = {
   freeThreshold: 500,
   estimatedDays: "2–5 jours",
 };
+
+test("standard delivery defaults to 40 MAD and retains free delivery", () => {
+  assert.equal(calculateShipping(300, DEFAULT_SHIPPING_CONFIG), 40);
+  assert.equal(calculateShipping(500, DEFAULT_SHIPPING_CONFIG), 0);
+  assert.equal(calculateCheckoutTotal({ subtotal: 300, shipping: calculateShipping(300, DEFAULT_SHIPPING_CONFIG) }), 340);
+});
 
 test("delivery calculation charges the configured rate below the threshold", () => {
   assert.equal(calculateShipping(200, fallback), 35);

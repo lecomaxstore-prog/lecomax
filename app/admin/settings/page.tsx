@@ -20,7 +20,7 @@ const DEFAULT_SETTINGS: SettingsMap = {
   facebook_url: "https://www.facebook.com/lecomaxcom",
   tiktok_url: "https://www.tiktok.com/@lecomaxcom",
   free_shipping_threshold: "500",
-  shipping_cost: "35",
+  shipping_cost: "40",
   shipping_estimated_days: "2-5 jours ouvrables",
   checkout_minimum_order: "0",
   checkout_notice: "",
@@ -771,7 +771,7 @@ export default function SettingsPage() {
                       <input
                         type="number"
                         min="0"
-                        value={settings.shipping_cost ?? "35"}
+                        value={settings.shipping_cost ?? "40"}
                         onChange={(e) =>
                           setSettings((s) => ({
                             ...s,

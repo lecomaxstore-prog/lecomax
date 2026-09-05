@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default function HeroBanner({ banners = [], heroImage, heroImageMobile, shippingCost }: Props) {
-  const shippingLabel = shippingCost ? `Livraison ${shippingCost} MAD` : "Livraison 35 MAD";
+  const shippingLabel = shippingCost ? `Livraison ${shippingCost} MAD` : "Livraison 40 MAD";
   const fallback: HeroBannerRecord = {
     id: "fallback",
     title: "Sport. Tech. Style.",

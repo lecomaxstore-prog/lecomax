@@ -173,7 +173,7 @@ export default function ShippingPage() {
             <input
               type="checkbox"
               checked={Number(form.standard_rate) === 0}
-              onChange={(event) => setForm({ ...form, standard_rate: event.target.checked ? "0" : "35" })}
+              onChange={(event) => setForm({ ...form, standard_rate: event.target.checked ? "0" : "40" })}
               className="mt-0.5 h-4 w-4 rounded border-emerald-300 accent-emerald-600"
             />
             <span>
