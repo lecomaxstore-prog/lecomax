@@ -4,7 +4,6 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import {
   ActivityIndicator,
   FlatList,
@@ -28,7 +27,7 @@ import { useCategories, useProducts, useSettings } from "@/hooks/use-catalog";
 import { categoryCampaignImage } from "@/lib/category-campaign-images";
 import { imageUrl } from "@/lib/format";
 import { useCommerceStore } from "@/stores/commerce";
-import { searchCatalogue } from "@/services/search";
+import { buildProductSearchIndex, searchProductIndex } from "@/lib/product-search";
 import type { Product } from "@/types/commerce";
 
 const colors = {
@@ -112,14 +111,6 @@ export default function SearchScreen() {
     setQuery(params.scanned);
   }, [params.scanned]);
 
-  const remoteSearch = useQuery({
-    queryKey: ["catalogue-search", debouncedQuery],
-    queryFn: () => searchCatalogue(debouncedQuery),
-    enabled: debouncedQuery.length >= 2,
-    staleTime: 2 * 60_000,
-    retry: 1,
-  });
-
   const commitSearch = useCallback((rawValue: string) => {
     const value = rawValue.trim();
     if (!value) return;
@@ -143,38 +134,20 @@ export default function SearchScreen() {
     });
   }, []);
 
+  const searchIndex = useMemo(
+    () => buildProductSearchIndex(productsQuery.data ?? []),
+    [productsQuery.data],
+  );
   const products = useMemo(() => {
-    const source = productsQuery.data ?? [];
-    const normalized = debouncedQuery
-      .toLocaleLowerCase("fr")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
-    const remoteOrder = new Map(
-      (remoteSearch.data?.slugs ?? []).map((slug, index) => [slug, index]),
-    );
-    const remotelyRanked = debouncedQuery.length >= 2 && remoteSearch.data
-      ? source
-          .filter((product) => remoteOrder.has(product.slug))
-          .sort((left, right) => (remoteOrder.get(left.slug) ?? 999) - (remoteOrder.get(right.slug) ?? 999))
-      : source;
-    const filtered = remotelyRanked.filter((product) => {
-      const searchable = [product.name, product.brand, product.category, product.description, ...(product.colors ?? []), ...(product.tags ?? [])]
-        .filter(Boolean)
-        .join(" ")
-        .toLocaleLowerCase("fr")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-      const matchesQuery =
-        !normalized ||
-        Boolean(debouncedQuery.length >= 2 && remoteSearch.data) ||
-        searchable.includes(normalized);
+    const ranked = searchProductIndex(searchIndex, debouncedQuery);
+    const filtered = ranked.filter((product) => {
       const matchesPromotion =
         !promotionOnly ||
         Boolean(
           product.original_price && product.original_price > product.price,
         );
       return (
-        matchesQuery && matchesPromotion && (!stockOnly || product.stock > 0)
+        matchesPromotion && (!stockOnly || product.stock > 0)
       );
     });
 
@@ -183,21 +156,21 @@ export default function SearchScreen() {
       if (sort === "high") return right.price - left.price;
       if (sort === "new")
         return Date.parse(right.created_at) - Date.parse(left.created_at);
-      if (debouncedQuery.length >= 2 && remoteSearch.data) return 0;
+      if (debouncedQuery) return 0;
       return (
         (right.rating ?? 0) - (left.rating ?? 0) ||
         Number(right.featured) - Number(left.featured)
       );
     });
 
-    if (debouncedQuery || promotionOnly) return sorted.slice(0, 20);
+    if (debouncedQuery || promotionOnly) return sorted;
     const trends = sorted.filter(
       (product) => product.featured || product.newArrival,
     );
     return (trends.length ? trends : sorted).slice(0, 8);
-  }, [debouncedQuery, productsQuery.data, promotionOnly, remoteSearch.data, sort, stockOnly]);
+  }, [debouncedQuery, searchIndex, promotionOnly, sort, stockOnly]);
 
-  const searching = query.trim() !== debouncedQuery || (debouncedQuery.length >= 2 && remoteSearch.isFetching);
+  const searching = query.trim() !== debouncedQuery;
   const discoveryMode = !debouncedQuery && !promotionOnly;
   const activeFilterCount =
     Number(stockOnly) + Number(sort !== "popular") + Number(promotionOnly);
@@ -376,7 +349,7 @@ export default function SearchScreen() {
                 <View style={styles.sortGrid}>
                   {(
                     [
-                      ["popular", "Populaires"],
+                      ["popular", debouncedQuery ? "Pertinence" : "Populaires"],
                       ["new", "Nouveautés"],
                       ["low", "Prix croissant"],
                       ["high", "Prix décroissant"],
