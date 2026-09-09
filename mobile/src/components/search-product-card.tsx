@@ -1,4 +1,3 @@
-import { formatNumber } from "@/lib/format";
 import { localizedContent } from "@/i18n/content";
 import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -8,7 +7,7 @@ import { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { typography } from "@/constants/theme";
-import { discount, money } from "@/lib/format";
+import { discount, money, formatNumber } from "@/lib/format";
 import { useProductImage } from "@/hooks/use-product-image";
 import { useCommerceStore } from "@/stores/commerce";
 import type { Product } from "@/types/commerce";

@@ -461,10 +461,10 @@ export default function CartScreen() {
   const total = calculation?.total ?? 0;
 
   useEffect(() => {
-    if (!cart.length) { setCalculation(undefined); return; }
     let active = true;
     void Promise.resolve().then(async () => {
       if (!active) return;
+      if (!cart.length) { setCalculation(undefined); setShippingLoading(false); return; }
       setShippingLoading(true);
       setCalculation(undefined);
       setShippingError(undefined);

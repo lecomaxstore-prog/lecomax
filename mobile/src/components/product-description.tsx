@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { z } from "zod";
@@ -17,9 +17,10 @@ class TranslationPending extends Error {}
 /** Source-keyed cache keeps translations separate across products, edits and languages. */
 export function ProductDescription({ slug, name, brand, description }: { slug: string; name: string; brand?: string | null; description: string }) {
   const language = useLocale();
-  const [showOriginal, setShowOriginal] = useState(false);
+  const [originalKey, setOriginalKey] = useState<string | null>(null);
   const source = description.trim();
-  useEffect(() => setShowOriginal(false), [slug, source, language]);
+  const descriptionKey = JSON.stringify([slug, source, language]);
+  const showOriginal = originalKey === descriptionKey;
   const translation = useQuery({
     queryKey: ["product-translations", "v2", slug, name, brand || "", source, language],
     enabled: Boolean(source),
@@ -52,7 +53,7 @@ export function ProductDescription({ slug, name, brand, description }: { slug: s
             </Text>
           </View>
           {translated ? (
-            <AnimatedPressable accessibilityRole="button" onPress={() => setShowOriginal((value) => !value)} style={styles.action}>
+            <AnimatedPressable accessibilityRole="button" onPress={() => setOriginalKey(showOriginal ? null : descriptionKey)} style={styles.action}>
               <Text style={styles.actionText}>{msg(showOriginal ? "translation.showTranslated" : "translation.showOriginal")}</Text>
             </AnimatedPressable>
           ) : !busy ? (

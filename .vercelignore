@@ -1,4 +1,10 @@
 node_modules/
+projects/
+mobile/node_modules/
+mobile/dist*/
+mobile/.expo/
+mobile/android/
+mobile/ios/
 .next/
 .next-broken-*/
 out/

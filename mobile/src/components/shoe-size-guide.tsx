@@ -1,6 +1,6 @@
 import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AnimatedPressable } from "@/components/animated-pressable";
@@ -20,25 +20,18 @@ export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, sel
   useLocale();
   const { contentWidth } = useAppViewport();
   const clothing = usesClothingSizes(productSizes);
-  const [data, setData] = useState<SizeGuideData>({});
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-  const [attempt, setAttempt] = useState(0);
-  const rows = sizeGuideRows(data, clothing, productSizes);
-
-  useEffect(() => {
-    if (!open) return;
-    let active = true;
-    setStatus("loading");
-    void apiRequest<SizeGuideData>("/api/size-guide").then((result) => {
-      if (!active) return;
+  const guide = useQuery({
+    queryKey: ["size-guide", clothing],
+    enabled: open,
+    retry: false,
+    queryFn: async () => {
+      const result = await apiRequest<SizeGuideData>("/api/size-guide");
       if (!(clothing ? result.clothing : result.shoes)?.length) throw new Error(msg("shoeSizeGuide.emptyGuide"));
-      setData(result);
-      setStatus("ready");
-    }).catch(() => {
-      if (active) setStatus("error");
-    });
-    return () => { active = false; };
-  }, [open, clothing, attempt]);
+      return result;
+    },
+  });
+  const rows = sizeGuideRows(guide.data ?? {}, clothing, productSizes);
+  const status = guide.isFetching || guide.isPending ? "loading" : guide.isError ? "error" : "ready";
 
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
@@ -75,7 +68,7 @@ export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, sel
               <View style={styles.state} accessibilityLiveRegion="polite">
                 <Ionicons name="cloud-offline-outline" size={26} color="#647267" />
                 <Text style={styles.helpTitle}>{msg("shoeSizeGuide.guideTemporarilyUnavailable")}</Text>
-                <AnimatedPressable accessibilityRole="button" accessibilityLabel={msg("shoeSizeGuide.tryLoadingTheGuideAgain")} onPress={() => setAttempt((value) => value + 1)} style={styles.retry}>
+                <AnimatedPressable accessibilityRole="button" accessibilityLabel={msg("shoeSizeGuide.tryLoadingTheGuideAgain")} onPress={() => void guide.refetch()} style={styles.retry}>
                   <Text style={styles.retryText}>{msg("support.tryAgain")}</Text>
                 </AnimatedPressable>
               </View>

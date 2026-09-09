@@ -7,7 +7,7 @@ edits and the same product/price/original-price combination do not duplicate ale
 Drafts and rolled-back writes never notify. There is no historical backfill.
 
 Admin product and promotion APIs deliver after their response. Database imports use
-the durable queue, processed by `/api/cron/mobile-campaigns` every minute. Explicit
+the durable queue, processed by `/api/cron/mobile-campaigns` daily on the current Vercel Hobby plan. Explicit
 failures retry up to three attempts; already accepted recipients are skipped. Uncertain
 provider outcomes remain available for manual review rather than automatic resend.
 Inactive/deleted products and inactive/expired/deleted offers are cancelled at delivery.
@@ -33,7 +33,7 @@ Then deploy the Next.js API/admin and rebuild/deploy the mobile web/native clien
 Configure `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, and
 `CRON_SECRET` on the server. Native push also needs the existing EAS project and
 platform push credentials (`EXPO_ACCESS_TOKEN` if Expo push security is enabled).
-Use a hosting plan/scheduler that supports the configured one-minute cron frequency.
+For faster queue processing, use an external scheduler or a hosting plan that supports one-minute cron jobs.
 An external scheduler can call the cron URL with `Authorization: Bearer <CRON_SECRET>`.
 
 The September 9 read-only check of the configured Supabase project found the web

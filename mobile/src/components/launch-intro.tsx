@@ -1,4 +1,4 @@
-﻿import { PropsWithChildren } from "react";
+import { PropsWithChildren } from "react";
 import { LaunchVideo } from "@/components/launch-video";
 import { useAppOpening } from "@/stores/app-opening";
 
