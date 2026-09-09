@@ -1,4 +1,4 @@
-import { storeSettings } from "../../../../lib/store-settings";
+import { storeSettings } from "@/lib/store-settings";
 import { money } from "@/lib/format";
 import { localizedContent } from "@/i18n/content";
 import { msg, useLocale } from "@/i18n";
