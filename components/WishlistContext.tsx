@@ -97,13 +97,16 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let active = true;
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (active) hydrate(!!session);
+      if (active) return hydrate(!!session);
+    }).catch(() => {
+      if (active) { setSlugs(new Set(readLocalWishlist())); setReady(true); }
     });
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (!active || !["SIGNED_IN", "SIGNED_OUT"].includes(event)) return;
-      hydrate(!!session);
+      // Defer API calls until Supabase releases its auth callback lock.
+      setTimeout(() => { if (active) void hydrate(!!session); }, 0);
     });
     return () => {
       active = false;
@@ -113,7 +116,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!ready || authenticated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([...slugs]));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...slugs])); } catch { /* Storage may be unavailable in private browsing. */ }
   }, [authenticated, ready, slugs]);
 
   const toggle = useCallback(

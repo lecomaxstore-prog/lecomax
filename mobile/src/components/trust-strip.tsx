@@ -1,3 +1,4 @@
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -12,11 +13,12 @@ const colors = {
 };
 
 export const TrustStrip = memo(function TrustStrip() {
+  useLocale();
   return (
     <View style={styles.root}>
-      <TrustItem icon="car-outline" title="Livraison rapide" subtitle="Partout au Maroc" />
+      <TrustItem icon="car-outline" title={msg("trustStrip.fastDelivery")} subtitle={msg("trustStrip.acrossMorocco")} />
       <View style={styles.divider} />
-      <TrustItem icon="shield-checkmark-outline" title="Paiement sécurisé" subtitle="Commande protégée" />
+      <TrustItem icon="shield-checkmark-outline" title={msg("common.secureCheckout")} subtitle={msg("trustStrip.protectedOrder")} />
     </View>
   );
 });
@@ -30,6 +32,7 @@ function TrustItem({
   title: string;
   subtitle: string;
 }) {
+  useLocale();
   return (
     <View style={styles.item}>
       <Ionicons name={icon} size={20} color={colors.primaryDark} />

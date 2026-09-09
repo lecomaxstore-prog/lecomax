@@ -115,96 +115,8 @@ const getColorHex = (name: string) =>
   colorMap[name.split("/")[0].trim()] ?? "#e5e7eb";
 
 /* ── Deterministic star rating fallback (used only if no DB reviews) ── */
-function ratingFor(slug: string) {
-  let h = 0;
-  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
-  const rating = 4.3 + (h % 7) / 10;
-  const count = 2 + (h % 5); // deterministic count, consistent with ProductCard
-  return { rating: Math.round(rating * 10) / 10, count };
-}
 
 /* ── Dynamic features by product type ── */
-function getFeatures(subCategory: string): string[] {
-  const sub = subCategory.toLowerCase();
-  if (sub === "audio" || sub.includes("couteur") || sub.includes("casque")) {
-    return [
-      "Connexion Bluetooth 5.3",
-      "Autonomie jusqu'à 30h",
-      "Réduction de bruit active (ANC)",
-      "Charge rapide USB-C",
-      "Compatible iOS & Android",
-    ];
-  }
-  if (sub === "gaming" || sub.includes("manette")) {
-    return [
-      "Sticks à effet Hall (No Drift garanti)",
-      "Connexion sans fil 2.4GHz + Bluetooth 5.0",
-      "Compatible iOS, Switch, PC, Android, Steam Deck",
-      "Gâchettes progressives à effet Hall",
-      "Éclairage RGB personnalisable",
-      "Batterie 1800 mAh rechargeable",
-      "Station de charge incluse",
-      "Boutons entièrement remappables",
-      "Autonomie jusqu'à 20h",
-      "Charge USB-C rapide",
-      "Non compatible Xbox et PS5",
-    ];
-  }
-  if (sub === "sacs" || sub.includes("sac")) {
-    return [
-      "Dos rembourré ergonomique",
-      "Port USB intégré",
-      "Compartiment laptop 15,6\"",
-      "Matière polyester imperméable",
-      "Sangles réglables",
-    ];
-  }
-  if (sub === "tech") {
-    return ["Compatibilité universelle", "Matériaux certifiés", "Garantie 1 an"];
-  }
-  if (sub === "running") {
-    return [
-      "Semelle amorti responsive",
-      "Tige en mesh respirant",
-      "Système de laçage sécurisé",
-      "Grip multisurface",
-      "Drop 8mm",
-    ];
-  }
-  if (sub === "lifestyle" || sub.includes("sneaker")) {
-    return [
-      "Tige en cuir synthétique premium",
-      "Semelle en caoutchouc vulcanisé",
-      "Doublure textile",
-      "Semelle intérieure amovible",
-    ];
-  }
-  if (sub === "vestes" || sub.includes("bomber") || sub.includes("coupe")) {
-    return [
-      "Coupe regular fit",
-      "Fermeture zippée premium",
-      "Poches zippées latérales",
-      "Matière polyester recyclé",
-      "Bandes élastiques aux poignets",
-    ];
-  }
-  if (sub === "sweats" || sub.includes("hoodie")) {
-    return [
-      "Tissu molleton brosse intérieure",
-      "Coupe oversize",
-      "Poche kangourou",
-      "Cordon de serrage réglable",
-      "100% coton bio",
-    ];
-  }
-  return [
-    "Qualité premium",
-    "Finitions soignées",
-    "Matières sélectionnées",
-    "Confort durable",
-  ];
-}
-
 export default async function ProductPage({
   params,
 }: {
@@ -217,6 +129,7 @@ export default async function ProductPage({
   // admin. The bundled catalogue is only a resilience fallback when the live
   // product cannot be reached.
   const dbProd = await getDbProductRaw(slug);
+  if (dbProd?.active === false) notFound();
   let product: Product | null = getProduct(slug) ?? null;
 
   if (dbProd) {
@@ -224,6 +137,12 @@ export default async function ProductPage({
     const dbTags = (dbProd.tags as string[] | null) ?? [];
     product = {
       slug: dbProd.slug,
+      stock: dbProd.stock,
+      color_stock: dbProd.color_stock ?? undefined,
+      tags: dbTags,
+      preorder_enabled: dbProd.preorder_enabled === true,
+      preorder_estimated_at: dbProd.preorder_estimated_at,
+      preorder_message: dbProd.preorder_message,
       name: dbProd.name,
       brand: dbProd.brand ?? undefined,
       category: dbProd.category as "homme" | "femme" | "chaussures" | "accessoires",
@@ -268,7 +187,7 @@ export default async function ProductPage({
     const supa = createServerSupabaseClient();
     const { data: revData } = await supa
       .from("reviews")
-      .select("rating")
+      .select("rating").eq("verified_purchase", true)
       .eq("product_slug", slug);
     if (revData && revData.length > 0) {
       reviewCount = revData.length;
@@ -279,16 +198,11 @@ export default async function ProductPage({
   const displayRating = reviewRating;
   const displayReviewCount = reviewCount;
 
-  // Fetch live commerce data even for products that also exist in the static
-  // catalogue. Admin-managed price and inventory values are authoritative.
+  // Use the same live snapshot for prices, sizes and stock. A second query
+  // listing optional preorder columns fails on stores using the legacy schema.
   let realStock: number | null = null;
   try {
-    const supa2 = createServerSupabaseClient();
-    const { data: stockData } = await supa2
-      .from("products")
-      .select("price, original_price, color_stock, stock, tags, colors, sizes")
-      .eq("slug", slug)
-      .maybeSingle();
+    const stockData = dbProd;
     if (typeof stockData?.stock === "number" && stockData.stock >= 0) {
       realStock = stockData.stock;
     }
@@ -320,6 +234,11 @@ export default async function ProductPage({
         colors: dbColors,
         sizes: dbSizes,
         stock: realStock ?? undefined,
+        color_stock: stockData.color_stock ?? undefined,
+        tags,
+        preorder_enabled: stockData.preorder_enabled === true,
+        preorder_estimated_at: stockData.preorder_estimated_at,
+        preorder_message: stockData.preorder_message,
         outOfStockColors: availability.outOfStockColors,
         outOfStockSizes,
         colorSizeStock,
@@ -412,7 +331,7 @@ export default async function ProductPage({
       { "@type": "ListItem", "position": 3, "name": product.displayName ?? product.name, "item": `${SITE_URL}/produit/${product.slug}/` },
     ],
   };
-  const features = (product.specs && product.specs.length > 0) ? product.specs : getFeatures(product.subCategory);
+  const features = (product.specs && product.specs.length > 0) ? product.specs : [];
   // Combine the static catalogue with every active database product so future
   // additions are immediately eligible for recommendations. Live DB fields
   // override static card data while the richer static taxonomy is preserved.

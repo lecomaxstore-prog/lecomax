@@ -1,4 +1,5 @@
 "use client";
+import ResponsiveTable from "@/components/admin/ResponsiveTable";
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { EcomediaPost, EcomediaComment, PostType } from "@/lib/ecomedia";
 import { POST_TYPE_LABELS, POST_TYPE_COLORS, formatRelativeTime } from "@/lib/ecomedia";
@@ -269,7 +270,7 @@ export default function EcomediaManagerPage() {
           ) : <div className="grid gap-4 md:grid-cols-2">
             {pendingPosts.map(post => (
               <article key={post.id} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-                {post.media_url && <div className="aspect-[16/10] bg-neutral-100"><img src={post.media_url} alt="" className="h-full w-full object-cover" /></div>}
+                {post.media_url && <div className="aspect-[16/10] bg-neutral-100"><img src={post.media_url} alt="" className="h-full w-full object-cover" loading="lazy" decoding="async" /></div>}
                 <div className="p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0"><p className="truncate text-sm font-black">{post.author_name || "Membre"}</p><p className="text-[10px] text-neutral-400">{formatRelativeTime(post.created_at)}</p></div>
@@ -302,7 +303,7 @@ export default function EcomediaManagerPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[700px]">
+              <ResponsiveTable className="w-full text-sm min-w-[700px]">
                 <thead>
                   <tr className="border-b border-neutral-100">
                     {["Post", "Type", "Statut", "❤️ Likes", "💬 Comm.", "Date", "Actions"].map(h => (
@@ -317,7 +318,7 @@ export default function EcomediaManagerPage() {
                         <div className="flex items-center gap-3">
                           {p.media_url && (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={p.media_url} alt="" className="w-10 h-10 rounded-lg object-cover bg-neutral-100 shrink-0" />
+                            <img src={p.media_url} alt="" className="w-10 h-10 rounded-lg object-cover bg-neutral-100 shrink-0" loading="lazy" decoding="async" />
                           )}
                           <div className="min-w-0">
                             <p className="font-semibold text-sm truncate max-w-[200px]">{p.title}</p>
@@ -356,7 +357,7 @@ export default function EcomediaManagerPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </ResponsiveTable>
             </div>
           )}
         </div>
@@ -465,7 +466,7 @@ export default function EcomediaManagerPage() {
                         {images.map((url, i) => (
                           <div key={i} className="relative group aspect-square rounded-xl overflow-hidden border border-neutral-200 bg-neutral-50">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={url} alt="" className="w-full h-full object-cover" />
+                            <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                             {i === 0 && (
                               <div className="absolute top-1 left-1 bg-black/70 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">
                                 Principal

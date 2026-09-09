@@ -1,12 +1,14 @@
+import { currentLocale, msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useEffect, useMemo } from "react";
-import { ActivityIndicator, Linking, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { BrandLogo } from "@/components/brand-logo";
-import { EmptyState } from "@/components/empty-state";
+import { NotificationOptIn } from "@/components/notification-opt-in";
+import Animated, { FadeInDown, ReduceMotion, ZoomIn } from "react-native-reanimated";
 import { Screen } from "@/components/screen";
 import { openMobileNotificationLink } from "@/lib/mobile-notification-navigation";
 import { getMobileNotificationInbox, markMobileNotificationsRead } from "@/services/mobile-notifications";
@@ -15,20 +17,21 @@ import { useNotificationStore } from "@/stores/notifications";
 function relativeDate(value: string) {
   const date = new Date(value);
   const minutes = Math.max(0, Math.round((Date.now() - date.getTime()) / 60_000));
-  if (minutes < 1) return "À l’instant";
-  if (minutes < 60) return `Il y a ${minutes} min`;
-  if (minutes < 1_440) return `Il y a ${Math.round(minutes / 60)} h`;
-  return date.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
+  if (minutes < 1) return msg("notifications.justNow");
+  if (minutes < 60) return msg("notifications.minutesAgo", { count: minutes });
+  if (minutes < 1_440) return msg("notifications.hoursAgo", { count: Math.round(minutes / 60) });
+  return date.toLocaleDateString(currentLocale(), { day: "2-digit", month: "short" });
 }
 
 function NotificationsLoading() {
+  useLocale();
   return (
-    <View accessibilityLabel="Chargement des notifications" accessibilityRole="progressbar">
+    <View accessibilityLabel={msg("notifications.loadingNotifications")} accessibilityRole="progressbar">
       <View className="mb-5 flex-row items-center rounded-2xl border border-neutral-200 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900">
         <ActivityIndicator color="#168526" size="small" />
         <View className="ml-3">
-          <Text className="text-sm font-black text-ink dark:text-white">Mise à jour de votre espace</Text>
-          <Text className="mt-0.5 text-xs text-muted">Vos dernières actualités arrivent…</Text>
+          <Text className="text-sm font-black text-ink dark:text-white">{msg("notifications.updatingYourFeed")}</Text>
+          <Text className="mt-0.5 text-xs text-muted">{msg("notifications.yourLatestUpdatesAreOnTheirWay")}</Text>
         </View>
       </View>
       {[0, 1, 2].map((item) => (
@@ -46,7 +49,49 @@ function NotificationsLoading() {
   );
 }
 
+function NotificationsEmpty() {
+  useLocale();
+  return (
+    <Animated.View entering={FadeInDown.duration(650).reduceMotion(ReduceMotion.System)} style={styles.emptyContainer}>
+      <View className="overflow-hidden rounded-[28px] border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900" style={styles.emptyCard}>
+        <View pointerEvents="none" style={styles.illustration} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <View style={styles.outerOrbit} />
+          <View style={styles.innerOrbit} />
+          <Animated.View entering={ZoomIn.delay(180).duration(650).reduceMotion(ReduceMotion.System)} style={styles.bellTile}>
+            <Ionicons name="notifications-outline" size={42} color="#214D37" />
+            <View style={styles.checkBadge}><Ionicons name="checkmark" size={15} color="#FFFFFF" /></View>
+          </Animated.View>
+          <View style={[styles.orbitDot, { top: 29, right: 25 }]} />
+          <View style={[styles.orbitDot, { bottom: 32, left: 24, width: 5, height: 5, opacity: 0.5 }]} />
+        </View>
+        <Text accessibilityRole="header" className="text-ink dark:text-white" style={styles.emptyTitle}>{msg("notifications.youReAllCaughtUp")}</Text>
+        <Text className="text-muted dark:text-neutral-400" style={styles.emptyDescription}>{msg("notifications.offersNewArrivalsAndImportantInformationWillAppearHere")}</Text>
+        <AnimatedPressable accessibilityRole="button" onPress={() => router.push("/catalog")} style={styles.exploreButton}>
+          <Text style={styles.exploreLabel}>{msg("common.exploreShop")}</Text>
+          <View style={styles.exploreArrow}><Ionicons name="arrow-forward" size={18} color="#FFFFFF" /></View>
+        </AnimatedPressable>
+      </View>
+      <View style={styles.updatesInfo}>
+        <Text className="text-muted dark:text-neutral-400" style={styles.infoEyebrow}>{msg("notifications.whatToExpect")}</Text>
+        {([
+          ["pricetag-outline", "notifications.offersAndNewArrivals", "notifications.promotionsNewProductsAndLEcomaxBenefits"],
+          ["cube-outline", "notifications.ordersAndAccount", "notifications.orderTrackingAndImportantAccountInformation"],
+        ] as const).map(([icon, title, description]) => (
+          <View key={title} style={styles.infoRow}>
+            <View className="bg-white dark:bg-neutral-800" style={styles.infoIcon}><Ionicons name={icon} size={19} color="#6B8473" /></View>
+            <View style={{ flex: 1 }}>
+              <Text className="text-ink dark:text-neutral-200" style={styles.infoTitle}>{msg(title)}</Text>
+              <Text className="text-muted dark:text-neutral-400" style={styles.infoDescription}>{msg(description)}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+    </Animated.View>
+  );
+}
+
 function NotificationsError({ onRetry, retrying }: { onRetry: () => void; retrying: boolean }) {
+  useLocale();
   return (
     <View className="overflow-hidden rounded-3xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
       <View className="flex-row items-start">
@@ -54,36 +99,55 @@ function NotificationsError({ onRetry, retrying }: { onRetry: () => void; retryi
           <Ionicons color="#168526" name="cloud-offline-outline" size={27} />
         </View>
         <View className="ml-4 min-w-0 flex-1">
-          <Text className="text-lg font-black text-ink dark:text-white">Connexion interrompue</Text>
-          <Text className="mt-1 text-sm leading-5 text-muted">Impossible d’actualiser vos notifications pour le moment. Vos messages restent disponibles dès le retour du réseau.</Text>
+          <Text className="text-lg font-black text-ink dark:text-white">{msg("notifications.connectionInterrupted")}</Text>
+          <Text className="mt-1 text-sm leading-5 text-muted">{msg("notifications.weCannotRefreshYourNotificationsRightNowYourMessagesWillBeAvailable")}</Text>
         </View>
       </View>
       <View className="mt-5 flex-row items-center justify-between rounded-2xl bg-neutral-100 px-4 py-3 dark:bg-neutral-800">
         <View className="flex-row items-center">
           <View className="h-2 w-2 rounded-full bg-[#E0A11A]" />
-          <Text className="ml-2 text-[9px] font-black uppercase tracking-wider text-muted">Service temporairement inaccessible</Text>
+          <Text className="ml-2 text-[9px] font-black uppercase tracking-wider text-muted">{msg("notifications.serviceTemporarilyUnavailable")}</Text>
         </View>
         <Ionicons color="#8B918C" name="wifi-outline" size={16} />
       </View>
       <AnimatedPressable
-        accessibilityLabel="Réessayer de charger les notifications"
+        accessibilityLabel={msg("notifications.tryLoadingNotificationsAgain")}
         accessibilityState={{ busy: retrying, disabled: retrying }}
         disabled={retrying}
         onPress={onRetry}
         style={[styles.retryButton, retrying && styles.retryButtonBusy]}
       >
         {retrying ? <ActivityIndicator color="#3ECF4C" size="small" /> : <Ionicons color="#3ECF4C" name="refresh" size={18} />}
-        <Text style={styles.retryLabel}>{retrying ? "RECONNEXION…" : "RÉESSAYER"}</Text>
+        <Text style={styles.retryLabel}>{retrying ? "RECONNEXION…" : msg("notifications.tryAgainUppercase")}</Text>
       </AnimatedPressable>
-      <AnimatedPressable accessibilityLabel="Retourner à l’accueil" onPress={() => router.replace("/")} style={styles.homeButton}>
+      <AnimatedPressable accessibilityLabel={msg("notifications.returnToHome")} onPress={() => router.replace("/")} style={styles.homeButton}>
         <Ionicons color="#59605B" name="home-outline" size={16} />
-        <Text style={styles.homeLabel}>Retourner à l’accueil</Text>
+        <Text style={styles.homeLabel}>{msg("notifications.returnToHome")}</Text>
       </AnimatedPressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  emptyContainer: { width: "100%", maxWidth: 520, alignSelf: "center" },
+  emptyCard: { alignItems: "center", paddingHorizontal: 24, paddingTop: 24, paddingBottom: 28 },
+  illustration: { width: 180, height: 172, alignItems: "center", justifyContent: "center", marginBottom: 14 },
+  outerOrbit: { position: "absolute", width: 160, height: 160, borderRadius: 80, backgroundColor: "#EDF6EE" },
+  innerOrbit: { position: "absolute", width: 124, height: 124, borderRadius: 62, borderWidth: 1, borderColor: "#D7E9DC" },
+  bellTile: { width: 88, height: 88, borderRadius: 28, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center", shadowColor: "#214D37", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.1, shadowRadius: 18, elevation: 3 },
+  checkBadge: { position: "absolute", bottom: -3, right: -3, width: 28, height: 28, borderRadius: 14, backgroundColor: "#279947", borderWidth: 3, borderColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
+  orbitDot: { position: "absolute", width: 8, height: 8, borderRadius: 4, backgroundColor: "#72AC80" },
+  emptyTitle: { fontFamily: "Inter_700Bold", fontSize: 23, lineHeight: 30, letterSpacing: -0.7, textAlign: "center" },
+  emptyDescription: { maxWidth: 290, fontFamily: "Inter_400Regular", fontSize: 14, lineHeight: 22, textAlign: "center", marginTop: 10 },
+  exploreButton: { marginTop: 26, minHeight: 54, width: "100%", maxWidth: 290, borderRadius: 27, backgroundColor: "#193D2B", paddingLeft: 24, paddingRight: 8, paddingVertical: 8, flexDirection: "row", gap: 16, alignItems: "center", justifyContent: "space-between" },
+  exploreLabel: { flexShrink: 1, fontFamily: "Inter_600SemiBold", fontSize: 14, color: "#FFFFFF" },
+  exploreArrow: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#31533F", alignItems: "center", justifyContent: "center" },
+  updatesInfo: { paddingHorizontal: 12, paddingTop: 28 },
+  infoEyebrow: { fontFamily: "Inter_600SemiBold", fontSize: 10, letterSpacing: 1.6, textTransform: "uppercase", marginBottom: 18 },
+  infoRow: { flexDirection: "row", alignItems: "center", gap: 14, marginBottom: 20 },
+  infoIcon: { width: 42, height: 42, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  infoTitle: { fontFamily: "Inter_600SemiBold", fontSize: 13, lineHeight: 19 },
+  infoDescription: { fontFamily: "Inter_400Regular", fontSize: 12, lineHeight: 18, marginTop: 3 },
   retryButton: {
     width: "100%",
     minHeight: 52,
@@ -124,6 +188,7 @@ const styles = StyleSheet.create({
 });
 
 export default function NotificationsScreen() {
+  useLocale();
   const markAllRead = useNotificationStore((state) => state.markAllRead);
   const inbox = useQuery({
     queryKey: ["mobile-notifications"],
@@ -143,13 +208,13 @@ export default function NotificationsScreen() {
     <Screen>
       <View className="border-b border-neutral-200 bg-white px-4 pb-4 pt-3 dark:border-neutral-800 dark:bg-ink">
         <View className="flex-row items-center justify-between">
-          <AnimatedPressable accessibilityLabel="Retour" onPress={() => router.back()} className="h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+          <AnimatedPressable accessibilityLabel={msg("addresses.back")} onPress={() => router.back()} className="h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
             <Ionicons name="arrow-back" size={20} color="#303531" />
           </AnimatedPressable>
           <View className="h-11 flex-1 items-center justify-center">
             <BrandLogo header animated />
           </View>
-          <AnimatedPressable accessibilityLabel="Ouvrir les réglages de notifications" onPress={() => void Linking.openSettings()} className="h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+          <AnimatedPressable accessibilityLabel={msg("notifications.openNotificationSettings")} onPress={() => router.push("/account")} className="h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
             <Ionicons name="options-outline" size={19} color="#303531" />
           </AnimatedPressable>
         </View>
@@ -158,14 +223,15 @@ export default function NotificationsScreen() {
           <View className="min-w-0 flex-1">
             <View className="flex-row items-center">
               <View className="h-1.5 w-1.5 rounded-full bg-green" />
-              <Text className="ml-2 text-[9px] font-black uppercase tracking-[1.8px] text-green">Centre d’actualités</Text>
+              <Text className="ml-2 text-[9px] font-black uppercase tracking-[1.8px] text-green">{msg("notifications.updates")}</Text>
             </View>
-            <Text accessibilityRole="header" className="mt-1 text-[30px] font-black tracking-tight text-ink dark:text-white">Notifications</Text>
+            <Text accessibilityRole="header" className="mt-1 text-[28px] font-bold tracking-tight text-ink dark:text-white">{msg("common.notifications")}</Text>
           </View>
           {!inbox.isPending && !inbox.isError ? (
-            <View className="mb-1 rounded-full border border-neutral-200 bg-neutral-100 px-3 py-1.5 dark:border-neutral-700 dark:bg-neutral-800">
-              <Text className="text-[10px] font-black text-muted">
-                {items.length ? `${items.length} message${items.length > 1 ? "s" : ""}` : "À JOUR"}
+            <View className="mb-1 ml-2 flex-row items-center gap-1 rounded-full bg-[#EAF5EC] px-2.5 py-1.5 dark:bg-neutral-800">
+              {!items.length ? <Ionicons name="checkmark" size={12} color="#39804B" /> : null}
+              <Text className="text-[9px] font-bold text-[#39804B] dark:text-green">
+                {items.length ? msg("counts.messages", { count: items.length }) : msg("notifications.upToDateUppercase")}
               </Text>
             </View>
           ) : null}
@@ -174,8 +240,9 @@ export default function NotificationsScreen() {
 
       <ScrollView
         refreshControl={<RefreshControl refreshing={inbox.isRefetching} onRefresh={() => void inbox.refetch()} tintColor="#168526" />}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, paddingTop: 16 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40, paddingTop: 24 }}
       >
+        <NotificationOptIn />
         {inbox.isPending ? (
           <NotificationsLoading />
         ) : inbox.isError ? (
@@ -194,7 +261,7 @@ export default function NotificationsScreen() {
                 <View className="ml-4 min-w-0 flex-1">
                   <View className="flex-row items-center">
                     <Text className="flex-1 font-black text-ink dark:text-white">{item.title}</Text>
-                    {!item.read ? <View accessibilityLabel="Non lue" className="ml-2 h-2 w-2 rounded-full bg-green" /> : null}
+                    {!item.read ? <View accessibilityLabel={msg("notifications.unread")} className="ml-2 h-2 w-2 rounded-full bg-green" /> : null}
                   </View>
                   <Text className="mt-1 text-sm leading-5 text-muted">{item.body}</Text>
                   <View className="mt-3 flex-row items-center justify-between">
@@ -208,7 +275,7 @@ export default function NotificationsScreen() {
             </AnimatedPressable>
           ))
         ) : (
-          <EmptyState icon="notifications-outline" title="Vous êtes à jour" message="Les offres, nouveautés et informations importantes apparaîtront ici." />
+          <NotificationsEmpty />
         )}
       </ScrollView>
     </Screen>

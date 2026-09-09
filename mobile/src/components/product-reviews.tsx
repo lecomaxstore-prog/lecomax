@@ -1,8 +1,15 @@
+import { formatNumber } from "@/lib/format";
+import { currentLocale, msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { memo, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Dimensions,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -18,6 +25,10 @@ import {
 } from "@/services/catalog";
 import type { Review } from "@/types/commerce";
 
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const CARD_WIDTH = SCREEN_WIDTH * 0.78;
+const CARD_GAP = 12;
+
 type Props = {
   slug: string;
   reviews: Review[];
@@ -28,36 +39,87 @@ type Props = {
 };
 
 const reasonMessages: Record<ReviewEligibility["reason"], string> = {
-  verified_purchase: "Votre achat est vérifié. Partagez votre expérience.",
-  signed_out: "Connectez-vous avec l’adresse utilisée lors de votre commande.",
-  not_ordered: "Les avis sont réservés aux clients ayant acheté ce produit.",
-  not_delivered:
-    "Vous pourrez publier un avis dès que votre commande sera livrée.",
-  already_reviewed: "Vous avez déjà publié un avis pour ce produit.",
+  get verified_purchase() { return msg("productReviews.yourPurchaseIsVerifiedShareYourExperience"); },
+  get signed_out() { return msg("productReviews.signInWithTheEmailAddressUsedForYourOrder"); },
+  get not_ordered() { return msg("productReviews.reviewsAreReservedForCustomersWhoPurchasedThisProduct"); },
+  get not_delivered() { return msg("productReviews.youCanPostAReviewOnceYourOrderIsDelivered"); },
+  get already_reviewed() { return msg("productReviews.youHaveAlreadyReviewedThisProduct"); },
 };
 
 function containsArabic(value: string | null | undefined) {
   return Boolean(value && /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(value));
 }
 
+function relativeTime(dateString: string): string | null {
+  const now = Date.now();
+  const then = new Date(dateString).getTime();
+  const diffMs = now - then;
+  const diffDays = Math.floor(diffMs / 86_400_000);
+  if (diffDays < 1) return msg("productReviews.today");
+  if (diffDays === 1) return msg("productReviews.yesterday");
+  if (diffDays < 7) return `${diffDays}d`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w`;
+  return null; // older than a month → show the date only
+}
+
+function ReviewImages({ urls }: { urls: string[] }) {
+  const [lightbox, setLightbox] = useState<string | null>(null);
+  if (urls.length === 0) return null;
+  return (
+    <>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.imageRow}
+        style={styles.imageScroller}
+      >
+        {urls.map((url, i) => (
+          <AnimatedPressable
+            key={url}
+            pressedScale={0.96}
+            onPress={() => setLightbox(url)}
+          >
+            <Image
+              source={{ uri: url }}
+              style={styles.reviewImage}
+              accessibilityLabel={msg("productReviews.reviewPhoto", { index: i + 1 })}
+            />
+          </AnimatedPressable>
+        ))}
+      </ScrollView>
+      <Modal visible={!!lightbox} transparent animationType="fade" onRequestClose={() => setLightbox(null)}>
+        <Pressable style={styles.lightboxOverlay} onPress={() => setLightbox(null)}>
+          <Image source={{ uri: lightbox ?? "" }} style={styles.lightboxImage} resizeMode="contain" />
+          <View style={styles.lightboxClose}>
+            <Ionicons name="close" size={22} color={palette.white} />
+          </View>
+        </Pressable>
+      </Modal>
+    </>
+  );
+}
+
 function Stars({
   value,
   size = 16,
   interactive = false,
+  color = palette.gold,
   onChange,
 }: {
   value: number;
   size?: number;
   interactive?: boolean;
+  color?: string;
   onChange?: (value: number) => void;
 }) {
+  useLocale();
   return (
     <View style={styles.stars}>
       {[1, 2, 3, 4, 5].map((star) =>
         interactive ? (
           <AnimatedPressable
             key={star}
-            accessibilityLabel={`${star} star${star === 1 ? "" : "s"}`}
+            accessibilityLabel={msg("reviews.stars", { count: star })}
             onPress={() => onChange?.(star)}
             pressedScale={0.86}
             style={styles.starButton}
@@ -73,7 +135,7 @@ function Stars({
             key={star}
             name={star <= Math.round(value) ? "star" : "star-outline"}
             size={size}
-            color={star <= Math.round(value) ? palette.gold : "#D1D1D1"}
+            color={star <= Math.round(value) ? color : "#D1D1D1"}
           />
         ),
       )}
@@ -89,6 +151,7 @@ export const ProductReviews = memo(function ProductReviews({
   selectedColor,
   onSubmitted,
 }: Props) {
+  useLocale();
   const [eligibility, setEligibility] = useState<ReviewEligibility | null>(
     null,
   );
@@ -139,7 +202,7 @@ export const ProductReviews = memo(function ProductReviews({
   const submit = async () => {
     setError(null);
     if (!rating || body.trim().length < 20) {
-      setError("Choisissez une note et écrivez au moins 20 caractères.");
+      setError(msg("productReviews.chooseARatingAndWriteAtLeast20Characters"));
       return;
     }
     setSubmitting(true);
@@ -159,7 +222,7 @@ export const ProductReviews = memo(function ProductReviews({
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "Impossible de publier votre avis.",
+          : msg("productReviews.unableToPublishYourReview"),
       );
     } finally {
       setSubmitting(false);
@@ -170,22 +233,22 @@ export const ProductReviews = memo(function ProductReviews({
     <View style={styles.section}>
       <View style={styles.headingRow}>
         <View>
-          <Text style={styles.eyebrow}>COMMUNAUTÉ LECOMAX</Text>
-          <Text style={styles.heading}>Avis clients</Text>
+          <Text style={styles.eyebrow}>{msg("productReviews.lecomaxCommunityUppercase")}</Text>
+          <Text accessibilityRole="header" style={styles.heading}>{msg("productReviews.customerReviews")}</Text>
         </View>
         <View style={styles.verifiedHeader}>
           <Ionicons name="shield-checkmark" size={15} color={palette.green} />
-          <Text style={styles.verifiedHeaderText}>ACHATS VÉRIFIÉS</Text>
+          <Text style={styles.verifiedHeaderText}>{msg("productReviews.verifiedPurchasesUppercase")}</Text>
         </View>
       </View>
 
       {total > 0 ? (
         <View style={styles.summary}>
           <View style={styles.score}>
-            <Text style={styles.scoreValue}>{average.toFixed(1)}</Text>
+            <Text style={styles.scoreValue}>{formatNumber(average, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</Text>
             <Stars value={average} size={15} />
             <Text style={styles.scoreCount}>
-              {total} avis vérifié{total === 1 ? "" : "s"}
+              {total} {msg("productReviews.verifiedReview")}{total === 1 ? "" : "s"}
             </Text>
           </View>
           <View style={styles.distribution}>
@@ -204,13 +267,12 @@ export const ProductReviews = memo(function ProductReviews({
       ) : (
         <View style={styles.emptySummary}>
           <View style={styles.emptySummaryIcon}>
-            <Ionicons name="star-outline" size={20} color={palette.greenDark} />
+            <Ionicons name="chatbubble-ellipses-outline" size={24} color={palette.greenDark} />
           </View>
           <View style={styles.emptySummaryCopy}>
-            <Text style={styles.emptySummaryTitle}>Aucun avis</Text>
+            <Text style={styles.emptySummaryTitle}>{msg("productReviews.noReviewsYet")}</Text>
             <Text style={styles.emptySummaryText}>
-              Soyez le premier à partager votre expérience.
-            </Text>
+              {msg("productReviews.beTheFirstToShareYourExperience")}</Text>
           </View>
         </View>
       )}
@@ -226,12 +288,12 @@ export const ProductReviews = memo(function ProductReviews({
         <View style={styles.eligibilityCopy}>
           <Text style={styles.eligibilityTitle}>
             {eligibility?.canReview
-              ? "Votre achat est confirmé"
-              : "Avis authentiques uniquement"}
+              ? msg("productReviews.yourPurchaseIsConfirmed")
+              : msg("productReviews.authenticReviewsOnly")}
           </Text>
           <Text style={styles.eligibilityMessage}>
             {checking
-              ? "Vérification de votre compte…"
+              ? msg("productReviews.checkingYourAccount")
               : reasonMessages[eligibility?.reason ?? "signed_out"]}
           </Text>
         </View>
@@ -239,22 +301,24 @@ export const ProductReviews = memo(function ProductReviews({
           <ActivityIndicator color={palette.green} />
         ) : eligibility?.reason === "signed_out" ? (
           <AnimatedPressable
-            accessibilityLabel="Se connecter pour laisser un avis"
+            accessibilityLabel={msg("productReviews.signInToLeaveAReview")}
+            accessibilityRole="button"
             onPress={() => router.push("/auth")}
             style={styles.smallAction}
           >
-            <Text style={styles.smallActionText}>SE CONNECTER</Text>
+            <Text style={styles.smallActionText}>{msg("support.signInUppercase")}</Text>
           </AnimatedPressable>
         ) : eligibility?.canReview ? (
           <AnimatedPressable
+            accessibilityRole="button"
             accessibilityLabel={
-              showForm ? "Fermer le formulaire d’avis" : "Écrire un avis"
+              showForm ? msg("productReviews.closeReviewForm") : msg("productReviews.writeAReview")
             }
             onPress={() => setShowForm((value) => !value)}
             style={styles.smallAction}
           >
             <Text style={styles.smallActionText}>
-              {showForm ? "FERMER" : "ÉCRIRE"}
+              {showForm ? msg("productReviews.closeUppercase") : msg("productReviews.writeUppercase")}
             </Text>
           </AnimatedPressable>
         ) : null}
@@ -262,30 +326,29 @@ export const ProductReviews = memo(function ProductReviews({
 
       {showForm && eligibility?.canReview ? (
         <Animated.View entering={FadeInUp.duration(320)} style={styles.form}>
-          <Text style={styles.formTitle}>Votre expérience</Text>
+          <Text style={styles.formTitle}>{msg("productReviews.yourExperience")}</Text>
           <Text style={styles.formHint}>
-            Touchez une étoile pour noter le produit.
-          </Text>
+            {msg("productReviews.tapAStarToRateTheProduct")}</Text>
           <View style={styles.ratingPicker}>
             <Stars value={rating} size={30} interactive onChange={setRating} />
             <Text style={styles.ratingValue}>
-              {rating ? `${rating}/5` : "Votre note"}
+              {rating ? `${rating}/5` : msg("productReviews.yourRating")}
             </Text>
           </View>
           <TextInput
-            accessibilityLabel="Titre de l’avis"
+            accessibilityLabel={msg("productReviews.reviewTitle")}
             value={title}
             onChangeText={setTitle}
-            placeholder="Titre de votre avis (facultatif)"
+            placeholder={msg("productReviews.reviewTitleOptional")}
             placeholderTextColor="#9A9A9A"
             maxLength={100}
             style={styles.titleInput}
           />
           <TextInput
-            accessibilityLabel="Contenu de l’avis"
+            accessibilityLabel={msg("productReviews.reviewContent")}
             value={body}
             onChangeText={setBody}
-            placeholder="Confort, qualité, taille… qu’avez-vous pensé du produit ?"
+            placeholder={msg("productReviews.comfortQualitySizeWhatDidYouThinkOfTheProduct")}
             placeholderTextColor="#9A9A9A"
             multiline
             maxLength={1200}
@@ -295,7 +358,7 @@ export const ProductReviews = memo(function ProductReviews({
           <View style={styles.formFooter}>
             <Text style={styles.characterCount}>{body.length}/1200</Text>
             <AnimatedPressable
-              accessibilityLabel="Publier l’avis"
+              accessibilityLabel={msg("productReviews.publishReview")}
               disabled={submitting}
               onPress={() => void submit()}
               style={styles.submitButton}
@@ -304,7 +367,7 @@ export const ProductReviews = memo(function ProductReviews({
                 <ActivityIndicator size="small" color={palette.white} />
               ) : (
                 <>
-                  <Text style={styles.submitText}>PUBLIER L’AVIS</Text>
+                  <Text style={styles.submitText}>{msg("productReviews.publishReviewUppercase")}</Text>
                   <Ionicons
                     name="arrow-forward"
                     size={17}
@@ -322,83 +385,108 @@ export const ProductReviews = memo(function ProductReviews({
         <Animated.View entering={FadeIn.duration(300)} style={styles.success}>
           <Ionicons name="checkmark-circle" size={20} color={palette.green} />
           <Text style={styles.successText}>
-            Merci. Votre avis vérifié a été publié.
-          </Text>
+            {msg("productReviews.thankYouYourVerifiedReviewHasBeenPublished")}</Text>
         </Animated.View>
       ) : null}
 
-      <View style={styles.reviewList}>
-        {reviews.length ? (
-          reviews.map((review, index) => {
+      {reviews.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          decelerationRate="fast"
+          snapToInterval={CARD_WIDTH + CARD_GAP}
+          snapToAlignment="start"
+          contentContainerStyle={styles.reviewCarousel}
+          style={styles.reviewScroller}
+        >
+          {reviews.map((review, index) => {
             const bodyIsRtl = containsArabic(review.body);
             const titleIsRtl = containsArabic(review.title);
+            const relative = relativeTime(review.created_at);
+            const imageUrls = review.image_urls?.length
+              ? review.image_urls
+              : review.image_url
+                ? [review.image_url]
+                : [];
             return (
-            <Animated.View
-              key={review.id}
-              entering={FadeInUp.delay(index * 60).duration(320)}
-              style={styles.reviewCard}
-            >
-              <View style={styles.reviewHeader}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>
-                    {review.author_name.charAt(0).toUpperCase()}
+              <Animated.View
+                key={review.id}
+                entering={FadeInUp.delay(index * 80).duration(380)}
+                style={styles.reviewCard}
+              >
+                {/* ── Luxury Accent Glow Line ── */}
+                <View style={styles.cardAccent} />
+
+                {/* ── Top Header Row: Stars + Verified Badge ── */}
+                <View style={styles.reviewHeaderRow}>
+                  <View style={styles.ratingBadge}>
+                    <Stars value={review.rating} size={13} color={palette.gold} />
+                    <Text style={styles.reviewRatingValue}>
+                      {formatNumber(review.rating, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                    </Text>
+                  </View>
+
+                  {review.verified_purchase !== false ? (
+                    <View style={styles.verifiedBadgePill}>
+                      <Ionicons name="checkmark-circle" size={12} color="#15803D" />
+                      <Text style={styles.verifiedBadgeText}>Achat Vérifié</Text>
+                    </View>
+                  ) : null}
+                </View>
+
+                {/* ── Body (main content area with smart RTL) ── */}
+                {review.title ? (
+                  <Text style={[styles.reviewTitle, titleIsRtl && styles.rtlText]} numberOfLines={2}>{review.title}</Text>
+                ) : null}
+                
+                <View style={bodyIsRtl ? styles.arabicBodyBox : null}>
+                  <Text style={[styles.reviewBody, bodyIsRtl && styles.rtlText]} numberOfLines={4}>
+                    {bodyIsRtl ? `"${review.body}"` : review.body}
                   </Text>
                 </View>
-                <View style={styles.author}>
-                  <Text style={styles.authorName}>{review.author_name}</Text>
-                  <Text style={styles.reviewDate}>
-                    {new Intl.DateTimeFormat("fr-FR", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    }).format(new Date(review.created_at))}
-                  </Text>
+
+                {/* ── Photos ── */}
+                <ReviewImages urls={imageUrls} />
+
+                {/* ── Divider ── */}
+                <View style={styles.cardDivider} />
+
+                {/* ── Footer: avatar + author + date ── */}
+                <View style={styles.reviewFooter}>
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>
+                      {review.author_name.charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                  <View style={styles.footerCopy}>
+                    <Text style={styles.authorName} numberOfLines={1}>{review.author_name}</Text>
+                    <Text style={styles.reviewDate}>
+                      {new Intl.DateTimeFormat(currentLocale(), {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      }).format(new Date(review.created_at))}
+                      {relative ? ` · ${relative}` : ""}
+                      {review.city ? ` · ${review.city}` : ""}
+                    </Text>
+                  </View>
                 </View>
-                {review.verified_purchase !== false ? (
-                  <View style={styles.verifiedBadge}>
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={13}
-                      color={palette.green}
-                    />
-                    <Text style={styles.verifiedText}>ACHAT VÉRIFIÉ</Text>
+
+                {/* ── Admin reply ── */}
+                {review.admin_reply ? (
+                  <View style={styles.reply}>
+                    <View style={styles.replyHeader}>
+                      <Ionicons name="storefront-outline" size={11} color={palette.greenDark} />
+                      <Text style={styles.replyLabel}>{msg("productReviews.lecomaxReplyUppercase")}</Text>
+                    </View>
+                    <Text style={[styles.replyText, containsArabic(review.admin_reply) && styles.rtlText]} numberOfLines={3}>{review.admin_reply}</Text>
                   </View>
                 ) : null}
-              </View>
-              <View style={styles.reviewRatingRow}>
-                <Stars value={review.rating} size={15} />
-                <Text style={styles.reviewRatingValue}>{review.rating.toFixed(1)}</Text>
-              </View>
-              {review.title ? (
-                <Text style={[styles.reviewTitle, titleIsRtl && styles.rtlText]}>{review.title}</Text>
-              ) : null}
-              <Text style={[styles.reviewBody, bodyIsRtl && styles.rtlText]}>{review.body}</Text>
-              {review.admin_reply ? (
-                <View style={styles.reply}>
-                  <Text style={styles.replyLabel}>RÉPONSE DE LECOMAX</Text>
-                  <Text style={styles.replyText}>{review.admin_reply}</Text>
-                </View>
-              ) : null}
-            </Animated.View>
+              </Animated.View>
             );
-          })
-        ) : (
-          <View style={styles.empty}>
-            <View style={styles.emptyIcon}>
-              <Ionicons
-                name="chatbubble-ellipses-outline"
-                size={25}
-                color={palette.green}
-              />
-            </View>
-            <Text style={styles.emptyTitle}>Aucun avis pour le moment</Text>
-            <Text style={styles.emptyText}>
-              Le premier avis apparaîtra après un achat et une livraison
-              vérifiés.
-            </Text>
-          </View>
-        )}
-      </View>
+          })}
+        </ScrollView>
+      ) : null}
     </View>
   );
 });
@@ -412,13 +500,11 @@ const styles = StyleSheet.create({
     backgroundColor: palette.white,
   },
   headingRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    gap: 12,
+    alignItems: "flex-start",
+    gap: 10,
   },
   eyebrow: {
-    color: palette.green,
+    color: palette.greenDark,
     fontFamily: typography.black,
     fontSize: 8,
     letterSpacing: 1.8,
@@ -427,20 +513,27 @@ const styles = StyleSheet.create({
     marginTop: 7,
     color: palette.ink,
     fontFamily: typography.black,
-    fontSize: 28,
-    letterSpacing: -1,
+    fontSize: 24,
+    lineHeight: 30,
+    letterSpacing: -0.6,
   },
   verifiedHeader: {
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    paddingBottom: 4,
+    maxWidth: "100%",
+    paddingHorizontal: 9,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: "#EFF7F1",
   },
   verifiedHeaderText: {
-    color: palette.green,
+    flexShrink: 1,
+    color: palette.greenDark,
     fontFamily: typography.bold,
-    fontSize: 8,
-    letterSpacing: 1,
+    fontSize: 9,
+    lineHeight: 13,
+    letterSpacing: 0.6,
   },
   summary: {
     marginTop: 24,
@@ -450,14 +543,13 @@ const styles = StyleSheet.create({
     backgroundColor: palette.canvas,
   },
   emptySummary: {
-    marginTop: 24,
-    minHeight: 82,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 20,
+    marginTop: 20,
+    minHeight: 104,
+    padding: 18,
+    borderRadius: 18,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: palette.canvas,
+    backgroundColor: "#F7F8F6",
   },
   emptySummaryIcon: {
     width: 44,
@@ -471,14 +563,15 @@ const styles = StyleSheet.create({
   emptySummaryTitle: {
     color: palette.ink,
     fontFamily: typography.bold,
-    fontSize: 13,
+    fontSize: 16,
+    lineHeight: 22,
   },
   emptySummaryText: {
-    marginTop: 3,
+    marginTop: 5,
     color: palette.muted,
     fontFamily: typography.regular,
-    fontSize: 10,
-    lineHeight: 15,
+    fontSize: 12,
+    lineHeight: 18,
   },
   score: { width: "42%", justifyContent: "center" },
   scoreValue: {
@@ -525,46 +618,53 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   eligibilityCard: {
-    marginTop: 16,
+    marginTop: 12,
     padding: 14,
-    borderRadius: 20,
+    borderRadius: 16,
     flexDirection: "row",
+    flexWrap: "wrap",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#CFE8D8",
-    backgroundColor: "#EFF9F3",
+    borderColor: "#E1E9E2",
+    backgroundColor: palette.white,
   },
   eligibilityIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
+    width: 34,
+    height: 34,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: palette.white,
+    backgroundColor: "#EFF7F1",
   },
   eligibilityCopy: { minWidth: 0, flex: 1, marginHorizontal: 10 },
   eligibilityTitle: {
     color: palette.ink,
     fontFamily: typography.bold,
-    fontSize: 11,
+    fontSize: 12,
+    lineHeight: 17,
   },
   eligibilityMessage: {
     marginTop: 3,
     color: palette.muted,
     fontFamily: typography.regular,
-    fontSize: 9,
-    lineHeight: 13,
+    fontSize: 11,
+    lineHeight: 17,
   },
   smallAction: {
+    width: "100%",
+    minHeight: 44,
+    marginTop: 12,
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 16,
+    borderRadius: 10,
     backgroundColor: palette.ink,
   },
   smallActionText: {
     color: palette.white,
     fontFamily: typography.black,
-    fontSize: 8,
+    fontSize: 10,
     letterSpacing: 0.8,
   },
   form: {
@@ -667,139 +767,220 @@ const styles = StyleSheet.create({
     fontFamily: typography.bold,
     fontSize: 10,
   },
-  reviewList: { marginTop: 22, gap: 12 },
+  // ── Horizontal review carousel ──
+  reviewScroller: {
+    marginTop: 22,
+    marginHorizontal: -20, // bleed out of section padding
+  },
+  reviewCarousel: {
+    paddingHorizontal: 20,
+    gap: CARD_GAP,
+    paddingRight: 32,
+  },
   reviewCard: {
-    padding: 18,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "#E1E3E0",
+    width: CARD_WIDTH,
+    padding: 0,
+    borderRadius: 26,
     backgroundColor: palette.white,
-    shadowColor: "#19201A",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.055,
-    shadowRadius: 13,
-    elevation: 2,
-  },
-  reviewHeader: {
-    marginBottom: 13,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: palette.ink,
-  },
-  avatarText: {
-    color: palette.white,
-    fontFamily: typography.black,
-    fontSize: 14,
-  },
-  author: { minWidth: 0, flex: 1, marginLeft: 10 },
-  authorName: { color: palette.ink, fontFamily: typography.bold, fontSize: 12 },
-  reviewDate: {
-    marginTop: 2,
-    color: palette.muted,
-    fontFamily: typography.regular,
-    fontSize: 9,
-  },
-  verifiedBadge: {
-    paddingHorizontal: 9,
-    paddingVertical: 6,
-    borderRadius: 999,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
     borderWidth: 1,
-    borderColor: "#D2EFDC",
-    backgroundColor: "#EFFBF3",
+    borderColor: "#EAECE9",
+    overflow: "hidden",
+    shadowColor: "#0F172A",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 5,
   },
-  verifiedText: {
-    color: palette.greenDark,
-    fontFamily: typography.black,
-    fontSize: 7,
-    letterSpacing: 0.5,
+  cardAccent: {
+    height: 4,
+    backgroundColor: "#3ECF4C",
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
   },
-  reviewTitle: {
-    marginTop: 13,
-    color: palette.ink,
-    fontFamily: typography.bold,
-    fontSize: 13,
-  },
-  reviewBody: {
-    marginTop: 7,
-    color: "#555B57",
-    fontFamily: typography.regular,
-    fontSize: 12,
-    lineHeight: 20,
-  },
-  reviewRatingRow: {
-    minHeight: 29,
-    paddingBottom: 10,
+
+  // ── Top Header Row ──
+  reviewHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F1EF",
+    paddingHorizontal: 18,
+    paddingTop: 16,
+  },
+  ratingBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    backgroundColor: "#F7F9F6",
+    borderWidth: 1,
+    borderColor: "#EAECE9",
   },
   reviewRatingValue: {
     color: palette.ink,
     fontFamily: typography.black,
-    fontSize: 10,
+    fontSize: 12,
   },
-  rtlText: { textAlign: "right", writingDirection: "rtl" },
-  reply: {
-    marginTop: 14,
-    padding: 13,
-    borderRadius: 14,
-    backgroundColor: palette.canvas,
-  },
-  replyLabel: {
-    color: palette.green,
-    fontFamily: typography.black,
-    fontSize: 7,
-    letterSpacing: 1,
-  },
-  replyText: {
-    marginTop: 5,
-    color: palette.muted,
-    fontFamily: typography.regular,
-    fontSize: 10,
-    lineHeight: 16,
-  },
-  empty: {
-    paddingHorizontal: 24,
-    paddingVertical: 34,
+  verifiedBadgePill: {
+    flexDirection: "row",
     alignItems: "center",
-    borderRadius: 22,
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    backgroundColor: "#F0FDF4",
     borderWidth: 1,
-    borderStyle: "dashed",
-    borderColor: "#D7D7D7",
+    borderColor: "#DCFCE7",
   },
-  emptyIcon: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+  verifiedBadgeText: {
+    color: "#15803D",
+    fontFamily: typography.bold,
+    fontSize: 10,
+  },
+
+  // ── Review content ──
+  reviewTitle: {
+    marginTop: 10,
+    paddingHorizontal: 18,
+    color: palette.ink,
+    fontFamily: typography.bold,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  reviewBody: {
+    marginTop: 8,
+    paddingHorizontal: 18,
+    color: "#334155",
+    fontFamily: typography.regular,
+    fontSize: 13.5,
+    lineHeight: 21,
+  },
+  arabicBodyBox: {
+    marginHorizontal: 16,
+    marginTop: 8,
+    padding: 12,
+    borderRadius: 16,
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+  },
+  rtlText: { 
+    textAlign: "right", 
+    writingDirection: "rtl", 
+    color: "#0F172A",
+    fontFamily: typography.bold, 
+    fontSize: 14.5, 
+    lineHeight: 24 
+  },
+
+  // ── Divider ──
+  cardDivider: {
+    height: 1,
+    marginTop: 14,
+    marginHorizontal: 18,
+    backgroundColor: "#F1F5F9",
+  },
+
+  // ── Footer (author) ──
+  reviewFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+  },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#EAF8F0",
+    backgroundColor: "#0F172A",
   },
-  emptyTitle: {
-    marginTop: 14,
-    color: palette.ink,
+  avatarText: {
+    color: palette.white,
     fontFamily: typography.black,
-    fontSize: 15,
+    fontSize: 13,
   },
-  emptyText: {
-    maxWidth: 280,
-    marginTop: 6,
-    color: palette.muted,
+  footerCopy: { minWidth: 0, flex: 1, marginLeft: 10 },
+  authorName: {
+    color: palette.ink,
+    fontFamily: typography.bold,
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  reviewDate: {
+    marginTop: 2,
+    color: "#64748B",
+    fontFamily: typography.medium,
+    fontSize: 10.5,
+    lineHeight: 14,
+  },
+  verifiedPill: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#E8F5E9",
+  },
+
+  // ── Review images ──
+  imageScroller: { marginTop: 12, marginHorizontal: 20 },
+  imageRow: { gap: 8 },
+  reviewImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 12,
+    backgroundColor: palette.canvas,
+  },
+  lightboxOverlay: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.92)",
+  },
+  lightboxImage: {
+    width: "90%",
+    height: "70%",
+  },
+  lightboxClose: {
+    position: "absolute",
+    top: 56,
+    right: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.15)",
+  },
+
+  // ── Admin reply ──
+  reply: {
+    marginTop: 0,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: "#F4F7F3",
+  },
+  replyHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: 5,
+  },
+  replyLabel: {
+    color: palette.greenDark,
+    fontFamily: typography.black,
+    fontSize: 7,
+    letterSpacing: 0.8,
+  },
+  replyText: {
+    color: "#5A5F59",
     fontFamily: typography.regular,
-    fontSize: 10,
-    lineHeight: 16,
-    textAlign: "center",
+    fontSize: 11,
+    lineHeight: 17,
   },
 });

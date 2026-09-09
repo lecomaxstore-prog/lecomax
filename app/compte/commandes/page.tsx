@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 
@@ -71,17 +71,18 @@ export default function CommandesPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="account-section flex flex-col gap-6">
 
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-neutral-400 mb-1">Mon compte</p>
-          <h1 className="font-black text-[26px] uppercase tracking-tight">Mes commandes</h1>
+          <p className="text-[12px] font-semibold tracking-normal text-neutral-400 mb-1">Mon compte</p>
+          <h1 className="font-semibold text-[28px] tracking-[-0.035em]">Mes commandes</h1>
+          <p className="mt-2 text-[13px] leading-6 text-neutral-500">Retrouvez vos achats et suivez leur livraison.</p>
         </div>
         <Link
           href="/suivre-commande"
-          className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest border border-neutral-200 px-4 py-2.5 hover:border-black hover:bg-black hover:text-white transition-colors mb-1"
+          className="hidden sm:flex items-center gap-2 text-[12px] font-semibold tracking-normal border border-neutral-200 px-4 py-2.5 hover:border-black hover:bg-black hover:text-white transition-colors mb-1"
         >
           Suivre un colis →
         </Link>
@@ -94,8 +95,9 @@ export default function CommandesPage() {
           return (
             <button
               key={tab}
+              aria-pressed={activeTab === tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest pb-3 px-3 border-b-2 transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-1.5 text-[12px] font-semibold tracking-normal pb-3 px-3 border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === tab
                   ? "border-black text-black"
                   : "border-transparent text-neutral-400 hover:text-black"
@@ -103,7 +105,7 @@ export default function CommandesPage() {
             >
               {tab}
               {!loading && count > 0 && (
-                <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-black rounded-full ${activeTab === tab ? "bg-black text-white" : "bg-neutral-100 text-neutral-500"}`}>
+                <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-semibold rounded-full ${activeTab === tab ? "rounded-xl bg-[#183c30] text-white" : "bg-neutral-100 text-neutral-500"}`}>
                   {count}
                 </span>
               )}
@@ -114,33 +116,33 @@ export default function CommandesPage() {
 
       {/* Orders list */}
       {loading ? (
-        <div className="bg-white border border-neutral-100 px-8 py-16 flex flex-col items-center gap-3">
+        <div className="rounded-2xl bg-white border border-neutral-200/80 px-8 py-16 flex flex-col items-center gap-3">
           <span className="w-6 h-6 border-2 border-neutral-200 border-t-black rounded-full animate-spin" />
-          <p className="text-[11px] font-black uppercase tracking-widest text-neutral-400">Chargement…</p>
+          <p className="text-[12px] font-semibold tracking-normal text-neutral-400">Chargement…</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white border border-neutral-100 px-8 py-20 flex flex-col items-center justify-center text-center">
-          <div className="w-14 h-14 border-2 border-dashed border-neutral-200 flex items-center justify-center mb-5">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-300">
+        <div className="rounded-2xl bg-white border border-neutral-200/80 px-8 py-20 flex flex-col items-center justify-center text-center">
+          <div className="w-14 h-14 rounded-2xl border border-neutral-200 bg-neutral-50 flex items-center justify-center mb-5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-500">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
               <line x1="3" y1="6" x2="21" y2="6" />
               <path d="M16 10a4 4 0 01-8 0" />
             </svg>
           </div>
-          <p className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-300 mb-2">Aucune commande</p>
+          <p className="text-[12px] font-semibold tracking-normal text-neutral-500 mb-2">Aucune commande</p>
           <p className="text-[12px] text-neutral-400 max-w-[240px] leading-relaxed mb-7">
             {activeTab === "Toutes"
               ? "Vous n'avez passé aucune commande pour l'instant."
               : `Aucune commande dans la catégorie « ${activeTab} ».`}
           </p>
           {activeTab === "Toutes" && (
-            <a
+            <Link
               href="/"
-              className="inline-flex items-center gap-2 bg-black text-white font-black text-[11px] uppercase tracking-widest px-6 py-3.5 hover:bg-neutral-800 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#183c30] text-white font-semibold text-[11px] tracking-normal px-6 py-3.5 hover:bg-neutral-800 transition-colors"
             >
               Découvrir la boutique
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-            </a>
+            </Link>
           )}
         </div>
       ) : (
@@ -150,12 +152,12 @@ export default function CommandesPage() {
             const date = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" }).format(new Date(order.created_at));
             const total = `${order.total?.toLocaleString("fr-MA")} DH`;
             return (
-              <div key={order.id} className="bg-white border border-neutral-100 overflow-hidden">
+              <div key={order.id} className="rounded-2xl bg-white border border-neutral-200/80 overflow-hidden">
                 {/* Order header */}
-                <div className="flex items-center justify-between px-5 py-3.5 border-b border-neutral-50 bg-neutral-50/50">
-                  <div className="flex items-center gap-3">
-                    <p className="font-black text-[13px] tracking-wide">{order.order_number}</p>
-                    <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 border ${st.color}`}>{st.label}</span>
+                <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4 border-b border-neutral-100 bg-neutral-50/50">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-semibold text-[13px] tracking-normal">{order.order_number}</p>
+                    <span className={`text-[12px] font-semibold tracking-normal px-2.5 py-1 border ${st.color}`}>{st.label}</span>
                   </div>
                   <p className="text-[11px] text-neutral-400">{date}</p>
                 </div>
@@ -164,26 +166,26 @@ export default function CommandesPage() {
                 <div className="divide-y divide-neutral-50">
                   {order.items.map((item, i) => (
                     <div key={i} className="flex items-center gap-4 px-5 py-3.5">
-                      <div className="w-12 h-12 bg-neutral-100 shrink-0 overflow-hidden">
+                      <div className="w-12 h-12 rounded-xl bg-neutral-100 shrink-0 overflow-hidden">
                         <Image src={item.image || "/images/placeholder.png"} alt={item.name} width={48} height={48} className="object-cover w-full h-full" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-[12px] leading-snug line-clamp-1">{item.name}</p>
                         <p className="text-[11px] text-neutral-400 mt-0.5">Qté : {item.qty}</p>
                       </div>
-                      <p className="font-black text-[13px] shrink-0">{item.price ? `${item.price} DH` : ""}</p>
+                      <p className="font-semibold text-[13px] shrink-0">{item.price ? `${item.price} DH` : ""}</p>
                     </div>
                   ))}
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between px-5 py-3.5 border-t border-neutral-100">
+                <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-t border-neutral-100">
                   <p className="text-[11px] text-neutral-500">
-                    {order.items.length} article{order.items.length > 1 ? "s" : ""} · Total <span className="font-black text-black">{total}</span>
+                    {order.items.length} article{order.items.length > 1 ? "s" : ""} · Total <span className="font-semibold text-black">{total}</span>
                   </p>
                   <Link
                     href={`/suivre-commande?order_number=${order.order_number}`}
-                    className="text-[10px] font-black uppercase tracking-widest border border-neutral-200 px-4 py-2 hover:border-black hover:bg-black hover:text-white transition-colors flex items-center gap-1.5"
+                    className="text-[12px] font-semibold tracking-normal border border-neutral-200 px-4 py-2 hover:border-black hover:bg-black hover:text-white transition-colors flex items-center gap-1.5"
                   >
                     Suivre →
                   </Link>
@@ -195,16 +197,16 @@ export default function CommandesPage() {
       )}
 
       {/* Info strip */}
-      <div className="border border-neutral-100 bg-white px-6 py-5 flex items-start gap-4">
+      <div className="rounded-2xl border border-neutral-200/80 bg-white px-6 py-5 flex items-start gap-4">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-400 shrink-0 mt-0.5">
           <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
         <p className="text-[12px] text-neutral-500 leading-relaxed">
           Les commandes passées avant la création de votre compte ne sont pas affichées ici.
           Pour les retrouver, utilisez votre numéro de commande dans le{" "}
-          <a href="/suivre-commande" className="font-bold text-black underline underline-offset-2 hover:no-underline">
+          <Link href="/suivre-commande" className="font-bold text-black underline underline-offset-2 hover:no-underline">
             suivi de commande
-          </a>.
+          </Link>.
         </p>
       </div>
 

@@ -29,11 +29,12 @@ const tabConfig: Record<
     activeIcon: keyof typeof Ionicons.glyphMap;
   }
 > = {
-  index: { icon: "home-outline", activeIcon: "home-outline" },
+  index: { icon: "home-outline", activeIcon: "home" },
   search: { icon: "search-outline", activeIcon: "search-outline" },
-  wishlist: { icon: "heart-outline", activeIcon: "heart-outline" },
-  cart: { icon: "bag-handle-outline", activeIcon: "bag-handle-outline" },
-  account: { icon: "person-outline", activeIcon: "person-outline" },
+  "smart-assistant": { icon: "sparkles-outline", activeIcon: "sparkles" },
+  wishlist: { icon: "heart-outline", activeIcon: "heart" },
+  cart: { icon: "bag-handle-outline", activeIcon: "bag-handle" },
+  account: { icon: "person-outline", activeIcon: "person" },
 };
 
 type ItemProps = {
@@ -94,16 +95,16 @@ const TabItem = memo(function TabItem({
       pressedScale={reduceMotion ? 1 : 0.98}
       style={[styles.item, tablet && styles.tabletItem]}
     >
-      <Animated.View style={[styles.iconWrap, animatedStyle]}>
-        <Animated.View
+      <Animated.View
           pointerEvents="none"
           style={[styles.activeIconWrap, activeStyle]}
         />
+      <Animated.View style={[styles.iconWrap, animatedStyle]}>
         <View style={styles.iconBadgeAnchor}>
           <Ionicons
             name={focused ? activeIcon : icon}
-            size={23}
-            color={focused ? palette.white : "#69716C"}
+            size={22}
+            color={focused ? "#246B40" : "#7C8780"}
             style={styles.icon}
           />
           {badge && badge > 0 ? (
@@ -144,6 +145,7 @@ export function BottomNavigation({ state, navigation }: BottomTabBarProps) {
   const labels: Record<string, string> = {
     index: t.home,
     search: t.search,
+    "smart-assistant": "Assistant",
     wishlist: t.wishlist,
     cart: t.cart,
     account: t.account,
@@ -164,9 +166,9 @@ export function BottomNavigation({ state, navigation }: BottomTabBarProps) {
               },
             ]
           : {
-              paddingBottom: Math.max(insets.bottom, 8),
-              paddingLeft: 10 + insets.left,
-              paddingRight: 10 + insets.right,
+              marginBottom: Math.max(insets.bottom, 10),
+              marginLeft: 10 + insets.left,
+              marginRight: 10 + insets.right,
             },
       ]}
     >
@@ -218,34 +220,36 @@ export function BottomNavigation({ state, navigation }: BottomTabBarProps) {
 const styles = StyleSheet.create({
   shell: {
     flexShrink: 0,
-    paddingTop: 10,
-    paddingHorizontal: 10,
+    marginTop: 6,
+    paddingVertical: 7,
+    paddingHorizontal: 6,
     flexDirection: "row",
     alignItems: "stretch",
-    borderTopWidth: 1,
-    borderTopColor: "rgba(15, 23, 42, 0.06)",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderWidth: 1,
+    borderColor: "#E5EBE3",
+    borderRadius: 26,
     backgroundColor: palette.white,
-    shadowColor: palette.ink,
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.06,
-    shadowRadius: 14,
-    elevation: 6,
+    shadowColor: "#23452D",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 4,
   },
   item: {
-    maxWidth: "20%",
     flexBasis: 0,
     flexGrow: 1,
     flexShrink: 1,
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 56,
-    paddingTop: 0,
+    minHeight: 62,
+    paddingVertical: 7,
     borderRadius: 18,
   },
   tabletShell: {
     width: 94,
+    marginTop: 0,
+    borderRadius: 0,
+    borderWidth: 0,
     height: "100%",
     paddingHorizontal: 8,
     flexDirection: "column",
@@ -267,22 +271,19 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   iconWrap: {
-    width: 48,
-    height: 34,
+    width: 40,
+    height: 28,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 17,
   },
   activeIconWrap: {
     position: "absolute",
-    inset: 0,
-    borderRadius: 17,
-    backgroundColor: palette.greenDark,
-    shadowColor: palette.greenDark,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.22,
-    shadowRadius: 8,
-    elevation: 2,
+    top: 0,
+    bottom: 0,
+    left: 2,
+    right: 2,
+    borderRadius: 18,
+    backgroundColor: "#EAF3E5",
   },
   icon: {
     width: 26,
@@ -299,38 +300,38 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   label: {
-    marginTop: 5,
-    color: "#69716C",
+    marginTop: 6,
+    color: "#758078",
     fontFamily: typography.medium,
-    fontSize: 11,
-    lineHeight: 15,
+    fontSize: 10,
+    lineHeight: 14,
     letterSpacing: 0,
     textAlign: "center",
     includeFontPadding: false,
   },
   activeLabel: {
-    color: palette.ink,
+    color: "#246B40",
     fontFamily: typography.semibold,
   },
   badge: {
     position: "absolute",
-    top: -6,
+    top: -4,
     left: 19,
-    minWidth: 19,
-    height: 19,
-    paddingHorizontal: 4,
+    minWidth: 17,
+    height: 17,
+    paddingHorizontal: 3,
     borderRadius: 10,
     borderWidth: 2,
     borderColor: palette.white,
-    backgroundColor: palette.red,
+    backgroundColor: "#B85A45",
     alignItems: "center",
     justifyContent: "center",
   },
   badgeText: {
     color: palette.white,
     fontFamily: typography.bold,
-    fontSize: 10,
-    lineHeight: 13,
+    fontSize: 9,
+    lineHeight: 11,
     includeFontPadding: false,
   },
 });

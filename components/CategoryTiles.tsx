@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { categories as fallbackCategories, productsByCategory } from "@/lib/products";
 
@@ -88,7 +88,7 @@ export default function CategoryTiles() {
         <span className="hidden text-[11px] font-bold uppercase tracking-[.2em] text-neutral-400 md:block">{total} articles</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-2.5 md:gap-4">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-7 sm:gap-x-6 sm:gap-y-9 lg:grid-cols-4">
         {categories.map((category, index) => (
           <CategoryTile key={category.id ?? category.slug} category={category} index={index} visible={visible} />
         ))}
@@ -98,21 +98,42 @@ export default function CategoryTiles() {
 }
 
 function CategoryTile({ category, index, visible }: { category: StoreCategory & { count: number }; index: number; visible: boolean }) {
-  const desktop = category.image || fallbackImages[category.slug] || "/images/pages images/homme.png";
-  const mobile = category.image_mobile || desktop;
-  const desktopPosition = category.image_position || "50% 50%";
-  const mobilePosition = category.image_mobile_position || desktopPosition;
+  const collectionImage = ["homme", "femme", "chaussures", "accessoires"].includes(category.slug)
+    ? `/images/collection-${category.slug}-v2.webp`
+    : null;
+  const desktop = collectionImage || category.image || fallbackImages[category.slug] || "/images/pages images/homme.png";
+  const mobile = collectionImage || category.image_mobile || desktop;
+  const desktopPosition = collectionImage ? "50% 50%" : category.image_position || "50% 50%";
+  const mobilePosition = collectionImage ? "50% 50%" : category.image_mobile_position || desktopPosition;
   return (
-    <Link href={`/boutique?cat=${encodeURIComponent(category.slug)}`} className="group relative block aspect-[3/4] overflow-hidden rounded-sm bg-neutral-900 md:aspect-[4/3]" style={{ opacity: visible ? 1 : 0, clipPath: visible ? "inset(0)" : "inset(100% 0 0 0)", transition: `opacity .1s, clip-path .8s cubic-bezier(.76,0,.24,1) ${.08 + index * .1}s` }}>
-      {/* Separate responsive elements allow independent crop positions. */}
-      <img src={mobile} alt={category.label} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04] md:hidden" style={{ objectPosition: mobilePosition }} />
-      <img src={desktop} alt={category.label} className="hidden h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04] md:block" style={{ objectPosition: desktopPosition }} />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
-      <div className="absolute inset-y-0 left-0 w-[3px] origin-bottom scale-y-0 bg-[#3ecf4c] transition-transform duration-500 group-hover:scale-y-100" />
-      <div className="absolute inset-x-0 bottom-0 p-4 text-white md:p-7" style={{ textShadow: "0 1px 9px rgba(0,0,0,.85)" }}>
-        <div className="mb-1 flex items-center gap-2"><p className="text-[8px] font-black uppercase tracking-[.3em] text-white/65 md:text-[9px]">Collection</p>{category.count > 0 && <span className="rounded-full bg-white/15 px-2 py-0.5 text-[8px] font-bold backdrop-blur">{category.count}</span>}</div>
-        <h3 className="h-display text-xl leading-tight md:text-3xl">{category.label}</h3>
-        <span className="mt-3 inline-flex translate-y-2 items-center gap-2 bg-[#3ecf4c] px-3 py-2 text-[9px] font-black uppercase tracking-[.16em] text-black opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100 md:px-4 md:text-[10px]">Explorer <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+    <Link
+      href={`/boutique?cat=${encodeURIComponent(category.slug)}`}
+      className="group block min-w-0 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#183c30] focus-visible:ring-offset-4"
+      style={{ opacity: visible ? 1 : 0, transition: `opacity .6s ease ${index * .08}s` }}
+    >
+      <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-[#f3efe7]">
+        {/* Collection artwork uses a centered crop on both screen sizes. */}
+        <picture>
+          <source media="(min-width: 768px)" srcSet={desktop} />
+          <img
+            src={mobile}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover [object-position:var(--crop-mobile)] transition-transform duration-700 group-hover:scale-[1.035] motion-reduce:transition-none md:[object-position:var(--crop-desktop)]"
+            style={{ "--crop-mobile": mobilePosition, "--crop-desktop": desktopPosition } as CSSProperties}
+          />
+        </picture>
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-black/[0.035]" />
+      </div>
+      <div className="flex items-center justify-between gap-2 border-b border-[#e8e8e1] px-0.5 pb-3 pt-3.5 sm:pb-4 sm:pt-4">
+        <div className="min-w-0">
+          <h3 className="break-words text-[15px] font-medium leading-6 tracking-[-0.02em] text-[#252d27] sm:text-lg">{category.label}</h3>
+          <p className="mt-0.5 text-[10px] leading-5 tracking-[0.025em] text-[#7b8077] sm:text-xs">{category.count} article{category.count !== 1 ? "s" : ""}</p>
+        </div>
+        <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#dde4dc] text-[#183c30] transition-colors duration-200 group-hover:border-[#183c30] group-hover:bg-[#183c30] group-hover:text-white group-focus-visible:bg-[#183c30] group-focus-visible:text-white sm:h-9 sm:w-9">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+        </span>
       </div>
     </Link>
   );

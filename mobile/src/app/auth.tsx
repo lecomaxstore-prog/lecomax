@@ -1,3 +1,5 @@
+import { localizedError } from "@/i18n/errors";
+import { msg, useLocale } from "@/i18n";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -22,14 +24,15 @@ import { AnimatedPressable } from "@/components/animated-pressable";
 import { BrandLogo } from "@/components/brand-logo";
 import { palette, typography } from "@/constants/theme";
 import { supabase } from "@/lib/supabase";
+import { runtimeConfig } from "@/lib/runtime-config";
 
 const schema = z.object({
   firstName: z.string(),
   lastName: z.string(),
-  email: z.email("Saisissez une adresse email valide."),
+  email: z.email({ error: () => msg("auth.enterAValidEmailAddress") }),
   password: z
     .string()
-    .min(8, "Le mot de passe doit contenir au moins 8 caractères."),
+    .min(8, { error: () => msg("auth.yourPasswordMustContainAtLeast8Characters") }),
   confirmPassword: z.string(),
 });
 
@@ -47,6 +50,7 @@ const webInputReset =
     : undefined;
 
 export default function AuthScreen() {
+  useLocale();
   const params = useLocalSearchParams<{
     mode?: "login" | "signup";
     returnTo?: string;
@@ -91,14 +95,14 @@ export default function AuthScreen() {
       ) {
         setFeedback({
           type: "error",
-          message: "Saisissez votre prénom et votre nom.",
+          message: msg("auth.enterYourFirstAndLastName"),
         });
         return;
       }
       if (mode === "signup" && password !== confirmPassword) {
         setFeedback({
           type: "error",
-          message: "Les deux mots de passe ne correspondent pas.",
+          message: msg("auth.thePasswordsDoNotMatch"),
         });
         return;
       }
@@ -126,9 +130,7 @@ export default function AuthScreen() {
         setFeedback({
           type: "error",
           message:
-            result.error.message === "Invalid login credentials"
-              ? "Adresse email ou mot de passe incorrect."
-              : result.error.message,
+            localizedError(result.error),
         });
         return;
       }
@@ -143,7 +145,7 @@ export default function AuthScreen() {
         setFeedback({
           type: "success",
           message:
-            "Compte créé. Vérifiez votre boîte email si une confirmation est demandée.",
+            msg("auth.accountCreatedCheckYourInboxIfConfirmationIsRequired"),
         });
         return;
       }
@@ -153,25 +155,32 @@ export default function AuthScreen() {
   );
 
   const resetPassword = async () => {
+    if (resetting) return;
     const email = getValues("email").trim().toLowerCase();
     if (!z.email().safeParse(email).success) {
       setFeedback({
         type: "error",
-        message: "Saisissez d’abord votre adresse email.",
+        message: msg("auth.enterYourEmailAddressFirst"),
       });
       return;
     }
 
     setResetting(true);
     setFeedback(undefined);
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    setResetting(false);
+    try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${runtimeConfig.apiUrl}/mot-de-passe`,
+    });
     setFeedback({
       type: error ? "error" : "success",
       message:
-        error?.message ||
-        `Un email de réinitialisation a été envoyé à ${email}.`,
+        error ? localizedError(error) : msg("auth.resetEmailSent", { email }),
     });
+    } catch {
+      setFeedback({ type: "error", message: msg("auth.checkYourConnectionAndTryAgain") });
+    } finally {
+      setResetting(false);
+    }
   };
 
   const switchMode = () => {
@@ -187,7 +196,7 @@ export default function AuthScreen() {
     >
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 10) }]}>
         <AnimatedPressable
-          accessibilityLabel="Retour"
+          accessibilityLabel={msg("addresses.back")}
           onPress={() => router.back()}
           style={styles.closeButton}
         >
@@ -196,7 +205,7 @@ export default function AuthScreen() {
         <BrandLogo header />
         <View
           accessible
-          accessibilityLabel="Connexion sécurisée"
+          accessibilityLabel={msg("auth.secureSignIn")}
           style={styles.headerSecurity}
         >
           <Ionicons
@@ -217,12 +226,12 @@ export default function AuthScreen() {
       >
         <Animated.View entering={FadeIn.duration(320)} style={styles.intro}>
           <Text style={styles.title}>
-            {mode === "login" ? "Bon retour parmi nous." : "Bienvenue chez L’ecomax."}
+            {mode === "login" ? msg("auth.welcomeBack") : msg("auth.welcomeToLEcomax")}
           </Text>
           <Text style={styles.subtitle}>
             {mode === "login"
-              ? "Connectez-vous pour retrouver votre compte."
-              : "Créez votre compte en quelques instants."}
+              ? msg("auth.signInToAccessYourAccount")
+              : msg("auth.createYourAccountInJustAFewMoments")}
           </Text>
         </Animated.View>
 
@@ -230,7 +239,7 @@ export default function AuthScreen() {
           entering={FadeInDown.delay(100).duration(380)}
           style={styles.form}
         >
-          <Text style={styles.formTitle}>{mode === "login" ? "Connexion" : "Créer un compte"}</Text>
+          <Text style={styles.formTitle}>{mode === "login" ? msg("auth.signIn") : msg("auth.createAnAccount")}</Text>
           {feedback ? (
             <View
               style={[
@@ -271,7 +280,7 @@ export default function AuthScreen() {
                 name="firstName"
                 render={({ field: { value, onChange, onBlur } }) => (
                   <View style={styles.nameField}>
-                    <Text style={styles.fieldLabel}>PRÉNOM</Text>
+                    <Text style={styles.fieldLabel}>{msg("auth.firstNameUppercase")}</Text>
                     <View
                       style={[
                         styles.inputShell,
@@ -280,7 +289,7 @@ export default function AuthScreen() {
                       ]}
                     >
                       <TextInput
-                        accessibilityLabel="Prénom"
+                        accessibilityLabel={msg("auth.firstName")}
                         value={value}
                         onChangeText={onChange}
                         onFocus={() => setFocusedField("firstName")}
@@ -288,7 +297,7 @@ export default function AuthScreen() {
                           setFocusedField(undefined);
                           onBlur();
                         }}
-                        placeholder="Prénom"
+                        placeholder={msg("auth.firstName")}
                         placeholderTextColor="#A1A5A2"
                         autoCapitalize="words"
                         autoComplete="given-name"
@@ -305,7 +314,7 @@ export default function AuthScreen() {
                 name="lastName"
                 render={({ field: { value, onChange, onBlur } }) => (
                   <View style={styles.nameField}>
-                    <Text style={styles.fieldLabel}>NOM</Text>
+                    <Text style={styles.fieldLabel}>{msg("auth.lastNameUppercase")}</Text>
                     <View
                       style={[
                         styles.inputShell,
@@ -313,7 +322,7 @@ export default function AuthScreen() {
                       ]}
                     >
                       <TextInput
-                        accessibilityLabel="Nom"
+                        accessibilityLabel={msg("auth.lastName")}
                         value={value}
                         onChangeText={onChange}
                         onFocus={() => setFocusedField("lastName")}
@@ -321,7 +330,7 @@ export default function AuthScreen() {
                           setFocusedField(undefined);
                           onBlur();
                         }}
-                        placeholder="Nom"
+                        placeholder={msg("auth.lastName")}
                         placeholderTextColor="#A1A5A2"
                         autoCapitalize="words"
                         autoComplete="family-name"
@@ -341,7 +350,7 @@ export default function AuthScreen() {
             name="email"
             render={({ field: { value, onChange, onBlur } }) => (
               <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>ADRESSE EMAIL</Text>
+                <Text style={styles.fieldLabel}>{msg("auth.emailAddressUppercase")}</Text>
                 <View
                   style={[
                     styles.inputShell,
@@ -362,7 +371,7 @@ export default function AuthScreen() {
                     />
                   </View>
                   <TextInput
-                    accessibilityLabel="Adresse e-mail"
+                    accessibilityLabel={msg("auth.emailAddress")}
                     value={value}
                     onChangeText={onChange}
                     onFocus={() => setFocusedField("email")}
@@ -370,7 +379,7 @@ export default function AuthScreen() {
                       setFocusedField(undefined);
                       onBlur();
                     }}
-                    placeholder="vous@exemple.com"
+                    placeholder={msg("common.emailExample")}
                     placeholderTextColor="#A1A5A2"
                     autoCapitalize="none"
                     autoComplete="email"
@@ -400,16 +409,16 @@ export default function AuthScreen() {
             render={({ field: { value, onChange, onBlur } }) => (
               <View style={styles.fieldGroup}>
                 <View style={styles.passwordLabelRow}>
-                  <Text style={styles.fieldLabel}>MOT DE PASSE</Text>
+                  <Text style={styles.fieldLabel}>{msg("auth.passwordUppercase")}</Text>
                   {mode === "login" ? (
                     <Pressable
-                      accessibilityLabel="Mot de passe oublié"
+                      accessibilityLabel={msg("auth.forgotPassword")}
                       disabled={resetting}
                       onPress={() => void resetPassword()}
                       hitSlop={8}
                     >
                       <Text style={styles.forgotText}>
-                        {resetting ? "Envoi…" : "Mot de passe oublié ?"}
+                        {resetting ? "Envoi…" : msg("auth.forgotPasswordText")}
                       </Text>
                     </Pressable>
                   ) : null}
@@ -436,7 +445,7 @@ export default function AuthScreen() {
                     />
                   </View>
                   <TextInput
-                    accessibilityLabel="Mot de passe"
+                    accessibilityLabel={msg("auth.password")}
                     value={value}
                     onChangeText={onChange}
                     onFocus={() => setFocusedField("password")}
@@ -447,7 +456,7 @@ export default function AuthScreen() {
                     onSubmitEditing={
                       mode === "login" ? () => void submit() : undefined
                     }
-                    placeholder={mode === "login" ? "Votre mot de passe" : "8 caractères minimum"}
+                    placeholder={mode === "login" ? msg("auth.yourPassword") : msg("auth.atLeast8Characters")}
                     placeholderTextColor="#A1A5A2"
                     autoCapitalize="none"
                     autoComplete={
@@ -461,8 +470,8 @@ export default function AuthScreen() {
                   <Pressable
                     accessibilityLabel={
                       showPassword
-                        ? "Masquer le mot de passe"
-                        : "Afficher le mot de passe"
+                        ? msg("auth.hidePassword")
+                        : msg("auth.showPassword")
                     }
                     onPress={() => setShowPassword((visible) => !visible)}
                     hitSlop={8}
@@ -493,8 +502,7 @@ export default function AuthScreen() {
                 return (
                   <View style={styles.fieldGroup}>
                     <Text style={styles.fieldLabel}>
-                      CONFIRMER LE MOT DE PASSE
-                    </Text>
+                      {msg("auth.confirmPasswordUppercase")}</Text>
                     <View
                       style={[
                         styles.inputShell,
@@ -516,7 +524,7 @@ export default function AuthScreen() {
                         />
                       </View>
                       <TextInput
-                        accessibilityLabel="Confirmer le mot de passe"
+                        accessibilityLabel={msg("auth.confirmPassword")}
                         value={value}
                         onChangeText={onChange}
                         onFocus={() => setFocusedField("confirmPassword")}
@@ -525,7 +533,7 @@ export default function AuthScreen() {
                           onBlur();
                         }}
                         onSubmitEditing={() => void submit()}
-                        placeholder="Confirmez votre mot de passe"
+                        placeholder={msg("auth.confirmYourPassword")}
                         placeholderTextColor="#A1A5A2"
                         autoCapitalize="none"
                         autoComplete="new-password"
@@ -550,7 +558,7 @@ export default function AuthScreen() {
 
           <AnimatedPressable
             accessibilityLabel={
-              mode === "login" ? "Se connecter" : "Créer mon compte"
+              mode === "login" ? msg("auth.signInText") : msg("auth.createMyAccount")
             }
             disabled={isSubmitting}
             onPress={() => void submit()}
@@ -572,7 +580,7 @@ export default function AuthScreen() {
                     mode === "signup" && styles.submitButtonTextSignup,
                   ]}
                 >
-                  {mode === "login" ? "Se connecter" : "Créer mon compte"}
+                  {mode === "login" ? msg("auth.signInText") : msg("auth.createMyAccount")}
                 </Text>
                 {mode === "signup" ? (
                   <View style={styles.signupArrow}>
@@ -603,44 +611,41 @@ export default function AuthScreen() {
             </View>
             <View style={styles.reassuranceCopy}>
               <Text style={styles.reassuranceTitle}>
-                Vos données sont protégées
-              </Text>
+                {msg("auth.yourDataIsProtected")}</Text>
               <Text style={styles.reassuranceText}>
-                Connexion sécurisée et informations chiffrées
-              </Text>
+                {msg("auth.secureSignInAndEncryptedInformation")}</Text>
             </View>
           </View>
 
           {mode === "signup" ? (
             <Text style={styles.termsText}>
-              En créant un compte, vous acceptez nos{" "}
-              <Text style={styles.termsLink}>Conditions d’utilisation</Text> et
-              notre{" "}
-              <Text style={styles.termsLink}>Politique de confidentialité</Text>
+              {msg("auth.byCreatingAnAccountYouAgreeToOur")}{" "}
+              <Text style={styles.termsLink}>{msg("auth.termsOfUse")}</Text> {msg("auth.andOur")}{" "}
+              <Text style={styles.termsLink}>{msg("auth.privacyPolicy")}</Text>
               .
             </Text>
           ) : null}
 
           <View style={styles.dividerRow}>
             <View style={styles.divider} />
-            <Text style={styles.dividerText}>OU</Text>
+            <Text style={styles.dividerText}>{msg("common.orUppercase")}</Text>
             <View style={styles.divider} />
           </View>
 
           <AnimatedPressable
             accessibilityLabel={
-              mode === "login" ? "Créer un compte" : "Se connecter"
+              mode === "login" ? msg("auth.createAnAccount") : msg("auth.signInText")
             }
             onPress={switchMode}
             style={styles.alternateButton}
           >
             <View style={styles.alternateCopy}><Text style={styles.alternatePrefix}>
               {mode === "login"
-                ? "Nouveau chez L’ecomax ?"
-                : "Déjà un compte ?"}
+                ? msg("auth.newToLEcomax")
+                : msg("auth.alreadyHaveAnAccount")}
             </Text>
             <Text style={styles.alternateLabel}>
-              {mode === "login" ? "Créer un compte" : "Se connecter"}
+              {mode === "login" ? msg("auth.createAnAccount") : msg("auth.signInText")}
             </Text></View>
             <Ionicons
               name="arrow-forward"

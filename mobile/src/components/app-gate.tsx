@@ -1,3 +1,4 @@
+import { msg, useLocale } from "@/i18n";
 import Constants from "expo-constants";
 import * as Linking from "expo-linking";
 import { PropsWithChildren } from "react";
@@ -23,6 +24,7 @@ function isOlder(current: string, minimum: string) {
 }
 
 export function AppGate({ children }: PropsWithChildren) {
+  useLocale();
   const settingsQuery = useSettings();
   const settings = Object.fromEntries(
     (settingsQuery.data ?? []).map((item) => [
@@ -40,12 +42,11 @@ export function AppGate({ children }: PropsWithChildren) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator
-          accessibilityLabel="Initialisation de L’ECOMAX"
+          accessibilityLabel={msg("appGate.initializingLEcomax")}
           color="#11843A"
         />
         <Text className="mt-4 font-semibold text-neutral-600">
-          Initialisation de L’ECOMAX…
-        </Text>
+          {msg("appGate.initializingLEcomaxText")}</Text>
       </View>
     );
   }
@@ -59,20 +60,17 @@ export function AppGate({ children }: PropsWithChildren) {
           accessibilityRole="header"
           className="mt-6 text-center text-3xl font-black text-white"
         >
-          Maintenance en cours
-        </Text>
+          {msg("appGate.maintenanceInProgress")}</Text>
         <Text className="mt-3 text-center leading-6 text-white/65">
-          Nous améliorons l’application. Votre panier reste enregistré sur cet
-          appareil.
-        </Text>
+          {msg("appGate.weAreImprovingTheAppYourCartRemainsSavedOnThisDevice")}</Text>
         <Pressable
-          accessibilityLabel="Réessayer"
+          accessibilityLabel={msg("support.tryAgain")}
           disabled={settingsQuery.isRefetching}
           onPress={() => void settingsQuery.refetch()}
           className="mt-7 min-h-12 justify-center rounded-xl bg-[#32CD57] px-7 disabled:opacity-40"
         >
           <Text className="font-black text-[#111111]">
-            {settingsQuery.isRefetching ? "CHARGEMENT…" : "RÉESSAYER"}
+            {settingsQuery.isRefetching ? msg("common.loadingUppercase") : msg("notifications.tryAgainUppercase")}
           </Text>
         </Pressable>
       </View>
@@ -85,19 +83,16 @@ export function AppGate({ children }: PropsWithChildren) {
           accessibilityRole="header"
           className="text-center text-3xl font-black text-[#111111]"
         >
-          Mise à jour requise
-        </Text>
+          {msg("appGate.updateRequired")}</Text>
         <Text className="mt-3 text-center leading-6 text-[#5E625F]">
-          Installez la dernière version de L’ECOMAX pour continuer en toute
-          sécurité.
-        </Text>
+          {msg("appGate.installTheLatestVersionOfLEcomaxToContinueSecurely")}</Text>
         <Pressable
-          accessibilityLabel="Mettre à jour l’application"
+          accessibilityLabel={msg("appGate.updateApp")}
           disabled={!settings.app_store_url}
           onPress={() => void Linking.openURL(settings.app_store_url)}
           className="mt-7 min-h-12 justify-center rounded-xl bg-[#32CD57] px-7 disabled:opacity-40"
         >
-          <Text className="font-black text-[#111111]">METTRE À JOUR</Text>
+          <Text className="font-black text-[#111111]">{msg("appGate.updateUppercase")}</Text>
         </Pressable>
       </View>
     );

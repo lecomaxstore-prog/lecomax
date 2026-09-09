@@ -4,7 +4,7 @@ import { withShippingMetadata } from "@/lib/shipping-config-server";
 const baseMetadata: Metadata = {
   title: "Boutique | L'ecomax — Chaussures, Vêtements & Accessoires Maroc",
   description:
-    "Chaussures, mode homme et femme, écouteurs, enceintes et accessoires gaming. Livraison 35 MAD partout au Maroc et paiement à la livraison.",
+    "Chaussures, mode homme et femme, écouteurs, enceintes et accessoires gaming. Livraison {{shipping}} partout au Maroc et paiement à la livraison.",
   keywords: [
     "boutique en ligne Maroc",
     "chaussures Maroc",
@@ -20,7 +20,7 @@ const baseMetadata: Metadata = {
     url: "https://lecomax.com/boutique/",
     title: "Boutique | L'ecomax — Chaussures, Vêtements & Accessoires Maroc",
     description:
-      "Explorez toute la boutique L'ecomax : chaussures, vêtements, écouteurs et gaming. Livraison 35 MAD au Maroc.",
+      "Explorez toute la boutique L'ecomax : chaussures, vêtements, écouteurs et gaming. Livraison {{shipping}} au Maroc.",
     images: [
       {
         url: "https://lecomax.com/ecomax-hero-banner.jpg.png",

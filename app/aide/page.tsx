@@ -63,7 +63,7 @@ const faqGroups = [
     id: "livraison",
     label: "Livraison",
     faqs: [
-      { q: "Quels sont les délais de livraison ?", a: "La livraison standard prend généralement 2 à 5 jours ouvrables partout au Maroc. Les frais de livraison sont de 35 MAD (offerts dès 500 MAD d'achats)." },
+      { q: "Quels sont les délais de livraison ?", a: "Les frais et le délai estimé sont indiqués lors de la commande. Consultez ces informations avant de valider votre achat." },
       { q: "Livrez-vous à Sidi Bennour ?", a: "Oui, nous livrons dans toute la province de Doukkala-Abda y compris Sidi Bennour, El Jadida et les communes avoisinantes. Vous pouvez aussi passer en boutique." },
       { q: "Puis-je changer l'adresse de livraison ?", a: "Oui, vous pouvez modifier l'adresse de livraison avant l'expédition de votre commande. Contactez notre support dès que possible." },
     ],
@@ -167,7 +167,7 @@ export default function AidePage() {
           </h1>
 
           <p className="text-white/45 text-base max-w-md leading-relaxed mb-10">
-            Notre centre d&apos;aide couvre toutes vos questions — commandes, livraison, retours et plus encore. Notre équipe est disponible 7j/7.
+            Notre centre d&apos;aide couvre toutes vos questions — commandes, livraison, retours et plus encore. Contactez notre service client.
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -296,7 +296,7 @@ export default function AidePage() {
               Vous n&apos;avez pas trouvé<br />votre réponse ?
             </h2>
             <p className="text-white/40 text-sm max-w-sm leading-relaxed">
-              Notre équipe répond en moins de 2h. Choisissez votre canal préféré.
+              Contactez notre équipe par le canal de votre choix.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">

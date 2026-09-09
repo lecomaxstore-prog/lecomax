@@ -1,3 +1,4 @@
+import { msg } from "@/i18n";
 import { ApiError, apiRequest, apiRequestValidated } from "@/lib/api-client";
 import { supabase } from "@/lib/supabase";
 import catalogSnapshot from "@/data/catalog.snapshot.json";
@@ -23,6 +24,9 @@ const productResponseSchema = z
     original_price: z.number().finite().nonnegative().nullable(),
     description: z.string().nullable(),
     images: z.array(z.string()),
+    preorder_enabled: z.boolean().optional(),
+    preorder_estimated_at: nullableText,
+    preorder_message: nullableText,
     stock: z.number().finite().nonnegative(),
     active: z.boolean(),
     created_at: z.string().min(1),
@@ -170,11 +174,11 @@ function fallbackUnlessAborted<T>(promise: Promise<T>, fallback: () => T) {
 
 export async function getProducts(signal?: AbortSignal): Promise<Product[]> {
   const [data, reviewStats] = await Promise.all([
-    fallbackUnlessAborted(apiRequestValidated(
+    apiRequestValidated(
       "/api/products?active=true",
       z.array(productResponseSchema),
       { signal },
-    ), () => z.array(productResponseSchema).parse(catalogSnapshot.products)),
+    ),
     fallbackUnlessAborted(apiRequest<Record<string, { rating: number; count: number }>>(
       "/api/reviews/stats",
       { signal },
@@ -252,11 +256,11 @@ export async function getPromotions(signal?: AbortSignal): Promise<Promotion[]> 
 }
 
 export async function getSettings(signal?: AbortSignal): Promise<Setting[]> {
-  const data = await fallbackUnlessAborted(apiRequestValidated(
+  const data = await apiRequestValidated(
     "/api/settings",
     z.array(settingResponseSchema),
     { signal },
-  ), () => z.array(settingResponseSchema).parse(catalogSnapshot.settings));
+  );
   return Array.isArray(data) ? data.filter((setting) => setting?.key) : [];
 }
 
@@ -330,7 +334,7 @@ export async function getBanners(signal?: AbortSignal): Promise<Banner[]> {
       description: banner.subtitle || "",
       image: banner.image_mobile || banner.image_desktop || "",
       href: mobileBannerHref(banner.button_href),
-      ctaLabel: banner.button_label || "DÉCOUVRIR",
+      ctaLabel: banner.button_label || msg("campaignHero.discoverUppercase"),
       accent: "#32CD57",
     }));
 }
@@ -385,7 +389,7 @@ export async function submitVerifiedReview(input: {
   color?: string;
 }) {
   const headers = await authenticatedHeaders();
-  if (!headers) throw new Error("Connectez-vous pour laisser un avis.");
+  if (!headers) throw new Error(msg("catalog.signInToLeaveAReview"));
   return apiRequest<{ success: true; verified_purchase: true }>(
     "/api/reviews",
     {

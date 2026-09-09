@@ -1,3 +1,5 @@
+import { localizedContent } from "@/i18n/content";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
@@ -17,7 +19,7 @@ const colors = {
 };
 
 function categoryIcon(category: Category): keyof typeof Ionicons.glyphMap {
-  const value = `${category.slug} ${category.label}`.toLowerCase();
+  const value = `${category.slug} ${localizedContent(category.label)}`.toLowerCase();
   if (/chauss|shoe|basket/.test(value)) return "footsteps-outline";
   if (/vêtement|vetement|mode|shirt|homme|femme/.test(value)) return "shirt-outline";
   if (/électron|electron|tech|audio|montre/.test(value)) return "headset-outline";
@@ -34,11 +36,12 @@ export const CategoryShortcuts = memo(function CategoryShortcuts({
 }: {
   categories: Category[];
 }) {
+  useLocale();
   if (!categories.length) {
     return (
       <View style={styles.empty}>
         <Ionicons name="grid-outline" size={20} color={colors.textSecondary} />
-        <Text style={styles.emptyText}>Les catégories seront bientôt disponibles.</Text>
+        <Text style={styles.emptyText}>{msg("categoryShortcuts.categoriesWillBeAvailableSoon")}</Text>
       </View>
     );
   }
@@ -52,7 +55,7 @@ export const CategoryShortcuts = memo(function CategoryShortcuts({
           <AnimatedPressable
             key={category.id}
             accessibilityRole="button"
-            accessibilityLabel={`Voir la catégorie ${category.label}`}
+            accessibilityLabel={msg("categories.viewNamed", { name: localizedContent(category.label) })}
             onPress={() => router.push({ pathname: "/catalog", params: { category: category.slug } })}
             pressedScale={0.97}
             style={styles.tile}
@@ -60,7 +63,7 @@ export const CategoryShortcuts = memo(function CategoryShortcuts({
             <View style={styles.imageWrap}>
               {image ? (
                 <Image
-                  accessibilityLabel={`Collection ${category.label}`}
+                  accessibilityLabel={msg("categories.collectionNamed", { name: localizedContent(category.label) })}
                   cachePolicy="memory-disk"
                   contentFit="cover"
                   contentPosition="top center"
@@ -73,7 +76,7 @@ export const CategoryShortcuts = memo(function CategoryShortcuts({
               )}
             </View>
             <Text maxFontSizeMultiplier={1.15} numberOfLines={1} style={styles.label}>
-              {category.label}
+              {localizedContent(category.label)}
             </Text>
           </AnimatedPressable>
         );

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkChatSession } from "@/lib/chat-session-server";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,13 +16,15 @@ export async function POST(req: Request) {
 
   const { data: session, error: sessionError } = await supabase
     .from("chat_sessions")
-    .select("id, status")
+    .select("*")
     .eq("id", session_id)
     .single();
 
   if (sessionError || !session) {
     return NextResponse.json({ error: "Conversation introuvable" }, { status: 404 });
   }
+  const lifecycle = await checkChatSession(supabase, session);
+  if (lifecycle.status === "resolved") return NextResponse.json({ error: "Conversation terminée" }, { status: 409 });
 
   // Joining is idempotent while a conversation is already actively handled.
   // This prevents duplicate system messages when the button is tapped twice.
@@ -58,7 +61,7 @@ export async function POST(req: Request) {
   const { error: updateError } = await supabase
     .from("chat_sessions")
     .update({ status: "escalated", last_at: now })
-    .eq("id", session_id);
+    .eq("id", session_id).neq("status", "resolved");
 
   if (updateError) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });

@@ -1,4 +1,5 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -85,7 +86,7 @@ function ProductDetail({ payload }: { payload: Record<string, unknown> }) {
           <div className="flex gap-2 flex-wrap">
             {images.map((src, i) => (
               <img key={i} src={src} alt={`img-${i}`}
-                className="w-20 h-20 rounded-2xl object-cover border border-neutral-100" />
+                className="w-20 h-20 rounded-2xl object-cover border border-neutral-100" loading="lazy" decoding="async" />
             ))}
           </div>
         </div>
@@ -396,9 +397,7 @@ export default function ApprovalsPage() {
 
       {/* Content */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
-        </div>
+        <AdminLoading />
       ) : changes.length === 0 ? (
         <div className="bg-white rounded-3xl border border-neutral-100 p-16 text-center">
           <div className="text-5xl mb-4">
@@ -507,7 +506,7 @@ export default function ApprovalsPage() {
                         <img
                           src={change.preview_image}
                           alt="preview"
-                          className="w-16 h-16 rounded-xl object-cover border border-neutral-100"
+                          className="w-16 h-16 rounded-xl object-cover border border-neutral-100" loading="lazy" decoding="async"
                         />
                       </div>
                     )}
@@ -740,7 +739,7 @@ export default function ApprovalsPage() {
 
       {/* Rejection modal */}
       {rejectTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div className="admin-dialog-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-2xl bg-red-100 flex items-center justify-center">

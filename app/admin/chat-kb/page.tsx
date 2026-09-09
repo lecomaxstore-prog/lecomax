@@ -1,4 +1,5 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useState } from "react";
 
 type Lang = "all" | "fr" | "ar" | "en";
@@ -174,7 +175,7 @@ export default function ChatKbPage() {
 
       {/* Form modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4">
+        <div className="admin-dialog-overlay fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
               <h2 className="font-black text-[16px]">{editId ? "Modifier la réponse" : "Nouvelle réponse"}</h2>
@@ -269,10 +270,7 @@ export default function ChatKbPage() {
 
       {/* List */}
       {loading ? (
-        <div className="flex items-center gap-3 py-12 text-neutral-400">
-          <div className="w-5 h-5 border-2 border-neutral-200 border-t-black rounded-full animate-spin" />
-          Chargement…
-        </div>
+        <AdminLoading />
       ) : filtered.length === 0 ? (
         <div className="bg-white border border-neutral-100 rounded-2xl p-12 text-center">
           <p className="text-4xl mb-3">🤖</p>

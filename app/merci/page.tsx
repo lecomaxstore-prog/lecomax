@@ -1,4 +1,6 @@
 "use client";
+import PreorderNotice from "@/components/PreorderNotice";
+import { preorderCopy } from "@/lib/preorder-copy";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
@@ -392,7 +394,7 @@ export default function MerciPage() {
                       <span className="absolute -right-1.5 -top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-neutral-950 px-1 text-[9px] font-black text-white shadow-[0_5px_12px_rgba(0,0,0,.24)]" aria-label={`Quantité ${item.quantity}`}>×{item.quantity}</span>
                     </div>
                     <div className="min-w-0 self-center">
-                      <p className="line-clamp-2 text-[13px] font-black leading-[1.35] tracking-[-0.018em] text-neutral-950 sm:text-[14px]">{item.name}</p>
+                      <p className="line-clamp-2 text-[13px] font-black leading-[1.35] tracking-[-0.018em] text-neutral-950 sm:text-[14px]">{item.name}</p><PreorderNotice item={item} />
                       <div className="mt-2 flex flex-wrap gap-1.5 text-[9px] font-bold">
                         {item.size && (
                           <span className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2 py-1 text-neutral-600">
@@ -448,9 +450,9 @@ export default function MerciPage() {
                 </div>
                 <div className="relative z-10 min-w-0 flex-1">
                   <p className="text-[9px] font-black uppercase tracking-[0.17em] text-emerald-600">Livraison estimée</p>
-                  <p className="mt-1 capitalize text-[17px] font-black tracking-[-0.02em]">{deliveryDate}</p>
+                  <p className="mt-1 capitalize text-[17px] font-black tracking-[-0.02em]">{order.items.some(item => item.fulfillment_type === "PREORDER") ? preorderCopy.fr.delivery : deliveryDate}</p>
                 </div>
-                <span className="journey-badge relative z-10 shrink-0 rounded-full border border-emerald-100 bg-white px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-emerald-700 shadow-sm">{shippingConfig.estimatedDays}</span>
+                <span className="journey-badge relative z-10 shrink-0 rounded-full border border-emerald-100 bg-white px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-emerald-700 shadow-sm">{order.items.some(item => item.fulfillment_type === "PREORDER") ? preorderCopy.fr.badge : shippingConfig.estimatedDays}</span>
               </div>
 
               <div className="px-5 py-6 sm:px-6">

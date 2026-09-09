@@ -357,7 +357,7 @@ function PhotoEditor() {
                 filter: filterStr,
                 transform: `rotate(${rotation}deg) scaleX(${flipH ? -1 : 1}) scaleY(${flipV ? -1 : 1})`,
                 transformOrigin: "center center",
-              }}
+              }} loading="lazy" decoding="async"
             />
             {/* Text layers */}
             {layers.map(layer => (
@@ -447,7 +447,7 @@ function PhotoEditor() {
                   <input
                     type="number" min={8} max={180} value={selectedLayer.fontSize}
                     onChange={e => updateLayer({ fontSize: parseInt(e.target.value) || 28 })}
-                    className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black"
+                    className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black" inputMode="decimal"
                   />
                 </div>
                 <div>

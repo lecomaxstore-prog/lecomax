@@ -1,4 +1,5 @@
 "use client";
+import ResponsiveTable from "@/components/admin/ResponsiveTable";
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -24,7 +25,8 @@ type Campaign = {
 };
 type CampaignResponse = {
   campaigns: Campaign[];
-  subscribers: { total: number; android: number; ios: number };
+  subscribers: { total: number; android: number; ios: number; web?: number };
+  deliveryHealth?: { confirmed: number; pending: number; failed: number; uncertain: number; available: boolean };
 };
 
 const toggleControls = [
@@ -178,7 +180,7 @@ export default function MobileApplicationPage() {
       setNotice({
         type: "ok",
         text: action === "send"
-          ? `Campagne envoyée : ${payload.result?.delivered ?? 0} remise(s), ${payload.result?.failed ?? 0} échec(s).`
+          ? `Campagne traitée : ${payload.result?.delivered ?? 0} acceptée(s) par le service push, ${payload.result?.failed ?? 0} échec(s).`
           : action === "schedule" ? "Campagne programmée." : "Brouillon enregistré.",
       });
       setForm((current) => ({ ...current, title: "", body: "", imageUrl: "", scheduledAt: "" }));
@@ -232,7 +234,8 @@ export default function MobileApplicationPage() {
           ["Android", campaignData.subscribers.android],
           ["iOS", campaignData.subscribers.ios],
           ["Campagnes envoyées", sentCampaigns.length],
-          ["Messages remis", totalDelivered],
+          ["Messages acceptés", totalDelivered],
+          ["Navigateurs", campaignData.subscribers.web ?? 0],
         ].map(([label, value]) => (
           <article key={String(label)} className="border border-neutral-200 bg-white p-5">
             <p className="text-[10px] font-black uppercase tracking-[.14em] text-neutral-400">{label}</p>
@@ -240,6 +243,12 @@ export default function MobileApplicationPage() {
           </article>
         ))}
       </section>
+
+      {campaignData.deliveryHealth ? <div className="rounded-xl border border-neutral-200 bg-white p-4 text-sm text-neutral-600">
+        {campaignData.deliveryHealth.available
+          ? `Reçus natifs : ${campaignData.deliveryHealth.confirmed} confirmé(s) par Apple/Google · ${campaignData.deliveryHealth.pending} en attente · ${campaignData.deliveryHealth.failed} en erreur · ${campaignData.deliveryHealth.uncertain} envoi(s) à vérifier. Une acceptation push ne garantit pas l’affichage sur le téléphone.`
+          : "Suivi des notifications indisponible : appliquez la migration de notifications avant d’envoyer une campagne."}
+      </div> : null}
 
       <div className="grid gap-6 2xl:grid-cols-[1.08fr_.92fr]">
         <section className="border border-neutral-200 bg-white p-5 sm:p-6">
@@ -257,7 +266,7 @@ export default function MobileApplicationPage() {
             <label className="text-xs font-black">Lien dans l’application<select value={form.deepLink} onChange={(event) => setForm({ ...form, deepLink: event.target.value })} className="mt-2 min-h-12 w-full border border-neutral-300 px-3 text-sm"><option value="/catalog">Catalogue</option><option value="/wishlist">Favoris</option><option value="/cart">Panier</option><option value="/orders">Commandes</option><option value="/notifications">Notifications</option><option value="/account">Compte</option><option value="/">Accueil</option></select></label>
             {form.audience === "users" && <label className="sm:col-span-2 text-xs font-black">Identifiants clients Supabase<textarea value={form.audienceUserIds} onChange={(event) => setForm({ ...form, audienceUserIds: event.target.value })} placeholder="UUID séparés par une virgule ou une nouvelle ligne" rows={3} className="mt-2 w-full border border-neutral-300 p-3 font-mono text-xs" /></label>}
             <label className="sm:col-span-2 text-xs font-black">Type de notification<select value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value as NotificationCategory })} className="mt-2 min-h-12 w-full border border-neutral-300 px-3 text-sm"><option value="general">Actualités et recommandations</option><option value="promotions">Promotions et offres</option><option value="new_products">Nouveaux produits</option><option value="loyalty">Club et fidélité</option><option value="price_drops">Baisses de prix</option><option value="back_in_stock">Retours en stock</option><option value="service">Service essentiel</option></select><span className="mt-2 block text-[11px] font-medium text-neutral-500">Les préférences de chaque client sont automatiquement respectées. « Service essentiel » est réservé aux informations de compte ou de commande.</span></label>
-            <label className="sm:col-span-2 text-xs font-black">Image enrichie HTTPS (optionnel)<input type="url" value={form.imageUrl} onChange={(event) => setForm({ ...form, imageUrl: event.target.value })} placeholder="https://…/campagne.webp" className="mt-2 min-h-12 w-full border border-neutral-300 px-4 text-sm" /></label>
+            <label className="sm:col-span-2 text-xs font-black">Image enrichie HTTPS (optionnel)<input type="url" value={form.imageUrl} onChange={(event) => setForm({ ...form, imageUrl: event.target.value })} placeholder="https://…/campagne.webp" className="mt-2 min-h-12 w-full border border-neutral-300 px-4 text-sm" inputMode="url" /></label>
             <label className="sm:col-span-2 text-xs font-black">Programmer (optionnel)<input type="datetime-local" value={form.scheduledAt} onChange={(event) => setForm({ ...form, scheduledAt: event.target.value })} className="mt-2 min-h-12 w-full border border-neutral-300 px-4 text-sm" /><span className="mt-2 block text-[11px] font-medium leading-4 text-amber-700">Plan Vercel Hobby : la file programmée est traitée chaque jour à 09 h 05 UTC (10 h 05 à Paris en hiver, 11 h 05 en été). Utilisez « Envoyer maintenant » pour une heure précise.</span></label>
           </div>
           <div className="mt-5 rounded-2xl bg-neutral-950 p-4 text-white">
@@ -294,10 +303,10 @@ export default function MobileApplicationPage() {
       <section className="border border-neutral-200 bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#0b8f32]">Historique et audit</p><h2 className="mt-1 text-2xl font-black">Campagnes mobiles</h2></div><p className="text-xs text-neutral-500">{campaignData.campaigns.length} campagne(s)</p></div>
         <div className="mt-5 overflow-x-auto">
-          <table className="min-w-[920px] w-full text-left text-sm"><thead className="border-b border-neutral-200 text-[10px] font-black uppercase tracking-wider text-neutral-400"><tr><th className="p-3">Campagne</th><th className="p-3">Audience</th><th className="p-3">État</th><th className="p-3">Programmation</th><th className="p-3">Résultat</th><th className="p-3 text-right">Actions</th></tr></thead><tbody>
-            {campaignData.campaigns.map((campaign) => <tr key={campaign.id} className="border-b border-neutral-100 align-top"><td className="p-3"><p className="font-black">{campaign.title}</p><p className="mt-1 max-w-md text-xs text-neutral-500">{campaign.body}</p></td><td className="p-3 font-bold">{friendlyAudience(campaign.audience)}</td><td className="p-3"><span className={`px-2 py-1 text-[10px] font-black uppercase ${campaign.status === "sent" ? "bg-green-100 text-green-800" : campaign.status === "failed" ? "bg-red-100 text-red-800" : "bg-neutral-100"}`}>{friendlyStatus(campaign.status)}</span>{campaign.error_message && <p className="mt-2 max-w-xs text-xs text-red-700">{campaign.error_message}</p>}</td><td className="p-3 text-xs">{new Date(campaign.scheduled_at ?? campaign.sent_at ?? campaign.created_at).toLocaleString("fr-FR")}</td><td className="p-3 text-xs font-bold">{campaign.status === "sent" ? `${campaign.delivered_count}/${campaign.target_count} remis · ${campaign.failed_count} échec(s)` : "—"}</td><td className="p-3 text-right">{["draft", "scheduled", "failed"].includes(campaign.status) && <button disabled={sending} onClick={() => void campaignAction(campaign.id, "send")} className="mr-2 min-h-10 border border-black px-3 text-[10px] font-black">ENVOYER</button>}{["draft", "scheduled"].includes(campaign.status) && <button disabled={sending} onClick={() => void campaignAction(campaign.id, "cancel")} className="min-h-10 border border-neutral-200 px-3 text-[10px] font-black">ANNULER</button>}</td></tr>)}
+          <ResponsiveTable className="min-w-[920px] w-full text-left text-sm"><thead className="border-b border-neutral-200 text-[10px] font-black uppercase tracking-wider text-neutral-400"><tr><th className="p-3">Campagne</th><th className="p-3">Audience</th><th className="p-3">État</th><th className="p-3">Programmation</th><th className="p-3">Résultat</th><th className="p-3 text-right">Actions</th></tr></thead><tbody>
+            {campaignData.campaigns.map((campaign) => <tr key={campaign.id} className="border-b border-neutral-100 align-top"><td className="p-3"><p className="font-black">{campaign.title}</p><p className="mt-1 max-w-md text-xs text-neutral-500">{campaign.body}</p></td><td className="p-3 font-bold">{friendlyAudience(campaign.audience)}</td><td className="p-3"><span className={`px-2 py-1 text-[10px] font-black uppercase ${campaign.status === "sent" ? "bg-green-100 text-green-800" : campaign.status === "failed" ? "bg-red-100 text-red-800" : "bg-neutral-100"}`}>{friendlyStatus(campaign.status)}</span>{campaign.error_message && <p className="mt-2 max-w-xs text-xs text-red-700">{campaign.error_message}</p>}</td><td className="p-3 text-xs">{new Date(campaign.scheduled_at ?? campaign.sent_at ?? campaign.created_at).toLocaleString("fr-FR")}</td><td className="p-3 text-xs font-bold">{campaign.status === "sent" ? `${campaign.delivered_count}/${campaign.target_count} acceptés · ${campaign.failed_count} échec(s)` : "—"}</td><td className="p-3 text-right">{["draft", "scheduled", "failed"].includes(campaign.status) && <button disabled={sending} onClick={() => void campaignAction(campaign.id, "send")} className="mr-2 min-h-10 border border-black px-3 text-[10px] font-black">ENVOYER</button>}{["draft", "scheduled"].includes(campaign.status) && <button disabled={sending} onClick={() => void campaignAction(campaign.id, "cancel")} className="min-h-10 border border-neutral-200 px-3 text-[10px] font-black">ANNULER</button>}</td></tr>)}
             {!loading && campaignData.campaigns.length === 0 && <tr><td colSpan={6} className="p-10 text-center text-sm text-neutral-500">Aucune campagne mobile. Créez votre première notification ci-dessus.</td></tr>}
-          </tbody></table>
+          </tbody></ResponsiveTable>
         </div>
       </section>
 

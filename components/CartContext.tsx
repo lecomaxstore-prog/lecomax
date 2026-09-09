@@ -9,10 +9,15 @@ import {
   useRef,
   useState,
 } from "react";
+import { selectedInventory, preorderSnapshot, type PreorderFields, type PreorderSnapshot } from "@/lib/preorder";
 import type { Product } from "@/lib/products";
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
+import { colorPricesFromTags } from "@/lib/product-variant-pricing";
+import { preorderCopy } from "@/lib/preorder-copy";
 
-export type CartItem = {
+export type CartItem = PreorderSnapshot & PreorderFields & {
+  preorder_details?: PreorderFields;
+  available_stock?: number;
   slug: string;
   name: string;
   image: string;
@@ -76,15 +81,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     const request = (async () => {
       try {
-        const response = await fetch("/api/products/?active=true&cart_inventory=1", {
+        const slugs = [...new Set(itemsRef.current.map(item => item.slug))];
+        const response = await fetch(`/api/products/?active=true&cart_inventory=1&cart_slugs=${encodeURIComponent(JSON.stringify(slugs))}`, {
           cache: "no-store",
           headers: { Accept: "application/json" },
         });
         if (!response.ok) return;
         const data = await response.json() as Array<{
           slug?: unknown;
-          stock?: unknown;
-          color_stock?: unknown;
+          stock?: unknown; price?: number;
+          color_stock?: Record<string, number>;
+          colors?: string[]; sizes?: string[]; tags?: string[]; preorder_enabled?: boolean; preorder_estimated_at?: string | null; preorder_message?: string | null;
         }>;
         if (!Array.isArray(data)) return;
 
@@ -97,32 +104,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
         const next = itemsRef.current.flatMap((item) => {
           const live = inventory.get(item.slug);
-          // Static fallback products may not exist in the database. Leave them
-          // untouched; the order endpoint still performs the final validation.
-          if (!live) return [item];
+          if (!live) { changed = true; removed.push(item.name); return []; }
 
-          const totalStock = Number(live.stock);
-          const colorStock = live.color_stock && typeof live.color_stock === "object" && !Array.isArray(live.color_stock)
-            ? live.color_stock as Record<string, unknown>
-            : null;
-          const selectedColorStock = item.color && colorStock && item.color in colorStock
-            ? Number(colorStock[item.color])
-            : null;
-          const available = selectedColorStock !== null && Number.isFinite(selectedColorStock)
-            ? Math.min(totalStock, selectedColorStock)
-            : totalStock;
-
-          if (Number.isFinite(available) && available <= 0) {
+          const physical = selectedInventory({...live, stock:Number(live.stock)},item.color,item.size);
+          const available = physical < 0 ? 0 : live.preorder_enabled ? 20 : Math.min(20, physical);
+          if (available <= 0) {
             changed = true;
             removed.push(item.name);
             return [];
           }
-          if (Number.isFinite(available) && item.quantity > available) {
-            changed = true;
-            adjusted.push(item.name);
-            return [{ ...item, quantity: Math.max(1, Math.floor(available)) }];
-          }
-          return [item];
+          const quantity = Math.min(item.quantity, available);
+          const prices = colorPricesFromTags(live.tags);
+          const price = (item.color ? prices[item.color]?.price : undefined) ?? live.price ?? item.price;
+          const refreshed = { ...item, quantity, price, ...preorderSnapshot(live, physical, quantity),
+            preorder_details: { preorder_enabled: live.preorder_enabled === true, preorder_estimated_at: live.preorder_estimated_at, preorder_message: live.preorder_message },
+            preorder_enabled: live.preorder_enabled === true, available_stock: physical };
+          if (JSON.stringify(refreshed) !== JSON.stringify(item)) changed = true;
+          if (quantity !== item.quantity || price !== item.price || refreshed.fulfillment_type !== (item.fulfillment_type ?? "STANDARD") || refreshed.preorder_estimated_at !== (item.preorder_estimated_at ?? null) || refreshed.preorder_message !== (item.preorder_message ?? null)) adjusted.push(item.name);
+          return [refreshed];
         });
 
         if (!changed) return;
@@ -133,7 +132,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             ? `${removed.length} article${removed.length > 1 ? "s ont" : " a"} été retiré${removed.length > 1 ? "s" : ""} car ${removed.length > 1 ? "ils sont" : "il est"} épuisé${removed.length > 1 ? "s" : ""}.`
             : "",
           adjusted.length > 0
-            ? `La quantité de ${adjusted.length} article${adjusted.length > 1 ? "s" : ""} a été ajustée au stock disponible.`
+            ? preorderCopy.fr.changed
             : "",
         ].filter(Boolean);
         setInventoryNotice(messages.join(" "));
@@ -187,7 +186,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const next = [...prev];
             next[idx] = {
               ...next[idx],
-              quantity: next[idx].quantity + qty,
+              ...preorderSnapshot(p,selectedInventory(p,color,size), Math.min(20,next[idx].quantity + qty)),
+              preorder_enabled:p.preorder_enabled, available_stock:selectedInventory(p,color,size),
+              preorder_details: { preorder_enabled: p.preorder_enabled, preorder_estimated_at: p.preorder_estimated_at, preorder_message: p.preorder_message },
+              quantity: Math.min(20,next[idx].quantity + qty),
               image: variantImage,
             };
             return next;
@@ -201,6 +203,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               price: p.price,
               size,
               color,
+              ...preorderSnapshot(p,selectedInventory(p,color,size),qty),
+              preorder_enabled:p.preorder_enabled, available_stock:selectedInventory(p,color,size),
+              preorder_details: { preorder_enabled: p.preorder_enabled, preorder_estimated_at: p.preorder_estimated_at, preorder_message: p.preorder_message },
               quantity: qty,
             },
           ];
@@ -213,7 +218,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setItems((prev) =>
           prev.map((i) =>
             i.slug === slug && i.size === size && i.color === color
-              ? { ...i, quantity: Math.max(1, qty) }
+              ? { ...i, ...preorderSnapshot(i.preorder_details ?? i,i.available_stock ?? 20,Math.min(20,Math.max(1,qty))), quantity: Math.min(20,Math.max(1, qty)) }
               : i
           )
         ),

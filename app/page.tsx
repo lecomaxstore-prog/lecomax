@@ -25,7 +25,7 @@ const SITE_URL_PAGE = "https://lecomax.com";
 const defaultHomeMetadata: Metadata = {
   title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
   description:
-    "Boutique en ligne au Maroc : chaussures, mode et accessoires tech. Livraison partout à 35 MAD, paiement à la livraison et retours gratuits sous 30 jours.",
+    "Boutique en ligne au Maroc : chaussures, mode et accessoires tech. Livraison partout à {{shipping}}, paiement à la livraison et Retours sous 30 jours, selon conditions.",
   keywords: [
     "boutique en ligne Maroc",
     "acheter chaussures Maroc",
@@ -45,7 +45,7 @@ const defaultHomeMetadata: Metadata = {
     siteName: "L'ecomax",
     title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
     description:
-      "Boutique en ligne Maroc — chaussures, vêtements sport, écouteurs, enceintes et gaming. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
+      "Boutique en ligne Maroc — chaussures, vêtements sport, écouteurs, enceintes et gaming. Livraison {{shipping}} partout au Maroc. Paiement à la livraison.",
     images: [
       {
         url: `${SITE_URL_PAGE}/ecomax-hero-banner.jpg.png`,
@@ -60,7 +60,7 @@ const defaultHomeMetadata: Metadata = {
     card: "summary_large_image",
     title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
     description:
-      "Boutique en ligne Maroc — chaussures, vêtements, écouteurs, enceintes et gaming. Livraison 35 MAD.",
+      "Boutique en ligne Maroc — chaussures, vêtements, écouteurs, enceintes et gaming. Livraison {{shipping}}.",
     images: [`${SITE_URL_PAGE}/ecomax-hero-banner.jpg.png`],
   },
 };
@@ -68,7 +68,7 @@ const defaultHomeMetadata: Metadata = {
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getServerShippingConfig();
   const replaceShipping = (value: unknown): string | undefined => typeof value === "string"
-    ? value.replace(/35 MAD/g, `${formatShippingAmount(config.cost)} MAD`)
+    ? value.replace(/\{\{shipping\}\}/g, `${formatShippingAmount(config.cost)} MAD`)
     : undefined;
   return {
     ...defaultHomeMetadata,
@@ -205,7 +205,7 @@ export default async function HomePage() {
         "name": "Quelle est la politique de retour de L'ecomax ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Vous disposez de 30 jours après réception pour retourner un article. Les retours sont gratuits et le remboursement est effectué sous 3 à 5 jours ouvrables."
+          "text": "Vous disposez de 30 jours après réception pour demander un retour, sous réserve des conditions de notre politique de retour. Consultez la page Retours pour les modalités et délais de remboursement."
         }
       },
       {
@@ -574,7 +574,7 @@ export default async function HomePage() {
           </div>
           <div>
             <p>
-              Nous livrons partout au Maroc — Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir, Meknès, Oujda et toutes les villes — à seulement {formatShippingAmount(shippingConfig.cost)} MAD. {shippingConfig.freeThreshold > 0 && <>Livraison offerte dès {formatShippingAmount(shippingConfig.freeThreshold)} MAD d&apos;achats. </>}Paiement à la livraison disponible sur toutes les commandes. Retours gratuits sous 30 jours. Commandez en toute confiance sur lecomax.com.
+              Nous livrons partout au Maroc — Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir, Meknès, Oujda et toutes les villes — à seulement {formatShippingAmount(shippingConfig.cost)} MAD. {shippingConfig.freeThreshold > 0 && <>Livraison offerte dès {formatShippingAmount(shippingConfig.freeThreshold)} MAD d&apos;achats. </>}Paiement à la livraison disponible sur toutes les commandes. Retours sous 30 jours, selon conditions. Commandez en toute confiance sur lecomax.com.
             </p>
           </div>
         </div>

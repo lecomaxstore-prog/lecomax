@@ -266,7 +266,7 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
 
         {/* â”€â”€ Header â”€â”€ */}
         <div
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10"
+          className="mb-8 flex flex-col justify-between gap-5 border-b border-[#e0e5dd] pb-7 sm:flex-row sm:items-end sm:gap-8 md:mb-10"
           style={{
             opacity: visible ? 1 : 0,
             transform: visible ? "translateY(0)" : "translateY(24px)",
@@ -274,24 +274,27 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
           }}
         >
           <div>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#3ecf4c] font-black mb-2">
+            <p className="mb-3 flex items-center gap-2.5 text-[9px] font-semibold uppercase tracking-[0.22em] text-[#65816c] sm:text-[10px]">
+              <span aria-hidden="true" className="h-px w-6 bg-[#8fa38d]" />
               Catalogue complet
             </p>
-            <h2 className="h-display text-3xl md:text-[2.8rem] leading-tight">
-              Nos Produits
+            <h2 className="text-[32px] font-medium leading-[1.1] tracking-[-0.045em] text-[#183c30] sm:text-[38px] md:text-[46px]">
+              Nos produits
             </h2>
-            <p className="text-neutral-400 text-[13px] mt-1.5">
-              {products.length} article{products.length > 1 ? "s" : ""} disponibles
+            <p className="mt-3 text-xs leading-5 text-[#7b8279] sm:text-[13px]">
+              {products.length} article{products.length !== 1 ? "s" : ""} à découvrir
             </p>
           </div>
           <Link
             href="/boutique"
-            className="self-start sm:self-auto group inline-flex items-center gap-2.5 border border-neutral-200 px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] hover:border-black hover:bg-black hover:text-white transition-all duration-300"
+            className="group inline-flex min-h-11 items-center gap-5 self-start rounded-full border border-[#dce3d8] bg-white py-1.5 pl-5 pr-1.5 text-xs font-medium text-[#183c30] shadow-[0_2px_4px_rgba(24,60,48,0.025)] transition-colors duration-200 hover:border-[#183c30] hover:bg-[#f0f3ed] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#183c30] focus-visible:ring-offset-4 sm:self-auto"
           >
             Voir la boutique
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
+            <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-full bg-[#183c30] text-white">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </span>
           </Link>
         </div>
 

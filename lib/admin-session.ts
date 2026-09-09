@@ -12,9 +12,8 @@
 const ENCODER = new TextEncoder();
 
 function getKeyMaterial(): Uint8Array<ArrayBuffer> {
-  const secret =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ??
-    "dev-only-fallback-not-for-production-please-set-env";
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!secret) throw new Error("ADMIN_SESSION_NOT_CONFIGURED");
   return ENCODER.encode(secret) as Uint8Array<ArrayBuffer>;
 }
 
@@ -99,7 +98,7 @@ export async function verifySessionToken(
     if (isNaN(timestamp) || !email) return null;
 
     // Reject expired tokens
-    if (Date.now() - timestamp > maxAgeMs) return null;
+    if (timestamp > Date.now() + 60_000 || Date.now() - timestamp > maxAgeMs) return null;
 
     return email;
   } catch {

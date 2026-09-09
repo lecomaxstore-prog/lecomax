@@ -1,4 +1,5 @@
 ﻿"use client";
+import PreorderNotice from "@/components/PreorderNotice";
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -24,7 +25,7 @@ type OrderResult = {
   payment_method: string;
   created_at: string;
   customer: { name: string; city: string; address: string };
-  items: { name: string; price: number; qty: number; image?: string; size?: string; color?: string }[];
+  items: { fulfillment_type?: "STANDARD" | "PREORDER"; preorder_estimated_at?: string | null; preorder_message?: string | null; name: string; price: number; qty: number; image?: string; size?: string; color?: string }[];
 };
 
 export default function SuivreCommandePage() {
@@ -367,7 +368,7 @@ function SuivreCommandeInner() {
                         {item.image ? <Image src={item.image} alt={item.name} fill sizes="96px" className="object-cover transition-transform duration-500 group-hover:scale-105" /> : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-black leading-5 text-neutral-950 sm:text-[14px]">{item.name}</p>
+                        <p className="text-[13px] font-black leading-5 text-neutral-950 sm:text-[14px]">{item.name}</p><PreorderNotice item={item} />
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                           {[item.size, item.color].filter(Boolean).map((value) => <span key={value} className="border border-neutral-200 bg-white px-2.5 py-1 text-[9px] font-bold text-neutral-500">{value}</span>)}
                           <span className="bg-neutral-950 px-2.5 py-1 text-[9px] font-black text-white">Qté {item.qty}</span>
@@ -459,7 +460,7 @@ function SuivreCommandeInner() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-black text-[13px] text-neutral-900 leading-tight">Un problème avec votre commande ?</p>
-            <p className="text-[#3ecf4c] text-[12px] mt-0.5 font-medium">Notre équipe répond en quelques minutes · 7j/7</p>
+            <p className="text-[#3ecf4c] text-[12px] mt-0.5 font-medium">Contactez notre service client.</p>
           </div>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round" className="shrink-0 group-hover:translate-x-0.5 transition-transform">
             <path d="M9 18l6-6-6-6"/>

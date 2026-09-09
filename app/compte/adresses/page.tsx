@@ -79,30 +79,31 @@ export default function AdressesPage() {
 
   const field = (id: keyof typeof form, label: string, type = "text", placeholder = "") => (
     <div className="flex flex-col gap-1.5">
-      <label className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-500">{label}</label>
+      <label className="text-[12px] font-semibold tracking-normal text-neutral-500">{label}</label>
       <input
         type={type}
         value={form[id]}
         onChange={(e) => setForm((f) => ({ ...f, [id]: e.target.value }))}
         placeholder={placeholder}
-        className="w-full border border-neutral-200 px-4 py-3 text-sm placeholder-neutral-400 outline-none focus:border-black transition-colors"
+        className="w-full rounded-xl border border-neutral-200 px-4 py-3 text-[16px] sm:text-sm placeholder-neutral-400 outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/10 transition-colors"
       />
     </div>
   );
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="account-section flex flex-col gap-6">
 
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-neutral-400 mb-1">Mon compte</p>
-          <h1 className="font-black text-[26px] uppercase tracking-tight">Mes adresses</h1>
+          <p className="text-[12px] font-semibold tracking-normal text-neutral-400 mb-1">Mon compte</p>
+          <h1 className="font-semibold text-[28px] tracking-[-0.035em]">Mes adresses</h1>
+          <p className="mt-2 text-[13px] leading-6 text-neutral-500">Vos adresses de livraison, prêtes pour votre prochaine commande.</p>
         </div>
         {!showForm && (
           <button
             onClick={() => { setEditId(null); setForm({ label: "", fullName: "", line1: "", line2: "", city: "", zip: "", country: "Maroc", phone: "" }); setShowForm(true); }}
-            className="flex items-center gap-2 bg-black text-white font-black text-[11px] uppercase tracking-widest px-5 py-3 hover:bg-neutral-800 transition-colors"
+            className="flex items-center gap-2 rounded-xl bg-[#183c30] text-white font-semibold text-[11px] tracking-normal px-5 py-3 hover:bg-neutral-800 transition-colors"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             Ajouter
@@ -112,11 +113,11 @@ export default function AdressesPage() {
 
       {/* Add form */}
       {showForm && (
-        <div className="bg-white border border-neutral-100">
+        <div className="rounded-2xl bg-white border border-neutral-200/80">
           <div className="px-6 py-5 border-b border-neutral-100 flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400 mb-0.5">{editId ? "Modifier l'adresse" : "Nouvelle adresse"}</p>
-              <h2 className="font-black text-[14px] uppercase tracking-wide">{editId ? "Modifier" : "Ajouter une adresse"}</h2>
+              <p className="text-[12px] font-semibold tracking-normal text-neutral-400 mb-0.5">{editId ? "Modifier l'adresse" : "Nouvelle adresse"}</p>
+              <h2 className="font-semibold text-[14px] tracking-normal">{editId ? "Modifier" : "Ajouter une adresse"}</h2>
             </div>
             <button
               onClick={() => { setShowForm(false); setEditId(null); setForm({ label: "", fullName: "", line1: "", line2: "", city: "", zip: "", country: "Maroc", phone: "" }); }}
@@ -160,11 +161,11 @@ export default function AdressesPage() {
               {field("city", "Ville", "text", "Casablanca")}
               {field("zip", "Code postal", "text", "20000")}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-500">Pays</label>
+                <label className="text-[12px] font-semibold tracking-normal text-neutral-500">Pays</label>
                 <select
                   value={form.country}
                   onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
-                  className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none focus:border-black transition-colors bg-white"
+                  className="w-full rounded-xl border border-neutral-200 px-4 py-3 text-[16px] sm:text-sm outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/10 transition-colors bg-white"
                 >
                   <option>Maroc</option>
                   <option>France</option>
@@ -175,18 +176,18 @@ export default function AdressesPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-neutral-100 gap-3">
+            <div className="flex flex-wrap items-center justify-between pt-2 border-t border-neutral-100 gap-3">
               <button
                 type="button"
                 onClick={() => { setShowForm(false); setEditId(null); setForm({ label: "", fullName: "", line1: "", line2: "", city: "", zip: "", country: "Maroc", phone: "" }); }}
-                className="text-[11px] font-bold uppercase tracking-widest text-neutral-500 hover:text-black transition-colors px-4 py-3 border border-neutral-200 hover:border-black"
+                className="text-[11px] font-bold tracking-normal text-neutral-500 hover:text-black transition-colors px-4 py-3 border border-neutral-200 hover:border-black"
               >
                 Annuler
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="bg-black text-white font-black text-[11px] uppercase tracking-widest px-8 py-3.5 hover:bg-neutral-800 transition-colors disabled:opacity-50"
+                className="rounded-xl bg-[#183c30] text-white font-semibold text-[11px] tracking-normal px-8 py-3.5 hover:bg-neutral-800 transition-colors disabled:opacity-50"
               >
                 {saving ? "..." : editId ? "Mettre à jour" : "Enregistrer l'adresse"}
               </button>
@@ -197,13 +198,13 @@ export default function AdressesPage() {
 
       {/* Address list or empty state */}
       {addresses.length === 0 && !showForm ? (
-        <div className="bg-white border border-neutral-100 px-8 py-20 flex flex-col items-center justify-center text-center">
-          <div className="w-16 h-16 border-2 border-dashed border-neutral-200 flex items-center justify-center mb-6">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-300">
+        <div className="rounded-2xl bg-white border border-neutral-200/80 px-8 py-20 flex flex-col items-center justify-center text-center">
+          <div className="w-16 h-16 rounded-2xl border border-neutral-200 bg-neutral-50 flex items-center justify-center mb-6">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-500">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
             </svg>
           </div>
-          <p className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-300 mb-2">
+          <p className="text-[12px] font-semibold tracking-normal text-neutral-500 mb-2">
             Aucune adresse
           </p>
           <p className="text-[12px] text-neutral-400 max-w-[240px] leading-relaxed mb-8">
@@ -211,7 +212,7 @@ export default function AdressesPage() {
           </p>
           <button
             onClick={() => setShowForm(true)}
-            className="inline-flex items-center gap-2 bg-black text-white font-black text-[11px] uppercase tracking-widest px-6 py-3.5 hover:bg-neutral-800 transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#183c30] text-white font-semibold text-[11px] tracking-normal px-6 py-3.5 hover:bg-neutral-800 transition-colors"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             Ajouter une adresse
@@ -221,12 +222,12 @@ export default function AdressesPage() {
         addresses.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {addresses.map((addr) => (
-              <div key={addr.id} className="bg-white border border-neutral-100 p-5 flex flex-col gap-3">
+              <div key={addr.id} className="rounded-2xl bg-white border border-neutral-200/80 p-5 flex flex-col gap-3">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="font-black text-[12px] uppercase tracking-widest">{addr.label}</p>
+                    <p className="font-semibold text-[12px] tracking-normal">{addr.label}</p>
                     {addr.isDefault && (
-                      <span className="text-[10px] font-black uppercase tracking-widest text-white bg-black px-2 py-0.5 mt-1 inline-block">
+                      <span className="text-[12px] font-semibold tracking-normal text-white bg-black px-2 py-0.5 mt-1 inline-block">
                         Par défaut
                       </span>
                     )}
@@ -248,7 +249,7 @@ export default function AdressesPage() {
                   {addr.phone && <p>{addr.phone}</p>}
                 </div>
                 {!addr.isDefault && (
-                  <button onClick={() => handleSetDefault(addr.id)} className="self-start text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors border border-neutral-200 hover:border-black px-3 py-1.5">
+                  <button onClick={() => handleSetDefault(addr.id)} className="self-start text-[10px] font-bold tracking-normal text-neutral-400 hover:text-black transition-colors border border-neutral-200 hover:border-black px-3 py-1.5">
                     Définir par défaut
                   </button>
                 )}

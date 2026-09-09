@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminRead } from "@/lib/api-security";
+import { getAdminAccess } from "@/lib/admin-access";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,6 +30,8 @@ export async function GET(req: NextRequest) {
   if (!email) return json({ error: "Email required" }, 400);
 
   const normalizedEmail = email.trim().toLowerCase();
+  const access = await getAdminAccess(req);
+  if (!access || (!access.owner && access.email !== normalizedEmail && !access.permissions.includes("staff.manage"))) return json({ error: "Forbidden" }, 403);
   const ownerEmail = (process.env.ADMIN_EMAIL ?? "contact@lecomax.com").trim().toLowerCase();
   if (normalizedEmail === ownerEmail) {
     return json({ isOwner: true, isStaff: false, permissions: [] });

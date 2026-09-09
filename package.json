@@ -9,6 +9,7 @@
     "build": "node scripts/next-build.mjs",
     "test": "node --test tests/*.test.ts && npm run -s test:android-back",
     "test:android-back": "node mobile/scripts/test-android-back.mjs",
+    "test:preorder": "node --test tests/preorder.test.ts tests/preorder-api.test.ts tests/preorder-retry.test.ts tests/mobile-cart-reconciliation.test.ts && node scripts/test-preorder-sql.mjs",
     "start": "next start",
     "lint": "next lint",
     "generate:course": "node scripts/generate-course.mjs",
@@ -44,11 +45,14 @@
     "web-push": "^3.6.7"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@types/node": "^22.9.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "acorn": "^8.17.0",
     "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.5.20",
     "pg": "^8.22.0",
     "postcss": "8.5.23",
     "tailwindcss": "^3.4.15",

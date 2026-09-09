@@ -1,7 +1,11 @@
+import { PreorderNotice } from "@/components/preorder-notice";
+import { orderStatusLabel } from "@/i18n/content";
+import { localizedError } from "@/i18n/errors";
+import { currentLocale, msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -22,10 +26,10 @@ import { getOrderTracking } from "@/services/orders";
 import { useUserStore } from "@/stores/user";
 
 const steps = [
-  { icon: "receipt-outline" as const, title: "Commande reçue", subtitle: "Votre commande est enregistrée" },
-  { icon: "cube-outline" as const, title: "En préparation", subtitle: "Vos articles sont en cours de préparation" },
-  { icon: "car-outline" as const, title: "Expédiée", subtitle: "Votre colis est en route" },
-  { icon: "home-outline" as const, title: "Livrée", subtitle: "Votre commande a été remise" },
+  { icon: "receipt-outline" as const, get title() { return msg("orderTracking.orderReceived"); }, get subtitle() { return msg("orderTracking.yourOrderHasBeenReceived"); } },
+  { icon: "cube-outline" as const, get title() { return msg("orderTracking.preparing"); }, get subtitle() { return msg("orderTracking.yourItemsAreBeingPrepared"); } },
+  { icon: "car-outline" as const, get title() { return msg("orderTracking.shipped"); }, get subtitle() { return msg("orderTracking.yourParcelIsOnItsWay"); } },
+  { icon: "home-outline" as const, get title() { return msg("orderTracking.delivered"); }, get subtitle() { return msg("orderTracking.yourOrderHasBeenDelivered"); } },
 ];
 
 function normalizeOrderNumber(value: string) {
@@ -35,6 +39,7 @@ function normalizeOrderNumber(value: string) {
 }
 
 export default function OrderTrackingScreen() {
+  useLocale();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ orderNumber?: string; email?: string }>();
   const savedEmail = useUserStore((state) => state.email) ?? "";
@@ -55,23 +60,17 @@ export default function OrderTrackingScreen() {
   });
   const order = query.data?.order;
   const currentStep = Math.max(0, Math.min(3, order?.step ?? 0));
-  const createdAt = useMemo(
-    () =>
-      order
-        ? new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date(order.created_at))
-        : "",
-    [order],
-  );
+  const createdAt = order ? new Intl.DateTimeFormat(currentLocale(), { dateStyle: "long" }).format(new Date(order.created_at)) : "";
 
   const submitLookup = () => {
     const normalizedOrder = normalizeOrderNumber(orderNumber);
     const normalizedEmail = email.trim().toLowerCase();
     if (!/^ECO-\d{6}$/.test(normalizedOrder)) {
-      setFormError("Saisissez un numéro au format ECO-XXXXXX.");
+      setFormError(msg("orderTracking.enterANumberInTheFormatEcoXxxxxx"));
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
-      setFormError("Saisissez l’adresse e-mail utilisée pour la commande.");
+      setFormError(msg("orderTracking.enterTheEmailAddressUsedForTheOrder"));
       return;
     }
     setFormError(undefined);
@@ -84,12 +83,12 @@ export default function OrderTrackingScreen() {
     <Screen className="bg-white">
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <View style={styles.header}>
-          <AnimatedPressable accessibilityLabel="Retour" onPress={() => router.back()} style={styles.backButton}>
+          <AnimatedPressable accessibilityLabel={msg("addresses.back")} onPress={() => router.back()} style={styles.backButton}>
             <Ionicons color={palette.ink} name="arrow-back" size={23} />
           </AnimatedPressable>
           <View style={styles.headerCopy}>
-            <Text style={styles.headerTitle}>SUIVRE MA COMMANDE</Text>
-            <Text style={styles.headerSubtitle}>Informations en temps réel</Text>
+            <Text style={styles.headerTitle}>{msg("orderTracking.trackMyOrderUppercase")}</Text>
+            <Text style={styles.headerSubtitle}>{msg("orderTracking.realTimeUpdates")}</Text>
           </View>
           <View style={styles.headerIcon}>
             <Ionicons color={palette.greenDark} name="navigate-outline" size={21} />
@@ -112,20 +111,19 @@ export default function OrderTrackingScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.intro}>
-            <Text style={styles.eyebrow}>SUIVI DE LIVRAISON</Text>
-            <Text style={styles.title}>Où est ma commande ?</Text>
+            <Text style={styles.eyebrow}>{msg("orderTracking.deliveryTrackingUppercase")}</Text>
+            <Text style={styles.title}>{msg("orderTracking.whereIsMyOrder")}</Text>
             <Text style={styles.subtitle}>
-              Consultez son avancement avec votre numéro de commande et votre adresse e-mail.
-            </Text>
+              {msg("orderTracking.checkItsProgressUsingYourOrderNumberAndEmailAddress")}</Text>
           </View>
 
           <View style={styles.searchCard}>
-            <Text style={styles.fieldLabel}>NUMÉRO DE COMMANDE</Text>
+            <Text style={styles.fieldLabel}>{msg("orderConfirmation.orderNumberUppercase")}</Text>
             <View style={styles.inputWrap}>
               <Ionicons color={palette.greenDark} name="receipt-outline" size={19} />
               <TextInput
-                accessibilityLabel="Numéro de commande"
-                accessibilityHint="Saisissez le numéro indiqué dans votre confirmation de commande."
+                accessibilityLabel={msg("orderTracking.orderNumber")}
+                accessibilityHint={msg("orderTracking.enterTheNumberFromYourOrderConfirmation")}
                 autoCapitalize="characters"
                 autoCorrect={false}
                 onChangeText={(value) => { setOrderNumber(value); setFormError(undefined); }}
@@ -136,18 +134,18 @@ export default function OrderTrackingScreen() {
                 value={orderNumber}
               />
             </View>
-            <Text style={[styles.fieldLabel, styles.emailLabel]}>ADRESSE E-MAIL</Text>
+            <Text style={[styles.fieldLabel, styles.emailLabel]}>{msg("orderTracking.emailAddressUppercase")}</Text>
             <View style={styles.inputWrap}>
               <Ionicons color={palette.greenDark} name="mail-outline" size={19} />
               <TextInput
-                accessibilityLabel="Adresse e-mail de la commande"
-                accessibilityHint="Saisissez l’adresse utilisée lors de votre commande."
+                accessibilityLabel={msg("orderTracking.orderEmailAddress")}
+                accessibilityHint={msg("orderTracking.enterTheEmailAddressYouUsedForYourOrder")}
                 autoCapitalize="none"
                 autoCorrect={false}
                 keyboardType="email-address"
                 onChangeText={(value) => { setEmail(value); setFormError(undefined); }}
                 onSubmitEditing={submitLookup}
-                placeholder="nom@exemple.com"
+                placeholder={msg("common.emailExample")}
                 placeholderTextColor="#969C97"
                 returnKeyType="search"
                 style={styles.input}
@@ -156,7 +154,7 @@ export default function OrderTrackingScreen() {
             </View>
             {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
             <AnimatedPressable
-              accessibilityLabel="Rechercher la commande"
+              accessibilityLabel={msg("orderTracking.findOrder")}
               accessibilityState={{ busy: query.isFetching }}
               disabled={query.isFetching}
               onPress={submitLookup}
@@ -166,7 +164,7 @@ export default function OrderTrackingScreen() {
                 <ActivityIndicator color={palette.white} size="small" />
               ) : (
                 <>
-                  <Text style={styles.searchButtonText}>SUIVRE LA COMMANDE</Text>
+                  <Text style={styles.searchButtonText}>{msg("orderTracking.trackOrderUppercase")}</Text>
                   <View style={styles.searchArrow}>
                     <Ionicons color={palette.ink} name="arrow-forward" size={17} />
                   </View>
@@ -179,9 +177,9 @@ export default function OrderTrackingScreen() {
             <View accessibilityRole="alert" style={styles.errorCard}>
               <Ionicons color="#B52B36" name="alert-circle-outline" size={22} />
               <View style={styles.errorCopy}>
-                <Text style={styles.errorTitle}>Commande introuvable</Text>
+                <Text style={styles.errorTitle}>{msg("orderTracking.orderNotFound")}</Text>
                 <Text style={styles.errorMessage}>
-                  {query.error instanceof Error ? query.error.message : "Vérifiez vos informations puis réessayez."}
+                  {query.error instanceof Error ? localizedError(query.error) : msg("orderTracking.checkYourDetailsAndTryAgain")}
                 </Text>
               </View>
             </View>
@@ -189,28 +187,31 @@ export default function OrderTrackingScreen() {
 
           {order ? (
             <>
+              {order.items.filter(item => item.fulfillment_type === "PREORDER").map((item, index) => (
+                <View key={`${item.slug}-${index}`}><Text>{item.name}</Text><PreorderNotice item={item} /></View>
+              ))}
               <View style={styles.orderCard}>
                 <View style={styles.orderTop}>
                   <View>
-                    <Text style={styles.orderLabel}>COMMANDE</Text>
+                    <Text style={styles.orderLabel}>{msg("orderTracking.orderUppercase")}</Text>
                     <Text selectable style={styles.orderNumber}>{order.order_number}</Text>
-                    <Text style={styles.orderDate}>Passée le {createdAt}</Text>
+                    <Text style={styles.orderDate}>{msg("orderTracking.placedOn")}{createdAt}</Text>
                   </View>
                   <View style={[styles.statusBadge, order.status === "cancelled" && styles.cancelledBadge]}>
                     <View style={[styles.statusDot, order.status === "cancelled" && styles.cancelledDot]} />
                     <Text style={[styles.statusText, order.status === "cancelled" && styles.cancelledText]}>
-                      {order.status_label}
+                      {orderStatusLabel(order.status)}
                     </Text>
                   </View>
                 </View>
                 <View style={styles.orderDivider} />
                 <View style={styles.orderMeta}>
                   <View>
-                    <Text style={styles.metaLabel}>TOTAL</Text>
+                    <Text style={styles.metaLabel}>{msg("orderTracking.totalUppercase")}</Text>
                     <Text style={styles.metaValue}>{money(order.total)}</Text>
                   </View>
                   <View style={styles.metaRight}>
-                    <Text style={styles.metaLabel}>ARTICLES</Text>
+                    <Text style={styles.metaLabel}>{msg("orderTracking.itemsUppercase")}</Text>
                     <Text style={styles.metaValue}>{order.items.length}</Text>
                   </View>
                 </View>
@@ -218,7 +219,7 @@ export default function OrderTrackingScreen() {
                   <View style={styles.trackingNumber}>
                     <Ionicons color={palette.greenDark} name="barcode-outline" size={20} />
                     <View style={styles.trackingNumberCopy}>
-                      <Text style={styles.metaLabel}>NUMÉRO DE SUIVI</Text>
+                      <Text style={styles.metaLabel}>{msg("orderTracking.trackingNumberUppercase")}</Text>
                       <Text selectable style={styles.trackingNumberValue}>{order.tracking_number}</Text>
                     </View>
                   </View>
@@ -227,8 +228,8 @@ export default function OrderTrackingScreen() {
 
               <View style={styles.progressHeader}>
                 <View>
-                  <Text style={styles.eyebrow}>AVANCEMENT</Text>
-                  <Text style={styles.progressTitle}>État de votre livraison</Text>
+                  <Text style={styles.eyebrow}>{msg("orderTracking.progressUppercase")}</Text>
+                  <Text style={styles.progressTitle}>{msg("orderTracking.yourDeliveryStatus")}</Text>
                 </View>
                 <Text style={styles.progressCount}>{currentStep + 1} / 4</Text>
               </View>
@@ -257,7 +258,7 @@ export default function OrderTrackingScreen() {
                         </Text>
                         <Text style={styles.stepSubtitle}>{item.subtitle}</Text>
                       </View>
-                      {active ? <Text style={styles.currentBadge}>EN COURS</Text> : null}
+                      {active ? <Text style={styles.currentBadge}>{msg("orderConfirmation.inProgressUppercase")}</Text> : null}
                     </View>
                   );
                 })}
@@ -269,7 +270,7 @@ export default function OrderTrackingScreen() {
                     <Ionicons color={palette.greenDark} name="location-outline" size={20} />
                   </View>
                   <View style={styles.deliveryCopy}>
-                    <Text style={styles.deliveryTitle}>Adresse de livraison</Text>
+                    <Text style={styles.deliveryTitle}>{msg("orderTracking.deliveryAddress")}</Text>
                     <Text style={styles.deliveryText}>{order.customer.address}, {order.customer.city}</Text>
                   </View>
                 </View>

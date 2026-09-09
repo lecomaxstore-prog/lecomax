@@ -113,7 +113,7 @@ export default function AnnouncementPage() {
 
       <section className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 sm:px-7">
-          <div><p className="font-black">Aperçu en direct</p><p className="text-xs text-neutral-400">L'apparence affichée sur votre boutique</p></div>
+          <div><p className="font-black">Aperçu en direct</p><p className="text-xs text-neutral-400">L&apos;apparence affichée sur votre boutique</p></div>
           <Toggle checked={settings.announcement_enabled !== "false"} onChange={(value) => update("announcement_enabled", String(value))} label={settings.announcement_enabled !== "false" ? "Active" : "Masquée"} />
         </div>
         <div className="bg-neutral-100 p-4 sm:p-7">

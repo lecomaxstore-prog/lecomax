@@ -30,52 +30,58 @@ export default function AdminLoginPage() {
     setError("");
     // If the honeypot field was filled, this is a bot — fail silently
     if (_hp) { setLoading(false); return; }
+    if (loading) return;
     setLoading(true);
-    const { data: authData, error: err } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (err) {
-      setError("Email ou mot de passe incorrect.");
-    } else {
-      if (rememberMe) {
-        try { localStorage.setItem(SAVED_EMAIL_KEY, email); } catch {}
-      } else {
-        try { localStorage.removeItem(SAVED_EMAIL_KEY); } catch {}
-      }
-
-      // Set session via server-side endpoint so the cookie is HttpOnly
-      let sessionRes: Response;
-      try {
-        // Keep the trailing slash because this project enables
-        // `trailingSlash`; avoiding Next's redirect is important for POSTs.
-        sessionRes = await fetch("/api/admin/auth/session/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            access_token: authData.session?.access_token,
-            email: authData.user?.email,
-            rememberMe,
-          }),
-        });
-      } catch {
-        setLoading(false);
-        setError("Impossible de contacter le serveur. Réessayez.");
+    try {
+      const { data: authData, error: err } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (err) {
+        setError(err.status === 400 || err.code === "invalid_credentials"
+          ? "Email ou mot de passe incorrect."
+          : "Connexion indisponible pour le moment. V?rifiez votre connexion et r?essayez.");
         return;
       }
+      if (!authData.session?.access_token || !authData.user?.email) {
+        setError("Session introuvable. R?essayez de vous connecter.");
+        return;
+      }
+
+      const sessionRes = await fetch("/api/admin/auth/session/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(20000),
+        body: JSON.stringify({
+          access_token: authData.session.access_token,
+          email: authData.user.email,
+          rememberMe,
+        }),
+      });
       if (!sessionRes.ok) {
-        setLoading(false);
         const body = await sessionRes.json().catch(() => ({}));
         if (body?.code === "STAFF_REMOVED") {
           setRemoved(true);
           return;
         }
-        setError("Erreur lors de la création de la session. Réessayez.");
+        setError(typeof body?.error === "string"
+          ? body.error
+          : "Erreur lors de la cr?ation de la session. R?essayez.");
         return;
       }
 
-      // Permissions are now set server-side as a signed HttpOnly cookie
-      // by the /api/admin/auth/session endpoint — no client-side cookie needed.
+      try {
+        if (rememberMe) localStorage.setItem(SAVED_EMAIL_KEY, email.trim());
+        else localStorage.removeItem(SAVED_EMAIL_KEY);
+      } catch {}
 
-      router.replace("/admin/dashboard");
+      // Read the newly issued HttpOnly cookie on a fresh document request.
+      // A prefetched dashboard may still contain the unauthenticated redirect.
+      window.location.replace("/admin/dashboard/");
+    } catch {
+      setError("Impossible de contacter le serveur. V?rifiez votre connexion et r?essayez.");
+    } finally {
+      setLoading(false);
     }
   }
 

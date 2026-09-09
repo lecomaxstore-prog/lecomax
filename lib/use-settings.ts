@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { shippingConfigFromSettings } from "@/lib/shipping-config";
+import { STORE_SETTING_DEFAULTS } from "@/lib/store-settings";
 
 export type SettingsMap = Record<string, string>;
 
 let cache: SettingsMap | null = null;
 let request: Promise<SettingsMap> | null = null;
+let settingsTimer: ReturnType<typeof setInterval> | null = null;
 const listeners = new Set<(settings: SettingsMap) => void>();
 const CHANNEL_NAME = "lecomax-settings";
 const STORAGE_EVENT_KEY = "lecomax_settings_updated_at";
@@ -47,6 +49,7 @@ export function useSettings() {
   const [settings, setSettings] = useState<SettingsMap>(cache ?? {});
 
   useEffect(() => {
+    const firstSubscriber = listeners.size === 0;
     const listener = (next: SettingsMap) => setSettings(next);
     listeners.add(listener);
     if (cache) setSettings(cache);
@@ -63,9 +66,13 @@ export function useSettings() {
     window.addEventListener("storage", onStorage);
     window.addEventListener("focus", refresh);
     document.addEventListener("visibilitychange", onVisibility);
+    if (firstSubscriber) settingsTimer = setInterval(() => {
+      if (document.visibilityState === "visible") refresh();
+    }, 30_000);
 
     return () => {
       listeners.delete(listener);
+      if (!listeners.size && settingsTimer) { clearInterval(settingsTimer); settingsTimer = null; }
       channel?.removeEventListener("message", refresh);
       channel?.close();
       window.removeEventListener("storage", onStorage);
@@ -82,13 +89,13 @@ export function useShippingConfig() {
 }
 
 export function getWhatsAppHref(settings: SettingsMap, message?: string) {
-  const raw = settings.whatsapp_number || "212699289568";
+  const raw = settings.whatsapp_number ?? STORE_SETTING_DEFAULTS.whatsapp_number;
   const num = raw.replace(/[^0-9]/g, "");
   const text = message ?? "Bonjour, je voudrais plus d'informations sur vos produits.";
   return `https://wa.me/${num}?text=${encodeURIComponent(text)}`;
 }
 
 export function getWhatsAppDisplay(settings: SettingsMap) {
-  const raw = settings.whatsapp_number || "212699289568";
+  const raw = settings.whatsapp_number ?? STORE_SETTING_DEFAULTS.whatsapp_number;
   return `+${raw.replace(/[^0-9]/g, "")}`;
 }

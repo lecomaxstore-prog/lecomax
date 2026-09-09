@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from("orders")
-    .select("id, order_number, status, tracking_number, total, created_at, customer, items, payment_method")
+    .select("id, order_number, status, tracking_number, total, created_at, customer, items, payment_method, pricing_snapshot")
     .eq("order_number", order_number)
     .maybeSingle();
 
@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
   const orderTotal = Number(data.total) || 0;
   // Orders store a final total but no separate shipping column. Derive the
   // delivery charge without making the tracking query depend on a missing field.
-  const shipping = Math.max(0, Math.round((orderTotal - itemSubtotal) * 100) / 100);
+  const shipping = data.pricing_snapshot?.shipping ?? null;
 
   return NextResponse.json({
     order: {
@@ -104,6 +104,7 @@ export async function GET(req: NextRequest) {
       tracking_number: data.tracking_number ?? null,
       total: orderTotal,
       shipping,
+      pricing_snapshot: data.pricing_snapshot ?? null,
       payment_method: data.payment_method,
       created_at: data.created_at,
       customer: {

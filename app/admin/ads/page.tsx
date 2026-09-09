@@ -1,4 +1,5 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
@@ -161,7 +162,7 @@ export default function AdsPage() {
     if (f.type === "corner") return (
       <div className="flex justify-end">
         <div className="w-72 rounded-2xl shadow-2xl border border-white/10 overflow-hidden" style={{ background: bg, color: tc }}>
-          {f.image_url && <img src={f.image_url} alt="" className="w-full h-28 object-cover" />}
+          {f.image_url && <img src={f.image_url} alt="" className="w-full h-28 object-cover" loading="lazy" decoding="async" />}
           <div className="p-4">
             {f.heading && <p className="font-black text-base mb-1">{f.heading}</p>}
             {f.body && <p className="text-sm opacity-70 mb-3">{f.body}</p>}
@@ -173,7 +174,7 @@ export default function AdsPage() {
     if (f.type === "floating") return (
       <div className="rounded-2xl shadow-2xl overflow-hidden" style={{ background: bg, color: tc }}>
         <div className="flex items-center gap-4 px-5 py-4">
-          {f.image_url && <img src={f.image_url} alt="" className="w-16 h-16 object-cover rounded-xl flex-shrink-0" />}
+          {f.image_url && <img src={f.image_url} alt="" className="w-16 h-16 object-cover rounded-xl flex-shrink-0" loading="lazy" decoding="async" />}
           <div className="flex-1 min-w-0">
             {f.heading && <p className="font-black">{f.heading}</p>}
             {f.body && <p className="text-sm opacity-70">{f.body}</p>}
@@ -186,7 +187,7 @@ export default function AdsPage() {
     // popup (default)
     return (
       <div className="rounded-2xl shadow-2xl overflow-hidden max-w-sm mx-auto" style={{ background: bg, color: tc }}>
-        {f.image_url && <img src={f.image_url} alt="" className="w-full h-44 object-cover" />}
+        {f.image_url && <img src={f.image_url} alt="" className="w-full h-44 object-cover" loading="lazy" decoding="async" />}
         <div className="p-6">
           {f.heading && <p className="font-black text-xl mb-2">{f.heading}</p>}
           {f.body && <p className="text-sm opacity-70 mb-4">{f.body}</p>}
@@ -252,7 +253,7 @@ export default function AdsPage() {
                   className={`border-2 border-dashed rounded-xl p-4 cursor-pointer transition-colors ${imgDragOver ? "border-black bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"}`}>
                   {f.image_url ? (
                     <div className="flex items-center gap-3">
-                      <img src={f.image_url} alt="" className="w-16 h-12 object-cover rounded-lg flex-shrink-0" />
+                      <img src={f.image_url} alt="" className="w-16 h-12 object-cover rounded-lg flex-shrink-0" loading="lazy" decoding="async" />
                       <p className="text-xs text-neutral-500 truncate flex-1">{f.image_url.split("/").pop()}</p>
                       <button type="button" onClick={(e) => { e.stopPropagation(); setForm((x) => ({ ...x, image_url: "" })); }} className="text-neutral-400 hover:text-red-500 text-lg leading-none">×</button>
                     </div>
@@ -412,7 +413,7 @@ export default function AdsPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-40"><div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" /></div>
+        <AdminLoading />
       ) : ads.length === 0 ? (
         <div className="bg-white rounded-2xl border border-neutral-100 px-6 py-16 text-center">
           <div className="text-4xl mb-3">📢</div>

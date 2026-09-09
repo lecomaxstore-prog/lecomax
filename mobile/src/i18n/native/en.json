@@ -1,0 +1,7 @@
+{
+  "ios": {
+    "NSCameraUsageDescription": "Allow L’ECOMAX to use the camera to scan product codes or take a photo.",
+    "NSPhotoLibraryUsageDescription": "Allow L’ECOMAX to select a photo for your profile.",
+    "NSFaceIDUsageDescription": "Allow L’ECOMAX to use Face ID to protect your sign-in information."
+  }
+}

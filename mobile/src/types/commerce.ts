@@ -1,4 +1,7 @@
 export type Product = {
+  preorder_enabled?: boolean;
+  preorder_estimated_at?: string | null;
+  preorder_message?: string | null;
   id: string;
   slug: string;
   name: string;
@@ -34,6 +37,9 @@ export type Product = {
 };
 
 export type CartLine = {
+  fulfillment_type?: "STANDARD" | "PREORDER";
+  preorder_estimated_at?: string | null;
+  preorder_message?: string | null;
   product: Product;
   quantity: number;
   color?: string;

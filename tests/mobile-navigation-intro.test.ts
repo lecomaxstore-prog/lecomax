@@ -4,10 +4,8 @@ import {
   isHomepagePath,
   safeParentPath,
 } from "../mobile/src/lib/navigation-policy.ts";
-import {
-  appLaunchConfigFromSettings,
-  FALLBACK_APP_LAUNCH_CONFIG,
-} from "../mobile/src/lib/app-launch-config.ts";
+import { loadMobileModule } from './helpers/mobile-module.ts';
+const { appLaunchConfigFromSettings, FALLBACK_APP_LAUNCH_CONFIG } = loadMobileModule<typeof import('../mobile/src/lib/app-launch-config.ts')>('lib/app-launch-config.ts');
 import { redirectSystemPath } from "../mobile/src/app/+native-intent.ts";
 import { validateAppIntroSettings } from "../lib/app-intro-settings.ts";
 

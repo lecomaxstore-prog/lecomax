@@ -10,6 +10,10 @@ function getClient() {
 }
 
 type ApiProduct = {
+  preorder_enabled?: boolean;
+  preorder_estimated_at?: string | null;
+  preorder_message?: string | null;
+  color_stock?: Record<string, number> | null;
   id: string;
   slug: string;
   name: string;
@@ -54,7 +58,7 @@ export async function getDbProducts(options?: {
 export async function getReviewStats(): Promise<Record<string, { rating: number; count: number }>> {
   try {
     const sb = getClient();
-    const { data } = await sb.from("reviews").select("product_slug,rating");
+    const { data } = await sb.from("reviews").select("product_slug,rating").eq("verified_purchase", true);
     if (!data || data.length === 0) return {};
     const acc: Record<string, { sum: number; count: number }> = {};
     for (const r of data as { product_slug: string; rating: number }[]) {

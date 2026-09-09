@@ -31,12 +31,12 @@ export async function POST(req: NextRequest) {
   if (!validExpoToken(body.token) || !["ios", "android"].includes(String(body.platform)) || !validInstallationId(body.installationId)) {
     return NextResponse.json({ error: "Jeton de notification invalide." }, { status: 400 });
   }
-  const { data: notificationSetting } = await supabase
+  const { data: notificationSetting, error: settingsError } = await supabase
     .from("settings")
     .select("value")
     .eq("key", "app_notifications_enabled")
     .maybeSingle();
-  if (notificationSetting?.value === "false") {
+  if (settingsError || notificationSetting?.value === "false") {
     return NextResponse.json({ error: "Les notifications mobiles sont temporairement désactivées." }, { status: 503 });
   }
   const { error } = await supabase.from("mobile_push_tokens").upsert({

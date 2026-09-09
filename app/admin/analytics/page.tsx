@@ -1,4 +1,6 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
+import ResponsiveTable from "@/components/admin/ResponsiveTable";
 import { useEffect, useState, useCallback } from "react";
 import MoroccoLiveMap from "@/components/admin/MoroccoLiveMap";
 import WeeklySearchMonitoring from "@/components/admin/WeeklySearchMonitoring";
@@ -92,7 +94,7 @@ function CountryFlag({ code }: { code: string | null | undefined }) {
         height="30"
         alt={`Drapeau ${name}`}
         className="absolute inset-0 h-full w-full rounded-[4px] object-cover shadow-[0_1px_4px_rgba(0,0,0,.16)] ring-1 ring-black/[.06]"
-        onError={(event) => { event.currentTarget.style.display = "none"; }}
+        onError={(event) => { event.currentTarget.style.display = "none"; }} loading="lazy" decoding="async"
       />
     </span>
   );
@@ -359,9 +361,7 @@ export default function AnalyticsPage() {
       <WeeklySearchMonitoring />
 
       {loading ? (
-        <div className="flex items-center justify-center h-60">
-          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
-        </div>
+        <AdminLoading />
       ) : (
         <>
           {/* KPI Grid */}
@@ -625,7 +625,7 @@ export default function AnalyticsPage() {
                 <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Détail journalier</p>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <ResponsiveTable className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-neutral-50 text-[10px] text-neutral-400 uppercase tracking-wide">
                       <th className="text-left px-5 py-2.5">Date</th>
@@ -651,7 +651,7 @@ export default function AnalyticsPage() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </ResponsiveTable>
               </div>
             </div>
           </div>

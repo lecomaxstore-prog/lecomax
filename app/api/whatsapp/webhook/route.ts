@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type OpenAI from "openai";
-import { getServerShippingConfig } from "@/lib/shipping-config-server";
-import { shippingSummary } from "@/lib/shipping-config";
+import { getStoreAssistantContext } from "@/lib/store-assistant-context";
+
 import { getGroqClient } from "@/lib/groq-client";
 
 // ─── Clients ────────────────────────────────────────────────────────────────
@@ -51,14 +51,12 @@ async function getAIReply(
   userMessage: string,
   history: { role: "user" | "assistant"; content: string }[]
 ): Promise<string> {
-  const shippingConfig = await getServerShippingConfig();
+  const businessContext = await getStoreAssistantContext();
   const systemPrompt = `You are Eco, the friendly AI assistant for L'ecomax — a Moroccan online store (lecomax.com) selling fashion, sports shoes, clothing, earphones, Bluetooth speakers, and gaming accessories.
 
 Store info:
-- ${shippingSummary(shippingConfig)} Estimated delivery: ${shippingConfig.estimatedDays}. Cash on delivery (COD)
+- ${businessContext}
 - Free returns within 30 days
-- WhatsApp: +212699289568 | Email: contact@lecomax.com
-- Working hours: 9h–20h
 
 LANGUAGE RULE: Detect the customer's language and ALWAYS reply in that exact language (French / English / Arabic / Darija).
 

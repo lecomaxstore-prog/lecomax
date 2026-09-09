@@ -1,3 +1,5 @@
+import { localizedError } from "@/i18n/errors";
+import { msg, useLocale } from "@/i18n";
 import "@/global.css";
 import { Inter_400Regular } from "@expo-google-fonts/inter/400Regular";
 import { Inter_500Medium } from "@expo-google-fonts/inter/500Medium";
@@ -22,10 +24,13 @@ import { AndroidBackController } from "@/components/android-back-controller";
 import { LaunchIntro } from "@/components/launch-intro";
 import { MobileNotificationLifecycle } from "@/components/mobile-notification-lifecycle";
 import { CartFlyOverlay } from "@/components/cart-fly-overlay";
+import { usePreferences } from "@/stores/preferences";
+import { useAppOpeningLifecycle } from "@/stores/app-opening";
 
 void SplashScreen.preventAutoHideAsync();
 
 function WebMouseScrollBridge() {
+  useLocale();
   useEffect(() => {
     if (Platform.OS !== "web" || typeof document === "undefined") return;
 
@@ -186,30 +191,33 @@ function WebMouseScrollBridge() {
 }
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  useLocale();
   return (
     <View className="flex-1 items-center justify-center bg-canvas px-8 dark:bg-ink">
       <View className="h-20 w-20 items-center justify-center rounded-full bg-lime">
         <Text className="text-3xl">!</Text>
       </View>
       <Text className="mt-6 text-center text-2xl font-black text-ink dark:text-white">
-        Un imprévu est survenu
-      </Text>
+        {msg("layout.somethingWentWrong")}</Text>
       <Text className="mt-3 text-center leading-6 text-muted">
-        {error.message || "Lecomax n’a pas pu charger cet écran."}
+        {localizedError(error) || msg("layout.lecomaxCouldnTLoadThisScreen")}
       </Text>
       <Pressable
-        accessibilityLabel="Réessayer"
+        accessibilityLabel={msg("support.tryAgain")}
         accessibilityRole="button"
         onPress={retry}
         className="mt-7 rounded-full bg-ink px-8 py-4 dark:bg-lime"
       >
-        <Text className="font-black text-white dark:text-ink">Réessayer</Text>
+        <Text className="font-black text-white dark:text-ink">{msg("support.tryAgain")}</Text>
       </Pressable>
     </View>
   );
 }
 
 export default function RootLayout() {
+  useAppOpeningLifecycle();
+  useLocale();
+  const preferencesReady = usePreferences((state) => state.hydrated);
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
@@ -219,10 +227,10 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (fontsLoaded || fontError) void SplashScreen.hideAsync();
-  }, [fontError, fontsLoaded]);
+    if (preferencesReady && (fontsLoaded || fontError)) void SplashScreen.hideAsync();
+  }, [fontError, fontsLoaded, preferencesReady]);
 
-  if (!fontsLoaded && !fontError) return null;
+  if (!preferencesReady || (!fontsLoaded && !fontError)) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

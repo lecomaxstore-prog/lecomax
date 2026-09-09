@@ -17,11 +17,16 @@ const PRODUCT_FAMILIES: Array<{ name: string; terms: string[] }> = [
   { name: "speakers", terms: ["enceinte", "enceintes", "speaker", "speakers"] },
   { name: "slippers", terms: ["chausson", "chaussons", "pantoufle", "pantoufles"] },
   { name: "slides", terms: ["claquette", "claquettes", "sandale", "sandales", "mule", "mules"] },
-  { name: "running-shoes", terms: ["running", "course", "sneaker", "sneakers", "basket", "baskets"] },
+  { name: "running-shoes", terms: ["chaussure", "shoe", "sneaker", "basket", "trainer"] },
   { name: "boots", terms: ["botte", "bottes", "bottine", "bottines"] },
   { name: "jackets", terms: ["veste", "vestes", "blouson", "blousons", "coupe vent"] },
   { name: "hoodies", terms: ["sweat", "sweats", "hoodie", "hoodies", "sweatshirt"] },
-  { name: "shirts", terms: ["chemise", "chemises", "shirt", "shirts", "t shirt", "tee shirt"] },
+  { name: "t-shirts", terms: ["t shirt", "tee shirt", "tshirt", "teeshirt"] },
+  { name: "shirts", terms: ["chemise", "shirt"] },
+  { name: "polos", terms: ["polo"] },
+  { name: "shorts", terms: ["short", "bermuda"] },
+  { name: "dresses", terms: ["robe", "dress"] },
+  { name: "skirts", terms: ["jupe", "skirt"] },
   { name: "pants", terms: ["pantalon", "pantalons", "jogging", "joggers", "legging", "leggings"] },
   { name: "backpacks", terms: ["sac a dos", "sacs a dos", "backpack", "backpacks", "cartable"] },
   { name: "waist-bags", terms: ["sac banane", "banane", "waist bag", "belt bag", "sacoche ceinture"] },
@@ -41,6 +46,11 @@ const FAMILY_GROUPS: Record<string, string> = {
   jackets: "clothing",
   hoodies: "clothing",
   shirts: "clothing",
+  "t-shirts": "clothing",
+  polos: "clothing",
+  shorts: "clothing",
+  dresses: "clothing",
+  skirts: "clothing",
   pants: "clothing",
   backpacks: "bags",
   "waist-bags": "bags",
@@ -69,8 +79,12 @@ function searchableText(product: RecommendationProduct) {
 }
 
 function familyOf(product: RecommendationProduct) {
-  const text = searchableText(product);
-  return PRODUCT_FAMILIES.find(({ terms }) => terms.some((term) => text.includes(normalize(term))))?.name ?? null;
+  for (const source of [product.name, product.slug, product.subCategory, product.category]) {
+    const text = normalize(source);
+    const match = PRODUCT_FAMILIES.find(({ terms }) => terms.some((term) => new RegExp(`(?:^| )${normalize(term)}s?(?: |$)`).test(text)));
+    if (match) return match.name;
+  }
+  return null;
 }
 
 function audienceOf(product: RecommendationProduct) {
@@ -83,7 +97,7 @@ function audienceOf(product: RecommendationProduct) {
 
 function meaningfulTokens(product: RecommendationProduct) {
   return new Set(
-    normalize([product.name, product.description].filter(Boolean).join(" "))
+    normalize(product.name)
       .split(" ")
       .filter((token) => token.length >= 4 && !STOP_WORDS.has(token))
   );
@@ -126,6 +140,7 @@ function isActuallySimilar(current: RecommendationProduct, candidate: Recommenda
   const currentSubcategory = normalize(current.subCategory);
   const candidateSubcategory = normalize(candidate.subCategory);
   if (currentFamily) return candidateFamily === currentFamily;
+  if (candidateFamily) return false;
   if (currentSubcategory && candidateSubcategory === currentSubcategory) return true;
   if (normalize(current.category) !== normalize(candidate.category)) return false;
   const currentTokens = meaningfulTokens(current);

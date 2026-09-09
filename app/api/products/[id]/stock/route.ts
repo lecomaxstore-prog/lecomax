@@ -1,166 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation } from "@/lib/api-security";
-import {
-  asStock,
-  cleanColorStock,
-  colorStockTotal,
-  reconcileColorStock,
-  syncOutOfStockTags,
-} from "@/lib/product-inventory";
+import { asStock } from "@/lib/product-inventory";
+import { bulkProductPatch, type BulkProduct } from "@/lib/product-bulk";
 import { publishProductDiscovery } from "@/lib/product-discovery";
+import { recordAdminActivity } from "@/lib/admin-activity";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
-
-type InventoryProduct = {
-  id: string;
-  slug: string;
-  category: string | null;
-  active: boolean;
-  stock: number;
-  colors: string[] | null;
-  color_stock: Record<string, number> | null;
-  tags: string[] | null;
-};
-
-// PATCH /api/products/[id]/stock
-// Adds inventory on the server and uses the previous total as an optimistic
-// lock so two simultaneous restocks cannot silently overwrite each other.
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const blocked = await protectAdminMutation(req, {
-    key: "products:stock",
-    limit: 90,
-  });
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const blocked = await protectAdminMutation(req, { key: "products:stock", limit: 90 });
   if (blocked) return blocked;
-
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "JSON invalide." }, { status: 400 });
-  }
-  if (!body || typeof body !== "object" || Array.isArray(body)) {
-    return NextResponse.json({ error: "Données de stock invalides." }, { status: 400 });
-  }
-
-  const input = body as Record<string, unknown>;
-  if (input.operation !== "add") {
-    return NextResponse.json({ error: "Opération de stock invalide." }, { status: 400 });
-  }
-  const quantity = asStock(input.quantity);
-  if (quantity === null || quantity < 1) {
-    return NextResponse.json(
-      { error: "La quantité doit être un entier supérieur à zéro." },
-      { status: 400 },
-    );
-  }
-  const requestedColor =
-    typeof input.color === "string" ? input.color.trim().slice(0, 80) : "";
-
   const { id } = await params;
-  const { data: currentData, error: readError } = await supabase
-    .from("products")
-    .select("id,slug,category,active,stock,colors,color_stock,tags")
-    .eq("id", id)
-    .maybeSingle();
-  if (readError) {
-    return NextResponse.json(
-      { error: "Impossible de lire le stock actuel." },
-      { status: 500 },
-    );
-  }
-  if (!currentData) {
-    return NextResponse.json({ error: "Produit introuvable." }, { status: 404 });
-  }
-
-  const current = currentData as InventoryProduct;
-  const colors = [...new Set([
-    ...(current.colors ?? []),
-    ...Object.keys(cleanColorStock(current.color_stock) ?? {}),
-  ])];
-  if (requestedColor && !colors.includes(requestedColor)) {
-    return NextResponse.json(
-      { error: "Cette variante n’existe pas pour ce produit." },
-      { status: 400 },
-    );
-  }
-
-  const nextTotal = asStock(Number(current.stock) + quantity);
-  if (nextTotal === null) {
-    return NextResponse.json(
-      { error: "Le stock maximum autorisé serait dépassé." },
-      { status: 400 },
-    );
-  }
-
-  const currentColorStock = cleanColorStock(current.color_stock) ?? {};
-  let nextColorStock: Record<string, number> | null;
-  if (requestedColor) {
-    const hasAllocatedVariants = Object.keys(currentColorStock).length > 0;
-    const currentVariant = hasAllocatedVariants
-      ? currentColorStock[requestedColor] ?? 0
-      : current.stock;
-    const nextVariant = asStock(currentVariant + quantity);
-    if (nextVariant === null) {
-      return NextResponse.json(
-        { error: "Le stock maximum de cette variante serait dépassé." },
-        { status: 400 },
-      );
-    }
-    nextColorStock = { ...currentColorStock, [requestedColor]: nextVariant };
-  } else {
-    nextColorStock = reconcileColorStock(currentColorStock, colors, nextTotal);
-  }
-
-  const stock = nextColorStock ? colorStockTotal(nextColorStock) : nextTotal;
-  const payload: Record<string, unknown> = { stock };
-  if (nextColorStock) {
-    payload.color_stock = nextColorStock;
-    payload.tags = syncOutOfStockTags(current.tags ?? [], nextColorStock);
-  }
-
-  const { data, error } = await supabase
-    .from("products")
-    .update(payload)
-    .eq("id", id)
-    .eq("stock", current.stock)
-    .select()
-    .maybeSingle();
-  if (error) {
-    return NextResponse.json(
-      { error: "Impossible d’ajouter le stock." },
-      { status: 500 },
-    );
-  }
-  if (!data) {
-    return NextResponse.json(
-      {
-        error:
-          "Le stock vient d’être modifié ailleurs. Actualisez puis réessayez.",
-        code: "INVENTORY_CONFLICT",
-      },
-      { status: 409 },
-    );
-  }
-
-  publishProductDiscovery({ current: data, previous: current });
-  return NextResponse.json(
-    {
-      product: data,
-      adjustment: {
-        operation: "add",
-        quantity,
-        color: requestedColor || null,
-        previous_stock: current.stock,
-        stock: data.stock,
-      },
-    },
-    { headers: { "Cache-Control": "no-store, max-age=0" } },
-  );
+  if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)) return NextResponse.json({ error: "Identifiant invalide." }, { status: 400 });
+  let body: unknown;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "JSON invalide." }, { status: 400 }); }
+  if (!body || typeof body !== "object" || Array.isArray(body)) return NextResponse.json({ error: "Stock invalide." }, { status: 400 });
+  const input = body as Record<string, unknown>;
+  const quantity = asStock(input.quantity);
+  if (input.operation !== "add" || quantity === null || quantity < 1 || [input.color,input.size].some(value => value !== undefined && typeof value !== "string")) return NextResponse.json({ error: "Quantit? ou variante invalide." }, { status: 400 });
+  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+  const { data: current, error: readError } = await db.from("products").select("*").eq("id", id).maybeSingle();
+  if (readError || !current) return NextResponse.json({ error: readError ? "Lecture du stock impossible." : "Produit introuvable." }, { status: readError ? 503 : 404 });
+  let patch;
+  try { patch = bulkProductPatch(current as BulkProduct, { ids:[id], action:"stock", confirmation:"stock:1", value:quantity, color:typeof input.color === "string" ? input.color.trim() : undefined, size:typeof input.size === "string" ? input.size.trim() : undefined }); }
+  catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Stock invalide." }, { status: 400 }); }
+  const { data, error } = await db.rpc("apply_product_bulk_change", { p_id:id, p_expected:current, p_patch:patch, p_delete:false });
+  if (error) return NextResponse.json({ error: "Stock modifi? ailleurs ou service indisponible. Actualisez avant de r?essayer.", code:"INVENTORY_CONFLICT" }, { status: 409 });
+  await recordAdminActivity(req, "product", id, data.previous, data.current);
+  publishProductDiscovery({previous:data.previous,current:data.current});
+  return NextResponse.json({ product:data.current, adjustment:{ operation:"add",quantity,color:input.color??null,size:input.size??null,previous_stock:current.stock,stock:data.current.stock } }, { headers:{"Cache-Control":"no-store"} });
 }

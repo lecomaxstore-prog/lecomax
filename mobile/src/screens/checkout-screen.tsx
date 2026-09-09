@@ -1,3 +1,7 @@
+import { PreorderNotice } from "@/components/preorder-notice";
+import { localizedContent } from "@/i18n/content";
+import { localizedError } from "@/i18n/errors";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Image } from "expo-image";
@@ -94,30 +98,30 @@ const emailSchema = z
   .string()
   .trim()
   .toLowerCase()
-  .min(1, "L’adresse email est obligatoire")
-  .email("Saisissez une adresse email valide, par exemple nom@gmail.com")
+  .min(1, { error: () => msg("checkoutScreen.emailAddressIsRequired") })
+  .email({ error: () => msg("checkoutScreen.enterAValidEmailAddressForExampleNameGmailCom") })
   .superRefine((value, context) => {
     const domain = value.split("@")[1]?.toLowerCase();
     const suggestion = domain ? emailDomainSuggestions[domain] : undefined;
     if (!suggestion) return;
     context.addIssue({
       code: "custom",
-      message: `Vérifiez le domaine : vouliez-vous écrire @${suggestion} ?`,
+      message: msg("validation.emailDomainSuggestion", { domain: suggestion }),
     });
   });
 
 const schema = z.object({
-  name: z.string().trim().min(2, "Saisissez votre nom complet"),
+  name: z.string().trim().min(2, { error: () => msg("checkoutScreen.enterYourFullName") }),
   email: emailSchema,
   phone: z
     .string()
     .trim()
-    .min(1, "Le numéro de téléphone est obligatoire")
+    .min(1, { error: () => msg("checkoutScreen.phoneNumberIsRequired") })
     .refine((value) => /^(?:212|0)[67]\d{8}$/.test(value.replace(/\D/g, "")), {
-      message: "Utilisez un numéro marocain valide : 06, 07, +212 6 ou +212 7",
+      get message() { return msg("checkoutScreen.useAValidMoroccanNumber06072126Or2127"); },
     }),
-  city: z.string().trim().min(2, "Saisissez votre ville"),
-  address: z.string().trim().min(8, "Saisissez votre adresse complète"),
+  city: z.string().trim().min(2, { error: () => msg("checkoutScreen.enterYourCity") }),
+  address: z.string().trim().min(8, { error: () => msg("checkoutScreen.enterYourFullAddress") }),
   notes: z.string().optional(),
   payment: z.enum(["cod", "paypal"]),
 });
@@ -142,34 +146,34 @@ const deliveryFields: {
 }[] = [
   {
     name: "name",
-    label: "NOM COMPLET",
-    placeholder: "Ex. Zakaria Zemzami",
+    get label() { return msg("checkoutScreen.fullNameUppercase"); },
+    get placeholder() { return msg("checkoutScreen.eGZakariaZemzami"); },
     icon: "person-outline",
   },
   {
     name: "email",
-    label: "ADRESSE EMAIL",
-    placeholder: "nom@exemple.com",
+    get label() { return msg("auth.emailAddressUppercase"); },
+    get placeholder() { return msg("common.emailExample"); },
     icon: "mail-outline",
     keyboardType: "email-address",
   },
   {
     name: "phone",
-    label: "TÉLÉPHONE",
+    get label() { return msg("checkoutScreen.phoneUppercase"); },
     placeholder: "+212 6 00 00 00 00",
     icon: "call-outline",
     keyboardType: "phone-pad",
   },
   {
     name: "city",
-    label: "VILLE",
-    placeholder: "Ex. Casablanca",
+    get label() { return msg("checkoutScreen.cityUppercase"); },
+    get placeholder() { return msg("checkoutScreen.eGCasablanca"); },
     icon: "business-outline",
   },
   {
     name: "address",
-    label: "ADRESSE COMPLÈTE",
-    placeholder: "Rue, quartier et code postal",
+    get label() { return msg("checkoutScreen.fullAddressUppercase"); },
+    get placeholder() { return msg("checkoutScreen.streetNeighborhoodAndPostalCode"); },
     icon: "location-outline",
   },
 ];
@@ -185,12 +189,13 @@ function CheckoutHeader({
   topInset: number;
   onBack: () => void;
 }) {
+  useLocale();
   return (
     <View style={[styles.header, { paddingTop: Math.max(topInset, 8) }]}>
       <View style={styles.headerRow}>
         <AnimatedPressable
           accessibilityLabel={
-            paymentStep ? "Retour à la livraison" : "Retour au panier"
+            paymentStep ? msg("checkoutScreen.backToDelivery") : msg("checkoutScreen.backToCart")
           }
           onPress={onBack}
           style={styles.headerIconButton}
@@ -203,20 +208,19 @@ function CheckoutHeader({
             numberOfLines={2}
             style={[styles.headerTitle, compact && styles.headerTitleCompact]}
           >
-            Finaliser la commande
-          </Text>
+            {msg("checkoutScreen.completeYourOrder")}</Text>
           <View style={styles.headerSecurity}>
             <Ionicons name="lock-closed" size={11} color={C.greenDark} />
             <Text
               maxFontSizeMultiplier={1.15}
               style={styles.headerSecurityText}
             >
-              {paymentStep ? "Paiement sécurisé" : "Livraison sécurisée"}
+              {paymentStep ? msg("common.secureCheckout") : msg("checkoutScreen.secureDelivery")}
             </Text>
           </View>
         </View>
         <View
-          accessibilityLabel="Commande protégée"
+          accessibilityLabel={msg("trustStrip.protectedOrder")}
           style={styles.headerShield}
         >
           <Ionicons name="shield-checkmark-outline" size={21} color={C.green} />
@@ -227,9 +231,10 @@ function CheckoutHeader({
 }
 
 function SkeletonRows() {
+  useLocale();
   return (
     <View
-      accessibilityLabel="Chargement des moyens de paiement"
+      accessibilityLabel={msg("checkoutScreen.loadingPaymentMethods")}
       style={styles.skeletonGroup}
     >
       {[0, 1].map((item) => (
@@ -259,6 +264,7 @@ function StatusBanner({
   actionLabel?: string;
   onAction?: () => void;
 }) {
+  useLocale();
   const icon =
     tone === "error"
       ? "alert-circle"
@@ -317,6 +323,7 @@ function StockProblemCard({
   onEdit: () => void;
   onRemove: () => void;
 }) {
+  useLocale();
   return (
     <View accessibilityRole="alert" style={styles.stockCard}>
       <View style={styles.stockHeadingRow}>
@@ -324,35 +331,35 @@ function StockProblemCard({
           <Ionicons name="warning" size={20} color={C.white} />
         </View>
         <View style={styles.stockHeadingCopy}>
-          <Text style={styles.stockEyebrow}>ACTION REQUISE</Text>
-          <Text style={styles.stockTitle}>STOCK INSUFFISANT</Text>
+          <Text style={styles.stockEyebrow}>{msg("checkoutScreen.actionRequiredUppercase")}</Text>
+          <Text style={styles.stockTitle}>{msg("checkoutScreen.insufficientStockUppercase")}</Text>
         </View>
       </View>
       <Text style={styles.stockProduct}>{problem.productName}</Text>
       <Text style={styles.stockExplanation}>{problem.explanation}</Text>
       {problem.availableQuantity !== undefined ? (
         <View style={styles.stockAvailability}>
-          <Text style={styles.stockAvailabilityLabel}>QUANTITÉ DISPONIBLE</Text>
+          <Text style={styles.stockAvailabilityLabel}>{msg("checkoutScreen.availableQuantityUppercase")}</Text>
           <Text style={styles.stockAvailabilityValue}>
             {problem.availableQuantity}
           </Text>
         </View>
       ) : null}
       <AnimatedPressable
-        accessibilityLabel="Modifier le panier"
+        accessibilityLabel={msg("checkoutScreen.editCart")}
         onPress={onEdit}
         style={styles.stockPrimary}
       >
         <Ionicons name="create-outline" size={17} color={C.white} />
-        <Text style={styles.stockPrimaryText}>MODIFIER LE PANIER</Text>
+        <Text style={styles.stockPrimaryText}>{msg("checkoutScreen.editCartUppercase")}</Text>
       </AnimatedPressable>
       <AnimatedPressable
-        accessibilityLabel={`Supprimer ${problem.productName} du panier`}
+        accessibilityLabel={msg("cart.removeNamed", { name: problem.productName })}
         onPress={onRemove}
         style={styles.stockSecondary}
       >
         <Ionicons name="trash-outline" size={16} color={C.red} />
-        <Text style={styles.stockSecondaryText}>SUPPRIMER L’ARTICLE</Text>
+        <Text style={styles.stockSecondaryText}>{msg("checkoutScreen.removeItemUppercase")}</Text>
       </AnimatedPressable>
     </View>
   );
@@ -381,21 +388,22 @@ function OrderSummary({
   onToggle: () => void;
   onEdit: () => void;
 }) {
+  useLocale();
   return (
     <View style={styles.orderBlock}>
       <View style={styles.orderMetaRow}>
         <View style={styles.orderMetaTitle}>
-          <Text style={styles.eyebrow}>Votre commande</Text>
+          <Text style={styles.eyebrow}>{msg("checkoutScreen.yourOrder")}</Text>
         </View>
         <View style={styles.orderCountBadge}>
           <Text style={styles.orderCount}>
-            {itemCount} article{itemCount > 1 ? "s" : ""}
+            {msg("counts.items", { count: itemCount })}
           </Text>
         </View>
       </View>
       <View style={styles.orderTop}>
         <View style={styles.orderTotalCopy}>
-          <Text style={styles.orderAmountLabel}>Total à payer</Text>
+          <Text style={styles.orderAmountLabel}>{msg("orderConfirmation.totalToPay")}</Text>
           <Text
             adjustsFontSizeToFit
             maxFontSizeMultiplier={1.2}
@@ -408,15 +416,15 @@ function OrderSummary({
         <AnimatedPressable
           accessibilityLabel={
             expanded
-              ? "Masquer le détail de la commande"
-              : "Voir le détail de la commande"
+              ? msg("checkoutScreen.hideOrderDetails")
+              : msg("checkoutScreen.viewOrderDetails")
           }
           accessibilityState={{ expanded }}
           onPress={onToggle}
           style={styles.orderToggle}
         >
           <Text style={styles.orderToggleText}>
-            {expanded ? "Masquer" : "Voir le détail"}
+            {expanded ? msg("checkoutScreen.hide") : msg("checkoutScreen.viewDetails")}
           </Text>
           <Ionicons
             name={expanded ? "chevron-up" : "chevron-down"}
@@ -431,15 +439,13 @@ function OrderSummary({
           <>
             <ActivityIndicator color={C.greenDark} size="small" />
             <Text style={styles.orderVerificationText}>
-              Vérification des prix et du stock…
-            </Text>
+              {msg("checkoutScreen.checkingPricesAndStock")}</Text>
           </>
         ) : quoteReady && !stockProblem ? (
           <>
             <Ionicons name="checkmark" size={14} color={C.greenDark} />
             <Text style={styles.orderVerificationOk}>
-              Prix et disponibilité vérifiés
-            </Text>
+              {msg("checkoutScreen.pricesAndAvailabilityVerified")}</Text>
           </>
         ) : null}
       </View>
@@ -470,10 +476,11 @@ function OrderSummary({
                   <Text style={styles.orderProductName}>
                     {line.product.name}
                   </Text>
+              <PreorderNotice item={{ ...line.product, fulfillment_type: line.fulfillment_type }} />
                   <Text style={styles.orderVariant}>
-                    {[line.color, line.size].filter(Boolean).join(" · ") ||
-                      "Option standard"}{" "}
-                    · Qté {line.quantity}
+                    {[localizedContent(line.color), line.size].filter(Boolean).join(" · ") ||
+                      msg("checkoutScreen.standardOption")}{" "}
+                    {msg("checkoutScreen.qty")}{line.quantity}
                   </Text>
                   <View style={styles.orderAvailability}>
                     <View
@@ -489,10 +496,10 @@ function OrderSummary({
                       ]}
                     >
                       {affected
-                        ? "ACTION REQUISE"
+                        ? msg("checkoutScreen.actionRequiredUppercase")
                         : quoteReady
-                          ? "DISPONIBILITÉ VÉRIFIÉE"
-                          : "VÉRIFICATION EN COURS"}
+                          ? msg("checkoutScreen.availabilityVerifiedUppercase")
+                          : msg("checkoutScreen.verificationInProgressUppercase")}
                     </Text>
                   </View>
                 </View>
@@ -500,18 +507,18 @@ function OrderSummary({
                   <Text style={styles.orderProductPrice}>
                     {money(line.product.price * line.quantity)}
                   </Text>
-                  <Text style={styles.orderQuantity}>QTÉ {line.quantity}</Text>
+                  <Text style={styles.orderQuantity}>{msg("checkoutScreen.qtyUppercase")}{line.quantity}</Text>
                 </View>
               </View>
             );
           })}
           <AnimatedPressable
-            accessibilityLabel="Modifier les articles du panier"
+            accessibilityLabel={msg("checkoutScreen.editCartItems")}
             onPress={onEdit}
             style={styles.editCart}
           >
             <Ionicons name="create-outline" size={16} color={C.ink} />
-            <Text style={styles.editCartText}>MODIFIER LE PANIER</Text>
+            <Text style={styles.editCartText}>{msg("checkoutScreen.editCartUppercase")}</Text>
           </AnimatedPressable>
         </Animated.View>
       ) : null}
@@ -528,10 +535,11 @@ function PaymentMethodRow({
   selected: boolean;
   onSelect: () => void;
 }) {
+  useLocale();
   const paypal = method.provider === "paypal";
   return (
     <AnimatedPressable
-      accessibilityLabel={`${method.title}${method.available ? "" : ", indisponible pour le moment"}`}
+      accessibilityLabel={`${localizedContent(method.title)}${method.available ? "" : msg("checkoutScreen.currentlyUnavailable")}`}
       accessibilityState={{ disabled: !method.available, selected }}
       disabled={!method.available}
       onPress={onSelect}
@@ -567,19 +575,19 @@ function PaymentMethodRow({
               !method.available && styles.paymentTitleUnavailable,
             ]}
           >
-            {method.title}
+            {localizedContent(method.title)}
           </Text>
           {method.recommended && method.available ? (
-            <Text style={styles.recommended}>Recommandé</Text>
+            <Text style={styles.recommended}>{msg("checkoutScreen.recommended")}</Text>
           ) : null}
         </View>
         <Text maxFontSizeMultiplier={1.35} style={styles.paymentDescription}>
           {method.available
-            ? `${method.description}${method.fee > 0 ? ` · Frais ${money(method.fee)}` : ""}`
-            : method.unavailableReason || "INDISPONIBLE POUR LE MOMENT"}
+            ? `${localizedContent(method.description)}${method.fee > 0 ? msg("checkout.paymentFee", { fee: money(method.fee) }) : ""}`
+            : localizedContent(method.unavailableReason) || msg("checkoutScreen.currentlyUnavailableUppercase")}
         </Text>
         {!method.available ? (
-          <Text style={styles.unavailable}>INDISPONIBLE POUR LE MOMENT</Text>
+          <Text style={styles.unavailable}>{msg("checkoutScreen.currentlyUnavailableUppercase")}</Text>
         ) : null}
       </View>
       <View
@@ -603,6 +611,7 @@ function PriceRow({
   value: string;
   accent?: boolean;
 }) {
+  useLocale();
   return (
     <View style={styles.priceRow}>
       <Text style={[styles.priceLabel, accent && styles.priceAccent]}>
@@ -628,25 +637,26 @@ function PriceSummary({
   paymentFee: number;
   total: number;
 }) {
+  useLocale();
   return (
     <View style={styles.priceCard}>
-      <Text style={styles.sectionEyebrow}>RÉCAPITULATIF DU PRIX</Text>
-      <PriceRow label="Sous-total" value={money(subtotal)} />
+      <Text style={styles.sectionEyebrow}>{msg("checkoutScreen.priceSummaryUppercase")}</Text>
+      <PriceRow label={msg("common.subtotal")} value={money(subtotal)} />
       {discount > 0 ? (
-        <PriceRow accent label="Réduction" value={`−${money(discount)}`} />
+        <PriceRow accent label={msg("checkoutScreen.discount")} value={`−${money(discount)}`} />
       ) : null}
       <PriceRow
-        label="Livraison"
-        value={shipping > 0 ? money(shipping) : "OFFERTE"}
+        label={msg("support.delivery")}
+        value={shipping > 0 ? money(shipping) : msg("checkoutScreen.freeUppercase")}
       />
       {paymentFee > 0 ? (
-        <PriceRow label="Frais de paiement" value={money(paymentFee)} />
+        <PriceRow label={msg("checkoutScreen.paymentFees")} value={money(paymentFee)} />
       ) : null}
       <View style={styles.totalDivider} />
       <View style={styles.totalRow}>
         <View style={styles.totalLabelWrap}>
-          <Text style={styles.totalLabel}>TOTAL À PAYER</Text>
-          <Text style={styles.taxLabel}>Taxes incluses</Text>
+          <Text style={styles.totalLabel}>{msg("checkoutScreen.totalToPayUppercase")}</Text>
+          <Text style={styles.taxLabel}>{msg("checkoutScreen.taxIncluded")}</Text>
         </View>
         <Text
           adjustsFontSizeToFit
@@ -676,6 +686,7 @@ function CheckoutFooter({
   onPress: () => void;
   bottomInset: number;
 }) {
+  useLocale();
   const disabled = loading || Boolean(disabledReason);
   return (
     <View style={[styles.footer, { paddingBottom: Math.max(bottomInset, 10) }]}>
@@ -689,8 +700,8 @@ function CheckoutFooter({
         <AnimatedPressable
           accessibilityLabel={
             paymentStep
-              ? `Confirmer la commande, ${money(total)}`
-              : "Continuer vers le paiement"
+              ? msg("checkout.confirmTotal", { total: money(total) })
+              : msg("checkoutScreen.continueToPayment")
           }
           accessibilityState={{ busy: loading, disabled }}
           disabled={disabled}
@@ -706,8 +717,7 @@ function CheckoutFooter({
             <>
               <ActivityIndicator color={C.disabledText} size="small" />
               <Text style={styles.confirmTextDisabled}>
-                TRAITEMENT DE LA COMMANDE…
-              </Text>
+                {msg("checkoutScreen.processingOrderUppercase")}</Text>
             </>
           ) : (
             <>
@@ -721,13 +731,13 @@ function CheckoutFooter({
                   ]}
                 >
                   {paymentStep
-                    ? "Confirmer la commande"
-                    : "Continuer au paiement"}
+                    ? msg("checkoutScreen.confirmOrder")
+                    : msg("checkoutScreen.continueToPaymentText")}
                 </Text>
                 <Text style={[styles.confirmHint, disabled && styles.confirmTextDisabled]}>
                   {paymentStep
-                    ? `${money(total)} · total à payer`
-                    : "Choisissez votre moyen de paiement"}
+                    ? msg("checkout.totalDue", { total: money(total) })
+                    : msg("checkoutScreen.chooseYourPaymentMethod")}
                 </Text>
               </View>
               <View style={styles.confirmArrow}>
@@ -742,7 +752,7 @@ function CheckoutFooter({
         </AnimatedPressable>
         {paymentStep ? (
           <Text style={styles.terms}>
-            En confirmant, vous acceptez nos{" "}
+            {msg("checkoutScreen.byConfirmingYouAgreeToOur")}{" "}
             <Text
               accessibilityRole="link"
               onPress={() =>
@@ -752,8 +762,7 @@ function CheckoutFooter({
               }
               style={styles.termsLink}
             >
-              conditions de vente
-            </Text>
+              {msg("checkoutScreen.termsOfSale")}</Text>
             .
           </Text>
         ) : null}
@@ -769,6 +778,7 @@ function EmptyCart({
   topInset: number;
   bottomInset: number;
 }) {
+  useLocale();
   return (
     <View
       style={[
@@ -782,16 +792,15 @@ function EmptyCart({
       <View style={styles.emptyIcon}>
         <Ionicons name="bag-outline" size={32} color={C.greenDark} />
       </View>
-      <Text style={styles.emptyTitle}>VOTRE PANIER EST VIDE</Text>
+      <Text style={styles.emptyTitle}>{msg("checkoutScreen.yourCartIsEmptyUppercase")}</Text>
       <Text style={styles.emptyText}>
-        Ajoutez un article avant de finaliser votre commande.
-      </Text>
+        {msg("checkoutScreen.addAnItemBeforeCompletingYourOrder")}</Text>
       <AnimatedPressable
-        accessibilityLabel="Retourner au catalogue"
+        accessibilityLabel={msg("checkoutScreen.backToCatalog")}
         onPress={() => router.replace("/catalog")}
         style={styles.emptyButton}
       >
-        <Text style={styles.emptyButtonText}>DÉCOUVRIR LES PRODUITS</Text>
+        <Text style={styles.emptyButtonText}>{msg("homeSignupOffer.exploreProductsUppercase")}</Text>
       </AnimatedPressable>
     </View>
   );
@@ -817,11 +826,11 @@ function stockProblemFromError(error: unknown, cart: CartLine[]) {
     productName:
       typeof details.productName === "string"
         ? details.productName
-        : line?.product.name || "Article indisponible",
+        : line?.product.name || msg("checkoutScreen.itemUnavailable"),
     explanation:
       error.code === "PRODUCT_UNAVAILABLE"
-        ? "Cet article n’est plus disponible à la vente. Modifiez votre panier pour continuer."
-        : "La quantité demandée dépasse le stock actuellement disponible.",
+        ? msg("checkoutScreen.thisItemIsNoLongerForSaleUpdateYourCartToContinue")
+        : msg("checkoutScreen.theRequestedQuantityExceedsTheStockCurrentlyAvailable"),
     availableQuantity: Number.isFinite(available) ? available : undefined,
     requestedQuantity: Number.isFinite(requested) ? requested : undefined,
     color: typeof details.color === "string" ? details.color : undefined,
@@ -829,6 +838,7 @@ function stockProblemFromError(error: unknown, cart: CartLine[]) {
 }
 
 export default function CheckoutScreen() {
+  useLocale();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 380;
@@ -937,11 +947,11 @@ export default function CheckoutScreen() {
   }, []);
   const confirmCheckoutExit = useCallback(() => {
     Alert.alert(
-      "Quitter le paiement ?",
-      "Vos informations non enregistrées seront perdues.",
+      msg("checkoutScreen.leaveCheckout"),
+      msg("checkoutScreen.yourUnsavedInformationWillBeLost"),
       [
-        { text: "Rester", style: "cancel" },
-        { text: "Quitter", style: "destructive", onPress: leaveCheckout },
+        { text: msg("checkoutScreen.stay"), style: "cancel" },
+        { text: msg("checkoutScreen.leave"), style: "destructive", onPress: leaveCheckout },
       ],
     );
   }, [leaveCheckout]);
@@ -1014,7 +1024,7 @@ export default function CheckoutScreen() {
   const applyCoupon = async () => {
     const code = couponInput.trim().toUpperCase();
     if (!code) {
-      setCouponError("Saisissez un code promotionnel.");
+      setCouponError(msg("checkoutScreen.enterAPromotionCode"));
       return;
     }
     setValidatingCoupon(true);
@@ -1029,8 +1039,8 @@ export default function CheckoutScreen() {
       setCouponCode(undefined);
       setCouponError(
         error instanceof Error
-          ? error.message
-          : "Ce code ne peut pas être appliqué.",
+          ? localizedError(error)
+          : msg("checkoutScreen.thisCodeCannotBeApplied"),
       );
     } finally {
       setValidatingCoupon(false);
@@ -1058,8 +1068,8 @@ export default function CheckoutScreen() {
         setCouponCode(undefined);
         setCouponError(
           error instanceof Error
-            ? error.message
-            : "Ce code ne peut plus être appliqué.",
+            ? localizedError(error)
+            : msg("checkoutScreen.thisCodeCanNoLongerBeApplied"),
         );
       })
       .finally(() => {
@@ -1100,8 +1110,8 @@ export default function CheckoutScreen() {
         setPaymentMethods([]);
         setPaymentMethodsError(
           error instanceof Error
-            ? error.message
-            : "Impossible de charger les moyens de paiement.",
+            ? localizedError(error)
+            : msg("checkoutScreen.unableToLoadPaymentMethods"),
         );
       })
       .finally(() => {
@@ -1138,7 +1148,7 @@ export default function CheckoutScreen() {
         });
         if (quote.priceChanged) {
           setCheckoutQuoteError(
-            "Un prix a été actualisé. Le total affiché utilise le tarif actuel validé par le serveur.",
+            msg("checkoutScreen.aPriceHasBeenUpdatedTheDisplayedTotalUsesTheCurrentPrice"),
           );
         }
       })
@@ -1151,8 +1161,8 @@ export default function CheckoutScreen() {
           problem
             ? undefined
             : error instanceof Error
-              ? error.message
-              : "Impossible de vérifier le total de la commande.",
+              ? localizedError(error)
+              : msg("checkoutScreen.unableToVerifyTheOrderTotal"),
         );
       })
       .finally(() => {
@@ -1176,7 +1186,7 @@ export default function CheckoutScreen() {
   const next = async () => {
     if (!(await trigger(["name", "email", "phone", "city", "address"]))) {
       setSubmitError(
-        "Complétez les champs de livraison signalés avant de continuer.",
+        msg("checkoutScreen.completeTheHighlightedDeliveryFieldsBeforeContinuing"),
       );
       void triggerWarningHaptic();
       return;
@@ -1209,9 +1219,10 @@ export default function CheckoutScreen() {
     } catch (error) {
       const message =
         error instanceof Error
-          ? error.message
-          : "Impossible de calculer la livraison.";
+          ? localizedError(error)
+          : msg("checkoutScreen.unableToCalculateDelivery");
       setSubmitError(message);
+      setRefreshVersion(current => current + 1);
       void triggerErrorHaptic();
     }
   };
@@ -1222,12 +1233,12 @@ export default function CheckoutScreen() {
     try {
       if (stockProblem) {
         throw new Error(
-          "Modifiez le panier pour résoudre le problème de stock.",
+          msg("checkoutScreen.updateYourCartToResolveTheStockIssue"),
         );
       }
       if (!shippingQuote || checkoutQuoteLoading || !checkoutQuote) {
         throw new Error(
-          "Le total sécurisé n’est pas disponible. Réessayez la vérification.",
+          msg("checkoutScreen.theVerifiedTotalIsUnavailableTryCheckingAgain"),
         );
       }
       const method = paymentMethods.find(
@@ -1236,7 +1247,7 @@ export default function CheckoutScreen() {
       if (!method?.available) {
         throw new Error(
           method?.unavailableReason ||
-            "Aucun moyen de paiement n’est disponible.",
+            msg("checkoutScreen.noPaymentMethodsAreAvailable"),
         );
       }
 
@@ -1254,8 +1265,8 @@ export default function CheckoutScreen() {
         if (approval.type !== "success") {
           throw new Error(
             approval.type === "cancel" || approval.type === "dismiss"
-              ? "Paiement PayPal annulé. Votre panier a été conservé."
-              : "Impossible de revenir dans L’ECOMAX après le paiement.",
+              ? msg("checkoutScreen.paypalPaymentCancelledYourCartHasBeenSaved")
+              : msg("checkoutScreen.unableToReturnToLEcomaxAfterPayment"),
           );
         }
         const callback = new URL(approval.url);
@@ -1265,7 +1276,7 @@ export default function CheckoutScreen() {
           !approvedOrderId ||
           approvedOrderId !== paypalOrder.orderId
         ) {
-          throw new Error("PayPal n’a pas confirmé votre autorisation.");
+          throw new Error(msg("checkoutScreen.paypalHasNotConfirmedYourAuthorization"));
         }
         paypalCapture = await capturePayPalCheckout(approvedOrderId);
         setPendingPayPalCapture(paypalCapture);
@@ -1288,16 +1299,17 @@ export default function CheckoutScreen() {
       router.replace({
         pathname: "/order-confirmation",
         params: {
+          preorderItems: JSON.stringify(order.items?.filter(item=>item.fulfillment_type === "PREORDER") ?? []),
           orderNumber: order.order_number,
           total: String(total),
           payment: values.payment,
           email: values.email,
-          estimatedDays: shippingQuote.estimatedDays || "2–5 jours ouvrables",
+          estimatedDays: shippingQuote.estimatedDays || msg("orderConfirmation.25BusinessDays"),
         },
       });
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Veuillez réessayer.";
+        error instanceof Error ? localizedError(error) : msg("checkoutScreen.pleaseTryAgain");
       setSubmitError(message);
       void triggerErrorHaptic();
     }
@@ -1312,7 +1324,7 @@ export default function CheckoutScreen() {
       return;
     }
     removeCartLine(line.product.id, line.color, line.size);
-    setRemovedNotice(`${line.product.name} a été retiré du panier.`);
+    setRemovedNotice(msg("cart.namedRemoved", { name: line.product.name }));
     setStockProblem(undefined);
     setRefreshVersion((current) => current + 1);
   };
@@ -1322,18 +1334,18 @@ export default function CheckoutScreen() {
     (step === 1
       ? undefined
       : stockProblem
-        ? "Confirmation bloquée : corrigez le problème de stock."
+        ? msg("checkoutScreen.confirmationBlockedResolveTheStockIssue")
         : paymentMethodsLoading || checkoutQuoteLoading
-          ? "Vérification sécurisée de votre commande en cours…"
+          ? msg("checkoutScreen.securelyVerifyingYourOrder")
           : checkoutQuoteError && !checkoutQuote
-            ? "Confirmation indisponible : vérifiez votre connexion puis réessayez."
+            ? msg("checkoutScreen.confirmationUnavailableCheckYourConnectionAndTryAgain")
             : paymentMethodsError
-              ? "Confirmation indisponible : les moyens de paiement n’ont pas pu être chargés."
+              ? msg("checkoutScreen.confirmationUnavailablePaymentMethodsCouldNotBeLoaded")
               : !selectedMethod?.available
                 ? selectedMethod?.unavailableReason ||
-                  "Sélectionnez un moyen de paiement disponible."
+                  msg("checkoutScreen.selectAnAvailablePaymentMethod")
                 : !checkoutQuote
-                  ? "Le total sécurisé n’est pas encore disponible."
+                  ? msg("checkoutScreen.theVerifiedTotalIsNotAvailableYet")
                   : undefined);
 
   if (!cart.length) {
@@ -1379,10 +1391,9 @@ export default function CheckoutScreen() {
 
           {step === 1 ? (
             <View style={styles.deliverySection}>
-              <Text style={styles.pageTitle}>ADRESSE DE LIVRAISON</Text>
+              <Text accessibilityRole="header" style={styles.pageTitle}>{msg("checkoutScreen.whereShouldWeDeliverYourOrder")}</Text>
               <Text style={styles.pageSubtitle}>
-                Indiquez où vous souhaitez recevoir votre commande.
-              </Text>
+                {msg("checkoutScreen.enterYourDeliveryDetails")}</Text>
               <View style={styles.deliveryCard}>
                 {deliveryFields.map((item, index) => (
                   <Controller
@@ -1408,7 +1419,7 @@ export default function CheckoutScreen() {
                               error && styles.fieldLabelError,
                             ]}
                           >
-                            {item.label}
+                            {item.label.charAt(0) + item.label.slice(1).toLocaleLowerCase("fr")}
                           </Text>
                           <View
                             style={[
@@ -1420,7 +1431,7 @@ export default function CheckoutScreen() {
                             <Ionicons
                               name={item.icon}
                               size={19}
-                              color={error ? C.red : C.greenDark}
+                              color={error ? C.red : "#809078"}
                             />
                             <TextInput
                               accessibilityLabel={item.label}
@@ -1472,7 +1483,7 @@ export default function CheckoutScreen() {
                               accessibilityRole="alert"
                               style={styles.fieldMessage}
                             >
-                              {error.message}
+                              {localizedError(error)}
                             </Text>
                           ) : null}
                         </View>
@@ -1482,7 +1493,7 @@ export default function CheckoutScreen() {
                 ))}
               </View>
               <StatusBanner
-                message="Vos coordonnées sont protégées et utilisées uniquement pour la livraison."
+                message={msg("checkoutScreen.yourDetailsAreProtectedAndUsedOnlyForDelivery")}
                 tone="success"
               />
             </View>
@@ -1510,30 +1521,29 @@ export default function CheckoutScreen() {
               ) : null}
               {removedNotice ? (
                 <StatusBanner
-                  actionLabel="FERMER"
+                  actionLabel={msg("productReviews.closeUppercase")}
                   message={removedNotice}
                   onAction={() => setRemovedNotice(undefined)}
-                  title="ARTICLE SUPPRIMÉ"
+                  title={msg("checkoutScreen.itemRemovedUppercase")}
                   tone="success"
                 />
               ) : null}
               {checkoutQuoteError ? (
                 <StatusBanner
-                  actionLabel={checkoutQuote ? undefined : "RÉESSAYER"}
+                  actionLabel={checkoutQuote ? undefined : msg("notifications.tryAgainUppercase")}
                   message={checkoutQuoteError}
                   onAction={checkoutQuote ? undefined : retryCheckout}
                   title={
-                    checkoutQuote ? "PRIX ACTUALISÉ" : "CONNEXION IMPOSSIBLE"
+                    checkoutQuote ? msg("checkoutScreen.priceUpdatedUppercase") : msg("checkoutScreen.connectionFailedUppercase")
                   }
                   tone={checkoutQuote ? "warning" : "error"}
                 />
               ) : null}
 
               <View style={styles.sectionHeading}>
-                <Text style={styles.pageTitle}>Mode de paiement</Text>
+                <Text style={styles.pageTitle}>{msg("orderConfirmation.paymentMethod")}</Text>
                 <Text style={styles.pageSubtitle}>
-                  Comment souhaitez-vous régler ?
-                </Text>
+                  {msg("checkoutScreen.howWouldYouLikeToPay")}</Text>
               </View>
 
               {paymentMethodsLoading ? (
@@ -1542,10 +1552,10 @@ export default function CheckoutScreen() {
                 <>
                   {paymentMethodsError ? (
                     <StatusBanner
-                      actionLabel="RÉESSAYER"
+                      actionLabel={msg("notifications.tryAgainUppercase")}
                       message={paymentMethodsError}
                       onAction={retryCheckout}
-                      title="PAIEMENT INDISPONIBLE"
+                      title={msg("checkoutScreen.paymentUnavailableUppercase")}
                       tone="error"
                     />
                   ) : null}
@@ -1573,7 +1583,7 @@ export default function CheckoutScreen() {
 
               {couponsEnabled ? (
                 <View style={styles.couponSection}>
-                  <Text style={styles.sectionEyebrow}>Un code promotionnel ?</Text>
+                  <Text style={styles.sectionEyebrow}>{msg("checkoutScreen.haveAPromotionCode")}</Text>
                   <View
                     style={[
                       styles.couponRow,
@@ -1588,7 +1598,7 @@ export default function CheckoutScreen() {
                       size={18}
                     />
                     <TextInput
-                      accessibilityLabel="Code promotionnel"
+                      accessibilityLabel={msg("checkoutScreen.promotionCode")}
                       autoCapitalize="characters"
                       autoCorrect={false}
                       editable={!validatingCoupon}
@@ -1601,7 +1611,7 @@ export default function CheckoutScreen() {
                         setCouponError(undefined);
                       }}
                       onSubmitEditing={() => void applyCoupon()}
-                      placeholder="EX. BIENVENUE10"
+                      placeholder={msg("checkoutScreen.eGBienvenue10Uppercase")}
                       placeholderTextColor="#929692"
                       returnKeyType="done"
                       selectionColor={C.green}
@@ -1609,7 +1619,7 @@ export default function CheckoutScreen() {
                       value={couponInput}
                     />
                     <AnimatedPressable
-                      accessibilityLabel="Appliquer le code promotionnel"
+                      accessibilityLabel={msg("checkoutScreen.applyPromotionCode")}
                       disabled={validatingCoupon}
                       onPress={() => void applyCoupon()}
                       style={[
@@ -1620,18 +1630,17 @@ export default function CheckoutScreen() {
                       {validatingCoupon ? (
                         <ActivityIndicator color={C.white} size="small" />
                       ) : (
-                        <Text style={styles.couponButtonText}>Appliquer</Text>
+                        <Text style={styles.couponButtonText}>{msg("checkoutScreen.apply")}</Text>
                       )}
                     </AnimatedPressable>
                   </View>
                   {appliedCoupon ? (
                     <View style={styles.couponFeedback}>
                       <Text style={styles.couponSuccess}>
-                        {appliedCoupon.code} APPLIQUÉ · −
-                        {money(appliedCoupon.discount)}
+                        {appliedCoupon.code} {msg("checkoutScreen.appliedUppercase")}{money(appliedCoupon.discount)}
                       </Text>
                       <AnimatedPressable
-                        accessibilityLabel={`Retirer le code ${appliedCoupon.code}`}
+                        accessibilityLabel={msg("promotions.removeCode", { code: appliedCoupon.code })}
                         onPress={() => {
                           setAppliedCoupon(undefined);
                           setCouponInput("");
@@ -1640,7 +1649,7 @@ export default function CheckoutScreen() {
                         }}
                         style={styles.couponRemove}
                       >
-                        <Text style={styles.couponRemoveText}>RETIRER</Text>
+                        <Text style={styles.couponRemoveText}>{msg("checkoutScreen.removeUppercase")}</Text>
                       </AnimatedPressable>
                     </View>
                   ) : couponError ? (
@@ -1651,6 +1660,7 @@ export default function CheckoutScreen() {
                 </View>
               ) : null}
 
+              {checkoutQuote?.items?.filter(item=>item.fulfillment_type === "PREORDER").map((item,index)=><View key={index}><Text>{cart.find(line=>line.product.slug===item.slug)?.product.name}</Text><PreorderNotice item={item}/></View>)}
               <PriceSummary
                 discount={discount}
                 paymentFee={paymentFee}
@@ -1676,7 +1686,7 @@ export default function CheckoutScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, minHeight: 0, backgroundColor: "#F7F8F5" },
+  screen: { flex: 1, minHeight: 0, backgroundColor: "#FFFFFF" },
   scroll: { flex: 1, minHeight: 0 },
   header: {
     paddingBottom: 10,
@@ -1695,8 +1705,6 @@ const styles = StyleSheet.create({
     height: 44,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: C.border,
     borderRadius: 22,
     backgroundColor: C.white,
   },
@@ -1708,9 +1716,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     textAlign: "center",
-    color: C.ink,
-    fontFamily: typography.bold,
-    fontSize: 18,
+    color: "#2C3C2F",
+    fontFamily: typography.medium,
+    fontSize: 17,
     letterSpacing: -0.4,
   },
   headerTitleCompact: { fontSize: 15 },
@@ -1721,19 +1729,17 @@ const styles = StyleSheet.create({
   },
   headerSecurityText: {
     marginLeft: 4,
-    color: C.greenDark,
-    fontFamily: typography.medium,
-    fontSize: 10,
+    color: "#78866F",
+    fontFamily: typography.regular,
+    fontSize: 9,
   },
   headerShield: {
     width: 44,
     height: 44,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#CDE9D4",
     borderRadius: 22,
-    backgroundColor: C.greenSoft,
+    backgroundColor: "transparent",
   },
   scrollContent: {
     paddingHorizontal: 18,
@@ -1744,7 +1750,7 @@ const styles = StyleSheet.create({
     maxWidth: MAX_WIDTH,
     alignSelf: "center",
   },
-  deliverySection: { paddingTop: 10 },
+  deliverySection: { paddingTop: 24 },
   paymentSection: { paddingTop: 18, gap: 20 },
   pageTitle: {
     color: C.ink,
@@ -2350,21 +2356,16 @@ const styles = StyleSheet.create({
     letterSpacing: -0.7,
   },
   deliveryCard: {
-    marginTop: 18,
-    paddingHorizontal: 14,
-    borderWidth: 1,
-    borderColor: C.border,
-    borderRadius: 10,
+    marginTop: 10,
     backgroundColor: C.white,
   },
-  fieldWrap: { paddingVertical: 12 },
-  fieldDivider: { borderTopWidth: 1, borderTopColor: "#ECEDEA" },
+  fieldWrap: { paddingVertical: 9 },
+  fieldDivider: {},
   fieldLabel: {
-    marginBottom: 6,
-    color: C.muted,
-    fontFamily: typography.semibold,
-    fontSize: 10,
-    letterSpacing: 0.55,
+    marginBottom: 8,
+    color: "#6B7863",
+    fontFamily: typography.medium,
+    fontSize: 11,
   },
   fieldLabelFocused: { color: C.greenDark },
   fieldLabelError: { color: C.red },
@@ -2374,11 +2375,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: C.border,
-    borderRadius: 7,
-    backgroundColor: C.soft,
+    borderColor: "#E3E7DD",
+    borderRadius: 12,
+    backgroundColor: "#FAFBF7",
   },
-  fieldFocused: { borderColor: C.green, backgroundColor: C.white },
+  fieldFocused: { borderColor: "#5C7956", backgroundColor: C.white },
   fieldError: { borderColor: C.red, backgroundColor: C.redSoft },
   fieldInput: {
     minWidth: 0,
@@ -2386,8 +2387,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     paddingVertical: 8,
-    color: C.ink,
-    fontFamily: typography.medium,
+    color: "#33442F",
+    fontFamily: typography.regular,
     fontSize: 13,
   },
   fieldMessage: {

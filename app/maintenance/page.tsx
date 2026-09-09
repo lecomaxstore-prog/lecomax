@@ -1,4 +1,5 @@
 import Logo from "@/components/Logo";
+import Link from "next/link";
 
 export default function MaintenancePage() {
   return (
@@ -203,10 +204,10 @@ export default function MaintenancePage() {
           </div>
 
           {/* Admin link */}
-          <a href="/admin/settings/" className="anim-fade-up-5 inline-flex items-center gap-1.5 text-black/20 hover:text-black/50 text-[11px] font-medium mt-10 transition-colors">
+          <Link href="/admin/settings/" className="anim-fade-up-5 inline-flex items-center gap-1.5 text-black/20 hover:text-black/50 text-[11px] font-medium mt-10 transition-colors">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
             Accès administration
-          </a>
+          </Link>
           <p className="text-black/10 text-[11px] mt-2">
             L&apos;ecomax &copy; {new Date().getFullYear()} &middot; Mode, Tech &amp; Sport au Maroc
           </p>

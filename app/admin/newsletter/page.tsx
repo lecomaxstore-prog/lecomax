@@ -1,4 +1,5 @@
 "use client";
+import ResponsiveTable from "@/components/admin/ResponsiveTable";
 import { useEffect, useState, useCallback } from "react";
 import NewsletterCampaignBuilder from "@/components/admin/NewsletterCampaignBuilder";
 
@@ -121,7 +122,7 @@ export default function NewsletterPage() {
         <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">Ajouter manuellement</h2>
         <form onSubmit={handleAdd} className="flex gap-3 flex-wrap">
           <input value={newEmail} onChange={(e) => setNewEmail(e.target.value)} type="email" required placeholder="email@exemple.com"
-            className="flex-1 min-w-[200px] border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+            className="flex-1 min-w-[200px] border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="email" />
           <input value={newName} onChange={(e) => setNewName(e.target.value)} type="text" placeholder="Nom (optionnel)"
             className="w-44 border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
           <button type="submit" disabled={adding}
@@ -211,7 +212,7 @@ export default function NewsletterPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[560px]">
+          <ResponsiveTable className="w-full text-sm min-w-[560px]">
             <thead>
               <tr className="border-b border-neutral-100 text-[11px] text-neutral-400 uppercase tracking-wider">
                 <th className="px-5 py-3 text-left font-semibold">Email</th>
@@ -243,7 +244,7 @@ export default function NewsletterPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </ResponsiveTable>
           </div>
         )}
       </div>

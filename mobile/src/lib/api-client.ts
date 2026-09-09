@@ -1,3 +1,5 @@
+import { localizedError } from "@/i18n/errors";
+import { msg } from "@/i18n";
 import { runtimeConfig } from "@/lib/runtime-config";
 import { supabase } from "@/lib/supabase";
 import { withSessionTimeout } from "@/lib/session-timeout";
@@ -28,33 +30,41 @@ type ErrorPayload = { error?: unknown; code?: unknown; details?: unknown };
 
 function endpoint(pathname: string) {
   const normalizedPath = pathname.startsWith("/") ? pathname : `/${pathname}`;
-  return `${runtimeConfig.apiUrl}${normalizedPath}`;
+  const base = normalizedPath.split("?")[0] === "/api/product-translations" ? runtimeConfig.translationApiUrl : runtimeConfig.apiUrl;
+  return `${base}${normalizedPath}`;
 }
 
-function normalizedMessage(payload: ErrorPayload | null | undefined, status: number) {
-  if (typeof payload?.error === "string" && payload.error.trim()) return payload.error.trim();
-  if (status === 401) return "Votre session a expiré. Reconnectez-vous.";
-  if (status === 403) return "Cette action n’est pas autorisée.";
-  if (status === 404) return "La ressource demandée est introuvable.";
-  if (status === 409) return "Les informations ont changé. Actualisez puis réessayez.";
-  if (status >= 500) return "Le service L’ECOMAX est momentanément indisponible.";
-  return `Erreur L’ECOMAX (${status}).`;
+  function normalizedMessage(payload: ErrorPayload | null | undefined, status: number) {
+    if (payload?.code === "PREORDER_UNAVAILABLE" || payload?.code === "INVALID_VARIANT") return msg("preorder.unavailable");
+    if (payload?.code === "PREORDER_REVIEW_REQUIRED") return msg("preorder.review");
+    if (payload?.code === "FULFILLMENT_CHANGED" || payload?.code === "PRICE_CHANGED") return msg("preorder.changed");
+  if (typeof payload?.error === "string" && payload.error.trim()) {
+    const translated = localizedError(payload.error);
+    if (translated !== msg("errors.tryAgain")) return translated;
+  }
+  if (status === 429) return msg("errors.rateLimit");
+  if (status === 401) return msg("apiClient.yourSessionHasExpiredSignInAgain");
+  if (status === 403) return msg("apiClient.thisActionIsNotAllowed");
+  if (status === 404) return msg("apiClient.theRequestedResourceCouldNotBeFound");
+  if (status === 409) return msg("apiClient.theInformationHasChangedRefreshAndTryAgain");
+  if (status >= 500) return msg("apiClient.theLEcomaxServiceIsTemporarilyUnavailable");
+  return msg("errors.httpStatus", { status });
 }
 
 async function accessToken(required: boolean) {
   const { data, error } = await supabase.auth.getSession();
-  if (error) throw new ApiError("Impossible de vérifier votre session.", 401, "SESSION_READ_FAILED");
+  if (error) throw new ApiError(msg("apiClient.unableToVerifyYourSession"), 401, "SESSION_READ_FAILED");
   let session = data.session;
   if (session?.expires_at && session.expires_at * 1000 - Date.now() < 60_000) {
     const refreshed = await supabase.auth.refreshSession();
     if (refreshed.error) {
-      if (required) throw new ApiError("Votre session a expiré. Reconnectez-vous.", 401, "SESSION_EXPIRED");
+      if (required) throw new ApiError(msg("apiClient.yourSessionHasExpiredSignInAgain"), 401, "SESSION_EXPIRED");
       return undefined;
     }
     session = refreshed.data.session;
   }
   if (required && !session?.access_token) {
-    throw new ApiError("Connectez-vous pour continuer.", 401, "AUTH_REQUIRED");
+    throw new ApiError(msg("apiClient.signInToContinue"), 401, "AUTH_REQUIRED");
   }
   return session?.access_token;
 }
@@ -69,7 +79,7 @@ function wait(milliseconds: number, signal?: AbortSignal | null) {
     const abort = () => {
       clearTimeout(timer);
       cleanup();
-      reject(new ApiError("Requête annulée.", 0, "REQUEST_ABORTED"));
+      reject(new ApiError(msg("apiClient.requestCancelled"), 0, "REQUEST_ABORTED"));
     };
     if (signal?.aborted) abort();
     else signal?.addEventListener("abort", abort, { once: true });
@@ -104,7 +114,7 @@ export async function apiRequest<T>(pathname: string, options: ApiRequestOptions
   const token = await withSessionTimeout(accessToken(options.authenticated === true), options.timeoutMs ?? DEFAULT_TIMEOUT_MS)
     .catch((error: unknown) => {
       if (error instanceof ApiError) throw error;
-      throw new ApiError("Impossible de vérifier votre session. Réessayez.", 0, "SESSION_READ_FAILED");
+      throw new ApiError(msg("useSupportAccount.unableToVerifyYourSessionTryAgain"), 0, "SESSION_READ_FAILED");
     });
   let attempt = 0;
 
@@ -142,12 +152,12 @@ export async function apiRequest<T>(pathname: string, options: ApiRequestOptions
         }
         throw error;
       }
-      if (payload === null) throw new ApiError("Réponse API L’ECOMAX invalide.", response.status, "INVALID_RESPONSE");
+      if (payload === null) throw new ApiError(msg("apiClient.invalidLEcomaxApiResponse"), response.status, "INVALID_RESPONSE");
       if (response.status === 204 || response.status === 205) return undefined as T;
       return payload as T;
     } catch (error) {
       if (error instanceof ApiError) throw error;
-      if (options.signal?.aborted) throw new ApiError("Requête annulée.", 0, "REQUEST_ABORTED");
+      if (options.signal?.aborted) throw new ApiError(msg("apiClient.requestCancelled"), 0, "REQUEST_ABORTED");
       const timedOut = controller.signal.aborted;
       if (attempt < maxRetries) {
         attempt += 1;
@@ -155,7 +165,7 @@ export async function apiRequest<T>(pathname: string, options: ApiRequestOptions
         continue;
       }
       throw new ApiError(
-        timedOut ? "Le serveur L’ECOMAX met trop de temps à répondre." : "Connexion au serveur impossible. Vérifiez votre réseau.",
+        timedOut ? msg("apiClient.theLEcomaxServerIsTakingTooLongToRespond") : msg("apiClient.unableToConnectToTheServerCheckYourNetwork"),
         0,
         timedOut ? "REQUEST_TIMEOUT" : "NETWORK_ERROR",
       );
@@ -175,7 +185,7 @@ export async function apiRequestValidated<T>(
   const parsed = schema.safeParse(payload);
   if (!parsed.success) {
     throw new ApiError(
-      "Les données reçues de L’ECOMAX sont invalides. Actualisez puis réessayez.",
+      msg("apiClient.theDataReceivedFromLEcomaxIsInvalidRefreshAndTryAgain"),
       502,
       "INVALID_API_SCHEMA",
       parsed.error.flatten(),

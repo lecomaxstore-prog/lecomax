@@ -1,3 +1,4 @@
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -14,9 +15,10 @@ type Props = {
 export const SectionHeader = memo(function SectionHeader({
   eyebrow,
   title,
-  actionLabel = "VIEW ALL",
+  actionLabel = msg("sectionHeader.viewAllUppercase"),
   onAction,
 }: Props) {
+  useLocale();
   return (
     <View style={styles.row}>
       <View style={styles.copy}>

@@ -29,7 +29,7 @@ export default function Logo({
   return (
     <span className={`inline-flex items-center select-none ${className}`}>
       <svg
-        viewBox="0 0 180 48"
+        viewBox="0 0 186 48"
         height="40"
         width="135"
         aria-label="L'ecomax"
@@ -50,7 +50,7 @@ export default function Logo({
         </text>
         {/* max in brand green */}
         <text
-          x="93"
+          x="99"
           y="36"
           fontFamily="Inter, Helvetica Neue, Arial, sans-serif"
           fontWeight="900"
@@ -80,7 +80,7 @@ export default function Logo({
         {/* smile arc: starts bottom-left of "max", curves down in centre, ends bottom-right */}
         <path
           className="logo-smile"
-          d="M 93 41 Q 135 50 177 41"
+          d="M 99 41 Q 141 50 183 41"
           stroke="#3ecf4c"
           strokeWidth="3"
           strokeLinecap="round"

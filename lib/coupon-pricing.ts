@@ -1,6 +1,8 @@
+import { colorPricesFromTags } from "./product-variant-pricing.ts";
 export type CouponCartLine = {
   slug: string;
   quantity: number;
+  color?: string;
 };
 
 export type CouponPricing = {
@@ -28,12 +30,13 @@ export function calculateCouponPricing(
 ): CouponPricing {
   return lines.reduce<CouponPricing>((totals, line) => {
     const product = productBySlug.get(line.slug);
-    const price = product ? currentPrice(product) : NaN;
+    const variant = product && line.color ? colorPricesFromTags(product.tags)[line.color] : undefined;
+    const price = variant?.price ?? (product ? currentPrice(product) : NaN);
     if (!product || !Number.isFinite(price) || price <= 0) return totals;
 
     const lineTotal = price * line.quantity;
     totals.subtotal += lineTotal;
-    if (isProductAlreadyPromoted(product)) {
+    if (variant ? Number(variant.originalPrice) > price : isProductAlreadyPromoted(product)) {
       totals.excludedSubtotal += lineTotal;
       totals.excludedItemsCount += line.quantity;
     } else {

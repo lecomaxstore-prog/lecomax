@@ -1,3 +1,4 @@
+import { msg, useLocale } from "@/i18n";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
@@ -10,6 +11,7 @@ import { palette, typography } from "@/constants/theme";
 const STORAGE_KEY = "lecomax-reward-banner-dismissed";
 
 export const FloatingBanner = memo(function FloatingBanner() {
+  useLocale();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -35,22 +37,21 @@ export const FloatingBanner = memo(function FloatingBanner() {
       style={styles.banner}
     >
       <AnimatedPressable
-        accessibilityLabel="Fermer la bannière de récompense"
+        accessibilityLabel={msg("floatingBanner.closeRewardsBanner")}
         onPress={dismiss}
         style={styles.close}
       >
         <Ionicons name="close" size={18} color={palette.white} />
       </AnimatedPressable>
       <AnimatedPressable
-        accessibilityLabel="Créer un compte L’ECOMAX"
+        accessibilityLabel={msg("floatingBanner.createALEcomaxAccount")}
         onPress={() => router.push("/auth")}
         style={styles.content}
       >
         <View style={styles.copy}>
-          <Text style={styles.eyebrow}>LECOMAX REWARDS</Text>
+          <Text style={styles.eyebrow}>{msg("floatingBanner.lecomaxRewardsUppercase")}</Text>
           <Text style={styles.message}>
-            Create your Lecomax account and unlock exclusive offers.
-          </Text>
+            {msg("floatingBanner.createYourLecomaxAccountAndUnlockExclusiveOffers")}</Text>
         </View>
         <View style={styles.arrow}>
           <Ionicons name="arrow-forward" size={19} color={palette.green} />

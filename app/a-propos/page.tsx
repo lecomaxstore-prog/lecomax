@@ -119,8 +119,8 @@ export default function AProposPage() {
             {[
               { value: "2026", label: "Année de création" },
               { value: "Sidi Bennour", label: "Origine" },
-              { value: "30+", label: "Modèles" },
-              { value: "7j/7", label: "Support client" },
+              { value: "Catalogue", label: "En ligne" },
+              { value: "Contact", label: "Service client" },
             ].map((s) => (
               <div key={s.label} className="py-5 px-4 sm:px-8 text-center">
                 <p className="font-black text-black text-[17px] sm:text-[20px] leading-tight">{s.value}</p>
@@ -180,7 +180,7 @@ export default function AProposPage() {
             </div>
             {/* Floating badge */}
             <div className="absolute -bottom-5 -right-5 bg-[#3ecf4c] rounded-2xl px-5 py-4 shadow-xl">
-              <p className="font-black text-black text-[10px] uppercase tracking-widest">100%</p>
+              <p className="font-black text-black text-[10px] uppercase tracking-widest">L’ecomax</p>
               <p className="font-black text-black text-lg leading-none">Marocain</p>
             </div>
           </div>
@@ -209,7 +209,7 @@ export default function AProposPage() {
                   </svg>
                 ),
                 title: "Authenticité",
-                desc: "Uniquement des produits authentiques garantis d'origine. Zéro compromis sur la qualité.",
+                desc: "Consultez les photos, la marque et les caractéristiques de chaque article sur sa fiche produit.",
               },
               {
                 num: "02",
@@ -254,7 +254,7 @@ export default function AProposPage() {
           <div className="grid grid-cols-3 gap-4 sm:gap-12 text-center">
             {[
               { value: "2026", label: "Année de création" },
-              { value: "30+", label: "Modèles sélectionnés" },
+              { value: "Catalogue", label: "En ligne" },
               { value: "1", label: "Boutique physique" },
             ].map((stat) => (
               <div key={stat.label}>
@@ -305,7 +305,7 @@ export default function AProposPage() {
                 </div>
                 <div>
                   <p className="text-white font-black text-[13px] uppercase tracking-wide">WhatsApp</p>
-                  <p className="text-white/40 text-[11px]">Réponse en moins de 2h</p>
+                  <p className="text-white/40 text-[11px]">Contactez notre équipe</p>
                 </div>
                 <svg className="ml-auto text-white/20 group-hover:text-[#25D366] transition-colors" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
               </a>

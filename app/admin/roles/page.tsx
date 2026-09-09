@@ -375,7 +375,7 @@ export default function RolesPage() {
 
       {/* Create role modal */}
       {showCreate && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style={{ backdropFilter: "blur(4px)" }}>
+        <div className="admin-dialog-overlay fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style={{ backdropFilter: "blur(4px)" }}>
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-base font-black">Créer un rôle</h3>
@@ -432,7 +432,7 @@ export default function RolesPage() {
 
       {/* Delete confirm modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style={{ backdropFilter: "blur(4px)" }}>
+        <div className="admin-dialog-overlay fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style={{ backdropFilter: "blur(4px)" }}>
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 text-center">
             <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>

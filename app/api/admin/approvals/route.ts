@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
+import { getAdminAccess } from "@/lib/admin-access";
+import { validApprovalTarget } from "@/lib/approval-target";
+import { adminApiPermission, hasAdminPermission } from "@/lib/admin-policy";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,6 +14,8 @@ const supabase = createClient(
 export async function GET(req: NextRequest) {
   const blocked = await protectAdminRead(req, { key: "admin:approvals:list", limit: 60 });
   if (blocked) return blocked;
+  const access = await getAdminAccess(req);
+  if (!access) return NextResponse.json({error:"Unauthorized"},{status:401});
 
   const status = req.nextUrl.searchParams.get("status") ?? "all";
 
@@ -22,6 +27,8 @@ export async function GET(req: NextRequest) {
   if (status !== "all") {
     query = query.eq("status", status);
   }
+  if (!access.owner) query = query.eq("staff_email", access.email);
+  query = query.limit(100);
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -35,6 +42,9 @@ export async function POST(req: NextRequest) {
   if (blocked) return blocked;
 
   const body = await req.json().catch(() => null);
+  const access = await getAdminAccess(req);
+  if (!access) return NextResponse.json({error:"Unauthorized"},{status:401});
+  if (body?.api_endpoint && (!validApprovalTarget(body.entity_type, body.action, body.api_endpoint, body.api_method) || !hasAdminPermission(access, adminApiPermission(body.api_endpoint, body.api_method)))) return NextResponse.json({error:"Action non autorisée"},{status:403});
   if (!body?.staff_email || !body?.action || !body?.entity_type || !body?.description) {
     return NextResponse.json(
       { error: "staff_email, action, entity_type, description sont requis" },
@@ -50,7 +60,7 @@ export async function POST(req: NextRequest) {
   const { data, error } = await supabase
     .from("pending_changes")
     .insert({
-      staff_email:   body.staff_email.toLowerCase().trim(),
+      staff_email:   access.email,
       staff_name:    body.staff_name ?? null,
       action:        body.action,
       entity_type:   body.entity_type,

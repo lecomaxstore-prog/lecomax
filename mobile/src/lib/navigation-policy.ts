@@ -37,7 +37,7 @@ export function safeParentPath(
   if (path === "/support-chat") return "/support";
   if (path === "/support") return "/account";
   if (path === "/order-confirmation" || path === "/orders") return "/account";
-  if (path === "/addresses" || path === "/profile" || path === "/auth") {
+  if (path === "/addresses" || path === "/profile" || path === "/auth" || path === "/delete-account") {
     return "/account";
   }
   if (path === "/scanner" || path === "/notifications") return "/";

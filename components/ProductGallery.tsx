@@ -306,7 +306,7 @@ export default function ProductGallery({
             <button
               onClick={goPrev}
               aria-label="Image précédente"
-              className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-black/10 bg-white/90 text-neutral-950 opacity-100 shadow-[0_8px_24px_rgba(0,0,0,.12)] backdrop-blur-sm transition-all duration-200 hover:border-black hover:bg-black hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 sm:left-3 sm:opacity-0 sm:group-hover:opacity-100"
+              className="absolute left-2 top-1/2 z-10 hidden sm:flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-black/10 bg-white/90 text-neutral-950 opacity-100 shadow-[0_8px_24px_rgba(0,0,0,.12)] backdrop-blur-sm transition-all duration-200 hover:border-black hover:bg-black hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 sm:left-3 sm:opacity-0 sm:group-hover:opacity-100"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M15 18l-6-6 6-6" />
@@ -315,7 +315,7 @@ export default function ProductGallery({
             <button
               onClick={goNext}
               aria-label="Image suivante"
-              className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-black/10 bg-white/90 text-neutral-950 opacity-100 shadow-[0_8px_24px_rgba(0,0,0,.12)] backdrop-blur-sm transition-all duration-200 hover:border-black hover:bg-black hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 sm:right-3 sm:opacity-0 sm:group-hover:opacity-100"
+              className="absolute right-2 top-1/2 z-10 hidden sm:flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-black/10 bg-white/90 text-neutral-950 opacity-100 shadow-[0_8px_24px_rgba(0,0,0,.12)] backdrop-blur-sm transition-all duration-200 hover:border-black hover:bg-black hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 sm:right-3 sm:opacity-0 sm:group-hover:opacity-100"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M9 18l6-6-6-6" />

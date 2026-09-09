@@ -1,4 +1,6 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
+import ResponsiveTable from "@/components/admin/ResponsiveTable";
 import { useEffect, useState, useCallback } from "react";
 
 interface Role {
@@ -28,7 +30,7 @@ const STATUS_META = {
 };
 
 function Avatar({ name, url, color }: { name: string; url?: string | null; color?: string }) {
-  if (url) return <img src={url} alt={name} className="w-9 h-9 rounded-full object-cover" />;
+  if (url) return <img src={url} alt={name} className="w-9 h-9 rounded-full object-cover" loading="lazy" decoding="async" />;
   const initials = name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
   return (
     <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-black flex-shrink-0"
@@ -243,9 +245,7 @@ export default function StaffPage() {
       {/* Table */}
       <div className="bg-white rounded-3xl border border-neutral-100 overflow-hidden">
         {loading ? (
-          <div className="p-8 flex items-center justify-center">
-            <div className="w-7 h-7 border-2 border-black border-t-transparent rounded-full animate-spin" />
-          </div>
+          <AdminLoading />
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-4xl mb-3">👤</div>
@@ -260,7 +260,7 @@ export default function StaffPage() {
             )}
           </div>
         ) : (
-          <table className="w-full">
+          <ResponsiveTable className="w-full">
             <thead>
               <tr className="border-b border-neutral-100">
                 <th className="text-left text-[10px] font-black text-neutral-400 uppercase tracking-wide px-5 py-3">Membre</th>
@@ -335,13 +335,13 @@ export default function StaffPage() {
                 );
               })}
             </tbody>
-          </table>
+          </ResponsiveTable>
         )}
       </div>
 
       {/* Invite modal */}
       {showInvite && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style={{ backdropFilter: "blur(4px)" }}>
+        <div className="admin-dialog-overlay fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style={{ backdropFilter: "blur(4px)" }}>
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-base font-black">Inviter un membre</h3>
@@ -360,7 +360,7 @@ export default function StaffPage() {
                 <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-wide block mb-1.5">Email *</label>
                 <input type="email" value={invEmail} onChange={e => setInvEmail(e.target.value)}
                   className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black transition-colors"
-                  placeholder="ahmed@exemple.com" />
+                  placeholder="ahmed@exemple.com" inputMode="email" />
               </div>
               <div>
                 <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-wide block mb-1.5">Rôle assigné</label>
@@ -406,7 +406,7 @@ export default function StaffPage() {
 
       {/* Edit modal */}
       {editMember && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style={{ backdropFilter: "blur(4px)" }}>
+        <div className="admin-dialog-overlay fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style={{ backdropFilter: "blur(4px)" }}>
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6">
             <div className="flex items-center gap-3 mb-5">
               <Avatar name={editMember.name} url={editMember.avatar_url} color={editMember.admin_roles?.color} />
@@ -465,7 +465,7 @@ export default function StaffPage() {
 
       {/* Delete confirm */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style={{ backdropFilter: "blur(4px)" }}>
+        <div className="admin-dialog-overlay fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style={{ backdropFilter: "blur(4px)" }}>
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 text-center">
             <Avatar name={deleteConfirm.name} url={deleteConfirm.avatar_url} color={deleteConfirm.admin_roles?.color} />
             <h3 className="text-base font-black mt-3 mb-1">Supprimer {deleteConfirm.name} ?</h3>

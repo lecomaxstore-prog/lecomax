@@ -4,6 +4,7 @@ import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persi
 import { focusManager, QueryClient } from "@tanstack/react-query";
 import { PropsWithChildren, useEffect } from "react";
 import { AppState } from "react-native";
+import { useLocales } from "expo-localization";
 import { useColorScheme } from "nativewind";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { usePreferences } from "@/stores/preferences";
@@ -52,6 +53,19 @@ function ThemeSync() {
   useEffect(() => {
     setColorScheme(theme);
   }, [setColorScheme, theme]);
+  return null;
+}
+
+function LanguageSync() {
+  const locales = useLocales();
+  const sync = usePreferences((state) => state.syncDeviceLanguage);
+  useEffect(() => { sync(); }, [locales, sync]);
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") sync();
+    });
+    return () => subscription.remove();
+  }, [sync]);
   return null;
 }
 
@@ -247,6 +261,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       }}
     >
       <ThemeSync />
+      <LanguageSync />
       {children}
     </PersistQueryClientProvider>
   );

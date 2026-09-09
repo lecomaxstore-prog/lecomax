@@ -1,3 +1,4 @@
+import { msg, useLocale } from "@/i18n";
 import { router, usePathname } from "expo-router";
 import { memo, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -9,6 +10,7 @@ import { useCommerceStore } from "@/stores/commerce";
 import { useNotificationStore } from "@/stores/notifications";
 
 export const HomeHeader = memo(function HomeHeader() {
+  useLocale();
   const [signedIn, setSignedIn] = useState(false);
   const pathname = usePathname();
   const colorScheme = useColorScheme();
@@ -36,7 +38,7 @@ export const HomeHeader = memo(function HomeHeader() {
         <HeaderActionButton
           shape="rounded"
           tone="ghost"
-          accessibilityLabel={`Notifications${unreadCount ? `, ${unreadCount} non lues` : ""}`}
+          accessibilityLabel={msg("notifications.unreadCount", { count: unreadCount })}
           icon="notifications-outline"
           activeIcon="notifications"
           active={pathname === "/notifications"}
@@ -44,7 +46,7 @@ export const HomeHeader = memo(function HomeHeader() {
           onPress={() => router.push("/notifications")}
         />
         <HeaderActionButton
-          accessibilityLabel={signedIn ? "Ouvrir mon profil" : "Se connecter"}
+          accessibilityLabel={signedIn ? msg("homeHeader.openMyProfile") : msg("auth.signInText")}
           shape="rounded"
           tone="ghost"
           icon="person-outline"
@@ -53,7 +55,7 @@ export const HomeHeader = memo(function HomeHeader() {
           onPress={() => router.push(signedIn ? "/profile" : "/auth")}
         />
         <HeaderActionButton
-          accessibilityLabel={`Panier${cartCount ? `, ${cartCount} articles` : ""}`}
+          accessibilityLabel={msg("cart.accessibleCount", { count: cartCount })}
           shape="rounded"
           tone="ghost"
           icon="bag-handle-outline"

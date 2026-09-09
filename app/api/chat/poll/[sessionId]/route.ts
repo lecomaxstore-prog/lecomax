@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkChatSession } from "@/lib/chat-session-server";
+import { pendingChatQuestion } from "@/lib/chat-lifecycle";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,8 +19,8 @@ export async function GET(
 ) {
   const { sessionId } = await params;
 
-  const [{ data: session }, { data: messages }] = await Promise.all([
-    supabase.from("chat_sessions").select("status, unread_count").eq("id", sessionId).single(),
+  const [{ data: session, error: sessionError }, { data: messages, error: messageError }] = await Promise.all([
+    supabase.from("chat_sessions").select("id, status, created_at, last_at").eq("id", sessionId).single(),
     supabase
       .from("chat_messages")
       .select("*")
@@ -26,10 +28,11 @@ export async function GET(
       .order("timestamp", { ascending: true }),
   ]);
 
-  const status = session?.status || "ai";
-  const lastMessage = [...(messages || [])]
-    .reverse()
-    .find((message) => message.body !== "__AGENT_JOINED__" && message.body !== "__AI_RESUMED__");
+  if (sessionError || !session) return NextResponse.json({ error: "Session not found" }, { status: 404 });
+  if (messageError) return NextResponse.json({ error: "Messages unavailable" }, { status: 503 });
+  const lifecycle = await checkChatSession(supabase, session, messages || []);
+  const status = lifecycle.status;
+  const lastMessage = pendingChatQuestion(messages || []);
   const aiTakeoverRequired =
     status === "escalated" &&
     lastMessage?.sent_by === "visitor" &&
@@ -37,7 +40,9 @@ export async function GET(
 
   return NextResponse.json({
     status,
+    expired: lifecycle.expired,
+    expires_at: lifecycle.expires_at,
     messages: messages || [],
     ai_takeover_required: aiTakeoverRequired,
-  });
+  }, { headers: { "Cache-Control": "no-store" } });
 }

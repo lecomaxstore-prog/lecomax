@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type OpenAI from "openai";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
-import { getServerShippingConfig } from "@/lib/shipping-config-server";
-import { shippingSummary } from "@/lib/shipping-config";
+import { getStoreAssistantContext } from "@/lib/store-assistant-context";
+
 import { getGroqClient } from "@/lib/groq-client";
+import { checkChatSession } from "@/lib/chat-session-server";
+import { pendingChatQuestion } from "@/lib/chat-lifecycle";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,6 +27,8 @@ function wantsHuman(text: string): boolean {
 }
 
 const CLOSING_PATTERNS = [
+  /\b(?:annuler|terminer|stopper)\s+(?:(?:le|la|cette|ma)\s+)?(?:chat|conversation|discussion)\b/i,
+  /\b(?:cancel|end)\s+(?:(?:the|this|my)\s+)?(?:chat|conversation)\b/i,
   /\b(au revoir|bonne journ[ée]e|bonne soir[ée]e|c['’]est tout|merci c['’]est tout|vous pouvez fermer|ferme[rz]? (le |la )?(chat|conversation))\b/i,
   /\b(goodbye|bye|that['’]?s all|all good|you can close|close (the )?(chat|conversation))\b/i,
   /(شكرا.*(?:هذا كل شيء|وداعا)|هذا كل شيء|يمكنك إغلاق|أغلق المحادثة|بسلامة|سلام)/i,
@@ -53,18 +57,18 @@ const STORE_CONTEXT = `You are Eco, the professional and friendly AI assistant f
 - Products: sport/fashion shoes, clothing, wireless earphones (TWS), Bluetooth speakers, gaming accessories, bags, tech accessories
 - Website: lecomax.com
 - Rating: 5/5 on Trustpilot
-- Working hours: 9h00–20h00, 7 days a week
+- Working hours: use the current store facts below
 
 ## CONTACT & SUPPORT
-- Email: contact@lecomax.com
+- Email: use the current store facts below
 - WhatsApp: available via the website
 - Contact page: lecomax.com/nous-contacter
 - Response time: within a few hours on business days
 
 ## DELIVERY & SHIPPING
 - Shipping rates are loaded from the live store configuration below
-- Payment method: Cash on delivery (COD) ONLY — customer pays when package arrives, zero prepayment
-- Estimated delivery: 2–5 business days
+- Payment methods: use the current store facts below
+- Estimated delivery: use the current store facts below
 - Tracking: lecomax.com/suivre-commande (enter order number + phone)
 - Never invent a shipping price or free-shipping threshold
 - We ship to ALL cities in Morocco
@@ -76,9 +80,7 @@ const STORE_CONTEXT = `You are Eco, the professional and friendly AI assistant f
 - Refunds processed within 5–7 business days after return received
 
 ## PAYMENTS
-- ONLY cash on delivery (COD) — pay when you receive your package
-- No credit card, no online payment, no Paypal currently
-- No risk — you only pay when you see and receive your order
+- Use only currently enabled payment methods from the store facts below.
 
 ## LOYALTY PROGRAM — ECOCLUB
 - Earn points on every purchase
@@ -110,9 +112,9 @@ const STORE_CONTEXT = `You are Eco, the professional and friendly AI assistant f
 ## ORDER MANAGEMENT
 - You cannot access individual order data in real-time
 - For order status: direct to lecomax.com/suivre-commande
-- For issues with an order: contact@lecomax.com or lecomax.com/nous-contacter
+- For issues with an order: the configured support email or lecomax.com/nous-contacter
 - Cancelled orders: contact support immediately if order is not yet shipped
-- Wrong item received: contact support at contact@lecomax.com with order number and photo
+- Wrong item received: contact support at the configured support email with order number and photo
 
 ## STOCK & SIZING
 - For specific stock questions, direct to the product page or contact support
@@ -172,7 +174,7 @@ async function buildKbSection(): Promise<string> {
 }
 
 async function buildSystemPrompt(): Promise<string> {
-  const shippingConfig = await getServerShippingConfig();
+  const businessContext = await getStoreAssistantContext();
   const now = Date.now();
   const [kbSection] = await Promise.all([buildKbSection()]);
 
@@ -213,7 +215,7 @@ async function buildSystemPrompt(): Promise<string> {
     cacheTime = now;
   }
 
-  const shippingSection = `\n\n## LIVE SHIPPING CONFIGURATION\n- ${shippingSummary(shippingConfig)}\n- Estimated delivery: ${shippingConfig.estimatedDays}\nAlways use these live values when answering delivery questions.\n`;
+  const shippingSection = `\n\n${businessContext}\n`;
   return STORE_CONTEXT + shippingSection + kbSection + cachedProducts;
 }
 
@@ -226,6 +228,7 @@ export async function POST(req: Request) {
   if (!session_id || (!messageBody && !aiTakeover)) {
     return NextResponse.json({ error: "session_id and body required" }, { status: 400 });
   }
+  if (messageBody.length > 2000) return NextResponse.json({ error: "Message too long" }, { status: 400 });
 
   // Load session
   const { data: session, error: sessErr } = await supabase
@@ -238,6 +241,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
   }
 
+  const lifecycle = await checkChatSession(supabase, session);
+  if (lifecycle.status === "resolved") {
+    return NextResponse.json({ error: "session_closed", status: "resolved", expired: lifecycle.expired }, { status: 409 });
+  }
+
   if (aiTakeover) {
     const { data: recentMessages } = await supabase
       .from("chat_messages")
@@ -245,9 +253,7 @@ export async function POST(req: Request) {
       .eq("session_id", session_id)
       .order("timestamp", { ascending: false })
       .limit(30);
-    const pendingMessage = (recentMessages || []).find((message) =>
-      message.body !== "__AGENT_JOINED__" && message.body !== "__AI_RESUMED__"
-    );
+    const pendingMessage = pendingChatQuestion(recentMessages || []);
     const waitedFiveMinutes = pendingMessage?.sent_by === "visitor" &&
       Date.now() - new Date(pendingMessage.timestamp).getTime() >= 5 * 60 * 1000;
 
@@ -278,12 +284,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "rate_limit", reply: "Vous envoyez trop de messages. Veuillez patienter une minute." }, { status: 429 });
     }
 
-    await supabase.from("chat_messages").insert({
+    const { data: active, error: activityError } = await supabase.from("chat_sessions")
+      .update({ last_at: new Date().toISOString() }).eq("id", session_id).neq("status", "resolved").select("id").maybeSingle();
+    if (activityError) return NextResponse.json({ error: "Session unavailable" }, { status: 503 });
+    if (!active) return NextResponse.json({ error: "session_closed", status: "resolved" }, { status: 409 });
+    const { error: messageError } = await supabase.from("chat_messages").insert({
       session_id,
       direction: "in",
       body: messageBody,
       sent_by: "visitor",
     });
+    if (messageError) return NextResponse.json({ error: "Message not saved" }, { status: 503 });
 
     await supabase.from("chat_sessions").update({
       last_message: messageBody,
@@ -320,7 +331,7 @@ export async function POST(req: Request) {
 
   // Check if user wants human before calling AI
   if (!aiTakeover && wantsHuman(messageBody)) {
-    await supabase.from("chat_sessions").update({ status: "escalated" }).eq("id", session_id);
+    await supabase.from("chat_sessions").update({ status: "escalated" }).eq("id", session_id).neq("status", "resolved");
     const escalationMsg = detectEscalationResponse(messageBody);
     await supabase.from("chat_messages").insert({
       session_id,
@@ -393,6 +404,10 @@ export async function POST(req: Request) {
   }
 
   // Store AI reply
+  const { data: currentSession } = await supabase.from("chat_sessions").select("status").eq("id", session_id).single();
+  if (currentSession?.status === "resolved") {
+    return NextResponse.json({ status: "resolved", reply: null });
+  }
   await supabase.from("chat_messages").insert({
     session_id,
     direction: "out",
@@ -401,7 +416,7 @@ export async function POST(req: Request) {
   });
 
   if (shouldEscalate) {
-    await supabase.from("chat_sessions").update({ status: "escalated" }).eq("id", session_id);
+    await supabase.from("chat_sessions").update({ status: "escalated" }).eq("id", session_id).neq("status", "resolved");
     await broadcastAdminPushNotification({
       eventKey: `chat-ai-escalation:${session_id}`,
       title: "Live Chat · Intervention requise",

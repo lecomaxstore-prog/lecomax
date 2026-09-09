@@ -1,4 +1,5 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import type { Promotion } from "@/lib/supabase";
@@ -83,9 +84,9 @@ export default function PromotionsPage() {
         </div>
         <Field label="Date d'expiration" type="date" value={form.expires_at} onChange={(v) => setForm({ ...form, expires_at: v })} />
         <label className="flex items-center gap-2 cursor-pointer select-none">
-          <div onClick={() => setForm({ ...form, active: !form.active })} className={`w-10 h-6 rounded-full transition-colors ${form.active ? "bg-black" : "bg-neutral-200"} relative`}>
+          <button type="button" role="switch" aria-checked={form.active} aria-label="Actif" onClick={() => setForm({ ...form, active: !form.active })} className={`w-10 h-6 rounded-full transition-colors ${form.active ? "bg-black" : "bg-neutral-200"} relative`}>
             <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.active ? "translate-x-5" : "translate-x-1"}`} />
-          </div>
+          </button>
           <span className="text-sm font-medium">Promotion active</span>
         </label>
         {msg && <div className={`text-sm px-4 py-3 rounded-xl ${msg.type === "ok" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-red-50 text-red-700 border border-red-200"}`}>{msg.text}</div>}
@@ -108,7 +109,7 @@ export default function PromotionsPage() {
           Ajouter
         </button>
       </div>
-      {loading ? <div className="flex items-center justify-center h-40"><div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" /></div> : (
+      {loading ? <AdminLoading /> : (
         <div className="grid gap-3">
           {promotions.length === 0 ? <div className="bg-white rounded-2xl border border-neutral-100 px-6 py-16 text-center text-neutral-400 text-sm">Aucune promotion.</div> :
             promotions.map((p) => (

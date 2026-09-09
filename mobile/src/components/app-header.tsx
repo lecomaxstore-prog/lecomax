@@ -1,3 +1,4 @@
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { memo } from "react";
@@ -15,6 +16,7 @@ import { palette } from "@/constants/theme";
 import { useNotificationStore } from "@/stores/notifications";
 
 export const AppHeader = memo(function AppHeader({ scrollY }: { scrollY: SharedValue<number> }) {
+  useLocale();
   const unreadCount = useNotificationStore((state) => state.unreadCount);
   const animatedStyle = useAnimatedStyle(() => ({
     shadowOpacity: interpolate(scrollY.value, [0, 28], [0, 0.1], Extrapolation.CLAMP),
@@ -27,7 +29,7 @@ export const AppHeader = memo(function AppHeader({ scrollY }: { scrollY: SharedV
       <BrandLogo compact />
       <View style={styles.actions}>
         <AnimatedPressable
-          accessibilityLabel="Notifications"
+          accessibilityLabel={msg("common.notifications")}
           onPress={() => router.push("/notifications")}
           style={styles.iconButton}
         >
@@ -35,14 +37,14 @@ export const AppHeader = memo(function AppHeader({ scrollY }: { scrollY: SharedV
           <NotificationBadge count={unreadCount} />
         </AnimatedPressable>
         <AnimatedPressable
-          accessibilityLabel="Rechercher"
+          accessibilityLabel={msg("appHeader.search")}
           onPress={() => router.push("/search")}
           style={styles.iconButton}
         >
           <Ionicons name="search-outline" size={22} color={palette.ink} />
         </AnimatedPressable>
         <AnimatedPressable
-          accessibilityLabel="Se connecter"
+          accessibilityLabel={msg("auth.signInText")}
           onPress={() => router.push("/auth")}
           style={[styles.iconButton, styles.loginButton]}
         >

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkChatSession } from "@/lib/chat-session-server";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,6 +13,14 @@ export async function POST(req: Request) {
   if (!session_id || !body?.trim()) {
     return NextResponse.json({ error: "session_id and body required" }, { status: 400 });
   }
+
+  const { data: session } = await supabase.from("chat_sessions").select("*").eq("id", session_id).single();
+  if (!session) return NextResponse.json({ error: "Session not found" }, { status: 404 });
+  const lifecycle = await checkChatSession(supabase, session);
+  if (lifecycle.status === "resolved") return NextResponse.json({ error: "Conversation terminée" }, { status: 409 });
+  const { data: active } = await supabase.from("chat_sessions").update({ last_at: new Date().toISOString() })
+    .eq("id", session_id).neq("status", "resolved").select("id").maybeSingle();
+  if (!active) return NextResponse.json({ error: "Conversation terminée" }, { status: 409 });
 
   const { error } = await supabase.from("chat_messages").insert({
     session_id,

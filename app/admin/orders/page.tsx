@@ -1,7 +1,14 @@
 ﻿"use client";
+import AdminLoading from "@/components/admin/AdminLoading";
+import AdminModal from "@/components/admin/AdminModal";
+import FilterPanel from "@/components/admin/FilterPanel";
+import Pagination, { useAdminPagination } from "@/components/admin/Pagination";
+import { preorderCopy } from "@/lib/preorder-copy";
+import PreorderNotice from "@/components/PreorderNotice";
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import type { Order } from "@/lib/supabase";
+import { useAdminConfirmation } from '@/components/admin/ConfirmDialog';
 
 const STATUS_OPTIONS = [
   { value: "pending",   label: "En attente", color: "bg-yellow-100 text-yellow-700",  dot: "bg-yellow-400" },
@@ -21,6 +28,7 @@ const WaIcon = () => (
 );
 
 export default function OrdersPage() {
+  const { confirm: confirmAction, dialog: confirmationDialog } = useAdminConfirmation();
   const searchParams = useSearchParams();
   const router = useRouter();
   const detailId = searchParams.get("id");
@@ -31,6 +39,7 @@ export default function OrdersPage() {
   const [loading, setLoading]     = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState(initialStatus);
+  const [preordersOnly,setPreordersOnly] = useState(false);
   const [filterSource, setFilterSource] = useState<"all" | "website" | "mobile_app">("all");
   const [search, setSearch]       = useState("");
   const [trackingInput, setTrackingInput]   = useState("");
@@ -105,6 +114,8 @@ export default function OrdersPage() {
   }, [detail?.id]);
 
   async function updateStatus(id: string, status: string) {
+    if (status === 'cancelled' && !await confirmAction('Annuler cette commande ? Vérifiez le paiement et le réapprovisionnement avant de continuer.')) return;
+    try {
     const res = await fetch(`/api/orders/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -113,6 +124,7 @@ export default function OrdersPage() {
     if (!res.ok) { const j = await res.json(); showToast("Erreur : " + (j.error ?? "inconnue"), false); return; }
     await load();
     showToast("Statut mis à jour ✓");
+    } catch { showToast('Erreur réseau. Vérifiez le statut avant de réessayer.', false); }
   }
 
   async function saveTracking(id: string) {
@@ -157,6 +169,7 @@ export default function OrdersPage() {
   }
 
   async function handleEmail(id: string, type: "confirmed" | "shipped" | "delivered" | "cancelled") {
+    if (type === 'cancelled' && !await confirmAction('Annuler cette commande et envoyer un email au client ?')) return;
     setSending("email");
     const updateResponse = await fetch(`/api/orders/${id}`, {
       method: "PUT",
@@ -234,6 +247,7 @@ export default function OrdersPage() {
   }
 
   async function handleWhatsApp(id: string, type: "confirmed" | "shipped" | "delivered" | "cancelled") {
+    if (type === 'cancelled' && !await confirmAction('Annuler cette commande et préparer le message WhatsApp ?')) return;
     setSending("whatsapp");
     const order = orders.find((o) => o.id === id);
     await fetch(`/api/orders/${id}`, {
@@ -308,19 +322,29 @@ export default function OrdersPage() {
   }
 
   async function applyBulkStatus() {
-    if (!bulkStatus || selected.size === 0) return;
+    if (bulkUpdating || !bulkStatus || selected.size === 0) return;
     setBulkUpdating(true);
-    await Promise.all([...selected].map((id) =>
-      fetch(`/api/orders/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: bulkStatus }) })
-    ));
-    showToast(`${selected.size} commande(s) mises à jour ✓`);
-    setSelected(new Set()); setBulkStatus(""); await load();
-    setBulkUpdating(false);
+    try {
+      const ids = [...selected];
+      if (!await confirmAction(`Passer ${ids.length} commande(s) au statut « ${statusLabel(bulkStatus)} » ?`)) return;
+      const failed: string[] = [];
+      for (const id of ids) {
+        try {
+          const response = await fetch(`/api/orders/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: bulkStatus }) });
+          if (!response.ok) failed.push(id);
+        } catch { failed.push(id); }
+      }
+      showToast(`${ids.length - failed.length} mise(s) à jour, ${failed.length} échec(s).${failed.length ? ' Vérifiez les statuts avant de réessayer.' : ''}`, failed.length === 0);
+      setSelected(new Set(failed)); setBulkStatus(''); await load();
+    } finally { setBulkUpdating(false); }
   }
 
   const toggleSelect = (id: string) =>
     setSelected((prev) => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
 
+  const [paymentFilter, setPaymentFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const filtered = orders.filter((o) => {
     const matchStatus = filterStatus === "all" || o.status === filterStatus;
     const matchSource = filterSource === "all" || (o.order_source ?? "website") === filterSource;
@@ -330,14 +354,20 @@ export default function OrdersPage() {
       o.order_number?.includes(q) ||
       o.customer?.phone?.includes(q) ||
       o.customer?.email?.toLowerCase().includes(q);
-    return matchStatus && matchSource && matchSearch;
+    const isPaypal = (o.payment_method ?? "").toLowerCase().startsWith("paypal");
+    const matchPayment = paymentFilter === "all" || (paymentFilter === "paypal" ? isPaypal : !isPaypal);
+    const matchDate = (!dateFrom || new Date(o.created_at) >= new Date(dateFrom + "T00:00:00")) && (!dateTo || new Date(o.created_at) <= new Date(dateTo + "T23:59:59.999"));
+    return matchStatus && matchSource && matchSearch && matchPayment && matchDate && (!preordersOnly || o.items?.some(item=>item.fulfillment_type === "PREORDER"));
   });
 
+  const pagination = useAdminPagination(filtered, JSON.stringify([search, filterStatus, filterSource, paymentFilter, dateFrom, dateTo, preordersOnly]));
   return (
     <div className="flex flex-col lg:flex-row gap-5 h-full">
+      {confirmationDialog}
 
       {/* LEFT: List */}
       <div className={`flex flex-col min-w-0 transition-all ${detail ? "hidden lg:flex lg:w-[52%] lg:flex-shrink-0" : "flex-1"}`}>
+        <label className="flex gap-2 text-xs mb-3"><input type="checkbox" checked={preordersOnly} onChange={e=>setPreordersOnly(e.target.checked)}/>{preorderCopy.fr.filter}</label>
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-xl font-black">Commandes</h1>
@@ -354,10 +384,11 @@ export default function OrdersPage() {
 
         <div className="relative mb-3">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Nom, téléphone, numéro, email…"
+          <input type="search" aria-label="Rechercher une commande" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Nom, téléphone, numéro, email…"
             className="w-full border border-neutral-200 rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-black bg-white" />
         </div>
 
+        <FilterPanel title="Filtrer les commandes" onReset={() => { setFilterStatus("all"); setFilterSource("all"); setPaymentFilter("all"); setDateFrom(""); setDateTo(""); setPreordersOnly(false); }}>
         <div className="flex gap-1.5 mb-4 flex-wrap">
           {[{ value: "all", label: "Toutes" }, ...STATUS_OPTIONS].map((s) => (
             <button key={s.value} onClick={() => setFilterStatus(s.value)}
@@ -387,6 +418,13 @@ export default function OrdersPage() {
           ))}
         </div>
 
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <label className="text-xs font-semibold">Paiement<select value={paymentFilter} onChange={e => setPaymentFilter(e.target.value)} className="mt-1 w-full rounded-xl border p-2"><option value="all">Tous</option><option value="paypal">PayPal</option><option value="cod">À la livraison</option></select></label>
+          <label className="text-xs font-semibold">Du<input type="date" value={dateFrom} max={dateTo || undefined} onChange={e => setDateFrom(e.target.value)} className="mt-1 w-full rounded-xl border p-2" /></label>
+          <label className="text-xs font-semibold">Au<input type="date" value={dateTo} min={dateFrom || undefined} onChange={e => setDateTo(e.target.value)} className="mt-1 w-full rounded-xl border p-2" /></label>
+        </div>
+        </FilterPanel>
+        <p role="status" className="my-3 text-xs text-neutral-500">{filtered.length} résultats</p>
         {loadError && (
           <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
             <span>{loadError}</span>
@@ -397,9 +435,7 @@ export default function OrdersPage() {
         )}
 
         {loading ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-7 h-7 border-2 border-black border-t-transparent rounded-full animate-spin" />
-          </div>
+          <AdminLoading />
         ) : (
           <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden flex-1">
             {filtered.length === 0 ? (
@@ -408,17 +444,17 @@ export default function OrdersPage() {
               <>
                 {/* Mobile card list */}
                 <div className="lg:hidden divide-y divide-neutral-50">
-                  {filtered.map((o) => (
-                    <div key={o.id}
+                  {pagination.items.map((o) => (
+                    <div key={o.id} role="group" aria-label={`Commande ${o.order_number}`}
                       onClick={() => router.replace(detailId === o.id ? "/admin/orders" : `/admin/orders?id=${o.id}`)}
                       className={`flex items-center gap-3 px-4 py-3.5 cursor-pointer active:bg-neutral-50 transition-colors ${selected.has(o.id) ? "bg-blue-50/50" : ""}`}>
-                      <input type="checkbox" checked={selected.has(o.id)}
+                      <input type="checkbox" aria-label={`Sélectionner la commande ${o.order_number}`} checked={selected.has(o.id)}
                         onChange={(e) => { e.stopPropagation(); toggleSelect(o.id); }}
                         onClick={(e) => e.stopPropagation()}
                         className="rounded border-neutral-300 cursor-pointer shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2 mb-0.5">
-                          <p className="font-bold text-sm truncate">{o.customer?.name}</p>
+                          <button type="button" onClick={e => { e.stopPropagation(); router.replace(`/admin/orders?id=${o.id}`); }} className="min-w-0 text-left font-bold text-sm truncate" aria-label={`Ouvrir la commande ${o.order_number}`}>{o.customer?.name}</button>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 ${statusColor(o.status)}`}>{statusLabel(o.status)}</span>
                         </div>
                         <div className="flex items-center justify-between gap-2">
@@ -428,7 +464,8 @@ export default function OrdersPage() {
                           </p>
                           <p className="text-xs font-bold shrink-0">{o.total} MAD</p>
                         </div>
-                        <p className="text-[11px] text-neutral-400 mt-0.5">{o.customer?.phone} · {new Date(o.created_at).toLocaleDateString("fr-FR")}</p>
+                        <p className="text-[11px] text-neutral-500 mt-0.5">{o.customer?.city} · {new Date(o.created_at).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
+                        <p className="text-[11px] text-neutral-500">{(o.payment_method ?? "").toLowerCase().startsWith("paypal") ? "PayPal" : "Paiement à la livraison"}</p>
                       </div>
                       {o.status === "delivered" && (
                         <button
@@ -461,7 +498,7 @@ export default function OrdersPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-50">
-                  {filtered.map((o) => (
+                  {pagination.items.map((o) => (
                     <tr key={o.id}
                       onClick={() => router.replace(detailId === o.id ? "/admin/orders" : `/admin/orders?id=${o.id}`)}
                       className={`cursor-pointer transition-colors
@@ -515,11 +552,12 @@ export default function OrdersPage() {
             )}
           </div>
         )}
+        {!loading && <Pagination {...pagination} />}
       </div>
 
       {/* RIGHT: Detail panel */}
       {detail && (
-        <div className="fixed inset-0 z-50 h-[100dvh] overflow-y-auto bg-neutral-50 pb-[max(2rem,env(safe-area-inset-bottom))] lg:relative lg:inset-auto lg:z-auto lg:h-auto lg:max-h-[calc(100vh-7rem)] lg:min-w-0 lg:flex-1 lg:bg-white lg:pb-0">
+        <div className="fixed inset-0 z-50 h-[100dvh] overflow-y-auto bg-neutral-50 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:relative lg:inset-auto lg:z-auto lg:h-auto lg:max-h-[calc(100vh-7rem)] lg:min-w-0 lg:flex-1 lg:bg-white lg:pb-0">
           {/* Mobile back header */}
           <div className="sticky top-0 z-20 mb-3 flex items-center gap-3 border-b border-neutral-200/80 bg-white/95 px-3 py-3 backdrop-blur-xl lg:hidden">
             <button onClick={() => router.replace("/admin/orders")}
@@ -583,7 +621,7 @@ export default function OrdersPage() {
           <div className="mx-auto max-w-2xl space-y-3 px-3 lg:max-w-none lg:px-0">
 
             {/* Actions — pick status then channel */}
-            <Section title="Actions">
+            <div id="admin-order-actions" className="scroll-mt-24" /><Section title="Actions">
               {pendingAction ? (() => {
                 const ACTION_META = {
                   confirmed: { label: "Confirmer",  icon: "✓",  cls: "bg-blue-600" },
@@ -611,7 +649,7 @@ export default function OrdersPage() {
                         </div>
                         <div>
                           <p className="text-[11px] font-black text-neutral-800">Dans 2 jours · Avis sur les produits</p>
-                          <p className="mt-0.5 text-[10px] leading-4 text-neutral-500">Un rappel personnalisé affiche les articles achetés, avec un bouton d'avis pour chacun et Trustpilot en option.</p>
+                          <p className="mt-0.5 text-[10px] leading-4 text-neutral-500">Un rappel personnalisé affiche les articles achetés, avec un bouton d&apos;avis pour chacun et Trustpilot en option.</p>
                         </div>
                       </div>
                       <button
@@ -813,10 +851,10 @@ export default function OrdersPage() {
                   <div key={i} className="flex items-center gap-3">
                     {item.image && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={item.image} alt={item.name} className="w-9 h-9 object-cover rounded-lg bg-neutral-100 shrink-0" />
+                      <img src={item.image} alt={item.name} className="w-9 h-9 object-cover rounded-lg bg-neutral-100 shrink-0" loading="lazy" decoding="async" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate">{item.name}</p>
+                      <p className="text-sm font-semibold truncate">{item.name}</p><PreorderNotice item={item} />{item.fulfillment_type === "PREORDER" && <p className="text-xs text-amber-800">{item.inventory_reserved ? preorderCopy.fr.ready : preorderCopy.fr.waiting}</p>}
                       <p className="text-xs text-neutral-400">
                         Qté : {item.qty}{item.color ? ` · ${item.color}` : ""}{item.size ? ` · ${item.size}` : ""}
                       </p>
@@ -874,9 +912,13 @@ export default function OrdersPage() {
         </div>
       )}
 
+      {detail && <div className="fixed inset-x-0 bottom-0 z-50 lg:hidden"><div className="admin-order-contact">
+        {detail.customer?.phone && <><a href={"tel:" + detail.customer.phone}>Appeler</a><a href={"https://wa.me/" + detail.customer.phone.replace(/[^+0-9]/g, "").replace(/^0/, "212").replace(/^\+/, "")} target="_blank" rel="noreferrer">WhatsApp</a></>}
+        <button type="button" className="admin-primary" onClick={() => document.getElementById("admin-order-actions")?.scrollIntoView({ block: "start", behavior: "smooth" })}>Statut</button>
+      </div></div>}
       {/* Review Request Modal */}
       {reviewModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+        <AdminModal className="admin-dialog-overlay fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           onClick={() => setReviewModal(null)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5"
             onClick={(e) => e.stopPropagation()}>
@@ -931,12 +973,12 @@ export default function OrdersPage() {
               )}
             </div>
           </div>
-        </div>
+        </AdminModal>
       )}
 
       {/* Bulk action bar */}
       {selected.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 lg:left-[calc(50%+8rem)] -translate-x-1/2 z-50 flex items-center gap-2 bg-neutral-900 text-white pl-4 pr-3 py-2.5 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.35)] border border-white/10 max-w-[calc(100vw-2rem)]">
+        <div className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] lg:bottom-6 left-1/2 lg:left-[calc(50%+8rem)] -translate-x-1/2 z-50 flex items-center gap-2 bg-neutral-900 text-white pl-4 pr-3 py-2.5 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.35)] border border-white/10 max-w-[calc(100vw-2rem)]">
           <div className="flex items-center gap-2 pr-3 border-r border-white/15 shrink-0">
             <div className="w-5 h-5 rounded-full bg-white text-black text-[10px] font-black flex items-center justify-center">{selected.size}</div>
             <span className="text-sm font-semibold text-white/80 whitespace-nowrap">sélectionnée{selected.size > 1 ? "s" : ""}</span>

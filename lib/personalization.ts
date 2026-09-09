@@ -13,6 +13,7 @@ type PersonalizableProduct = {
 const PROFILE_KEY = "lecomax_shop_profile_v1";
 const MAX_PRODUCTS = 40;
 const DAILY_DECAY = 0.94;
+export const SHOPPING_PROFILE_EVENT = "lecomax-shopping-profile-updated";
 
 function canPersonalize() {
   try {
@@ -55,6 +56,7 @@ function saveProfile(profile: ShoppingProfile) {
         .slice(0, MAX_PRODUCTS),
     );
     localStorage.setItem(PROFILE_KEY, JSON.stringify({ ...profile, products, updatedAt: Date.now() }));
+    window.dispatchEvent(new Event(SHOPPING_PROFILE_EVENT));
   } catch {
     // Personalization must never interfere with shopping.
   }
@@ -80,9 +82,16 @@ export function recordProductSignal(product: PersonalizableProduct, weight = 1) 
   saveProfile(profile);
 }
 
-export function personalizeProducts<T extends PersonalizableProduct>(products: T[]): T[] {
+export function personalizeProducts<T extends PersonalizableProduct>(products: T[], favoriteSlugs: ReadonlySet<string> = new Set()): T[] {
   if (typeof window === "undefined" || !canPersonalize()) return products;
   const profile = readProfile();
+  // Saved products also lift their category, helping clients discover related items.
+  for (const product of products) {
+    if (!favoriteSlugs.has(product.slug)) continue;
+    profile.products[product.slug] = (profile.products[product.slug] || 0) + 10;
+    const category = product.category?.trim().toLocaleLowerCase("fr");
+    if (category) profile.categories[category] = (profile.categories[category] || 0) + 6;
+  }
   const hasSignals = Object.keys(profile.products).length > 0 || Object.keys(profile.categories).length > 0;
   if (!hasSignals) return products;
 
@@ -90,7 +99,8 @@ export function personalizeProducts<T extends PersonalizableProduct>(products: T
     .map((product, index) => {
       const category = product.category?.trim().toLocaleLowerCase("fr") || "";
       const preference = (profile.products[product.slug] || 0) * 1.4 + (profile.categories[category] || 0);
-      return { product, index, score: preference - index * 0.12 };
+      // Catalogue position is only a tie-breaker, so new items can match an interest.
+      return { product, index, score: preference };
     })
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .map(({ product }) => product);

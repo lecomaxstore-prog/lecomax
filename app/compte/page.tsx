@@ -1,12 +1,14 @@
-﻿"use client";
+"use client";
+import { preorderCopy } from "@/lib/preorder-copy";
 
 import { useEffect, useState } from "react";
 
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
-import { products, formatMAD } from "@/lib/products";
+import { formatMAD } from "@/lib/products";
 import { customerApiFetch } from "@/lib/customer-api";
+import AccountRecommendations from "@/components/AccountRecommendations";
 import { useWishlist } from "@/components/WishlistContext";
 
 type UserInfo = {
@@ -22,7 +24,7 @@ type RecentOrder = {
   total: number;
   status: string;
   created_at: string;
-  items: { name: string; image: string; qty: number }[];
+  items: { fulfillment_type?: "STANDARD" | "PREORDER"; name: string; image: string; qty: number }[];
 };
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
@@ -33,7 +35,7 @@ const STATUS_LABEL: Record<string, { label: string; color: string }> = {
   cancelled: { label: "Annulée",      color: "bg-red-50 text-red-700 border-red-200" },
 };
 
-const recommended = products.slice(0, 2);
+
 
 export default function ComptePage() {
   const { count: wishlistCount } = useWishlist();
@@ -41,6 +43,7 @@ export default function ComptePage() {
   const [orders, setOrders] = useState<RecentOrder[]>([]);
   const [orderCount, setOrderCount] = useState<number | null>(null);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState(false);
   const [points, setPoints] = useState(0);
   const [pendingPoints, setPendingPoints] = useState(0);
   const [tierProgress, setTierProgress] = useState(0);
@@ -75,7 +78,9 @@ export default function ComptePage() {
       // Fetch recent orders by email
       customerApiFetch(`/api/orders?email=${encodeURIComponent(email)}&limit=3`)
         .then(async r => {
-          const total = Number(r.headers.get("X-Total-Count"));
+          if (!r.ok) throw new Error("Orders unavailable");
+          const header = r.headers.get("X-Total-Count");
+          const total = header === null ? NaN : Number(header);
           if (Number.isFinite(total)) setOrderCount(total);
           return r.json();
         })
@@ -83,7 +88,7 @@ export default function ComptePage() {
           setOrders(Array.isArray(data) ? data : []);
           setOrdersLoading(false);
         })
-        .catch(() => setOrdersLoading(false));
+        .catch(() => { setOrdersError(true); setOrdersLoading(false); });
       // Fetch EcoClub points
       if (email) {
         customerApiFetch(`/api/points?email=${encodeURIComponent(email)}`)
@@ -112,47 +117,44 @@ export default function ComptePage() {
   const today = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="account-overview flex flex-col gap-6">
 
       {/* ─── Hero welcome banner ─── */}
-      <div className="relative bg-[#050806] text-white overflow-hidden rounded-[24px] border border-white/10 shadow-[0_22px_60px_rgba(0,0,0,0.18)]">
-        {/* subtle grid pattern */}
-        <div aria-hidden className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 82% 30%, rgba(62,207,76,0.20) 0%, transparent 38%), repeating-linear-gradient(45deg, rgba(255,255,255,0.025) 0, rgba(255,255,255,0.025) 1px, transparent 0, transparent 50%)", backgroundSize: "auto, 14px 14px" }} />
-        <div aria-hidden className="absolute -right-12 -top-16 h-48 w-48 rounded-full border border-[#3ecf4c]/20" />
-        <div className="relative px-6 sm:px-10 py-8 sm:py-11 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-8">
+      <div className="account-welcome overflow-hidden rounded-3xl bg-[#183c30] text-white">
+        <div className="account-welcome-inner px-6 sm:px-8 py-7 sm:py-9 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
           <div className="flex-1 min-w-0">
-            <p className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.28em] sm:tracking-[0.4em] text-neutral-500 mb-3">
+            <p className="text-[11px] font-medium text-emerald-100/70 mb-4">
               {today.charAt(0).toUpperCase() + today.slice(1)}
             </p>
-            <h1 className="font-black text-[27px] sm:text-[36px] leading-[1.05] tracking-[-0.03em] mb-2.5">
-              Bonjour, <span className="text-[#3ecf4c]">{firstName} 👋</span>
+            <h1 className="font-semibold text-[28px] sm:text-[36px] leading-[1.15] tracking-[-0.035em] mb-3 break-words">
+              Bonjour, {firstName} <span className="inline-block text-[23px]" aria-hidden="true">👋</span>
             </h1>
-            <p className="max-w-md text-[11px] sm:text-[12px] leading-relaxed text-neutral-400 mb-5">Retrouvez vos commandes, vos avantages et toutes vos informations au même endroit.</p>
+            <p className="max-w-md text-[13px] leading-6 text-white/70 mb-5">Tout votre univers L’Ecomax, au même endroit.</p>
             <div className="flex items-center gap-2 flex-wrap">
               {memberSince && (
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-neutral-400 border border-white/10 rounded-full px-3 py-1">
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-white/70 border border-white/15 rounded-full px-3 py-1.5">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   Membre depuis {memberSince}
                 </span>
               )}
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider rounded-full px-3 py-1" style={{ background: "rgba(205,127,50,0.15)", color: "#cd7f32", border: "1px solid rgba(205,127,50,0.25)" }}>
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-normal rounded-full px-3 py-1" style={{ background: "rgba(205,127,50,0.15)", color: "#cd7f32", border: "1px solid rgba(205,127,50,0.25)" }}>
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 EcoClub {tierName}
               </span>
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:flex sm:flex-col gap-2 shrink-0">
-            <Link href="/compte/commandes" className="inline-flex items-center justify-center gap-2 bg-[#3ecf4c] text-black font-black text-[9px] sm:text-[11px] uppercase tracking-[0.1em] sm:tracking-[0.15em] px-3 sm:px-6 py-3.5 rounded-xl hover:bg-[#2db83a] hover:-translate-y-0.5 transition-all whitespace-nowrap group shadow-[0_10px_28px_rgba(62,207,76,0.22)]">
+          <div className="flex flex-wrap gap-2 shrink-0">
+            <Link href="/compte/commandes" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-[12px] font-semibold text-emerald-950 transition-colors hover:bg-emerald-50 group">
               Mes commandes
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="group-hover:translate-x-0.5 transition-transform"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </Link>
-            <Link href="/nouveautes" className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] px-3 sm:px-6 py-3.5 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.1em] text-white transition-all hover:bg-white/10 hover:border-white/25 whitespace-nowrap">Nouveautés</Link>
+            <Link href="/nouveautes" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 px-4 py-3 text-[12px] font-medium text-white transition-colors hover:bg-white/10">Nouveautés</Link>
           </div>
         </div>
       </div>
 
       {/* ─── Profile completion nudge ─── */}
-      {!hasFullName && (
+      {user && !hasFullName && (
         <div className="bg-gradient-to-r from-amber-50 to-orange-50/60 border border-amber-200 rounded-2xl px-5 py-4 flex flex-col min-[460px]:flex-row min-[460px]:items-center justify-between gap-4 shadow-[0_8px_24px_rgba(245,158,11,0.07)]">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
@@ -163,14 +165,14 @@ export default function ComptePage() {
               <p className="text-[11px] text-amber-600 mt-0.5">Ajoutez votre nom pour personnaliser votre expérience.</p>
             </div>
           </div>
-          <Link href="/compte/profil" className="w-full min-[460px]:w-auto shrink-0 text-center text-[10px] font-black uppercase tracking-widest bg-amber-500 text-white px-5 py-2.5 rounded-xl hover:bg-amber-600 hover:-translate-y-0.5 transition-all whitespace-nowrap shadow-sm">
+          <Link href="/compte/profil" className="w-full min-[460px]:w-auto shrink-0 text-center text-[12px] font-semibold tracking-normal bg-amber-500 text-white px-5 py-2.5 rounded-xl hover:bg-amber-600 hover:-translate-y-0.5 transition-all whitespace-nowrap shadow-sm">
             Compléter →
           </Link>
         </div>
       )}
 
       {/* ─── Stats cards ─── */}
-      <div className="grid grid-cols-1 min-[420px]:grid-cols-3 gap-3">
+      <div className="account-stats grid grid-cols-3 gap-2 sm:gap-4">
         {[
           {
             label: "Commandes",
@@ -181,7 +183,7 @@ export default function ComptePage() {
             icon: (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
             ),
-            color: "#3ecf4c",
+            color: "#183c30",
           },
           {
             label: "Adresses",
@@ -203,40 +205,39 @@ export default function ComptePage() {
             icon: (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             ),
-            color: tierName === "Gold" ? "#fbbf24" : tierName === "Silver" ? "#a8a9ad" : "#f59e0b",
+            color: tierName === "Gold" ? "#927025" : tierName === "Silver" ? "#64748b" : "#94633b",
           },
         ].map((s) => (
-          <Link key={s.label} href={s.href} className={`group min-w-0 ${s.bg} relative overflow-hidden border border-neutral-200/70 hover:border-neutral-300 hover:-translate-y-0.5 hover:shadow-[0_14px_35px_rgba(15,23,42,0.09)] transition-all duration-200 rounded-2xl p-4 sm:p-5 flex min-[420px]:flex-col items-center min-[420px]:items-stretch gap-4 min-[420px]:gap-3`}>
-            <span className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#3ecf4c] to-emerald-300 opacity-0 transition-opacity group-hover:opacity-100" />
-            <div className="w-10 h-10 rounded-xl bg-neutral-50 group-hover:bg-neutral-100 flex items-center justify-center text-neutral-400 group-hover:text-black transition-all shrink-0">
+          <Link key={s.label} href={s.href} className={`group min-w-0 ${s.bg} border border-neutral-200/80 hover:border-emerald-800/30 transition-colors rounded-2xl p-3 sm:p-5 flex flex-col gap-3`}>
+            <div className="flex h-7 w-7 items-center justify-center text-neutral-500">
               {s.icon}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-black text-[23px] sm:text-[28px] leading-none tracking-tight truncate" style={{ color: s.color }}>{s.value}</p>
-              <p className="text-[10px] font-semibold text-neutral-400 mt-1 uppercase tracking-wider">{s.label}</p>
-              <p className="text-[10px] text-neutral-300 mt-0.5">{s.sub}</p>
+              <p className="font-semibold text-[18px] sm:text-[26px] leading-none tracking-tight" style={{ color: s.color }}>{s.value}</p>
+              <p className="text-[10px] sm:text-[12px] font-medium text-neutral-600 mt-2">{s.label}</p>
+              <p className="text-[10px] text-neutral-500 mt-1">{s.sub}</p>
             </div>
           </Link>
         ))}
       </div>
 
       {/* ─── EcoClub progress ─── */}
-      <div className="bg-gradient-to-r from-neutral-900 to-black rounded-2xl px-6 py-5 flex items-center gap-5">
+      <div className="account-loyalty bg-[#183c30] rounded-2xl px-4 sm:px-6 py-5 flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-5">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(205,127,50,0.2)" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cd7f32" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-black uppercase tracking-widest text-white">EcoClub {tierName}</span>
+            <span className="text-[12px] font-semibold tracking-normal text-white">EcoClub {tierName}</span>
             <span className="text-[10px] font-semibold text-neutral-400">
               {points.toLocaleString("fr-MA")} pts
             </span>
           </div>
-          <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+          <div role="progressbar" aria-label="Progression EcoClub" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.min(100, Math.max(0, tierProgress))} className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{
-                width: `${tierProgress}%`,
+                width: `${Math.min(100, Math.max(0, tierProgress))}%`,
                 background: "linear-gradient(90deg, #cd7f32, #f59e0b)",
               }}
             />
@@ -244,25 +245,25 @@ export default function ComptePage() {
           <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 text-[10px]">
             {tierNext && tierNextLabel ? (
               <p className="text-neutral-500">
-                {(tierNext - points).toLocaleString("fr-MA")} pts pour atteindre <span className="font-semibold text-neutral-300">{tierNextLabel}</span>
+                {Math.max(0, tierNext - points).toLocaleString("fr-MA")} pts pour atteindre <span className="font-semibold text-neutral-500">{tierNextLabel}</span>
               </p>
             ) : <p className="text-neutral-500">Niveau maximum</p>}
             {pendingPoints > 0 && <p className="font-semibold text-amber-400">+{pendingPoints.toLocaleString("fr-MA")} pts en attente</p>}
           </div>
         </div>
-        <Link href="/ecoclub" className="shrink-0 text-[10px] font-black uppercase tracking-widest text-neutral-400 hover:text-white transition-colors">
+        <Link href="/ecoclub" className="shrink-0 text-[12px] font-semibold tracking-normal text-neutral-400 hover:text-white transition-colors">
           Détails →
         </Link>
       </div>
 
       {/* ─── Recent orders ─── */}
-      <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
+      <div className="account-orders rounded-2xl bg-white border border-neutral-200/80 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
           <div className="flex items-center gap-2.5">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
-            <p className="font-black text-[13px] uppercase tracking-wide">Commandes récentes</p>
+            <p className="font-semibold text-[13px] tracking-normal">Commandes récentes</p>
           </div>
-          <Link href="/compte/commandes" className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors flex items-center gap-1">
+          <Link href="/compte/commandes" className="text-[10px] font-bold tracking-normal text-neutral-400 hover:text-black transition-colors flex items-center gap-1">
             Tout voir
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </Link>
@@ -271,16 +272,21 @@ export default function ComptePage() {
         {ordersLoading ? (
           <div className="px-6 py-10 flex items-center justify-center gap-2 text-neutral-400">
             <span className="w-4 h-4 border-2 border-neutral-200 border-t-neutral-400 rounded-full animate-spin" />
-            <span className="text-[12px] font-bold uppercase tracking-widest">Chargement…</span>
+            <span className="text-[12px] font-bold tracking-normal">Chargement…</span>
+          </div>
+        ) : ordersError ? (
+          <div role="status" className="p-6 text-center">
+            <p className="text-sm text-neutral-600">Vos commandes sont momentanément indisponibles.</p>
+            <Link href="/compte/commandes" className="inline-flex mt-4 rounded-xl bg-[#183c30] px-5 py-3 text-sm font-semibold text-white">Réessayer dans mes commandes</Link>
           </div>
         ) : orders.length === 0 ? (
           <div className="px-6 py-12 flex flex-col items-center text-center">
             <div className="w-14 h-14 rounded-2xl bg-neutral-50 border border-dashed border-neutral-200 flex items-center justify-center mb-4">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-300"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-500"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
             </div>
-            <p className="text-[12px] font-black uppercase tracking-[0.3em] text-neutral-300 mb-1.5">Aucune commande</p>
+            <p className="text-[12px] font-semibold tracking-normal text-neutral-500 mb-1.5">Aucune commande</p>
             <p className="text-[12px] text-neutral-400 leading-relaxed max-w-[200px] mb-5">Vos commandes apparaîtront ici après votre premier achat.</p>
-            <Link href="/" className="inline-flex items-center gap-2 bg-black text-white font-black text-[10px] uppercase tracking-[0.2em] px-6 py-3 rounded-xl hover:bg-neutral-800 transition-colors">
+            <Link href="/" className="inline-flex items-center gap-2 rounded-xl bg-[#183c30] text-white font-semibold text-[10px] tracking-normal px-6 py-3 hover:bg-neutral-800 transition-colors">
               Explorer la boutique
             </Link>
           </div>
@@ -297,22 +303,23 @@ export default function ComptePage() {
                         <Image src={item.image || "/images/placeholder.png"} alt={item.name} width={40} height={40} className="object-cover w-full h-full" />
                       </div>
                     ))}
+                    {order.items.some(item=>item.fulfillment_type === "PREORDER") && <span className="text-xs text-amber-800">{preorderCopy.fr.badge}</span>}
                     {order.items.length > 2 && (
-                      <div className="w-10 h-10 border-2 border-white rounded-xl bg-neutral-100 flex items-center justify-center text-[10px] font-black text-neutral-500">
+                      <div className="w-10 h-10 border-2 border-white rounded-xl bg-neutral-100 flex items-center justify-center text-[10px] font-semibold text-neutral-500">
                         +{order.items.length - 2}
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <p className="font-black text-[13px] tracking-wide">{order.order_number}</p>
-                      <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${st.color}`}>{st.label}</span>
+                    <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                      <p className="font-semibold text-[13px] tracking-normal">{order.order_number}</p>
+                      <span className={`text-[12px] font-semibold tracking-normal px-2 py-0.5 rounded-full border ${st.color}`}>{st.label}</span>
                     </div>
                     <p className="text-[11px] text-neutral-400">{date} · {order.items.length} article{order.items.length > 1 ? "s" : ""}</p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="font-black text-[14px]">{formatMAD(order.total)}</p>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="ml-auto mt-1 text-neutral-300 group-hover:text-black group-hover:translate-x-0.5 transition-all"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    <p className="font-semibold text-[14px]">{formatMAD(order.total)}</p>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="ml-auto mt-1 text-neutral-500 group-hover:text-black group-hover:translate-x-0.5 transition-all"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                   </div>
                 </Link>
               );
@@ -323,13 +330,13 @@ export default function ComptePage() {
 
       {/* ─── Saved Ecomedia posts ─── */}
       {(savedLoading || savedPosts.length > 0) && (
-        <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
+        <div className="rounded-2xl bg-white border border-neutral-200/80 overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
             <div className="flex items-center gap-2.5">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="text-black"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
-              <p className="font-black text-[13px] uppercase tracking-wide">Posts enregistrés</p>
+              <p className="font-semibold text-[13px] tracking-normal">Posts enregistrés</p>
             </div>
-            <Link href="/ecomedia" className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors flex items-center gap-1">
+            <Link href="/ecomedia" className="text-[10px] font-bold tracking-normal text-neutral-400 hover:text-black transition-colors flex items-center gap-1">
               Ecomedia
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </Link>
@@ -337,7 +344,7 @@ export default function ComptePage() {
           {savedLoading ? (
             <div className="px-6 py-8 flex items-center justify-center gap-2 text-neutral-400">
               <span className="w-4 h-4 border-2 border-neutral-200 border-t-neutral-400 rounded-full animate-spin" />
-              <span className="text-[12px] font-bold uppercase tracking-widest">Chargement…</span>
+              <span className="text-[12px] font-bold tracking-normal">Chargement…</span>
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-px bg-neutral-100">
@@ -347,7 +354,7 @@ export default function ComptePage() {
                     <Image src={p.image_url} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="160px" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-neutral-100">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-300"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-500"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                     </div>
                   )}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end p-2 opacity-0 group-hover:opacity-100">
@@ -364,57 +371,36 @@ export default function ComptePage() {
       )}
 
       {/* ─── Quick actions ─── */}
-      <div>
-        <p className="font-black text-[11px] uppercase tracking-[0.3em] text-neutral-400 mb-3">Accès rapide</p>
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <section className="account-shortcuts" aria-labelledby="account-shortcuts-title">
+        <div className="account-shortcuts-heading">
+          <p>Votre espace</p>
+          <h2 id="account-shortcuts-title">Les essentiels</h2>
+        </div>
+        <nav className="account-shortcuts-list" aria-label="Accès rapide au compte">
           {[
             { href: "/wishlist", label: "Mes favoris", sub: `${wishlistCount} enregistré${wishlistCount > 1 ? "s" : ""}`, color: "bg-rose-50 text-rose-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8a5.5 5.5 0 001-7.8Z"/></svg> },
-            { href: "/compte/profil", label: "Mon profil", sub: "Infos personnelles", color: "bg-blue-50 text-blue-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+            { href: "/compte/profil", label: "Mon profil", sub: "Infos personnelles", color: "bg-neutral-50 text-neutral-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
             { href: "/compte/adresses", label: "Mes adresses", sub: "Livraison", color: "bg-emerald-50 text-emerald-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> },
-            { href: "/suivre-commande", label: "Suivre un colis", sub: "Ma commande", color: "bg-purple-50 text-purple-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+            { href: "/suivre-commande", label: "Suivre un colis", sub: "Ma commande", color: "bg-neutral-50 text-neutral-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
             { href: "/retours", label: "Retours", sub: "Initier un retour", color: "bg-rose-50 text-rose-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> },
           ].map((action) => (
-            <Link key={action.href} href={action.href} className="group bg-white border border-neutral-100 hover:border-neutral-300 hover:shadow-md transition-all duration-200 rounded-2xl p-4 flex flex-col gap-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${action.color} transition-all duration-200`}>
+            <Link key={action.href} href={action.href} className="account-shortcut">
+              <span className="account-shortcut-icon" aria-hidden="true">
                 {action.icon}
-              </div>
-              <div>
-                <p className="font-black text-[12px] leading-tight mb-0.5">{action.label}</p>
-                <p className="text-[10px] text-neutral-400">{action.sub}</p>
-              </div>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-neutral-300 group-hover:text-black group-hover:translate-x-0.5 transition-all mt-auto self-end"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+              <span className="account-shortcut-copy">
+                <span className="account-shortcut-label">{action.label}</span>
+                <span className="account-shortcut-description">{action.sub}</span>
+              </span>
+              <span className="account-shortcut-arrow" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="m9 5 7 7-7 7" /></svg>
+              </span>
             </Link>
           ))}
-        </div>
-      </div>
+        </nav>
+      </section>
 
-      {/* ─── Recommended products ─── */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <p className="font-black text-[11px] uppercase tracking-[0.3em] text-neutral-400">Sélection pour vous</p>
-          <Link href="/nouveautes" className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors flex items-center gap-1">
-            Voir tout
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          {recommended.map((p) => (
-            <Link key={p.slug} href={`/produit/${p.slug}`} className="group bg-white border border-neutral-100 hover:border-neutral-300 hover:shadow-lg transition-all duration-300 overflow-hidden rounded-2xl">
-              <div className="relative aspect-square bg-neutral-50 overflow-hidden">
-                <Image src={p.image} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 50vw, 300px" />
-                {p.badge && <span className="absolute top-2.5 left-2.5 bg-black text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">{p.badge}</span>}
-              </div>
-              <div className="px-4 py-3.5">
-                <p className="font-semibold text-[12px] leading-snug line-clamp-2 mb-2 text-neutral-800 group-hover:text-black transition-colors">{p.name}</p>
-                <div className="flex items-center gap-2">
-                  <span className="font-black text-[15px]">{p.price} DH</span>
-                  {p.oldPrice && <span className="text-[12px] text-neutral-400 line-through">{p.oldPrice} DH</span>}
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <AccountRecommendations />
 
     </div>
   );

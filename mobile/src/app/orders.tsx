@@ -1,3 +1,6 @@
+import { PreorderNotice } from "@/components/preorder-notice";
+import { localizedContent, paymentStatusLabel } from "@/i18n/content";
+import { currentLocale, msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
@@ -22,22 +25,22 @@ const STATUS: Record<
   string,
   { label: string; color: string; background: string }
 > = {
-  pending: { label: "En attente", color: "#8A5B00", background: "#FFF3D7" },
-  confirmed: { label: "Confirmée", color: "#116530", background: "#E9F7ED" },
+  pending: { get label() { return msg("orders.pending"); }, color: "#8A5B00", background: "#FFF3D7" },
+  confirmed: { get label() { return msg("orders.confirmed"); }, color: "#116530", background: "#E9F7ED" },
   processing: {
-    label: "En préparation",
+    get label() { return msg("orderTracking.preparing"); },
     color: "#155E75",
     background: "#E8F6FA",
   },
-  shipped: { label: "Expédiée", color: "#1D4ED8", background: "#EAF0FF" },
-  delivered: { label: "Livrée", color: "#116530", background: "#E9F7ED" },
-  cancelled: { label: "Annulée", color: "#A52A2A", background: "#FDECEC" },
+  shipped: { get label() { return msg("orderTracking.shipped"); }, color: "#1D4ED8", background: "#EAF0FF" },
+  delivered: { get label() { return msg("orderTracking.delivered"); }, color: "#116530", background: "#E9F7ED" },
+  cancelled: { get label() { return msg("orders.cancelled"); }, color: "#A52A2A", background: "#FDECEC" },
 };
 
 function statusFor(status: string) {
   return (
     STATUS[status] ?? {
-      label: status || "En cours",
+      label: msg("orders.inProgress"),
       color: palette.ink,
       background: "#F0F2F0",
     }
@@ -45,9 +48,10 @@ function statusFor(status: string) {
 }
 
 function OrderCard({ order }: { order: CustomerOrder }) {
+  useLocale();
   const [expanded, setExpanded] = useState(false);
   const status = statusFor(order.status);
-  const date = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" }).format(
+  const date = new Intl.DateTimeFormat(currentLocale(), { dateStyle: "medium" }).format(
     new Date(order.created_at),
   );
 
@@ -63,7 +67,7 @@ function OrderCard({ order }: { order: CustomerOrder }) {
       }}
     >
       <Pressable
-        accessibilityLabel={`Commande ${order.order_number}`}
+        accessibilityLabel={msg("orders.orderNumber", { number: order.order_number })}
         accessibilityRole="button"
         accessibilityState={{ expanded }}
         onPress={() => setExpanded((value) => !value)}
@@ -108,8 +112,7 @@ function OrderCard({ order }: { order: CustomerOrder }) {
               fontSize: 9.5,
             }}
           >
-            {date} · {order.items.length} article
-            {order.items.length > 1 ? "s" : ""}
+            {date} · {msg("counts.items", { count: order.items.length })}
           </Text>
           <View
             style={{
@@ -197,6 +200,7 @@ function OrderCard({ order }: { order: CustomerOrder }) {
                 >
                   {item.name}
                 </Text>
+              <PreorderNotice item={item} />
                 <Text
                   style={{
                     marginTop: 4,
@@ -206,7 +210,7 @@ function OrderCard({ order }: { order: CustomerOrder }) {
                   }}
                 >
                   ×{item.qty}
-                  {item.color ? ` · ${item.color}` : ""}
+                  {item.color ? ` · ${localizedContent(item.color)}` : ""}
                   {item.size ? ` · ${item.size}` : ""}
                 </Text>
               </View>
@@ -247,7 +251,7 @@ function OrderCard({ order }: { order: CustomerOrder }) {
                   fontSize: 9.5,
                 }}
               >
-                Suivi : {order.tracking_number}
+                {msg("orders.tracking")}{" "}{order.tracking_number}
               </Text>
             </View>
           ) : null}
@@ -261,7 +265,7 @@ function OrderCard({ order }: { order: CustomerOrder }) {
                 lineHeight: 15,
               }}
             >
-              Livraison : {order.customer.address}, {order.customer.city}
+              {msg("orders.delivery")}{" "}{order.customer.address}, {order.customer.city}
             </Text>
           ) : null}
           <Text
@@ -272,11 +276,11 @@ function OrderCard({ order }: { order: CustomerOrder }) {
               fontSize: 9.5,
             }}
           >
-            Paiement : {order.payment_method || "—"} ·{" "}
-            {order.payment_status || "en attente"}
+            {msg("orders.payment")}{" "}{order.payment_method === "cod" ? msg("orders.cod") : order.payment_method === "paypal" ? "PayPal" : "—"} ·{" "}
+            {paymentStatusLabel(order.payment_status)}
           </Text>
           <AnimatedPressable
-            accessibilityLabel={`Suivre la commande ${order.order_number}`}
+            accessibilityLabel={msg("orders.trackOrderNumber", { number: order.order_number })}
             onPress={() =>
               router.push({
                 pathname: "/order-tracking",
@@ -297,13 +301,12 @@ function OrderCard({ order }: { order: CustomerOrder }) {
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
               <Ionicons name="navigate-outline" size={17} color={palette.green} />
               <Text style={{ color: palette.white, fontFamily: typography.black, fontSize: 10 }}>
-                SUIVRE LA COMMANDE
-              </Text>
+                {msg("orderTracking.trackOrderUppercase")}</Text>
             </View>
             <Ionicons name="arrow-forward" size={18} color={palette.green} />
           </AnimatedPressable>
           <AnimatedPressable
-            accessibilityLabel={`Contacter l’assistance pour la commande ${order.order_number}`}
+            accessibilityLabel={msg("orders.supportForOrder", { number: order.order_number })}
             onPress={() => router.push({ pathname: "/support", params: { orderNumber: order.order_number } })}
             style={{
               minHeight: 48,
@@ -321,8 +324,7 @@ function OrderCard({ order }: { order: CustomerOrder }) {
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
               <Ionicons name="headset-outline" size={17} color={palette.greenDark} />
               <Text style={{ color: palette.ink, fontFamily: typography.black, fontSize: 10 }}>
-                CONTACTER L’ASSISTANCE
-              </Text>
+                {msg("orders.contactSupportUppercase")}</Text>
             </View>
             <Ionicons name="arrow-forward" size={18} color={palette.greenDark} />
           </AnimatedPressable>
@@ -333,6 +335,7 @@ function OrderCard({ order }: { order: CustomerOrder }) {
 }
 
 export default function OrdersScreen() {
+  useLocale();
   const insets = useSafeAreaInsets();
   const query = useQuery({
     queryKey: ["customer-orders"],
@@ -352,7 +355,7 @@ export default function OrdersScreen() {
         }}
       >
         <AnimatedPressable
-          accessibilityLabel="Retour"
+          accessibilityLabel={msg("addresses.back")}
           onPress={() => router.back()}
           style={{
             width: 44,
@@ -373,8 +376,7 @@ export default function OrdersScreen() {
             fontSize: 22,
           }}
         >
-          Mes commandes
-        </Text>
+          {msg("common.orders")}</Text>
       </View>
 
       {query.isPending ? (
@@ -389,8 +391,7 @@ export default function OrdersScreen() {
               fontFamily: typography.medium,
             }}
           >
-            Chargement des commandes…
-          </Text>
+            {msg("orders.loadingOrders")}</Text>
         </View>
       ) : query.isError ? (
         <View
@@ -415,8 +416,7 @@ export default function OrdersScreen() {
               textAlign: "center",
             }}
           >
-            Connectez-vous pour voir vos commandes
-          </Text>
+            {msg("orders.signInToViewYourOrders")}</Text>
           <Text
             style={{
               marginTop: 9,
@@ -426,11 +426,9 @@ export default function OrdersScreen() {
               textAlign: "center",
             }}
           >
-            Votre historique est protégé et lié au même compte que le site
-            L’ECOMAX.
-          </Text>
+            {msg("orders.yourHistoryIsProtectedAndLinkedToTheSameAccountAsThe")}</Text>
           <AnimatedPressable
-            accessibilityLabel="Se connecter"
+            accessibilityLabel={msg("auth.signInText")}
             onPress={() => router.push("/auth")}
             style={{
               height: 52,
@@ -445,8 +443,7 @@ export default function OrdersScreen() {
             <Text
               style={{ color: palette.white, fontFamily: typography.black }}
             >
-              Se connecter
-            </Text>
+              {msg("auth.signInText")}</Text>
           </AnimatedPressable>
         </View>
       ) : (
@@ -484,8 +481,7 @@ export default function OrdersScreen() {
                   fontSize: 20,
                 }}
               >
-                Aucune commande
-              </Text>
+                {msg("orders.noOrdersYet")}</Text>
               <Text
                 style={{
                   marginTop: 8,
@@ -494,8 +490,7 @@ export default function OrdersScreen() {
                   textAlign: "center",
                 }}
               >
-                Vos futures commandes apparaîtront ici.
-              </Text>
+                {msg("orders.yourFutureOrdersWillAppearHere")}</Text>
             </View>
           ) : (
             query.data.map((order) => (

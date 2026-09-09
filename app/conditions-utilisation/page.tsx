@@ -230,7 +230,7 @@ export default function ConditionsUtilisationPage() {
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3ecf4c] mb-2">Contact</p>
                   <p className="font-black text-white text-[20px] leading-tight mb-1">Une question juridique ?</p>
-                  <p className="text-white/40 text-[13px]">Notre équipe répond sous 2h, 7j/7.</p>
+                  <p className="text-white/40 text-[13px]">Contactez notre service client.</p>
                 </div>
                 <a
                   href="mailto:contact@lecomax.com"

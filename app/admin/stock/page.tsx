@@ -2,9 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type { Product } from "@/lib/supabase";
+import { useSettings } from "@/lib/use-settings";
+import { storeSettings } from "@/lib/store-settings";
+import type { Product as CatalogProduct } from "@/lib/supabase";
+import { colorSizeStockFromTags, sizeStockFromTags } from '@/lib/product-inventory';
 
-type Filter = "alerts" | "out" | "low" | "all";
+type Filter = "alerts" | "out" | "low" | "healthy" | "all";
+type Product = CatalogProduct & { tags?: string[]; sizes?: string[] };
 
 function inventoryColors(product: Product) {
   return [...new Set([
@@ -17,8 +21,7 @@ export default function StockPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [threshold, setThreshold] = useState(5);
-  const [thresholdReady, setThresholdReady] = useState(false);
+  const threshold = Number(storeSettings(useSettings()).low_stock_threshold);
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
@@ -29,17 +32,7 @@ export default function StockPage() {
   const [restockProductId, setRestockProductId] = useState("");
   const [restockQuantity, setRestockQuantity] = useState("1");
   const [restockColor, setRestockColor] = useState("");
-
-  useEffect(() => {
-    const saved = Number(localStorage.getItem("admin-stock-threshold"));
-    if (Number.isInteger(saved) && saved >= 1 && saved <= 100) setThreshold(saved);
-    setThresholdReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!thresholdReady) return;
-    localStorage.setItem("admin-stock-threshold", String(threshold));
-  }, [threshold, thresholdReady]);
+  const [restockSize, setRestockSize] = useState('');
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -85,6 +78,8 @@ export default function StockPage() {
   }
 
   async function updateStock(id: string) {
+    const product = products.find(item => item.id === id);
+    if (product && Object.keys(sizeStockFromTags(product.tags)).length) { showToast('Modifiez les combinaisons dans la fiche produit ou utilisez le réapprovisionnement par taille.', false); return; }
     const value = Number(stockInputs[id]);
     if (!Number.isInteger(value) || value < 0) {
       showToast("Saisissez une quantité entière égale ou supérieure à zéro.", false);
@@ -96,6 +91,7 @@ export default function StockPage() {
   }
 
   async function updateColorStock(id: string, product: Product) {
+    if (Object.keys(colorSizeStockFromTags(product.tags)).length) { showToast('Modifiez les combinaisons dans la fiche produit ou utilisez le réapprovisionnement par taille.', false); return; }
     const inputs = colorInputs[id] ?? {};
     const merged: Record<string, number> = { ...(product.color_stock ?? {}) };
     let changed = false;
@@ -125,6 +121,9 @@ export default function StockPage() {
   );
 
   async function addVariantStock(product: Product, color: string, quantity = 1) {
+    if (Object.keys(sizeStockFromTags(product.tags)).length || Object.keys(colorSizeStockFromTags(product.tags)).length) {
+      setRestockProductId(product.id); setRestockColor(color); setRestockSize(''); setRestockQuantity(String(quantity)); setRestockOpen(true); return;
+    }
     const key = `${product.id}_variant_${color}`;
     setUpdating(key);
     try {
@@ -176,6 +175,7 @@ export default function StockPage() {
           operation: "add",
           quantity,
           color: restockColor || undefined,
+          size: restockSize || undefined,
         }),
       });
       const result = await res.json().catch(() => ({}));
@@ -213,7 +213,8 @@ export default function StockPage() {
       const matchesFilter = filter === "all"
         || (product.active && filter === "alerts" && stock <= threshold)
         || (product.active && filter === "out" && stock === 0)
-        || (product.active && filter === "low" && stock > 0 && stock <= threshold);
+        || (product.active && filter === "low" && stock > 0 && stock <= threshold)
+        || (product.active && filter === "healthy" && stock > threshold);
       const matchesSearch = !needle || `${product.name} ${product.category ?? ""} ${product.slug ?? ""}`.toLocaleLowerCase("fr-FR").includes(needle);
       return matchesFilter && matchesSearch;
     });
@@ -232,7 +233,7 @@ export default function StockPage() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <label className="flex min-h-12 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.07] px-4 text-xs font-bold text-white/60">
               Alerte sous
-              <span className="flex items-center gap-2"><input type="number" min={1} max={100} value={threshold} onChange={(event) => setThreshold(Math.min(100, Math.max(1, Number(event.target.value) || 1)))} className="h-9 w-16 rounded-xl border border-white/10 bg-black/30 px-2 text-center text-sm font-black text-white outline-none focus:border-[#3ecf4c]" /><span>unités</span></span>
+              <span>{threshold} unités · <Link href="/admin/settings">Modifier dans les paramètres</Link></span>
             </label>
             <button type="button" onClick={() => void load()} disabled={loading} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-xs font-black text-black transition hover:bg-[#3ecf4c] disabled:opacity-60">
               <svg className={loading ? "animate-spin" : ""} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"/></svg>
@@ -249,7 +250,7 @@ export default function StockPage() {
       <section aria-label="Résumé du stock" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Ruptures" value={outCount} helper="Action urgente" tone="red" active={filter === "out"} onClick={() => setFilter("out")} />
         <StatCard label="Stock faible" value={lowCount} helper={`Entre 1 et ${threshold} unités`} tone="orange" active={filter === "low"} onClick={() => setFilter("low")} />
-        <StatCard label="Stock sain" value={healthyCount} helper="Aucune intervention" tone="green" active={false} />
+        <StatCard label="Stock sain" value={healthyCount} helper="Aucune intervention" tone="green" active={filter === "healthy"} onClick={() => setFilter("healthy")} />
         <StatCard label="Produits actifs" value={activeProducts.length} helper={`${products.length - activeProducts.length} inactif${products.length - activeProducts.length > 1 ? "s" : ""}`} tone="neutral" active={filter === "all"} onClick={() => setFilter("all")} />
       </section>
 
@@ -261,13 +262,14 @@ export default function StockPage() {
               <p className="mt-1 text-xs leading-5 text-neutral-500">Choisissez n’importe quel produit du catalogue et indiquez combien d’unités viennent d’arriver.</p>
               <label className="mt-4 block">
                 <span className="mb-1.5 block text-[10px] font-black uppercase tracking-[0.12em] text-neutral-500">Produit</span>
-                <select value={restockProductId} onChange={(event) => { setRestockProductId(event.target.value); setRestockColor(""); }} className="min-h-12 w-full rounded-xl border border-neutral-200 bg-white px-3 text-sm font-bold text-neutral-900 outline-none focus:border-black">
+                <select value={restockProductId} onChange={(event) => { setRestockProductId(event.target.value); setRestockColor(""); setRestockSize(''); }} className="min-h-12 w-full rounded-xl border border-neutral-200 bg-white px-3 text-sm font-bold text-neutral-900 outline-none focus:border-black">
                   <option value="">Sélectionner un produit…</option>
                   {products.map((product) => <option key={product.id} value={product.id}>{product.name} — {product.stock} en stock</option>)}
                 </select>
               </label>
             </div>
 
+            {restockProduct?.sizes?.length ? <label className="text-xs font-bold">Taille<select aria-label="Taille à réapprovisionner" value={restockSize} onChange={event => setRestockSize(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border px-3"><option value="">Choisir la taille</option>{restockProduct.sizes.map(size => <option key={size} value={size}>{size}</option>)}</select></label> : null}
             {restockColors.length ? (
               <label className="xl:w-56">
                 <span className="mb-1.5 block text-[10px] font-black uppercase tracking-[0.12em] text-neutral-500">Variante</span>
@@ -304,8 +306,8 @@ export default function StockPage() {
       <section className="overflow-hidden rounded-[26px] border border-neutral-200/80 bg-white shadow-sm">
         <div className="border-b border-neutral-100 p-3 sm:p-4">
           <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex gap-1 overflow-x-auto rounded-2xl bg-neutral-100 p-1 [scrollbar-width:none]">
-              {([{ id: "alerts", label: "À traiter", count: outCount + lowCount }, { id: "out", label: "Ruptures", count: outCount }, { id: "low", label: "Stock faible", count: lowCount }, { id: "all", label: "Tous", count: products.length }] as { id: Filter; label: string; count: number }[]).map((item) => (
+            <div className="flex flex-wrap gap-1 rounded-2xl bg-neutral-100 p-1 [scrollbar-width:none]">
+              {([{ id: "alerts", label: "À traiter", count: outCount + lowCount }, { id: "out", label: "Ruptures", count: outCount }, { id: "low", label: "Stock faible", count: lowCount }, { id: "healthy", label: "Stock sain", count: healthyCount }, { id: "all", label: "Tous", count: products.length }] as { id: Filter; label: string; count: number }[]).map((item) => (
                 <button key={item.id} type="button" onClick={() => setFilter(item.id)} className={`flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 text-xs font-black transition sm:px-4 ${filter === item.id ? "bg-black text-white shadow-sm" : "text-neutral-500 hover:text-black"}`}>{item.label}<span className={`rounded-full px-1.5 py-0.5 text-[9px] ${filter === item.id ? "bg-white/15" : "bg-white"}`}>{item.count}</span></button>
               ))}
             </div>
@@ -351,7 +353,7 @@ function StockRow({ p, stockInputs, setStockInputs, colorInputs, setColorInputs,
   return (
     <article className={`p-4 transition-colors sm:p-5 ${isOut ? "bg-red-50/20" : isLow ? "bg-orange-50/15" : "hover:bg-neutral-50/60"}`}>
       <div className="flex items-start gap-3 sm:gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-neutral-100 sm:h-14 sm:w-14">{p.images?.[0] ? <img src={p.images[0]} alt="" className="h-full w-full object-cover" /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-neutral-300"><path d="M3 3h18v18H3z"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>}</div>
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-neutral-100 sm:h-14 sm:w-14">{p.images?.[0] ? <img src={p.images[0]} alt="" className="h-full w-full object-cover" loading="lazy" decoding="async" /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-neutral-300"><path d="M3 3h18v18H3z"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>}</div>
         <div className="min-w-0 flex-1"><div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"><div className="min-w-0"><h3 className="line-clamp-2 text-sm font-black leading-5 text-neutral-950 sm:text-[15px]">{p.name}</h3><p className="mt-1 truncate text-xs font-medium text-neutral-400">{p.price} MAD · {p.category || "Sans catégorie"}{!p.active ? " · Inactif" : ""}</p></div><span className={`w-fit shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black ${severity.classes}`}>{severity.label}</span></div>
 
           <div className="mt-4 flex flex-col gap-2 lg:flex-row lg:items-center">

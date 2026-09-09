@@ -1,0 +1,28 @@
+export const preorderCopy = {
+  fr: {
+    delivery: "dès disponibilité des articles en précommande",
+    unavailable: "Cet article ou cette variante n’est plus disponible à la commande.",
+    review: "Cet article nécessite une précommande. Vérifiez votre panier avant de confirmer.",
+    changed: "Le stock, le prix ou la précommande a changé. Vérifiez votre panier.",
+    quoteUnavailable: "Cet article ou cette variante n’est plus disponible.",
+    badge: "Précommande", action: "Précommander", enabled: "Précommande activée",
+    toggle: "Autoriser les précommandes lorsque le stock est insuffisant",
+    explanation: "Cet article est disponible en précommande. Il sera livré dès disponibilité.",
+    quantity: "Si la quantité dépasse le stock disponible, toute cette ligne sera précommandée.",
+    estimated: "Date de disponibilité estimée", message: "Message de précommande (facultatif)",
+    waiting: "En attente de stock", ready: "Stock réservé", filter: "Précommandes",
+  },
+  en: {
+    delivery: "once pre-ordered items become available",
+    unavailable: "This item or variant is no longer available to order.",
+    review: "This item now requires a pre-order. Review your cart before confirming.",
+    changed: "Stock, pricing or pre-order availability has changed. Review your cart.",
+    quoteUnavailable: "This item or variant is no longer available.",
+    badge: "Pre-Order", action: "Pre-Order Now", enabled: "Pre-orders enabled",
+    toggle: "Allow pre-orders when stock is insufficient",
+    explanation: "This item is available for pre-order and will be delivered once available.",
+    quantity: "If the quantity exceeds available stock, this entire line will be pre-ordered.",
+    estimated: "Estimated availability", message: "Pre-order message (optional)",
+    waiting: "Waiting for stock", ready: "Stock reserved", filter: "Pre-orders",
+  },
+} as const;

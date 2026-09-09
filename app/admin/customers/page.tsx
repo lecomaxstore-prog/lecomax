@@ -1,5 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import ResponsiveTable from "@/components/admin/ResponsiveTable";
+import { useCallback, useEffect, useState } from "react";
+import Pagination, { useAdminPagination } from "@/components/admin/Pagination";
+import AdminLoading from "@/components/admin/AdminLoading";
 
 type CustomerRow = {
   name: string;
@@ -22,13 +25,17 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<CustomerRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [error, setError] = useState(false);
   const [sortBy, setSortBy] = useState<"totalSpent" | "orderCount" | "lastOrder">("totalSpent");
 
-  useEffect(() => {
-    async function load() {
+  const load = useCallback(async () => {
+      setLoading(true);
+      setError(false);
+      try {
       const res = await fetch("/api/orders");
-      const data = res.ok ? await res.json() : [];
-      if (!Array.isArray(data) || data.length === 0) { setLoading(false); return; }
+      if (!res.ok) throw new Error("load failed");
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("invalid response");
 
       const map = new Map<string, CustomerRow>();
       for (const o of data as { customer: { name: string; phone: string; email: string; city: string }; total: number; status: string; created_at: string }[]) {
@@ -51,10 +58,10 @@ export default function CustomersPage() {
       }
 
       setCustomers([...map.values()]);
-      setLoading(false);
-    }
-    load();
+      } catch { setError(true); }
+      finally { setLoading(false); }
   }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const sorted = [...customers].sort((a, b) => {
     if (sortBy === "lastOrder") return new Date(b.lastOrder).getTime() - new Date(a.lastOrder).getTime();
@@ -70,6 +77,7 @@ export default function CustomersPage() {
   );
 
   const totalRevenue = customers.reduce((s, c) => s + c.totalSpent, 0);
+  const pagination = useAdminPagination(filtered, `${search}:${sortBy}`);
 
   return (
     <div>
@@ -83,7 +91,7 @@ export default function CustomersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 min-[390px]:grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
         {[
           { label: "Clients uniques", value: customers.length },
           { label: "Revenu total", value: `${totalRevenue.toFixed(0)} MAD` },
@@ -101,13 +109,14 @@ export default function CustomersPage() {
         <div className="relative flex-1">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
           <input
+            type="search" aria-label="Rechercher un client"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Nom, téléphone, ville, email…"
             className="w-full border border-neutral-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-black"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {(["totalSpent", "orderCount", "lastOrder"] as const).map((s) => (
             <button
               key={s}
@@ -122,17 +131,16 @@ export default function CustomersPage() {
         </div>
       </div>
 
+      {error && <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm">Impossible de charger les clients. <button type="button" onClick={() => void load()} className="font-bold underline">Réessayer</button></div>}
       {loading ? (
-        <div className="flex items-center justify-center h-40">
-          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
-        </div>
+        <AdminLoading />
       ) : (
         <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
           {filtered.length === 0 ? (
             <div className="px-6 py-16 text-center text-neutral-400 text-sm">Aucun client trouvé.</div>
           ) : (
             <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[580px]">
+            <ResponsiveTable className="w-full text-sm min-w-[580px]">
               <thead>
                 <tr className="border-b border-neutral-100 text-xs text-neutral-400 uppercase tracking-wide">
                   <th className="text-left px-5 py-3">Client</th>
@@ -144,7 +152,7 @@ export default function CustomersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-50">
-                {filtered.map((c, i) => {
+                {pagination.items.map((c, i) => {
                   const phone = c.phone.replace(/\s+/g, "");
                   const waPhone = phone.startsWith("0") ? "212" + phone.slice(1) : phone;
                   return (
@@ -179,11 +187,12 @@ export default function CustomersPage() {
                   );
                 })}
               </tbody>
-            </table>
+            </ResponsiveTable>
             </div>
           )}
         </div>
       )}
+      {!loading && <Pagination {...pagination} />}
     </div>
   );
 }

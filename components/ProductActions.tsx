@@ -1,5 +1,8 @@
 "use client";
 
+import PreorderNotice from "./PreorderNotice";
+import { preorderCopy } from "@/lib/preorder-copy";
+import { selectedInventory, preorderSnapshot } from "@/lib/preorder";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "./CartContext";
@@ -157,20 +160,22 @@ function showCartToast() {
   toast.setAttribute("role", "status");
   toast.setAttribute("aria-live", "polite");
   const isMobileToast = window.innerWidth < 768;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const toastBottom = isMobileToast ? "calc(66px + env(safe-area-inset-bottom, 0px) + 10px)" : "28px";
   toast.style.cssText = [
     "position:fixed",
     "bottom:" + toastBottom,
     "left:50%",
-    "transform:translateX(-50%) translateY(16px)",
+    reducedMotion ? "transform:translateX(-50%)" : "transform:translateX(-50%) translateY(16px)",
     "opacity:0",
-    "transition:transform 0.4s cubic-bezier(0.22,1,0.36,1),opacity 0.4s ease",
+    reducedMotion ? "transition:none" : "transition:transform 0.4s cubic-bezier(0.22,1,0.36,1),opacity 0.4s ease",
     "z-index:99998",
     "pointer-events:none",
     "background:#111",
     "color:#fff",
     "border-radius:14px",
-    "padding:11px 18px",
+    "padding:14px 18px",
+    "max-width:calc(100vw - 32px)",
     "display:flex",
     "align-items:center",
     "gap:9px",
@@ -178,14 +183,15 @@ function showCartToast() {
     "font-weight:700",
     "letter-spacing:0.01em",
     "box-shadow:0 8px 32px rgba(0,0,0,0.22)",
-    "white-space:nowrap",
+    "box-sizing:border-box",
     "font-family:inherit",
   ].join(";");
   toast.innerHTML =
     '<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#3ecf4c;flex-shrink:0">' +
     '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
     "</span>" +
-    "Produit ajout\u00e9 au panier";
+    '<span><strong style="display:block;font-size:14px">Merci pour votre confiance !</strong>' +
+    '<span style="display:block;margin-top:3px;font-size:12px;font-weight:400;color:#d4d4d4">Votre article a été ajouté au panier.</span></span>';
   document.body.appendChild(toast);
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -195,9 +201,9 @@ function showCartToast() {
   });
   setTimeout(() => {
     toast.style.opacity = "0";
-    toast.style.transform = "translateX(-50%) translateY(16px)";
+    toast.style.transform = reducedMotion ? "translateX(-50%)" : "translateX(-50%) translateY(16px)";
     setTimeout(() => toast.remove(), 400);
-  }, 2600);
+  }, 3400);
 }
 
 const colorMap: Record<string, string> = {
@@ -244,14 +250,16 @@ export default function ProductActions({
   const { color, setColor } = useProductColor();
   const hasColors = product.colors.length > 0 && product.colors[0] !== "Taille unique";
   const effectiveColorImages = React.useMemo(() => {
-    const productImages = [product.image, ...product.gallery].filter(Boolean);
-    return Object.fromEntries(product.colors.flatMap((variantColor, index) => {
+    const productImages = [product.image, ...(product.gallery || [])].filter(Boolean);
+    return Object.fromEntries(product.colors.map((variantColor, index) => {
       const image = colorImageGalleries?.[variantColor]?.[0]
         ?? colorImagesProp?.[variantColor]
         ?? product.colorImages?.[variantColor]
+        ?? (product as any).color_images?.[variantColor]
         ?? productImages[index]
+        ?? productImages[0]
         ?? product.image;
-      return image ? [[variantColor, image]] : [];
+      return [variantColor, image];
     }));
   }, [colorImageGalleries, colorImagesProp, product.colorImages, product.colors, product.gallery, product.image]);
   const hasColorImages = Object.keys(effectiveColorImages).length > 0;
@@ -261,7 +269,7 @@ export default function ProductActions({
   const hasColorSizeStock = Object.keys(colorSizeStock).length > 0;
   const isProductOOS = product.stock !== undefined && product.stock <= 0;
   const isCurrentColorOOS = outOfStockColors.includes(color) || (hasColorSizeStock && color && !Object.values(colorSizeStock[color] ?? {}).some((quantity) => quantity > 0));
-  const availableSizes = ((isProductOOS || isCurrentColorOOS) ? [] : (((product.colorSizes && color && product.colorSizes[color])
+  const stockedSizes = ((isProductOOS || isCurrentColorOOS) ? [] : (((product.colorSizes && color && product.colorSizes[color])
     ? product.colorSizes[color]
     : product.sizes) ?? []).filter((s) => !outOfStockSizes.includes(s) && (!hasColorSizeStock || !color || (colorSizeStock[color]?.[s] ?? 0) > 0)));
 
@@ -291,6 +299,10 @@ export default function ProductActions({
   }, [product.slug]);
   const [error, setError] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
+  const addedTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (addedTimer.current) clearTimeout(addedTimer.current);
+  }, []);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const sizeGuideIntentRef = React.useRef(false);
@@ -313,6 +325,13 @@ export default function ProductActions({
     if (closeModal) setColorModalOpen(false);
   };
 
+  // Pre-orders retain only real configured variant combinations.
+  const availableSizes = product.preorder_enabled
+    ? product.sizes.filter(s => !hasColorSizeStock || Boolean(colorSizeStock[color] && Object.hasOwn(colorSizeStock[color],s)))
+    : stockedSizes;
+  const selectedStock = selectedInventory(product, color || undefined, size || undefined);
+  const preorder = preorderSnapshot(product, selectedStock);
+
   // Reset size when color changes if current size is no longer available
   useEffect(() => {
     if (size && !availableSizes.includes(size)) {
@@ -323,7 +342,7 @@ export default function ProductActions({
   const isSingleSize = availableSizes.length === 1 && availableSizes[0] === "Taille unique";
   const sizeLabel = getSizeLabel(product.subCategory);
   const hasNoAvailableSize = product.sizes.length > 0 && availableSizes.length === 0;
-  const isUnavailable = isProductOOS || isCurrentColorOOS || hasNoAvailableSize;
+  const isUnavailable = Boolean(hasNoAvailableSize || (!product.preorder_enabled && (isProductOOS || isCurrentColorOOS)));
   const orderedSizes = sortProductSizes(product.sizes);
 
   const openSizeGuide = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -336,17 +355,21 @@ export default function ProductActions({
   };
 
   const handleAdd = (goToCart = false, btnEl?: HTMLElement) => {
-    if (isUnavailable) {
+    if (isUnavailable || (size && (selectedStock < 0 || (!product.preorder_enabled && selectedStock < 1)))) {
       setError("Ce produit est actuellement indisponible.");
       return;
     }
-    if (!size) {
+    if (product.sizes.length > 0 && !size) {
       setError("Veuillez sélectionner une taille.");
+      return;
+    }
+    if (selectedStock < 0 || (!product.preorder_enabled && selectedStock < 1)) {
+      setError(preorderCopy.fr.unavailable);
       return;
     }
     setError(null);
     const colorImg = effectiveColorImages?.[color] ?? product.image;
-    add({ ...product, price: selectedPrice, oldPrice: product.colorPrices?.[color]?.originalPrice ?? product.oldPrice }, size, 1, color, colorImg);
+    add({ ...product, price: selectedPrice, oldPrice: product.colorPrices?.[color]?.originalPrice ?? product.oldPrice }, size ?? "", 1, color, colorImg);
     trackAddToCart({
       item_id: product.slug,
       item_name: product.name,
@@ -367,9 +390,20 @@ export default function ProductActions({
       router.push("/checkout");
     } else {
       const imgSrc = effectiveColorImages?.[color] ?? product.image;
-      if (btnEl) flyImageToCart(imgSrc, btnEl);
       setAdded(true);
-      setTimeout(() => setAdded(false), 2000);
+      if (addedTimer.current) clearTimeout(addedTimer.current);
+      addedTimer.current = setTimeout(() => setAdded(false), 3400);
+      if (btnEl && typeof btnEl.animate === "function") {
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          btnEl.animate(
+            [{ transform: "scale(1)" }, { transform: "scale(.97)", offset: .3 }, { transform: "scale(1.015)", offset: .65 }, { transform: "scale(1)" }],
+            { duration: 420, easing: "ease-out" },
+          );
+        }
+        flyImageToCart(imgSrc, btnEl);
+      } else {
+        showCartToast();
+      }
     }
   };
 
@@ -406,7 +440,7 @@ export default function ProductActions({
               <div className="flex flex-col gap-2">
                 {product.colors.map((c) => {
                   const isSelected = color === c;
-                  const isOOS = outOfStockColors.includes(c);
+                  const isOOS = !product.preorder_enabled && outOfStockColors.includes(c);
                   const img = effectiveColorImages?.[c] ?? product.image;
                   return (
                     <button
@@ -469,52 +503,23 @@ export default function ProductActions({
       {hasColors && (
         <div className="mb-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[12px] font-black uppercase tracking-wide">Couleur</p>
+            <p className="text-[12px] font-black uppercase tracking-wide">
+              Couleur <span className="text-neutral-500 font-normal">· {color}</span>
+            </p>
             <button
               data-color-modal-trigger
               onClick={() => setColorModalOpen(true)}
               className="flex items-center gap-1.5 text-[12px] text-neutral-600 hover:text-black transition-colors font-medium"
             >
-              <span
-                className="inline-block w-3 h-3 rounded-full border border-neutral-300"
-                style={getSwatchStyle(color)}
-              />
-              <span>{color}</span>
+              <span>Voir tout</span>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
           </div>
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex flex-wrap gap-3">
             {product.colors.map((c) => {
               const isSelected = color === c;
-              const isOOS = outOfStockColors.includes(c);
-              const hex = getColorHex(c);
-              const isLight = ["#f5f5f5","#fafaf5","#d1d5db","#fcd5ce","#f9a8d4","#f5f0e8","#f7e7ce","#fef08a","#c4b5fd","#7dd3fc"].includes(hex);
-
-              // If product has color images, show small image swatches instead of color dots
-              if (hasColorImages && effectiveColorImages?.[c]) {
-                return (
-                  <button
-                    type="button"
-                    key={c}
-                    title={isOOS ? `${c} — Rupture de stock` : c}
-                    onClick={(event) => selectColor(c, false, event)}
-                    aria-label={`Sélectionner la couleur ${c}`}
-                    aria-pressed={isSelected}
-                    className={`relative flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden border-2 transition-all ${
-                      isOOS ? "opacity-50 cursor-pointer" :
-                      isSelected ? "border-black shadow-sm" : "border-neutral-200 hover:border-neutral-400"
-                    }`}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={effectiveColorImages![c]} alt={c} className="w-full h-full object-cover" draggable={false} />
-                    {isSelected && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
-                      </div>
-                    )}
-                  </button>
-                );
-              }
+              const isOOS = !product.preorder_enabled && outOfStockColors.includes(c);
+              const variantImg = effectiveColorImages?.[c] || product.image;
 
               return (
                 <button
@@ -524,51 +529,47 @@ export default function ProductActions({
                   onClick={(event) => selectColor(c, false, event)}
                   aria-label={`Sélectionner la couleur ${c}`}
                   aria-pressed={isSelected}
-                  className="relative group flex-shrink-0 transition-transform duration-150"
-                  style={{ transform: isSelected ? "scale(1.08)" : "scale(1)", cursor: "pointer" }}
+                  className="flex flex-col items-center gap-1.5 group flex-shrink-0 cursor-pointer"
                 >
-                  <span
-                    className={`flex w-10 h-10 rounded-full transition-all duration-200 ${
-                      isOOS ? "ring-1 ring-neutral-200 opacity-40" :
-                      isSelected ? "ring-2 ring-offset-2 ring-[#3ecf4c] shadow-md" :
-                      "ring-1 ring-neutral-200 hover:ring-neutral-400 hover:ring-offset-1"
-                    }`}
-                    style={{ ...getSwatchStyle(c), border: isLight ? "1px solid #d4d4d4" : "none" }}
-                  >
-                    {isSelected && !isOOS && (
-                      <svg className="m-auto" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={isLight ? "#000" : "#fff"} strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <div className={`relative w-16 h-16 rounded-2xl overflow-hidden border-2 bg-white transition-all shadow-sm ${
+                    isOOS ? "opacity-40 border-neutral-200" :
+                    isSelected ? "border-[#234735] ring-2 ring-[#234735]/20 shadow-md scale-[1.03]" :
+                    "border-neutral-200 hover:border-neutral-400"
+                  }`}>
+                    {variantImg ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={variantImg} alt={c} className="w-full h-full object-cover" draggable={false} />
+                    ) : (
+                      <span className="w-full h-full flex items-center justify-center" style={getSwatchStyle(c)} />
                     )}
+
+                    {isSelected && (
+                      <div className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-[#234735] text-white flex items-center justify-center shadow">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                    )}
+
                     {isOOS && (
-                      <svg className="m-auto" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                        <span className="text-[9px] font-extrabold text-neutral-500 bg-white/90 px-1 py-0.5 rounded">Épuisé</span>
+                      </div>
                     )}
-                  </span>
-                  <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none">
-                    {isOOS ? `${c} — Rupture` : c}
+                  </div>
+                  <span className={`text-[12px] ${isSelected ? "font-extrabold text-black" : "font-semibold text-neutral-600 group-hover:text-black"}`}>
+                    {c}
                   </span>
                 </button>
               );
             })}
           </div>
-
-          {/* "See all colors" button when there are many colors or color images */}
-          {(product.colors.length > 4 || hasColorImages) && (
-            <button
-              data-color-modal-trigger
-              onClick={() => setColorModalOpen(true)}
-              className="mt-3 flex items-center gap-1.5 text-[12px] text-neutral-500 hover:text-black transition-colors font-medium group"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>
-              <span className="group-hover:underline underline-offset-2">Voir tous les coloris</span>
-            </button>
-          )}
         </div>
       )}
 
-      {/* Size selector — hidden for single-size items and accessory-only products */}
-      {!isSingleSize && (
+      {/* Size picker */}
+      {product.sizes.length > 0 && (
         <>
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-black text-[12px] uppercase tracking-wide">
+          <div className="flex items-center justify-between mb-3 mt-5">
+            <span className="font-bold text-[11px] uppercase tracking-[0.16em] text-neutral-500">
               {sizeLabel || "Taille"}
             </span>
             {(product.category === "homme" || product.category === "femme" || product.category === "chaussures") && (
@@ -583,27 +584,32 @@ export default function ProductActions({
               </button>
             )}
           </div>
-          <div className="grid grid-cols-4 gap-2">
+          <div
+            role="group"
+            aria-label={sizeLabel || "Taille"}
+            className={product.sizes.length === 1 ? "flex flex-wrap gap-2" : "grid grid-cols-4 gap-2 sm:grid-cols-5"}
+          >
             {orderedSizes.map((s) => {
               const soldOut = !availableSizes.includes(s);
               return (
                 <button
+                  type="button"
                   key={s}
                   disabled={soldOut}
+                  aria-pressed={size === s && !soldOut}
+                  aria-label={soldOut ? `${s} — indisponible` : s}
                   onClick={() => { if (!soldOut) { setSize(s); setError(null); } }}
-                  className={`relative border py-3 text-[13px] font-bold transition-colors ${
+                  className={`relative inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border px-3 py-3 text-[13px] font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 motion-reduce:transition-none ${product.sizes.length === 1 ? "min-w-[164px] px-5" : "min-w-0"} ${
                     soldOut
-                      ? "border-neutral-200 text-neutral-300 cursor-not-allowed"
+                      ? "border-dashed border-neutral-200 bg-neutral-50 text-neutral-400 cursor-not-allowed"
                       : size === s
-                      ? "border-black bg-black text-white"
-                      : "border-neutral-200 hover:border-black"
+                      ? "border-black bg-black text-white shadow-sm"
+                      : "border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 active:scale-[0.97] motion-reduce:transform-none"
                   }`}
                 >
-                  {s}
-                  {soldOut && (
-                    <span className="absolute inset-0 flex items-center justify-center">
-                      <span className="block w-full h-px bg-neutral-300 rotate-[-35deg]" />
-                    </span>
+                  <span className={soldOut ? "line-through decoration-neutral-300" : ""}>{s}</span>
+                  {size === s && !soldOut && (
+                    <svg aria-hidden="true" className="shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 4 4L19 6" /></svg>
                   )}
                 </button>
               );
@@ -618,6 +624,8 @@ export default function ProductActions({
         </>
       )}
 
+      <PreorderNotice item={preorder} />
+      {product.preorder_enabled && <p className="text-xs text-neutral-500">{preorderCopy.fr.quantity}</p>}
       <button
         onClick={(e) => handleAdd(false, e.currentTarget)}
         disabled={isUnavailable}
@@ -625,7 +633,7 @@ export default function ProductActions({
           isUnavailable
             ? "border-2 border-dashed border-neutral-300 text-neutral-400 cursor-not-allowed bg-white"
             : added
-            ? "bg-neutral-800 text-white"
+            ? "bg-emerald-700 text-white"
             : "bg-black text-white hover:bg-neutral-800 active:scale-[0.99]"
         }`}
       >
@@ -637,11 +645,11 @@ export default function ProductActions({
         ) : added ? (
           <>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Ajouté au panier
+            Merci ! Ajouté au panier
           </>
         ) : (
           <>
-            Ajouter au panier
+            {preorder.fulfillment_type === "PREORDER" ? preorderCopy.fr.action : "Ajouter au panier"}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </>
         )}
@@ -660,7 +668,7 @@ export default function ProductActions({
             : "border-black hover:bg-black hover:text-white"
         }`}
       >
-        Acheter maintenant
+        {preorder.fulfillment_type === "PREORDER" ? preorderCopy.fr.action : "Acheter maintenant"}
       </button>
       <button
         type="button"

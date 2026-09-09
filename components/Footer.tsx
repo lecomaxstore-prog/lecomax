@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Logo from "./Logo";
 import { useSettings } from "@/lib/use-settings";
+import { storeSettings } from "@/lib/store-settings";
 
 const cols = [
   {
@@ -90,21 +91,22 @@ const DEFAULT_SOCIALS = [
 
 const trustBadges = [
   { label: "", sub: "Partout au Maroc", path: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM18.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z", dynamicLabel: "shipping" },
-  { label: "Retours gratuits", sub: "Sous 30 jours", path: "M3 2v6h6M3 8C4.5 4.5 8 2 12 2a10 10 0 0110 10 10 10 0 01-10 10c-4.1 0-7.6-2.5-9.2-6" },
-  { label: "Paiement sécurisé", sub: "100% protégé", path: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" },
-  { label: "Service client", sub: "7j/7 disponible", path: "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" },
+  { label: "Retours sous conditions", sub: "Sous 30 jours", path: "M3 2v6h6M3 8C4.5 4.5 8 2 12 2a10 10 0 0110 10 10 10 0 01-10 10c-4.1 0-7.6-2.5-9.2-6" },
+  { label: "Paiement sécurisé", sub: "Options au paiement", path: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" },
+  { label: "Service client", sub: "Contactez-nous", path: "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" },
 ];
 
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
-  const siteSettings = useSettings();
+  const rawSettings = useSettings();
+  const siteSettings: Record<string, string> = { ...rawSettings, ...storeSettings(rawSettings) };
 
   const socials = DEFAULT_SOCIALS.map(s => ({ ...s, href: siteSettings[s.key] || s.defaultHref }));
-  const whatsappNumber = siteSettings.whatsapp_number || "212699289568";
+  const whatsappNumber = siteSettings.whatsapp_number;
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}`;
-  const shippingCost = siteSettings.shipping_cost || "35";
-  const freeShippingThreshold = siteSettings.free_shipping_threshold || "500";
+  const shippingCost = siteSettings.shipping_cost;
+  const freeShippingThreshold = siteSettings.free_shipping_enabled === "false" ? "0" : siteSettings.free_shipping_threshold;
 
   const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();

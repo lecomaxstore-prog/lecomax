@@ -1,4 +1,5 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
@@ -159,9 +160,9 @@ export default function ShippingPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Ordre d'affichage</label>
+              <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Ordre d&apos;affichage</label>
               <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })}
-                className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+                className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="decimal" />
             </div>
           </div>
         </div>
@@ -178,7 +179,7 @@ export default function ShippingPage() {
             />
             <span>
               <span className="block text-sm font-black text-emerald-900">Livraison toujours gratuite dans cette zone</span>
-              <span className="mt-0.5 block text-[11px] leading-4 text-emerald-700">S'applique uniquement aux villes listées ci-dessus, quel que soit le montant du panier.</span>
+              <span className="mt-0.5 block text-[11px] leading-4 text-emerald-700">S&apos;applique uniquement aux villes listées ci-dessus, quel que soit le montant du panier.</span>
             </span>
           </label>
 
@@ -188,7 +189,7 @@ export default function ShippingPage() {
               <div className="flex items-center border border-neutral-200 rounded-xl overflow-hidden focus-within:border-black bg-neutral-50 focus-within:bg-white transition-all">
                 <input required type="number" step="0.01" min="0" value={form.standard_rate}
                   onChange={(e) => setForm({ ...form, standard_rate: e.target.value })}
-                  className="flex-1 pl-4 py-3 text-sm focus:outline-none bg-transparent w-0" />
+                  className="flex-1 pl-4 py-3 text-sm focus:outline-none bg-transparent w-0" inputMode="decimal" />
                 <span className="pr-3 text-xs text-neutral-400 font-semibold">MAD</span>
               </div>
             </div>
@@ -198,7 +199,7 @@ export default function ShippingPage() {
                 <input type="number" step="0.01" min="0" value={form.express_rate}
                   onChange={(e) => setForm({ ...form, express_rate: e.target.value })}
                   placeholder="—"
-                  className="flex-1 pl-4 py-3 text-sm focus:outline-none bg-transparent w-0" />
+                  className="flex-1 pl-4 py-3 text-sm focus:outline-none bg-transparent w-0" inputMode="decimal" />
                 <span className="pr-3 text-xs text-neutral-400 font-semibold">MAD</span>
               </div>
             </div>
@@ -208,7 +209,7 @@ export default function ShippingPage() {
                 <input type="number" step="0.01" min="0" value={form.free_threshold}
                   onChange={(e) => setForm({ ...form, free_threshold: e.target.value })}
                   placeholder="—"
-                  className="flex-1 pl-4 py-3 text-sm focus:outline-none bg-transparent w-0" />
+                  className="flex-1 pl-4 py-3 text-sm focus:outline-none bg-transparent w-0" inputMode="decimal" />
                 <span className="pr-3 text-xs text-neutral-400 font-semibold">MAD</span>
               </div>
             </div>
@@ -281,9 +282,7 @@ export default function ShippingPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-40">
-          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
-        </div>
+        <AdminLoading />
       ) : zones.length === 0 ? (
         <div className="bg-white rounded-2xl border border-neutral-100 p-12 text-center">
           <div className="w-12 h-12 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
@@ -365,7 +364,7 @@ export default function ShippingPage() {
         <div>
           <p className="text-xs font-bold text-blue-700 mb-1">Comment fonctionnent les zones ?</p>
           <p className="text-xs text-blue-600 leading-relaxed">
-            Lors du checkout, la ville du client détermine la zone applicable. Si la ville ne correspond à aucune zone, la zone &quot;Reste du Maroc&quot; (ordre le plus élevé) est utilisée. La livraison gratuite s'applique si le panier dépasse le seuil configuré.
+            Lors du checkout, la ville du client détermine la zone applicable. Si la ville ne correspond à aucune zone, la zone &quot;Reste du Maroc&quot; (ordre le plus élevé) est utilisée. La livraison gratuite s&apos;applique si le panier dépasse le seuil configuré.
           </p>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { createSupabaseFetch } from "./supabase-fetch";
 
 const configuredUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const configuredKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
@@ -14,6 +15,7 @@ const url = configuredUrl || "https://unconfigured.invalid";
 const key = configuredKey || "unconfigured-anon-key";
 
 export const supabase = createClient(url, key, {
+  global: { fetch: createSupabaseFetch((input, init) => fetch(input, init)) },
   auth: {
     persistSession: true,
     autoRefreshToken: true,
@@ -24,6 +26,9 @@ export const supabase = createClient(url, key, {
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type Product = {
+  preorder_enabled?: boolean;
+  preorder_estimated_at?: string | null;
+  preorder_message?: string | null;
   id: string;
   slug: string;
   name: string;
@@ -53,6 +58,10 @@ export type Order = {
     address: string;
   };
   items: {
+    fulfillment_type?: "STANDARD" | "PREORDER";
+    preorder_estimated_at?: string | null;
+    preorder_message?: string | null;
+    inventory_reserved?: boolean;
     id: string;
     slug?: string;
     name: string;

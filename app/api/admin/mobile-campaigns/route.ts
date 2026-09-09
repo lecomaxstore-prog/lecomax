@@ -25,9 +25,17 @@ export async function GET(req: NextRequest) {
     supabase.from("mobile_push_tokens").select("id", { count: "exact", head: true }).eq("active", true).eq("platform", "ios"),
   ]);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  const [web, receiptsOk, receiptsPending, receiptsFailed, uncertain] = await Promise.all([
+    supabase.from("mobile_web_push_subscriptions").select("endpoint", { count: "exact", head: true }),
+    supabase.from("mobile_push_receipts").select("ticket_id", { count: "exact", head: true }).eq("status", "ok"),
+    supabase.from("mobile_push_receipts").select("ticket_id", { count: "exact", head: true }).eq("status", "pending"),
+    supabase.from("mobile_push_receipts").select("ticket_id", { count: "exact", head: true }).in("status", ["error", "missing"]),
+    supabase.from("mobile_campaign_dispatches").select("recipient_hash", { count: "exact", head: true }).eq("status", "sending").lte("updated_at", new Date(Date.now() - 10 * 60000).toISOString()),
+  ]);
   return NextResponse.json({
     campaigns: campaigns ?? [],
-    subscribers: { total: activeTokens ?? 0, android: androidTokens ?? 0, ios: iosTokens ?? 0 },
+    subscribers: { total: (activeTokens ?? 0) + (web.count ?? 0), android: androidTokens ?? 0, ios: iosTokens ?? 0, web: web.count ?? 0 },
+    deliveryHealth: { confirmed: receiptsOk.count ?? 0, pending: receiptsPending.count ?? 0, failed: receiptsFailed.count ?? 0, uncertain: uncertain.count ?? 0, available: [web, receiptsOk, receiptsPending, receiptsFailed, uncertain].every(result => !result.error && result.count !== null) },
   });
 }
 

@@ -1,4 +1,5 @@
 "use client";
+import ResponsiveTable from "@/components/admin/ResponsiveTable";
 import { useEffect, useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -373,7 +374,7 @@ export default function ClientDataPage() {
 
           {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-[12px]">
+            <ResponsiveTable className="w-full text-[12px]">
               <thead className="bg-neutral-50 border-b border-neutral-100">
                 <tr>
                   {["Heure", "Type", "Détail", "Session"].map(h => (
@@ -413,7 +414,7 @@ export default function ClientDataPage() {
                   })
                 )}
               </tbody>
-            </table>
+            </ResponsiveTable>
           </div>
         </div>
       )}
@@ -422,7 +423,7 @@ export default function ClientDataPage() {
       {tab === "sessions" && (
         <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-[12px]">
+            <ResponsiveTable className="w-full text-[12px]">
               <thead className="bg-neutral-50 border-b border-neutral-100">
                 <tr>
                   {["Session", "IP", "Pays", "Ville", "Consentement", "Navigateur", "OS", "Langue", "Fuseau", "Source"].map(h => (
@@ -471,7 +472,7 @@ export default function ClientDataPage() {
                   })
                 )}
               </tbody>
-            </table>
+            </ResponsiveTable>
           </div>
         </div>
       )}

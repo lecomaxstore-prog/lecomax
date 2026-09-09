@@ -102,8 +102,9 @@ export default function GuideTaillesPage() {
 
       <p className="text-sm text-neutral-500">
         Les mesures peuvent varier légèrement selon les modèles. Si vous avez des questions,{" "}
-        <a href="/aide/" className="underline text-black">contactez notre support</a>.
+        <Link href="/aide/" className="underline text-black">contactez notre support</Link>.
       </p>
     </div>
   );
 }
+import Link from "next/link";

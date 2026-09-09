@@ -1,4 +1,5 @@
 "use client";
+import ResponsiveTable from "@/components/admin/ResponsiveTable";
 import { useEffect, useState, useCallback } from "react";
 
 type Coupon = {
@@ -127,19 +128,19 @@ export default function CouponsPage() {
               </label>
               <input type="number" min="0" step="0.01" required value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })}
                 placeholder={form.type === "percent" ? "ex: 15" : "ex: 50"}
-                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="decimal" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Commande min. (MAD)</label>
               <input type="number" min="0" value={form.min_order} onChange={(e) => setForm({ ...form, min_order: e.target.value })}
                 placeholder="Pas de minimum"
-                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="decimal" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Max utilisations</label>
               <input type="number" min="1" value={form.max_uses} onChange={(e) => setForm({ ...form, max_uses: e.target.value })}
                 placeholder="Illimité"
-                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="decimal" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Expiration</label>
@@ -171,7 +172,7 @@ export default function CouponsPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[680px]">
+          <ResponsiveTable className="w-full text-sm min-w-[680px]">
             <thead>
               <tr className="border-b border-neutral-100 text-[11px] text-neutral-400 uppercase tracking-wider">
                 <th className="px-5 py-3 text-left font-semibold">Code</th>
@@ -227,7 +228,7 @@ export default function CouponsPage() {
                 );
               })}
             </tbody>
-          </table>
+          </ResponsiveTable>
           </div>
         )}
       </div>

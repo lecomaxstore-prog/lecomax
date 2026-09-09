@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
@@ -23,8 +23,6 @@ import ChatWidget from "@/components/ChatWidget";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { formatShippingAmount, shippingConfigFromSettings } from "@/lib/shipping-config";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
-
-
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
@@ -39,6 +37,7 @@ const sora = Sora({
 });
 
 const SITE_URL = "https://lecomax.com";
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", interactiveWidget: "resizes-content" };
 const BING_SITE_VERIFICATION = process.env.BING_SITE_VERIFICATION?.trim();
 const OFFICIAL_SOCIAL_IMAGE = "/ecomax-hero-banner.jpg.png?v=2";
 const SOCIAL_TITLE = "L'ecomax | Mode, Tech & Sport au Maroc";
@@ -52,7 +51,7 @@ const defaultMetadata: Metadata = {
     template: "%s",
   },
   description:
-    "L'ecomax est la boutique en ligne au Maroc pour acheter des chaussures de sport, vêtements tendance, écouteurs sans fil TWS, enceintes bluetooth et accessoires gaming. Livraison 35 MAD partout au Maroc, paiement à la livraison, retours gratuits sous 30 jours. Commandez sur lecomax.com.",
+    "L'ecomax est la boutique en ligne au Maroc pour acheter des chaussures de sport, vêtements tendance, écouteurs sans fil TWS, enceintes bluetooth et accessoires gaming. Livraison {{shipping}} partout au Maroc, paiement à la livraison, Retours sous 30 jours, selon conditions. Commandez sur lecomax.com.",
   keywords: [
     "L'ecomax",
     "lecomax",
@@ -153,7 +152,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const ogImage = configuredOgImage === "/images/lecomax logo.png" ? OFFICIAL_SOCIAL_IMAGE : configuredOgImage;
     const shippingConfig = shippingConfigFromSettings(settings);
     const replaceShipping = (value: unknown) => typeof value === "string"
-      ? value.replace(/35 MAD/g, `${formatShippingAmount(shippingConfig.cost)} MAD`)
+      ? value.replace(/\{\{shipping\}\}/g, `${formatShippingAmount(shippingConfig.cost)} MAD`)
       : value;
 
     return {

@@ -4,7 +4,7 @@ import { withShippingMetadata } from "@/lib/shipping-config-server";
 const baseMetadata: Metadata = {
   title: "Bestsellers | L'ecomax — Les Plus Vendus au Maroc",
   description:
-    "Découvrez les meilleures ventes L'ecomax : chaussures, vêtements et accessoires tech. Livraison 35 MAD au Maroc et paiement à la livraison.",
+    "Découvrez les meilleures ventes L'ecomax : chaussures, vêtements et accessoires tech. Livraison {{shipping}} au Maroc et paiement à la livraison.",
   keywords: [
     "bestsellers Maroc",
     "produits populaires Maroc",
@@ -18,7 +18,7 @@ const baseMetadata: Metadata = {
     locale: "fr_MA",
     url: "https://lecomax.com/bestsellers/",
     title: "Bestsellers | L'ecomax — Les Plus Vendus au Maroc",
-    description: "Les produits bestsellers de L'ecomax. Livraison 35 MAD au Maroc.",
+    description: "Les produits bestsellers de L'ecomax. Livraison {{shipping}} au Maroc.",
     images: [
       {
         url: "https://lecomax.com/ecomax-hero-banner.jpg.png",

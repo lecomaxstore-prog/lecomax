@@ -1,3 +1,4 @@
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -8,6 +9,7 @@ import { palette, typography } from "@/constants/theme";
 import { useUserStore } from "@/stores/user";
 
 export default function AddressesScreen() {
+  useLocale();
   const insets = useSafeAreaInsets();
   const addresses = useUserStore((state) => state.addresses ?? []);
   const selectedAddressId = useUserStore((state) => state.selectedAddressId);
@@ -15,10 +17,10 @@ export default function AddressesScreen() {
   const removeAddress = useUserStore((state) => state.removeAddress);
 
   const confirmDelete = (id: string, name: string) => {
-    Alert.alert("Supprimer l’adresse", `Supprimer l’adresse de ${name} ?`, [
-      { text: "Annuler", style: "cancel" },
+    Alert.alert(msg("addresses.removeAddress"), msg("addresses.confirmRemoval", { name }), [
+      { text: msg("addresses.cancel"), style: "cancel" },
       {
-        text: "Supprimer",
+        text: msg("addresses.remove"),
         style: "destructive",
         onPress: () => removeAddress(id),
       },
@@ -29,18 +31,18 @@ export default function AddressesScreen() {
     <Screen className="bg-white">
       <View style={styles.header}>
         <AnimatedPressable
-          accessibilityLabel="Retour"
+          accessibilityLabel={msg("addresses.back")}
           onPress={() => router.back()}
           style={styles.back}
         >
           <Ionicons name="arrow-back" size={22} color={palette.ink} />
         </AnimatedPressable>
         <View style={styles.headerCopy}>
-          <Text style={styles.eyebrow}>MON COMPTE</Text>
-          <Text style={styles.title}>Mes adresses</Text>
+          <Text style={styles.eyebrow}>{msg("addresses.myAccountUppercase")}</Text>
+          <Text style={styles.title}>{msg("addresses.myAddresses")}</Text>
         </View>
         <AnimatedPressable
-          accessibilityLabel="Ajouter une adresse"
+          accessibilityLabel={msg("addresses.addAddress")}
           onPress={() =>
             router.push({
               pathname: "/checkout",
@@ -69,12 +71,11 @@ export default function AddressesScreen() {
                 color={palette.greenDark}
               />
             </View>
-            <Text style={styles.emptyTitle}>Aucune adresse enregistrée</Text>
+            <Text style={styles.emptyTitle}>{msg("addresses.noSavedAddresses")}</Text>
             <Text style={styles.emptyText}>
-              Ajoutez une adresse pour accélérer vos prochaines commandes.
-            </Text>
+              {msg("addresses.addAnAddressToSpeedUpYourNextCheckout")}</Text>
             <AnimatedPressable
-              accessibilityLabel="Ajouter une adresse"
+              accessibilityLabel={msg("addresses.addAddress")}
               onPress={() =>
                 router.push({
                   pathname: "/checkout",
@@ -83,7 +84,7 @@ export default function AddressesScreen() {
               }
               style={styles.emptyButton}
             >
-              <Text style={styles.emptyButtonText}>AJOUTER UNE ADRESSE</Text>
+              <Text style={styles.emptyButtonText}>{msg("addresses.addAddressUppercase")}</Text>
             </AnimatedPressable>
           </View>
         ) : (
@@ -113,7 +114,7 @@ export default function AddressesScreen() {
                         {address.name}
                       </Text>
                       {selected ? (
-                        <Text style={styles.defaultBadge}>PAR DÉFAUT</Text>
+                        <Text style={styles.defaultBadge}>{msg("addresses.defaultUppercase")}</Text>
                       ) : null}
                     </View>
                     <Text style={styles.phone}>{address.phone}</Text>
@@ -125,19 +126,18 @@ export default function AddressesScreen() {
                 <View style={styles.actions}>
                   {!selected ? (
                     <AnimatedPressable
-                      accessibilityLabel="Définir comme adresse par défaut"
+                      accessibilityLabel={msg("addresses.setAsDefaultAddress")}
                       onPress={() => selectAddress(address.id)}
                       style={styles.secondaryAction}
                     >
                       <Text style={styles.secondaryText}>
-                        Définir par défaut
-                      </Text>
+                        {msg("addresses.setAsDefault")}</Text>
                     </AnimatedPressable>
                   ) : (
                     <View style={{ flex: 1 }} />
                   )}
                   <AnimatedPressable
-                    accessibilityLabel="Modifier cette adresse"
+                    accessibilityLabel={msg("addresses.editThisAddress")}
                     onPress={() =>
                       router.push({
                         pathname: "/checkout",
@@ -156,7 +156,7 @@ export default function AddressesScreen() {
                     />
                   </AnimatedPressable>
                   <AnimatedPressable
-                    accessibilityLabel="Supprimer cette adresse"
+                    accessibilityLabel={msg("addresses.removeThisAddress")}
                     onPress={() => confirmDelete(address.id, address.name)}
                     style={styles.iconAction}
                   >

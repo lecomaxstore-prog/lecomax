@@ -1,3 +1,4 @@
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   type BarcodeScanningResult,
@@ -69,6 +70,7 @@ function findProductByCode(products: Product[], rawCode: string) {
 }
 
 export default function ScannerScreen() {
+  useLocale();
   const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
   const { data: products = [], isLoading: productsLoading } = useProducts();
@@ -91,8 +93,8 @@ export default function ScannerScreen() {
       if (urlSlug) {
         setFeedback({
           type: "success",
-          title: "Produit reconnu",
-          message: "Ouverture de la fiche produit…",
+          title: msg("scanner.productRecognized"),
+          message: msg("scanner.openingProductDetails"),
         });
         router.replace({
           pathname: "/product/[slug]",
@@ -105,7 +107,7 @@ export default function ScannerScreen() {
       if (matchedProduct) {
         setFeedback({
           type: "success",
-          title: "Produit trouvé",
+          title: msg("scanner.productFound"),
           message: matchedProduct.name,
         });
         router.replace({
@@ -122,10 +124,10 @@ export default function ScannerScreen() {
       void triggerWarningHaptic();
       setFeedback({
         type: "error",
-        title: "Code non reconnu",
+        title: msg("scanner.codeNotRecognized"),
         message: productsLoading
-          ? "Le catalogue est encore en cours de chargement. Réessayez dans un instant."
-          : "Ce code ne correspond pas encore à un produit Lecomax.",
+          ? msg("scanner.theCatalogIsStillLoadingTryAgainInAMoment")
+          : msg("scanner.thisCodeDoesNotMatchALecomaxProductYet"),
         code: data,
       });
     },
@@ -136,7 +138,7 @@ export default function ScannerScreen() {
     return (
       <View style={styles.loadingScreen}>
         <ActivityIndicator color={palette.green} size="large" />
-        <Text style={styles.loadingText}>Préparation du scanner…</Text>
+        <Text style={styles.loadingText}>{msg("scanner.preparingScanner")}</Text>
       </View>
     );
   }
@@ -153,7 +155,7 @@ export default function ScannerScreen() {
           <View style={styles.permissionHeaderSpacer} />
           <BrandLogo header />
           <AnimatedPressable
-            accessibilityLabel="Fermer"
+            accessibilityLabel={msg("scanner.close")}
             onPress={() => router.back()}
             style={styles.topButton}
           >
@@ -179,14 +181,11 @@ export default function ScannerScreen() {
                 <Ionicons name="sparkles" size={12} color={palette.ink} />
               </View>
             </View>
-            <Text style={styles.permissionEyebrow}>SCANNER LECOMAX</Text>
+            <Text style={styles.permissionEyebrow}>{msg("scanner.lecomaxScannerUppercase")}</Text>
             <Text style={styles.permissionTitle}>
-              Trouvez un produit en un scan.
-            </Text>
+              {msg("scanner.findAProductWithOneScan")}</Text>
             <Text style={styles.permissionText}>
-              Pointez la caméra vers un code-barres ou un QR code pour ouvrir
-              immédiatement sa fiche.
-            </Text>
+              {msg("scanner.pointTheCameraAtABarcodeOrQrCodeToOpenIts")}</Text>
 
             <View style={styles.permissionBenefits}>
               <View style={styles.permissionBenefit}>
@@ -199,11 +198,9 @@ export default function ScannerScreen() {
                 </View>
                 <View style={styles.benefitCopy}>
                   <Text style={styles.benefitTitle}>
-                    Reconnaissance instantanée
-                  </Text>
+                    {msg("scanner.instantRecognition")}</Text>
                   <Text style={styles.benefitText}>
-                    QR, EAN, UPC et Code 128
-                  </Text>
+                    {msg("scanner.qrEanUpcAndCode128")}</Text>
                 </View>
               </View>
               <View style={styles.benefitDivider} />
@@ -217,11 +214,9 @@ export default function ScannerScreen() {
                 </View>
                 <View style={styles.benefitCopy}>
                   <Text style={styles.benefitTitle}>
-                    Respect de votre vie privée
-                  </Text>
+                    {msg("scanner.yourPrivacyMatters")}</Text>
                   <Text style={styles.benefitText}>
-                    Aucune photo n’est enregistrée
-                  </Text>
+                    {msg("scanner.noPhotosAreSaved")}</Text>
                 </View>
               </View>
             </View>
@@ -229,8 +224,8 @@ export default function ScannerScreen() {
             <AnimatedPressable
               accessibilityLabel={
                 permission.canAskAgain
-                  ? "Autoriser la caméra"
-                  : "Ouvrir les réglages"
+                  ? msg("scanner.allowCameraAccess")
+                  : msg("scanner.openSettings")
               }
               onPress={() => {
                 if (permission.canAskAgain) void requestPermission();
@@ -240,8 +235,8 @@ export default function ScannerScreen() {
             >
               <Text style={styles.permissionButtonText}>
                 {permission.canAskAgain
-                  ? "AUTORISER LA CAMÉRA"
-                  : "OUVRIR LES RÉGLAGES"}
+                  ? msg("scanner.allowCameraAccessUppercase")
+                  : msg("scanner.openSettingsUppercase")}
               </Text>
               <View style={styles.permissionButtonArrow}>
                 <Ionicons name="arrow-forward" size={18} color={palette.ink} />
@@ -254,8 +249,7 @@ export default function ScannerScreen() {
                 color={palette.greenDark}
               />
               <Text style={styles.privacyText}>
-                Autorisation modifiable à tout moment dans vos réglages.
-              </Text>
+                {msg("scanner.youCanChangeThisPermissionInSettingsAtAnyTime")}</Text>
             </View>
           </Animated.View>
         </ScrollView>
@@ -285,8 +279,8 @@ export default function ScannerScreen() {
           setScanned(true);
           setFeedback({
             type: "error",
-            title: "Caméra indisponible",
-            message: message || "Impossible de démarrer la caméra.",
+            title: msg("scanner.cameraUnavailable"),
+            message: message || msg("scanner.unableToStartTheCamera"),
           });
         }}
       />
@@ -300,7 +294,7 @@ export default function ScannerScreen() {
           ]}
         >
           <AnimatedPressable
-            accessibilityLabel="Fermer"
+            accessibilityLabel={msg("scanner.close")}
             onPress={() => router.back()}
             style={styles.cameraButton}
           >
@@ -308,11 +302,11 @@ export default function ScannerScreen() {
           </AnimatedPressable>
           <View style={styles.cameraHeading}>
             <Text style={styles.cameraEyebrow}>LECOMAX</Text>
-            <Text style={styles.cameraTitle}>Scanner un produit</Text>
+            <Text style={styles.cameraTitle}>{msg("scanner.scanAProduct")}</Text>
           </View>
           <AnimatedPressable
             accessibilityLabel={
-              torchEnabled ? "Éteindre la lampe" : "Allumer la lampe"
+              torchEnabled ? msg("scanner.turnOffFlashlight") : msg("scanner.turnOnFlashlight")
             }
             onPress={() => setTorchEnabled((enabled) => !enabled)}
             style={[
@@ -347,8 +341,7 @@ export default function ScannerScreen() {
                 color={palette.white}
               />
               <Text style={styles.instructionText}>
-                Placez le code au centre du cadre
-              </Text>
+                {msg("scanner.placeTheCodeInTheCenterOfTheFrame")}</Text>
             </View>
           ) : null}
         </View>
@@ -386,7 +379,7 @@ export default function ScannerScreen() {
               </View>
               {feedback.type === "error" ? (
                 <AnimatedPressable
-                  accessibilityLabel="Scanner à nouveau"
+                  accessibilityLabel={msg("scanner.scanAgain")}
                   onPress={resetScanner}
                   style={styles.retryIcon}
                 >
@@ -410,7 +403,7 @@ export default function ScannerScreen() {
 
           {feedback?.type === "error" && feedback.code ? (
             <AnimatedPressable
-              accessibilityLabel="Rechercher ce code"
+              accessibilityLabel={msg("scanner.searchForThisCode")}
               onPress={() =>
                 router.replace({
                   pathname: "/search",
@@ -419,7 +412,7 @@ export default function ScannerScreen() {
               }
               style={styles.searchCodeButton}
             >
-              <Text style={styles.searchCodeText}>RECHERCHER CE CODE</Text>
+              <Text style={styles.searchCodeText}>{msg("scanner.searchForThisCodeUppercase")}</Text>
               <Ionicons name="search-outline" size={17} color={palette.white} />
             </AnimatedPressable>
           ) : null}

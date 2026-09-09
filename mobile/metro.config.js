@@ -1,7 +1,10 @@
 const { getDefaultConfig } = require("expo/metro-config");
 const { withNativeWind } = require("nativewind/metro");
+const path = require("node:path");
 
 const config = getDefaultConfig(__dirname);
+// Make the shared public settings module outside the mobile project visible to Metro.
+config.watchFolders = [...config.watchFolders, path.resolve(__dirname, "../lib")];
 const API_PROXY_TARGET = (process.env.EXPO_PUBLIC_API_PROXY_TARGET || "https://lecomax.com")
   .replace(/\/$/, "");
 

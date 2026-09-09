@@ -1,10 +1,11 @@
+import { msg } from "@/i18n";
 import { apiRequest } from "@/lib/api-client";
 import type { AppliedCoupon } from "@/services/coupons";
 import type { CartLine } from "@/types/commerce";
 
 export type CheckoutPayload = { name: string; email: string; phone: string; city: string; address: string; notes?: string; payment: "cod" | "paypal" };
 export type ShippingQuote = { cost: number; estimatedDays?: string; zoneName?: string };
-type CreatedOrder = { order_number: string; id: string; duplicate?: boolean };
+type CreatedOrder = { items?: CustomerOrder["items"]; order_number: string; id: string; duplicate?: boolean };
 export type PayPalCapture = { orderId: string; captureId: string };
 export type PaymentMethod = {
   provider: "cod" | "paypal";
@@ -15,21 +16,7 @@ export type PaymentMethod = {
   available: boolean;
   unavailableReason: string;
 };
-export type CheckoutQuote = {
-  currency: "MAD";
-  subtotal: number;
-  couponDiscount: number;
-  loyaltyDiscount: number;
-  discount: number;
-  shipping: number;
-  paymentFee: number;
-  taxes: number;
-  taxesIncluded: boolean;
-  total: number;
-  estimatedDays: string;
-  zoneName: string;
-  priceChanged: boolean;
-};
+export type CheckoutQuote = import("../../../lib/commerce-contract").CartCalculation;
 export type CustomerOrder = {
   id: string;
   order_number: string;
@@ -47,6 +34,9 @@ export type CustomerOrder = {
     address?: string;
   };
   items: {
+    fulfillment_type?: "STANDARD" | "PREORDER";
+    preorder_estimated_at?: string | null;
+    preorder_message?: string | null;
     slug: string;
     name: string;
     price: number;
@@ -88,38 +78,45 @@ export async function createOrder(
   paymentFee = 0,
   confirmedPricing?: CheckoutQuote,
 ) {
-  if (!cart.length) throw new Error("Le panier est vide.");
-  const localSubtotal = cart.reduce((sum, line) => sum + line.product.price * line.quantity, 0);
-  const subtotal = confirmedPricing?.subtotal ?? localSubtotal;
-  const quote = confirmedQuote ?? await getShippingQuote(customer.city, subtotal);
-  const shipping = (confirmedPricing?.shipping ?? Number(quote.cost)) || 0;
-  const discount =
-    confirmedPricing?.discount ??
-    (coupon?.discount ?? 0) + Math.max(0, additionalDiscount);
-  const safePaymentFee = confirmedPricing?.paymentFee ?? paymentFee;
+  if (!cart.length) throw new Error(msg("orders.theCartIsEmpty"));
+  if (!confirmedPricing) throw new Error("Veuillez vérifier le montant de la commande avant de confirmer.");
+  const shipping = confirmedPricing.shipping;
+  const discount = confirmedPricing.discount;
+  const safePaymentFee = confirmedPricing.paymentFee;
   const order = {
     customer: { name: customer.name, email: customer.email, phone: customer.phone, city: customer.city, address: customer.address },
-    items: cart.map(({ product, quantity, color, size }) => ({ slug: product.slug, name: product.name, price: product.price, qty: quantity, image: product.images?.[0] || "", color, size })),
+    items: cart.map(({ product, quantity, color, size, fulfillment_type }) => ({ fulfillment_type: confirmedPricing?.items?.find(item=>item.slug===product.slug && item.color===color && item.size===size)?.fulfillment_type ?? fulfillment_type, slug: product.slug, name: product.name, price: confirmedPricing.items.find(item => item.slug === product.slug && item.color === color && item.size === size)?.price ?? product.price, qty: quantity, image: product.images?.[0] || "", color, size })),
     shipping,
     coupon_id: coupon?.id ?? null,
     discount,
-    total:
-      confirmedPricing?.total ??
-      Math.max(0, subtotal + shipping + safePaymentFee - discount),
+    total: confirmedPricing.total,
     payment_provider: customer.payment,
     payment_fee: safePaymentFee,
     paypal_order_id: paypalCapture?.orderId,
     paypal_capture_id: paypalCapture?.captureId,
     notes: customer.notes || null,
   };
-  return apiRequest<CreatedOrder>("/api/orders", {
+  const storage = (await import("@react-native-async-storage/async-storage")).default;
+  const storageKey = "lecomax_pending_order_request";
+  const fingerprint = JSON.stringify({ customer: order.customer, payment: order.payment_provider,
+    items: cart.map(({product,quantity,color,size})=>({slug:product.slug,quantity,color,size})) });
+  let requestKey = idempotencyKey;
+  const savedText = await storage.getItem(storageKey);
+  try {
+    const saved = JSON.parse(savedText || "null");
+    if (saved?.fingerprint === fingerprint && typeof saved.key === "string") requestKey = saved.key;
+  } catch { /* Ignore an invalid local record; save a new key before sending. */ }
+  await storage.setItem(storageKey, JSON.stringify({ fingerprint, key: requestKey }));
+  const result = await apiRequest<CreatedOrder>("/api/orders", {
     method: "POST",
     headers: {
-      "Idempotency-Key": idempotencyKey,
+      "Idempotency-Key": requestKey,
       "X-Lecomax-Client": "mobile_app",
     },
     body: JSON.stringify(order),
   });
+  await storage.removeItem(storageKey).catch(() => undefined);
+  return result;
 }
 
 export function getCheckoutQuote(
@@ -128,7 +125,7 @@ export function getCheckoutQuote(
     city: string;
     email: string;
     couponId?: string;
-    paymentProvider: "cod" | "paypal";
+    paymentProvider?: "cod" | "paypal";
   },
 ) {
   return apiRequest<CheckoutQuote>("/api/checkout/quote", {

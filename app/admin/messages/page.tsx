@@ -310,7 +310,6 @@ export default function MessagesPage() {
   const lcTypingActiveRef = useRef(false);
   const lcTypingLastSentRef = useRef(0);
   const lcClientTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lcClientTypingPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lcChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   // ── Feedback ──────────────────────────────────────────────────────────
@@ -375,15 +374,14 @@ export default function MessagesPage() {
     return () => clearInterval(iv);
   }, [lcSelected, loadLcMessages]);
 
-  // Live client typing, with polling retained as a fallback.
+  // Both participants share a realtime channel; stale typing expires after disconnects.
   useEffect(() => {
-    if (!lcSelected) {
-      setLcClientTyping(false);
-      if (lcClientTypingPollRef.current) clearInterval(lcClientTypingPollRef.current);
-      return;
-    }
+    setLcClientTyping(false);
+    if (!lcSelected || lcSelected.status === "resolved") return;
+    let disposed = false;
     const showClientTyping = (typing: boolean) => {
       if (lcClientTypingTimeoutRef.current) clearTimeout(lcClientTypingTimeoutRef.current);
+      if (disposed) return;
       setLcClientTyping(typing);
       if (typing) lcClientTypingTimeoutRef.current = setTimeout(() => setLcClientTyping(false), 4500);
     };
@@ -394,18 +392,18 @@ export default function MessagesPage() {
       })
       .subscribe();
     lcChannelRef.current = channel;
-    lcClientTypingPollRef.current = setInterval(async () => {
-      const res = await fetch(`/api/chat/typing?session_id=${lcSelected.id}&from=client`).catch(() => null);
-      if (res?.ok) { const d = await res.json(); if (d.typing) showClientTyping(true); }
-    }, 2000);
     return () => {
-      if (lcClientTypingPollRef.current) clearInterval(lcClientTypingPollRef.current);
+      disposed = true;
+      if (lcTypingTimeoutRef.current) clearTimeout(lcTypingTimeoutRef.current);
+      lcTypingActiveRef.current = false;
+      lcTypingLastSentRef.current = 0;
       if (lcClientTypingTimeoutRef.current) clearTimeout(lcClientTypingTimeoutRef.current);
       lcChannelRef.current = null;
-      supabase.removeChannel(channel);
+      void channel.send({ type: "broadcast", event: "typing", payload: { from: "agent", typing: false } })
+        .finally(() => { void supabase.removeChannel(channel); });
       setLcClientTyping(false);
     };
-  }, [lcSelected]);
+  }, [lcSelected?.id, lcSelected?.status]);
 
   useEffect(() => {
     const el = lcMsgsContainerRef.current;
@@ -471,20 +469,14 @@ export default function MessagesPage() {
   }
 
   function signalTyping(sessionId: string, typing = true) {
-    lcChannelRef.current?.send({
-      type: "broadcast",
-      event: "typing",
-      payload: { from: "agent", typing },
-    });
+    if (lcSelected?.id !== sessionId) return;
     const now = Date.now();
     if (!typing || !lcTypingActiveRef.current || now - lcTypingLastSentRef.current > 1500) {
       lcTypingActiveRef.current = typing;
       lcTypingLastSentRef.current = now;
-      fetch("/api/chat/typing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId, typing, from: "agent" }),
-      }).catch(() => {});
+      void lcChannelRef.current?.send({
+        type: "broadcast", event: "typing", payload: { from: "agent", typing },
+      });
     }
     if (lcTypingTimeoutRef.current) clearTimeout(lcTypingTimeoutRef.current);
     if (typing) lcTypingTimeoutRef.current = setTimeout(() => signalTyping(sessionId, false), 3000);
@@ -1340,7 +1332,8 @@ export default function MessagesPage() {
                       <div className="flex items-end gap-2">
                         <textarea
                           value={lcReply}
-                          onChange={(e) => { setLcReply(e.target.value); setLcSent(false); signalTyping(lcSelected.id, e.target.value.length > 0); }}
+                          onBlur={() => signalTyping(lcSelected.id, false)}
+                          onChange={(e) => { setLcReply(e.target.value); setLcSent(false); signalTyping(lcSelected.id, !!e.target.value.trim()); }}
                           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendLcReply(); } }}
                           placeholder="Écrivez votre réponse…"
                           rows={2}

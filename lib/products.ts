@@ -1,4 +1,7 @@
 ﻿export type Product = {
+  preorder_enabled?: boolean;
+  preorder_estimated_at?: string | null;
+  preorder_message?: string | null;
   slug: string;
   name: string;
   displayName?: string;
@@ -30,6 +33,8 @@
   urgencyStock?: number;
   /** Live database inventory. Undefined means the product only has static catalogue data. */
   stock?: number;
+  color_stock?: Record<string, number>;
+  tags?: string[];
 };
 
 /* ─────────────────────────── CHAUSSURES ────────────────────────── */
@@ -498,6 +503,9 @@ export const formatMAD = (n: number) =>
 
 // ─── Normalised card type accepted by ProductCard / ProductRail ───────────────
 export type CardProduct = {
+  preorder_enabled?: boolean;
+  preorder_estimated_at?: string | null;
+  preorder_message?: string | null;
   slug: string;
   name: string;
   category: string;
@@ -516,6 +524,9 @@ export type CardProduct = {
 
 /** Convert an API/Supabase product to the CardProduct format */
 export function apiToCard(p: {
+  preorder_enabled?: boolean;
+  preorder_estimated_at?: string | null;
+  preorder_message?: string | null;
   slug: string;
   name: string;
   category: string;
@@ -540,6 +551,9 @@ export function apiToCard(p: {
     colors: (p.colors as string[]) ?? [],
     sizes: (p.sizes as string[]) ?? [],
     badge: p.featured ? "Nouveau" : undefined,
+    preorder_enabled: p.preorder_enabled === true,
+    preorder_estimated_at: p.preorder_estimated_at ?? null,
+    preorder_message: p.preorder_message ?? null,
     stock: typeof p.stock === "number" ? p.stock : undefined,
   };
 }

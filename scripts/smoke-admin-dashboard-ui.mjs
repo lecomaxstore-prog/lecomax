@@ -257,7 +257,7 @@ async function main() {
     await setViewport(pageClient, 390, 844);
     await pageClient.send("Page.navigate", { url: `${baseUrl}/admin/dashboard` });
     try {
-      await waitFor(pageClient, `Boolean(document.querySelector('h1')?.textContent?.includes('Votre boutique') && document.querySelector('[aria-label="Indicateurs principaux"]'))`, "the populated mobile dashboard", 15_000);
+      await waitFor(pageClient, `Boolean(document.querySelector('.admin-dashboard-heading h1') && document.querySelector('[aria-label="Indicateurs principaux"]'))`, "the populated mobile dashboard", 15_000);
     } catch (error) {
       const diagnostics = await evaluate(pageClient, `({ url: location.href, title: document.title, text: document.body?.innerText?.slice(0, 1200), html: document.documentElement?.outerHTML?.slice(0, 500) })`).catch(() => null);
       const runtimeErrors = pageClient.events.filter(event => event.method === "Runtime.exceptionThrown").slice(-3);
@@ -309,7 +309,7 @@ async function main() {
     assert(!mobile.documentCanScroll && mobile.internalScroll, `The mobile admin shell does not use its intended internal scroll container: ${JSON.stringify({ documentCanScroll: mobile.documentCanScroll, documentScroll: mobile.documentScroll, internalScroll: mobile.internalScroll, layout: mobile.layout })}`);
     assert(mobile.cardsOverflow.every(value => value <= 2), `A KPI card overflows on mobile: ${JSON.stringify(mobile.cardsOverflow)}`);
     assert(mobile.order[0] < mobile.order[1] && mobile.order[1] < mobile.order[2], "Mobile priorities, KPIs, and recent orders are in the wrong order.");
-    assert(mobile.navVisible && mobile.navLabels.join("|").includes("Accueil") && mobile.navLabels.join("|").includes("Ajouter") && mobile.navLabels.join("|").includes("Menu"), "The mobile navigation is missing management labels.");
+    assert(mobile.navVisible && ["Accueil", "Produits", "Clients", "Plus"].every(label => mobile.navLabels.join("|").includes(label)), "The mobile navigation is missing management labels.");
     assert(mobile.touchTargets.every(height => height >= 44), "A bottom-navigation target is smaller than 44px.");
     assert(!mobile.analyticsVisible, "Detailed analytics should start collapsed on mobile.");
     assert(mobile.actionCount >= 4 && mobile.recentCount >= 6, "Quick actions or recent orders are missing on mobile.");
@@ -358,9 +358,45 @@ async function main() {
     assert(desktop.overflow <= 2 && desktop.mainOverflow <= 2 && desktop.sidebar && !desktop.bottomNav && desktop.analytics, "The desktop dashboard regression check failed.");
     await saveScreenshot(pageClient, process.env.ADMIN_DASHBOARD_SCREENSHOT_DIR, "dashboard-desktop-1440.png");
 
+    // Exercise the editor without submitting or writing any products.
+    await setViewport(pageClient, 390, 844);
+    await pageClient.send("Page.navigate", { url: `${baseUrl}/admin/products?new=1` });
+    await waitFor(pageClient, `Boolean(document.querySelector('#product-information'))`, "the product editor", 20_000);
+    for (const width of [320, 390, 768]) {
+      await setViewport(pageClient, width, 844);
+      const editor = await evaluate(pageClient, `(() => {
+        const main = document.querySelector('#admin-main');
+        const actions = document.querySelector('.admin-editor-actions').getBoundingClientRect();
+        const nav = document.querySelector('.admin-bottom-nav').getBoundingClientRect();
+        return {
+          overflow: main.scrollWidth - main.clientWidth,
+          heading: getComputedStyle(document.querySelector('.admin-editor-heading')).position,
+          barGap: nav.top - actions.bottom,
+          touchTargets: [...document.querySelectorAll('.admin-editor-actions button')].map(el => el.getBoundingClientRect().height),
+        };
+      })()`);
+      assert(editor.overflow <= 2, `Product editor overflows at ${width}px.`);
+      assert(editor.heading === "static", `Product editor heading overlays fields at ${width}px.`);
+      assert(Math.abs(editor.barGap) <= 2, `Product save bar and navigation are misaligned at ${width}px.`);
+      assert(editor.touchTargets.every(height => height >= 44), "Editor actions are too small.");
+    }
+    await setViewport(pageClient, 390, 844);
+    await evaluate(pageClient, `document.querySelector('.admin-editor-progress nav button:last-child').click()`);
+    await waitFor(pageClient, `document.querySelector('#product-variants').open`, "expanded variant section");
+    await evaluate(pageClient, `document.querySelector('#admin-main').scrollTo({top: 0, behavior: 'instant'})`);
+    await saveScreenshot(pageClient, process.env.ADMIN_DASHBOARD_SCREENSHOT_DIR, "product-editor-mobile-390.png");
+
+    await setViewport(pageClient, 1440, 1000);
+    const desktopEditor = await evaluate(pageClient, `(() => {
+      const main = document.querySelector('#admin-main');
+      const importInput = document.querySelector('.admin-editor-import input');
+      return { overflow: main.scrollWidth - main.clientWidth, importVisible: importInput.getBoundingClientRect().height > 0, actionsHidden: getComputedStyle(document.querySelector('.admin-editor-actions')).display === 'none' };
+    })()`);
+    assert(desktopEditor.overflow <= 2 && desktopEditor.importVisible && desktopEditor.actionsHidden, "Desktop product editor layout regressed.");
+
     const exceptions = pageClient.events.filter(event => event.method === "Runtime.exceptionThrown");
     assert(exceptions.length === 0, "The browser reported an uncaught dashboard runtime exception.");
-    console.log("Admin dashboard browser smoke test passed: protected data contract, 390px hierarchy, touch navigation, drawer keyboard behavior, tablet, and desktop.");
+    console.log("Admin browser smoke test passed: dashboard, drawer, tablet, desktop, and product editor at 320/390/768px with aligned actions and working section shortcuts.");
   } finally {
     pageClient?.close();
     browserClient?.close();
@@ -372,4 +408,5 @@ async function main() {
   }
 }
 
-await main();
+export { CdpClient, createAdminToken, evaluate, waitFor, setViewport, saveScreenshot, findChrome, waitForDevToolsFile };
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();

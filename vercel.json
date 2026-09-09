@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/mobile-campaigns",
-      "schedule": "5 9 * * *"
+      "schedule": "* * * * *"
     }
   ]
 }

@@ -1,3 +1,4 @@
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEvent } from "expo";
 import { Image } from "expo-image";
@@ -18,6 +19,7 @@ import { AnimatedPressable } from "@/components/animated-pressable";
 import { AppViewportOverlay, useAppViewport } from "@/components/app-viewport";
 import { palette, typography } from "@/constants/theme";
 import { imageUrl } from "@/lib/format";
+import { ProductPhoto } from "@/components/product-photo";
 
 type Props = {
   images: (string | undefined)[];
@@ -38,17 +40,18 @@ type GalleryItem =
   | { id: string; type: "video"; uri: string; poster?: string };
 
 function ProductVideo({ active, uri }: { active: boolean; uri: string }) {
+  useLocale();
   if (/youtube\.com|youtu\.be/i.test(uri)) {
     return (
       <AnimatedPressable
-        accessibilityLabel="Ouvrir la vidéo du produit"
+        accessibilityLabel={msg("productGallery.openProductVideo")}
         onPress={() => void Linking.openURL(uri)}
         style={styles.externalVideo}
       >
         <View style={styles.playButton}>
           <Ionicons name="play" size={26} color={palette.white} />
         </View>
-        <Text style={styles.videoLabel}>VOIR LA VIDÉO</Text>
+        <Text style={styles.videoLabel}>{msg("productGallery.watchVideoUppercase")}</Text>
       </AnimatedPressable>
     );
   }
@@ -57,6 +60,7 @@ function ProductVideo({ active, uri }: { active: boolean; uri: string }) {
 }
 
 function DirectVideo({ active, uri }: { active: boolean; uri: string }) {
+  useLocale();
   const player = useVideoPlayer({ uri: imageUrl(uri), useCaching: true }, (instance) => {
     instance.loop = true;
     instance.muted = true;
@@ -80,7 +84,7 @@ function DirectVideo({ active, uri }: { active: boolean; uri: string }) {
       />
       <AnimatedPressable
         accessibilityLabel={
-          isPlaying ? "Mettre la vidéo en pause" : "Lire la vidéo"
+          isPlaying ? msg("productGallery.pauseVideo") : msg("productGallery.playVideo")
         }
         onPress={() => (isPlaying ? player.pause() : player.play())}
         style={styles.videoTap}
@@ -108,6 +112,7 @@ export const ProductGallery = memo(function ProductGallery({
   onOpenCart,
   onToggleFavorite,
 }: Props) {
+  useLocale();
   const insets = useSafeAreaInsets();
   const { contentWidth, windowHeight } = useAppViewport();
   const galleryWidth = contentWidth;
@@ -191,7 +196,7 @@ export const ProductGallery = memo(function ProductGallery({
           ]}
         >
           <AnimatedPressable
-            accessibilityLabel="Revenir à l’écran précédent"
+            accessibilityLabel={msg("productGallery.returnToPreviousScreen")}
             accessibilityRole="button"
             onPress={onBack}
             pressedScale={0.94}
@@ -201,7 +206,7 @@ export const ProductGallery = memo(function ProductGallery({
           </AnimatedPressable>
           <View style={styles.headerActions}>
             <AnimatedPressable
-              accessibilityLabel="Ouvrir le panier"
+              accessibilityLabel={msg("productGallery.openCart")}
               accessibilityRole="button"
               onPress={onOpenCart}
               pressedScale={0.94}
@@ -219,7 +224,7 @@ export const ProductGallery = memo(function ProductGallery({
             {wishlistEnabled ? (
               <AnimatedPressable
                 accessibilityLabel={
-                  favorite ? "Retirer des favoris" : "Ajouter aux favoris"
+                  favorite ? msg("productCard.removeFromFavorites") : msg("productCard.addToFavorites")
                 }
                 accessibilityRole="button"
                 accessibilityState={{ selected: favorite }}
@@ -260,15 +265,15 @@ export const ProductGallery = memo(function ProductGallery({
                 <ProductVideo active={index === activeIndex} uri={item.uri} />
               ) : (
                 <AnimatedPressable
-                  accessibilityLabel={`Agrandir l’image ${index + 1} de ${productName}`}
+                  accessibilityLabel={msg("product.enlargeImage", { number: index + 1, name: productName })}
                   haptic={false}
                   onPress={() => item.uri && setZoomedImage(item.uri)}
                   pressedScale={0.995}
                   style={styles.media}
                 >
                   {item.uri ? (
-                    <Image
-                      source={imageUrl(item.uri)}
+                    <ProductPhoto
+                      uri={item.uri}
                       contentFit="contain"
                       contentPosition="center"
                       transition={180}
@@ -284,8 +289,7 @@ export const ProductGallery = memo(function ProductGallery({
                         color="#999B98"
                       />
                       <Text style={styles.missingImageText}>
-                        IMAGE INDISPONIBLE
-                      </Text>
+                        {msg("productCard.imageUnavailableUppercase")}</Text>
                     </View>
                   )}
                 </AnimatedPressable>
@@ -297,7 +301,8 @@ export const ProductGallery = memo(function ProductGallery({
         {media.length > 1 ? (
           <>
             <AnimatedPressable
-              accessibilityLabel="Afficher le média précédent"
+              accessibilityLabel={msg("productGallery.showPreviousMedia")}
+              accessibilityRole="button"
               disabled={activeIndex === 0}
               onPress={() => moveTo(activeIndex - 1)}
               pressedScale={0.9}
@@ -307,10 +312,13 @@ export const ProductGallery = memo(function ProductGallery({
                 activeIndex === 0 && styles.galleryArrowDisabled,
               ]}
             >
-              <Ionicons name="chevron-back" size={20} color={palette.ink} />
+              <View style={styles.galleryArrowFace}>
+                <Ionicons name="chevron-back" size={18} color={palette.ink} />
+              </View>
             </AnimatedPressable>
             <AnimatedPressable
-              accessibilityLabel="Afficher le média suivant"
+              accessibilityLabel={msg("productGallery.showNextMedia")}
+              accessibilityRole="button"
               disabled={activeIndex === media.length - 1}
               onPress={() => moveTo(activeIndex + 1)}
               pressedScale={0.9}
@@ -320,7 +328,9 @@ export const ProductGallery = memo(function ProductGallery({
                 activeIndex === media.length - 1 && styles.galleryArrowDisabled,
               ]}
             >
-              <Ionicons name="chevron-forward" size={20} color={palette.ink} />
+              <View style={styles.galleryArrowFace}>
+                <Ionicons name="chevron-forward" size={18} color={palette.ink} />
+              </View>
             </AnimatedPressable>
           </>
         ) : null}
@@ -343,14 +353,14 @@ export const ProductGallery = memo(function ProductGallery({
             style={[styles.zoom, { width: contentWidth, height: windowHeight }]}
           >
             <AnimatedPressable
-              accessibilityLabel="Fermer l’image agrandie"
+              accessibilityLabel={msg("productGallery.closeEnlargedImage")}
               onPress={() => setZoomedImage(undefined)}
               style={[styles.zoomClose, { top: Math.max(insets.top, 16) }]}
             >
               <Ionicons name="close" size={26} color={palette.ink} />
             </AnimatedPressable>
-            <Image
-              source={imageUrl(zoomedImage)}
+            <ProductPhoto
+              uri={zoomedImage}
               contentFit="contain"
               cachePolicy="memory-disk"
               style={{ width: contentWidth, height: windowHeight }}
@@ -491,23 +501,26 @@ const styles = StyleSheet.create({
   },
   galleryArrow: {
     position: "absolute",
-    top: "53%",
+    top: "50%",
+    marginTop: -22,
+    // Keep a comfortable touch target around the smaller visible control.
     width: 44,
     height: 44,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 22,
+  },
+  galleryArrowFace: {
+    width: 30,
+    height: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 15,
     borderWidth: 1,
     borderColor: "rgba(23,26,24,0.06)",
-    backgroundColor: "rgba(255,255,255,0.82)",
-    shadowColor: "#171A18",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.035,
-    shadowRadius: 7,
-    elevation: 1,
+    backgroundColor: "rgba(255,255,255,0.65)",
   },
-  galleryArrowLeft: { left: 14 },
-  galleryArrowRight: { right: 14 },
+  galleryArrowLeft: { left: 0 },
+  galleryArrowRight: { right: 0 },
   galleryArrowDisabled: { opacity: 0.14 },
   favoriteActive: { backgroundColor: "#16883A" },
   zoom: {

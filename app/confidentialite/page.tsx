@@ -13,7 +13,7 @@ export default function ConfidentialitePage() {
         <section>
           <h2 className="font-black text-[13px] uppercase tracking-widest text-black mb-3">1. Collecte des Données</h2>
           <p>
-            L'ecomax collecte uniquement les données personnelles nécessaires au traitement de vos commandes : nom, prénom, adresse de livraison, numéro de téléphone et adresse e-mail. Ces informations sont recueillies lors de votre passage en caisse et ne sont jamais revendues à des tiers.
+            L&apos;ecomax collecte uniquement les données personnelles nécessaires au traitement de vos commandes : nom, prénom, adresse de livraison, numéro de téléphone et adresse e-mail. Ces informations sont recueillies lors de votre passage en caisse et ne sont jamais revendues à des tiers.
           </p>
         </section>
 
@@ -47,7 +47,7 @@ export default function ConfidentialitePage() {
         <section>
           <h2 className="font-black text-[13px] uppercase tracking-widest text-black mb-3">4. Partage des Données</h2>
           <p>
-            Vos données peuvent être partagées avec nos prestataires logistiques uniquement dans le but d'assurer la livraison de vos commandes. Nous ne vendons ni ne louons vos données à des tiers à des fins commerciales.
+            Vos données peuvent être partagées avec nos prestataires logistiques uniquement dans le but d&apos;assurer la livraison de vos commandes. Nous ne vendons ni ne louons vos données à des tiers à des fins commerciales.
           </p>
         </section>
 
@@ -61,7 +61,7 @@ export default function ConfidentialitePage() {
         <section>
           <h2 className="font-black text-[13px] uppercase tracking-widest text-black mb-3">6. Vos Droits</h2>
           <p>
-            Conformément à la loi marocaine 09-08 relative à la protection des personnes physiques à l'égard du traitement des données à caractère personnel, vous disposez d'un droit d'accès, de rectification et de suppression de vos données. Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@lecomax.com" className="underline hover:text-black transition-colors">contact@lecomax.com</a>.
+            Conformément à la loi marocaine 09-08 relative à la protection des personnes physiques à l&apos;égard du traitement des données à caractère personnel, vous disposez d&apos;un droit d&apos;accès, de rectification et de suppression de vos données. Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@lecomax.com" className="underline hover:text-black transition-colors">contact@lecomax.com</a>.
           </p>
         </section>
 

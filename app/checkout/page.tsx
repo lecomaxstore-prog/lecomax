@@ -1,4 +1,6 @@
 "use client";
+import PreorderNotice from "@/components/PreorderNotice";
+import { preorderCopy } from "@/lib/preorder-copy";
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -8,6 +10,7 @@ import Image from "next/image";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
+import { useCartCalculation, commerceAuthHeaders } from "@/lib/use-cart-calculation";
 import { useSettings } from "@/lib/use-settings";
 import { calculateShipping, shippingConfigFromSettings } from "@/lib/shipping-config";
 import type { ShippingQuote } from "@/lib/shipping-zones";
@@ -117,12 +120,12 @@ function Input({
     (name !== "telephone" || !getPhoneError(value));
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={`checkout-${name}`} className="text-[10px] font-black uppercase tracking-[0.14em] text-neutral-600">
-        {cleanLabel}{required && <span className="ml-1 text-[#27bd3b]">*</span>}
+      <label htmlFor={`checkout-${name}`} className="text-[12px] font-semibold text-neutral-600">
+        {cleanLabel}{required && <span className="ml-1 text-emerald-700">*</span>}
       </label>
       <div className="relative">
         {icon && (
-          <div className="absolute left-4 top-6 -translate-y-1/2 text-neutral-400 pointer-events-none">
+          <div className="absolute left-4 top-[26px] -translate-y-1/2 text-neutral-400 pointer-events-none">
             {icon}
           </div>
         )}
@@ -140,14 +143,14 @@ function Input({
           required={required}
           onChange={(e) => onChange(name, e.target.value)}
           onBlur={() => onBlur?.(name, value)}
-          className={`w-full ${icon ? "pl-11" : "pl-4"} ${canShowSuccess ? "pr-11" : "pr-4"} h-12 rounded-xl text-[13px] font-medium border outline-none transition-all duration-200 placeholder:text-neutral-300
+          className={`w-full ${icon ? "pl-11" : "pl-4"} ${canShowSuccess ? "pr-11" : "pr-4"} h-[52px] rounded-xl text-[16px] sm:text-[14px] font-normal border outline-none transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none placeholder:text-neutral-400
             ${error
               ? "border-red-300 bg-red-50/50 focus:border-red-400 focus:ring-4 focus:ring-red-100"
-              : "border-neutral-200 bg-neutral-50/70 hover:border-neutral-300 hover:bg-white focus:border-[#3ecf4c] focus:bg-white focus:ring-4 focus:ring-[#3ecf4c]/10"
+              : "border-neutral-200 bg-white hover:border-neutral-300 focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/5"
             }`}
         />
         {canShowSuccess && (
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-[#27bd3b] pointer-events-none">
+          <span aria-hidden="true" className="absolute right-4 top-[26px] -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 pointer-events-none">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 4 4L19 6"/></svg>
           </span>
         )}
@@ -193,9 +196,9 @@ function CityInput({ value, error, onChange }: { value: string; error?: string; 
 
   return (
     <div className="flex flex-col gap-2" ref={ref}>
-      <label htmlFor="checkout-ville" className="text-[10px] font-black uppercase tracking-[0.14em] text-neutral-600">Ville <span className="text-[#27bd3b]">*</span></label>
+      <label htmlFor="checkout-ville" className="text-[12px] font-semibold text-neutral-600">Ville <span className="text-emerald-700">*</span></label>
       <div className="relative">
-        <div className="absolute left-4 top-6 -translate-y-1/2 text-neutral-400 pointer-events-none">
+        <div className="absolute left-4 top-[26px] -translate-y-1/2 text-neutral-400 pointer-events-none">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         </div>
         <input
@@ -210,9 +213,9 @@ function CityInput({ value, error, onChange }: { value: string; error?: string; 
           aria-describedby={error ? "checkout-ville-error" : undefined}
           onChange={e => { onChange(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
-          className={`w-full pl-11 pr-4 h-12 rounded-xl text-[13px] font-medium border outline-none transition-all duration-200 placeholder:text-neutral-300 ${
+          className={`w-full pl-11 pr-4 h-[52px] rounded-xl text-[16px] sm:text-[14px] font-normal border outline-none transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none placeholder:text-neutral-400 ${
             error ? "border-red-300 bg-red-50/50 focus:border-red-400 focus:ring-4 focus:ring-red-100"
-                  : "border-neutral-200 bg-neutral-50/70 hover:border-neutral-300 hover:bg-white focus:border-[#3ecf4c] focus:bg-white focus:ring-4 focus:ring-[#3ecf4c]/10"
+                  : "border-neutral-200 bg-white hover:border-neutral-300 focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/5"
           }`}
         />
         {open && suggestions.length > 0 && (
@@ -242,19 +245,18 @@ function CityInput({ value, error, onChange }: { value: string; error?: string; 
 
 function Section({ step, title, subtitle, icon, children }: { step: number; title: string; subtitle?: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-[0_10px_35px_rgba(15,23,42,0.06)] transition-shadow duration-300 hover:shadow-[0_14px_42px_rgba(15,23,42,0.09)]">
-      <div className="relative flex items-center gap-3.5 border-b border-neutral-100 bg-gradient-to-r from-emerald-50/70 via-white to-white px-5 py-4 sm:px-6 sm:py-5">
-        <div className="absolute inset-y-0 left-0 w-1 bg-[#3ecf4c]" />
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-black text-[12px] shadow-sm" style={{ background: "#3ecf4c", color: "#071108" }}>
-          {step}
+    <section className="overflow-hidden rounded-[20px] border border-neutral-200/80 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.025)] sm:rounded-3xl">
+      <div className="flex items-center gap-3.5 border-b border-neutral-100 px-5 py-5 sm:px-7 sm:py-6">
+        <div aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-emerald-900/10 bg-emerald-50/70 text-[11px] font-semibold tabular-nums text-emerald-900">
+          {String(step).padStart(2, "0")}
         </div>
         <div className="min-w-0">
-          <h2 className="font-black text-[13px] sm:text-[14px] uppercase tracking-[0.1em] text-neutral-900">{title}</h2>
-          {subtitle && <p className="mt-0.5 text-[10px] sm:text-[11px] font-medium text-neutral-400">{subtitle}</p>}
+          <h2 className="text-[17px] font-semibold leading-snug tracking-[-0.025em] text-neutral-900 sm:text-[18px]">{title}</h2>
+          {subtitle && <p className="mt-1 text-[12px] leading-5 text-neutral-500">{subtitle}</p>}
         </div>
-        <div className="ml-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-neutral-900 shadow-sm">{icon}</div>
+        <div aria-hidden="true" className="ml-auto hidden h-9 w-9 shrink-0 items-center justify-center rounded-full bg-neutral-50 text-neutral-500 [&>svg]:stroke-current sm:flex">{icon}</div>
       </div>
-      <div className="p-5 sm:p-6">{children}</div>
+      <div className="p-5 sm:p-7">{children}</div>
     </section>
   );
 }
@@ -384,7 +386,7 @@ function PaymentErrorDialog({
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, total, clear } = useCart();
+  const { items, total: localSubtotal, clear } = useCart();
   const [form, setForm] = useState<Field>(empty);
   const [errors, setErrors] = useState<Partial<Field>>({});
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -398,6 +400,13 @@ export default function CheckoutPage() {
   const [paypalFailureOpen, setPaypalFailureOpen] = useState(false);
   const [paypalServerReady, setPaypalServerReady] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
+  const orderKey = (current = { items, form, payment }) => {
+    const fingerprint = JSON.stringify({ items: current.items.map(({slug, color, size, quantity}) => ({slug, color, size, quantity})), form: current.form, payment: current.payment });
+    try { const saved = JSON.parse(sessionStorage.getItem("lecomax_checkout_request") || "null"); if (saved?.fingerprint === fingerprint && saved?.key) return String(saved.key); } catch {}
+    const key = crypto.randomUUID();
+    sessionStorage.setItem("lecomax_checkout_request", JSON.stringify({ fingerprint, key }));
+    return key;
+  };
   const [orderError, setOrderError] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState<{
@@ -569,10 +578,16 @@ export default function CheckoutPage() {
     });
   }, []);
 
+  const serverPricing = useCartCalculation({
+    items: items.map(item => ({ slug: item.slug, quantity: item.quantity, price: item.price, color: item.color, size: item.size })),
+    city: form.ville, email: form.email, couponId: couponApplied?.id, paymentProvider: payment === "paypal" ? "paypal" : "cod",
+  }, siteSettings);
+  const calculation = serverPricing.quote;
+  const total = calculation?.subtotal ?? localSubtotal;
   const shippingConfig = shippingConfigFromSettings(siteSettings);
   const defaultFreeAbove = shippingQuote?.freeThreshold ?? shippingConfig.freeThreshold;
-  const shipping = shippingQuote?.cost ?? calculateShipping(total, shippingConfig);
-  const shippingEstimate = shippingQuote?.estimatedDays ?? shippingConfig.estimatedDays;
+  const shipping = calculation?.shipping ?? 0;
+  const shippingEstimate = items.some(item => item.fulfillment_type === "PREORDER") ? preorderCopy.fr.delivery : shippingQuote?.estimatedDays ?? shippingConfig.estimatedDays;
   const configuredPaymentMethods = paymentMethodsFromSettings(siteSettings);
   const codMethod = configuredPaymentMethods.find((method) => method.provider === "cod");
   const paypalMethod = configuredPaymentMethods.find((method) => method.provider === "paypal");
@@ -586,7 +601,7 @@ export default function CheckoutPage() {
   );
   const minimumOrder = Math.max(0, Number(siteSettings.checkout_minimum_order) || 0);
   const minimumOrderMet = total >= minimumOrder;
-  const shippingReady = !form.ville.trim() || (!shippingQuoteLoading && shippingQuote !== null);
+  const shippingReady = Boolean(calculation) && !serverPricing.loading;
   const checkoutCopy = {
     contactTitle: siteSettings.checkout_contact_title || "Vos coordonnées",
     contactSubtitle: siteSettings.checkout_contact_subtitle || "Pour vous contacter au sujet de votre commande",
@@ -595,64 +610,37 @@ export default function CheckoutPage() {
     paymentTitle: siteSettings.checkout_payment_title || "Mode de paiement",
     paymentSubtitle: siteSettings.checkout_payment_subtitle || "Choisissez votre option de règlement",
     buttonLabel: siteSettings.checkout_button_label || "Confirmer ma commande",
-    trustTitle: siteSettings.checkout_trust_title || "Commande 100% sécurisée",
-    trustDelivery: siteSettings.checkout_trust_delivery || `Livraison ${shippingEstimate}`,
+    trustTitle: siteSettings.checkout_trust_title || "Commande Paiement à réceptione",
+    trustDelivery: items.some(item => item.fulfillment_type === "PREORDER") ? preorderCopy.fr.delivery : siteSettings.checkout_trust_delivery || `Livraison ${shippingEstimate}`,
     trustPayment: siteSettings.checkout_trust_payment || "Paiement sûr",
     trustReturns: siteSettings.checkout_trust_returns || "Retours 30j",
     termsNote: siteSettings.checkout_terms_note || (codEnabled ? "Paiement à la livraison disponible." : "Paiement en ligne sécurisé."),
     showReassurance: siteSettings.checkout_show_reassurance !== "false",
   };
-  const couponDiscount = couponApplied?.discount ?? 0;
+  const couponDiscount = calculation?.couponDiscount ?? 0;
   const effectiveLoyaltyDiscountPct = siteSettings.enable_ecoclub === "false" ? 0 : loyaltyDiscountPct;
   // Loyalty discount applies on subtotal (after coupon); Silver 30%, Gold 50%
-  const loyaltyDiscountAmount = effectiveLoyaltyDiscountPct > 0 ? Math.round(((total - couponDiscount) * effectiveLoyaltyDiscountPct) / 100) : 0;
-  const discount = couponDiscount + loyaltyDiscountAmount;
-  const paymentFee =
-    payment === "paypal" ? paypalMethod?.fee ?? 0 : codMethod?.fee ?? 0;
-  const grandTotal = Math.max(0, total + shipping + paymentFee - discount);
+  const loyaltyDiscountAmount = calculation?.loyaltyDiscount ?? 0;
+  const discount = calculation?.discount ?? 0;
+  const paymentFee = calculation?.paymentFee ?? 0;
+  const grandTotal = calculation?.total ?? 0;
   const selectedAddress = savedAddresses.find((address) => address.id === selectedAddressId) ?? null;
 
   useEffect(() => {
-    const refresh = () => setShippingQuoteRevision((value) => value + 1);
+    const refresh = () => serverPricing.refresh();
     window.addEventListener("focus", refresh);
     return () => window.removeEventListener("focus", refresh);
   }, []);
 
   useEffect(() => {
-    const city = form.ville.trim();
-    if (!city) {
-      setShippingQuote(null);
-      setShippingQuoteLoading(false);
-      return;
-    }
-    const controller = new AbortController();
-    setShippingQuote(null);
-    setShippingQuoteLoading(true);
-    const timer = window.setTimeout(() => {
-      fetch(`/api/shipping/quote?city=${encodeURIComponent(city)}&subtotal=${encodeURIComponent(total)}`, {
-        cache: "no-store",
-        signal: controller.signal,
-      })
-        .then(async (response) => {
-          if (!response.ok) throw new Error("quote_unavailable");
-          return response.json() as Promise<ShippingQuote>;
-        })
-        .then(setShippingQuote)
-        .catch((error) => {
-          if (!(error instanceof DOMException && error.name === "AbortError")) setShippingQuote(null);
-        })
-        .finally(() => {
-          if (!controller.signal.aborted) setShippingQuoteLoading(false);
-        });
-    }, 250);
-    return () => {
-      window.clearTimeout(timer);
-      controller.abort();
-    };
-  }, [form.ville, total, shippingConfig.cost, shippingConfig.freeThreshold, shippingConfig.estimatedDays, shippingQuoteRevision]);
+    setShippingQuoteLoading(serverPricing.loading);
+    setShippingQuote(calculation ? { cost: calculation.shipping, freeThreshold: calculation.freeThreshold,
+      estimatedDays: calculation.estimatedDays, zoneName: calculation.zoneName, zoneId: null } : null);
+    if (serverPricing.error) setOrderError(serverPricing.error);
+  }, [calculation, serverPricing.loading, serverPricing.error]);
 
   // Keep paypalDataRef in sync with latest state so PayPal callbacks are never stale
-  paypalDataRef.current = { form, items, subtotal: total, minimumOrder, shippingReady, grandTotal, shipping, paymentFee, couponApplied, discount };
+  paypalDataRef.current = { form, items: items.map(item => ({ ...item, price: calculation?.items.find(line => line.slug === item.slug && line.color === item.color && line.size === item.size)?.price ?? item.price })), subtotal: total, minimumOrder, shippingReady, grandTotal, shipping, paymentFee, couponApplied, discount };
 
   useEffect(() => {
     if (payment === "livraison" && !codEnabled && paypalEnabled) setPayment("paypal");
@@ -739,12 +727,12 @@ export default function CheckoutPage() {
           const { form: f, items: its, grandTotal: gt, shipping: sh, paymentFee: pf, couponApplied: ca, discount: disc } = paypalDataRef.current;
           const res = await fetch("/api/orders/", {
             method: "POST",
-            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            headers: { "Content-Type": "application/json", Accept: "application/json", ...await commerceAuthHeaders(), "Idempotency-Key": orderKey({ items: its, form: f, payment: "paypal" }) },
             credentials: "same-origin",
             cache: "no-store",
             body: JSON.stringify({
               customer: { name: `${f.prenom} ${f.nom}`, phone: f.telephone, email: f.email, city: f.ville, address: `${f.adresse}${f.codePostal ? ", " + f.codePostal : ""}` },
-              items: its.map((i: any) => ({ slug: i.slug, name: i.name, price: i.price, qty: i.quantity, image: resolveProductVariantImage({ slug: i.slug, color: i.color, fallback: i.image }), size: i.size ?? "", color: i.color ?? "" })),
+              items: its.map((i: any) => ({ slug: i.slug, name: i.name, price: i.price, qty: i.quantity, fulfillment_type: i.fulfillment_type, image: resolveProductVariantImage({ slug: i.slug, color: i.color, fallback: i.image }), size: i.size ?? "", color: i.color ?? "" })),
                total: gt, shipping: sh, payment_fee: pf, coupon_id: ca?.id ?? null, discount: disc,
                payment_provider: "paypal",
                paypal_order_id: details.id,
@@ -756,7 +744,9 @@ export default function CheckoutPage() {
           if (!res.ok) {
             throw new Error(data.error || "La commande n'a pas pu être enregistrée après le paiement PayPal.");
           }
+          localStorage.setItem("lecomax_last_order", JSON.stringify({ number:data.order_number,items:data.items?.map((item: { qty: number })=>({...item,quantity:item.qty})) ?? its,total:gt,shipping:sh,customer:f,payment:"paypal",date:new Date().toISOString() }));
           clearAbandonedCartToken();
+          sessionStorage.removeItem("lecomax_checkout_request");
           clear();
           router.push("/merci");
         },
@@ -903,7 +893,7 @@ export default function CheckoutPage() {
     try {
       const res = await fetch("/api/orders/", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json", ...await commerceAuthHeaders(), "Idempotency-Key": orderKey() },
         credentials: "same-origin",
         cache: "no-store",
         body: JSON.stringify({
@@ -917,8 +907,8 @@ export default function CheckoutPage() {
           items: items.map((i) => ({
             slug: i.slug,
             name: i.name,
-            price: i.price,
-            qty: i.quantity,
+            price: calculation?.items.find(line => line.slug === i.slug && line.color === i.color && line.size === i.size)?.price ?? i.price,
+            qty: i.quantity, fulfillment_type: i.fulfillment_type,
             image: resolveProductVariantImage({ slug: i.slug, color: i.color, fallback: i.image }),
             size: i.size ?? "",
             color: i.color ?? "",
@@ -935,6 +925,7 @@ export default function CheckoutPage() {
 
       const data = await res.json().catch(() => ({ error: "Le serveur a retourné une réponse invalide." }));
       if (!res.ok) {
+        if (res.status === 409) serverPricing.refresh();
         setOrderError(data.error || "Impossible d'enregistrer la commande. Veuillez réessayer.");
         setLoading(false);
         return;
@@ -943,7 +934,7 @@ export default function CheckoutPage() {
       const number = data.order_number;
       localStorage.setItem(
         "lecomax_last_order",
-        JSON.stringify({ number, items, total: grandTotal, shipping, customer: form, payment, date: new Date().toISOString() })
+        JSON.stringify({ number, items: data.items?.map((item: { qty: number })=>({...item,quantity:item.qty})) ?? items, total: grandTotal, shipping, customer: form, payment, date: new Date().toISOString() })
       );
 
       // Fire GA4 purchase conversion event
@@ -974,6 +965,7 @@ export default function CheckoutPage() {
       });
 
       clearAbandonedCartToken();
+      sessionStorage.removeItem("lecomax_checkout_request");
       clear();
       router.push("/merci");
     } catch {
@@ -1388,37 +1380,44 @@ export default function CheckoutPage() {
 
           {/* ── Right: Order summary ── */}
           <aside className="lg:sticky lg:top-[88px]">
-            <div className="bg-white border border-neutral-200" style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+            <div className="overflow-hidden rounded-[20px] border border-neutral-200/80 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.025)] sm:rounded-3xl">
 
               {/* Header */}
-              <div className="px-5 pt-5 pb-4 border-b border-neutral-100">
+              <div className="bg-[#183c30] px-5 py-6 text-white sm:px-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-black text-[13px] uppercase tracking-[0.1em]">Votre commande</h3>
-                  <span className="text-[10px] font-black text-neutral-500 bg-neutral-100 px-2.5 py-1">
+                  <h3 className="text-[20px] font-semibold tracking-[-0.025em]">Votre commande</h3>
+                  <span className="rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white/80">
                     {items.reduce((s, i) => s + i.quantity, 0)} article{items.reduce((s, i) => s + i.quantity, 0) !== 1 ? "s" : ""}
                   </span>
                 </div>
               </div>
 
+              {shippingReady && !shippingQuoteLoading && shipping === 0 && (
+                <div role="status" className="flex items-center gap-3 border-b border-emerald-100 bg-emerald-50/70 px-5 py-3.5 sm:px-6">
+                  <span aria-hidden="true" className="text-[24px]">🎉</span>
+                  <p className="text-[12px] leading-5 text-emerald-900"><span className="font-semibold">Félicitations !</span> La livraison est offerte.</p>
+                </div>
+              )}
+
               {/* Items */}
-              <ul className="divide-y divide-neutral-50 max-h-60 overflow-y-auto">
+              <ul className="max-h-80 divide-y divide-neutral-100 overflow-y-auto">
                 {items.map((item) => (
-                  <li key={`${item.slug}-${item.size}-${item.color}`} className="flex items-center gap-3 px-5 py-3.5">
-                    <div className="relative w-14 h-16 overflow-visible bg-neutral-100 shrink-0 border border-neutral-100">
-                      <div className="w-full h-full overflow-hidden">
-                        <Image src={resolveProductVariantImage({ slug: item.slug, color: item.color, fallback: item.image })} alt={`${item.name}${item.color ? ` — ${item.color}` : ""}`} fill sizes="56px" className="object-cover" />
+                  <li key={`${item.slug}-${item.size}-${item.color}`} className="flex items-start gap-3.5 px-5 py-5 sm:px-6">
+                    <div className="relative h-[76px] w-16 shrink-0 rounded-xl border border-neutral-100 bg-neutral-50">
+                      <div className="relative h-full w-full overflow-hidden rounded-xl">
+                        <Image src={resolveProductVariantImage({ slug: item.slug, color: item.color, fallback: item.image })} alt={`${item.name}${item.color ? ` — ${item.color}` : ""}`} fill sizes="64px" className="object-cover" />
                       </div>
-                      <span className="absolute -top-2 -right-2 w-5 h-5 bg-neutral-800 text-white text-[9px] font-black rounded-full flex items-center justify-center ring-2 ring-white shadow">
+                      <span aria-label={`Quantité : ${item.quantity}`} className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-neutral-700 px-1 text-[10px] font-medium text-white ring-2 ring-white">
                         {item.quantity}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[12px] font-bold leading-tight line-clamp-2">{item.name}</p>
-                      <p className="mt-0.5 text-[11px] text-neutral-400">
-                        {[item.size ? `Taille : ${item.size}` : "", item.color ? `Couleur : ${item.color}` : ""].filter(Boolean).join(" · ")}
+                      <p className="text-[13px] font-medium leading-5 text-neutral-900">{item.name}</p><PreorderNotice item={item} />
+                      <p className="mt-1 text-[11px] leading-4 text-neutral-500">
+                        {[item.size ? (item.size === "Taille unique" ? item.size : `Taille ${item.size}`) : "", item.color || ""].filter(Boolean).join(" · ")}
                       </p>
+                      <p className="mt-2 text-[13px] font-semibold tabular-nums text-neutral-900">{formatMAD(item.price * item.quantity)}</p>
                     </div>
-                    <span className="text-[13px] font-black shrink-0">{formatMAD(item.price * item.quantity)}</span>
                   </li>
                 ))}
               </ul>
@@ -1426,20 +1425,25 @@ export default function CheckoutPage() {
 
 
               {/* Totals */}
-              <div className="px-5 py-4 space-y-2.5 border-t border-neutral-100 bg-neutral-50/60">
+              <div className="space-y-4 border-t border-neutral-100 px-5 py-5 sm:px-6">
                 {siteSettings.enable_coupons !== "false" && (
-                  <div className="pb-3 mb-3 border-b border-neutral-200">
-                    <label htmlFor="checkout-coupon" className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">Code promo</label>
+                  <details className="group rounded-xl border border-neutral-200 bg-neutral-50/60 p-3.5">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-[12px] font-medium text-neutral-700 [&::-webkit-details-marker]:hidden">
+                      Vous avez un code promo ?
+                      <svg aria-hidden="true" className="transition-transform group-open:rotate-180 motion-reduce:transition-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="m6 9 6 6 6-6" /></svg>
+                    </summary>
+                    <div className="pt-3">
+                    <label htmlFor="checkout-coupon" className="sr-only">Code promo</label>
                     <div className="flex gap-2">
                       <input
                         id="checkout-coupon"
                         value={couponCode}
                         onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(""); }}
-                        placeholder="VOTRE CODE"
-                        className="min-w-0 flex-1 border border-neutral-200 bg-white px-3 py-2.5 text-xs font-bold uppercase outline-none focus:border-black"
+                        placeholder="Votre code"
+                        className="h-11 min-w-0 flex-1 rounded-lg border border-neutral-200 bg-white px-3 text-[16px] outline-none transition-shadow placeholder:text-neutral-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/10 sm:text-[13px]"
                       />
-                      <button type="button" onClick={applyCoupon} disabled={couponLoading || !couponCode.trim()} className="bg-black text-white px-4 py-2.5 text-[10px] font-black uppercase disabled:opacity-50">
-                        {couponLoading ? "..." : "Appliquer"}
+                      <button type="button" onClick={applyCoupon} disabled={couponLoading || !couponCode.trim()} className="h-11 rounded-lg bg-neutral-900 px-4 text-[12px] font-medium text-white transition-colors hover:bg-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-500">
+                        {couponLoading ? "En cours…" : "Appliquer"}
                       </button>
                     </div>
                     <p className="mt-2 text-[10px] font-medium leading-relaxed text-neutral-400">
@@ -1456,19 +1460,20 @@ export default function CheckoutPage() {
                         )}
                       </div>
                     )}
-                  </div>
+                    </div>
+                  </details>
                 )}
-                <div className="flex justify-between text-sm text-neutral-500">
+                <div className="flex justify-between gap-3 text-[13px] text-neutral-500">
                   <span>Sous-total</span>
                   <span className="font-semibold text-black">{formatMAD(total)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-neutral-500">
+                <div className="flex justify-between gap-3 text-[13px] text-neutral-500">
                   <span>
                     Livraison
-                    {shippingQuote?.zoneName && <small className="ml-1 text-[10px] text-neutral-400">· {shippingQuote.zoneName}</small>}
+                    {shippingQuote?.zoneName && <small className="mt-0.5 block text-[10px] text-neutral-400">{shippingQuote.zoneName}</small>}
                   </span>
-                  <span className={`font-semibold ${shipping === 0 ? "text-emerald-600" : "text-black"}`}>
-                    {shippingQuoteLoading ? "Calcul…" : shipping === 0 ? "Gratuite 🎉" : formatMAD(shipping)}
+                  <span className={`shrink-0 font-medium tabular-nums ${shipping === 0 ? "text-emerald-700" : "text-black"}`}>
+                    {shippingQuoteLoading ? "Calcul…" : shipping === 0 ? "Offerte" : formatMAD(shipping)}
                   </span>
                 </div>
                 {form.ville.trim() && (
@@ -1502,9 +1507,9 @@ export default function CheckoutPage() {
                     <span className="font-bold">{formatMAD(paymentFee)}</span>
                   </div>
                 )}
-                <div className="flex justify-between font-black text-[16px] pt-2 border-t border-neutral-200">
-                  <span>Total TTC</span>
-                  <span style={{ color: "#3ecf4c" }}>{formatMAD(grandTotal)}</span>
+                <div className="flex items-center justify-between gap-3 rounded-xl bg-[#f5f6f3] p-4">
+                  <div><span className="text-[15px] font-semibold text-neutral-900">Total</span><p className="mt-0.5 text-[10px] text-neutral-500">Toutes taxes comprises</p></div>
+                  <span className="text-[24px] font-semibold tracking-[-0.035em] tabular-nums text-emerald-900">{calculation ? formatMAD(grandTotal) : "—"}</span>
                 </div>
               </div>
 
@@ -1532,7 +1537,7 @@ export default function CheckoutPage() {
                     <>{!minimumOrderMet ? `Minimum ${formatMAD(minimumOrder)}` : shippingQuoteLoading ? "Calcul de la livraison…" : checkoutCopy.buttonLabel} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></>
                   )}
                 </button>
-                <div className="mt-4 flex items-center justify-center gap-3 text-[10px] text-neutral-400 font-semibold">
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[10px] text-neutral-500">
                   <span className="flex items-center gap-1">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     SSL sécurisé

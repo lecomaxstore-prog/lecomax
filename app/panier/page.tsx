@@ -1,4 +1,6 @@
 "use client";
+import PreorderNotice from "@/components/PreorderNotice";
+import { preorderCopy } from "@/lib/preorder-copy";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -6,6 +8,7 @@ import Link from "next/link";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 import { useSettings } from "@/lib/use-settings";
+import { useCartCalculation } from "@/lib/use-cart-calculation";
 import { calculateShipping, effectiveFreeShippingMinimum, shippingConfigFromSettings } from "@/lib/shipping-config";
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
 
@@ -16,7 +19,6 @@ export default function CartPage() {
   const shippingCost = shippingConfig.cost;
   const freeShippingThreshold = shippingConfig.freeThreshold;
   const freeShippingMinimum = effectiveFreeShippingMinimum(freeShippingThreshold);
-  const shipping = calculateShipping(total, shippingConfig);
   const hasFreeShippingGoal = freeShippingThreshold > 0;
   const freeShippingRemaining = hasFreeShippingGoal ? Math.max(0, freeShippingMinimum - total) : 0;
   const freeShippingUnlocked = hasFreeShippingGoal && freeShippingRemaining === 0;
@@ -26,6 +28,7 @@ export default function CartPage() {
 
   const [promoInput, setPromoInput] = useState("");
   const [promoApplied, setPromoApplied] = useState<null | {
+    id: string;
     code: string;
     type: "percent" | "fixed";
     value: number;
@@ -39,9 +42,10 @@ export default function CartPage() {
   const [promoLoading, setPromoLoading] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
 
-  const discount = promoApplied?.discount ?? 0;
-
-  const grandTotal = total + shipping - discount;
+  const serverPricing = useCartCalculation({ items: items.map(item => ({ slug: item.slug, quantity: item.quantity, price: item.price, color: item.color, size: item.size })), couponId: promoApplied?.id }, siteSettings);
+  const shipping = serverPricing.quote?.shipping ?? 0;
+  const discount = serverPricing.quote?.discount ?? 0;
+  const grandTotal = serverPricing.quote?.total ?? 0;
 
   async function applyPromo() {
     const code = promoInput.trim().toUpperCase();
@@ -64,6 +68,7 @@ export default function CartPage() {
       } else {
         const label = data.type === "percent" ? `-${data.value}%` : `-${data.value} MAD`;
         setPromoApplied({
+          id: data.id,
           code: data.code,
           type: data.type,
           value: data.value,
@@ -402,7 +407,7 @@ export default function CartPage() {
                     <p className="text-[12px] font-semibold text-neutral-600 sm:text-[13px]">Livraison estimée</p>
                     <span className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-400 text-[9px] font-black text-neutral-600" title="Le délai commence après confirmation de la commande" aria-label="Le délai commence après confirmation de la commande">i</span>
                   </div>
-                  <p className="mt-0.5 text-[14px] font-black leading-5 text-emerald-600 sm:text-[15px]">Chez vous sous {shippingConfig.estimatedDays}</p>
+                  <p className="mt-0.5 text-[14px] font-black leading-5 text-emerald-600 sm:text-[15px]">{items.some(item => item.fulfillment_type === "PREORDER") ? preorderCopy.fr.delivery : `Chez vous sous ${shippingConfig.estimatedDays}`}</p>
                 </div>
                 <span className="hidden shrink-0 text-[9px] font-semibold text-neutral-400 sm:block">Partout au Maroc</span>
               </div>
@@ -427,7 +432,7 @@ export default function CartPage() {
                     </Link>
                     {/* Name + size */}
                     <div className="min-w-0">
-                      <Link href={`/produit/${i.slug}`} className="font-bold text-[13px] leading-snug hover:text-neutral-600 transition-colors line-clamp-2">{i.name}</Link>
+                      <Link href={`/produit/${i.slug}`} className="font-bold text-[13px] leading-snug hover:text-neutral-600 transition-colors line-clamp-2">{i.name}</Link><PreorderNotice item={i} />
                       <p className="text-[11px] text-neutral-400 mt-0.5 uppercase tracking-wide">
                         {i.size && i.size !== "Taille unique" ? `Taille : ${i.size}` : ""}
                         {i.size && i.size !== "Taille unique" && i.color ? " · " : ""}
@@ -632,7 +637,7 @@ export default function CartPage() {
                       {discount > 0 && (
                         <div className="text-[12px] text-neutral-400 line-through">{formatMAD(total + shipping)}</div>
                       )}
-                      <span className="font-black text-[22px]" style={{ color: "#3ecf4c" }}>{formatMAD(grandTotal)}</span>
+                      <span className="font-black text-[22px]" style={{ color: "#3ecf4c" }}>{serverPricing.quote ? formatMAD(grandTotal) : "—"}</span>
                     </div>
                   </div>
                 </div>
@@ -658,9 +663,9 @@ export default function CartPage() {
               {/* Trust badges card */}
               <div className="bg-white rounded-xl border border-neutral-200 px-5 py-4 space-y-3">
                 {[
-                  { icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", label: "Retours gratuits sous 30 jours" },
-                  { icon: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8z", label: `Livraison sous ${shippingConfig.estimatedDays}` },
-                  { icon: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", label: "Paiement 100% sécurisé" },
+                  { icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", label: "Retours sous 30 jours, selon conditions" },
+                  { icon: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8z", label: items.some(item => item.fulfillment_type === "PREORDER") ? preorderCopy.fr.delivery : `Livraison sous ${shippingConfig.estimatedDays}` },
+                  { icon: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", label: "Paiement à réception" },
                 ].map(t => (
                   <div key={t.label} className="flex items-center gap-2.5 text-[12px] text-neutral-600">
                     <span className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(62,207,76,0.12)" }}>

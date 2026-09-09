@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import type { HeroBannerRecord } from "@/lib/hero-banners";
+import { useShippingConfig } from '@/lib/use-settings';
+import { formatShippingAmount } from '@/lib/shipping-config';
 
 type Props = {
   banners?: HeroBannerRecord[];
@@ -13,11 +15,12 @@ type Props = {
 };
 
 export default function HeroBanner({ banners = [], heroImage, heroImageMobile, shippingCost }: Props) {
-  const shippingLabel = shippingCost ? `Livraison ${shippingCost} MAD` : "Livraison 40 MAD";
+  const shipping = useShippingConfig();
+  const shippingLabel = `Livraison ${formatShippingAmount(shipping.cost)} MAD`;
   const fallback: HeroBannerRecord = {
     id: "fallback",
     title: "Sport. Tech. Style.",
-    subtitle: `${shippingLabel} · Retours gratuits 30 j · Paiement à la livraison`,
+    subtitle: `${shippingLabel} · Retours sous conditions 30 j · Paiement à la livraison`,
     badge: "Boutique en ligne · Maroc",
     button_label: "Découvrir la collection",
     button_href: "/boutique",

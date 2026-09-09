@@ -1,3 +1,4 @@
+import { minorUnits } from "./money.ts";
 export function calculateCheckoutTotal(input: {
   subtotal: number;
   shipping: number;
@@ -17,10 +18,7 @@ export function calculateCheckoutTotal(input: {
   }
   return Math.max(
     0,
-    input.subtotal +
-      input.shipping +
-      (input.paymentFee ?? 0) +
-      (input.taxes ?? 0) -
-      (input.discount ?? 0),
-  );
+    minorUnits(input.subtotal) + minorUnits(input.shipping) +
+      minorUnits(input.paymentFee ?? 0) + minorUnits(input.taxes ?? 0) - minorUnits(input.discount ?? 0),
+  ) / 100;
 }

@@ -1,3 +1,4 @@
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { memo, useCallback, useRef, useState } from "react";
 import { FlatList, StyleSheet, View, type ViewToken } from "react-native";
@@ -22,6 +23,7 @@ export const HeroCarousel = memo(function HeroCarousel({
   parentScrollY?: SharedValue<number>;
   banners: Banner[];
 }) {
+  useLocale();
   const { contentWidth } = useAppViewport();
   const cardWidth = contentWidth * 0.85;
   const interval = cardWidth + GAP;
@@ -98,7 +100,7 @@ export const HeroCarousel = memo(function HeroCarousel({
       />
       <View style={styles.controls}>
         <AnimatedPressable
-          accessibilityLabel="Previous banner"
+          accessibilityLabel={msg("heroCarousel.previousBanner")}
           disabled={activeIndex === 0}
           onPress={() => moveTo(activeIndex - 1)}
           style={[
@@ -112,7 +114,7 @@ export const HeroCarousel = memo(function HeroCarousel({
           {banners.map((banner, index) => (
             <AnimatedPressable
               key={banner.id}
-              accessibilityLabel={`Show banner ${index + 1}`}
+              accessibilityLabel={msg("banners.showNumber", { number: index + 1 })}
               onPress={() => moveTo(index)}
               haptic={false}
               style={[styles.dot, index === activeIndex && styles.activeDot]}
@@ -120,7 +122,7 @@ export const HeroCarousel = memo(function HeroCarousel({
           ))}
         </View>
         <AnimatedPressable
-          accessibilityLabel="Next banner"
+          accessibilityLabel={msg("heroCarousel.nextBanner")}
           disabled={activeIndex === banners.length - 1}
           onPress={() => moveTo(activeIndex + 1)}
           style={[

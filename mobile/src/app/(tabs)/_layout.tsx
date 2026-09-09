@@ -20,6 +20,7 @@ export default function TabsLayout() {
       >
         <Tabs.Screen name="index" options={{ title: t.home }} />
         <Tabs.Screen name="search" options={{ title: t.search }} />
+        <Tabs.Screen name="smart-assistant" options={{ title: "Assistant" }} />
         <Tabs.Screen name="wishlist" options={{ title: t.wishlist }} />
         <Tabs.Screen name="cart" options={{ title: t.cart }} />
         <Tabs.Screen name="account" options={{ title: t.account }} />

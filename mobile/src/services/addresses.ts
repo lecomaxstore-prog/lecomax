@@ -1,3 +1,4 @@
+import { msg } from "@/i18n";
 import { supabase } from "@/lib/supabase";
 import type { SavedAddress } from "@/stores/user";
 
@@ -49,7 +50,7 @@ function toWebsite(address: SavedAddress, isDefault: boolean): WebsiteAddress {
 
 export async function loadAccountAddresses() {
   const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) throw new Error("Votre session a expiré. Reconnectez-vous.");
+  if (error || !data.user) throw new Error(msg("apiClient.yourSessionHasExpiredSignInAgain"));
   const email = data.user.email ?? "";
   const values = Array.isArray(data.user.user_metadata?.addresses)
     ? data.user.user_metadata.addresses
@@ -68,5 +69,5 @@ export async function saveAccountAddresses(addresses: SavedAddress[], selectedAd
     toWebsite(address, address.id === selectedAddressId),
   );
   const { error } = await supabase.auth.updateUser({ data: { addresses: normalized } });
-  if (error) throw new Error("Impossible de synchroniser vos adresses.");
+  if (error) throw new Error(msg("addresses.unableToSyncYourAddresses"));
 }

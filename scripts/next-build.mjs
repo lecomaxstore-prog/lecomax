@@ -3,6 +3,9 @@ import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 const nextBin = require.resolve("next/dist/bin/next");
+// Load local configuration before deciding whether placeholders are necessary.
+const { loadEnvConfig } = require("@next/env");
+loadEnvConfig(process.cwd(), false);
 const env = { ...process.env };
 
 // Some API routes create their Supabase client when Next.js inspects the module.

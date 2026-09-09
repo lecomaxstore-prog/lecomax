@@ -1,7 +1,9 @@
+import { recordAdminActivity } from "@/lib/admin-activity";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
 import { cleanProductPayload } from "@/lib/product-api-validation";
+import { productWriteError, writeProductWithSchemaCompatibility } from "@/lib/product-schema-compatibility";
 import {
   cleanColorStock,
   colorStockTotal,
@@ -15,7 +17,7 @@ const supabase = createClient(
 );
 
 const PUBLIC_FIELDS =
-  "id,slug,name,brand,category,price,original_price,description,description_images,images,video,colors,sizes,featured,stock,color_stock,active,tags,created_at";
+  "id,slug,name,brand,category,price,original_price,description,description_images,images,video,colors,sizes,featured,stock,color_stock,preorder_enabled,preorder_estimated_at,preorder_message,active,tags,created_at";
 
 // GET /api/products
 export async function GET(req: NextRequest) {
@@ -59,6 +61,14 @@ export async function GET(req: NextRequest) {
     query = query.eq("category", category);
   }
   if (activeOnly) query = query.eq("active", true);
+  if (searchParams.has("cart_slugs")) {
+    let slugs: unknown;
+    try { slugs = JSON.parse(searchParams.get("cart_slugs")!); } catch { slugs = null; }
+    if (!Array.isArray(slugs) || slugs.length < 1 || slugs.length > 50 || slugs.some(slug => typeof slug !== "string" || !slug.trim() || slug.length > 160)) {
+      return NextResponse.json({ error: "Articles du panier invalides." }, { status: 400 });
+    }
+    query = query.in("slug", slugs);
+  }
   if (search) {
     const safeSearch = search
       .replace(/[%_,().]/g, " ")
@@ -73,7 +83,13 @@ export async function GET(req: NextRequest) {
   }
   if (limit) query = query.limit(limit);
 
-  const { data, error } = await query;
+  let { data, error } = await query;
+  // Stores that have not enabled preorders still use the original schema.
+  // Keep the public allowlist when retrying; never expose admin-only columns.
+  if (publicRequest && error && ["42703", "PGRST204"].includes(error.code) && /preorder_(enabled|estimated_at|message)/.test(error.message)) {
+    const legacyFields = PUBLIC_FIELDS.split(",").filter(field => !field.startsWith("preorder_")).join(",");
+    ({ data, error } = await query.select(legacyFields));
+  }
   if (error)
     return NextResponse.json(
       { error: "Impossible de charger les produits." },
@@ -111,22 +127,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await writeProductWithSchemaCompatibility(payload, values => supabase
     .from("products")
-    .insert(payload)
+    .insert(values)
     .select()
-    .single();
+    .single());
   if (error) {
-    const duplicate = error.code === "23505";
-    return NextResponse.json(
-      {
-        error: duplicate
-          ? "Un produit utilise déjà ce slug."
-          : "Impossible de créer le produit.",
-      },
-      { status: duplicate ? 409 : 500 },
-    );
+    console.error("Product create failed", { code: error.code, message: error.message });
+    const failure = productWriteError(error, "Impossible de créer le produit.");
+    return NextResponse.json({ error: failure.error }, { status: failure.status });
   }
+  await recordAdminActivity(req, "product", data.id, null, data);
   publishProductDiscovery({ current: data });
   return NextResponse.json(data, {
     status: 201,

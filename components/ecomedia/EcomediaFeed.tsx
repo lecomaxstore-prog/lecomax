@@ -1,4 +1,5 @@
 ﻿"use client";
+import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import type { EcomediaPost } from "@/lib/ecomedia";
 import PostCard from "./PostCard";
@@ -137,7 +138,7 @@ export default function EcomediaFeed({ initialPosts }: Props) {
                   ["M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8a5.5 5.5 0 000-7.8Z", "Soutenir les publications"],
                 ].map(([path, label]) => <div key={label} className="flex items-center gap-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-green-50 text-[#16b277]"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d={path}/></svg></span><span className="text-xs font-semibold text-neutral-700">{label}</span></div>)}
               </div>
-              <div className="mt-5 grid grid-cols-2 gap-2"><a href="/connexion?redirect=%2Fecomedia" className="rounded-xl border border-neutral-200 px-3 py-3 text-center text-[10px] font-black hover:border-black">Connexion</a><a href="/inscription?redirect=%2Fecomedia" className="rounded-xl bg-black px-3 py-3 text-center text-[10px] font-black text-white hover:bg-[#16b277]">Créer un compte</a></div>
+              <div className="mt-5 grid grid-cols-2 gap-2"><Link href="/connexion?redirect=%2Fecomedia" className="rounded-xl border border-neutral-200 px-3 py-3 text-center text-[10px] font-black hover:border-black">Connexion</Link><Link href="/inscription?redirect=%2Fecomedia" className="rounded-xl bg-black px-3 py-3 text-center text-[10px] font-black text-white hover:bg-[#16b277]">Créer un compte</Link></div>
             </div>
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white p-5"><div className="flex items-center gap-2"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16b277" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg><p className="text-xs font-black">Un espace respectueux</p></div><p className="mt-2 text-[10px] leading-5 text-neutral-400">Soyez bienveillant, restez pertinent et ne partagez aucune information personnelle sensible.</p></div>

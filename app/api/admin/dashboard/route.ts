@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { STORE_SETTING_DEFAULTS } from "@/lib/store-settings";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
   verifySessionToken,
@@ -9,7 +10,6 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const BUSINESS_TIME_ZONE = "Africa/Casablanca";
-const LOW_STOCK_THRESHOLD = 3;
 const PAGE_SIZE = 1_000;
 const ORDER_STATUSES = [
   "pending",
@@ -140,12 +140,15 @@ async function countProducts(
   supabase: SupabaseClient,
   lowStockOnly: boolean
 ) {
+  const { data: settings, error: settingsError } = lowStockOnly ? await supabase.from("settings").select("value").eq("key", "low_stock_threshold").maybeSingle() : { data: null, error: null };
+  if (settingsError) throw settingsError;
+  const threshold = Number(settings?.value ?? STORE_SETTING_DEFAULTS.low_stock_threshold);
   let query = supabase
     .from("products")
     .select("id", { count: "exact", head: true });
 
   if (lowStockOnly) {
-    query = query.eq("active", true).lte("stock", LOW_STOCK_THRESHOLD);
+    query = query.eq("active", true).lte("stock", threshold);
   }
 
   const { count, error } = await query;

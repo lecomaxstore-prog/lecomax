@@ -1,30 +1,21 @@
 "use client";
+import { STORE_SETTING_DEFAULTS, validateStoreSettings } from "@/lib/store-settings";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { publishSettings } from "@/lib/use-settings";
 import { PAYMENT_SETTING_DEFAULTS } from "@/lib/payment-methods";
 import { APP_INTRO_SETTING_DEFAULTS } from "@/lib/app-intro-settings";
+import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
+import { useAdminConfirmation } from '@/components/admin/ConfirmDialog';
 
 type SettingsMap = Record<string, string>;
 
 const DEFAULT_SETTINGS: SettingsMap = {
-  store_name: "L'ECOMAX",
-  store_email: "contact@lecomax.com",
-  store_phone: "",
-  store_address: "",
-  store_city: "Casablanca",
-  currency: "MAD",
-  whatsapp_number: "212699289568",
   instagram_url: "https://www.instagram.com/lecomaxcom",
   facebook_url: "https://www.facebook.com/lecomaxcom",
   tiktok_url: "https://www.tiktok.com/@lecomaxcom",
-  free_shipping_threshold: "500",
-  shipping_cost: "40",
-  shipping_estimated_days: "2-5 jours ouvrables",
-  checkout_minimum_order: "0",
   checkout_notice: "",
-  maintenance_mode: "false",
   app_minimum_version: "1.0.0",
   app_latest_version: "1.0.0",
   app_force_update: "false",
@@ -84,6 +75,7 @@ const DEFAULT_SETTINGS: SettingsMap = {
   hero_image_mobile: "/images/hero secrtion/hero section mobile version.png",
   email_banner_image: "/images/email image/email image.png",
   og_image: "/ecomax-hero-banner.jpg.png?v=2",
+  ...STORE_SETTING_DEFAULTS,
 };
 
 const IMAGE_FIELDS = [
@@ -127,11 +119,14 @@ const IMAGE_FIELDS = [
 ];
 
 export default function SettingsPage() {
+  const { confirm: confirmAction, dialog: confirmationDialog } = useAdminConfirmation();
   const [settings, setSettings] = useState<SettingsMap>({
     ...DEFAULT_SETTINGS,
   });
   const savedSettingsRef = useRef<SettingsMap>({ ...DEFAULT_SETTINGS });
   const [loading, setLoading] = useState(true);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  useUnsavedChanges(!loading && JSON.stringify(settings) !== JSON.stringify(savedSettingsRef.current));
   const [saving, setSaving] = useState(false);
   const [maintenanceSaving, setMaintenanceSaving] = useState(false);
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(
@@ -144,7 +139,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     fetch("/api/settings")
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error("Impossible de charger les paramètres."); return r.json(); })
       .then((data) => {
         if (Array.isArray(data)) {
           const map: SettingsMap = { ...DEFAULT_SETTINGS };
@@ -153,13 +148,18 @@ export default function SettingsPage() {
           });
           setSettings(map);
           savedSettingsRef.current = map;
+          setSettingsLoaded(true);
         }
         setLoading(false);
-      });
+      }).catch(() => { setLoading(false); setMsg({ type: "err", text: "Impossible de charger les paramètres. Rechargez la page avant de modifier la boutique." }); });
   }, []);
 
   async function handleSave(e?: React.FormEvent) {
     e?.preventDefault();
+    if (!settingsLoaded) { setMsg({ type: "err", text: "Rechargez les paramètres avant de les modifier." }); return; }
+    if (saving) return;
+    const invalid = validateStoreSettings(settings);
+    if (invalid) { setMsg({ type: "err", text: invalid }); return; }
     setSaving(true);
     setMsg(null);
     const threshold = settings.free_shipping_threshold || "0";
@@ -175,7 +175,7 @@ export default function SettingsPage() {
       const res = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settingsToSave),
+        body: JSON.stringify(Object.fromEntries(Object.entries(settingsToSave).filter(([key, value]) => value !== savedSettingsRef.current[key]))),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Erreur inconnue");
@@ -198,7 +198,10 @@ export default function SettingsPage() {
   }
 
   async function handleImageUpload(key: string, file: File) {
+    if (!settingsLoaded) return;
+    if (uploadingKey) return;
     setUploadingKey(key);
+    try {
     const fd = new FormData();
     fd.append("file", file);
     const res = await fetch("/api/upload", { method: "POST", body: fd });
@@ -206,36 +209,43 @@ export default function SettingsPage() {
     setUploadingKey(null);
     if (data.url) {
       const updated = { ...settings, [key]: data.url };
-      setSettings(updated);
       // Auto-save the new image URL
-      await fetch("/api/settings", {
+      const saved = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updated),
+        body: JSON.stringify({ [key]: data.url }),
       });
-      publishSettings(updated);
-      savedSettingsRef.current = { ...updated };
+      if (!saved.ok) throw new Error("L’image a été envoyée, mais son enregistrement a échoué.");
+      setSettings(current => ({ ...current, [key]: data.url }));
+      savedSettingsRef.current = { ...savedSettingsRef.current, [key]: data.url };
+      publishSettings(savedSettingsRef.current);
       setMsg({ type: "ok", text: "Image mise à jour ✓" });
       setTimeout(() => setMsg(null), 3000);
     } else {
       setMsg({ type: "err", text: data.error ?? "Échec de l'upload" });
     }
+    } catch (error) {
+      setMsg({ type: "err", text: error instanceof Error ? error.message : "Erreur réseau" });
+    } finally { setUploadingKey(null); }
   }
 
   async function toggleMaintenance() {
+    if (!settingsLoaded) return;
+    if (maintenanceSaving) return;
     const newValue = settings.maintenance_mode === "true" ? "false" : "true";
+    if (newValue === 'true' && !await confirmAction('Activer la maintenance ? Les visiteurs ne pourront plus accéder à la boutique.')) return;
     setSettings((s) => ({ ...s, maintenance_mode: newValue }));
     setMaintenanceSaving(true);
     try {
       const res = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...settings, maintenance_mode: newValue }),
+        body: JSON.stringify({ maintenance_mode: newValue }),
       });
       if (res.ok) {
         const updated = { ...settings, maintenance_mode: newValue };
-        publishSettings(updated);
-        savedSettingsRef.current = updated;
+        savedSettingsRef.current = { ...savedSettingsRef.current, maintenance_mode: newValue };
+        publishSettings(savedSettingsRef.current);
         setMsg({
           type: "ok",
           text:
@@ -396,6 +406,7 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl pb-24 lg:pb-12">
+      {confirmationDialog}
       {/* Page header */}
       <div className="relative mb-6 overflow-hidden rounded-3xl border border-neutral-200 bg-white px-5 py-6 shadow-[0_1px_2px_rgba(0,0,0,.03)] sm:px-7 lg:px-8">
         <div className="pointer-events-none absolute -right-16 -top-24 h-52 w-52 rounded-full bg-[#3ecf4c]/10 blur-3xl" />
@@ -743,6 +754,26 @@ export default function SettingsPage() {
 
           {/* â”€â”€ SHIPPING â”€â”€ */}
           {activeTab === "shipping" && (
+            <Section title="Contrôle central de la boutique" icon={<span>⚙</span>}>
+              <p className="mb-4 text-sm text-neutral-500">Appliqué au site, à l’application et aux nouvelles commandes. Les commandes existantes conservent leurs montants.</p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {([
+                  ["checkout_maximum_order", "Commande maximum (MAD, 0 = sans limite)"],
+                  ["low_stock_threshold", "Seuil de stock faible (unités)"],
+                  ["tax_rate", "Taux de taxe (%)"],
+                ] as const).map(([key,label]) => <label key={key} className="text-sm font-semibold">{label}<input type="number" min="0" step={key === "low_stock_threshold" ? "1" : "0.01"} value={settings[key]} onChange={event => setSettings(current => ({ ...current, [key]: event.target.value }))} className="mt-2 block w-full rounded-xl border border-neutral-200 px-3 py-2" inputMode="decimal" /></label>)}
+                {([
+                  ["free_shipping_enabled", "Activer la livraison gratuite"],
+                  ["preorder_enabled", "Autoriser les précommandes configurées sur les produits"],
+                  ["tax_enabled", "Activer le calcul des taxes"],
+                  ["tax_included", "Les prix incluent déjà les taxes"],
+                ] as const).map(([key,label]) => <label key={key} className="flex items-center gap-3 text-sm"><input type="checkbox" checked={settings[key] === "true"} onChange={event => setSettings(current => ({ ...current, [key]: String(event.target.checked) }))} />{label}</label>)}
+              </div>
+              <button type="button" disabled={saving} onClick={() => handleSave()} className="mt-5 rounded-xl bg-black px-5 py-3 text-sm font-bold text-white disabled:opacity-50">{saving ? "Enregistrement…" : "Enregistrer les règles"}</button>
+            </Section>
+          )}
+
+          {activeTab === "shipping" && (
             <form onSubmit={handleSave} className="space-y-4">
               <Section
                 title="Règles de livraison"
@@ -778,7 +809,7 @@ export default function SettingsPage() {
                             shipping_cost: e.target.value,
                           }))
                         }
-                        className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black pr-14"
+                        className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black pr-14" inputMode="decimal"
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-bold">
                         MAD
@@ -800,7 +831,7 @@ export default function SettingsPage() {
                             free_shipping_threshold: e.target.value,
                           }))
                         }
-                        className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black pr-14"
+                        className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black pr-14" inputMode="decimal"
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-bold">
                         MAD
@@ -841,7 +872,7 @@ export default function SettingsPage() {
                           checkout_minimum_order: e.target.value,
                         }))
                       }
-                      className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm outline-none transition focus:border-black focus:bg-white"
+                      className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm outline-none transition focus:border-black focus:bg-white" inputMode="decimal"
                     />
                   </div>
                   <div>
@@ -1563,7 +1594,7 @@ export default function SettingsPage() {
       </div>
 
       {activeTab !== "security" && isDirty && (
-        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-neutral-200 bg-white/95 p-3 shadow-[0_-12px_30px_rgba(0,0,0,.08)] backdrop-blur-xl lg:hidden">
+        <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 border-t border-neutral-200 bg-white/95 p-3 shadow-[0_-12px_30px_rgba(0,0,0,.08)] backdrop-blur-xl lg:hidden">
           <div className="mx-auto flex max-w-7xl items-center gap-3">
             <div className="min-w-0 flex-1 pl-1">
               <p className="truncate text-xs font-black">
@@ -2146,7 +2177,7 @@ function ImageUploadField({
                   <polyline points="17 8 12 3 7 8" />
                   <line x1="12" y1="3" x2="12" y2="15" />
                 </svg>
-                Remplacer l'image
+                Remplacer l&apos;image
               </span>
             </div>
           </>
@@ -2191,7 +2222,7 @@ function ImageUploadField({
           value={value}
           onChange={(e) => onUrlChange(e.target.value)}
           placeholder="https://..."
-          className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-black transition-colors text-neutral-700"
+          className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-black transition-colors text-neutral-700" inputMode="url"
         />
         {value && (
           <p className="text-[10px] text-neutral-400 mt-1 truncate">{value}</p>
@@ -2488,7 +2519,7 @@ function AppIntroSettingsPanel({
                         updateSlide(index, "image", event.target.value)
                       }
                       placeholder="https://… (facultatif, visuel local de secours inclus)"
-                      className="rounded-xl border border-neutral-200 px-3 py-2.5 text-xs focus:border-black focus:outline-none"
+                      className="rounded-xl border border-neutral-200 px-3 py-2.5 text-xs focus:border-black focus:outline-none" inputMode="url"
                     />
                   </div>
                 </div>

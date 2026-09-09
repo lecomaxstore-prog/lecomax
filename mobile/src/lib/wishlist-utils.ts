@@ -1,3 +1,4 @@
+import { selectedInventory } from "./purchasability.ts";
 import type { Product } from "../types/commerce";
 
 export type WishlistSort =
@@ -22,6 +23,7 @@ export function filterWishlistProducts(
 }
 
 export function availableColors(product: Product) {
+  if (product.preorder_enabled) return product.colors ?? [];
   const unavailable = new Set(product.out_of_stock_colors ?? []);
   return (product.colors ?? []).filter(
     (color) =>
@@ -32,6 +34,7 @@ export function availableColors(product: Product) {
 }
 
 export function availableSizes(product: Product, color?: string) {
+  if (product.preorder_enabled) return (product.sizes ?? []).filter(size => selectedInventory(product,color,size)>=0);
   const unavailable = new Set(product.out_of_stock_sizes ?? []);
   const sizes =
     (color && product.color_sizes?.[color]?.length
@@ -66,7 +69,7 @@ export function isWishlistVariantAvailable(
   product: Product,
   selection?: WishlistVariant,
 ) {
-  if (product.stock <= 0 || product.active === false) return false;
+  if ((!product.preorder_enabled && product.stock <= 0) || product.active === false) return false;
   const colors = availableColors(product);
   if (
     colors.length > 0 &&

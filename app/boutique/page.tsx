@@ -330,7 +330,7 @@ function BoutiqueContent() {
           <div>
             <p className="text-[11px] uppercase tracking-[0.25em] text-white/40 mb-2 font-bold">Besoin d&apos;aide ?</p>
             <h3 className="font-black text-2xl uppercase">On est là pour vous</h3>
-            <p className="text-white/50 text-sm mt-1">Notre équipe répond 7j/7 sur WhatsApp.</p>
+            <p className="text-white/50 text-sm mt-1">Contactez notre service client.</p>
           </div>
           <a
             href="https://wa.me/212699289568"

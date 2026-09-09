@@ -1,3 +1,4 @@
+import { msg } from "@/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { AppState } from "react-native";
@@ -32,7 +33,7 @@ export function useSupportAccount() {
     void withSessionTimeout(supabase.auth.getSession()).then(({ data: sessionData, error }) => {
       if (error) throw error;
       if (active && !changed) setAccount({ ready: true, id: sessionData.session?.user.id ?? null });
-    }).catch(() => { if (active && !changed) setAccount({ ready: true, id: null, error: "Impossible de vérifier votre session. Réessayez." }); });
+    }).catch(() => { if (active && !changed) setAccount({ ready: true, id: null, error: msg("useSupportAccount.unableToVerifyYourSessionTryAgain") }); });
     return () => { active = false; data.subscription.unsubscribe(); };
   }, [attempt]);
   return { ...account, retry };

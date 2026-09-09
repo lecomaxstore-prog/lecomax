@@ -55,15 +55,16 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+    let active = true;
     // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session);
-    });
+      if (active) setIsLoggedIn(!!session);
+    }).catch(() => { /* Keep navigation usable while the connection recovers. */ });
     // Keep in sync
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsLoggedIn(!!session);
     });
-    return () => subscription.unsubscribe();
+    return () => { active = false; subscription.unsubscribe(); };
   }, []);
 
   return (
@@ -100,9 +101,9 @@ export default function Header() {
       </div>
 
       {/* ── Main bar ────────────────────────────────────────────── */}
-      <div className="flex h-[60px] items-center justify-between px-4 lg:px-6">
+      <div className="storefront-header-bar flex h-[60px] items-center justify-between px-4 lg:px-6">
         {/* Left: hamburger + logo */}
-        <div className="flex items-center gap-3">
+        <div className="storefront-header-brand flex min-w-0 items-center gap-3">
           <button
             type="button"
             aria-label="Menu"
@@ -119,7 +120,7 @@ export default function Header() {
           </button>
 
           <Link href="/" aria-label="L'ecomax — Accueil" className="flex items-center gap-3">
-            <Logo showWordmark />
+            <Logo showWordmark className="storefront-header-logo" />
           </Link>
         </div>
 

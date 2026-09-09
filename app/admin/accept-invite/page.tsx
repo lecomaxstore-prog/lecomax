@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -114,10 +115,10 @@ function AcceptInvitePage() {
         <div className="bg-white rounded-3xl shadow-xl p-8 max-w-sm w-full text-center">
           <div className="text-5xl mb-4">⛔</div>
           <h1 className="text-lg font-black mb-2">Lien invalide ou expiré</h1>
-          <p className="text-sm text-neutral-400 mb-6">Ce lien d'invitation n'est plus valable. Demandez une nouvelle invitation.</p>
-          <a href="/admin" className="inline-block bg-black text-white px-6 py-3 rounded-2xl text-sm font-bold hover:bg-neutral-800 transition-colors">
+          <p className="text-sm text-neutral-400 mb-6">Ce lien d&apos;invitation n&apos;est plus valable. Demandez une nouvelle invitation.</p>
+          <Link href="/admin" className="inline-block bg-black text-white px-6 py-3 rounded-2xl text-sm font-bold hover:bg-neutral-800 transition-colors">
             Retour à la connexion
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -140,7 +141,7 @@ function AcceptInvitePage() {
       <div className="bg-white rounded-3xl shadow-xl w-full max-w-md p-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <img src="/favicon.png" alt="L'ecomax" className="w-10 h-10 rounded-xl" />
+          <img src="/favicon.png" alt="L'ecomax" className="w-10 h-10 rounded-xl" loading="lazy" decoding="async" />
           <div>
             <p className="text-xs text-neutral-400 font-medium">Panneau Admin</p>
             <p className="font-black text-lg leading-tight">L&apos;ECOMAX</p>

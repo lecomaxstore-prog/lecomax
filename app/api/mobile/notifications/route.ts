@@ -11,6 +11,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 function cors(req: NextRequest, response: NextResponse) {
   const origin = req.headers.get("origin");
   const allowed = origin === "https://lecomax.com"
+    || origin === "https://app.lecomax.com"
     || Boolean(origin && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin));
   if (origin && allowed) {
     response.headers.set("Access-Control-Allow-Origin", origin);
@@ -44,9 +45,10 @@ export async function GET(req: NextRequest) {
       segmentUsers.set(audience, await resolveMobileAudienceUserIds(audience as MobileAudience));
     }));
   }
-  const { data: preferenceRow } = user
+  const { data: preferenceRow, error: preferenceError } = user
     ? await supabase.from("mobile_notification_preferences").select("*").eq("user_id", user.id).maybeSingle()
-    : { data: null };
+    : { data: null, error: null };
+  if (preferenceError) return cors(req, NextResponse.json({ error: "Préférences indisponibles." }, { status: 503 }));
   const visible = (data ?? []).filter((item) => {
     if (item.expires_at && new Date(item.expires_at).getTime() <= now) return false;
     if (!preferenceAllowsCategory(item.category as MobileNotificationCategory, preferenceRow)) return false;
@@ -57,8 +59,9 @@ export async function GET(req: NextRequest) {
   }).slice(0, 50);
   let readIds = new Set<string>();
   if (user && visible.length) {
-    const { data: reads } = await supabase.from("mobile_notification_reads")
+    const { data: reads, error: readsError } = await supabase.from("mobile_notification_reads")
       .select("notification_id").eq("user_id", user.id).in("notification_id", visible.map((item) => item.id));
+    if (readsError) return cors(req, NextResponse.json({ error: "Notifications indisponibles." }, { status: 503 }));
     readIds = new Set((reads ?? []).map((item) => item.notification_id));
   }
   return cors(req, NextResponse.json({

@@ -1,4 +1,5 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -364,7 +365,7 @@ export default function PushPage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold">Notification persistante</p>
-                  <p className="text-xs text-neutral-400">Reste affichée jusqu'à ce que l'utilisateur la ferme manuellement</p>
+                  <p className="text-xs text-neutral-400">Reste affichée jusqu&apos;à ce que l&apos;utilisateur la ferme manuellement</p>
                 </div>
               </label>
             </div>
@@ -410,7 +411,7 @@ export default function PushPage() {
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5">
                 <div className="flex items-start gap-2.5">
                   <div className="w-8 h-8 rounded-xl overflow-hidden flex-shrink-0 bg-neutral-700">
-                    <img src={form.icon || "/favicon.png"} alt="" className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = "/favicon.png"; }} />
+                    <img src={form.icon || "/favicon.png"} alt="" className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = "/favicon.png"; }} loading="lazy" decoding="async" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
@@ -427,7 +428,7 @@ export default function PushPage() {
                 </div>
                 {form.image && (
                   <img src={form.image} alt="" className="w-full h-24 object-cover rounded-xl mt-2.5"
-                    onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} loading="lazy" decoding="async" />
                 )}
               </div>
             </div>
@@ -437,9 +438,7 @@ export default function PushPage() {
           <div className="bg-white rounded-2xl border border-neutral-100 p-5">
             <h2 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">Historique</h2>
             {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-              </div>
+              <AdminLoading />
             ) : log.length === 0 ? (
               <p className="text-sm text-neutral-400 text-center py-6">Aucune notification envoyée</p>
             ) : (

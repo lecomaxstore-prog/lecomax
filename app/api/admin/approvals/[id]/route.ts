@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation } from "@/lib/api-security";
+import { getAdminAccess } from "@/lib/admin-access";
+import { validApprovalTarget } from "@/lib/approval-target";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,6 +17,8 @@ export async function PATCH(
 ) {
   const blocked = await protectAdminMutation(req, { key: "admin:approvals:review", limit: 30 });
   if (blocked) return blocked;
+  const access = await getAdminAccess(req);
+  if (!access?.owner) return NextResponse.json({error:"Forbidden"},{status:403});
 
   const { id } = await params;
   const body = await req.json().catch(() => null);
@@ -54,6 +58,7 @@ export async function PATCH(
 
   // ── Auto-apply on approve ──────────────────────────────────────────────────
   if (body.decision === "approve" && change.api_endpoint && change.api_method && change.payload) {
+    if (!validApprovalTarget(change.entity_type, change.action, change.api_endpoint, change.api_method)) return NextResponse.json({error:"Cible de modification invalide"},{status:400});
     try {
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
       // Inject created_by for product creations so staff can see their approved products
@@ -63,6 +68,7 @@ export async function PATCH(
           : change.payload;
       const applyRes = await fetch(`${baseUrl}${change.api_endpoint}`, {
         method: change.api_method,
+        redirect: "error",
         headers: {
           "Content-Type": "application/json",
           // The owner has already authenticated this approval request. Forward
@@ -93,7 +99,7 @@ export async function PATCH(
     .update({
       status:           body.decision === "approve" ? "approved" : "rejected",
       rejection_reason: body.decision === "reject" ? body.rejection_reason : null,
-      reviewed_by:      body.reviewer_email,
+      reviewed_by:      access.email,
       reviewed_at:      new Date().toISOString(),
     })
     .eq("id", id)

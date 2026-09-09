@@ -142,10 +142,10 @@ function readHash() {
     return { moduleId: firstModule.id, lessonId: firstModule.lessonIds[0] };
   }
   const [moduleId, lessonId] = window.location.hash.slice("#academy/".length).split("/");
-  const module = manifest.modules.find(item => item.id === moduleId) ?? firstModule;
+  const courseModule = manifest.modules.find(item => item.id === moduleId) ?? firstModule;
   return {
-    moduleId: module.id,
-    lessonId: module.lessonIds.includes(lessonId) ? lessonId : module.lessonIds[0],
+    moduleId: courseModule.id,
+    lessonId: courseModule.lessonIds.includes(lessonId) ? lessonId : courseModule.lessonIds[0],
   };
 }
 

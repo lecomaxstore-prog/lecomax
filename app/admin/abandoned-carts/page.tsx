@@ -1,4 +1,5 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useState, useCallback } from "react";
 
 type CartItem = { name: string; quantity: number; price: number; size?: string };
@@ -168,9 +169,7 @@ export default function AbandonedCartsPage() {
 
       {/* List */}
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="w-7 h-7 border-2 border-black border-t-transparent rounded-full animate-spin" />
-        </div>
+        <AdminLoading />
       ) : apiError ? null : filtered.length === 0 ? (
         <div className="text-center py-16 text-neutral-400 text-sm bg-white rounded-2xl border border-neutral-100">
           {carts.length === 0

@@ -21,13 +21,6 @@ const COLOR_MAP: Record<string, string> = {
 };
 const getColor = (name: string) => COLOR_MAP[name.split("/")[0].trim()] ?? "#e5e7eb";
 
-export function ratingFor(slug: string) {
-  let h = 0;
-  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
-  const rating = 4.3 + (h % 7) / 10;
-  const count = 2 + (h % 5);
-  return { rating: Math.round(rating * 10) / 10, count };
-}
 
 export default function ProductCard({ product }: { product: CardProduct }) {
   const [mounted, setMounted] = useState(false);
@@ -37,27 +30,25 @@ export default function ProductCard({ product }: { product: CardProduct }) {
   const rating = product.rating ?? 0;
   const count = product.reviewCount ?? 0;
   const displayImage = product.image || "/images/no-image.svg";
-  const outOfStock = product.stock !== undefined && product.stock <= 0;
+  const outOfStock = product.stock !== undefined && product.stock <= 0 && !product.preorder_enabled;
 
   useEffect(() => setMounted(true), []);
   const onSale = product.oldPrice && product.oldPrice > product.price;
   const discount = onSale ? Math.round((1 - product.price / product.oldPrice!) * 100) : 0;
 
   return (
-    <Link
-      href={`/produit/${product.slug}`}
-      className="group flex flex-col bg-white rounded-xl border border-neutral-100 hover:border-neutral-200 hover:shadow-[0_12px_40px_rgba(0,0,0,0.10)] transition-all duration-300 overflow-hidden h-full"
+    <article
+      className="group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm transition-[box-shadow,border-color] duration-300 hover:border-neutral-300 hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2 motion-reduce:transition-none"
     >
       {/* Image */}
-      <div className="relative aspect-[4/5] bg-neutral-50 overflow-hidden">
+      <div className="relative aspect-[4/5] overflow-hidden border-b border-[#f0f1ec] bg-white">
         <Image
           src={displayImage}
           alt={product.name}
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-          className={`object-cover transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${outOfStock ? "opacity-60 grayscale-[25%]" : "group-hover:scale-[1.06]"}`}
+          className={`object-contain px-2.5 pb-3 pt-9 transition-transform duration-500 motion-reduce:transition-none sm:px-4 sm:pb-4 sm:pt-10 ${outOfStock ? "opacity-60 grayscale-[25%]" : "group-hover:scale-[1.03] motion-reduce:transform-none"}`}
         />
-        <div className="shimmer-on-hover" />
 
         {/* Top-left badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
@@ -90,38 +81,27 @@ export default function ProductCard({ product }: { product: CardProduct }) {
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); void toggleWishlist(product.slug); }}
           aria-label={wished ? "Retirer des favoris" : "Ajouter aux favoris"}
           aria-pressed={wished}
-          className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-all duration-200 disabled:cursor-wait disabled:opacity-60
-            ${wished
-              ? "bg-black text-white opacity-100 scale-100"
-              : "bg-white/95 text-neutral-500 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 scale-100 sm:scale-90 sm:group-hover:scale-100 hover:text-black"
-            }`}
+          className="absolute right-1.5 top-1.5 z-20 flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:cursor-wait disabled:opacity-60"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill={wished ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+          <span className={`flex h-9 w-9 items-center justify-center rounded-full border transition-colors duration-200 ${wished ? "border-[#183c30] bg-[#183c30] text-white" : "border-[#e8ece5] bg-[#f7f8f4]/95 text-[#536457] hover:border-[#bac8ba] hover:bg-[#edf1e8] hover:text-[#183c30]"}`}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill={wished ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
+          </span>
         </button>
 
-        {/* Refined CTA on hover */}
-        <div className="absolute inset-x-0 bottom-0 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 px-3 pb-3 pt-12 bg-gradient-to-t from-black/55 via-black/15 to-transparent">
-          <div className={`flex min-h-11 w-full items-center justify-between rounded-xl border px-3.5 pl-4 shadow-[0_8px_24px_rgba(0,0,0,.16)] backdrop-blur-md ${outOfStock ? "border-white/10 bg-neutral-950/95 text-white" : "border-white/70 bg-white/95 text-neutral-950"}`}>
-            <span className="text-[10px] font-extrabold tracking-[0.08em]">
-              {outOfStock ? "Produit épuisé" : "Voir le produit"}
-            </span>
-            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${outOfStock ? "bg-white/10 text-white" : "bg-neutral-950 text-white group-hover:bg-emerald-500 group-hover:text-neutral-950"}`}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* Info */}
-      <div className="px-4 pt-3.5 pb-4 flex flex-col flex-1">
+      <div className="flex flex-1 flex-col p-3 sm:p-4">
         {/* Colors */}
         {product.colors.length > 0 && (
           <div className="mb-2.5 flex min-h-5 items-center gap-2">
             {product.colors.slice(0, 5).map((c, i) => (
               <span
                 key={i}
+                aria-label={c}
+                title={c}
                 className="group/swatch relative h-4 w-4 shrink-0 cursor-default rounded-full border-2 border-white shadow-[0_1px_3px_rgba(0,0,0,.14)] ring-1 ring-neutral-300 transition-transform duration-150 hover:z-10 hover:scale-110 hover:ring-neutral-500"
                 style={{ backgroundColor: getColor(c) }}
               >
@@ -140,7 +120,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
         )}
 
         {/* Title */}
-        <h3 className="min-h-[37px] line-clamp-2 text-[13px] font-semibold leading-[1.4] tracking-[-0.01em] text-neutral-800 transition-colors duration-200 group-hover:text-neutral-600">
+        <h3 title={product.name} className="min-h-[3.9em] line-clamp-3 text-[13px] font-semibold leading-[1.3] tracking-[-0.01em] text-neutral-800 sm:text-sm">
           {product.name}
         </h3>
 
@@ -173,9 +153,9 @@ export default function ProductCard({ product }: { product: CardProduct }) {
         )}
 
         {/* Price */}
-        <div className="mt-2.5 flex items-center justify-between border-t border-neutral-100 pt-3">
-          <div className="flex items-baseline gap-2">
-            <span className={`text-[15px] font-extrabold leading-none tracking-[-0.02em] ${onSale ? "text-red-600" : "text-neutral-950"}`}>
+        <div className="mt-auto pt-3">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1.5">
+            <span className={`text-lg font-extrabold leading-none tracking-[-0.03em] sm:text-xl ${onSale ? "text-red-600" : "text-neutral-950"}`}>
               {formatMAD(product.price)}
             </span>
             {onSale && (
@@ -184,13 +164,18 @@ export default function ProductCard({ product }: { product: CardProduct }) {
               </span>
             )}
           </div>
-          {onSale && discount >= 5 && (
-            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full leading-none">
-              -{discount}%
-            </span>
-          )}
         </div>
+        <Link
+          href={`/produit/${product.slug}`}
+          aria-label={`Voir le produit : ${product.name}`}
+          className={`mt-4 flex min-h-11 items-center justify-between gap-2 rounded-xl px-3 text-[11px] font-semibold transition-colors after:absolute after:inset-0 after:z-10 after:content-[''] focus-visible:outline-none sm:text-xs ${outOfStock ? "bg-neutral-100 text-neutral-600" : "bg-emerald-50 text-emerald-900 group-hover:bg-emerald-100"}`}
+        >
+          <span>{outOfStock ? "Voir les détails" : "Voir le produit"}</span>
+          <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${outOfStock ? "bg-neutral-200 text-neutral-600" : "bg-emerald-600 text-white"}`}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </Link>
       </div>
-    </Link>
+    </article>
   );
 }

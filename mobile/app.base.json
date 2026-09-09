@@ -21,7 +21,9 @@
       "bundleIdentifier": "com.lecomax.app",
       "supportsTablet": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleAllowMixedLocalizations": true,
+        "CFBundleDevelopmentRegion": "fr"
       },
       "associatedDomains": [
         "applinks:lecomax.com"
@@ -72,7 +74,7 @@
         }
       ],
       "expo-secure-store",
-      "expo-localization",
+      ["expo-localization", { "supportedLocales": ["fr", "en"], "supportsRTL": false }],
       [
         "expo-image-picker",
         {
@@ -98,6 +100,10 @@
         }
       ]
     ],
+    "locales": {
+      "fr": "./src/i18n/native/fr.json",
+      "en": "./src/i18n/native/en.json"
+    },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

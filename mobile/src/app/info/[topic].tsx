@@ -1,3 +1,7 @@
+import { storeSettings } from "../../../../lib/store-settings";
+import { money } from "@/lib/format";
+import { localizedContent } from "@/i18n/content";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
@@ -27,6 +31,7 @@ function InformationRow({
   title: string;
   detail: string;
 }) {
+  useLocale();
   return (
     <View className="flex-row border-b border-neutral-100 py-5 last:border-b-0 dark:border-neutral-800">
       <View className="h-10 w-10 items-center justify-center rounded-full bg-emerald-50">
@@ -57,6 +62,7 @@ function TimelineRow({
   timing: string;
   last?: boolean;
 }) {
+  useLocale();
   return (
     <View style={{ minHeight: last ? 70 : 91, flexDirection: "row" }}>
       <View style={{ width: 38, alignItems: "center" }}>
@@ -142,19 +148,20 @@ function TimelineRow({
 }
 
 export default function ProductInformationScreen() {
+  useLocale();
   const { topic = "delivery-dates", slug = "" } = useLocalSearchParams<{
     topic: Topic;
     slug: string;
   }>();
   const { data: product } = useProduct(slug);
   const { data: settings = [] } = useSettings();
-  const values = Object.fromEntries(
+  const values = storeSettings(Object.fromEntries(
     settings.map((setting) => [setting.key, setting.value]),
-  );
+  ));
   const estimatedDays =
-    values.shipping_estimated_days?.trim() || "2–5 jours ouvrables";
-  const shippingCost = values.shipping_cost?.trim() || "40";
-  const freeThreshold = values.free_shipping_threshold?.trim() || "500";
+    localizedContent(values.shipping_estimated_days?.trim()) || msg("orderConfirmation.25BusinessDays");
+  const shippingCost = values.shipping_cost;
+  const freeThreshold = values.free_shipping_threshold;
 
   const colorSizes = product?.color_sizes;
   const colorAvailable = (color: string) => {
@@ -167,29 +174,29 @@ export default function ProductInformationScreen() {
     product?.colors?.filter(colorAvailable).length ?? 0;
   const configuration = {
     "delivery-dates": {
-      eyebrow: "Livraison",
-      title: "Quand recevrez-vous votre commande ?",
-      summary: `Livraison estimée sous ${estimatedDays}`,
+      eyebrow: msg("support.delivery"),
+      title: msg("topic.whenWillYouReceiveYourOrder"),
+      summary: msg("delivery.estimatedWithin", { estimate: estimatedDays }),
       icon: "calendar-outline" as const,
     },
     "delivery-coverage": {
-      eyebrow: "Couverture",
-      title: "Livraison partout au Maroc",
-      summary: "Votre commande est suivie jusqu’à sa réception.",
+      eyebrow: msg("topic.coverage"),
+      title: msg("topic.deliveryThroughoutMorocco"),
+      summary: msg("topic.yourOrderIsTrackedUntilItArrives"),
       icon: "location-outline" as const,
     },
     stock: {
-      eyebrow: "Disponibilité",
-      title: product?.name || "Stock du produit",
+      eyebrow: msg("topic.availability"),
+      title: product?.name || msg("topic.productStock"),
       summary: product?.stock
-        ? `${product.stock} unité${product.stock === 1 ? "" : "s"} disponible${product.stock === 1 ? "" : "s"}`
-        : "Produit actuellement épuisé",
+        ? msg("stock.availableUnits", { count: product.stock })
+        : msg("topic.productCurrentlySoldOut"),
       icon: "cube-outline" as const,
     },
   }[topic] ?? {
-    eyebrow: "Informations",
-    title: "Informations produit",
-    summary: "Tout ce qu’il faut savoir avant votre achat.",
+    eyebrow: msg("topic.information"),
+    title: msg("topic.productInformation"),
+    summary: msg("topic.everythingYouNeedToKnowBeforeBuying"),
     icon: "information-circle-outline" as const,
   };
 
@@ -197,7 +204,7 @@ export default function ProductInformationScreen() {
     <SafeAreaView className="flex-1 bg-[#F5F6F5] dark:bg-ink" edges={["top"]}>
       <View className="flex-row items-center border-b border-neutral-200 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950">
         <AnimatedPressable
-          accessibilityLabel="Retour"
+          accessibilityLabel={msg("addresses.back")}
           onPress={() => router.back()}
           style={{
             width: 42,
@@ -219,10 +226,10 @@ export default function ProductInformationScreen() {
             className="mt-1 text-[16px] font-black text-ink dark:text-white"
           >
             {topic === "delivery-dates"
-              ? "Livraison & suivi"
+              ? msg("topic.deliveryTracking")
               : topic === "delivery-coverage"
-                ? "Zones de livraison"
-                : "Stock & options"}
+                ? msg("topic.deliveryAreas")
+                : msg("topic.stockOptions")}
           </Text>
         </View>
         <View
@@ -276,8 +283,7 @@ export default function ProductInformationScreen() {
                     letterSpacing: 1.35,
                   }}
                 >
-                  DÉLAI ESTIMÉ
-                </Text>
+                  {msg("topic.estimatedTimeUppercase")}</Text>
                 <Text
                   style={{
                     marginTop: 3,
@@ -286,8 +292,7 @@ export default function ProductInformationScreen() {
                     fontSize: 10,
                   }}
                 >
-                  Après confirmation de la commande
-                </Text>
+                  {msg("topic.afterOrderConfirmation")}</Text>
               </View>
             </View>
             <Text
@@ -310,9 +315,7 @@ export default function ProductInformationScreen() {
                 lineHeight: 18,
               }}
             >
-              Une estimation claire, du traitement de votre commande jusqu’à sa
-              réception.
-            </Text>
+              {msg("topic.aClearEstimateFromProcessingYourOrderToDelivery")}</Text>
           </View>
         ) : topic === "delivery-coverage" ? (
           <View
@@ -347,8 +350,7 @@ export default function ProductInformationScreen() {
                     letterSpacing: 1.35,
                   }}
                 >
-                  ZONE DESSERVIE
-                </Text>
+                  {msg("topic.deliveryAreaUppercase")}</Text>
                 <Text
                   style={{
                     marginTop: 3,
@@ -357,8 +359,7 @@ export default function ProductInformationScreen() {
                     fontSize: 10,
                   }}
                 >
-                  Livraison nationale avec suivi
-                </Text>
+                  {msg("topic.nationwideTrackedDelivery")}</Text>
               </View>
             </View>
             <Text
@@ -370,8 +371,7 @@ export default function ProductInformationScreen() {
                 letterSpacing: -0.9,
               }}
             >
-              Partout au Maroc
-            </Text>
+              {msg("trustStrip.acrossMorocco")}</Text>
             <Text
               style={{
                 marginTop: 8,
@@ -381,9 +381,7 @@ export default function ProductInformationScreen() {
                 lineHeight: 18,
               }}
             >
-              Grandes villes, villes secondaires et zones couvertes par nos
-              partenaires de livraison.
-            </Text>
+              {msg("topic.majorCitiesSmallerTownsAndAreasCoveredByOurDeliveryPartners")}</Text>
           </View>
         ) : topic === "stock" ? (
           <View
@@ -431,7 +429,7 @@ export default function ProductInformationScreen() {
                     letterSpacing: 0.7,
                   }}
                 >
-                  {product?.stock ? "EN STOCK" : "ÉPUISÉ"}
+                  {product?.stock ? msg("homePromotionSection.inStockUppercase") : msg("homePromotionSection.soldOutUppercase")}
                 </Text>
               </View>
             </View>
@@ -445,7 +443,7 @@ export default function ProductInformationScreen() {
                 letterSpacing: -0.55,
               }}
             >
-              {product?.name || "Disponibilité du produit"}
+              {product?.name || msg("topic.productAvailability")}
             </Text>
             <Text
               style={{
@@ -456,8 +454,8 @@ export default function ProductInformationScreen() {
               }}
             >
               {product?.stock
-                ? `${product.stock} unité${product.stock === 1 ? "" : "s"} disponible${product.stock === 1 ? "" : "s"}`
-                : "Produit actuellement indisponible"}
+                ? msg("stock.availableUnits", { count: product.stock })
+                : msg("topic.productCurrentlyUnavailable")}
             </Text>
           </View>
         ) : (
@@ -495,26 +493,25 @@ export default function ProductInformationScreen() {
                 fontSize: 15,
               }}
             >
-              Parcours de votre commande
-            </Text>
+              {msg("topic.yourOrderSJourney")}</Text>
             <TimelineRow
               step={1}
-              title="Commande confirmée"
-              timing="Immédiat"
-              detail="Votre commande est enregistrée et votre confirmation vous est envoyée."
+              title={msg("orderConfirmation.orderConfirmed")}
+              timing={msg("topic.instant")}
+              detail={msg("topic.yourOrderIsReceivedAndYourConfirmationIsSentToYou")}
             />
             <TimelineRow
               step={2}
-              title="Préparation"
-              timing="24–48 h"
-              detail="Vos articles sont contrôlés, emballés et remis au transporteur."
+              title={msg("orderConfirmation.preparation")}
+              timing={msg("topic.2448Hours")}
+              detail={msg("topic.yourItemsAreCheckedPackedAndHandedToTheCarrier")}
             />
             <TimelineRow
               step={3}
               last
-              title="Livraison"
+              title={msg("support.delivery")}
               timing={estimatedDays}
-              detail="Le livreur vous contacte avant son passage, hors dimanches et jours fériés."
+              detail={msg("topic.theDriverWillContactYouBeforeArrivingExcludingSundaysAndPublicHolidays")}
             />
           </View>
         ) : null}
@@ -551,8 +548,7 @@ export default function ProductInformationScreen() {
                     fontSize: 8.5,
                   }}
                 >
-                  FRAIS DE LIVRAISON
-                </Text>
+                  {msg("topic.deliveryFeesUppercase")}</Text>
               </View>
               <View
                 style={{ width: 1, height: 42, backgroundColor: "#E3E6E4" }}
@@ -565,7 +561,7 @@ export default function ProductInformationScreen() {
                     fontSize: 20,
                   }}
                 >
-                  0 MAD
+                  {values.free_shipping_enabled === "false" ? "?" : money(0)}
                 </Text>
                 <Text
                   style={{
@@ -575,7 +571,7 @@ export default function ProductInformationScreen() {
                     fontSize: 8.5,
                   }}
                 >
-                  DÈS {freeThreshold} MAD
+                  {values.free_shipping_enabled === "false" ? "?" : `${msg("topic.fromUppercase")}${freeThreshold} ${values.currency}`}
                 </Text>
               </View>
             </View>
@@ -588,22 +584,21 @@ export default function ProductInformationScreen() {
                   fontSize: 15,
                 }}
               >
-                Votre livraison
-              </Text>
+                {msg("topic.yourDelivery")}</Text>
               <InformationRow
                 icon="map-outline"
-                title="Toutes les villes du Maroc"
-                detail="Casablanca, Rabat, Marrakech, Tanger, Agadir, Fès et les zones desservies."
+                title={msg("topic.allCitiesInMorocco")}
+                detail={msg("topic.casablancaRabatMarrakechTangierAgadirFezAndCoveredAreas")}
               />
               <InformationRow
                 icon="navigate-outline"
-                title="Suivi inclus"
-                detail="Votre numéro de suivi est communiqué dès la prise en charge du colis."
+                title={msg("topic.trackingIncluded")}
+                detail={msg("topic.yourTrackingNumberIsSentOnceTheParcelIsCollected")}
               />
               <InformationRow
                 icon="call-outline"
-                title="Réception du colis"
-                detail="Le livreur peut vous appeler avant son passage. Gardez votre téléphone disponible."
+                title={msg("topic.receivingYourParcel")}
+                detail={msg("topic.theDriverMayCallBeforeArrivingKeepYourPhoneAvailable")}
               />
             </View>
           </>
@@ -636,8 +631,7 @@ export default function ProductInformationScreen() {
                       fontSize: 15,
                     }}
                   >
-                    Couleurs & pointures
-                  </Text>
+                    {msg("topic.colorsSizes")}</Text>
                   <Text
                     style={{
                       marginTop: 5,
@@ -646,8 +640,7 @@ export default function ProductInformationScreen() {
                       fontSize: 9.5,
                     }}
                   >
-                    Disponibilité actuelle
-                  </Text>
+                    {msg("topic.currentAvailability")}</Text>
                 </View>
                 <View
                   style={{
@@ -664,8 +657,7 @@ export default function ProductInformationScreen() {
                       fontSize: 7.5,
                     }}
                   >
-                    {availableColorCount}/{product.colors.length} DISPONIBLE
-                    {availableColorCount > 1 ? "S" : ""}
+                    {availableColorCount}/{product.colors.length} {msg("topic.availableUppercase")}{availableColorCount > 1 ? "S" : ""}
                   </Text>
                 </View>
               </View>
@@ -741,7 +733,7 @@ export default function ProductInformationScreen() {
                           fontSize: 12.5,
                         }}
                       >
-                        {color}
+                        {localizedContent(color)}
                       </Text>
                       <Text
                         style={{
@@ -752,8 +744,8 @@ export default function ProductInformationScreen() {
                         }}
                       >
                         {sizes.length
-                          ? `Pointure${sizes.length > 1 ? "s" : ""} ${sizes.join(", ")}`
-                          : "Taille standard"}
+                          ? msg("variants.availableSizes", { sizes: sizes.join(", ") })
+                          : msg("topic.standardSize")}
                       </Text>
                       <View
                         style={{
@@ -772,7 +764,7 @@ export default function ProductInformationScreen() {
                             fontSize: 7,
                           }}
                         >
-                          {available ? "EN STOCK" : "ÉPUISÉ"}
+                          {available ? msg("homePromotionSection.inStockUppercase") : msg("homePromotionSection.soldOutUppercase")}
                         </Text>
                       </View>
                     </View>
@@ -791,9 +783,7 @@ export default function ProductInformationScreen() {
               color="#3ECF4C"
             />
             <Text className="ml-3 flex-1 text-[11px] font-semibold leading-5 text-[#436052]">
-              Paiement à la livraison et assistance Lecomax disponibles partout
-              au Maroc.
-            </Text>
+              {msg("topic.cashOnDeliveryAndLecomaxSupportAvailableThroughoutMorocco")}</Text>
           </View>
         </View>
       </ScrollView>

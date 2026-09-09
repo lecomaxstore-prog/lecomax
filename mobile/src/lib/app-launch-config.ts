@@ -1,3 +1,5 @@
+import { msg } from "@/i18n";
+import { localizedContent } from "@/i18n/content";
 type SettingRow = { key: string; value: unknown };
 
 export type OnboardingSlideConfig = {
@@ -21,27 +23,24 @@ export type AppLaunchConfig = {
 export const FALLBACK_ONBOARDING_SLIDES: OnboardingSlideConfig[] = [
   {
     id: "discover",
-    title: "TOUT L’ECOMAX, DANS VOTRE POCHE",
-    description:
-      "Découvrez nos nouveautés, collections et offres où que vous soyez.",
+    get title() { return msg("appLaunchConfig.allOfLEcomaxInYourPocketUppercase"); },
+    get description() { return msg("appLaunchConfig.exploreOurNewArrivalsCollectionsAndOffersWhereverYouAre"); },
   },
   {
     id: "trust",
-    title: "ACHETEZ EN TOUTE CONFIANCE",
-    description:
-      "Paiement sécurisé, livraison suivie et assistance à votre service.",
+    get title() { return msg("appLaunchConfig.shopWithConfidenceUppercase"); },
+    get description() { return msg("appLaunchConfig.securePaymentTrackedDeliveryAndSupportAtYourService"); },
   },
   {
     id: "offers",
-    title: "NE MANQUEZ AUCUNE OFFRE",
-    description:
-      "Enregistrez vos favoris et recevez nos nouveautés.",
+    get title() { return msg("appLaunchConfig.neverMissAnOfferUppercase"); },
+    get description() { return msg("appLaunchConfig.saveYourFavoritesAndStayUpToDateWithNewArrivals"); },
   },
 ];
 
 export const FALLBACK_APP_LAUNCH_CONFIG: AppLaunchConfig = {
   introEnabled: true,
-  introMessage: "DÉCOUVREZ. CHOISISSEZ. PROFITEZ.",
+  get introMessage() { return msg("appLaunchConfig.discoverChooseEnjoyUppercase"); },
   introBackground: "#080808",
   introDurationMs: 1_600,
   introVersion: "1",
@@ -52,7 +51,7 @@ export const FALLBACK_APP_LAUNCH_CONFIG: AppLaunchConfig = {
 
 function cleanText(value: unknown, fallback: string, max: number) {
   const text = typeof value === "string" ? value.trim() : "";
-  return text && text.length <= max ? text : fallback;
+  return text && text.length <= max ? localizedContent(text) : fallback;
 }
 
 function safeSlides(value: unknown) {

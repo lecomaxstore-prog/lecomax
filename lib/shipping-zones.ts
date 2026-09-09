@@ -1,4 +1,4 @@
-import { calculateShipping, type ShippingConfig } from "./shipping-config";
+import { calculateShipping, type ShippingConfig } from "./shipping-config.ts";
 
 export type ShippingZoneRule = {
   id: string;
@@ -44,8 +44,9 @@ export function cleanShippingZonePayload(value: unknown, partial = false): Clean
       if (input[key] === null && key !== "standard_rate") {
         payload[key] = null;
       } else {
+        if ((typeof input[key] !== "number" && typeof input[key] !== "string") || String(input[key]).trim() === "") return { error: `Montant invalide pour ${key}.` } as const;
         const number = Number(input[key]);
-        if (!Number.isFinite(number) || number < 0 || number > 100000) return { error: `Montant invalide pour ${key}.` } as const;
+        if (!Number.isFinite(number) || number < 0 || number > 100000 || Math.abs(number * 100 - Math.round(number * 100)) > 0.000001) return { error: `Montant invalide pour ${key}.` } as const;
         payload[key] = number;
       }
     }
@@ -96,7 +97,7 @@ export function resolveShippingQuote(
     .sort((a, b) => (b.sort_order ?? 0) - (a.sort_order ?? 0));
   const zone = explicitZones[0] ?? fallbackZones[0] ?? null;
 
-  const config: ShippingConfig = zone
+  const config: ShippingConfig = zone && (zone.cities?.length ?? 0) > 0
     ? {
         cost: validNumber(zone.standard_rate, fallback.cost),
         freeThreshold: zone.free_threshold === null
@@ -107,8 +108,8 @@ export function resolveShippingQuote(
     : fallback;
 
   return {
-    cost: calculateShipping(subtotal, config),
-    freeThreshold: config.freeThreshold,
+    cost: calculateShipping(subtotal, fallback.freeShippingEnabled === false ? { ...config, freeThreshold: 0 } : config),
+    freeThreshold: fallback.freeShippingEnabled === false ? 0 : config.freeThreshold,
     estimatedDays: config.estimatedDays,
     zoneId: zone?.id ?? null,
     zoneName: zone?.name ?? "Tarif national",

@@ -1,3 +1,5 @@
+import { localizedContent } from "@/i18n/content";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -16,10 +18,11 @@ export const CategoryCard = memo(function CategoryCard({
   category: Category;
   index: number;
 }) {
+  useLocale();
   return (
     <Animated.View entering={FadeInUp.delay(index * 60).duration(420)} style={styles.wrapper}>
       <AnimatedPressable
-        accessibilityLabel={`Voir ${category.label}`}
+        accessibilityLabel={msg("product.viewNamed", { name: localizedContent(category.label) })}
         onPress={() =>
           router.push({
             pathname: "/catalog",
@@ -42,7 +45,7 @@ export const CategoryCard = memo(function CategoryCard({
           style={StyleSheet.absoluteFill}
         />
         <View style={styles.content}>
-          <Text style={styles.title}>{category.label}</Text>
+          <Text style={styles.title}>{localizedContent(category.label)}</Text>
           <View style={styles.arrow}>
             <Ionicons name="arrow-forward" size={15} color={palette.ink} />
           </View>

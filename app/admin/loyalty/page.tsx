@@ -1,4 +1,6 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
+import ResponsiveTable from "@/components/admin/ResponsiveTable";
 import { useEffect, useState, useCallback } from "react";
 
 type Member = {
@@ -108,9 +110,7 @@ export default function LoyaltyPage() {
 
       {/* Members list */}
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="w-7 h-7 border-2 border-black border-t-transparent rounded-full animate-spin" />
-        </div>
+        <AdminLoading />
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-neutral-400 text-sm bg-white rounded-2xl border border-neutral-100">
           {members.length === 0
@@ -120,7 +120,7 @@ export default function LoyaltyPage() {
       ) : (
         <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
           <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[460px]">
+          <ResponsiveTable className="w-full text-sm min-w-[460px]">
             <thead>
               <tr className="border-b border-neutral-100 text-[11px] text-neutral-400 uppercase tracking-wide">
                 <th className="text-left px-4 py-3">Membre</th>
@@ -193,7 +193,7 @@ export default function LoyaltyPage() {
                 );
               })}
             </tbody>
-          </table>
+          </ResponsiveTable>
           </div>
         </div>
       )}

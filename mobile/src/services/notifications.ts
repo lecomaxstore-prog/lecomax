@@ -1,3 +1,4 @@
+import { msg } from "@/i18n";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
@@ -9,8 +10,9 @@ import {
   secureSetItem,
 } from "@/lib/secure-storage";
 
-const PUSH_TOKEN_KEY = "lecomax:push-token";
-const INSTALLATION_ID_KEY = "lecomax:installation-id";
+const PUSH_TOKEN_KEY = "lecomax.push-token";
+const INSTALLATION_ID_KEY = "lecomax.installation-id";
+const PUSH_DISABLED_KEY = "lecomax.push-disabled";
 
 if (Platform.OS !== "web") {
   Notifications.setNotificationHandler({
@@ -35,16 +37,16 @@ async function configureAndroidChannels() {
   if (Platform.OS !== "android") return;
   await Promise.all([
     Notifications.setNotificationChannelAsync("orders", {
-      name: "Commandes et compte",
-      description: "Suivi des commandes et informations importantes du compte.",
+      name: msg("notifications.ordersAndAccount"),
+      description: msg("notifications.orderTrackingAndImportantAccountInformation"),
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 200, 120, 200],
       lightColor: "#3ECF4C",
       sound: "default",
     }),
     Notifications.setNotificationChannelAsync("marketing", {
-      name: "Offres et nouveautÃ©s",
-      description: "Promotions, nouveaux produits et avantages Lâ€™ECOMAX.",
+      name: msg("notifications.offersAndNewArrivals"),
+      description: msg("notifications.promotionsNewProductsAndLEcomaxBenefits"),
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 180],
       lightColor: "#3ECF4C",
@@ -58,6 +60,7 @@ export async function registerForPushNotifications(
   options: { requestPermission?: boolean } = {},
 ) {
   if (!Device.isDevice || Platform.OS === "web") return null;
+  if (options.requestPermission === false && await secureGetItem(PUSH_DISABLED_KEY) === "true") return null;
   await configureAndroidChannels();
   const current = await Notifications.getPermissionsAsync();
   const permission =
@@ -72,7 +75,7 @@ export async function registerForPushNotifications(
     Constants.expoConfig?.extra?.eas?.projectId ??
     Constants.easConfig?.projectId;
   if (!projectId) {
-    throw new Error("Le projet EAS nâ€™est pas configurÃ© pour les notifications.");
+    throw new Error(msg("notifications.theEasProjectIsNotConfiguredForNotifications"));
   }
 
   const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
@@ -82,6 +85,7 @@ export async function registerForPushNotifications(
     body: JSON.stringify({ token, platform: Platform.OS, installationId }),
   });
   await secureSetItem(PUSH_TOKEN_KEY, token);
+  await secureRemoveItem(PUSH_DISABLED_KEY);
   return token;
 }
 
@@ -91,9 +95,10 @@ export async function getPushNotificationState() {
   }
   const permission = await Notifications.getPermissionsAsync();
   const token = await secureGetItem(PUSH_TOKEN_KEY);
+  const disabled = await secureGetItem(PUSH_DISABLED_KEY) === "true";
   return {
     supported: true,
-    enabled: permission.status === "granted" && Boolean(token),
+    enabled: permission.status === "granted" && Boolean(token) && !disabled,
     status: permission.status,
   };
 }
@@ -108,4 +113,5 @@ export async function disablePushNotifications() {
     });
   }
   await secureRemoveItem(PUSH_TOKEN_KEY);
+  await secureSetItem(PUSH_DISABLED_KEY, "true");
 }

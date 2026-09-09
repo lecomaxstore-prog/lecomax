@@ -1,6 +1,6 @@
 export const MAX_STOCK = 1_000_000;
 export const CLOTHING_SIZE_VALUES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"] as const;
-export const SHOE_SIZE_VALUES = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"] as const;
+export const SHOE_SIZE_VALUES = Array.from({ length: 27 }, (_, index) => String(35 + index / 2));
 export type ProductSizeGuideType = "none" | "clothing" | "shoes" | "custom";
 export type ColorSizeStock = Record<string, Record<string, number>>;
 
@@ -30,6 +30,7 @@ export function sortProductSizes(sizes: readonly string[]) {
 }
 
 export function asStock(value: unknown): number | null {
+  if ((typeof value !== "number" && typeof value !== "string") || String(value).trim() === "") return null;
   const stock = Number(value);
   return Number.isInteger(stock) && stock >= 0 && stock <= MAX_STOCK ? stock : null;
 }

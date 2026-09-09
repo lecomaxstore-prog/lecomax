@@ -1,3 +1,5 @@
+import { localizedContent } from "@/i18n/content";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
@@ -16,6 +18,7 @@ export const PromotionCard = memo(function PromotionCard({
 }: {
   product: Product;
 }) {
+  useLocale();
   const wishlist = useCommerceStore((state) => state.wishlist);
   const toggleWishlist = useCommerceStore((state) => state.toggleWishlist);
   const addToCart = useCommerceStore((state) => state.addToCart);
@@ -58,7 +61,7 @@ export const PromotionCard = memo(function PromotionCard({
         ) : null}
         <AnimatedPressable
           accessibilityLabel={
-            favorite ? "Retirer des favoris" : "Ajouter aux favoris"
+            favorite ? msg("productCard.removeFromFavorites") : msg("productCard.addToFavorites")
           }
           onPress={(event) => {
             event.stopPropagation();
@@ -75,7 +78,7 @@ export const PromotionCard = memo(function PromotionCard({
       </View>
       <View style={styles.body}>
         <Text numberOfLines={1} style={styles.category}>
-          {(product.brand || product.category).toUpperCase()}
+          {(product.brand || localizedContent(product.category)).toUpperCase()}
         </Text>
         <Text numberOfLines={2} style={styles.name}>
           {product.name}
@@ -88,7 +91,7 @@ export const PromotionCard = memo(function PromotionCard({
           <Price price={product.price} oldPrice={product.original_price} />
           <AnimatedPressable
             accessibilityLabel={
-              requiresOptions ? "Choisir les options" : "Ajouter au panier"
+              requiresOptions ? msg("productCard.chooseOptions") : msg("common.add")
             }
             disabled={product.stock <= 0}
             onPress={(event) => {

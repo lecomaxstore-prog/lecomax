@@ -1,11 +1,15 @@
+import { formatNumber } from "@/lib/format";
+import { localizedContent } from "@/i18n/content";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { memo, useEffect, useState } from "react";
+import { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { typography } from "@/constants/theme";
-import { discount, imageUrl, money } from "@/lib/format";
+import { discount, money } from "@/lib/format";
+import { useProductImage } from "@/hooks/use-product-image";
 import { useCommerceStore } from "@/stores/commerce";
 import type { Product } from "@/types/commerce";
 
@@ -28,15 +32,13 @@ export const SearchProductCard = memo(function SearchProductCard({
   product: Product;
   onOpen?: () => void;
 }) {
+  useLocale();
   const wishlist = useCommerceStore((state) => state.wishlist);
   const toggleWishlist = useCommerceStore((state) => state.toggleWishlist);
   const favorite = wishlist.includes(product.id);
-  const productImage = imageUrl(product.thumbnail || product.images[0]);
+  const { source: productImage, imageFailed, onError: onImageError } = useProductImage(product);
   const saving = discount(product.price, product.original_price);
   const reviews = product.review_count ?? product.reviews ?? 0;
-  const [imageFailed, setImageFailed] = useState(false);
-
-  useEffect(() => setImageFailed(false), [productImage]);
 
   return (
     <View style={styles.card}>
@@ -61,14 +63,14 @@ export const SearchProductCard = memo(function SearchProductCard({
         {imageFailed ? (
           <View style={styles.imageFallback}>
             <Ionicons name="image-outline" size={27} color="#929793" />
-            <Text style={styles.imageFallbackText}>IMAGE INDISPONIBLE</Text>
+            <Text style={styles.imageFallbackText}>{msg("productCard.imageUnavailableUppercase")}</Text>
           </View>
         ) : (
           <Image
             accessibilityLabel={product.name}
             cachePolicy="memory-disk"
             contentFit="cover"
-            onError={() => setImageFailed(true)}
+            onError={onImageError}
             recyclingKey={product.id}
             source={productImage}
             style={StyleSheet.absoluteFill}
@@ -78,7 +80,7 @@ export const SearchProductCard = memo(function SearchProductCard({
 
         {product.newArrival ? (
           <View style={styles.newBadge}>
-            <Text style={styles.newBadgeText}>NOUVEAU</Text>
+            <Text style={styles.newBadgeText}>{msg("productCard.newUppercase")}</Text>
           </View>
         ) : saving ? (
           <View style={styles.discountBadge}>
@@ -86,16 +88,16 @@ export const SearchProductCard = memo(function SearchProductCard({
           </View>
         ) : null}
 
-          {product.stock <= 0 ? (
+          {(product.stock <= 0 && !product.preorder_enabled) ? (
             <View style={styles.outOfStock}>
-              <Text style={styles.outOfStockText}>ÉPUISÉ</Text>
+              <Text style={styles.outOfStockText}>{msg("homePromotionSection.soldOutUppercase")}</Text>
             </View>
           ) : null}
         </View>
 
         <View style={styles.body}>
           <Text numberOfLines={1} style={styles.category}>
-            {(product.brand || product.category).toUpperCase()}
+            {(product.brand || localizedContent(product.category)).toUpperCase()}
           </Text>
           <Text numberOfLines={2} style={styles.name}>{product.name}</Text>
 
@@ -107,13 +109,13 @@ export const SearchProductCard = memo(function SearchProductCard({
             />
             <Text style={styles.ratingText}>
               {reviews > 0 && (product.rating ?? 0) > 0
-                ? `${(product.rating ?? 0).toFixed(1)} (${reviews})`
-                : "Nouveau"}
+                ? `${formatNumber(product.rating ?? 0, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} (${reviews})`
+                : msg("rating.new")}
             </Text>
-            {product.stock > 0 ? (
+            {(product.stock > 0 || product.preorder_enabled) ? (
               <View style={styles.stock}>
                 <View style={styles.stockDot} />
-                <Text style={styles.stockText}>EN STOCK</Text>
+                <Text style={styles.stockText}>{product.stock <= 0 && product.preorder_enabled ? msg("preorder.badge") : msg("homePromotionSection.inStockUppercase")}</Text>
               </View>
             ) : null}
           </View>
@@ -128,7 +130,7 @@ export const SearchProductCard = memo(function SearchProductCard({
       </AnimatedPressable>
 
       <AnimatedPressable
-        accessibilityLabel={favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+        accessibilityLabel={favorite ? msg("productCard.removeFromFavorites") : msg("productCard.addToFavorites")}
         accessibilityRole="button"
         onPress={() => toggleWishlist(product.id)}
         style={styles.favorite}

@@ -1,3 +1,6 @@
+import { localizedError } from "@/i18n/errors";
+import { formatNumber } from "@/lib/format";
+import { currentLocale, msg, useLocale } from "@/i18n";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -13,23 +16,25 @@ import { createSupportMessageId, getSupportConversation, sendSupportAttachment, 
 
 type Outgoing = SupportMessage & { failed?: boolean; pending?: boolean };
 const green = '#174F3D';
-const fileSize = (size: number) => size >= 1024 * 1024 ? `${(size / 1024 / 1024).toFixed(1)} Mo` : `${Math.max(1, Math.round(size / 1024))} Ko`;
-const dayKey = (date: string) => new Date(date).toLocaleDateString('fr-FR');
+const fileSize = (size: number) => size >= 1024 * 1024 ? msg("format.megabytes", { size: formatNumber(size / 1024 / 1024, { maximumFractionDigits: 1 }) }) : msg("format.kilobytes", { size: formatNumber(Math.max(1, Math.round(size / 1024))) });
+const dayKey = (date: string) => new Date(date).toLocaleDateString(currentLocale());
 function dayLabel(date: string) {
-  if (dayKey(date) === dayKey(new Date().toISOString())) return 'Aujourd’hui';
+  if (dayKey(date) === dayKey(new Date().toISOString())) return msg("supportChatScreen.today");
   const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-  return dayKey(date) === dayKey(yesterday.toISOString()) ? 'Hier' : new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  return dayKey(date) === dayKey(yesterday.toISOString()) ? msg("supportChatScreen.yesterday") : new Date(date).toLocaleDateString(currentLocale(), { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 export default function SupportChatScreen() {
+  useLocale();
   const { id } = useLocalSearchParams<{ id: string }>();
   const account = useSupportAccount();
   if (!account.ready) return <Screen><View style={s.center}><ActivityIndicator color={green} /></View></Screen>;
-  if (!account.id || account.error) return <Screen><View style={s.center}><Ionicons name="lock-closed-outline" size={32} color={green} /><Text style={s.stateTitle}>{account.error || 'Connectez-vous pour retrouver vos messages'}</Text><AnimatedPressable style={s.action} onPress={account.error ? account.retry : () => router.push('/auth')}><Text style={s.actionText}>{account.error ? 'Réessayer' : 'Se connecter'}</Text></AnimatedPressable></View></Screen>;
+  if (!account.id || account.error) return <Screen><View style={s.center}><Ionicons name="lock-closed-outline" size={32} color={green} /><Text style={s.stateTitle}>{account.error || msg("supportChatScreen.signInToFindYourMessages")}</Text><AnimatedPressable style={s.action} onPress={account.error ? account.retry : () => router.push('/auth')}><Text style={s.actionText}>{account.error ? msg("support.tryAgain") : msg("auth.signInText")}</Text></AnimatedPressable></View></Screen>;
   return <Chat key={account.id + id} id={id} userId={account.id} />;
 }
 
 function Chat({ id, userId }: { id: string; userId: string }) {
+  useLocale();
   const active = useSupportActive();
   const client = useQueryClient();
   const list = useRef<FlatList<Outgoing>>(null);
@@ -76,7 +81,7 @@ function Chat({ id, userId }: { id: string; userId: string }) {
       void query.refetch();
     },
     onError: (error, variables) => {
-      if (variables.file) setFileError(error.message);
+      if (variables.file) setFileError(localizedError(error));
       else setOutbox(current => current.map(m => m.client_message_id === variables.clientId ? { ...m, pending: false, failed: true } : m));
     },
   });
@@ -106,9 +111,9 @@ function Chat({ id, userId }: { id: string; userId: string }) {
       const result = await DocumentPicker.getDocumentAsync({ type: ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'], copyToCacheDirectory: true, multiple: false });
       if (result.canceled) return;
       const selected = result.assets[0];
-      if (selected.size && selected.size > 3 * 1024 * 1024) { setFileError('Choisissez un fichier de moins de 3 Mo.'); return; }
+      if (selected.size && selected.size > 3 * 1024 * 1024) { setFileError(msg("supportChatScreen.chooseAFileSmallerThan3Mb")); return; }
       setAsset(selected);
-    } catch { setFileError('Impossible d’ouvrir vos fichiers. Réessayez.'); }
+    } catch { setFileError(msg("supportChatScreen.unableToOpenYourFilesTryAgain")); }
   };
 
   const savedIds = new Set(query.data?.messages.map(m => m.client_message_id));
@@ -121,15 +126,15 @@ function Chat({ id, userId }: { id: string; userId: string }) {
     return <>
       {newDay ? <View style={s.dayRow}><Text style={s.day}>{dayLabel(item.created_at)}</Text></View> : null}
       <View style={[s.messageRow, mine && s.messageMine, grouped && { marginTop: 3 }]}>
-        {!mine ? <View style={[s.miniAvatar, grouped && { opacity: 0 }]}><Image source={require('../../assets/images/support/customer-care-v1.png')} accessibilityLabel="Service client L’ECOMAX" style={{ width: 24, height: 24, borderRadius: 10 }} /></View> : null}
+        {!mine ? <View style={[s.miniAvatar, grouped && { opacity: 0 }]}><Image source={require('../../assets/images/support/customer-care-v1.png')} accessibilityLabel={msg("supportChatScreen.lEcomaxCustomerService")} style={{ width: 24, height: 24, borderRadius: 10 }} /></View> : null}
         <View style={[s.bubble, mine ? s.bubbleMine : s.bubbleTeam]}>
           {!mine && !grouped ? <Text style={s.sender}>L’ECOMAX</Text> : null}
-          {attachment ? <AnimatedPressable disabled={!attachment.url} accessibilityRole="button" accessibilityLabel={`Ouvrir ${attachment.name}`} onPress={() => { if (!attachment.url) return; if (attachment.type.startsWith('image/')) setLightbox(attachment.url); else void Linking.openURL(attachment.url).catch(() => setFileError('Impossible d’ouvrir ce document.')); }} style={[s.fileCard, mine && s.fileCardMine]}>
+          {attachment ? <AnimatedPressable disabled={!attachment.url} accessibilityRole="button" accessibilityLabel={msg("support.openAttachment", { name: attachment.name })} onPress={() => { if (!attachment.url) return; if (attachment.type.startsWith('image/')) setLightbox(attachment.url); else void Linking.openURL(attachment.url).catch(() => setFileError(msg("supportChatScreen.unableToOpenThisDocument"))); }} style={[s.fileCard, mine && s.fileCardMine]}>
             {attachment.type.startsWith('image/') && attachment.url ? <Image source={{ uri: attachment.url }} resizeMode="cover" style={s.photo} /> : <View style={s.documentRow}><View style={s.pdfIcon}><Ionicons name="document-text-outline" size={25} color={green} /></View><View style={s.fileCopy}><Text numberOfLines={2} style={[s.fileName, mine && s.white]}>{attachment.name}</Text><Text style={[s.fileDetail, mine && s.lightText]}>PDF · {fileSize(attachment.size)}</Text></View><Ionicons name="download-outline" size={18} color={mine ? '#D6E8DD' : green} /></View>}
-            {!attachment.url ? <Text style={[s.fileDetail, mine && s.lightText]}>Fichier indisponible · Actualisez la conversation</Text> : null}
+            {!attachment.url ? <Text style={[s.fileDetail, mine && s.lightText]}>{msg("supportChatScreen.fileUnavailableRefreshTheConversation")}</Text> : null}
           </AnimatedPressable> : null}
           {item.body ? <Text selectable style={[s.body, mine && s.white]}>{item.body}</Text> : null}
-          <View style={s.messageMeta}><Text style={[s.time, mine && s.lightText]}>{new Date(item.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</Text>{item.pending ? <Ionicons name="time-outline" size={12} color="#BDDBC9" /> : item.failed ? <AnimatedPressable accessibilityLabel="Réessayer l’envoi" onPress={() => submit(item)}><Text style={s.failed}>Réessayer ↻</Text></AnimatedPressable> : mine ? <Ionicons name={item.read_at ? 'checkmark-done' : 'checkmark'} size={15} color={item.read_at ? '#8AE3C5' : '#BDDBC9'} /> : null}</View>
+          <View style={s.messageMeta}><Text style={[s.time, mine && s.lightText]}>{new Date(item.created_at).toLocaleTimeString(currentLocale(), { hour: '2-digit', minute: '2-digit' })}</Text>{item.pending ? <Ionicons name="time-outline" size={12} color="#BDDBC9" /> : item.failed ? <AnimatedPressable accessibilityLabel={msg("supportChatScreen.trySendingAgain")} onPress={() => submit(item)}><Text style={s.failed}>{msg("supportChatScreen.tryAgain")}</Text></AnimatedPressable> : mine ? <Ionicons name={item.read_at ? 'checkmark-done' : 'checkmark'} size={15} color={item.read_at ? '#8AE3C5' : '#BDDBC9'} /> : null}</View>
         </View>
       </View>
     </>;
@@ -137,27 +142,27 @@ function Chat({ id, userId }: { id: string; userId: string }) {
 
   return <Screen className="bg-white"><KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={s.flex}>
     <View style={s.header}>
-      <AnimatedPressable accessibilityLabel="Retour aux conversations" style={s.back} onPress={() => router.canGoBack() ? router.back() : router.replace('/support')}><Ionicons name="chevron-back" size={23} color={green} /></AnimatedPressable>
-      <View style={s.avatar}><Image source={require('../../assets/images/support/customer-care-v1.png')} accessibilityLabel="Service client L’ECOMAX" style={{ width: 45, height: 45, borderRadius: 17 }} /><View style={s.verified}><Ionicons name="checkmark" size={9} color="white" /></View></View>
-      <View style={s.headerCopy}><Text style={s.headerTitle}>L’ECOMAX <Text style={s.headerSuffix}>Assistance</Text></Text><Text numberOfLines={1} style={s.headerSubject}>{query.data?.conversation.subject || 'Votre conversation'}</Text></View>
-      <View accessibilityLabel="Conversation privée" style={s.headerLock}><Ionicons name="lock-closed-outline" size={17} color={green} /></View>
+      <AnimatedPressable accessibilityLabel={msg("supportChatScreen.backToConversations")} style={s.back} onPress={() => router.canGoBack() ? router.back() : router.replace('/support')}><Ionicons name="chevron-back" size={23} color={green} /></AnimatedPressable>
+      <View style={s.avatar}><Image source={require('../../assets/images/support/customer-care-v1.png')} accessibilityLabel={msg("supportChatScreen.lEcomaxCustomerService")} style={{ width: 45, height: 45, borderRadius: 17 }} /><View style={s.verified}><Ionicons name="checkmark" size={9} color="white" /></View></View>
+      <View style={s.headerCopy}><Text style={s.headerTitle}>L’ECOMAX <Text style={s.headerSuffix}>{msg("support.support")}</Text></Text><Text numberOfLines={1} style={s.headerSubject}>{query.data?.conversation.subject || msg("supportChatScreen.yourConversation")}</Text></View>
+      <View accessibilityLabel={msg("supportChatScreen.privateConversation")} style={s.headerLock}><Ionicons name="lock-closed-outline" size={17} color={green} /></View>
     </View>
     <View style={s.canvas}>
       <View pointerEvents="none" style={s.orbOne} /><View pointerEvents="none" style={s.orbTwo} />
-      {query.isPending ? <View style={s.center}><ActivityIndicator color={green} /><Text style={s.hint}>Chargement de vos échanges…</Text></View> : query.isError && !query.data ? <View style={s.center}><Ionicons name="cloud-offline-outline" size={34} color={green} /><Text style={s.stateTitle}>Conversation indisponible</Text><Text style={s.hint}>{query.error.message}</Text><AnimatedPressable style={s.action} onPress={() => void query.refetch()}><Text style={s.actionText}>Réessayer</Text></AnimatedPressable></View> : <>
-        <FlatList style={s.flex} ref={list} data={messages} renderItem={renderMessage} keyExtractor={m => m.id} contentContainerStyle={s.messages} keyboardShouldPersistTaps="handled" onContentSizeChange={() => { if (nearBottom.current) list.current?.scrollToEnd({ animated: false }); }} onScroll={({ nativeEvent: n }) => { nearBottom.current = n.contentSize.height - n.layoutMeasurement.height - n.contentOffset.y < 120; setShowLatest(!nearBottom.current); }} scrollEventThrottle={100} ListHeaderComponent={<View style={s.intro}><View style={s.introIcon}><Ionicons name="leaf-outline" size={22} color={green} /></View><Text style={s.introTitle}>Un échange, en toute simplicité.</Text><Text style={s.introText}>Notre équipe vous accompagne, ici.</Text><View style={s.privateRow}><Ionicons name="lock-closed-outline" size={10} color="#859083" /><Text style={s.privateText}>Conversation privée avec le service client</Text></View></View>} />
-        {showLatest ? <AnimatedPressable accessibilityLabel="Voir les derniers messages" onPress={scrollToLatest} style={s.latest}><Ionicons name="chevron-down" size={21} color={green} /></AnimatedPressable> : null}
+      {query.isPending ? <View style={s.center}><ActivityIndicator color={green} /><Text style={s.hint}>{msg("supportChatScreen.loadingYourConversation")}</Text></View> : query.isError && !query.data ? <View style={s.center}><Ionicons name="cloud-offline-outline" size={34} color={green} /><Text style={s.stateTitle}>{msg("supportChatScreen.conversationUnavailable")}</Text><Text style={s.hint}>{localizedError(query.error)}</Text><AnimatedPressable style={s.action} onPress={() => void query.refetch()}><Text style={s.actionText}>{msg("support.tryAgain")}</Text></AnimatedPressable></View> : <>
+        <FlatList style={s.flex} ref={list} data={messages} renderItem={renderMessage} keyExtractor={m => m.id} contentContainerStyle={s.messages} keyboardShouldPersistTaps="handled" onContentSizeChange={() => { if (nearBottom.current) list.current?.scrollToEnd({ animated: false }); }} onScroll={({ nativeEvent: n }) => { nearBottom.current = n.contentSize.height - n.layoutMeasurement.height - n.contentOffset.y < 120; setShowLatest(!nearBottom.current); }} scrollEventThrottle={100} ListHeaderComponent={<View style={s.intro}><View style={s.introIcon}><Ionicons name="leaf-outline" size={22} color={green} /></View><Text style={s.introTitle}>{msg("supportChatScreen.aSimpleConversation")}</Text><Text style={s.introText}>{msg("supportChatScreen.ourTeamIsHereToHelp")}</Text><View style={s.privateRow}><Ionicons name="lock-closed-outline" size={10} color="#859083" /><Text style={s.privateText}>{msg("supportChatScreen.privateConversationWithCustomerService")}</Text></View></View>} />
+        {showLatest ? <AnimatedPressable accessibilityLabel={msg("supportChatScreen.viewLatestMessages")} onPress={scrollToLatest} style={s.latest}><Ionicons name="chevron-down" size={21} color={green} /></AnimatedPressable> : null}
       </>}
     </View>
     <View style={s.composer}>
-      {asset ? <View style={s.selectedFile}>{asset.mimeType?.startsWith('image/') ? <Image source={{ uri: asset.uri }} style={s.selectedThumb} /> : <View style={s.pdfIcon}><Ionicons name="document-text-outline" size={23} color={green} /></View>}<View style={s.fileCopy}><Text numberOfLines={1} style={s.fileName}>{asset.name}</Text><Text style={s.fileDetail}>{fileSize(asset.size ?? 0)} · Prêt à envoyer</Text></View><AnimatedPressable disabled={send.isPending} accessibilityLabel="Retirer le fichier" onPress={() => setAsset(null)} style={s.remove}><Ionicons name="close" size={19} color={green} /></AnimatedPressable></View> : null}
-      {fileError || (query.isError && query.data) ? <Text accessibilityLiveRegion="polite" style={s.error}>{fileError || 'Actualisation impossible. Vos messages restent affichés.'}</Text> : null}
+      {asset ? <View style={s.selectedFile}>{asset.mimeType?.startsWith('image/') ? <Image source={{ uri: asset.uri }} style={s.selectedThumb} /> : <View style={s.pdfIcon}><Ionicons name="document-text-outline" size={23} color={green} /></View>}<View style={s.fileCopy}><Text numberOfLines={1} style={s.fileName}>{asset.name}</Text><Text style={s.fileDetail}>{fileSize(asset.size ?? 0)} {msg("supportChatScreen.readyToSend")}</Text></View><AnimatedPressable disabled={send.isPending} accessibilityLabel={msg("supportChatScreen.removeFile")} onPress={() => setAsset(null)} style={s.remove}><Ionicons name="close" size={19} color={green} /></AnimatedPressable></View> : null}
+      {fileError || (query.isError && query.data) ? <Text accessibilityLiveRegion="polite" style={s.error}>{fileError || msg("supportChatScreen.unableToRefreshYourMessagesAreStillDisplayed")}</Text> : null}
       <View style={[s.composerField, inputFocused && s.composerFieldFocused]}>
-        <AnimatedPressable disabled={send.isPending || !restored || !query.data} accessibilityRole="button" accessibilityLabel="Joindre une photo ou un PDF" onPress={() => void pickFile()} style={s.attachmentButton}>
+        <AnimatedPressable disabled={send.isPending || !restored || !query.data} accessibilityRole="button" accessibilityLabel={msg("supportChatScreen.attachAPhotoOrPdf")} onPress={() => void pickFile()} style={s.attachmentButton}>
           <Ionicons name="attach-outline" size={23} color="#69806E" />
         </AnimatedPressable>
         <TextInput
-          accessibilityLabel="Votre message"
+          accessibilityLabel={msg("supportChatScreen.yourMessage")}
           editable={restored && !send.isPending && Boolean(query.data)}
           value={draft}
           onChangeText={value => { setDraft(value); if (!value) setInputHeight(44); }}
@@ -167,7 +172,7 @@ function Chat({ id, userId }: { id: string; userId: string }) {
           maxLength={asset ? 1000 : 2000}
           multiline
           numberOfLines={1}
-          placeholder={asset ? 'Ajouter une légende…' : 'Écrivez un message…'}
+          placeholder={asset ? msg("supportChatScreen.addACaption") : msg("supportChatScreen.writeAMessage")}
           placeholderTextColor="#919B92"
           selectionColor="#93AE96"
           underlineColorAndroid="transparent"
@@ -175,7 +180,7 @@ function Chat({ id, userId }: { id: string; userId: string }) {
         />
         <AnimatedPressable
           accessibilityRole="button"
-          accessibilityLabel="Envoyer le message"
+          accessibilityLabel={msg("supportChatScreen.sendMessage")}
           disabled={(!draft.trim() && !asset) || send.isPending || !restored || !query.data}
           onPress={() => submit()}
           style={[s.sendButton, ((!draft.trim() && !asset) || !restored || !query.data) && s.sendButtonIdle]}
@@ -183,9 +188,9 @@ function Chat({ id, userId }: { id: string; userId: string }) {
           {send.isPending ? <ActivityIndicator color="white" size="small" /> : <Ionicons name="arrow-up" size={22} color={(!draft.trim() && !asset) || !restored || !query.data ? '#78917E' : 'white'} />}
         </AnimatedPressable>
       </View>
-      {asset ? <Text style={s.composerHint}>{send.isPending ? 'Envoi du fichier en cours…' : `${draft.length}/1 000 · Photo ou document privé`}</Text> : null}
+      {asset ? <Text style={s.composerHint}>{send.isPending ? msg("supportChatScreen.uploadingFile") : msg("support.characterCount", { count: draft.length })}</Text> : null}
     </View>
-    <Modal visible={Boolean(lightbox)} transparent animationType="fade" onRequestClose={() => setLightbox(null)}><View style={s.lightbox}><AnimatedPressable accessibilityLabel="Fermer la photo" onPress={() => setLightbox(null)} style={s.lightboxClose}><Ionicons name="close" size={28} color="white" /></AnimatedPressable>{lightbox ? <Image source={{ uri: lightbox }} resizeMode="contain" style={s.fullImage} /> : null}</View></Modal>
+    <Modal visible={Boolean(lightbox)} transparent animationType="fade" onRequestClose={() => setLightbox(null)}><View style={s.lightbox}><AnimatedPressable accessibilityLabel={msg("supportChatScreen.closePhoto")} onPress={() => setLightbox(null)} style={s.lightboxClose}><Ionicons name="close" size={28} color="white" /></AnimatedPressable>{lightbox ? <Image source={{ uri: lightbox }} resizeMode="contain" style={s.fullImage} /> : null}</View></Modal>
   </KeyboardAvoidingView></Screen>;
 }
 

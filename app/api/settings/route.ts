@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifySessionToken } from "@/lib/admin-session";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { STORE_SETTING_KEYS, storeSettings, validateStoreSettings } from "@/lib/store-settings";
+import { protectAdminMutation } from "@/lib/api-security";
+import { requireSettingsPermission } from "@/lib/admin-settings-access";
 import { shippingConfigFromSettings } from "@/lib/shipping-config";
 import {
   PAYMENT_SETTING_KEYS,
@@ -18,6 +21,8 @@ const supabase = createClient(
 );
 
 const PUBLIC_SETTING_KEYS = [
+  ...STORE_SETTING_KEYS,
+  "seo_title", "seo_description", "favicon_image", "hero_image", "hero_image_mobile", "email_banner_image", "og_image",
   "store_name",
   "store_email",
   "store_phone",
@@ -102,20 +107,25 @@ const PUBLIC_SETTING_KEYS = [
 
 // GET /api/settings
 export async function GET(req: NextRequest) {
-  const session = req.cookies.get("admin_session")?.value;
-  const isAdmin = Boolean(session && (await verifySessionToken(session)));
-  let query = supabase.from("settings").select("key, value");
-  if (!isAdmin) query = query.in("key", PUBLIC_SETTING_KEYS);
+  // This endpoint is consumed by browser and mobile clients, including admin.
+  // Never return arbitrary internal rows based solely on a session cookie.
+  const query = supabase.from("settings").select("key, value").in("key", PUBLIC_SETTING_KEYS);
   const { data, error } = await query;
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data, {
+  const current = Object.fromEntries((data ?? []).map(row => [row.key, row.value]));
+  const normalized = { ...storeSettings(current), ...current };
+  return NextResponse.json(Object.entries(normalized).map(([key, value]) => ({ key, value })), {
     headers: { "Cache-Control": "no-store, max-age=0" },
   });
 }
 
 // POST /api/settings  (upsert all keys) — admin only
 export async function POST(req: NextRequest) {
+  const blocked = await protectAdminMutation(req, { key: "settings:update", limit: 30 });
+  if (blocked) return blocked;
+  const denied = await requireSettingsPermission(req);
+  if (denied) return denied;
   const session = req.cookies.get("admin_session")?.value;
   const adminEmail = session ? await verifySessionToken(session) : null;
   if (!adminEmail) {
@@ -135,6 +145,13 @@ export async function POST(req: NextRequest) {
     );
   }
   const values = body as Record<string, unknown>;
+  const unknown = Object.keys(values).find(key => !PUBLIC_SETTING_KEYS.includes(key));
+  if (unknown) return NextResponse.json({ error: `Réglage non autorisé : ${unknown}.`, code: "VALIDATION_ERROR" }, { status: 400 });
+  const { data: currentRows, error: currentError } = await supabase.from("settings").select("key,value").in("key", STORE_SETTING_KEYS);
+  if (currentError) return NextResponse.json({ error: "Paramètres indisponibles.", code: "SETTINGS_UNAVAILABLE" }, { status: 503 });
+  const currentSettings = Object.fromEntries((currentRows ?? []).map(row => [row.key, row.value]));
+  const storeError = validateStoreSettings({ ...currentSettings, ...values });
+  if (storeError) return NextResponse.json({ error: storeError, code: "VALIDATION_ERROR" }, { status: 400 });
   const introError = validateAppIntroSettings(values);
   if (introError) {
     return NextResponse.json({ error: introError }, { status: 400 });
@@ -370,6 +387,7 @@ export async function POST(req: NextRequest) {
     }
   }
   const auditedKeys = [
+    ...STORE_SETTING_KEYS,
     "shipping_cost",
     "free_shipping_threshold",
     "shipping_estimated_days",
@@ -426,7 +444,7 @@ export async function POST(req: NextRequest) {
             ? "payment_delivery"
             : paymentChanged
               ? "payment"
-              : "delivery",
+              : deliveryChanged ? "delivery" : "store",
         changed_keys: changedKeys,
         changes,
       });
@@ -435,8 +453,9 @@ export async function POST(req: NextRequest) {
     }
   }
   revalidatePath("/", "layout");
+  revalidateTag("store-settings");
   return NextResponse.json({
     success: true,
-    shipping: shippingConfigFromSettings(values),
+    shipping: shippingConfigFromSettings({ ...currentSettings, ...values }),
   });
 }

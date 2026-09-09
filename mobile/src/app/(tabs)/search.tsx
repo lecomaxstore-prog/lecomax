@@ -1,3 +1,5 @@
+import { localizedContent } from "@/i18n/content";
+import { msg, useLocale } from "@/i18n";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
@@ -25,7 +27,7 @@ import { SearchProductCard } from "@/components/search-product-card";
 import { typography } from "@/constants/theme";
 import { useCategories, useProducts, useSettings } from "@/hooks/use-catalog";
 import { categoryCampaignImage } from "@/lib/category-campaign-images";
-import { imageUrl } from "@/lib/format";
+import { imageUrl, money } from "@/lib/format";
 import { useCommerceStore } from "@/stores/commerce";
 import { buildProductSearchIndex, searchProductIndex } from "@/lib/product-search";
 import type { Product } from "@/types/commerce";
@@ -53,6 +55,7 @@ const webInputReset =
     : undefined;
 
 export default function SearchScreen() {
+  useLocale();
   const params = useLocalSearchParams<{ scanned?: string }>();
   const productsQuery = useProducts();
   const categoriesQuery = useCategories();
@@ -98,7 +101,7 @@ export default function SearchScreen() {
       0,
     ),
   );
-  const cartTotalLabel = `${cartTotal.toFixed(2).replace(".", ",")} Dhs`;
+  const cartTotalLabel = money(cartTotal);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query.trim()), 260);
@@ -252,7 +255,7 @@ export default function SearchScreen() {
                 <BrandLogo header />
               </View>
               <HeaderActionButton
-                accessibilityLabel={`Panier, ${cartTotalLabel}${cartCount ? `, ${cartCount} articles` : ", vide"}`}
+                accessibilityLabel={msg("cart.totalAndCount", { total: cartTotalLabel, count: cartCount })}
                 icon="cart-outline"
                 activeIcon="cart"
                 badge={cartCount}
@@ -268,12 +271,10 @@ export default function SearchScreen() {
               <View style={styles.eyebrowRow}>
                 <View style={styles.eyebrowLine} />
                 <Text style={styles.eyebrow}>
-                  TROUVEZ VOTRE PROCHAIN ESSENTIEL
-                </Text>
+                  {msg("search.findYourNextEssentialUppercase")}</Text>
               </View>
               <Text accessibilityRole="header" style={styles.title}>
-                RECHERCHE
-              </Text>
+                {msg("search.searchUppercase")}</Text>
 
               <View
                 style={[styles.searchBar, focused && styles.searchBarFocused]}
@@ -281,7 +282,7 @@ export default function SearchScreen() {
                 <Ionicons name="search-outline" size={21} color={colors.text} />
                 <TextInput
                   ref={inputRef}
-                  accessibilityLabel="Rechercher un produit ou une marque"
+                  accessibilityLabel={msg("search.searchForAProductOrBrand")}
                   value={query}
                   onChangeText={(value) => {
                     setQuery(value);
@@ -290,7 +291,7 @@ export default function SearchScreen() {
                   onFocus={() => setFocused(true)}
                   onBlur={() => setFocused(false)}
                   onSubmitEditing={() => commitSearch(query)}
-                  placeholder="Rechercher un produit ou une marque"
+                  placeholder={msg("search.searchForAProductOrBrand")}
                   placeholderTextColor="#858A86"
                   returnKeyType="search"
                   selectionColor={colors.primaryDark}
@@ -300,7 +301,7 @@ export default function SearchScreen() {
                   <ActivityIndicator color={colors.primaryDark} size="small" />
                 ) : query ? (
                   <Pressable
-                    accessibilityLabel="Effacer la recherche"
+                    accessibilityLabel={msg("search.clearSearch")}
                     hitSlop={8}
                     onPress={() => setQuery("")}
                   >
@@ -312,7 +313,7 @@ export default function SearchScreen() {
                   </Pressable>
                 ) : null}
                 <AnimatedPressable
-                  accessibilityLabel={`${filtersOpen ? "Fermer" : "Ouvrir"} les filtres`}
+                  accessibilityLabel={filtersOpen ? msg("search.closeFilters") : msg("homeSearchBar.openProductFilters")}
                   accessibilityState={{ expanded: filtersOpen }}
                   onPress={() => setFiltersOpen((open) => !open)}
                   style={styles.filterButton}
@@ -336,23 +337,23 @@ export default function SearchScreen() {
             {filtersOpen ? (
               <View style={styles.filterPanel}>
                 <View style={styles.filterPanelHeader}>
-                  <Text style={styles.filterPanelTitle}>FILTRES</Text>
+                  <Text style={styles.filterPanelTitle}>{msg("search.filtersUppercase")}</Text>
                   <Pressable
-                    accessibilityLabel="Réinitialiser les filtres"
+                    accessibilityLabel={msg("search.resetFilters")}
                     accessibilityRole="button"
                     onPress={resetFilters}
                   >
-                    <Text style={styles.resetText}>RÉINITIALISER</Text>
+                    <Text style={styles.resetText}>{msg("search.resetUppercase")}</Text>
                   </Pressable>
                 </View>
-                <Text style={styles.filterLabel}>TRIER PAR</Text>
+                <Text style={styles.filterLabel}>{msg("search.sortByUppercase")}</Text>
                 <View style={styles.sortGrid}>
                   {(
                     [
-                      ["popular", debouncedQuery ? "Pertinence" : "Populaires"],
-                      ["new", "Nouveautés"],
-                      ["low", "Prix croissant"],
-                      ["high", "Prix décroissant"],
+                      ["popular", debouncedQuery ? msg("search.relevance") : msg("common.popular")],
+                      ["new", msg("common.arrivals")],
+                      ["low", msg("common.priceLow")],
+                      ["high", msg("common.priceHigh")],
                     ] as const
                   ).map(([value, label]) => {
                     const selected = sort === value;
@@ -380,17 +381,16 @@ export default function SearchScreen() {
                   })}
                 </View>
                 <AnimatedPressable
-                  accessibilityLabel="En stock uniquement"
+                  accessibilityLabel={msg("search.inStockOnly")}
                   accessibilityRole="switch"
                   accessibilityState={{ checked: stockOnly }}
                   onPress={() => setStockOnly((value) => !value)}
                   style={styles.stockOption}
                 >
                   <View>
-                    <Text style={styles.stockTitle}>EN STOCK UNIQUEMENT</Text>
+                    <Text style={styles.stockTitle}>{msg("search.inStockOnlyUppercase")}</Text>
                     <Text style={styles.stockDescription}>
-                      Masquer les produits indisponibles
-                    </Text>
+                      {msg("search.hideUnavailableProducts")}</Text>
                   </View>
                   <View
                     style={[
@@ -415,23 +415,23 @@ export default function SearchScreen() {
                 {popularSearches.length ? (
                   <View style={styles.section}>
                     <SectionHeading
-                      eyebrow="TENDANCES"
-                      title="RECHERCHES POPULAIRES"
+                      eyebrow={msg("search.trendingUppercase")}
+                      title={msg("search.popularSearchesUppercase")}
                     />
                     <View style={styles.popularGrid}>
                       {popularSearches.map((item, index) => (
                         <AnimatedPressable
-                          key={item.label}
-                          accessibilityLabel={`Rechercher ${item.label}`}
+                          key={localizedContent(item.label)}
+                          accessibilityLabel={msg("search.searchTerm", { term: item.label })}
                           onPress={() => runPopularSearch(item)}
                           style={styles.popularItem}
                         >
                           <View style={styles.popularCopy}>
                             {index === 0 ? (
-                              <Text style={styles.trendLabel}>TENDANCE</Text>
+                              <Text style={styles.trendLabel}>{msg("search.trendingUppercaseText")}</Text>
                             ) : null}
                             <Text numberOfLines={1} style={styles.popularText}>
-                              {item.label}
+                              {localizedContent(item.label)}
                             </Text>
                           </View>
                           <Ionicons
@@ -447,18 +447,18 @@ export default function SearchScreen() {
 
                 {editorialCategories.length ? (
                   <View style={styles.section}>
-                    <SectionHeading eyebrow="CATÉGORIES" title="EXPLORER" />
+                    <SectionHeading eyebrow={msg("search.categoriesUppercase")} title={msg("search.exploreUppercase")} />
                     <View style={styles.categoryGrid}>
                       {editorialCategories.map((item, index) => (
                         <AnimatedPressable
                           key={item.id}
-                          accessibilityLabel={`Explorer ${item.label}`}
+                          accessibilityLabel={msg("categories.exploreNamed", { name: localizedContent(item.label) })}
                           onPress={() => openCategory(item.slug)}
                           pressedScale={0.97}
                           style={styles.categoryTile}
                         >
                           <Image
-                            accessibilityLabel={`Catégorie ${item.label}`}
+                            accessibilityLabel={msg("categories.named", { name: localizedContent(item.label) })}
                             cachePolicy="memory-disk"
                             contentFit="cover"
                             source={
@@ -490,7 +490,7 @@ export default function SearchScreen() {
                                 index === 0 && styles.categoryLabelFeatured,
                               ]}
                             >
-                              {item.label.toUpperCase()}
+                              {localizedContent(item.label).toUpperCase()}
                             </Text>
                             <Ionicons
                               name="arrow-forward"
@@ -510,20 +510,20 @@ export default function SearchScreen() {
 
             <View style={styles.productsHeading}>
               <SectionHeading
-                eyebrow={discoveryMode ? "SÉLECTION L’ECOMAX" : "RÉSULTATS"}
+                eyebrow={discoveryMode ? msg("newArrivalsSection.lEcomaxSelectionUppercase") : msg("search.resultsUppercase")}
                 title={
                   discoveryMode
-                    ? "TENDANCES"
-                    : `${products.length} PRODUIT${products.length === 1 ? "" : "S"}`
+                    ? msg("search.trendingUppercase")
+                    : msg("counts.products", { count: products.length })
                 }
               />
               {discoveryMode ? (
                 <AnimatedPressable
-                  accessibilityLabel="Voir tous les produits"
+                  accessibilityLabel={msg("search.viewAllProducts")}
                   onPress={() => router.push("/catalog")}
                   style={styles.viewAll}
                 >
-                  <Text style={styles.viewAllText}>Voir tout</Text>
+                  <Text style={styles.viewAllText}>{msg("common.viewAll")}</Text>
                   <Ionicons
                     name="arrow-forward"
                     size={16}
@@ -544,17 +544,17 @@ export default function SearchScreen() {
           ) : productsQuery.isError ? (
             <EmptyState
               icon="cloud-offline-outline"
-              title="CONNEXION IMPOSSIBLE"
-              description="Les produits n’ont pas pu être chargés."
-              action="RÉESSAYER"
+              title={msg("checkoutScreen.connectionFailedUppercase")}
+              description={msg("search.productsCouldNotBeLoaded")}
+              action={msg("notifications.tryAgainUppercase")}
               onPress={() => void productsQuery.refetch()}
             />
           ) : (
             <EmptyState
               icon="search-outline"
-              title="AUCUN RÉSULTAT"
-              description="Essayez un autre produit, une marque ou une catégorie."
-              action="EFFACER LA RECHERCHE"
+              title={msg("search.noResultsUppercase")}
+              description={msg("search.tryAnotherProductBrandOrCategory")}
+              action={msg("search.clearSearchUppercase")}
               onPress={() => {
                 setQuery("");
                 resetFilters();
@@ -575,6 +575,7 @@ function SectionHeading({
   eyebrow: string;
   title: string;
 }) {
+  useLocale();
   return (
     <View>
       <Text style={styles.sectionEyebrow}>{eyebrow}</Text>
@@ -596,6 +597,7 @@ function EmptyState({
   action: string;
   onPress: () => void;
 }) {
+  useLocale();
   return (
     <View style={styles.emptyState}>
       <Ionicons name={icon} size={32} color={colors.primaryDark} />

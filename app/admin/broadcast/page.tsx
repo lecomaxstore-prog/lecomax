@@ -1,4 +1,5 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useState } from "react";
 
 type Customer = { name: string; phone: string; city?: string; orderCount: number; lastOrder: string };
@@ -136,7 +137,7 @@ export default function BroadcastPage() {
 
       {/* Sending modal */}
       {currentIdx !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div className="admin-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#25D366] flex items-center justify-center text-white font-black text-lg">
@@ -192,9 +193,7 @@ export default function BroadcastPage() {
             </div>
 
             {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
-              </div>
+              <AdminLoading />
             ) : (
               <div className="max-h-[420px] overflow-y-auto divide-y divide-neutral-50">
                 {filtered.map((c) => (

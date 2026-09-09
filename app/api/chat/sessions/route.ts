@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { CHAT_IDLE_MS } from "@/lib/chat-lifecycle";
+import { checkChatSession } from "@/lib/chat-session-server";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,33 +28,23 @@ export async function GET() {
     for (const message of joinedMessages || []) joinedSessionIds.add(message.session_id);
   }
 
-  const cutoff = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+  const cutoff = new Date(Date.now() - CHAT_IDLE_MS).toISOString();
   const candidates = (data || []).filter(
-    (session) => session.status === "escalated" && session.last_at <= cutoff
+    (session) => session.status !== "resolved" && session.last_at <= cutoff
   );
   if (candidates.length > 0) {
     const candidateIds = candidates.map((session) => session.id);
-    const { data: recentMessages } = await supabase
+    const { data: recentMessages, error: activityError } = await supabase
       .from("chat_messages")
       .select("session_id, body, sent_by, timestamp")
       .in("session_id", candidateIds)
       .order("timestamp", { ascending: false });
 
-    const latestBySession = new Map<string, { body: string; sent_by: string }>();
-    for (const message of recentMessages || []) {
-      if (message.body !== "__AGENT_JOINED__" && !latestBySession.has(message.session_id)) {
-        latestBySession.set(message.session_id, message);
-      }
-    }
-    const expiredIds = candidateIds.filter(
-      (id) => latestBySession.get(id)?.sent_by === "agent"
-    );
-    if (expiredIds.length > 0) {
-      await supabase.from("chat_sessions").update({ status: "resolved" }).in("id", expiredIds);
-      const expiredSet = new Set(expiredIds);
-      for (const session of data || []) {
-        if (expiredSet.has(session.id)) session.status = "resolved";
-      }
+    if (activityError) return NextResponse.json({ error: "Activity unavailable" }, { status: 503 });
+    for (const session of candidates) {
+      const activity = (recentMessages || []).filter(message => message.session_id === session.id);
+      const lifecycle = await checkChatSession(supabase, session, activity);
+      session.status = lifecycle.status;
     }
   }
   return NextResponse.json((data || []).map((session) => ({

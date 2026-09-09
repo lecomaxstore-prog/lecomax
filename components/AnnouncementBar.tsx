@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 const DEFAULT_MESSAGES = [
   "LIVRAISON GRATUITE DÈS 500 MAD AU MAROC",
-  "RETOURS GRATUITS SOUS 30 JOURS",
+  "Retours sous conditions SOUS 30 JOURS",
   "PAIEMENT À LA LIVRAISON DISPONIBLE",
 ];
 

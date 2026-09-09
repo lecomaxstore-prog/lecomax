@@ -1,3 +1,5 @@
+import { localizedContent } from "@/i18n/content";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
@@ -23,6 +25,7 @@ export const HomePromotionSection = memo(function HomePromotionSection({
 }: {
   products: Product[];
 }) {
+  useLocale();
   const { contentWidth } = useAppViewport();
   const cardWidth = Math.min(280, contentWidth - 64);
   if (!products.length) return null;
@@ -31,16 +34,14 @@ export const HomePromotionSection = memo(function HomePromotionSection({
     <View style={styles.section}>
       <View style={styles.heading}>
         <View style={styles.headingCopy}>
-          <Text style={styles.eyebrow}>PRIX L’ECOMAX</Text>
+          <Text style={styles.eyebrow}>{msg("homePromotionSection.lEcomaxPricesUppercase")}</Text>
           <Text accessibilityRole="header" style={styles.title}>
-            Promotions
-          </Text>
+            {msg("homePromotionSection.promotions")}</Text>
           <Text style={styles.subtitle}>
-            Des offres sélectionnées, pour une durée limitée.
-          </Text>
+            {msg("homePromotionSection.selectedOffersAvailableForALimitedTime")}</Text>
         </View>
         <AnimatedPressable
-          accessibilityLabel="Voir toutes les promotions"
+          accessibilityLabel={msg("homePromotionSection.viewAllPromotions")}
           onPress={() =>
             router.push({
               pathname: "/catalog",
@@ -49,7 +50,7 @@ export const HomePromotionSection = memo(function HomePromotionSection({
           }
           style={styles.viewAll}
         >
-          <Text style={styles.viewAllText}>Voir tout</Text>
+          <Text style={styles.viewAllText}>{msg("common.viewAll")}</Text>
           <Ionicons name="arrow-forward" size={15} color={colors.primaryDark} />
         </AnimatedPressable>
       </View>
@@ -80,6 +81,7 @@ const PromotionFeatureCard = memo(function PromotionFeatureCard({
   product: Product;
   width: number;
 }) {
+  useLocale();
   const saving = discount(product.price, product.original_price);
   const savedAmount = Math.max(
     0,
@@ -88,7 +90,7 @@ const PromotionFeatureCard = memo(function PromotionFeatureCard({
 
   return (
     <AnimatedPressable
-      accessibilityLabel={`${product.name}, ${saving ? `${saving}% de réduction` : "offre spéciale"}`}
+      accessibilityLabel={`${product.name}, ${saving ? msg("promotions.discountPercent", { percent: saving }) : msg("homePromotionSection.specialOffer")}`}
       onPress={() =>
         router.push({
           pathname: "/product/[slug]",
@@ -105,7 +107,7 @@ const PromotionFeatureCard = memo(function PromotionFeatureCard({
       <View style={styles.imageWrap}>
         <View style={styles.offerBadge}>
           <Text style={styles.offerBadgeText}>
-            {saving ? `-${saving}%` : "OFFRE"}
+            {saving ? `-${saving}%` : msg("homePromotionSection.offerUppercase")}
           </Text>
         </View>
         <Image
@@ -124,13 +126,13 @@ const PromotionFeatureCard = memo(function PromotionFeatureCard({
             ]}
           />
           <Text style={styles.imageFooterText}>
-            {product.stock > 0 ? "EN STOCK" : "ÉPUISÉ"}
+            {product.stock > 0 ? msg("homePromotionSection.inStockUppercase") : msg("homePromotionSection.soldOutUppercase")}
           </Text>
         </View>
       </View>
       <View style={styles.cardCopy}>
         <Text numberOfLines={1} style={styles.category}>
-          {(product.brand || product.category).toUpperCase()}
+          {(product.brand || localizedContent(product.category)).toUpperCase()}
         </Text>
         <Text numberOfLines={2} style={styles.productName}>
           {product.name}
@@ -146,12 +148,12 @@ const PromotionFeatureCard = memo(function PromotionFeatureCard({
         </View>
         {savedAmount > 0 ? (
           <Text style={styles.savedAmount}>
-            Vous économisez {money(savedAmount)}
+            {msg("homePromotionSection.youSave")}{" "}{money(savedAmount)}
           </Text>
         ) : null}
 
         <View style={styles.discover}>
-          <Text style={styles.discoverText}>Découvrir</Text>
+          <Text style={styles.discoverText}>{msg("campaignHero.discover")}</Text>
           <Ionicons name="arrow-forward" size={17} color={colors.text} />
         </View>
       </View>

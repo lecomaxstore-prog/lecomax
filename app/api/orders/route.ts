@@ -1,30 +1,16 @@
+import { calculateCart, CommerceError, COMMERCE_SETTING_KEYS } from "@/lib/commerce-server";
+import { preorderCopy } from "@/lib/preorder-copy";
+import { databaseAvailability } from "@/lib/preorder";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
-import { calculateCouponDiscount, calculateCouponPricing } from "@/lib/coupon-pricing";
-import { couponStateAfterUse } from "@/lib/coupon-redemption";
-import { calculateCheckoutTotal } from "@/lib/checkout-total";
-import { shippingConfigFromSettings } from "@/lib/shipping-config";
-import { resolveShippingQuote, type ShippingZoneRule } from "@/lib/shipping-zones";
 import { verifyPayPalCapture } from "@/lib/paypal-server";
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
 import { colorPricesFromTags } from "@/lib/product-variant-pricing";
-import { loyaltyTierForPoints } from "@/lib/loyalty";
 import { enforceRateLimit } from "@/lib/api-security";
-import {
-  PAYMENT_SETTING_KEYS,
-  paymentMethodAvailability,
-  paymentMethodsFromSettings,
-} from "@/lib/payment-methods";
-import {
-  colorSizeStockFromTags,
-  sizeStockFromTags,
-  syncColorSizeStockTags,
-  syncSizeInventoryTags,
-  type ProductSizeGuideType,
-} from "@/lib/product-inventory";
+
 
 // Use service role key server-side so RLS doesn't block order insertion
 const supabase = createClient(
@@ -122,6 +108,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
+  if (!body || typeof body !== "object") return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   const { customer, items, total, shipping, payment_fee, payment_provider, paypal_order_id, paypal_capture_id, coupon_id, discount, notes, abandoned_cart_token } = body as {
     customer: {
       name: string;
@@ -131,6 +118,7 @@ export async function POST(req: NextRequest) {
       address: string;
     };
     items: {
+      fulfillment_type?: "STANDARD" | "PREORDER";
       slug: string;
       name: string;
       price: number;
@@ -150,20 +138,22 @@ export async function POST(req: NextRequest) {
     notes?: string;
     abandoned_cart_token?: string | null;
   };
+  if (!body || typeof body !== "object") return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   const rawIdempotencyKey = req.headers.get("idempotency-key") ?? "";
   const idempotencyKey = /^[A-Za-z0-9_-]{16,120}$/.test(rawIdempotencyKey)
     ? rawIdempotencyKey
-    : null;
+    : crypto.randomUUID();
   const orderSource = req.headers.get("x-lecomax-client") === "mobile_app"
     ? "mobile_app"
     : "website";
-  if (rawIdempotencyKey && !idempotencyKey) {
+  if (rawIdempotencyKey && !/^[A-Za-z0-9_-]{16,120}$/.test(rawIdempotencyKey)) {
     return NextResponse.json({ error: "Clé d’idempotence invalide." }, { status: 400 });
   }
+  if (!rawIdempotencyKey) return NextResponse.json({ error: "Clé de commande manquante. Actualisez puis réessayez.", code: "IDEMPOTENCY_KEY_REQUIRED" }, { status: 400 });
   if (idempotencyKey) {
     const { data: existingOrder, error: lookupError } = await supabase
       .from("orders")
-      .select("id,order_number,total")
+      .select("id,order_number,total,items")
       .eq("idempotency_key", idempotencyKey)
       .maybeSingle();
     if (lookupError && !["42703", "PGRST204"].includes(lookupError.code ?? "")) {
@@ -196,6 +186,9 @@ export async function POST(req: NextRequest) {
     !item || !cleanText(item.slug, 160) || !cleanText(item.name, 200) ||
     !Number.isFinite(item.price) || item.price <= 0 || item.price > 1_000_000 ||
     !Number.isInteger(item.qty) || item.qty < 1 || item.qty > 20
+    || (item.color !== undefined && typeof item.color !== "string")
+    || (item.size !== undefined && typeof item.size !== "string")
+    || (item.fulfillment_type !== undefined && !["STANDARD", "PREORDER"].includes(item.fulfillment_type))
   )) {
     return NextResponse.json({ error: "Un ou plusieurs articles sont invalides." }, { status: 400 });
   }
@@ -216,39 +209,17 @@ export async function POST(req: NextRequest) {
     item.color = cleanText(item.color, 50) || undefined;
   }
 
-  // Re-read products server-side. Prices and stock sent by a browser are never authoritative.
-  const slugs = [...new Set(items.map((item) => item.slug))];
-  const { data: databaseProducts, error: productsError } = await supabase
-    .from("products")
-    .select("*")
-    .in("slug", slugs)
-    .eq("active", true);
-  if (productsError) {
-    console.error("Order product verification error:", productsError);
-    return NextResponse.json({ error: "Impossible de vérifier les articles pour le moment." }, { status: 503 });
+  // Quote and order use the same fresh server calculation.
+  let commerce: Awaited<ReturnType<typeof calculateCart>>;
+  try {
+    commerce = await calculateCart(req, { city: customer.city, email: customer.email,
+      couponId: coupon_id, paymentProvider: payment_provider,
+      items: items.map(item => ({ slug: item.slug, quantity: item.qty, color: item.color, size: item.size, price: item.price })) });
+  } catch (error) {
+    const known = error instanceof CommerceError;
+    return NextResponse.json({ error: known ? error.message : "Calcul indisponible.", code: known ? error.code : "QUOTE_UNAVAILABLE", details: known ? error.details : undefined }, { status: known ? error.status : 503 });
   }
-  const productBySlug = new Map<string, Record<string, unknown>>();
-  for (const product of databaseProducts ?? []) productBySlug.set(String(product.slug), product as Record<string, unknown>);
-
-  const requestedBySlug = new Map<string, number>();
-  const requestedByColor = new Map<string, number>();
-  const requestedBySize = new Map<string, number>();
-  const requestedByVariant = new Map<string, number>();
-  for (const item of items) {
-    requestedBySlug.set(item.slug, (requestedBySlug.get(item.slug) ?? 0) + item.qty);
-    if (item.color) {
-      const key = `${item.slug}\u0000${item.color}`;
-      requestedByColor.set(key, (requestedByColor.get(key) ?? 0) + item.qty);
-    }
-    if (item.size) {
-      const key = `${item.slug}\u0000${item.size}`;
-      requestedBySize.set(key, (requestedBySize.get(key) ?? 0) + item.qty);
-    }
-    if (item.color && item.size) {
-      const key = `${item.slug}\u0000${item.color}\u0000${item.size}`;
-      requestedByVariant.set(key, (requestedByVariant.get(key) ?? 0) + item.qty);
-    }
-  }
+  const productBySlug = commerce.products;
 
   for (const item of items) {
     const product = productBySlug.get(item.slug);
@@ -259,33 +230,14 @@ export async function POST(req: NextRequest) {
     if (!product || !Number.isFinite(authoritativePrice) || authoritativePrice <= 0) {
       return NextResponse.json({ error: `L'article « ${item.name} » n'est plus disponible.` }, { status: 409 });
     }
-    const stock = Number(product.stock);
-    if (Number.isFinite(stock) && stock >= 0 && (requestedBySlug.get(item.slug) ?? item.qty) > stock) {
-      return NextResponse.json({ error: `Stock insuffisant pour « ${item.name} ».` }, { status: 409 });
+    const availability = databaseAvailability(product, { ...item, quantity: item.qty });
+    if (availability.status === "OUT_OF_STOCK" || availability.status === "INVALID_VARIANT") {
+      return NextResponse.json({ error: preorderCopy.fr.unavailable, code: "PREORDER_UNAVAILABLE" }, { status: 409 });
     }
-    const colorStock = product.color_stock && typeof product.color_stock === "object" && !Array.isArray(product.color_stock)
-      ? product.color_stock as Record<string, unknown>
-      : null;
-    const variantStock = item.color && colorStock && item.color in colorStock
-      ? Number(colorStock[item.color])
-      : null;
-    const requestedColorQuantity = item.color ? (requestedByColor.get(`${item.slug}\u0000${item.color}`) ?? item.qty) : item.qty;
-    if (variantStock !== null && Number.isFinite(variantStock) && requestedColorQuantity > variantStock) {
-      return NextResponse.json({ error: `La couleur choisie pour « ${item.name} » est épuisée ou insuffisante.` }, { status: 409 });
+    if (availability.status === "PREORDER" && item.fulfillment_type !== "PREORDER") {
+      return NextResponse.json({ error: preorderCopy.fr.review, code: "PREORDER_REVIEW_REQUIRED" }, { status: 409 });
     }
-    const sizeStock = sizeStockFromTags(product.tags);
-    const matrixStock = colorSizeStockFromTags(product.tags);
-    if (Object.keys(matrixStock).length > 0) {
-      const available = item.color && item.size ? matrixStock[item.color]?.[item.size] ?? 0 : 0;
-      const requested = item.color && item.size ? requestedByVariant.get(`${item.slug}\u0000${item.color}\u0000${item.size}`) ?? item.qty : item.qty;
-      if (!item.color || !item.size || requested > available) {
-        return NextResponse.json({ error: `Cette combinaison couleur/taille n’est plus disponible pour « ${item.name} ».`, code: "OUT_OF_STOCK" }, { status: 409 });
-      }
-    }
-    const requestedSizeQuantity = item.size ? (requestedBySize.get(`${item.slug}\u0000${item.size}`) ?? item.qty) : item.qty;
-    if (item.size && item.size in sizeStock && requestedSizeQuantity > sizeStock[item.size]) {
-      return NextResponse.json({ error: `La taille choisie pour « ${item.name} » est épuisée ou insuffisante.` }, { status: 409 });
-    }
+    Object.assign(item, { fulfillment_type: availability.fulfillment_type, preorder_estimated_at: availability.preorder_estimated_at, preorder_message: availability.preorder_message, base_price: Number(product.price), pricing_tags: Array.isArray(product.tags) ? product.tags.filter((tag: unknown) => typeof tag === "string" && tag.startsWith("__cprice:")) : [] });
     item.price = authoritativePrice;
     item.name = cleanText(product.name, 200) || item.name;
     const serverImage = cleanText(resolveProductVariantImage({
@@ -299,130 +251,21 @@ export async function POST(req: NextRequest) {
   }
 
   const safeNotes = cleanText(notes, 1000) || null;
-  const calculatedSubtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const couponPricing = calculateCouponPricing(
-    items.map((item) => ({ slug: item.slug, quantity: item.qty })),
-    productBySlug
-  );
-  const { data: featureRows } = await supabase
-    .from("settings")
-    .select("key,value")
-    .in("key", [
-      "enable_coupons",
-      "enable_ecoclub",
-      "enable_cod",
-      "enable_paypal",
-      "checkout_minimum_order",
-      ...PAYMENT_SETTING_KEYS,
-    ]);
-  const featureSettings = Object.fromEntries((featureRows ?? []).map((row) => [row.key, String(row.value ?? "")]));
-  const minimumOrder = Number(featureSettings.checkout_minimum_order ?? 0);
-  if (Number.isFinite(minimumOrder) && minimumOrder > 0 && calculatedSubtotal < minimumOrder) {
-    return NextResponse.json({ error: `Le montant minimum de commande est de ${minimumOrder} MAD.` }, { status: 409 });
-  }
-
-  let couponDiscount = 0;
-  let couponUsage: {
-    id: string;
-    usedCount: number;
-    maxUses: number | null;
-  } | null = null;
-  if (coupon_id) {
-    if (featureSettings.enable_coupons === "false") {
-      return NextResponse.json({ error: "Les codes promotionnels sont désactivés." }, { status: 409 });
-    }
-    const { data: coupon } = await supabase.from("coupons").select("*").eq("id", coupon_id).eq("active", true).single();
-    const couponValue = Number(coupon?.value);
-    const couponValid = coupon &&
-      ["percent", "fixed"].includes(coupon.type) &&
-      Number.isFinite(couponValue) && couponValue > 0 &&
-      (coupon.type !== "percent" || couponValue <= 100) &&
-      (!coupon.expires_at || new Date(coupon.expires_at) >= new Date()) &&
-      (coupon.max_uses === null || coupon.used_count < coupon.max_uses) &&
-      couponPricing.eligibleSubtotal > 0 &&
-      (coupon.min_order === null || couponPricing.eligibleSubtotal >= Number(coupon.min_order));
-    if (!couponValid) return NextResponse.json({ error: "Le code promotionnel n'est plus valide." }, { status: 409 });
-    couponUsage = {
-      id: String(coupon.id),
-      usedCount: Number(coupon.used_count ?? 0),
-      maxUses: coupon.max_uses === null ? null : Number(coupon.max_uses),
-    };
-    couponDiscount = calculateCouponDiscount(
-      coupon.type,
-      couponValue,
-      couponPricing.eligibleSubtotal
-    );
-  }
-
-  let loyaltyPercent = 0;
-  const customerUser = await getCustomerUser(req);
-  if (featureSettings.enable_ecoclub !== "false" && customerUser?.email?.toLowerCase() === customer.email) {
-    const { data: pointRecord } = await supabase.from("user_points").select("points").eq("email", customer.email).single();
-    const points = Number(pointRecord?.points ?? 0);
-    loyaltyPercent = loyaltyTierForPoints(points).discountPercent;
-  }
-  const loyaltyDiscount = Math.round((calculatedSubtotal - couponDiscount) * loyaltyPercent / 100);
-  const safeDiscount = couponDiscount + loyaltyDiscount;
-
-  const [{ data: zones }, { data: settingRows }] = await Promise.all([
-    supabase.from("shipping_zones").select("id,name,cities,standard_rate,free_threshold,estimated_days,sort_order,active").eq("active", true),
-    supabase.from("settings").select("key, value").in("key", ["shipping_cost", "free_shipping_threshold", "shipping_estimated_days"]),
-  ]);
-  const settings = Object.fromEntries((settingRows ?? []).map((row) => [row.key, row.value]));
-  const shippingConfig = shippingConfigFromSettings(settings);
-  const shippingQuote = resolveShippingQuote(
-    customer.city,
-    calculatedSubtotal,
-    (zones ?? []) as ShippingZoneRule[],
-    shippingConfig,
-  );
-  const shippingRate = shippingQuote.cost;
-  const safeShipping = shippingQuote.cost;
-
-  if (Math.abs(Number(shipping ?? 0) - safeShipping) > 0.01 || Math.abs(Number(discount ?? 0) - safeDiscount) > 0.01) {
-    return NextResponse.json({ error: "Les frais ou la remise ont changé. Actualisez la page puis réessayez." }, { status: 409 });
-  }
+  const { quote: calculation } = commerce;
+  const featureSettings = commerce.config.settings;
+  const storeEmailHtml = featureSettings.store_email.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c] ?? c));
+  const calculatedSubtotal = calculation.subtotal;
+  const safeDiscount = calculation.discount;
+  const safeShipping = calculation.shipping;
+  const shippingRate = safeShipping;
+  const safePaymentFee = calculation.paymentFee;
+  const expectedTotal = calculation.total;
   const provider = payment_provider === "paypal" ? "paypal" : payment_provider === "cod" ? "cod" : null;
-  if (!provider) return NextResponse.json({ error: "Mode de paiement invalide." }, { status: 400 });
-  const paymentMethod = paymentMethodsFromSettings(featureSettings).find(
-    (method) => method.provider === provider,
-  );
-  if (!paymentMethod) {
-    return NextResponse.json({ error: "Mode de paiement indisponible." }, { status: 409 });
-  }
-  const paymentAvailability = paymentMethodAvailability(
-    paymentMethod,
-    customer.city,
-    calculatedSubtotal,
-  );
-  if (!paymentAvailability.available) {
-    return NextResponse.json(
-      { error: paymentAvailability.reason || "Mode de paiement indisponible." },
-      { status: 409 },
-    );
-  }
-  const safePaymentFee = paymentMethod.fee;
-  if (Math.abs(Number(payment_fee ?? 0) - safePaymentFee) > 0.01) {
-    return NextResponse.json(
-      { error: "Les frais du moyen de paiement ont changé. Actualisez puis réessayez." },
-      { status: 409 },
-    );
-  }
-  const expectedTotal = calculateCheckoutTotal({
-    subtotal: calculatedSubtotal,
-    shipping: safeShipping,
-    paymentFee: safePaymentFee,
-    discount: safeDiscount,
-  });
-  if (Math.abs(expectedTotal - total) > 0.01) {
-    return NextResponse.json({ error: "Le total de la commande a changé. Actualisez la page puis réessayez." }, { status: 409 });
-  }
-
-  if (provider === "cod" && featureSettings.enable_cod === "false") {
-    return NextResponse.json({ error: "Le paiement à la livraison est temporairement désactivé." }, { status: 409 });
-  }
-  if (provider === "paypal" && featureSettings.enable_paypal === "false") {
-    return NextResponse.json({ error: "Le paiement PayPal est temporairement désactivé." }, { status: 409 });
+  if (!provider) return NextResponse.json({ error: "Mode de paiement invalide.", code: "INVALID_PAYMENT_METHOD" }, { status: 400 });
+  const submitted = [shipping ?? 0, discount ?? 0, payment_fee ?? 0, total];
+  const expected = [safeShipping, safeDiscount, safePaymentFee, expectedTotal];
+  if (calculation.priceChanged || submitted.some((value, index) => !Number.isFinite(value) || Math.abs(Number(value) - expected[index]) > 0.001)) {
+    return NextResponse.json({ error: "Le total de votre commande a été mis à jour. Vérifiez le nouveau montant avant de confirmer.", code: "CART_CHANGED", calculation }, { status: 409 });
   }
 
   let paymentReference: string | null = null;
@@ -473,6 +316,7 @@ export async function POST(req: NextRequest) {
     customer,
     items,
     total: expectedTotal,
+    pricing_snapshot: { ...calculation, store: { name: featureSettings.store_name, email: featureSettings.store_email, phone: featureSettings.store_phone, address: featureSettings.store_address } },
     payment_method: displayPaymentMethod,
     payment_reference: paymentReference,
     payment_status: paymentStatus,
@@ -485,74 +329,16 @@ export async function POST(req: NextRequest) {
     order_source: orderSource,
     idempotency_key: idempotencyKey,
   };
-  let inventoryReserved = false;
-  const inventoryPayload = items.map(({ slug, qty, color, size }) => ({ slug, qty, color: color || null, size: size || null }));
-  const { error: reservationError } = await supabase.rpc("reserve_order_inventory", {
-    p_items: inventoryPayload,
-  });
-  if (reservationError) {
-    const migrationPending = ["PGRST202", "42883"].includes(reservationError.code ?? "");
-    if (!migrationPending) {
-      const unavailable = /INSUFFICIENT_(PRODUCT|VARIANT)_STOCK/.test(reservationError.message);
-      console.error("Inventory reservation failed:", reservationError.message);
-      return NextResponse.json(
-        { error: unavailable ? "Un article ou une variante vient d’être épuisé. Actualisez votre panier." : "Impossible de réserver le stock pour le moment." },
-        { status: unavailable ? 409 : 503 },
-      );
-    }
-    if (orderSource === "mobile_app") {
-      console.error("Atomic inventory migration is missing for mobile checkout.");
-      return NextResponse.json(
-        {
-          error: "La réservation sécurisée du stock est momentanément indisponible.",
-          code: "ATOMIC_INVENTORY_MIGRATION_REQUIRED",
-        },
-        { status: 503 },
-      );
-    }
-    // Additive deployment compatibility: the legacy path remains available
-    // only until the inventory migration reaches the database.
-    console.warn("Atomic inventory migration is pending; using the legacy stock path.");
-  } else {
-    inventoryReserved = true;
-  }
-  let { data, error } = await supabase.from("orders").insert(orderInsert).select("id, order_number").single();
-
-  // Preserve website checkout compatibility while a deployment is waiting for
-  // the additive migration above. Mobile idempotency becomes active as soon as
-  // the migration is applied.
-  if (error && orderSource === "website" && ["42703", "PGRST204"].includes(error.code ?? "")) {
-    const { order_source: _source, idempotency_key: _key, ...legacyInsert } = orderInsert;
-    ({ data, error } = await supabase.from("orders").insert(legacyInsert).select("id, order_number").single());
-  }
-
+  const { data, error } = await supabase.rpc("create_commerce_order", { p_order: orderInsert,
+    p_settings: commerce.config.rawSettings, p_setting_keys: COMMERCE_SETTING_KEYS,
+    p_zones: commerce.config.zones, p_coupon: commerce.coupon });
   if (error) {
-    if (inventoryReserved) {
-      await supabase.rpc("release_order_inventory", { p_items: inventoryPayload });
-      inventoryReserved = false;
-    }
-    if (error.code === "23505" && idempotencyKey) {
-      const { data: existingOrder } = await supabase
-        .from("orders")
-        .select("id,order_number")
-        .eq("idempotency_key", idempotencyKey)
-        .maybeSingle();
-      if (existingOrder) return NextResponse.json({ ...existingOrder, duplicate: true });
-    }
-    if (isPayPal && error.code === "23505" && paymentReference) {
-      const { data: existingOrder } = await supabase
-        .from("orders")
-        .select("id,order_number")
-        .eq("payment_reference", paymentReference)
-        .maybeSingle();
-      if (existingOrder) return NextResponse.json({ ...existingOrder, duplicate: true });
-    }
-    console.error("Order insert error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const conflict = /STOCK|UNAVAILABLE|VARIANT|FULFILLMENT_CHANGED|PRICE_CHANGED|CONFIGURATION_CHANGED|COUPON/.test(error.message);
+    return NextResponse.json({ error: conflict ? preorderCopy.fr.changed : "La création sécurisée de la commande est indisponible.", code: conflict ? error.message : "ORDER_TRANSACTION_UNAVAILABLE" }, { status: conflict ? 409 : 503 });
   }
-  if (!data) {
-    return NextResponse.json({ error: "La commande n’a pas pu être créée." }, { status: 500 });
-  }
+  if (!data) return NextResponse.json({ error: "Commande indisponible." }, { status: 503 });
+  if (data.duplicate) return NextResponse.json({ id: data.id, order_number: data.order_number, items: data.items, duplicate: true });
+  items.splice(0, items.length, ...data.items);
 
   if (featureSettings.enable_ecoclub !== "false") {
     const { error: loyaltyReservationError } = await supabase.rpc("reserve_order_loyalty_points", {
@@ -594,78 +380,7 @@ export async function POST(req: NextRequest) {
     requireInteraction: true,
   }).catch((pushError) => console.error("Admin order push failed:", pushError));
 
-  // Backward-compatible fallback used only while the additive inventory RPC
-  // migration has not reached the database yet.
-  if (!inventoryReserved && orderSource === "website") {
-    for (const item of items) {
-      if (!item.slug) continue;
-      const { data: prod } = await supabase
-        .from("products")
-        .select("stock, color_stock, slug, tags")
-        .eq("slug", item.slug)
-        .single();
-      if (!prod || typeof prod.stock !== "number") continue;
-      const updates: Record<string, unknown> = { stock: Math.max(0, prod.stock - item.qty) };
-      if (item.color && prod.color_stock && typeof prod.color_stock === "object") {
-        const cs = prod.color_stock as Record<string, number>;
-        if (typeof cs[item.color] === "number") {
-          updates.color_stock = { ...cs, [item.color]: Math.max(0, cs[item.color] - item.qty) };
-        }
-      }
-      const tags = Array.isArray(prod.tags) ? prod.tags as string[] : [];
-      const guideTag = tags.find((tag) => tag.startsWith("__guide:"));
-      const guideType = (["none", "clothing", "shoes", "custom"].includes(guideTag?.slice(8) ?? "") ? guideTag!.slice(8) : "custom") as ProductSizeGuideType;
-      const sizeStock = sizeStockFromTags(tags);
-      if (item.size && item.size in sizeStock) sizeStock[item.size] = Math.max(0, sizeStock[item.size] - item.qty);
-      const matrix = colorSizeStockFromTags(tags);
-      if (item.color && item.size && matrix[item.color] && item.size in matrix[item.color]) {
-        matrix[item.color][item.size] = Math.max(0, matrix[item.color][item.size] - item.qty);
-      }
-      if (Object.keys(sizeStock).length > 0 || Object.keys(matrix).length > 0) {
-        updates.tags = syncColorSizeStockTags(syncSizeInventoryTags(tags, guideType, Object.keys(sizeStock).length ? sizeStock : undefined), Object.keys(matrix).length ? matrix : undefined);
-      }
-      await supabase.from("products").update(updates).eq("slug", item.slug);
-    }
-  }
-
-  // Consume the coupon only after the order exists. The database function uses
-  // one conditional UPDATE, so one-use codes become inactive immediately and
-  // concurrent requests cannot increment beyond max_uses.
-  if (couponUsage) {
-    const { data: consumedCoupon, error: consumeError } = await supabase.rpc(
-      "consume_coupon_use",
-      { p_coupon_id: couponUsage.id },
-    );
-    if (consumeError && ["PGRST202", "42883"].includes(consumeError.code ?? "")) {
-      // Additive deployment fallback until the migration reaches production.
-      const fallbackState = couponStateAfterUse(
-        couponUsage.usedCount,
-        couponUsage.maxUses,
-      );
-      const { data: fallbackCoupon, error: fallbackError } = await supabase
-        .from("coupons")
-        .update({
-          used_count: fallbackState.usedCount,
-          active: fallbackState.active,
-        })
-        .eq("id", couponUsage.id)
-        .eq("active", true)
-        .eq("used_count", couponUsage.usedCount)
-        .select("id")
-        .maybeSingle();
-      if (fallbackError || !fallbackCoupon) {
-        console.error(
-          "Coupon redemption fallback failed:",
-          fallbackError?.message ?? "COUPON_ALREADY_CONSUMED",
-        );
-      }
-    } else if (consumeError || !consumedCoupon) {
-      console.error(
-        "Atomic coupon redemption failed:",
-        consumeError?.message ?? "COUPON_ALREADY_CONSUMED",
-      );
-    }
-  }
+  // Coupon redemption is part of create_commerce_order and rolls back with inventory.
 
   // EcoClub points are reserved now and released atomically when delivered.
   // See /api/orders/[id]/route.ts PUT handler.
@@ -709,7 +424,7 @@ export async function POST(req: NextRequest) {
 
     resend.emails.send({
       from: "L'ecomax <noreply@lecomax.com>",
-      replyTo: "contact@lecomax.com",
+      replyTo: featureSettings.store_email,
       to: customer.email,
       subject: `Commande ${order_number} confirmée | Merci pour votre confiance | L'ecomax`,
       attachments: [
@@ -790,7 +505,7 @@ export async function POST(req: NextRequest) {
           <td style="font-size:28px;font-weight:900;color:#4ade80;letter-spacing:-1px;line-height:1;font-family:'Helvetica Neue',Arial,sans-serif;">max</td>
         </tr></table>
         <p style="margin:6px 0 0;font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;">BOUTIQUE EN LIGNE · MAROC</p>
-        <p style="margin:16px 0 0;font-size:11px;color:rgba(255,255,255,0.35);line-height:1.8;">contact@lecomax.com<br>lecomax.com<br>Maroc</p>
+        <p style="margin:16px 0 0;font-size:11px;color:rgba(255,255,255,0.35);line-height:1.8;">${storeEmailHtml}<br>lecomax.com<br>Maroc</p>
       </td>
       <td class="header-col header-right" style="vertical-align:top;text-align:right;">
         <span style="display:inline-block;padding:4px 12px;border:1px solid rgba(74,222,128,0.3);border-radius:5px;font-size:9px;font-weight:700;color:#4ade80;letter-spacing:3px;background:rgba(74,222,128,0.08);">&#9679; FACTURE</span>
@@ -826,7 +541,7 @@ export async function POST(req: NextRequest) {
           <td style="font-size:16px;font-weight:900;color:#111827;letter-spacing:-0.5px;font-family:'Helvetica Neue',Arial,sans-serif;">L&apos;eco</td>
           <td style="font-size:16px;font-weight:900;color:#3ecf4c;letter-spacing:-0.5px;font-family:'Helvetica Neue',Arial,sans-serif;">max</td>
         </tr></table>
-        <p style="margin:10px 0 0;font-size:12px;color:#6b7280;line-height:1.9;">contact@lecomax.com<br>lecomax.com<br>Maroc</p>
+        <p style="margin:10px 0 0;font-size:12px;color:#6b7280;line-height:1.9;">${storeEmailHtml}<br>lecomax.com<br>Maroc</p>
       </td>
       <td class="party-col party-customer" style="padding:26px 36px;width:50%;border-bottom:1px solid #f3f4f6;vertical-align:top;">
         <p style="margin:0 0 12px;font-size:8px;font-weight:700;color:#9ca3af;letter-spacing:2.5px;text-transform:uppercase;">FACTUR&#201; &#192;</p>
@@ -885,6 +600,8 @@ export async function POST(req: NextRequest) {
         <td style="padding:6px 0;font-size:12px;color:#9ca3af;border-bottom:1px dashed #f3f4f6;">Frais de livraison</td>
         <td style="padding:6px 0;font-size:12px;font-weight:700;color:${deliveryFee === 0 ? "#16a34a" : "#374151"};text-align:right;border-bottom:1px dashed #f3f4f6;">${deliveryFee === 0 ? "Gratuit" : formatInvoiceMoney(deliveryFee)}</td>
       </tr>
+      ${safePaymentFee > 0 ? `<tr><td>Frais de paiement</td><td style="text-align:right">${formatInvoiceMoney(safePaymentFee)}</td></tr>` : ""}
+      ${calculation.taxes > 0 ? `<tr><td>Taxes ${calculation.taxesIncluded ? "incluses" : ""}</td><td style="text-align:right">${formatInvoiceMoney(calculation.taxes)}</td></tr>` : ""}
       ${invoiceDiscount > 0 ? `<tr>
         <td style="padding:6px 0;font-size:12px;color:#16a34a;border-bottom:1px dashed #f3f4f6;">Remise appliqu&eacute;e</td>
         <td style="padding:6px 0;font-size:12px;font-weight:800;color:#16a34a;text-align:right;border-bottom:1px dashed #f3f4f6;">&minus; ${formatInvoiceMoney(invoiceDiscount)}</td>
@@ -925,7 +642,7 @@ export async function POST(req: NextRequest) {
           <td style="font-size:14px;font-weight:900;color:#111827;letter-spacing:-0.5px;font-family:'Helvetica Neue',Arial,sans-serif;">L&apos;eco</td>
           <td style="font-size:14px;font-weight:900;color:#3ecf4c;letter-spacing:-0.5px;font-family:'Helvetica Neue',Arial,sans-serif;">max</td>
         </tr></table>
-        <p style="margin:3px 0 0;font-size:10px;color:#9ca3af;">contact@lecomax.com · lecomax.com</p>
+        <p style="margin:3px 0 0;font-size:10px;color:#9ca3af;">${storeEmailHtml} · lecomax.com</p>
       </td>
       <td class="footer-col footer-center" style="text-align:center;vertical-align:middle;">
         <p style="margin:0;font-size:11px;font-weight:600;color:#6b7280;">Merci pour votre confiance !</p>
@@ -963,7 +680,7 @@ export async function POST(req: NextRequest) {
 
     resend.emails.send({
       from: "LECOMAX <noreply@lecomax.com>",
-      replyTo: "contact@lecomax.com",
+      replyTo: featureSettings.store_email,
       to: process.env.ADMIN_EMAIL || "contact@lecomax.com",
       subject: `🛒 Nouvelle commande ${order_number} — ${total.toFixed(0)} MAD`,
       html: `<!DOCTYPE html>
@@ -1019,5 +736,5 @@ export async function POST(req: NextRequest) {
     }).catch((err) => console.error("Admin notification error:", err));
   }
 
-  return NextResponse.json({ order_number: data.order_number, id: data.id }, { status: 201 });
+  return NextResponse.json({ order_number: data.order_number, id: data.id, items: data.items, pricing_snapshot: data.pricing_snapshot, total: expectedTotal }, { status: 201 });
 }

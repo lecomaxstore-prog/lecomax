@@ -1,3 +1,6 @@
+import { localizedContent } from "@/i18n/content";
+import { localizedError } from "@/i18n/errors";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import type { Session } from "@supabase/supabase-js";
@@ -21,7 +24,7 @@ import { BrandLogo } from "@/components/brand-logo";
 import { ProductCard } from "@/components/product-card";
 import { Screen } from "@/components/screen";
 import { WishlistProductCard } from "@/components/wishlist-product-card";
-import { palette, typography, ui } from "@/constants/theme";
+import { palette, typography } from "@/constants/theme";
 import { triggerSuccessHaptic } from "@/services/haptics";
 import {
   useProducts,
@@ -49,11 +52,11 @@ const sortOptions: {
   value: WishlistSort;
   label: string;
 }[] = [
-  { value: "recommended", label: "Recommandés" },
-  { value: "price-asc", label: "Prix croissant" },
-  { value: "price-desc", label: "Prix décroissant" },
-  { value: "newest", label: "Nouveautés" },
-  { value: "rating", label: "Meilleures notes" },
+  { value: "recommended", get label() { return msg("wishlist.recommended"); } },
+  { value: "price-asc", get label() { return msg("common.priceLow"); } },
+  { value: "price-desc", get label() { return msg("common.priceHigh"); } },
+  { value: "newest", get label() { return msg("common.arrivals"); } },
+  { value: "rating", get label() { return msg("wishlist.topRated"); } },
 ];
 
 type Feedback = {
@@ -63,6 +66,7 @@ type Feedback = {
 };
 
 export default function WishlistScreen() {
+  useLocale();
   const insets = useSafeAreaInsets();
   const productsQuery = useProducts();
   const settingsQuery = useSettings();
@@ -149,7 +153,7 @@ export default function WishlistScreen() {
   ]);
 
   const savedCount = wishlist.length;
-  const subtitle = `${savedCount} article${savedCount === 1 ? "" : "s"} enregistré${savedCount === 1 ? "" : "s"}`;
+  const subtitle = msg("favorites.savedCount", { count: savedCount });
   const isOffline =
     productsQuery.isError && (productsQuery.data?.length ?? 0) > 0;
   const fatalError =
@@ -194,7 +198,7 @@ export default function WishlistScreen() {
     toggleWishlist(product.id);
     setFeedback({
       type: "removed",
-      message: "Article retiré de vos favoris.",
+      message: msg("wishlist.itemRemovedFromYourFavorites"),
       removed: { product, selection },
     });
   };
@@ -202,7 +206,7 @@ export default function WishlistScreen() {
   const restoreFavorite = () => {
     if (!feedback?.removed) return;
     toggleWishlist(feedback.removed.product.id, feedback.removed.selection);
-    setFeedback({ type: "success", message: "Article restauré." });
+    setFeedback({ type: "success", message: msg("wishlist.itemRestored") });
   };
 
   const confirmAdd = async (product: Product, selected: WishlistVariant) => {
@@ -211,10 +215,10 @@ export default function WishlistScreen() {
     try {
       const result = await productsQuery.refetch();
       const fresh = result.data?.find((item) => item.id === product.id);
-      if (!fresh?.active) throw new Error("Ce produit n’est plus disponible.");
+      if (!fresh?.active) throw new Error(msg("wishlist.thisProductIsNoLongerAvailable"));
       if (!isWishlistVariantAvailable(fresh, selected)) {
         throw new Error(
-          "La variante choisie vient d’être épuisée. Sélectionnez une autre option.",
+          msg("wishlist.theSelectedVariantHasJustSoldOutChooseAnotherOption"),
         );
       }
       addToCart(fresh, {
@@ -236,15 +240,15 @@ export default function WishlistScreen() {
       setVariantProduct(undefined);
       setFeedback({
         type: "success",
-        message: `${fresh.name} ajouté au panier.`,
+        message: msg("cart.namedAdded", { name: fresh.name }),
       });
     } catch (error) {
       setFeedback({
         type: "error",
         message:
           error instanceof Error
-            ? error.message
-            : "Ajout impossible. Veuillez réessayer.",
+            ? localizedError(error)
+            : msg("wishlist.unableToAddItemPleaseTryAgain"),
       });
     } finally {
       setAddingId(undefined);
@@ -252,6 +256,7 @@ export default function WishlistScreen() {
   };
 
   const prepareAdd = (product: Product) => {
+    if (product.preorder_enabled) { router.push({pathname:"/product/[slug]",params:{slug:product.slug}}); return; }
     const selected = defaultWishlistVariant(product, selections[product.id]);
     if (
       requiresWishlistVariant(product) &&
@@ -278,7 +283,7 @@ export default function WishlistScreen() {
     <>
       <View style={styles.header}>
         <AnimatedPressable
-          accessibilityLabel="Retour"
+          accessibilityLabel={msg("addresses.back")}
           accessibilityRole="button"
           onPress={() =>
             router.canGoBack() ? router.back() : router.replace("/")
@@ -289,7 +294,7 @@ export default function WishlistScreen() {
         </AnimatedPressable>
         <BrandLogo header />
         <AnimatedPressable
-          accessibilityLabel={`Ouvrir le panier, ${cartCount} article${cartCount === 1 ? "" : "s"}`}
+          accessibilityLabel={msg("cart.openWithCount", { count: cartCount })}
           accessibilityRole="button"
           onPress={() => router.push("/cart")}
           style={styles.headerAction}
@@ -306,11 +311,11 @@ export default function WishlistScreen() {
       </View>
 
       <View style={styles.intro}>
-        <View style={styles.introTop}><Text style={styles.introEyebrow}>VOTRE SÉLECTION PERSONNELLE</Text><View style={styles.savedPill}><Ionicons name="heart-outline" size={12} color="#526B50" /><Text style={styles.savedPillText}>{savedCount}</Text></View></View>
+        <View style={styles.introTop}><Text style={styles.introEyebrow}>{msg("wishlist.yourPersonalSelectionUppercase")}</Text><View style={styles.savedPill}><Ionicons name="heart-outline" size={12} color="#526B50" /><Text style={styles.savedPillText}>{savedCount}</Text></View></View>
         <Text style={styles.title}>
-          {!settings.app_wishlist_section_title?.trim() || settings.app_wishlist_section_title.trim().toUpperCase() === 'MES FAVORIS' ? 'Mes favoris' : settings.app_wishlist_section_title.trim()}
+          {!settings.app_wishlist_section_title?.trim() || settings.app_wishlist_section_title.trim().toUpperCase() === 'MES FAVORIS' ? msg("common.myFavorites") : settings.app_wishlist_section_title.trim()}
         </Text>
-        <Text style={styles.introDescription}>Des coups de cœur à garder tout près.</Text>
+        <Text style={styles.introDescription}>{msg("wishlist.keepYourFavoritesClose")}</Text>
         <Text accessibilityLiveRegion="polite" style={styles.subtitle}>
           {subtitle}
         </Text>
@@ -319,7 +324,7 @@ export default function WishlistScreen() {
       {isOffline ? (
         <StateBanner
           icon="cloud-offline-outline"
-          message="Mode hors ligne · vos favoris enregistrés restent accessibles."
+          message={msg("wishlist.offlineYourSavedFavoritesAreStillAvailable")}
           onRetry={() => void refresh()}
         />
       ) : null}
@@ -327,17 +332,17 @@ export default function WishlistScreen() {
       <View accessibilityRole="tablist" style={styles.filters}>
         <FilterButton
           active={!inStockOnly}
-          label={`Tous (${savedCount})`}
+          label={msg("favorites.allCount", { count: savedCount })}
           onPress={() => setInStockOnly(false)}
         />
         <FilterButton
           active={inStockOnly}
-          label="En stock"
+          label={msg("productCard.inStock")}
           onPress={() => setInStockOnly(true)}
         />
         <FilterButton
           icon="swap-vertical"
-          label="Trier"
+          label={msg("wishlist.sort")}
           onPress={() => setSortOpen(true)}
         />
       </View>
@@ -349,23 +354,18 @@ export default function WishlistScreen() {
           </View>
           <View style={styles.removedCopy}>
             <Text style={styles.removedTitle}>
-              {split.removed.length} article
-              {split.removed.length > 1 ? "s" : ""} retiré
-              {split.removed.length > 1 ? "s" : ""} du catalogue
-            </Text>
+              {msg("wishlist.removedCount", { count: split.removed.length })}</Text>
             <Text style={styles.removedText}>
-              Ces références ne sont plus proposées et peuvent être supprimées
-              de votre liste.
-            </Text>
+              {msg("wishlist.theseItemsAreNoLongerOfferedAndCanBeRemovedFromYour")}</Text>
           </View>
           <AnimatedPressable
-            accessibilityLabel="Nettoyer les favoris indisponibles"
+            accessibilityLabel={msg("wishlist.clearUnavailableFavorites")}
             onPress={() =>
               split.removed.forEach((productId) => toggleWishlist(productId))
             }
             style={styles.cleanButton}
           >
-            <Text style={styles.cleanButtonText}>NETTOYER</Text>
+            <Text style={styles.cleanButtonText}>{msg("wishlist.clearUppercase")}</Text>
           </AnimatedPressable>
         </View>
       ) : null}
@@ -378,11 +378,11 @@ export default function WishlistScreen() {
         <WishlistSkeleton />
       ) : fatalError ? (
         <FullState
-          action="RÉESSAYER"
+          action={msg("notifications.tryAgainUppercase")}
           icon="cloud-offline-outline"
-          message="Impossible de charger vos produits enregistrés."
+          message={msg("wishlist.unableToLoadYourSavedProducts")}
           onPress={() => void refresh()}
-          title="Connexion indisponible"
+          title={msg("support.signInUnavailable")}
         />
       ) : (
         <FlatList
@@ -401,21 +401,21 @@ export default function WishlistScreen() {
           ListEmptyComponent={
             <FullState
               action={
-                inStockOnly ? "VOIR TOUS MES FAVORIS" : "DÉCOUVRIR NOS PRODUITS"
+                inStockOnly ? msg("wishlist.viewAllMyFavoritesUppercase") : msg("wishlist.exploreOurProductsUppercase")
               }
               icon={inStockOnly ? "cube-outline" : "heart-outline"}
               message={
                 inStockOnly
-                  ? "Aucun de vos articles enregistrés n’est disponible actuellement."
-                  : "Enregistrez les produits qui vous plaisent pour les retrouver ici."
+                  ? msg("wishlist.noneOfYourSavedItemsAreCurrentlyAvailable")
+                  : msg("wishlist.saveProductsYouLoveToFindThemHere")
               }
               onPress={() =>
                 inStockOnly ? setInStockOnly(false) : router.push("/catalog")
               }
               title={
                 inStockOnly
-                  ? "Aucun favori en stock"
-                  : "Votre sélection commence ici"
+                  ? msg("wishlist.noFavoritesInStock")
+                  : msg("common.wishlistEmptyTitle")
               }
             />
           }
@@ -427,19 +427,19 @@ export default function WishlistScreen() {
                     <View>
                       <View style={styles.eyebrowRow}>
                         <View style={styles.eyebrowLine} />
-                        <Text style={styles.eyebrow}>SÉLECTION L’ECOMAX</Text>
+                        <Text style={styles.eyebrow}>{msg("newArrivalsSection.lEcomaxSelectionUppercase")}</Text>
                       </View>
                       <Text style={styles.sectionTitle}>
                         {settings.app_wishlist_recommendations_title?.trim() ||
-                          "VOUS AIMEREZ AUSSI"}
+                          msg("wishlist.youMayAlsoLikeUppercase")}
                       </Text>
                     </View>
                     <AnimatedPressable
-                      accessibilityLabel="Voir toutes les recommandations"
+                      accessibilityLabel={msg("wishlist.viewAllRecommendations")}
                       onPress={() => router.push("/catalog")}
                       style={styles.seeAll}
                     >
-                      <Text style={styles.seeAllText}>Voir tout</Text>
+                      <Text style={styles.seeAllText}>{msg("common.viewAll")}</Text>
                       <Ionicons
                         color="#109336"
                         name="arrow-forward"
@@ -467,8 +467,7 @@ export default function WishlistScreen() {
                 <View style={styles.syncMessage}>
                   <Ionicons color="#109336" name="sync-outline" size={20} />
                   <Text style={styles.syncText}>
-                    Vos favoris vous suivent sur tous vos appareils.
-                  </Text>
+                    {msg("wishlist.yourFavoritesFollowYouAcrossYourDevices")}</Text>
                 </View>
               ) : null}
             </View>
@@ -476,7 +475,7 @@ export default function WishlistScreen() {
           ListHeaderComponent={header}
           refreshControl={
             <RefreshControl
-              accessibilityLabel="Actualiser les favoris"
+              accessibilityLabel={msg("wishlist.refreshFavorites")}
               colors={["#12B83F"]}
               onRefresh={() => void refresh()}
               refreshing={productsQuery.isRefetching}
@@ -507,7 +506,7 @@ export default function WishlistScreen() {
       >
         <AppViewportOverlay align="bottom">
           <Pressable
-            accessibilityLabel="Fermer le tri"
+            accessibilityLabel={msg("wishlist.closeSortingOptions")}
             onPress={() => setSortOpen(false)}
             style={styles.sheetBackdrop}
           />
@@ -518,7 +517,7 @@ export default function WishlistScreen() {
               { paddingBottom: Math.max(insets.bottom, 16) },
             ]}
           >
-            <SheetHeader onClose={() => setSortOpen(false)} title="TRIER PAR" />
+            <SheetHeader onClose={() => setSortOpen(false)} title={msg("search.sortByUppercase")} />
             {sortOptions.map((option) => (
               <AnimatedPressable
                 accessibilityLabel={option.label}
@@ -558,7 +557,7 @@ export default function WishlistScreen() {
       >
         <AppViewportOverlay align="bottom">
           <Pressable
-            accessibilityLabel="Fermer le choix des options"
+            accessibilityLabel={msg("wishlist.closeOptionSelector")}
             onPress={() => setVariantProduct(undefined)}
             style={styles.sheetBackdrop}
           />
@@ -572,7 +571,7 @@ export default function WishlistScreen() {
             >
               <SheetHeader
                 onClose={() => setVariantProduct(undefined)}
-                title="CHOISIR VOS OPTIONS"
+                title={msg("wishlist.chooseYourOptionsUppercase")}
               />
               <ScrollView
                 contentContainerStyle={styles.variantContent}
@@ -583,7 +582,7 @@ export default function WishlistScreen() {
                 </Text>
                 {availableColors(variantProduct).length > 0 ? (
                   <VariantGroup
-                    label="Couleur"
+                    label={msg("wishlist.color")}
                     onSelect={(color) =>
                       setVariant({
                         color,
@@ -598,7 +597,7 @@ export default function WishlistScreen() {
                   (size) => size.toLowerCase() !== "taille unique",
                 ) ? (
                   <VariantGroup
-                    label="Taille"
+                    label={msg("shoeSizeGuide.size")}
                     onSelect={(size) =>
                       setVariant((current) => ({ ...current, size }))
                     }
@@ -607,7 +606,7 @@ export default function WishlistScreen() {
                   />
                 ) : null}
                 <AnimatedPressable
-                  accessibilityLabel="Confirmer et ajouter au panier"
+                  accessibilityLabel={msg("wishlist.confirmAndAddToCart")}
                   disabled={
                     addingId === variantProduct.id ||
                     !isWishlistVariantAvailable(variantProduct, variant)
@@ -631,8 +630,8 @@ export default function WishlistScreen() {
                   )}
                   <Text style={styles.confirmButtonText}>
                     {addingId === variantProduct.id
-                      ? "AJOUT EN COURS…"
-                      : "AJOUTER AU PANIER"}
+                      ? msg("wishlistProductCard.addingUppercase")
+                      : msg("wishlist.addToCartUppercase")}
                   </Text>
                 </AnimatedPressable>
               </ScrollView>
@@ -665,11 +664,11 @@ export default function WishlistScreen() {
           </Text>
           {feedback.type === "removed" ? (
             <AnimatedPressable
-              accessibilityLabel="Annuler la suppression du favori"
+              accessibilityLabel={msg("wishlist.undoFavoriteRemoval")}
               onPress={restoreFavorite}
               style={styles.undoButton}
             >
-              <Text style={styles.undoText}>ANNULER</Text>
+              <Text style={styles.undoText}>{msg("wishlist.undoUppercase")}</Text>
             </AnimatedPressable>
           ) : null}
         </View>
@@ -689,6 +688,7 @@ function FilterButton({
   icon?: keyof typeof Ionicons.glyphMap;
   onPress: () => void;
 }) {
+  useLocale();
   return (
     <AnimatedPressable
       accessibilityLabel={label}
@@ -715,16 +715,17 @@ function StateBanner({
   message: string;
   onRetry: () => void;
 }) {
+  useLocale();
   return (
     <View style={styles.stateBanner}>
       <Ionicons color="#6C716D" name={icon} size={19} />
       <Text style={styles.stateBannerText}>{message}</Text>
       <AnimatedPressable
-        accessibilityLabel="Réessayer"
+        accessibilityLabel={msg("support.tryAgain")}
         onPress={onRetry}
         style={styles.retrySmall}
       >
-        <Text style={styles.retrySmallText}>RÉESSAYER</Text>
+        <Text style={styles.retrySmallText}>{msg("notifications.tryAgainUppercase")}</Text>
       </AnimatedPressable>
     </View>
   );
@@ -743,6 +744,7 @@ function FullState({
   action: string;
   onPress: () => void;
 }) {
+  useLocale();
   return (
     <View style={styles.fullState}>
       <View style={styles.fullStateIcon}>
@@ -763,9 +765,10 @@ function FullState({
 }
 
 function WishlistSkeleton() {
+  useLocale();
   return (
     <View
-      accessibilityLabel="Chargement des favoris"
+      accessibilityLabel={msg("wishlist.loadingFavorites")}
       style={styles.skeletonPage}
     >
       <View style={styles.skeletonHeader}>
@@ -795,13 +798,14 @@ function SheetHeader({
   title: string;
   onClose: () => void;
 }) {
+  useLocale();
   return (
     <>
       <View style={styles.sheetHandle} />
       <View style={styles.sheetHeader}>
         <Text style={styles.sheetTitle}>{title}</Text>
         <AnimatedPressable
-          accessibilityLabel="Fermer"
+          accessibilityLabel={msg("scanner.close")}
           haptic={false}
           onPress={onClose}
           style={styles.sheetClose}
@@ -824,6 +828,7 @@ function VariantGroup({
   selected?: string;
   onSelect: (value: string) => void;
 }) {
+  useLocale();
   return (
     <View style={styles.variantGroup}>
       <Text style={styles.variantGroupLabel}>{label}</Text>
@@ -832,7 +837,7 @@ function VariantGroup({
           const active = selected === option;
           return (
             <AnimatedPressable
-              accessibilityLabel={`${label} ${option}`}
+              accessibilityLabel={`${label} ${localizedContent(option)}`}
               accessibilityRole="radio"
               accessibilityState={{ checked: active }}
               key={option}
@@ -848,7 +853,7 @@ function VariantGroup({
                   active && styles.variantOptionTextActive,
                 ]}
               >
-                {option}
+                {localizedContent(option)}
               </Text>
             </AnimatedPressable>
           );

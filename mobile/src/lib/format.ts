@@ -1,15 +1,19 @@
+import { currentLocale } from "@/i18n";
 import { runtimeConfig } from "@/lib/runtime-config";
 
 const siteUrl = runtimeConfig.apiUrl;
 
-export const money = (value: number, currency = "MAD") => {
+export const moneyParts = (value: number, currency = "MAD") => {
   const safeCurrency = /^[A-Z]{3}$/.test(currency.toUpperCase()) ? currency.toUpperCase() : "MAD";
-  return new Intl.NumberFormat("fr-MA", {
+  return new Intl.NumberFormat(currentLocale(), {
     style: "currency",
     currency: safeCurrency,
-    maximumFractionDigits: safeCurrency === "MAD" ? 0 : 2,
-  }).format(value);
+    maximumFractionDigits: 2,
+  }).formatToParts(value);
 };
+
+export const money = (value: number, currency = "MAD") =>
+  moneyParts(value, currency).map((part) => part.value).join("");
 
 export const imageUrl = (value?: string | null) => {
   if (!value) return "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1000";
@@ -26,3 +30,6 @@ export const imageUrl = (value?: string | null) => {
 
 export const discount = (price: number, original?: number | null) =>
   original && original > price ? Math.round((1 - price / original) * 100) : 0;
+
+export const formatNumber = (value: number, options?: Intl.NumberFormatOptions) =>
+  new Intl.NumberFormat(currentLocale(), options).format(value);

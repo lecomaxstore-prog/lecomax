@@ -1,3 +1,5 @@
+import { localizedContent } from "@/i18n/content";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { router, usePathname } from "expo-router";
@@ -11,7 +13,8 @@ import { palette, typography } from "@/constants/theme";
 import { useSettings } from "@/hooks/use-catalog";
 import { triggerSuccessHaptic } from "@/services/haptics";
 import { getFreshProduct } from "@/services/catalog";
-import { discount, imageUrl, money } from "@/lib/format";
+import { discount, money } from "@/lib/format";
+import { useProductImage } from "@/hooks/use-product-image";
 import { productCardWidth } from "@/lib/responsive";
 import { useCartFeedbackStore } from "@/stores/cart-feedback";
 import { useCommerceStore } from "@/stores/commerce";
@@ -35,6 +38,7 @@ export const ProductCard = memo(function ProductCard({
   columns = 2,
   width,
 }: Props) {
+  useLocale();
   const pathname = usePathname();
   const origin =
     pathname === "/search"
@@ -63,7 +67,7 @@ export const ProductCard = memo(function ProductCard({
     ) ?? false;
   const favorite = wishlist.includes(product.id);
   const saving = discount(product.price, product.original_price);
-  const requiresOptions =
+  const requiresOptions = product.preorder_enabled ||
     (product.colors?.length ?? 0) > 0 ||
     (product.sizes ?? []).some(
       (size) => size.toLowerCase() !== "taille unique",
@@ -73,13 +77,11 @@ export const ProductCard = memo(function ProductCard({
   // Below ~152px the brand and the "EN STOCK" pill cannot both fit without
   // truncating the brand, so the pill keeps only its dot (320pt phones).
   const tightCard = grid && typeof width === "number" && width < 152;
-  const productImage = imageUrl(product.images[0]);
-  const [imageFailed, setImageFailed] = useState(false);
+  const { source: productImage, imageFailed, onError: onImageError } = useProductImage(product);
   const [added, setAdded] = useState(false);
   const [checkingStock, setCheckingStock] = useState(false);
   const addedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => setImageFailed(false), [productImage]);
   useEffect(
     () => () => {
       if (addedTimer.current) clearTimeout(addedTimer.current);
@@ -117,7 +119,7 @@ export const ProductCard = memo(function ProductCard({
         {imageFailed ? (
           <View style={styles.imageFallback}>
             <Ionicons name="image-outline" size={27} color="#A8AEAA" />
-            <Text style={styles.imageFallbackText}>IMAGE INDISPONIBLE</Text>
+            <Text style={styles.imageFallbackText}>{msg("productCard.imageUnavailableUppercase")}</Text>
           </View>
         ) : (
           <Image
@@ -126,7 +128,7 @@ export const ProductCard = memo(function ProductCard({
             transition={250}
             cachePolicy="memory-disk"
             recyclingKey={product.id}
-            onError={() => setImageFailed(true)}
+            onError={onImageError}
             style={[StyleSheet.absoluteFill, !related && styles.productImage]}
           />
         )}
@@ -137,20 +139,22 @@ export const ProductCard = memo(function ProductCard({
           </View>
         ) : product.newArrival ? (
           <View style={styles.newBadge}>
-            <Text numberOfLines={1} style={styles.newBadgeText}>NOUVEAU</Text>
+            <Text numberOfLines={1} style={styles.newBadgeText}>{msg("productCard.newUppercase")}</Text>
           </View>
         ) : null}
-        {product.stock <= 0 ? (
+        {(product.stock <= 0 && !product.preorder_enabled) ? (
           <View style={styles.outOfStock}>
-            <Text style={styles.outOfStockText}>ÉPUISÉ</Text>
+            <Text style={styles.outOfStockText}>{msg("homePromotionSection.soldOutUppercase")}</Text>
           </View>
         ) : null}
         </AnimatedPressable>
         {wishlistEnabled ? (
           <AnimatedPressable
             accessibilityRole="button"
+            accessibilityState={{ selected: favorite }}
+            hitSlop={6}
             accessibilityLabel={
-              favorite ? "Retirer des favoris" : "Ajouter aux favoris"
+              favorite ? msg("productCard.removeFromFavorites") : msg("productCard.addToFavorites")
             }
             onPress={(event) => {
               event.stopPropagation();
@@ -160,7 +164,7 @@ export const ProductCard = memo(function ProductCard({
           >
             <Ionicons
               name={favorite ? "heart" : "heart-outline"}
-              size={18}
+              size={16}
               color={favorite ? palette.red : palette.ink}
             />
           </AnimatedPressable>
@@ -171,19 +175,19 @@ export const ProductCard = memo(function ProductCard({
       >
         <AnimatedPressable
           accessibilityRole="button"
-          accessibilityLabel={`Voir ${product.name}`}
+          accessibilityLabel={msg("product.viewNamed", { name: product.name })}
           onPress={openProduct}
           style={styles.details}
         >
         <View style={styles.metaRow}>
           <Text numberOfLines={1} style={[styles.brand, related && styles.relatedBrand]}>
-            {(product.brand || product.category).toUpperCase()}
+            {(product.brand || localizedContent(product.category)).toUpperCase()}
           </Text>
-          {product.stock > 0 && !related ? (
-            <View accessibilityLabel="En stock" style={styles.stock}>
+          {(product.stock > 0 || product.preorder_enabled) && !related ? (
+            <View accessibilityLabel={product.stock<=0 && product.preorder_enabled ? msg("preorder.badge") : msg("productCard.inStock")} style={styles.stock}>
               <View style={styles.stockDot} />
               {tightCard ? null : (
-                <Text style={styles.stockLabel}>En stock</Text>
+                <Text style={styles.stockLabel}>{product.stock <= 0 && product.preorder_enabled ? msg("preorder.badge") : msg("productCard.inStock")}</Text>
               )}
             </View>
           ) : null}
@@ -200,14 +204,16 @@ export const ProductCard = memo(function ProductCard({
         >
           {displayName}
         </Text>
-        <View style={styles.ratingRow}>
-          {(product.review_count ?? product.reviews ?? 0) > 0 ? <Rating
+        {(product.review_count ?? product.reviews ?? 0) > 0 ? (
+          <View style={styles.ratingRow}>
+            <Rating
             value={product.rating}
             reviews={product.review_count ?? product.reviews ?? 0}
-          /> : null}
-        </View>
+            />
+          </View>
+        ) : null}
         </AnimatedPressable>
-        <View style={[styles.footer, related && styles.relatedFooter]}>
+        <View style={[styles.footer, tightCard && styles.tightFooter, related && styles.relatedFooter]}>
           {related ? <View style={styles.relatedPrices}>
             <Text style={styles.relatedPrice}>{money(product.price)}</Text>
             {saving > 0 ? <Text style={styles.relatedOldPrice}>{money(product.original_price!)}</Text> : null}
@@ -215,18 +221,20 @@ export const ProductCard = memo(function ProductCard({
             price={product.price}
             oldPrice={product.original_price}
             compact
+            emphasized
             tight={tightCard}
           />}
           <AnimatedPressable
             accessibilityRole="button"
             accessibilityLabel={
-              requiresOptions ? "Choisir les options" : "Ajouter au panier"
+              requiresOptions ? msg("productCard.chooseOptions") : msg("common.add")
             }
-            accessibilityHint={requiresOptions ? "Ouvre la fiche pour choisir la couleur et la taille" : undefined}
-            disabled={product.stock <= 0 || checkingStock}
+            accessibilityHint={requiresOptions ? msg("productCard.opensProductDetailsToChooseAColorAndSize") : undefined}
+            hitSlop={6}
+            disabled={(product.stock <= 0 && !product.preorder_enabled) || checkingStock}
             onPress={async (event) => {
               event.stopPropagation();
-              if (requiresOptions) {
+              if (requiresOptions || Boolean(product.colors?.length || product.sizes?.length)) {
                 router.push({
                   pathname: "/product/[slug]",
                   params: routeParams,
@@ -240,16 +248,16 @@ export const ProductCard = memo(function ProductCard({
                 fresh = await getFreshProduct(product.slug);
               } catch {
                 Alert.alert(
-                  "Vérification impossible",
-                  "Vérifiez votre connexion puis réessayez.",
+                  msg("productCard.unableToVerify"),
+                  msg("auth.checkYourConnectionAndTryAgain"),
                 );
                 setCheckingStock(false);
                 return;
               }
-              if (!fresh?.active || fresh.stock <= 0) {
+              if (!fresh?.active || (fresh.stock <= 0 && !fresh.preorder_enabled)) {
                 Alert.alert(
-                  "Produit épuisé",
-                  "Cet article n’est plus disponible pour le moment.",
+                  msg("productCard.productSoldOut"),
+                  msg("productCard.thisItemIsNoLongerAvailable"),
                 );
                 setCheckingStock(false);
                 return;
@@ -271,20 +279,19 @@ export const ProductCard = memo(function ProductCard({
             }}
             style={[
               styles.add,
-              grid && styles.gridAdd,
               related && styles.relatedAdd,
               added && styles.addConfirmed,
-              (product.stock <= 0 || checkingStock) && styles.disabled,
+              ((product.stock <= 0 && !product.preorder_enabled) || checkingStock) && styles.disabled,
             ]}
           >
             {checkingStock ? (
               <ActivityIndicator color={palette.white} size="small" />
             ) : added ? (
               <Animated.View entering={ZoomIn.duration(220).springify()}>
-                <Ionicons name="checkmark" size={19} color={palette.white} />
+                <Ionicons name="checkmark" size={16} color={palette.white} />
               </Animated.View>
             ) : (
-              <Ionicons name={requiresOptions ? "arrow-forward" : "add"} size={20} color={palette.white} />
+              <Ionicons name={requiresOptions ? "arrow-forward" : "add"} size={16} color={palette.white} />
             )}
           </AnimatedPressable>
         </View>
@@ -301,12 +308,12 @@ const styles = StyleSheet.create({
   relatedName: { minHeight: 40, marginTop: 7, fontFamily: typography.semibold, fontSize: 14, lineHeight: 20, letterSpacing: -0.3 },
   relatedDiscount: { minHeight: 25, paddingHorizontal: 8, borderRadius: 7, backgroundColor: "#EAF2E2" },
   relatedDiscountText: { color: "#3B603D", fontFamily: typography.semibold, fontSize: 10 },
-  relatedWishlist: { width: 40, height: 40, shadowOpacity: 0, elevation: 0, borderColor: "#E7EBE3" },
+  relatedWishlist: { width: 32, height: 32, shadowOpacity: 0, elevation: 0, borderColor: "#E7EBE3" },
   relatedFooter: { marginTop: 12, paddingTop: 10, borderTopColor: "#EDF0E8", gap: 8 },
   relatedPrices: { flex: 1, flexDirection: "row", flexWrap: "wrap", alignItems: "baseline", gap: 5 },
   relatedPrice: { color: "#183D29", fontFamily: typography.bold, fontSize: 16 },
   relatedOldPrice: { color: palette.muted, fontFamily: typography.regular, fontSize: 11, textDecorationLine: "line-through" },
-  relatedAdd: { width: 44, height: 44, borderRadius: 13, backgroundColor: "#183D29", shadowOpacity: 0, elevation: 0 },
+  relatedAdd: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#183D29", shadowOpacity: 0, elevation: 0 },
   card: {
     width: "48.4%",
     overflow: "hidden",
@@ -323,18 +330,11 @@ const styles = StyleSheet.create({
   },
   wide: {
     width: 272,
-    overflow: "visible",
-    padding: 0,
-    borderWidth: 0,
-    borderRadius: 0,
-    backgroundColor: "transparent",
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
+    padding: 8,
   },
   grid: {
     width: "48.6%",
-    overflow: "visible",
+    overflow: "hidden",
     padding: 7,
     borderWidth: 1,
     borderColor: "#E7E9E3",
@@ -347,20 +347,20 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   imageWrap: {
-    aspectRatio: 0.9,
+    aspectRatio: 1,
     overflow: "hidden",
     borderRadius: 14,
-    backgroundColor: "#F7F7F4",
+    backgroundColor: "#FFFFFF",
   },
-  productImage: { top: 18, right: 6, bottom: 8, left: 6 },
+  productImage: { top: 8, right: 4, bottom: 8, left: 4 },
   wideImage: {
-    height: 272,
-    borderRadius: 24,
-    backgroundColor: "#F3F4F2",
+    aspectRatio: 1,
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
   },
   gridImage: {
     borderRadius: 15,
-    backgroundColor: "#F7F7F4",
+    backgroundColor: "#FFFFFF",
   },
   imageFallback: {
     position: "absolute",
@@ -400,11 +400,11 @@ const styles = StyleSheet.create({
     left: 9,
     top: 9,
     maxWidth: "58%",
-    minHeight: 26,
-    paddingHorizontal: 9,
+    minHeight: 22,
+    paddingHorizontal: 8,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 6,
+    borderRadius: 7,
     backgroundColor: "#EAF0E5",
   },
   newBadgeText: {
@@ -436,31 +436,31 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 9,
     top: 9,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "rgba(17,17,17,0.08)",
-    backgroundColor: "rgba(255,255,255,0.96)",
+    borderColor: "#E7EBE3",
+    backgroundColor: "#F7F9F5",
     shadowColor: palette.ink,
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.04,
-    shadowRadius: 9,
-    elevation: 2,
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
-  body: { flexGrow: 1, paddingHorizontal: 7, paddingBottom: 7, paddingTop: 15 },
+  body: { flexGrow: 1, paddingHorizontal: 5, paddingBottom: 5, paddingTop: 12 },
   details: { flexGrow: 1 },
   gridBody: {
     paddingHorizontal: 5,
-    paddingTop: 15,
-    paddingBottom: 7,
+    paddingTop: 12,
+    paddingBottom: 5,
   },
   wideBody: {
-    paddingHorizontal: 2,
-    paddingBottom: 0,
-    paddingTop: 15,
+    paddingHorizontal: 6,
+    paddingBottom: 5,
+    paddingTop: 12,
   },
   metaRow: {
     minWidth: 0,
@@ -478,7 +478,16 @@ const styles = StyleSheet.create({
     lineHeight: 14,
     letterSpacing: 1.1,
   },
-  stock: { flexDirection: "row", alignItems: "center", gap: 4 },
+  stock: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexShrink: 0,
+    gap: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    backgroundColor: "#EFF4EC",
+  },
   stockDot: {
     width: 5,
     height: 5,
@@ -486,14 +495,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#6E916C",
   },
   stockLabel: {
-    color: palette.muted,
+    color: "#42603D",
     fontFamily: typography.medium,
     fontSize: 9,
     lineHeight: 15,
     letterSpacing: 0,
   },
   name: {
-    minHeight: 43,
+    minHeight: 40,
     marginTop: 6,
     color: palette.ink,
     fontFamily: typography.semibold,
@@ -502,58 +511,47 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
   },
   wideName: {
-    minHeight: 46,
+    minHeight: 42,
     marginTop: 8,
     fontSize: 16,
     lineHeight: 21,
     letterSpacing: -0.35,
   },
   gridName: {
-    minHeight: 41,
+    minHeight: 40,
     marginTop: 7,
     fontSize: 14,
-    lineHeight: 19,
+    lineHeight: 20,
     letterSpacing: -0.3,
   },
-  ratingRow: { minHeight: 18, marginTop: 5 },
+  ratingRow: { marginTop: 7 },
   footer: {
-    minHeight: 49,
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#ECEEE8",
+    minHeight: 48,
+    marginTop: 10,
+    padding: 8,
+    paddingLeft: 10,
+    borderRadius: 16,
+    backgroundColor: "#F3F5F0",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 5,
+    gap: 8,
   },
   add: {
-    width: 44,
-    height: 44,
+    width: 32,
+    height: 32,
     flexShrink: 0,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.14)",
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#203D2C",
     shadowColor: palette.ink,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 7,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  gridAdd: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: "#203D2C",
-    shadowColor: palette.ink,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 7,
-    elevation: 3,
-  },
+  tightFooter: { padding: 4, paddingLeft: 6, gap: 4, borderRadius: 14 },
   addConfirmed: {
     borderColor: palette.greenDark,
     backgroundColor: palette.greenDark,

@@ -1,4 +1,6 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
+import ResponsiveTable from "@/components/admin/ResponsiveTable";
 import { useEffect, useState, useCallback } from "react";
 
 type ClothingRow = { label: string; fr: string; poitrine: string; taille: string };
@@ -58,7 +60,7 @@ function TableEditor<T extends Record<string, string>>({
         </button>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <ResponsiveTable className="w-full text-sm">
           <thead>
             <tr className="border-b border-neutral-100">
               {columns.map((c) => (
@@ -101,7 +103,7 @@ function TableEditor<T extends Record<string, string>>({
               <tr><td colSpan={columns.length + 1} className="px-6 py-8 text-center text-sm text-neutral-400">Aucune ligne. Cliquez sur &quot;Ajouter ligne&quot;.</td></tr>
             )}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>
   );
@@ -157,9 +159,7 @@ export default function SizeGuidePage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-40">
-          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
-        </div>
+        <AdminLoading />
       ) : (
         <form onSubmit={handleSave} className="space-y-6">
           {/* Info banner */}

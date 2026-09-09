@@ -1,3 +1,4 @@
+import { selectedInventory, preorderSnapshot } from "./purchasability.ts";
 import type { CartLine, Product } from "@/types/commerce";
 
 export type CartReconciliationResult = {
@@ -6,62 +7,21 @@ export type CartReconciliationResult = {
   adjusted: CartLine[];
 };
 
-function normalized(value?: string) {
-  return value?.trim().toLocaleLowerCase("fr") ?? "";
-}
-
-function matchingValue<T>(record: Record<string, T> | undefined, key?: string) {
-  if (!record || !key) return undefined;
-  const target = normalized(key);
-  const entry = Object.entries(record).find(([candidate]) => normalized(candidate) === target);
-  return entry?.[1];
-}
-
-function includesValue(values: string[] | undefined, value?: string) {
-  if (!value) return false;
-  const target = normalized(value);
-  return (values ?? []).some((candidate) => normalized(candidate) === target);
-}
-
-function sizeStockFromTags(tags: string[] | undefined, selectedSize?: string) {
-  if (!selectedSize) return undefined;
-  const target = normalized(selectedSize);
-  for (const tag of tags ?? []) {
-    if (!tag.startsWith("__sstock:")) continue;
-    const parts = tag.slice("__sstock:".length).split(":");
-    const quantity = Number(parts.pop());
-    if (normalized(parts.join(":")) === target && Number.isFinite(quantity)) {
-      return Math.max(0, quantity);
-    }
-  }
-  return undefined;
-}
-
 export function cartLineAvailableStock(product: Product, line: CartLine) {
-  const limits = [Math.max(0, Number(product.stock) || 0), 20];
-  const colorEntries = Object.keys(product.color_stock ?? {});
-
-  if (line.color && colorEntries.length > 0) {
-    const colorStock = matchingValue(product.color_stock, line.color);
-    if (colorStock === undefined) return 0;
-    limits.push(Math.max(0, Number(colorStock) || 0));
-  }
-
-  const sizeStock = sizeStockFromTags(product.tags, line.size);
-  if (sizeStock !== undefined) limits.push(sizeStock);
-  return Math.min(...limits);
+  const canonical = (values: string[] | undefined, value?: string) =>
+    values?.find(candidate => candidate.trim().toLowerCase() === value?.trim().toLowerCase()) ?? value;
+  const physical = selectedInventory(product,canonical(product.colors,line.color),canonical(product.sizes,line.size));
+  return physical < 0 ? 0 : product.preorder_enabled ? 20 : Math.min(20,physical);
 }
 
 function variantIsAvailable(product: Product, line: CartLine) {
-  if (line.color && includesValue(product.out_of_stock_colors, line.color)) return false;
-  if (line.size && includesValue(product.out_of_stock_sizes, line.size)) return false;
-
-  if (line.color && line.size) {
-    const allowedSizes = matchingValue(product.color_sizes, line.color);
-    if (allowedSizes?.length && !includesValue(allowedSizes, line.size)) return false;
+  if (!product.preorder_enabled) {
+    if (line.color && product.out_of_stock_colors?.some(value=>value.toLowerCase()===line.color?.toLowerCase())) return false;
+    if (line.size && product.out_of_stock_sizes?.some(value=>value.toLowerCase()===line.size?.toLowerCase())) return false;
+    const sizes = line.color ? product.color_sizes?.[line.color] : undefined;
+    if (line.size && sizes?.length && !sizes.includes(line.size)) return false;
   }
-
-  return cartLineAvailableStock(product, line) > 0;
+  return cartLineAvailableStock(product,line)>0;
 }
 
 export function reconcileCartProducts(
@@ -82,10 +42,15 @@ export function reconcileCartProducts(
       continue;
     }
 
+    const canonical = (values: string[] | undefined, value?: string) => values?.find(candidate => candidate.trim().toLowerCase() === value?.trim().toLowerCase()) ?? value;
+    const color = canonical(product.colors, line.color);
+    const size = canonical(product.sizes, line.size);
     const quantity = Math.min(line.quantity, cartLineAvailableStock(product, line));
-    const refreshed = { ...line, product, quantity };
+    const pricing = color ? product.color_prices?.[color] : undefined;
+    const pricedProduct = pricing ? { ...product, price: pricing.price, original_price: pricing.originalPrice ?? null } : product;
+    const refreshed = { ...line, color, size, product: pricedProduct, quantity, ...preorderSnapshot(product,selectedInventory(product,color,size),quantity) };
     nextCart.push(refreshed);
-    if (quantity !== line.quantity) adjusted.push(refreshed);
+    if (quantity !== line.quantity || pricedProduct.price !== line.product.price || refreshed.fulfillment_type !== (line.fulfillment_type ?? "STANDARD") || refreshed.preorder_estimated_at !== (line.preorder_estimated_at ?? null) || refreshed.preorder_message !== (line.preorder_message ?? null)) adjusted.push(refreshed);
   }
 
   return { cart: nextCart, removed, adjusted };

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkChatSession } from "@/lib/chat-session-server";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,8 +9,14 @@ const supabase = createClient(
 
 /** POST /api/chat/start — create or resume a session for a visitor */
 export async function POST(req: Request) {
-  const { visitor_id, name } = await req.json();
-  if (!visitor_id) return NextResponse.json({ error: "visitor_id required" }, { status: 400 });
+  const { visitor_id, name, fresh } = await req.json();
+  if (typeof visitor_id !== "string" || visitor_id.length < 8 || visitor_id.length > 100) return NextResponse.json({ error: "visitor_id required" }, { status: 400 });
+
+  if (fresh === true) {
+    const { error } = await supabase.from("chat_sessions").update({ status: "resolved", unread_count: 0 })
+      .eq("visitor_id", visitor_id).neq("status", "resolved");
+    if (error) return NextResponse.json({ error: "Unable to close previous conversation" }, { status: 503 });
+  }
 
   // Resume existing open session
   const { data: existing } = await supabase
@@ -21,7 +28,10 @@ export async function POST(req: Request) {
     .limit(1)
     .single();
 
-  if (existing) return NextResponse.json(existing);
+  if (existing) {
+    const lifecycle = await checkChatSession(supabase, existing);
+    if (lifecycle.status !== "resolved") return NextResponse.json(existing);
+  }
 
   // Create new session
   const { data, error } = await supabase

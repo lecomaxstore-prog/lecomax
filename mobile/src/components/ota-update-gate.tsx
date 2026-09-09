@@ -1,9 +1,11 @@
+import { msg, useLocale } from "@/i18n";
 import * as Updates from "expo-updates";
 import { useEffect, useRef } from "react";
 import { Alert, Platform } from "react-native";
 
 /** Downloads compatible JavaScript updates and lets the customer apply them safely. */
 export function OtaUpdateGate() {
+  useLocale();
   const checking = useRef(false);
   const promptedUpdateId = useRef<string | null>(null);
 
@@ -24,12 +26,12 @@ export function OtaUpdateGate() {
         promptedUpdateId.current = updateId;
 
         Alert.alert(
-          "Mise à jour prête",
-          "Une amélioration de L’ecomax a été téléchargée. Redémarrez maintenant pour l’appliquer.",
+          msg("otaUpdateGate.updateReady"),
+          msg("otaUpdateGate.anImprovementToLEcomaxHasBeenDownloadedRestartNowToApply"),
           [
-            { text: "Plus tard", style: "cancel" },
+            { text: msg("appUpdateGate.later"), style: "cancel" },
             {
-              text: "Redémarrer",
+              text: msg("otaUpdateGate.restart"),
               onPress: () => { void Updates.reloadAsync(); },
             },
           ],

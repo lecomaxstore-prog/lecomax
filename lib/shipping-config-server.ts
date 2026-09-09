@@ -15,13 +15,13 @@ const loadServerShippingConfig = unstable_cache(async (): Promise<ShippingConfig
     const { data, error } = await supabase
       .from("settings")
       .select("key,value")
-      .in("key", ["shipping_cost", "free_shipping_threshold", "shipping_estimated_days"]);
+      .in("key", ["shipping_cost", "free_shipping_threshold", "free_shipping_enabled", "shipping_estimated_days"]);
     if (error) return DEFAULT_SHIPPING_CONFIG;
     return shippingConfigFromSettings(Object.fromEntries((data ?? []).map((row) => [row.key, row.value])));
   } catch {
     return DEFAULT_SHIPPING_CONFIG;
   }
-}, ["server-shipping-config"], { revalidate: 60 });
+}, ["server-shipping-config"], { revalidate: 60, tags: ["store-settings"] });
 
 export async function getServerShippingConfig(): Promise<ShippingConfig> {
   return loadServerShippingConfig();
@@ -30,7 +30,7 @@ export async function getServerShippingConfig(): Promise<ShippingConfig> {
 export async function withShippingMetadata(metadata: Metadata): Promise<Metadata> {
   const config = await getServerShippingConfig();
   const replace = (value: unknown): string | undefined => typeof value === "string"
-    ? value.replace(/35 MAD/g, `${config.cost} MAD`)
+    ? value.replace(/\{\{shipping\}\}/g, `${config.cost} MAD`)
     : undefined;
   return {
     ...metadata,

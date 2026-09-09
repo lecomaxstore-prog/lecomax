@@ -25,8 +25,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function stringArray(value: unknown, maxItems = 100, maxLength = 200) {
   if (!Array.isArray(value) || value.length > maxItems) return null;
-  const cleaned = value.map((item) => String(item ?? "").trim().slice(0, maxLength)).filter(Boolean);
-  return cleaned.length === value.length ? cleaned : null;
+  if (value.some(item => typeof item !== "string" || !item.trim() || item.trim().length > maxLength)) return null;
+  const cleaned = value.map(item => item.trim());
+  return new Set(cleaned).size === cleaned.length ? cleaned : null;
 }
 
 function urlArray(value: unknown, maxItems = 40) {
@@ -37,6 +38,8 @@ function urlArray(value: unknown, maxItems = 40) {
 
 function optionalNumber(value: unknown, { min = 0, max = 1_000_000 } = {}) {
   if (value === null || value === "") return null;
+  if (typeof value !== "number" && typeof value !== "string") return undefined;
+  if (String(value).trim() === "") return undefined;
   const number = Number(value);
   return Number.isFinite(number) && number >= min && number <= max ? number : undefined;
 }
@@ -44,6 +47,20 @@ function optionalNumber(value: unknown, { min = 0, max = 1_000_000 } = {}) {
 export function cleanProductPayload(body: unknown, mode: "create" | "update") {
   if (!isRecord(body)) return { error: "Données produit invalides." } as const;
   const payload: Record<string, unknown> = {};
+  if ("preorder_enabled" in body) {
+    if (typeof body.preorder_enabled !== "boolean") return { error: "Précommande invalide." } as const;
+    payload.preorder_enabled = body.preorder_enabled;
+  }
+  if ("preorder_estimated_at" in body) {
+    const date = body.preorder_estimated_at;
+    if (date !== null && date !== "" && (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(date)) || new Date(date).toISOString().slice(0,10) !== date)) return { error: "Date de disponibilité invalide." } as const;
+    payload.preorder_estimated_at = date || null;
+  }
+  if ("preorder_message" in body) {
+    const message = body.preorder_message;
+    if (message !== null && (typeof message !== "string" || message.length > 500)) return { error: "Message de précommande invalide (500 caractères maximum)." } as const;
+    payload.preorder_message = typeof message === "string" ? message.trim() || null : null;
+  }
 
   if ("slug" in body) {
     const slug = String(body.slug ?? "").trim().toLowerCase().replace(/\s+/g, "-");
@@ -62,12 +79,12 @@ export function cleanProductPayload(body: unknown, mode: "create" | "update") {
   }
   if ("price" in body) {
     const price = optionalNumber(body.price);
-    if (price === undefined) return { error: "Prix produit invalide." } as const;
+    if (price === undefined || price === null || Math.abs(price * 100 - Math.round(price * 100)) > 0.000001) return { error: "Prix produit invalide." } as const;
     payload.price = price;
   }
   if ("original_price" in body) {
     const price = optionalNumber(body.original_price);
-    if (price === undefined) return { error: "Prix d’origine invalide." } as const;
+    if (price === undefined || (price !== null && Math.abs(price * 100 - Math.round(price * 100)) > 0.000001)) return { error: "Prix d’origine invalide." } as const;
     payload.original_price = price;
   }
   if ("stock" in body) {
@@ -116,14 +133,9 @@ export function cleanProductPayload(body: unknown, mode: "create" | "update") {
       return { error: "Type de tailles invalide." } as const;
     }
     const sizes = payload.sizes as string[];
-    const allowedSizes = guideType === "clothing"
-      ? new Set<string>(CLOTHING_SIZE_VALUES)
-      : guideType === "shoes"
-        ? new Set<string>(SHOE_SIZE_VALUES)
-        : null;
-    if (allowedSizes && sizes.some((size) => !allowedSizes.has(size))) {
-      return { error: `Une taille ne correspond pas au guide ${guideType === "shoes" ? "chaussures" : "vêtements"}.` } as const;
-    }
+    // Guides provide suggestions; actual option values remain strings so that
+    // decimal shoe sizes and custom manufacturer labels survive unchanged.
+    if (sizes.some(size => size.length > 40 || /[\u0000-\u001f]/.test(size))) return { error: "Taille invalide (40 caractères maximum)." } as const;
 
     let sizeStock: Record<string, number> | undefined;
     if ("size_stock" in body) {
@@ -196,8 +208,11 @@ export function cleanProductPayload(body: unknown, mode: "create" | "update") {
     if (weight === undefined) return { error: "Poids produit invalide." } as const;
     payload.weight = weight;
   }
-  if ("active" in body) payload.active = body.active !== false;
-  if ("featured" in body) payload.featured = body.featured === true;
+  for (const key of ["active", "featured"] as const) {
+    if (!(key in body)) continue;
+    if (typeof body[key] !== "boolean") return { error: `Statut ${key} invalide.` } as const;
+    payload[key] = body[key];
+  }
   if ("created_by" in body) {
     const email = String(body.created_by ?? "").trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Créateur produit invalide." } as const;
@@ -209,7 +224,7 @@ export function cleanProductPayload(body: unknown, mode: "create" | "update") {
       if (!(key in payload)) return { error: `Champ obligatoire manquant : ${key}.` } as const;
     }
     if (!("stock" in payload)) payload.stock = 0;
-    if (!("active" in payload)) payload.active = true;
+    if (!("active" in payload)) payload.active = false;
   }
   if (Object.keys(payload).length === 0) return { error: "Aucune modification valide." } as const;
   return { payload } as const;

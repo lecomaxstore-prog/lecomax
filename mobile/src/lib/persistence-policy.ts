@@ -6,6 +6,7 @@ const PUBLIC_QUERY_ROOTS = new Set([
   "recommendations",
   "banners",
   "reviews",
+  "product-translations",
 ]);
 
 export const QUERY_CACHE_BUSTER = "public-catalog-v3-inventory";

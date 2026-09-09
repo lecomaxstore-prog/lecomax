@@ -1,8 +1,9 @@
+import { msg, useLocale } from "@/i18n";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { PropsWithChildren, useEffect, useMemo, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
 import Animated, {
   Easing,
@@ -28,19 +29,18 @@ import { useSettings } from "@/hooks/use-catalog";
 import {
   appLaunchConfigFromSettings,
 } from "@/lib/app-launch-config";
-import { registerForPushNotifications } from "@/services/notifications";
 
 const slidePresentation = [
   {
-    eyebrow: "TOUT L’ECOMAX",
+    get eyebrow() { return msg("onboardingGate.allOfLEcomaxUppercase"); },
     icon: "sparkles-outline" as const,
   },
   {
-    eyebrow: "ACHAT SÉCURISÉ",
+    get eyebrow() { return msg("onboardingGate.secureShoppingUppercase"); },
     icon: "shield-checkmark-outline" as const,
   },
   {
-    eyebrow: "RESTEZ INFORMÉ",
+    get eyebrow() { return msg("onboardingGate.stayInformedUppercase"); },
     icon: "notifications-outline" as const,
   },
 ];
@@ -50,14 +50,12 @@ const AnimatedImage = Animated.createAnimatedComponent(Image);
 const COMPLETION_KEY = "lecomax:onboarding:complete";
 
 export function OnboardingGate({ children }: PropsWithChildren) {
+  useLocale();
   const { contentWidth } = useAppViewport();
   const backgroundReveal = useSharedValue(0);
   const arrowNudge = useSharedValue(0);
   const settingsQuery = useSettings();
-  const launchConfig = useMemo(
-    () => appLaunchConfigFromSettings(settingsQuery.data),
-    [settingsQuery.data],
-  );
+  const launchConfig = appLaunchConfigFromSettings(settingsQuery.data);
   const enabled = launchConfig.onboardingEnabled;
   const version = launchConfig.onboardingVersion;
   const storageKey = COMPLETION_KEY;
@@ -139,7 +137,7 @@ export function OnboardingGate({ children }: PropsWithChildren) {
   if (checkedKey !== storageKey) {
     return (
       <View
-        accessibilityLabel="Préparation de l’application"
+        accessibilityLabel={msg("onboardingGate.preparingTheApp")}
         style={styles.loading}
       >
         <ActivityIndicator color={palette.greenDark} />
@@ -157,19 +155,16 @@ export function OnboardingGate({ children }: PropsWithChildren) {
   const slide = slides[index];
   const frameWidth = Math.max(contentWidth - 80, 280);
 
-  const complete = async (requestNotifications = false) => {
+  const complete = async () => {
     if (isCompleting) return;
     setIsCompleting(true);
     try {
       await AsyncStorage.setItem(storageKey, "complete");
-      if (requestNotifications) {
-        await registerForPushNotifications().catch(() => null);
-      }
       setCompleted(true);
     } catch {
       Alert.alert(
-        "Impossible de continuer",
-        "Veuillez réessayer. Votre progression n’a pas été enregistrée.",
+        msg("onboardingGate.unableToContinue"),
+        msg("onboardingGate.pleaseTryAgainYourProgressWasNotSaved"),
       );
     } finally {
       setIsCompleting(false);
@@ -179,7 +174,7 @@ export function OnboardingGate({ children }: PropsWithChildren) {
   const advance = () => {
     if (isTransitioning || isCompleting) return;
     if (last) {
-      void complete(true);
+      void complete();
       return;
     }
     setIsTransitioning(true);
@@ -189,7 +184,7 @@ export function OnboardingGate({ children }: PropsWithChildren) {
   return (
     <SafeAreaView edges={["top", "bottom"]} style={styles.screen}>
       <AnimatedImage
-        accessibilityLabel="Collection mode L’ECOMAX"
+        accessibilityLabel={msg("onboardingGate.lEcomaxFashionCollection")}
         cachePolicy="memory-disk"
         contentFit="cover"
         contentPosition="center"
@@ -217,12 +212,12 @@ export function OnboardingGate({ children }: PropsWithChildren) {
       >
         <BrandLogo header />
         <AnimatedPressable
-          accessibilityLabel="Ignorer l’introduction"
+          accessibilityLabel={msg("onboardingGate.skipIntroduction")}
           disabled={isCompleting}
-          onPress={() => void complete(false)}
+          onPress={() => void complete()}
           style={styles.skip}
         >
-          <Text style={styles.skipText}>PASSER</Text>
+          <Text style={styles.skipText}>{msg("onboardingGate.skipUppercase")}</Text>
         </AnimatedPressable>
       </Animated.View>
 
@@ -276,7 +271,7 @@ export function OnboardingGate({ children }: PropsWithChildren) {
         style={[styles.footer, { width: frameWidth }]}
       >
         <View
-          accessibilityLabel={`Étape ${index + 1} sur ${slides.length}`}
+          accessibilityLabel={msg("onboarding.stepCount", { step: index + 1, total: slides.length })}
           style={styles.dots}
         >
           {slides.map((item, dotIndex) => (
@@ -291,7 +286,7 @@ export function OnboardingGate({ children }: PropsWithChildren) {
           ))}
         </View>
         <AnimatedPressable
-          accessibilityLabel={last ? "Commencer" : "Continuer"}
+          accessibilityLabel={last ? msg("onboardingGate.getStarted") : msg("onboardingGate.continue")}
           accessibilityState={{
             busy: isCompleting,
             disabled: isCompleting || isTransitioning,
@@ -302,7 +297,7 @@ export function OnboardingGate({ children }: PropsWithChildren) {
           style={styles.primary}
         >
           <Text style={styles.primaryText}>
-            {isCompleting ? "PRÉPARATION…" : last ? "COMMENCER" : "SUIVANT"}
+            {isCompleting ? msg("onboardingGate.preparingUppercase") : last ? msg("onboardingGate.getStartedUppercase") : msg("onboardingGate.nextUppercase")}
           </Text>
           <View style={styles.primaryIcon}>
             {isCompleting ? (

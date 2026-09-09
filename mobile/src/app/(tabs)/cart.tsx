@@ -1,3 +1,7 @@
+import { PreorderNotice } from "@/components/preorder-notice";
+import { localizedContent } from "@/i18n/content";
+import { localizedError } from "@/i18n/errors";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { router, useFocusEffect } from "expo-router";
@@ -22,11 +26,12 @@ import { CheckoutProgress } from "@/components/checkout-progress";
 import { Screen } from "@/components/screen";
 import { typography } from "@/constants/theme";
 import { useSettings } from "@/hooks/use-catalog";
-import { imageUrl, money } from "@/lib/format";
+import { money } from "@/lib/format";
+import { useProductImage } from "@/hooks/use-product-image";
 import { cartLineAvailableStock } from "@/lib/cart-reconciliation";
 import { validateCoupon, type AppliedCoupon } from "@/services/coupons";
 import { getFreshProducts } from "@/services/catalog";
-import { getShippingQuote, type ShippingQuote } from "@/services/orders";
+import { getCheckoutQuote, type ShippingQuote, type CheckoutQuote } from "@/services/orders";
 import { useCommerceStore } from "@/stores/commerce";
 import { useUserStore, type SavedAddress } from "@/stores/user";
 import type { CartLine } from "@/types/commerce";
@@ -81,66 +86,44 @@ const CartItem = memo(function CartItem({
   onRemove,
   onToggleFavourite,
 }: CartItemProps) {
+  useLocale();
+  const { source: visibleImage, onError: onImageError } = useProductImage(line.product);
   const maximum = availableStock(line);
   const unavailable =
     maximum < 1 ||
-    (line.color
+    (!line.product.preorder_enabled && line.color
       ? line.product.out_of_stock_colors?.includes(line.color)
       : false) ||
-    (line.size ? line.product.out_of_stock_sizes?.includes(line.size) : false);
+    (!line.product.preorder_enabled && line.size ? line.product.out_of_stock_sizes?.includes(line.size) : false);
   const promotional =
     Boolean(line.product.original_price) &&
     Number(line.product.original_price) > line.product.price;
-  const options = [line.color, line.size].filter(Boolean).join(" · ");
+  const options = [localizedContent(line.color), line.size].filter(Boolean).join(" · ");
 
   return (
     <View style={styles.product}>
       <View style={styles.productTop}>
         <View>
           <View style={styles.productImage}>
+            {visibleImage ? (
             <Image
               accessibilityLabel={line.product.name}
               cachePolicy="memory-disk"
               contentFit="contain"
-              recyclingKey={keyFor(line)}
-              source={imageUrl(
-                line.product.thumbnail || line.product.images?.[0],
-              )}
-              style={StyleSheet.absoluteFill}
+              recyclingKey={String(visibleImage)}
+              source={visibleImage}
+              onError={onImageError}
+              style={{ width: "100%", height: "100%" }}
               transition={160}
             />
+            ) : (
+              <View style={styles.imageFallback} accessibilityLabel={msg("cart.productImageUnavailable")}>
+                <Ionicons name="image-outline" size={24} color="#939A8A" />
+                <Text style={styles.imageFallbackText}>{msg("cart.imageUnavailable")}</Text>
+              </View>
+            )}
           </View>
-          <View style={styles.productActions}>
-            <AnimatedPressable
-              accessibilityLabel={
-                favourite
-                  ? "Retirer des favoris"
-                  : "Enregistrer dans les favoris"
-              }
-              accessibilityState={{ selected: favourite }}
-              onPress={onToggleFavourite}
-              pressedScale={0.88}
-              style={styles.iconButton}
-            >
-              <Ionicons
-                color={favourite ? colors.primaryDark : colors.secondaryText}
-                name={favourite ? "heart" : "heart-outline"}
-                size={21}
-              />
-            </AnimatedPressable>
-            <AnimatedPressable
-              accessibilityLabel={`Supprimer ${line.product.name}`}
-              onPress={onRemove}
-              pressedScale={0.88}
-              style={styles.iconButton}
-            >
-              <Ionicons
-                color={colors.secondaryText}
-                name="trash-outline"
-                size={20}
-              />
-            </AnimatedPressable>
-          </View>
+
         </View>
 
         <View style={styles.productDetails}>
@@ -148,6 +131,7 @@ const CartItem = memo(function CartItem({
             <Text maxFontSizeMultiplier={1.25} style={styles.productName}>
               {line.product.name}
             </Text>
+              <PreorderNotice item={{ ...line.product, fulfillment_type: line.fulfillment_type }} />
           </View>
 
           <Text style={styles.category}>
@@ -168,9 +152,40 @@ const CartItem = memo(function CartItem({
               ]}
             >
               {unavailable
-                ? "Article ou variante indisponible"
-                : `Livraison estimée : ${estimate}`}
+                ? msg("cart.itemOrVariantUnavailable")
+                : msg("delivery.estimate", { estimate })}
             </Text>
+          </View>
+          <View style={styles.productActions}>
+            <AnimatedPressable
+              accessibilityLabel={
+                favourite
+                  ? msg("productCard.removeFromFavorites")
+                  : msg("cart.saveToFavorites")
+              }
+              accessibilityState={{ selected: favourite }}
+              onPress={onToggleFavourite}
+              pressedScale={0.88}
+              style={styles.iconButton}
+            >
+              <Ionicons
+                color={favourite ? colors.primaryDark : colors.secondaryText}
+                name={favourite ? "heart" : "heart-outline"}
+                size={21}
+              />
+            </AnimatedPressable>
+            <AnimatedPressable
+              accessibilityLabel={msg("cart.removeNamed", { name: line.product.name })}
+              onPress={onRemove}
+              pressedScale={0.88}
+              style={styles.iconButton}
+            >
+              <Ionicons
+                color={colors.secondaryText}
+                name="trash-outline"
+                size={20}
+              />
+            </AnimatedPressable>
           </View>
         </View>
       </View>
@@ -191,7 +206,7 @@ const CartItem = memo(function CartItem({
 
         <View style={styles.quantity}>
           <Pressable
-            accessibilityLabel="Réduire la quantité"
+            accessibilityLabel={msg("cart.decreaseQuantity")}
             accessibilityState={{ disabled: busy || line.quantity <= 1 }}
             disabled={busy || line.quantity <= 1}
             onPress={() => onQuantity(line.quantity - 1)}
@@ -214,7 +229,7 @@ const CartItem = memo(function CartItem({
             )}
           </View>
           <Pressable
-            accessibilityLabel="Augmenter la quantité"
+            accessibilityLabel={msg("cart.increaseQuantity")}
             accessibilityState={{
               disabled: busy || unavailable || line.quantity >= maximum,
             }}
@@ -254,41 +269,57 @@ function DeliveryAddress({
   onNew: () => void;
   notice: boolean;
 }) {
+  useLocale();
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Adresse de livraison</Text>
+        <Text accessibilityRole="header" style={styles.addressHeading}>{msg("orderTracking.deliveryAddress")}</Text>
         {address ? (
           <AnimatedPressable
-            accessibilityLabel="Modifier l’adresse de livraison"
+            accessibilityLabel={msg("cart.editDeliveryAddress")}
             haptic={false}
             onPress={onEdit}
-            style={styles.textAction}
+            style={styles.addressEditButton}
           >
-            <Text style={styles.textActionLabel}>Modifier</Text>
+            <Ionicons name="create-outline" size={14} color="#4E6252" />
+            <Text style={styles.addressEditText}>{msg("profile.edit")}</Text>
           </AnimatedPressable>
         ) : null}
       </View>
 
       {address ? (
         <AnimatedPressable
-          accessibilityLabel={`Adresse sélectionnée : ${address.name}, ${address.address}, ${address.city}`}
+          accessibilityLabel={msg("addresses.selectedDetails", { name: address.name, address: address.address, city: address.city })}
+          accessibilityRole="button"
+          accessibilityState={{ selected: true }}
           onPress={onSelect}
           pressedScale={0.99}
           style={styles.addressCard}
         >
-          <View style={styles.addressCheck}>
-            <Ionicons color={colors.white} name="checkmark" size={22} />
+          <View style={styles.addressCardHeader}>
+            <View style={styles.addressLocationIcon}>
+              <Ionicons name="location-outline" size={22} color="#244B34" />
+            </View>
+            <View style={styles.addressCopy}>
+              <Text style={styles.addressEyebrow}>{msg("cart.deliverToThisAddressUppercase")}</Text>
+              <Text style={styles.addressName}>{address.name}</Text>
+            </View>
+            <View style={styles.addressSelectedIcon}>
+              <Ionicons color="#FFFFFF" name="checkmark" size={14} />
+            </View>
           </View>
-          <View style={styles.addressCopy}>
-            <Text style={styles.addressName}>
-              {address.name} · {address.phone}
-            </Text>
-            <Text style={styles.addressLine}>
-              {address.address}, {address.city}
-            </Text>
+          <View style={styles.addressDetails}>
+            <Text style={styles.addressLine}>{address.address}</Text>
+            <Text style={styles.addressCity}>{address.city}</Text>
           </View>
-          <Ionicons color={colors.text} name="chevron-forward" size={23} />
+          <View style={styles.addressContact}>
+            <Ionicons name="call-outline" size={14} color="#637362" />
+            <Text style={styles.addressPhone}>{address.phone}</Text>
+            <View style={styles.addressSelectedBadge}>
+              <View style={styles.addressSelectedDot} />
+              <Text style={styles.addressSelectedText}>{msg("cart.selected")}</Text>
+            </View>
+          </View>
         </AnimatedPressable>
       ) : (
         <View
@@ -301,25 +332,29 @@ function DeliveryAddress({
             size={21}
           />
           <Text style={styles.missingAddressText}>
-            Ajoutez une adresse complète avant de continuer.
-          </Text>
+            {msg("cart.addACompleteAddressBeforeContinuing")}</Text>
         </View>
       )}
 
       <AnimatedPressable
-        accessibilityLabel="Ajouter une nouvelle adresse"
+        accessibilityLabel={msg("cart.addANewAddress")}
+        accessibilityRole="button"
         onPress={onNew}
         pressedScale={0.985}
         style={styles.addAddress}
       >
-        <Ionicons color={colors.text} name="add" size={24} />
-        <Text style={styles.addAddressText}>Ajouter une nouvelle adresse</Text>
+        <View style={styles.addAddressIcon}>
+          <Ionicons color="#36533B" name="add" size={17} />
+        </View>
+        <Text style={styles.addAddressText}>{msg("addresses.addAddress")}</Text>
+        <Ionicons color="#86917D" name="chevron-forward" size={15} />
       </AnimatedPressable>
     </View>
   );
 }
 
 export default function CartScreen() {
+  useLocale();
   const cart = useCommerceStore((state) => state.cart);
   const wishlist = useCommerceStore((state) => state.wishlist);
   const couponCode = useCommerceStore((state) => state.coupon);
@@ -350,6 +385,7 @@ export default function CartScreen() {
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon>();
   const [couponError, setCouponError] = useState<string>();
   const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [calculation, setCalculation] = useState<CheckoutQuote>();
   const [shippingQuote, setShippingQuote] = useState<ShippingQuote>();
   const [shippingError, setShippingError] = useState<string>();
   const [shippingLoading, setShippingLoading] = useState(false);
@@ -367,15 +403,15 @@ export default function CartScreen() {
           const messages: string[] = [];
           if (result.removed.length) {
             messages.push(
-              `${result.removed.length} article${result.removed.length > 1 ? "s indisponibles ont" : " indisponible a"} été retiré${result.removed.length > 1 ? "s" : ""}`,
+              msg("cart.unavailableRemoved", { count: result.removed.length }),
             );
           }
           if (result.adjusted.length) {
             messages.push(
-              `la quantité de ${result.adjusted.length} article${result.adjusted.length > 1 ? "s a été ajustée" : " a été ajustée"} au stock disponible`,
+              msg("cart.stockAdjusted", { count: result.adjusted.length }),
             );
           }
-          setStockNotice(`${messages.join(" et ")}.`);
+          setStockNotice(`${messages.join(msg("common.andSeparator"))}.`);
         })
         .catch(() => {
           // Keep the local cart unchanged if live stock cannot be verified.
@@ -418,43 +454,30 @@ export default function CartScreen() {
       ),
     [settingsQuery.data],
   );
-  const estimate = settings.shipping_estimated_days?.trim() || "2–5 jours";
+  const estimate = settings.shipping_estimated_days?.trim() || msg("cart.25Days");
   const couponsEnabled = settings.enable_coupons !== "false";
-  const configuredShipping = Number(settings.shipping_cost);
-  const standardShipping =
-    Number.isFinite(configuredShipping) && configuredShipping >= 0
-      ? configuredShipping
-      : 40;
-  const configuredFreeThreshold = Number(settings.free_shipping_threshold);
-  const freeShippingThreshold =
-    Number.isFinite(configuredFreeThreshold) && configuredFreeThreshold > 0
-      ? configuredFreeThreshold
-      : 0;
-  const estimatedShipping =
-    freeShippingThreshold > 0 && subtotal >= freeShippingThreshold
-      ? 0
-      : standardShipping;
-  const shipping = shippingQuote?.cost ?? estimatedShipping;
-  const discount = couponCode ? (appliedCoupon?.discount ?? 0) : 0;
-  const total = Math.max(0, subtotal + (shipping ?? 0) - discount);
+  const shipping = calculation?.shipping ?? 0;
+  const discount = calculation?.discount ?? 0;
+  const total = calculation?.total ?? 0;
 
   useEffect(() => {
-    if (!activeAddress?.city || !cart.length) return;
+    if (!cart.length) { setCalculation(undefined); return; }
     let active = true;
     void Promise.resolve().then(async () => {
       if (!active) return;
       setShippingLoading(true);
+      setCalculation(undefined);
       setShippingError(undefined);
       try {
-        const quote = await getShippingQuote(activeAddress.city, subtotal);
-        if (active) setShippingQuote(quote);
+        const quote = await getCheckoutQuote(cart, { city: activeAddress?.city ?? "", email: "", couponId: appliedCoupon?.id });
+        if (active) { setCalculation(quote); setShippingQuote({ cost: quote.shipping, estimatedDays: quote.estimatedDays, zoneName: quote.zoneName }); }
       } catch (error) {
         if (!active) return;
         setShippingQuote(undefined);
         setShippingError(
           error instanceof Error
-            ? error.message
-            : "Livraison indisponible pour le moment.",
+            ? localizedError(error)
+            : msg("cart.deliveryCurrentlyUnavailable"),
         );
       } finally {
         if (active) setShippingLoading(false);
@@ -463,7 +486,7 @@ export default function CartScreen() {
     return () => {
       active = false;
     };
-  }, [activeAddress?.city, cart.length, subtotal]);
+  }, [activeAddress?.city, cart, appliedCoupon?.id, settingsQuery.dataUpdatedAt]);
 
   useEffect(() => {
     if (!couponCode || !cart.length || !couponsEnabled) return;
@@ -482,7 +505,7 @@ export default function CartScreen() {
         setAppliedCoupon(undefined);
         setCoupon(undefined);
         setCouponError(
-          error instanceof Error ? error.message : "Code promo invalide.",
+          error instanceof Error ? localizedError(error) : msg("cart.invalidPromotionCode"),
         );
       } finally {
         if (active) setValidatingCoupon(false);
@@ -525,7 +548,7 @@ export default function CartScreen() {
   const applyCoupon = async () => {
     const code = couponInput.trim().toUpperCase();
     if (!code) {
-      setCouponError("Saisissez un code promotionnel.");
+      setCouponError(msg("checkoutScreen.enterAPromotionCode"));
       return;
     }
     if (validatingCoupon || !cart.length) return;
@@ -541,8 +564,8 @@ export default function CartScreen() {
       setCoupon(undefined);
       setCouponError(
         error instanceof Error
-          ? error.message
-          : "Ce code ne peut pas être appliqué.",
+          ? localizedError(error)
+          : msg("checkoutScreen.thisCodeCannotBeApplied"),
       );
     } finally {
       setValidatingCoupon(false);
@@ -553,8 +576,8 @@ export default function CartScreen() {
     if (!activeAddress) {
       setAddressNotice(true);
       Alert.alert(
-        "Adresse requise",
-        "Ajoutez une adresse de livraison complète pour continuer.",
+        msg("cart.addressRequired"),
+        msg("cart.addACompleteDeliveryAddressToContinue"),
       );
       return;
     }
@@ -592,18 +615,16 @@ export default function CartScreen() {
               <Ionicons color={colors.text} name="add" size={16} />
             </View>
           </View>
-          <Text style={styles.emptyEyebrow}>VOTRE SÉLECTION</Text>
-          <Text style={styles.emptyTitle}>Votre panier est vide</Text>
+          <Text style={styles.emptyEyebrow}>{msg("cart.yourSelectionUppercase")}</Text>
+          <Text style={styles.emptyTitle}>{msg("common.empty")}</Text>
           <Text style={styles.emptyCopy}>
-            Découvrez nos collections et composez une sélection qui vous
-            ressemble.
-          </Text>
+            {msg("cart.exploreOurCollectionsAndFindASelectionThatSuitsYou")}</Text>
           <AnimatedPressable
-            accessibilityLabel="Découvrir les produits"
+            accessibilityLabel={msg("cart.exploreProducts")}
             onPress={() => router.push("/catalog")}
             style={styles.emptyButton}
           >
-            <Text style={styles.emptyButtonText}>CONTINUER MES ACHATS</Text>
+            <Text style={styles.emptyButtonText}>{msg("cart.continueShoppingUppercase")}</Text>
             <View style={styles.emptyButtonArrow}>
               <Ionicons color={colors.text} name="arrow-forward" size={17} />
             </View>
@@ -611,7 +632,7 @@ export default function CartScreen() {
 
           <View style={styles.emptyShortcuts}>
             <AnimatedPressable
-              accessibilityLabel="Voir les nouveautés"
+              accessibilityLabel={msg("cart.viewNewArrivals")}
               onPress={() => router.push("/catalog?sort=new")}
               style={styles.emptyShortcut}
             >
@@ -623,15 +644,14 @@ export default function CartScreen() {
                 />
               </View>
               <View style={styles.emptyShortcutCopy}>
-                <Text style={styles.emptyShortcutTitle}>Nouveautés</Text>
+                <Text style={styles.emptyShortcutTitle}>{msg("common.arrivals")}</Text>
                 <Text style={styles.emptyShortcutText}>
-                  Les dernières pièces
-                </Text>
+                  {msg("cart.theLatestArrivals")}</Text>
               </View>
               <Ionicons color={colors.text} name="chevron-forward" size={16} />
             </AnimatedPressable>
             <AnimatedPressable
-              accessibilityLabel="Voir les promotions"
+              accessibilityLabel={msg("cart.viewPromotions")}
               onPress={() => router.push("/catalog?sort=low")}
               style={styles.emptyShortcut}
             >
@@ -643,10 +663,9 @@ export default function CartScreen() {
                 />
               </View>
               <View style={styles.emptyShortcutCopy}>
-                <Text style={styles.emptyShortcutTitle}>Promotions</Text>
+                <Text style={styles.emptyShortcutTitle}>{msg("homePromotionSection.promotions")}</Text>
                 <Text style={styles.emptyShortcutText}>
-                  Nos meilleures offres
-                </Text>
+                  {msg("cart.ourBestOffers")}</Text>
               </View>
               <Ionicons color={colors.text} name="chevron-forward" size={16} />
             </AnimatedPressable>
@@ -655,9 +674,9 @@ export default function CartScreen() {
           <View style={styles.emptyBenefits}>
             {(
               [
-                ["shield-checkmark-outline", "Paiement sécurisé"],
-                ["car-outline", "Livraison suivie"],
-                ["refresh-outline", "Retours simplifiés"],
+                ["shield-checkmark-outline", msg("common.secureCheckout")],
+                ["car-outline", msg("cart.trackedDelivery")],
+                ["refresh-outline", msg("common.easyReturns")],
               ] as const
             ).map(([icon, label]) => (
               <View key={label} style={styles.emptyBenefit}>
@@ -719,18 +738,16 @@ export default function CartScreen() {
           <View style={styles.divider} />
 
           <View style={styles.orderSection}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Votre commande</Text>
-              <View style={styles.countBadge}>
-                <Text style={styles.countBadgeText}>
-                  {itemCount} ARTICLE{itemCount > 1 ? "S" : ""}
-                </Text>
-              </View>
+            <View style={styles.orderHeading}>
+              <Text accessibilityRole="header" style={styles.orderTitle}>{msg("checkoutScreen.yourOrder")}</Text>
+              <Text accessibilityLiveRegion="polite" style={styles.orderCount}>
+                {msg("counts.items", { count: itemCount })}
+              </Text>
             </View>
             {cart.map((line) => (
               <CartItem
                 busy={busyLine === keyFor(line)}
-                estimate={shippingQuote?.estimatedDays || estimate}
+                estimate={localizedContent(shippingQuote?.estimatedDays || estimate)}
                 favourite={wishlist.includes(line.product.id)}
                 key={keyFor(line)}
                 line={line}
@@ -748,7 +765,7 @@ export default function CartScreen() {
 
           {couponsEnabled ? (
             <View style={styles.couponSection}>
-              <Text style={styles.fieldLabel}>CODE PROMO</Text>
+              <Text style={styles.fieldLabel}>{msg("cart.promotionCodeUppercase")}</Text>
               <View
                 style={[
                   styles.couponControl,
@@ -764,7 +781,7 @@ export default function CartScreen() {
                   size={19}
                 />
                 <TextInput
-                  accessibilityLabel="Code promotionnel"
+                  accessibilityLabel={msg("checkoutScreen.promotionCode")}
                   autoCapitalize="characters"
                   autoCorrect={false}
                   editable={!validatingCoupon && !appliedCoupon}
@@ -773,7 +790,7 @@ export default function CartScreen() {
                     setCouponError(undefined);
                   }}
                   onSubmitEditing={() => void applyCoupon()}
-                  placeholder="Saisissez votre code"
+                  placeholder={msg("cart.enterYourCode")}
                   placeholderTextColor="#8A8F8B"
                   returnKeyType="done"
                   selectionColor={colors.primary}
@@ -782,7 +799,7 @@ export default function CartScreen() {
                 />
                 {appliedCoupon ? (
                   <AnimatedPressable
-                    accessibilityLabel="Retirer le code promotionnel"
+                    accessibilityLabel={msg("cart.removePromotionCode")}
                     haptic={false}
                     onPress={() => {
                       setAppliedCoupon(undefined);
@@ -799,7 +816,7 @@ export default function CartScreen() {
                   </AnimatedPressable>
                 ) : (
                   <AnimatedPressable
-                    accessibilityLabel="Appliquer le code promotionnel"
+                    accessibilityLabel={msg("checkoutScreen.applyPromotionCode")}
                     accessibilityState={{ busy: validatingCoupon }}
                     disabled={validatingCoupon}
                     onPress={() => void applyCoupon()}
@@ -808,15 +825,14 @@ export default function CartScreen() {
                     {validatingCoupon ? (
                       <ActivityIndicator color={colors.white} size="small" />
                     ) : (
-                      <Text style={styles.applyCouponText}>APPLIQUER</Text>
+                      <Text style={styles.applyCouponText}>{msg("checkoutScreen.apply")}</Text>
                     )}
                   </AnimatedPressable>
                 )}
               </View>
               {appliedCoupon ? (
                 <Text accessibilityLiveRegion="polite" style={styles.couponOk}>
-                  {appliedCoupon.code} appliqué · −
-                  {money(appliedCoupon.discount)}
+                  {appliedCoupon.code} {msg("cart.applied")}{money(appliedCoupon.discount)}
                 </Text>
               ) : couponError ? (
                 <Text accessibilityRole="alert" style={styles.couponError}>
@@ -827,19 +843,19 @@ export default function CartScreen() {
           ) : null}
 
           <View style={styles.summary}>
-            <SummaryRow label="Sous-total" value={money(subtotal)} />
+            <SummaryRow label={msg("common.subtotal")} value={money(subtotal)} />
             {discount > 0 ? (
               <SummaryRow
                 accent
-                label={`Remise${appliedCoupon ? ` · ${appliedCoupon.code}` : ""}`}
+                label={msg("promotions.discountCode", { code: appliedCoupon ? ` · ${appliedCoupon.code}` : "" })}
                 value={`−${money(discount)}`}
               />
             ) : null}
             <SummaryRow
               accent={shipping === 0}
-              label="Livraison"
+              label={msg("support.delivery")}
               loading={shippingLoading}
-              value={shipping === 0 ? "OFFERTE" : money(shipping)}
+              value={!calculation ? "—" : shipping === 0 ? msg("checkoutScreen.freeUppercase") : money(shipping)}
             />
             {shippingError ? (
               <Text accessibilityRole="alert" style={styles.shippingError}>
@@ -849,8 +865,8 @@ export default function CartScreen() {
             <View style={styles.summaryDivider} />
             <View style={styles.totalRow}>
               <View>
-                <Text style={styles.totalLabel}>TOTAL À PAYER</Text>
-                <Text style={styles.taxLabel}>Taxes incluses</Text>
+                <Text style={styles.totalLabel}>{msg("orderConfirmation.totalToPay")}</Text>
+                <Text style={styles.taxLabel}>{msg("checkoutScreen.taxIncluded")}</Text>
               </View>
               <Text style={styles.totalValue}>{money(total)}</Text>
             </View>
@@ -860,35 +876,34 @@ export default function CartScreen() {
             <TrustItem
               icon="lock-closed-outline"
               label={
-                settings.checkout_trust_payment?.trim() || "Paiement sécurisé"
+                settings.checkout_trust_payment?.trim() || msg("common.secureCheckout")
               }
             />
             <View style={styles.trustDivider} />
             <TrustItem
               icon="refresh-outline"
               label={
-                settings.checkout_trust_returns?.trim() || "Retours faciles"
+                settings.checkout_trust_returns?.trim() || msg("cart.easyReturns")
               }
             />
             <View style={styles.trustDivider} />
             <TrustItem
               icon="headset-outline"
-              label={settings.checkout_contact_title?.trim() || "Assistance"}
+              label={settings.checkout_contact_title?.trim() || msg("support.support")}
             />
           </View>
 
           {removedLine ? (
             <View accessibilityLiveRegion="polite" style={styles.undo}>
               <Text numberOfLines={1} style={styles.undoText}>
-                Article retiré du panier
-              </Text>
+                {msg("cart.itemRemovedFromCart")}</Text>
               <AnimatedPressable
-                accessibilityLabel="Annuler la suppression"
+                accessibilityLabel={msg("cart.undoRemoval")}
                 haptic={false}
                 onPress={undoRemoval}
                 style={styles.undoButton}
               >
-                <Text style={styles.undoButtonText}>ANNULER</Text>
+                <Text style={styles.undoButtonText}>{msg("addresses.cancel")}</Text>
               </AnimatedPressable>
             </View>
           ) : null}
@@ -896,7 +911,7 @@ export default function CartScreen() {
 
         <View style={[styles.sticky, { paddingBottom: 10 }]}>
           <AnimatedPressable
-            accessibilityLabel="Continuer vers le paiement"
+            accessibilityLabel={msg("checkoutScreen.continueToPayment")}
             accessibilityState={{
               disabled: !activeAddress,
             }}
@@ -909,14 +924,13 @@ export default function CartScreen() {
             ]}
           >
             <Text style={[styles.checkoutButtonText, !activeAddress && styles.checkoutTextDisabled]}>
-              Continuer au paiement
-            </Text>
+              {msg("checkoutScreen.continueToPaymentText")}</Text>
             <Ionicons color={activeAddress ? colors.white : "#858D86"} name="arrow-forward" size={20} />
           </AnimatedPressable>
           <View style={styles.checkoutReassurance}>
             <Ionicons color="#737C73" name={activeAddress ? "lock-closed-outline" : "location-outline"} size={12} />
             <Text style={styles.checkoutButtonHint}>
-              {activeAddress ? "Paiement sécurisé" : "Ajoutez une adresse pour continuer"}
+              {activeAddress ? msg("common.secureCheckout") : msg("cart.addAnAddressToContinue")}
             </Text>
           </View>
         </View>
@@ -929,38 +943,40 @@ export default function CartScreen() {
         >
           <AppViewportOverlay align="bottom">
             <Pressable
-              accessibilityLabel="Fermer la confirmation"
+              accessibilityLabel={msg("cart.closeConfirmation")}
               onPress={() => setRemoveCandidate(undefined)}
               style={styles.modalBackdrop}
             />
-            <View style={styles.removeSheet}>
+            <View accessibilityViewIsModal style={styles.removeSheet}>
               <View style={styles.sheetHandle} />
               <View style={styles.removeSheetIcon}>
                 <Ionicons
-                  color={colors.danger}
+                  color="#A15D4D"
                   name="trash-outline"
-                  size={23}
+                  size={22}
                 />
               </View>
-              <Text style={styles.removeTitle}>Supprimer cet article ?</Text>
-              <Text numberOfLines={2} style={styles.removeName}>
+              <Text accessibilityRole="header" style={styles.removeTitle}>{msg("cart.removeFromYourCart")}</Text>
+              <Text style={styles.removeName}>
                 {removeCandidate?.product.name}
               </Text>
               <View style={styles.removeActions}>
                 <AnimatedPressable
-                  accessibilityLabel="Annuler la suppression"
+                  accessibilityLabel={msg("cart.undoRemoval")}
+                  accessibilityRole="button"
                   haptic={false}
                   onPress={() => setRemoveCandidate(undefined)}
                   style={styles.cancelRemove}
                 >
-                  <Text style={styles.cancelRemoveText}>ANNULER</Text>
+                  <Text style={styles.cancelRemoveText}>{msg("cart.keepItem")}</Text>
                 </AnimatedPressable>
                 <AnimatedPressable
-                  accessibilityLabel="Confirmer la suppression"
+                  accessibilityLabel={msg("cart.confirmRemoval")}
+                  accessibilityRole="button"
                   onPress={confirmRemoval}
                   style={styles.confirmRemove}
                 >
-                  <Text style={styles.confirmRemoveText}>SUPPRIMER</Text>
+                  <Text style={styles.confirmRemoveText}>{msg("cart.remove")}</Text>
                 </AnimatedPressable>
               </View>
             </View>
@@ -972,22 +988,29 @@ export default function CartScreen() {
 }
 
 function CartHeader({ itemCount }: { itemCount: number }) {
+  useLocale();
   return (
     <View style={styles.header}>
       <AnimatedPressable
-        accessibilityLabel="Retour"
-        onPress={() => router.back()}
+        accessibilityLabel={msg("addresses.back")}
+        onPress={() => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            router.replace("/(tabs)");
+          }
+        }}
         style={styles.headerButton}
       >
         <Ionicons color={colors.text} name="arrow-back" size={25} />
       </AnimatedPressable>
       <View style={styles.headerCopy}>
-        <Text style={styles.headerTitle}>MON PANIER</Text>
+        <Text style={styles.headerTitle}>{msg("cart.myCartUppercase")}</Text>
         <Text style={styles.headerSubtitle}>
-          {itemCount} article{itemCount === 1 ? "" : "s"}
+          {msg("counts.items", { count: itemCount })}
         </Text>
       </View>
-      <View accessibilityLabel="Paiement sécurisé" style={styles.headerSecure}>
+      <View accessibilityLabel={msg("common.secureCheckout")} style={styles.headerSecure}>
         <Ionicons
           color={colors.primaryDark}
           name="shield-checkmark-outline"
@@ -999,6 +1022,7 @@ function CartHeader({ itemCount }: { itemCount: number }) {
 }
 
 function StockNotice({ message }: { message: string }) {
+  useLocale();
   return (
     <View
       accessibilityLiveRegion="assertive"
@@ -1009,7 +1033,7 @@ function StockNotice({ message }: { message: string }) {
         <Ionicons color={colors.primaryDark} name="refresh" size={17} />
       </View>
       <View style={styles.stockNoticeCopy}>
-        <Text style={styles.stockNoticeTitle}>PANIER MIS À JOUR</Text>
+        <Text style={styles.stockNoticeTitle}>{msg("cart.cartUpdatedUppercase")}</Text>
         <Text style={styles.stockNoticeText}>{message}</Text>
       </View>
     </View>
@@ -1027,6 +1051,7 @@ function SummaryRow({
   accent?: boolean;
   loading?: boolean;
 }) {
+  useLocale();
   return (
     <View style={styles.summaryRow}>
       <Text style={[styles.summaryLabel, accent && styles.summaryAccent]}>
@@ -1050,6 +1075,7 @@ function TrustItem({
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
 }) {
+  useLocale();
   return (
     <View style={styles.trustItem}>
       <Ionicons color={colors.primaryDark} name={icon} size={18} />
@@ -1151,12 +1177,35 @@ const styles = StyleSheet.create({
     fontSize: 17,
     letterSpacing: -0.45,
   },
+  orderHeading: {
+    minHeight: 36,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  orderTitle: {
+    color: "#2D3A30",
+    fontFamily: typography.medium,
+    fontSize: 20,
+    lineHeight: 28,
+    letterSpacing: -0.5,
+  },
+  orderCount: {
+    color: "#7D8475",
+    fontFamily: typography.regular,
+    fontSize: 11,
+    lineHeight: 18,
+  },
   textAction: {
     minWidth: 66,
     minHeight: 44,
     paddingHorizontal: 11,
     alignItems: "center",
     justifyContent: "center",
+    flexDirection: "row",
+    gap: 5,
     borderRadius: 18,
     backgroundColor: "transparent",
   },
@@ -1168,36 +1217,42 @@ const styles = StyleSheet.create({
   addressCard: {
     minHeight: 88,
     marginTop: 13,
-    paddingHorizontal: 13,
-    paddingVertical: 13,
-    flexDirection: "row",
-    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    backgroundColor: colors.surface,
+    borderColor: "#CCDCC6",
+    borderRadius: 20,
+    backgroundColor: "#F8FAF5",
   },
-  addressCheck: {
-    width: 30,
-    height: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 15,
-    backgroundColor: colors.primaryDark,
-  },
-  addressCopy: { minWidth: 0, flex: 1, marginHorizontal: 13 },
+  addressHeading: { flex: 1, color: "#25362A", fontFamily: typography.semibold, fontSize: 17, lineHeight: 24, letterSpacing: -0.45 },
+  addressEditButton: { minHeight: 44, paddingHorizontal: 12, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5, borderRadius: 14, backgroundColor: "#F2F5EE", marginLeft: 10 },
+  addressEditText: { color: "#4E6252", fontFamily: typography.medium, fontSize: 11 },
+  addressCardHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
+  addressCopy: { minWidth: 0, flex: 1 },
+  addressLocationIcon: { width: 42, height: 46, alignItems: "center", justifyContent: "center", borderRadius: 14, backgroundColor: "#E8EFDF" },
+  addressEyebrow: { fontFamily: typography.semibold, fontSize: 8, letterSpacing: 0.8, color: "#687B60", marginBottom: 4 },
+  addressSelectedIcon: { width: 22, height: 22, borderRadius: 11, backgroundColor: "#365A3E", alignItems: "center", justifyContent: "center" },
+  addressDetails: { marginTop: 13 },
+  addressCity: { fontFamily: typography.medium, color: "#485844", fontSize: 12, lineHeight: 19, marginTop: 2 },
+  addressSelectedBadge: { flexDirection: "row", alignItems: "center", gap: 5, marginLeft: "auto", paddingHorizontal: 8, paddingVertical: 5, borderRadius: 8, backgroundColor: "#EAF1E3" },
+  addressSelectedDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: "#547744" },
+  addressSelectedText: { color: "#4F6B42", fontFamily: typography.medium, fontSize: 9 },
+  addAddressIcon: { width: 28, height: 28, borderRadius: 9, backgroundColor: "#EDF2E7", alignItems: "center", justifyContent: "center" },
   addressName: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 14,
-    lineHeight: 20,
+    color: "#253D2D",
+    fontFamily: typography.semibold,
+    fontSize: 16,
+    lineHeight: 22,
+    letterSpacing: -0.3,
   },
+  addressContact: { marginTop: 13, paddingTop: 11, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "#DDE5D6", flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 7 },
+  addressPhone: { color: "#52634B", fontFamily: typography.medium, fontSize: 11, lineHeight: 18, fontVariant: ["tabular-nums"] },
   addressLine: {
-    marginTop: 5,
-    color: colors.secondaryText,
+    color: "#52634B",
     fontFamily: typography.regular,
-    fontSize: 11.5,
-    lineHeight: 16,
+    fontSize: 12,
+    lineHeight: 21,
   },
   missingAddress: {
     minHeight: 64,
@@ -1223,21 +1278,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   addAddress: {
-    minHeight: 44,
-    marginTop: 8,
+    minHeight: 48,
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     gap: 9,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#D8DCD8",
-    borderRadius: 12,
-    backgroundColor: colors.white,
+    borderColor: "#E5E9DF",
+    backgroundColor: "#FFFFFF",
   },
   addAddressText: {
-    color: colors.text,
-    fontFamily: typography.bold,
-    fontSize: 12,
+    flex: 1,
+    color: "#465D3F",
+    fontFamily: typography.medium,
+    fontSize: 11,
   },
   divider: { height: 1, marginHorizontal: 18, backgroundColor: colors.border },
   orderSection: { paddingHorizontal: 18, paddingTop: 20 },
@@ -1256,34 +1314,39 @@ const styles = StyleSheet.create({
   },
   product: {
     marginTop: 16,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "#E7E9E0",
+    borderRadius: 18,
     backgroundColor: "#FFFFFF",
   },
   productTop: { flexDirection: "row" },
   productImage: {
-    width: 88,
-    height: 88,
+    width: 84,
+    height: 104,
     overflow: "hidden",
     borderRadius: 12,
     backgroundColor: colors.surface,
   },
+  imageFallback: { flex: 1, alignItems: "center", justifyContent: "center", gap: 7, padding: 8 },
+  imageFallbackText: { fontFamily: typography.regular, fontSize: 9, lineHeight: 13, color: "#7F8777", textAlign: "center" },
   productDetails: { minWidth: 0, flex: 1, marginLeft: 12 },
   productHeading: { alignItems: "stretch" },
   productName: {
     minWidth: 0,
     color: colors.text,
-    fontFamily: typography.bold,
-    fontSize: 14,
+    fontFamily: typography.medium,
+    fontSize: 13,
     lineHeight: 20,
   },
-  productActions: { flexDirection: "row", alignSelf: "flex-end", marginTop: 4 },
+  productActions: { flexDirection: "row", alignSelf: "flex-end", marginTop: 8, gap: 6 },
   iconButton: {
     width: 44,
     height: 44,
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 12,
+    backgroundColor: "#F7F8F4",
   },
   category: {
     marginTop: 7,
@@ -1307,9 +1370,9 @@ const styles = StyleSheet.create({
   deliveryText: {
     minWidth: 0,
     flex: 1,
-    color: colors.primaryDark,
-    fontFamily: typography.semibold,
-    fontSize: 11,
+    color: "#61745B",
+    fontFamily: typography.regular,
+    fontSize: 10,
     lineHeight: 16,
   },
   unavailableText: { color: colors.danger },
@@ -1367,25 +1430,27 @@ const styles = StyleSheet.create({
     fontFamily: typography.black,
     fontSize: 14,
   },
-  couponSection: { padding: 16 },
+  couponSection: { paddingHorizontal: 18, paddingVertical: 20 },
   fieldLabel: {
-    marginBottom: 8,
-    color: colors.text,
-    fontFamily: typography.black,
+    marginBottom: 10,
+    color: "#74806D",
+    fontFamily: typography.medium,
     fontSize: 9,
     letterSpacing: 1,
   },
   couponControl: {
     minHeight: 56,
-    paddingLeft: 14,
+    paddingLeft: 12,
+    paddingRight: 5,
+    paddingVertical: 5,
     flexDirection: "row",
     alignItems: "center",
     gap: 9,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#C9CECA",
-    borderRadius: 9,
-    backgroundColor: colors.white,
+    borderColor: "#E2E6DB",
+    borderRadius: 16,
+    backgroundColor: "#FAFBF7",
   },
   couponControlSuccess: {
     borderColor: "#A7D9B5",
@@ -1397,25 +1462,27 @@ const styles = StyleSheet.create({
   },
   couponInput: {
     minWidth: 0,
-    height: 54,
+    height: 44,
     flex: 1,
     color: colors.text,
-    fontFamily: typography.bold,
+    fontFamily: typography.regular,
     fontSize: 11,
     backgroundColor: "transparent",
   },
   applyCoupon: {
-    minWidth: 112,
+    minWidth: 86,
+    minHeight: 44,
+    paddingHorizontal: 12,
+    borderRadius: 11,
     alignSelf: "stretch",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.text,
+    backgroundColor: "#294B36",
   },
   applyCouponText: {
     color: colors.white,
-    fontFamily: typography.black,
-    fontSize: 9,
-    letterSpacing: 0.5,
+    fontFamily: typography.medium,
+    fontSize: 11,
   },
   removeCoupon: {
     width: 52,
@@ -1436,28 +1503,30 @@ const styles = StyleSheet.create({
     fontSize: 9,
   },
   summary: {
-    marginHorizontal: 16,
-    paddingHorizontal: 4,
+    marginHorizontal: 18,
+    paddingHorizontal: 18,
     paddingVertical: 18,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderRadius: 18,
+    borderColor: "#E6E9DE",
+    backgroundColor: "#F8FAF4",
   },
   summaryRow: {
     minHeight: 36,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 12,
   },
   summaryLabel: {
+    flex: 1,
     color: colors.secondaryText,
-    fontFamily: typography.medium,
+    fontFamily: typography.regular,
     fontSize: 12,
   },
   summaryValue: {
-    color: colors.text,
-    fontFamily: typography.bold,
+    color: "#354731",
+    fontFamily: typography.medium,
     fontSize: 12,
   },
   summaryAccent: { color: colors.primaryDark },
@@ -1468,9 +1537,9 @@ const styles = StyleSheet.create({
     lineHeight: 13,
   },
   summaryDivider: {
-    height: 1,
-    marginVertical: 10,
-    backgroundColor: colors.border,
+    height: StyleSheet.hairlineWidth,
+    marginVertical: 16,
+    backgroundColor: "#DCE3D2",
   },
   totalRow: {
     flexDirection: "row",
@@ -1480,56 +1549,56 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   totalLabel: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 16,
+    color: "#354731",
+    fontFamily: typography.medium,
+    fontSize: 14,
   },
   taxLabel: {
     marginTop: 3,
-    color: colors.secondaryText,
+    color: "#7D8774",
     fontFamily: typography.regular,
     fontSize: 9,
   },
   totalValue: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 23,
+    color: "#294B36",
+    fontFamily: typography.semibold,
+    fontSize: 24,
+    fontVariant: ["tabular-nums"],
     letterSpacing: -0.6,
   },
   trust: {
     minHeight: 74,
-    marginHorizontal: 16,
-    marginTop: 16,
-    paddingVertical: 12,
+    marginHorizontal: 18,
+    marginTop: 8,
+    paddingVertical: 18,
     flexDirection: "row",
     alignItems: "center",
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
   },
   trustItem: { minWidth: 0, flex: 1, alignItems: "center", gap: 6 },
   trustText: {
-    color: colors.text,
-    fontFamily: typography.semibold,
+    color: "#77826C",
+    fontFamily: typography.regular,
     fontSize: 8,
     lineHeight: 11,
     textAlign: "center",
   },
-  trustDivider: { width: 1, height: 34, backgroundColor: colors.border },
+  trustDivider: { width: StyleSheet.hairlineWidth, height: 22, backgroundColor: "#E5E9DE" },
   undo: {
     minHeight: 50,
     margin: 16,
     paddingLeft: 14,
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 9,
-    backgroundColor: colors.text,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E3E7DB",
+    backgroundColor: "#F4F7EF",
   },
   undoText: {
     minWidth: 0,
     flex: 1,
-    color: colors.white,
-    fontFamily: typography.medium,
+    color: "#59664F",
+    fontFamily: typography.regular,
     fontSize: 10,
   },
   undoButton: {
@@ -1539,9 +1608,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   undoButtonText: {
-    color: colors.primary,
-    fontFamily: typography.black,
-    fontSize: 9,
+    color: "#294B36",
+    fontFamily: typography.medium,
+    fontSize: 11,
+    textDecorationLine: "underline",
   },
   sticky: {
     flexShrink: 0,
@@ -1737,12 +1807,12 @@ const styles = StyleSheet.create({
     inset: 0,
   },
   removeSheet: {
-    paddingHorizontal: 20,
-    paddingBottom: 22,
+    paddingHorizontal: 24,
+    paddingBottom: 28,
     alignItems: "center",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    backgroundColor: colors.white,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    backgroundColor: "#FFFEFB",
   },
   sheetHandle: {
     width: 38,
@@ -1754,30 +1824,35 @@ const styles = StyleSheet.create({
   removeSheetIcon: {
     width: 48,
     height: 48,
-    marginTop: 18,
+    marginTop: 24,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 24,
-    backgroundColor: "#FFF0F0",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#EEDFD6",
+    backgroundColor: "#F8EFE9",
   },
   removeTitle: {
-    marginTop: 13,
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 18,
+    marginTop: 20,
+    color: "#2D3A30",
+    fontFamily: typography.semibold,
+    fontSize: 21,
+    lineHeight: 28,
+    letterSpacing: -0.6,
+    textAlign: "center",
   },
   removeName: {
     maxWidth: 330,
-    marginTop: 6,
-    color: colors.secondaryText,
+    marginTop: 10,
+    color: "#7B8074",
     fontFamily: typography.regular,
-    fontSize: 11,
-    lineHeight: 16,
+    fontSize: 12,
+    lineHeight: 20,
     textAlign: "center",
   },
   removeActions: {
     width: "100%",
-    marginTop: 20,
+    marginTop: 26,
     flexDirection: "row",
     gap: 10,
   },
@@ -1787,25 +1862,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 9,
+    borderColor: "#DEE4D7",
+    borderRadius: 14,
+    paddingHorizontal: 8,
+    paddingVertical: 12,
+    backgroundColor: "#F2F5ED",
   },
   cancelRemoveText: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 9,
+    color: "#354B36",
+    fontFamily: typography.medium,
+    fontSize: 12,
+    textAlign: "center",
   },
   confirmRemove: {
     minHeight: 52,
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 9,
-    backgroundColor: colors.danger,
+    borderRadius: 14,
+    paddingHorizontal: 8,
+    paddingVertical: 12,
+    backgroundColor: "#A35D4D",
   },
   confirmRemoveText: {
     color: colors.white,
-    fontFamily: typography.black,
-    fontSize: 9,
+    fontFamily: typography.medium,
+    fontSize: 12,
   },
 });

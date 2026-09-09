@@ -1,8 +1,15 @@
+import { selectedInventory, preorderSnapshot } from "@/lib/purchasability";
+import { PreorderNotice } from "@/components/preorder-notice";
+import { localizedContent } from "@/i18n/content";
+import { localizedError } from "@/i18n/errors";
+import { msg, useLocale } from "@/i18n";
+import { ProductDescription } from "@/components/product-description";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as Clipboard from "expo-clipboard";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import Animated, { FadeInDown, FadeOutDown, ReduceMotion } from "react-native-reanimated";
 import {
   ActivityIndicator,
   Alert,
@@ -13,14 +20,18 @@ import {
   StyleSheet,
   Text,
   View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AnimatedPressable } from "@/components/animated-pressable";
+import { CartThankYou } from "@/components/cart-thank-you";
 import { useAppViewport } from "@/components/app-viewport";
 import { HorizontalRail } from "@/components/horizontal-rail";
 import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
 import { ProductReviews } from "@/components/product-reviews";
+import { useProductImage } from "@/hooks/use-product-image";
 import { ShoeSizeGuide } from "@/components/shoe-size-guide";
 import { palette, typography } from "@/constants/theme";
 import {
@@ -28,7 +39,7 @@ import {
   useReviews,
   useSettings,
 } from "@/hooks/use-catalog";
-import { discount, imageUrl, money } from "@/lib/format";
+import { discount, money, moneyParts } from "@/lib/format";
 import { safeParentPath } from "@/lib/navigation-policy";
 import { realSimilarProducts } from "@/lib/product-similarity";
 import { useCommerceStore } from "@/stores/commerce";
@@ -59,6 +70,28 @@ function normalize(value: string) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+function ColorVariantImage({ uri }: { uri?: string }) {
+  const { source, imageFailed, onError } = useProductImage({
+    id: uri ?? "",
+    images: uri ? [uri] : [],
+  });
+
+  if (imageFailed) {
+    return <Ionicons name="image-outline" size={22} color="#999B98" />;
+  }
+
+  return (
+    <Image
+      source={source}
+      onError={onError}
+      contentFit="cover"
+      cachePolicy="memory-disk"
+      recyclingKey={uri}
+      style={styles.colorImage}
+    />
+  );
+}
+
 function findColorImageIndex(
   images: string[],
   colors: string[] | undefined,
@@ -87,6 +120,7 @@ function Accordion({
   children: React.ReactNode;
   initiallyOpen?: boolean;
 }) {
+  useLocale();
   const [open, setOpen] = useState(initiallyOpen);
   const icon = title === "Description"
     ? "document-text-outline"
@@ -96,7 +130,7 @@ function Accordion({
   return (
     <View style={[styles.accordion, open && styles.accordionOpen]}>
       <AnimatedPressable
-        accessibilityLabel={`${open ? "Fermer" : "Ouvrir"} ${title}`}
+        accessibilityLabel={`${open ? msg("scanner.close") : msg("search.open")} ${title}`}
         accessibilityState={{ expanded: open }}
         onPress={() => setOpen((value) => !value)}
         style={styles.accordionHeader}
@@ -121,6 +155,7 @@ function Accordion({
 }
 
 function LoadingState() {
+  useLocale();
   return (
     <View style={styles.stateScreen}>
       <View style={styles.loadingGallery}>
@@ -128,12 +163,13 @@ function LoadingState() {
       </View>
       <View style={styles.loadingLine} />
       <View style={[styles.loadingLine, { width: "64%" }]} />
-      <Text style={styles.stateText}>Chargement du produit…</Text>
+      <Text style={styles.stateText}>{msg("product.loadingProduct")}</Text>
     </View>
   );
 }
 
 export default function ProductScreen() {
+  useLocale();
   const insets = useSafeAreaInsets();
   const { contentWidth, horizontalInset } = useAppViewport();
   const { slug, origin, parentCategory } = useLocalSearchParams<{
@@ -166,6 +202,22 @@ export default function ProductScreen() {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
+  const [purchaseBarState, setPurchaseBarState] = useState({ slug, visible: false, colorSelected: false });
+  const showPurchaseBar = purchaseBarState.slug === slug && purchaseBarState.visible;
+
+  const handleProductScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offset = event.nativeEvent.contentOffset.y;
+    setPurchaseBarState((previous) => {
+      // Keep the purchase action available while previewing a chosen color.
+      if (previous.slug === slug && previous.colorSelected) return previous;
+      const wasVisible = previous.slug === slug && previous.visible;
+      // Separate reveal/hide thresholds prevent flicker near the top.
+      const visible = wasVisible ? offset > 40 : offset > 120;
+      return previous.slug === slug && previous.visible === visible
+        ? previous
+        : { slug, visible, colorSelected: false };
+    });
+  }, [slug]);
 
   const goBack = useCallback(() => {
     if (router.canGoBack()) {
@@ -186,6 +238,8 @@ export default function ProductScreen() {
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
+      pageRef.current?.scrollTo({ y: 0, animated: false });
+      setPurchaseBarState({ slug, visible: false, colorSelected: false });
       setColor(undefined);
       setSize(undefined);
       setQuantity(1);
@@ -210,17 +264,16 @@ export default function ProductScreen() {
           <Ionicons name="cloud-offline-outline" size={29} color="#16883A" />
         </View>
         <Text style={styles.stateTitle}>
-          {product ? "Connexion interrompue" : "Produit introuvable"}
+          {product ? msg("notifications.connectionInterrupted") : msg("product.productNotFound")}
         </Text>
         <Text style={styles.stateText}>
-          Vérifiez votre connexion puis réessayez.
-        </Text>
+          {msg("auth.checkYourConnectionAndTryAgain")}</Text>
         <AnimatedPressable
-          accessibilityLabel="Réessayer de charger le produit"
+          accessibilityLabel={msg("product.tryLoadingTheProductAgain")}
           onPress={() => void refetch()}
           style={styles.retryButton}
         >
-          <Text style={styles.retryText}>RÉESSAYER</Text>
+          <Text style={styles.retryText}>{msg("notifications.tryAgainUppercase")}</Text>
         </AnimatedPressable>
       </View>
     );
@@ -238,15 +291,12 @@ export default function ProductScreen() {
     product.colors?.[0];
   const selectedColor =
     color && product.colors?.includes(color) ? color : defaultColor;
-  const selectedColorOutOfStock = Boolean(
-    selectedColor && outOfStockColors.includes(selectedColor),
-  );
   const colorSizes = product.color_sizes;
   const sizesForColor = (value?: string) =>
-    (value && outOfStockColors.includes(value)
+    (!product.preorder_enabled && value && outOfStockColors.includes(value)
       ? []
-      : (value && colorSizes?.[value]) || product.sizes || []
-    ).filter((item) => !outOfStockSizes.includes(item));
+      : product.preorder_enabled ? product.sizes || [] : (value && colorSizes?.[value]) || product.sizes || []
+    ).filter((item) => product.preorder_enabled ? selectedInventory(product,value,item)>=0 : !outOfStockSizes.includes(item));
   const availableSizes = sizesForColor(selectedColor);
   const selectedSize =
     size && availableSizes.includes(size) ? size : availableSizes[0];
@@ -254,21 +304,11 @@ export default function ProductScreen() {
     product.sizes?.length &&
     !(product.sizes.length === 1 && product.sizes[0] === "Taille unique"),
   );
-  const selectedColorStock = selectedColor
-    ? Number(product.color_stock?.[selectedColor])
-    : Number.NaN;
-  const availableStock = Math.max(
-    0,
-    Number.isFinite(selectedColorStock)
-      ? Math.min(product.stock, selectedColorStock)
-      : product.stock,
-  );
-  const maximumQuantity = Math.max(1, Math.min(availableStock, 20));
-  const selectionUnavailable =
-    !product.active ||
-    availableStock <= 0 ||
-    selectedColorOutOfStock ||
-    (requiresSize && !selectedSize);
+  const physicalStock = selectedInventory(product,selectedColor,selectedSize);
+  const availableStock = Math.max(0,physicalStock);
+  const preorder = preorderSnapshot(product,physicalStock,quantity);
+  const maximumQuantity = product.preorder_enabled ? 20 : Math.max(1,Math.min(availableStock,20));
+  const selectionUnavailable = !product.active || physicalStock < 0 || (!product.preorder_enabled && availableStock<=0) || (requiresSize && !selectedSize);
   const images = product.images?.length ? product.images : [undefined];
   const selectedPricing = selectedColor ? product.color_prices?.[selectedColor] : undefined;
   const selectedPrice = selectedPricing?.price ?? product.price;
@@ -279,9 +319,12 @@ export default function ProductScreen() {
   const description = product.description?.trim() || "";
   const related = realSimilarProducts(product, all, 8);
   const currency = settingsMap.currency?.trim().toUpperCase() || "MAD";
+  const displayPriceParts = moneyParts(selectedPrice, currency);
+  const displayAmount = displayPriceParts.filter((part) => part.type !== "currency").map((part) => part.value).join("").trim();
+  const displayCurrency = displayPriceParts.find((part) => part.type === "currency")?.value ?? currency;
   const deliveryLabel =
     settingsMap.checkout_trust_delivery?.trim() ||
-    `Livraison ${settingsMap.shipping_estimated_days?.trim() || "2–5 jours ouvrables"}`;
+    msg("delivery.namedEstimate", { estimate: localizedContent(settingsMap.shipping_estimated_days?.trim()) || msg("orderConfirmation.25BusinessDays") });
   const shareProduct = async () => {
     const productUrl = `${PRODUCT_SHARE_ORIGIN}/produit/${encodeURIComponent(product.slug)}/`;
     const currentPrice = money(selectedPrice, currency);
@@ -291,14 +334,14 @@ export default function ProductScreen() {
         : undefined;
     const title = `${product.name} — ${currentPrice} | L'ecomax`;
     const priceLine = originalPrice
-      ? `Prix : ${currentPrice} au lieu de ${originalPrice} · Économisez ${saving}%`
-      : `Prix : ${currentPrice}`;
+      ? msg("product.shareDiscount", { price: currentPrice, original: originalPrice, percent: saving })
+      : msg("product.sharePrice", { price: currentPrice });
     const message = [
-      `Découvrez ${product.name} chez L'ecomax.`,
+      msg("product.shareIntroduction", { name: product.name }),
       priceLine,
-      "Livraison partout au Maroc · Paiement à la livraison.",
+      msg("product.deliveryThroughoutMoroccoCashOnDelivery"),
     ].join("\n");
-    const completeMessage = `${message}\n\nVoir le produit : ${productUrl}`;
+    const completeMessage = msg("product.shareLink", { message, url: productUrl });
 
     try {
       if (Platform.OS === "web" && typeof navigator !== "undefined" && navigator.share) {
@@ -315,14 +358,15 @@ export default function ProductScreen() {
       if (reason instanceof Error && reason.name === "AbortError") return;
       try {
         await Clipboard.setStringAsync(completeMessage);
-        Alert.alert("Lien copié", "Le produit, son prix et son lien sont prêts à être partagés.");
+        Alert.alert(msg("product.linkCopied"), msg("product.theProductItsPriceAndItsLinkAreReadyToShare"));
       } catch {
-        Alert.alert("Partage indisponible", "Impossible de partager ce produit pour le moment.");
+        Alert.alert(msg("product.sharingUnavailable"), msg("product.unableToShareThisProductRightNow"));
       }
     }
   };
   const selectColor = (value: string) => {
-    if (outOfStockColors.includes(value)) return;
+    if (!product.preorder_enabled && outOfStockColors.includes(value)) return;
+    setPurchaseBarState({ slug, visible: true, colorSelected: true });
     const imageIndex = findColorImageIndex(product.images, product.colors, value);
     setColor(value);
     setSize(sizesForColor(value)[0]);
@@ -338,37 +382,21 @@ export default function ProductScreen() {
     if (isAdding) return;
     if (selectionUnavailable) {
       Alert.alert(
-        "Sélection indisponible",
+        msg("product.selectionUnavailable"),
         requiresSize && !selectedSize
-          ? "Choisissez une taille disponible."
-          : "Cette variante est actuellement épuisée.",
+          ? msg("product.chooseAnAvailableSize")
+          : msg("product.thisVariantIsCurrentlySoldOut"),
       );
       return;
     }
     setIsAdding(true);
+    setAdded(false);
+    if (successTimer.current) clearTimeout(successTimer.current);
     try {
       const fresh = await getFreshProduct(slug);
-      if (!fresh?.active) throw new Error("Ce produit n’est plus disponible.");
-      const freshColorStock = selectedColor
-        ? Number(fresh.color_stock?.[selectedColor])
-        : Number.NaN;
-      const freshStock = Number.isFinite(freshColorStock)
-        ? Math.min(fresh.stock, freshColorStock)
-        : fresh.stock;
-      if (
-        freshStock < quantity ||
-        fresh.out_of_stock_colors?.includes(selectedColor ?? "")
-      ) {
-        throw new Error(
-          "Le stock vient de changer. Choisissez une quantité disponible.",
-        );
-      }
-      if (
-        requiresSize &&
-        (!selectedSize || fresh.out_of_stock_sizes?.includes(selectedSize))
-      ) {
-        throw new Error("La taille choisie n’est plus disponible.");
-      }
+      if (!fresh?.active) throw new Error(msg("wishlist.thisProductIsNoLongerAvailable"));
+      const freshStock = selectedInventory(fresh,selectedColor,selectedSize);
+      if (freshStock<0 || (!fresh.preorder_enabled && freshStock<quantity)) throw new Error(msg("product.stockHasJustChangedChooseAnAvailableQuantity"));
       const freshPricing = selectedColor ? fresh.color_prices?.[selectedColor] : undefined;
       addToCart({
         ...fresh,
@@ -395,13 +423,13 @@ export default function ProductScreen() {
       }
       setAdded(true);
       if (successTimer.current) clearTimeout(successTimer.current);
-      successTimer.current = setTimeout(() => setAdded(false), 1800);
+      successTimer.current = setTimeout(() => setAdded(false), 2400);
     } catch (reason) {
       Alert.alert(
-        "Ajout impossible",
+        msg("product.unableToAddItem"),
         reason instanceof Error
-          ? reason.message
-          : "Vérifiez votre connexion puis réessayez.",
+          ? localizedError(reason)
+          : msg("auth.checkYourConnectionAndTryAgain"),
       );
     } finally {
       setIsAdding(false);
@@ -413,6 +441,8 @@ export default function ProductScreen() {
       <ScrollView
         ref={pageRef}
         showsVerticalScrollIndicator={false}
+        onScroll={handleProductScroll}
+        scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: 112 + insets.bottom }}
       >
         <ProductGallery
@@ -446,16 +476,19 @@ export default function ProductScreen() {
         <View style={[styles.content, { width: contentWidth }]}>
           <View style={styles.categoryRow}>
             <View style={styles.collectionLabel}>
-              <Text style={styles.category}>{product.brand || product.category}</Text>
+              <Text numberOfLines={1} style={styles.category}>{product.brand || localizedContent(product.category)}</Text>
             </View>
-            <View style={[styles.stockBadge, selectionUnavailable && styles.stockBadgeUnavailable]}>
-              <View style={[styles.stockDot, selectionUnavailable && styles.stockDotUnavailable]} />
+            <PreorderNotice item={preorder} />
+            {product.preorder_enabled && <Text>{msg("preorder.quantity")}</Text>}
+            <View style={styles.stockBadge}>
+              <Ionicons name={selectionUnavailable ? "remove-circle-outline" : "checkmark"} size={14} color={selectionUnavailable ? "#986353" : "#61765C"} />
               <Text style={[styles.stockText, selectionUnavailable && styles.stockTextUnavailable]}>
-                {selectionUnavailable ? "Indisponible" : "En stock"}
+                {selectionUnavailable ? msg("wishlistProductCard.unavailable") : preorder.fulfillment_type === "PREORDER" ? msg("preorder.badge") : msg("productCard.inStock")}
               </Text>
             </View>
           </View>
           <Text
+            accessibilityRole="header"
             maxFontSizeMultiplier={1.15}
             selectable
             style={[
@@ -463,12 +496,13 @@ export default function ProductScreen() {
               contentWidth <= 360 && styles.productNameCompact,
             ]}
           >
-            {product.name}
+            {product.name.replace(/\b(t|tee)[- ](?=shirts?\b)/gi, "$1\u2011")}
           </Text>
           <View style={styles.priceCard}>
             <View style={styles.priceRow}>
-              <Text style={[styles.price, saving > 0 && styles.promotionalPrice]}>
-                {money(selectedPrice, currency)}
+              <Text accessibilityLabel={money(selectedPrice, currency)} style={[styles.price, saving > 0 && styles.promotionalPrice]}>
+                {displayAmount}
+                <Text style={styles.priceCurrency}>{"\u00A0"}{displayCurrency}</Text>
               </Text>
               {selectedOriginalPrice &&
               selectedOriginalPrice > selectedPrice ? (
@@ -487,7 +521,7 @@ export default function ProductScreen() {
             {saving > 0 && selectedOriginalPrice ? (
               <View style={styles.savingsRow}>
                 <Text style={styles.savingsText}>
-                  Vous économisez {money(selectedOriginalPrice - selectedPrice, currency)}
+                  {msg("homePromotionSection.youSave")}{money(selectedOriginalPrice - selectedPrice, currency)}
                 </Text>
               </View>
             ) : null}
@@ -496,21 +530,26 @@ export default function ProductScreen() {
           {product.colors?.length ? (
             <View style={styles.variantSection}>
               <View style={styles.variantHeading}>
-                <Text style={styles.sectionTitle}>Couleur</Text>
-                <Text style={styles.selectedVariant}>{selectedColor}</Text>
+                <Text style={styles.sectionTitle}>{msg("wishlist.color")}</Text>
+                <Text style={styles.selectedVariant}>{localizedContent(selectedColor)}</Text>
               </View>
               <View style={styles.colors}>
-                {product.colors.map((item) => {
+                {product.colors.map((item, colorIdx) => {
                   const selected = item === selectedColor;
-                  const unavailable = outOfStockColors.includes(item);
+                  const unavailable = !product.preorder_enabled && outOfStockColors.includes(item);
                   const variantImage =
-                    product.images[
-                      findColorImageIndex(product.images, product.colors, item)
-                    ];
+                    (product as any).color_images?.[item] ||
+                    (product as any).color_image_galleries?.[item]?.[0] ||
+                    (product.images?.length
+                      ? product.images[findColorImageIndex(product.images, product.colors, item)]
+                      : undefined) ||
+                    product.images?.[colorIdx] ||
+                    product.thumbnail ||
+                    product.images?.[0];
                   return (
                     <AnimatedPressable
                       key={item}
-                      accessibilityLabel={`${item}${selected ? ", sélectionnée" : ""}${unavailable ? ", épuisée" : ""}`}
+                      accessibilityLabel={`${localizedContent(item)}${selected ? msg("shoeSizeGuide.selectedText") : ""}${unavailable ? msg("product.soldOut") : ""}`}
                       accessibilityState={{ selected, disabled: unavailable }}
                       disabled={unavailable}
                       onPress={() => selectColor(item)}
@@ -523,25 +562,12 @@ export default function ProductScreen() {
                           unavailable && styles.unavailable,
                         ]}
                       >
-                        {variantImage ? (
-                          <Image
-                            source={imageUrl(variantImage)}
-                            contentFit="contain"
-                            cachePolicy="memory-disk"
-                            style={styles.colorImage}
-                          />
-                        ) : (
-                          <Ionicons
-                            name="image-outline"
-                            size={22}
-                            color="#999B98"
-                          />
-                        )}
+                        <ColorVariantImage uri={variantImage} />
                         {selected ? (
                           <View style={styles.selectedCheck}>
                             <Ionicons
                               name="checkmark"
-                              size={13}
+                              size={12}
                               color={palette.white}
                             />
                           </View>
@@ -556,7 +582,7 @@ export default function ProductScreen() {
                           selected && styles.colorLabelSelected,
                         ]}
                       >
-                        {item}
+                        {localizedContent(item)}
                       </Text>
                     </AnimatedPressable>
                   );
@@ -569,16 +595,16 @@ export default function ProductScreen() {
             <View style={styles.variantSection}>
               <View style={styles.sizeHeading}>
                 <View style={styles.variantHeading}>
-                  <Text style={styles.sectionTitle}>Taille</Text>
-                  <Text style={styles.selectedVariant}>{selectedSize ? `· ${selectedSize}` : "· À choisir"}</Text>
+                  <Text style={styles.sectionTitle}>{msg("shoeSizeGuide.size")}</Text>
+                  <Text style={styles.selectedVariant}>{selectedSize ? `· ${selectedSize}` : msg("product.chooseOne")}</Text>
                 </View>
                 <AnimatedPressable
-                  accessibilityLabel="Ouvrir le guide des tailles"
+                  accessibilityLabel={msg("product.openSizeGuide")}
+                  accessibilityRole="button"
                   onPress={() => setSizeGuideOpen(true)}
                   style={styles.guideButton}
                 >
-                  <Ionicons name="resize-outline" size={14} color="#626D5F" />
-                  <Text style={styles.guideText}>Guide des tailles</Text>
+                  <Text style={styles.guideText}>{msg("shoeSizeGuide.sizeGuide")}</Text>
                 </AnimatedPressable>
               </View>
               <View style={styles.sizes}>
@@ -586,9 +612,10 @@ export default function ProductScreen() {
                   const selected = item === selectedSize;
                   const unavailable = !availableSizes.includes(item);
                   return (
+                    <View key={item} style={styles.sizeItem}>
                     <AnimatedPressable
-                      key={item}
-                      accessibilityLabel={`Taille ${item}${selected ? ", sélectionnée" : ""}${unavailable ? ", épuisée" : ""}`}
+                      accessibilityLabel={msg("variants.sizeDescription", { size: item, status: `${selected ? msg("shoeSizeGuide.selectedText") : ""}${unavailable ? msg("product.soldOut") : ""}` })}
+                      accessibilityRole="button"
                       accessibilityState={{ selected, disabled: unavailable }}
                       disabled={unavailable}
                       onPress={() => {
@@ -610,12 +637,14 @@ export default function ProductScreen() {
                       >
                         {item}
                       </Text>
-                      {unavailable ? <Text style={styles.sizeStatus}>Épuisé</Text> : selected ? (
+                      {selected && !unavailable ? (
                         <View style={styles.sizeCheck}>
-                          <Ionicons name="checkmark" size={10} color="#FFFFFF" />
+                          <Ionicons name="checkmark" size={13} color="#234735" />
                         </View>
                       ) : null}
                     </AnimatedPressable>
+                    <Text style={styles.sizeStatus}>{unavailable ? msg("product.soldOutText") : " "}</Text>
+                    </View>
                   );
                 })}
               </View>
@@ -623,10 +652,10 @@ export default function ProductScreen() {
           ) : null}
 
           <View style={styles.quantitySection}>
-            <Text style={styles.sectionTitle}>Quantité</Text>
+            <Text style={styles.sectionTitle}>{msg("product.quantity")}</Text>
             <View style={styles.quantity}>
               <Pressable
-                accessibilityLabel="Réduire la quantité"
+                accessibilityLabel={msg("cart.decreaseQuantity")}
                 disabled={quantity <= 1 || isAdding}
                 onPress={() => setQuantity((value) => Math.max(1, value - 1))}
                 style={({ pressed }) => [
@@ -640,11 +669,11 @@ export default function ProductScreen() {
                   color={quantity <= 1 ? "#B8BAB8" : palette.ink}
                 />
               </Pressable>
-              <Text accessibilityLabel={`Quantité ${quantity}`} style={styles.quantityValue}>
+              <Text accessibilityLabel={msg("cart.quantityValue", { count: quantity })} style={styles.quantityValue}>
                 {quantity}
               </Text>
               <Pressable
-                accessibilityLabel="Augmenter la quantité"
+                accessibilityLabel={msg("cart.increaseQuantity")}
                 disabled={quantity >= maximumQuantity || selectionUnavailable || isAdding}
                 onPress={() => setQuantity((value) => Math.min(maximumQuantity, value + 1))}
                 style={({ pressed }) => [
@@ -675,22 +704,22 @@ export default function ProductScreen() {
                   </Text>
                   <View style={styles.ratingDivider} />
                   <Text style={styles.reviewCount}>
-                    {reviewCount} avis vérifié{reviewCount === 1 ? "" : "s"}
+                    {reviewCount} {msg("productReviews.verifiedReview")}{reviewCount === 1 ? "" : "s"}
                   </Text>
                 </>
               ) : (
-                <Text style={styles.noReviews}>Aucun avis</Text>
+                <Text style={styles.noReviews}>{msg("productReviews.noReviews")}</Text>
               )}
             </View>
             <AnimatedPressable
-              accessibilityLabel="Partager ce produit"
+              accessibilityLabel={msg("product.shareThisProduct")}
               accessibilityRole="button"
               onPress={() => void shareProduct()}
               pressedScale={0.96}
               style={styles.shareButton}
             >
               <Ionicons name="share-social-outline" size={16} color="#397A4D" />
-              <Text style={styles.shareText}>Partager</Text>
+              <Text style={styles.shareText}>{msg("product.share")}</Text>
             </AnimatedPressable>
           </View>
 
@@ -698,54 +727,50 @@ export default function ProductScreen() {
             <View style={styles.trustItem}>
               <Ionicons name="shield-checkmark-outline" size={20} color="#16883A" />
               <Text numberOfLines={2} style={styles.trustText}>
-                Produit authentique
-              </Text>
+                {msg("product.authenticProduct")}</Text>
             </View>
             <View style={styles.trustDivider} />
             <View style={styles.trustItem}>
               <Ionicons name="location-outline" size={20} color="#16883A" />
               <Text numberOfLines={2} style={styles.trustText}>
-                Livraison partout au Maroc
-              </Text>
+                {msg("topic.deliveryThroughoutMorocco")}</Text>
             </View>
           </View>
 
           <View style={styles.accordions}>
             {description ? (
-              <Accordion title="Description" initiallyOpen>
-                <Text style={styles.accordionText}>{description}</Text>
+              <Accordion title={msg("product.description")} initiallyOpen>
+                <ProductDescription key={product.slug} slug={product.slug} name={product.name} brand={product.brand} description={description} />
               </Accordion>
             ) : null}
-            <Accordion title="Détails du produit">
+            <Accordion title={msg("product.productDetails")}>
               <View style={styles.detailLine}>
-                <Text style={styles.detailLabel}>Catégorie</Text>
-                <Text style={styles.detailValue}>{product.category}</Text>
+                <Text style={styles.detailLabel}>{msg("product.category")}</Text>
+                <Text style={styles.detailValue}>{localizedContent(product.category)}</Text>
               </View>
               {product.brand ? (
                 <View style={styles.detailLine}>
-                  <Text style={styles.detailLabel}>Marque</Text>
+                  <Text style={styles.detailLabel}>{msg("product.brand")}</Text>
                   <Text style={styles.detailValue}>{product.brand}</Text>
                 </View>
               ) : null}
               <View style={styles.detailLine}>
-                <Text style={styles.detailLabel}>Référence</Text>
+                <Text style={styles.detailLabel}>{msg("product.reference")}</Text>
                 <Text selectable style={styles.detailValue}>
                   {product.sku || product.id.slice(0, 12).toUpperCase()}
                 </Text>
               </View>
               <View style={styles.detailLine}>
-                <Text style={styles.detailLabel}>Disponibilité</Text>
+                <Text style={styles.detailLabel}>{msg("topic.availability")}</Text>
                 <Text style={styles.detailValue}>
-                  {availableStock > 0 ? `${availableStock} en stock` : "Épuisé"}
+                  {availableStock > 0 ? msg("stock.countInStock", { count: availableStock }) : msg("product.soldOutText")}
                 </Text>
               </View>
             </Accordion>
-            <Accordion title="Livraison">
+            <Accordion title={msg("support.delivery")}>
               <Text style={styles.accordionText}>{deliveryLabel}</Text>
               <Text style={[styles.accordionText, { marginTop: 8 }]}>
-                Retrouvez les frais et le délai de livraison pour votre ville
-                avant de confirmer votre commande.
-              </Text>
+                {msg("product.checkDeliveryFeesAndTimesForYourCityBeforeConfirmingYourOrder")}</Text>
             </Accordion>
           </View>
         </View>
@@ -753,9 +778,10 @@ export default function ProductScreen() {
         <ShoeSizeGuide
           open={sizeGuideOpen}
           onClose={() => setSizeGuideOpen(false)}
+          productSizes={product.sizes ?? []}
           availableSizes={availableSizes}
           selectedSize={selectedSize}
-          onSelectSize={setSize}
+          onSelectSize={(value) => { setSize(value); setQuantity(1); }}
         />
 
         {reviewsEnabled ? (
@@ -765,14 +791,13 @@ export default function ProductScreen() {
             {reviewsQuery.isError ? (
               <View style={styles.reviewError}>
                 <Text style={styles.reviewErrorText}>
-                  Impossible de charger les avis.
-                </Text>
+                  {msg("product.unableToLoadReviews")}</Text>
                 <AnimatedPressable
-                  accessibilityLabel="Réessayer de charger les avis"
+                  accessibilityLabel={msg("product.tryLoadingReviewsAgain")}
                   onPress={() => void reviewsQuery.refetch()}
                   style={styles.reviewRetry}
                 >
-                  <Text style={styles.reviewRetryText}>RÉESSAYER</Text>
+                  <Text style={styles.reviewRetryText}>{msg("notifications.tryAgainUppercase")}</Text>
                 </AnimatedPressable>
               </View>
             ) : (
@@ -790,8 +815,8 @@ export default function ProductScreen() {
 
         {related.length ? (
           <View style={[styles.related, { width: contentWidth }]}>
-            <Text style={styles.relatedTitle}>Vous aimerez aussi</Text>
-            <Text style={styles.relatedSubtitle}>À découvrir dans le même esprit.</Text>
+            <Text style={styles.relatedTitle}>{msg("product.youMayAlsoLike")}</Text>
+            <Text style={styles.relatedSubtitle}>{msg("product.discoverMoreInTheSameStyle")}</Text>
             <HorizontalRail
               snapToInterval={254}
               snapToAlignment="start"
@@ -811,7 +836,10 @@ export default function ProductScreen() {
         ) : null}
       </ScrollView>
 
-      <View
+      {showPurchaseBar ? <Animated.View
+        key={slug}
+        entering={FadeInDown.duration(220).reduceMotion(ReduceMotion.System)}
+        exiting={FadeOutDown.duration(160).reduceMotion(ReduceMotion.System)}
         style={[
           styles.purchaseBar,
           { paddingBottom: Math.max(insets.bottom, 9) },
@@ -823,19 +851,25 @@ export default function ProductScreen() {
             contentWidth <= 340 && styles.purchasePriceCompact,
           ]}
         >
-          <Text style={styles.purchasePriceLabel}>PRIX</Text>
+          <Text style={styles.purchasePriceLabel}>{msg("product.unitPrice")}</Text>
           <Text
             numberOfLines={1}
+            accessibilityLabel={money(selectedPrice, currency)}
+            adjustsFontSizeToFit
+            minimumFontScale={0.75}
             style={[styles.purchasePriceValue, saving > 0 && styles.promotionalPrice]}
           >
-            {money(selectedPrice, currency)}
+            {displayAmount}
+            <Text style={styles.priceCurrency}>{"\u00A0"}{displayCurrency}</Text>
           </Text>
         </View>
         <AnimatedPressable
+          accessibilityRole="button"
           accessibilityLabel={
-            selectionUnavailable ? "Produit indisponible" : "Ajouter au panier"
+            selectionUnavailable ? msg("product.productUnavailable") : added ? msg("product.thankYouProductAddedToCartAddAgain") : preorder.fulfillment_type === "PREORDER" ? msg("preorder.action") : msg("common.add")
           }
-          accessibilityState={{ disabled: selectionUnavailable || isAdding }}
+          accessibilityLiveRegion="polite"
+          accessibilityState={{ disabled: selectionUnavailable || isAdding, busy: isAdding }}
           disabled={selectionUnavailable || isAdding}
           onPress={(event) =>
             void addSelectedQuantity({
@@ -852,6 +886,8 @@ export default function ProductScreen() {
         >
           {isAdding ? (
             <ActivityIndicator color={palette.white} />
+          ) : added ? (
+            <CartThankYou />
           ) : (
             <>
               <View
@@ -861,28 +897,28 @@ export default function ProductScreen() {
                 ]}
               >
                 <Ionicons
-                  name={added ? "checkmark" : "bag-handle-outline"}
+                  name="bag-handle-outline"
                   size={18}
                   color={palette.white}
                 />
               </View>
               <Text
                 numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.85}
                 style={[
                   styles.addButtonText,
                   contentWidth <= 340 && styles.addButtonTextCompact,
                 ]}
               >
-                {added
-                  ? "Ajouté au panier"
-                  : selectionUnavailable
-                    ? "Indisponible"
-                    : "Ajouter au panier"}
+                {selectionUnavailable
+                    ? msg("wishlistProductCard.unavailable")
+                    : preorder.fulfillment_type === "PREORDER" ? msg("preorder.action") : msg("common.add")}
               </Text>
             </>
           )}
         </AnimatedPressable>
-      </View>
+      </Animated.View> : null}
     </View>
   );
 }
@@ -957,7 +993,8 @@ const styles = StyleSheet.create({
     backgroundColor: PRODUCT_BACKGROUND,
   },
   categoryRow: {
-    minHeight: 30,
+    minHeight: 36,
+    gap: 14,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -969,34 +1006,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
   },
-  collectionDivider: {
-    width: 22,
-    height: 1.5,
-    backgroundColor: "#16883A",
-  },
   category: {
-    color: "#697267",
-    fontFamily: typography.bold,
-    fontSize: 10,
-    letterSpacing: 1.25,
+    flexShrink: 1,
+    color: "#242923",
+    fontFamily: typography.semibold,
+    fontSize: 13,
+    letterSpacing: 0.4,
     textTransform: "uppercase",
   },
   stockBadge: {
     flexShrink: 0,
     flexDirection: "row",
     alignItems: "center",
-    gap: 7,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: "#F0F5ED",
+    gap: 5,
+    paddingVertical: 4,
   },
-  stockBadgeUnavailable: { opacity: 0.8 },
-  stockDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#16883A" },
-  stockDotUnavailable: { backgroundColor: "#A83A3F" },
   stockText: {
-    color: "#16883A",
-    fontFamily: typography.bold,
+    color: "#697560",
+    fontFamily: typography.regular,
     fontSize: 10,
   },
   stockTextUnavailable: { color: "#A83A3F" },
@@ -1018,14 +1045,14 @@ const styles = StyleSheet.create({
   },
   productName: {
     maxWidth: 680,
-    marginTop: 13,
-    color: "#171A18",
-    fontFamily: typography.semibold,
-    fontSize: 26,
-    lineHeight: 33,
-    letterSpacing: -0.8,
+    marginTop: 17,
+    color: "#26342B",
+    fontFamily: typography.medium,
+    fontSize: 24,
+    lineHeight: 32,
+    letterSpacing: -0.55,
   },
-  productNameCompact: { fontSize: 24, lineHeight: 30, letterSpacing: -0.6 },
+  productNameCompact: { fontSize: 22, lineHeight: 29, letterSpacing: -0.4 },
   ratingShareRow: {
     minHeight: 50,
     marginTop: 0,
@@ -1086,11 +1113,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#EAF6ED",
   },
   priceCard: {
-    marginTop: 12,
+    marginTop: 17,
     marginBottom: 2,
     paddingBottom: 22,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.07)",
+    borderBottomColor: "#E8EADF",
     backgroundColor: "transparent",
   },
   priceHeader: {
@@ -1120,13 +1147,17 @@ const styles = StyleSheet.create({
     gap: 11,
   },
   price: {
-    color: "#171A18",
-    fontFamily: typography.bold,
-    fontSize: 27,
-    letterSpacing: -0.7,
+    color: "#202521",
+    fontFamily: typography.semibold,
+    fontSize: 24,
+    lineHeight: 30,
+    letterSpacing: -0.6,
+    includeFontPadding: false,
+    fontVariant: ["tabular-nums"],
   },
+  priceCurrency: { fontFamily: typography.medium, fontSize: 10, letterSpacing: 0.4, color: "#777C76" },
   promotionalPrice: {
-    color: "#183D29",
+    color: "#202521",
   },
   originalPriceGroup: {
     alignItems: "flex-start",
@@ -1188,17 +1219,17 @@ const styles = StyleSheet.create({
   colorImageShell: {
     width: 68,
     height: 76,
-    padding: 6,
+    padding: 2,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#E3E7DF",
-    borderRadius: 14,
-    backgroundColor: "#F7F8F4",
+    borderWidth: 1.5,
+    borderColor: "#E2E8F0",
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
   },
-  colorImageSelected: { borderWidth: 1.5, borderColor: "#315D3C" },
-  colorImage: { width: "100%", height: "100%", borderRadius: 8 },
+  colorImageSelected: { borderWidth: 2, borderColor: "#315D3C" },
+  colorImage: { width: "100%", height: "100%", borderRadius: 13 },
   selectedCheck: {
     position: "absolute",
     right: 0,
@@ -1230,44 +1261,50 @@ const styles = StyleSheet.create({
   colorLabelSelected: { color: palette.ink, fontFamily: typography.bold },
   sizeHeading: {
     flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
     alignItems: "center",
     justifyContent: "space-between",
   },
   guideButton: {
     minHeight: 44,
-    paddingHorizontal: 6,
+    paddingHorizontal: 2,
     flexDirection: "row",
     gap: 6,
     alignItems: "center",
     justifyContent: "center",
   },
   guideText: {
-    color: "#626D5F",
+    color: "#646960",
     fontFamily: typography.medium,
     fontSize: 11,
+    textDecorationLine: "underline",
+    textDecorationColor: "#B9BDB3",
   },
-  sizes: { marginTop: 10, flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  sizes: { marginTop: 8, flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  sizeItem: { minWidth: 68, gap: 7 },
   sizeOption: {
-    minWidth: 76,
-    minHeight: 58,
-    paddingHorizontal: 18,
+    minWidth: 68,
+    minHeight: 48,
+    paddingHorizontal: 16,
     paddingVertical: 12,
-    gap: 3,
+    flexDirection: "row",
+    gap: 5,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#E0E5DA",
-    borderRadius: 14,
-    backgroundColor: palette.white,
+    borderColor: "#DEDFD9",
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
   },
-  sizeSelected: { borderColor: "#426A45", backgroundColor: "#EFF5E9" },
-  sizeUnavailable: { backgroundColor: "#F7F8F5", borderColor: "#ECEFE7" },
-  sizeText: { color: palette.ink, fontFamily: typography.semibold, fontSize: 14 },
-  sizeTextSelected: { color: "#23482D" },
-  sizeTextUnavailable: { color: "#939B8B" },
-  sizeStatus: { color: "#969E8F", fontFamily: typography.regular, fontSize: 9 },
-  sizeCheck: { position: "absolute", top: 5, right: 5, width: 14, height: 14, borderRadius: 7, alignItems: "center", justifyContent: "center", backgroundColor: "#426A45" },
+  sizeSelected: { borderColor: "#234735", backgroundColor: "#F1F5EF" },
+  sizeUnavailable: { backgroundColor: "#FAFAF8", borderColor: "#EEEFEA" },
+  sizeText: { color: palette.ink, fontFamily: typography.medium, fontSize: 14, letterSpacing: 0.2 },
+  sizeTextSelected: { color: "#234735", fontFamily: typography.semibold },
+  sizeTextUnavailable: { color: "#9A9D94" },
+  sizeStatus: { color: "#85867E", fontFamily: typography.regular, fontSize: 9, lineHeight: 12, textAlign: "center" },
+  sizeCheck: { alignItems: "center", justifyContent: "center" },
   trustRow: {
     minHeight: 64,
     marginTop: 16,
@@ -1424,20 +1461,25 @@ const styles = StyleSheet.create({
     letterSpacing: -0.6,
   },
   purchaseBar: {
-    minHeight: 72,
-    paddingHorizontal: 14,
-    paddingTop: 9,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    minHeight: 84,
+    paddingHorizontal: 18,
+    paddingTop: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
+    gap: 14,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.07)",
-    backgroundColor: "rgba(255,254,252,0.98)",
+    borderTopColor: "#E8E5DD",
+    backgroundColor: "#FFFEFA",
     shadowColor: "#171A18",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.045,
-    shadowRadius: 10,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 18,
     elevation: 6,
   },
   quantity: {
@@ -1468,62 +1510,71 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   purchasePrice: {
-    width: 104,
+    width: 100,
     minWidth: 0,
     justifyContent: "center",
   },
-  purchasePriceCompact: { width: 90 },
+  purchasePriceCompact: { width: 82 },
   purchasePriceLabel: {
-    color: "#7B7E7A",
-    fontFamily: typography.bold,
+    color: "#777C76",
+    fontFamily: typography.medium,
     fontSize: 8,
-    letterSpacing: 0.9,
+    lineHeight: 12,
+    letterSpacing: 0.8,
     textTransform: "uppercase",
   },
   purchasePriceValue: {
-    marginTop: 2,
-    color: palette.ink,
-    fontFamily: typography.bold,
+    marginTop: 3,
+    color: "#202521",
+    fontFamily: typography.semibold,
     fontSize: 20,
-    letterSpacing: -0.4,
+    lineHeight: 26,
+    letterSpacing: -0.5,
+    includeFontPadding: false,
+    fontVariant: ["tabular-nums"],
   },
   addButton: {
     minWidth: 0,
     maxWidth: 580,
-    height: 52,
-    paddingHorizontal: 16,
+    minHeight: 56,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    borderRadius: 14,
-    backgroundColor: "#183D29",
-    shadowColor: "#0C6329",
+    gap: 10,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "#31533F",
+    backgroundColor: "#203F2F",
+    shadowColor: "#173424",
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0,
+    shadowOpacity: 0.14,
     shadowRadius: 8,
-    elevation: 0,
+    elevation: 2,
   },
   addButtonCompact: { paddingHorizontal: 10, gap: 7 },
   addButtonDisabled: {
     backgroundColor: "#A9ADA9",
+    borderColor: "#A9ADA9",
     shadowOpacity: 0,
     elevation: 0,
   },
   addButtonIcon: {
-    width: 22,
-    height: 22,
+    width: 30,
+    height: 30,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 0,
-    backgroundColor: "transparent",
+    borderRadius: 10,
+    backgroundColor: "rgba(255,255,255,0.09)",
   },
-  addButtonIconCompact: { width: 20, height: 20, borderRadius: 0 },
+  addButtonIconCompact: { width: 24, height: 28, borderRadius: 8 },
   addButtonText: {
-    color: palette.white,
-    fontFamily: typography.bold,
+    color: "#FFFEF8",
+    fontFamily: typography.semibold,
     fontSize: 12.5,
+    flexShrink: 1,
     letterSpacing: 0.1,
   },
   addButtonTextCompact: { fontSize: 11.5 },

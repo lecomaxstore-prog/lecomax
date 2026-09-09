@@ -1,3 +1,4 @@
+import { selectedInventory, preorderSnapshot } from "@/lib/purchasability";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -75,6 +76,7 @@ export const useCommerceStore = create<CommerceState>()(
                     ? {
                         ...line,
                         product,
+                        ...preorderSnapshot(product,selectedInventory(product,line.color,line.size),Math.min(maximum,line.quantity+amount)),
                         quantity: Math.min(maximum, line.quantity + amount),
                       }
                     : line,
@@ -83,6 +85,7 @@ export const useCommerceStore = create<CommerceState>()(
                   ...state.cart,
                   {
                     product,
+                    ...preorderSnapshot(product,selectedInventory(product,options?.color,options?.size),Math.min(maximum,amount)),
                     quantity: Math.min(maximum, amount),
                     color: options?.color,
                     size: options?.size,
@@ -101,7 +104,7 @@ export const useCommerceStore = create<CommerceState>()(
             quantity <= 0
               ? state.cart.filter((line) => line.product.id !== id)
               : state.cart.map((line) =>
-                  line.product.id === id ? { ...line, quantity } : line,
+                  line.product.id === id ? { ...line, ...preorderSnapshot(line.product,selectedInventory(line.product,line.color,line.size),Math.min(20,quantity)), quantity: Math.min(20,quantity) } : line,
                 ),
         })),
       removeCartLine: (id, color, size) =>
@@ -123,7 +126,10 @@ export const useCommerceStore = create<CommerceState>()(
               line.color === color &&
               line.size === size;
             if (!matches) return [line];
-            return quantity <= 0 ? [] : [{ ...line, quantity }];
+            if (!Number.isFinite(quantity)) return [line];
+            const nextQuantity = Math.min(20, Math.max(0, Math.floor(quantity)));
+            return nextQuantity <= 0 ? [] : [{ ...line, quantity: nextQuantity,
+              ...preorderSnapshot(line.product, selectedInventory(line.product, line.color, line.size), nextQuantity) }];
           }),
         })),
       refreshCartProducts: (products) => {

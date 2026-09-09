@@ -43,22 +43,22 @@ const getDbCategory = cache(async (slug: string): Promise<DbCategory | null> => 
 const categoryMeta: Record<string, { title: string; description: string; keywords: string[] }> = {
   homme: {
     title: "Vêtements Homme | L'ecomax — Maroc",
-    description: "Collection vêtements homme au Maroc : vestes, bombers, sweats et hoodies tendance. Livraison 35 MAD partout au Maroc. Paiement à la livraison.",
+    description: "Collection vêtements homme au Maroc : vestes, bombers, sweats et hoodies tendance. Livraison {{shipping}} partout au Maroc. Paiement à la livraison.",
     keywords: ["vêtements homme Maroc", "veste homme Maroc", "bomber homme Maroc", "sweat hoodie homme", "mode homme Maroc"],
   },
   femme: {
     title: "Vêtements & Chaussons Femme | L'ecomax — Maroc",
-    description: "Collection femme au Maroc : chaussons confortables, vestes, bombers et hoodies tendance. Style et chaleur au quotidien. Livraison 35 MAD. Paiement à la livraison.",
+    description: "Collection femme au Maroc : chaussons confortables, vestes, bombers et hoodies tendance. Style et chaleur au quotidien. Livraison {{shipping}}. Paiement à la livraison.",
     keywords: ["vêtements femme Maroc", "chaussons femme Maroc", "chaussons hiver femme", "bomber femme Maroc", "mode femme Maroc"],
   },
   chaussures: {
     title: "Chaussures Sport & Lifestyle | L'ecomax — Maroc",
-    description: "Chaussures running et lifestyle au Maroc, légères et disponibles en plusieurs coloris. Livraison 35 MAD et paiement à la livraison.",
+    description: "Chaussures running et lifestyle au Maroc, légères et disponibles en plusieurs coloris. Livraison {{shipping}} et paiement à la livraison.",
     keywords: ["chaussures sport Maroc", "chaussures running Maroc", "baskets Maroc", "chaussures lifestyle Maroc", "sneakers Maroc"],
   },
   accessoires: {
     title: "Accessoires Tech & Gaming | L'ecomax — Maroc",
-    description: "Accessoires tech au Maroc : manettes gaming sans fil, écouteurs TWS, enceintes Bluetooth, sacs à dos anti-vol. Livraison 35 MAD. Paiement à la livraison.",
+    description: "Accessoires tech au Maroc : manettes gaming sans fil, écouteurs TWS, enceintes Bluetooth, sacs à dos anti-vol. Livraison {{shipping}}. Paiement à la livraison.",
     keywords: ["accessoires tech Maroc", "manette gaming Maroc", "écouteurs sans fil Maroc", "sac à dos Maroc", "enceinte bluetooth Maroc"],
   },
 };
@@ -66,19 +66,19 @@ const categoryMeta: Record<string, { title: string; description: string; keyword
 const categorySeoContent: Record<string, { heading: string; body: string }> = {
   homme: {
     heading: "Vêtements Homme au Maroc — Style & Confort",
-    body: "Découvrez notre collection de vêtements homme soigneusement sélectionnés pour le style et la performance. Vestes de sport, bombers tendance, sweats et hoodies disponibles dans des coupes modernes adaptées à toutes les morphologies. Chaque article est choisi pour son rapport qualité-prix exceptionnel. Livraison rapide à 35 MAD partout au Maroc — Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir et toutes les villes. Paiement à la livraison disponible. Retours gratuits sous 30 jours.",
+    body: "Découvrez notre collection de vêtements homme soigneusement sélectionnés pour le style et la performance. Vestes de sport, bombers tendance, sweats et hoodies disponibles dans des coupes modernes adaptées à toutes les morphologies. Chaque article est choisi pour son rapport qualité-prix exceptionnel. Livraison rapide à {{shipping}} partout au Maroc — Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir et toutes les villes. Paiement à la livraison disponible. Retours sous 30 jours, selon conditions.",
   },
   femme: {
     heading: "Vêtements & Chaussons Femme au Maroc — Confort & Tendance",
-    body: "Retrouvez notre sélection de chaussons et vêtements pour femme adaptés à toutes les saisons. Chaussons d'intérieur en peluche chauds et moelleux, chaussons à fleurs tendance, chaussons extérieur antidérapants — des modèles confortables pour la maison et les courtes sorties. Également vestes et hoodies féminins pour compléter votre garde-robe. Articles en promotion régulièrement. Livraison 35 MAD partout au Maroc, paiement à la livraison, retours gratuits 30 jours.",
+    body: "Retrouvez notre sélection de chaussons et vêtements pour femme adaptés à toutes les saisons. Chaussons d'intérieur en peluche chauds et moelleux, chaussons à fleurs tendance, chaussons extérieur antidérapants — des modèles confortables pour la maison et les courtes sorties. Également vestes et hoodies féminins pour compléter votre garde-robe. Articles en promotion régulièrement. Livraison {{shipping}} partout au Maroc, paiement à la livraison, Retours sous conditions 30 jours.",
   },
   chaussures: {
     heading: "Chaussures de Sport & Running au Maroc",
-    body: "Trouvez la chaussure idéale parmi notre sélection de baskets et chaussures de sport au Maroc. Modèles respirants ultra-légers pour la course à pied et la marche quotidienne, avec semelles souples pour un confort toute la journée. Disponibles en plusieurs couleurs et pointures (38 à 45). Idéales pour le running, le tennis et les activités sportives. Livraison estimée sous 2 à 5 jours ouvrables à 35 MAD partout au Maroc avec paiement à la livraison. Retours gratuits sous 30 jours.",
+    body: "Trouvez la chaussure idéale parmi notre sélection de baskets et chaussures de sport au Maroc. Modèles respirants ultra-légers pour la course à pied et la marche quotidienne, avec semelles souples pour un confort toute la journée. Disponibles en plusieurs couleurs et pointures (38 à 45). Idéales pour le running, le tennis et les activités sportives. Livraison estimée sous 2 à 5 jours ouvrables à {{shipping}} partout au Maroc avec paiement à la livraison. Retours sous 30 jours, selon conditions.",
   },
   accessoires: {
     heading: "Accessoires Tech & Gaming au Maroc — Qualité Premium",
-    body: "Explorez notre gamme d'accessoires tech sélectionnés pour leur qualité et innovation. Enceintes Bluetooth HiFi son stéréo cinéma, écouteurs sans fil TWS avec microphone intégré, manettes gaming sans fil compatibles iOS/PC/Switch/Android, sacs à dos anti-vol pour le voyage et le quotidien. Tous nos produits sont testés et garantis. Livraison à 35 MAD partout au Maroc — Casablanca, Rabat, Marrakech et toutes les villes. Paiement à la livraison, retours gratuits 30 jours.",
+    body: "Explorez notre gamme d'accessoires tech sélectionnés pour leur qualité et innovation. Enceintes Bluetooth HiFi son stéréo cinéma, écouteurs sans fil TWS avec microphone intégré, manettes gaming sans fil compatibles iOS/PC/Switch/Android, sacs à dos anti-vol pour le voyage et le quotidien. Tous nos produits sont testés et garantis. Livraison à {{shipping}} partout au Maroc — Casablanca, Rabat, Marrakech et toutes les villes. Paiement à la livraison, Retours sous conditions 30 jours.",
   },
 };
 
@@ -106,7 +106,7 @@ export async function generateMetadata({
     description: cat.description,
     keywords: [],
   };
-  const description = meta.description.replace(/35 MAD/g, shippingAmount);
+  const description = meta.description.replace(/\{\{shipping\}\}/g, shippingAmount);
   return {
     title: meta.title,
     description,
@@ -205,7 +205,7 @@ export default async function CategoryPage({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": categoryMeta[category]?.title ?? `${cat.label} | L'ecomax`,
-    "description": (categoryMeta[category]?.description ?? cat.description).replace(/35 MAD/g, shippingAmount),
+    "description": (categoryMeta[category]?.description ?? cat.description).replace(/\{\{shipping\}\}/g, shippingAmount),
     "url": `${SITE_URL}/${category}/`,
     "inLanguage": "fr-MA",
     "numberOfItems": list.length,
@@ -296,7 +296,7 @@ export default async function CategoryPage({
             {categorySeoContent[category].heading}
           </h2>
           <p className="text-neutral-500 text-[14px] leading-relaxed">
-            {categorySeoContent[category].body.replace(/35 MAD/g, shippingAmount)}
+            {categorySeoContent[category].body.replace(/\{\{shipping\}\}/g, shippingAmount)}
           </p>
         </section>
       )}

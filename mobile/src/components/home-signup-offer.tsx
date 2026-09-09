@@ -1,3 +1,5 @@
+import { localizedError } from "@/i18n/errors";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as Clipboard from "expo-clipboard";
 import { router } from "expo-router";
@@ -43,6 +45,7 @@ const webInputReset =
     : undefined;
 
 export function HomeSignupOffer() {
+  useLocale();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "used" | "error"
@@ -83,7 +86,7 @@ export function HomeSignupOffer() {
     if (status === "loading") return;
     if (!emailPattern.test(normalizedEmail) || normalizedEmail.length > 254) {
       setStatus("error");
-      setMessage("Saisis une adresse e-mail valide.");
+      setMessage(msg("homeSignupOffer.enterAValidEmailAddress"));
       return;
     }
 
@@ -106,17 +109,17 @@ export function HomeSignupOffer() {
       if (response.coupon.available) {
         saveCoupon(response.coupon.code);
         setStatus("success");
-        setMessage("Code enregistré automatiquement pour ton prochain panier.");
+        setMessage(msg("homeSignupOffer.codeAutomaticallySavedForYourNextCart"));
       } else {
         setStatus("used");
-        setMessage("Cette offre de bienvenue a déjà été utilisée.");
+        setMessage(msg("homeSignupOffer.thisWelcomeOfferHasAlreadyBeenUsed"));
       }
     } catch (error) {
       setStatus("error");
       setMessage(
         error instanceof ApiError
-          ? error.message
-          : "Impossible de créer le code pour le moment. Réessaie.",
+          ? localizedError(error)
+          : msg("homeSignupOffer.unableToCreateTheCodeRightNowTryAgain"),
       );
     }
   };
@@ -134,13 +137,12 @@ export function HomeSignupOffer() {
         <View style={styles.successIcon}>
           <Ionicons name="checkmark" size={22} color={colors.ink} />
         </View>
-        <Text style={styles.successEyebrow}>BIENVENUE CHEZ L’ECOMAX</Text>
+        <Text style={styles.successEyebrow}>{msg("homeSignupOffer.welcomeToLEcomaxUppercase")}</Text>
         <Text accessibilityRole="header" style={styles.successTitle}>
-          TON -10% EST PRÊT
-        </Text>
+          {msg("homeSignupOffer.your10DiscountIsReadyUppercase")}</Text>
         <AnimatedPressable
-          accessibilityHint="Copie le code dans le presse-papiers"
-          accessibilityLabel={`Copier le code promotionnel ${couponCode}`}
+          accessibilityHint={msg("homeSignupOffer.copyCodeToClipboard")}
+          accessibilityLabel={msg("promotions.copyCode", { code: couponCode })}
           haptic={false}
           onPress={() => void copyCoupon()}
           pressedScale={0.985}
@@ -156,27 +158,25 @@ export function HomeSignupOffer() {
               color={copied ? colors.white : colors.ink}
             />
             <Text style={[styles.copyText, copied && styles.copyTextDone]}>
-              {copied ? "COPIÉ" : "COPIER"}
+              {copied ? msg("homeSignupOffer.copiedUppercase") : msg("homeSignupOffer.copyUppercase")}
             </Text>
           </View>
         </AnimatedPressable>
         <Text accessibilityLiveRegion="polite" style={styles.successMessage}>
           {copied
-            ? "Code copié. Tu peux maintenant l’utiliser au panier."
+            ? msg("homeSignupOffer.codeCopiedYouCanNowUseItInYourCart")
             : copyFailed
-              ? "Copie indisponible. Appuie longuement sur le code pour le sélectionner."
+              ? msg("homeSignupOffer.copyingIsUnavailablePressAndHoldTheCodeToSelectIt")
               : message}
         </Text>
         <Text style={styles.successFinePrint}>
-          Valable 30 jours dès 200 MAD d’articles hors promotion. Une seule
-          utilisation par adresse e-mail.
-        </Text>
+          {msg("homeSignupOffer.validFor30DaysOnOrdersOfAtLeastMad200In")}</Text>
         <AnimatedPressable
-          accessibilityLabel="Découvrir les produits éligibles"
+          accessibilityLabel={msg("homeSignupOffer.exploreEligibleProducts")}
           onPress={() => router.push("/catalog")}
           style={styles.shopButton}
         >
-          <Text style={styles.shopButtonText}>DÉCOUVRIR LES PRODUITS</Text>
+          <Text style={styles.shopButtonText}>{msg("homeSignupOffer.exploreProductsUppercase")}</Text>
           <Ionicons name="arrow-forward" size={17} color={colors.white} />
         </AnimatedPressable>
       </View>
@@ -186,28 +186,25 @@ export function HomeSignupOffer() {
   return (
     <View style={styles.card}>
       <View style={styles.eyebrowRow}>
-        <Text style={styles.eyebrow}>OFFRE DE BIENVENUE</Text>
+        <Text style={styles.eyebrow}>{msg("homeSignupOffer.welcomeOfferUppercase")}</Text>
       </View>
       <Text accessibilityRole="header" style={styles.title}>
-        Inscris-toi,{"\n"}profite de <Text style={styles.accent}>-10 %</Text>
+        {msg("homeSignupOffer.signUp")}{"\n"}{msg("homeSignupOffer.enjoy")}<Text style={styles.accent}>-10 %</Text>
       </Text>
       <Text style={styles.description}>
-        Rejoins L’ECOMAX et reçois immédiatement ton code personnel de
-        bienvenue.
-      </Text>
+        {msg("homeSignupOffer.joinLEcomaxAndGetYourPersonalWelcomeCodeInstantly")}</Text>
 
       <View style={styles.form}>
         <View style={styles.inputHeader}>
           <Text nativeID="welcome-email-label" style={styles.inputLabel}>
-            ADRESSE E-MAIL
-          </Text>
+            {msg("orderTracking.emailAddressUppercase")}</Text>
           <View style={styles.secureLabel}>
             <Ionicons
               name="lock-closed-outline"
               size={10}
               color={colors.muted}
             />
-            <Text style={styles.secureLabelText}>CONFIDENTIEL</Text>
+            <Text style={styles.secureLabelText}>{msg("homeSignupOffer.privateUppercase")}</Text>
           </View>
         </View>
         <View
@@ -225,8 +222,8 @@ export function HomeSignupOffer() {
             />
           </View>
           <TextInput
-            accessibilityHint="Saisis ton e-mail pour recevoir le code de bienvenue."
-            accessibilityLabel="Adresse e-mail pour recevoir dix pour cent de remise"
+            accessibilityHint={msg("homeSignupOffer.enterYourEmailToReceiveYourWelcomeCode")}
+            accessibilityLabel={msg("homeSignupOffer.emailAddressToReceiveTenPercentOff")}
             accessibilityLabelledBy="welcome-email-label"
             autoCapitalize="none"
             autoComplete="email"
@@ -243,7 +240,7 @@ export function HomeSignupOffer() {
             }}
             onFocus={() => setFocused(true)}
             onSubmitEditing={() => void submit()}
-            placeholder="nom@exemple.com"
+            placeholder={msg("common.emailExample")}
             placeholderTextColor={colors.inputMuted}
             returnKeyType="send"
             selectionColor="rgba(61,220,98,0.34)"
@@ -253,7 +250,7 @@ export function HomeSignupOffer() {
           />
           {validEmail ? (
             <View
-              accessibilityLabel="Adresse e-mail valide"
+              accessibilityLabel={msg("homeSignupOffer.validEmailAddress")}
               accessibilityRole="image"
               style={styles.validIndicator}
             >
@@ -262,7 +259,7 @@ export function HomeSignupOffer() {
           ) : null}
           {email && status !== "loading" ? (
             <AnimatedPressable
-              accessibilityLabel="Effacer l’adresse e-mail"
+              accessibilityLabel={msg("homeSignupOffer.clearEmailAddress")}
               haptic={false}
               onPress={() => {
                 setEmail("");
@@ -286,7 +283,7 @@ export function HomeSignupOffer() {
           </View>
         ) : null}
         <AnimatedPressable
-          accessibilityLabel="Recevoir mon code de dix pour cent"
+          accessibilityLabel={msg("homeSignupOffer.getMyTenPercentDiscountCode")}
           accessibilityState={{
             busy: status === "loading",
             disabled: status === "loading",
@@ -302,11 +299,11 @@ export function HomeSignupOffer() {
           {status === "loading" ? (
             <View style={styles.loadingContent}>
               <ActivityIndicator color={colors.white} size="small" />
-              <Text style={styles.submitText}>CRÉATION DU CODE…</Text>
+              <Text style={styles.submitText}>{msg("homeSignupOffer.creatingCodeUppercase")}</Text>
             </View>
           ) : (
             <>
-              <Text style={styles.submitText}>Recevoir mon code -10 %</Text>
+              <Text style={styles.submitText}>{msg("homeSignupOffer.getMy10DiscountCode")}</Text>
               <View style={styles.submitIcon}>
                 <Ionicons name="arrow-forward" size={17} color={colors.white} />
               </View>
@@ -333,9 +330,7 @@ export function HomeSignupOffer() {
           color={colors.green}
         />
         <Text style={styles.termsText}>
-          Offre personnelle dès 200 MAD d’articles hors promotion, valable une
-          seule fois par adresse e-mail.
-        </Text>
+          {msg("homeSignupOffer.personalOfferOnOrdersOfAtLeastMad200InNonSale")}</Text>
       </View>
     </View>
   );

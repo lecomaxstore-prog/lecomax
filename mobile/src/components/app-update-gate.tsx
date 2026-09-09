@@ -1,3 +1,5 @@
+import { formatNumber } from "@/lib/format";
+import { msg, useLocale } from "@/i18n";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Application from "expo-application";
 import * as Linking from "expo-linking";
@@ -15,10 +17,11 @@ import { getLatestAndroidRelease } from "@/services/app-releases";
 const DISMISSAL_KEY = "LECOMAX_ANDROID_UPDATE_DISMISSAL";
 
 function megabytes(value: number) {
-  return `${(value / 1024 / 1024).toFixed(1)} Mo`;
+  return msg("format.megabytes", { size: formatNumber(value / 1024 / 1024, { maximumFractionDigits: 1 }) });
 }
 
 export function AppUpdateGate() {
+  useLocale();
   const [release, setRelease] = useState<AndroidReleaseMetadata | null>(null);
   const [opening, setOpening] = useState(false);
   const [error, setError] = useState("");
@@ -67,7 +70,7 @@ export function AppUpdateGate() {
     if (!currentRelease) return;
     const url = trustedUpdateUrl(currentRelease.downloadUrl, runtimeConfig.apiUrl);
     if (!url) {
-      setError("Le lien officiel de mise à jour n’a pas pu être vérifié.");
+      setError(msg("appUpdateGate.theOfficialUpdateLinkCouldNotBeVerified"));
       return;
     }
     setOpening(true);
@@ -77,7 +80,7 @@ export function AppUpdateGate() {
       if (!supported) throw new Error("unsupported");
       await Linking.openURL(url);
     } catch {
-      setError("Impossible d’ouvrir le téléchargement. Vérifiez votre connexion.");
+      setError(msg("appUpdateGate.unableToOpenTheDownloadCheckYourConnection"));
     } finally {
       setOpening(false);
     }
@@ -98,7 +101,7 @@ export function AppUpdateGate() {
               <Text className="text-xl font-black text-ink">↓</Text>
             </View>
             <Text className="mt-5 text-[11px] font-black uppercase tracking-[2px] text-lime">
-              {release.required ? "Mise à jour requise" : "Nouvelle version disponible"}
+              {release.required ? msg("appGate.updateRequired") : msg("appUpdateGate.newVersionAvailable")}
             </Text>
             <Text accessibilityRole="header" className="mt-2 text-3xl font-black tracking-tight text-white">
               L’ecomax {release.versionName}
@@ -110,7 +113,7 @@ export function AppUpdateGate() {
           <View className="p-6">
             {release.releaseNotes.length > 0 && (
               <View>
-                <Text className="text-xs font-black uppercase tracking-wider text-muted">Nouveautés</Text>
+                <Text className="text-xs font-black uppercase tracking-wider text-muted">{msg("common.arrivals")}</Text>
                 <View className="mt-3 gap-2">
                   {release.releaseNotes.map((note) => (
                     <View key={note} className="flex-row gap-3">
@@ -122,26 +125,25 @@ export function AppUpdateGate() {
               </View>
             )}
             <Text className="mt-5 text-xs leading-5 text-muted">
-              Le téléchargement s’ouvre uniquement sur le site officiel lecomax.com. Android vous demandera toujours de confirmer l’installation.
-            </Text>
+              {msg("appUpdateGate.theDownloadOnlyOpensOnTheOfficialLecomaxComWebsiteAndroidWill")}</Text>
             {error ? <Text accessibilityLiveRegion="polite" className="mt-3 text-sm font-bold text-danger">{error}</Text> : null}
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={`Mettre à jour vers L’ecomax ${release.versionName}`}
+              accessibilityLabel={msg("updates.updateToVersion", { version: release.versionName })}
               disabled={opening}
               onPress={() => void update()}
               className="mt-6 min-h-14 items-center justify-center rounded-full bg-ink px-6 disabled:opacity-60"
             >
-              {opening ? <ActivityIndicator color="#ffffff" /> : <Text className="font-black text-white">METTRE À JOUR</Text>}
+              {opening ? <ActivityIndicator color="#ffffff" /> : <Text className="font-black text-white">{msg("appGate.updateUppercase")}</Text>}
             </Pressable>
             {!release.required && (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Reporter cette mise à jour"
+                accessibilityLabel={msg("appUpdateGate.remindMeLater")}
                 onPress={() => void later()}
                 className="mt-2 min-h-12 items-center justify-center"
               >
-                <Text className="text-sm font-bold text-muted">Plus tard</Text>
+                <Text className="text-sm font-bold text-muted">{msg("appUpdateGate.later")}</Text>
               </Pressable>
             )}
           </View>

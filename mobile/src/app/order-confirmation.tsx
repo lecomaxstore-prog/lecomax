@@ -1,3 +1,7 @@
+import { PreorderNotice } from "@/components/preorder-notice";
+import type { PreorderSnapshot } from "@/lib/purchasability";
+import { localizedContent } from "@/i18n/content";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -24,33 +28,37 @@ import { useUserStore } from "@/stores/user";
 const TRACKING_STEPS = [
   {
     icon: "checkmark" as const,
-    title: "Commande confirmée",
-    subtitle: "Votre commande a été enregistrée",
+    get title() { return msg("orderConfirmation.orderConfirmed"); },
+    get subtitle() { return msg("orderConfirmation.yourOrderHasBeenReceived"); },
     active: true,
   },
   {
     icon: "cube-outline" as const,
-    title: "Préparation",
-    subtitle: "Notre équipe prépare vos articles",
+    get title() { return msg("orderConfirmation.preparation"); },
+    get subtitle() { return msg("orderConfirmation.ourTeamIsPreparingYourItems"); },
     active: false,
   },
   {
     icon: "car-outline" as const,
-    title: "Expédition",
-    subtitle: "Vous recevrez votre numéro de suivi",
+    get title() { return msg("orderConfirmation.shipping"); },
+    get subtitle() { return msg("orderConfirmation.youWillReceiveYourTrackingNumber"); },
     active: false,
   },
 ];
 
 export default function OrderConfirmationScreen() {
+  useLocale();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{
+    preorderItems?: string;
     orderNumber?: string;
     total?: string;
     payment?: "cod" | "paypal";
     email?: string;
     estimatedDays?: string;
   }>();
+  let preorderItems: (PreorderSnapshot & { name?: string })[] = [];
+  try { const parsed: unknown = JSON.parse(params.preorderItems || "[]"); if (Array.isArray(parsed)) preorderItems = parsed.filter(item => item && item.fulfillment_type === "PREORDER"); } catch { /* Old confirmation links have no snapshot. */ }
   const customerName = useUserStore((state) => state.name);
   const successScale = useSharedValue(0);
 
@@ -79,7 +87,7 @@ export default function OrderConfirmationScreen() {
     <View style={styles.screen}>
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 10) }]}>
         <AnimatedPressable
-          accessibilityLabel="Retour à l’accueil"
+          accessibilityLabel={msg("notFound.backToHome")}
           onPress={() => router.replace("/")}
           style={styles.headerButton}
         >
@@ -98,10 +106,11 @@ export default function OrderConfirmationScreen() {
           { paddingBottom: 116 + Math.max(insets.bottom, 12) },
         ]}
       >
+        {preorderItems.map((item,index)=><View key={index}><Text>{item.name}</Text><PreorderNotice item={item}/></View>)}
         <Animated.View entering={FadeIn.duration(320)} style={styles.hero}>
           <View style={styles.heroArtwork}>
             <Image
-              accessibilityLabel="Un sac et un colis premium dans une cour marocaine lumineuse"
+              accessibilityLabel={msg("orderConfirmation.aShoppingBagAndParcelInASunlitMoroccanCourtyard")}
               contentFit="cover"
               contentPosition="center"
               source={require("../../assets/images/order-confirmation/merci-confirmation-v4.webp")}
@@ -123,50 +132,47 @@ export default function OrderConfirmationScreen() {
           </View>
 
           <Animated.Text entering={FadeInUp.delay(180).duration(360)} style={styles.eyebrow}>
-            COMMANDE VALIDÉE
-          </Animated.Text>
+            {msg("orderConfirmation.orderConfirmedUppercase")}</Animated.Text>
           <Animated.Text entering={FadeInUp.delay(230).duration(360)} style={styles.heroTitle}>
-            Merci{firstName ? `, ${firstName}` : ""} !
+            {msg("orderConfirmation.thankYou")}{firstName ? `, ${firstName}` : ""} !
           </Animated.Text>
           <Animated.Text entering={FadeInUp.delay(280).duration(360)} style={styles.heroSubtitle}>
-            Votre commande est confirmée. Nous vous tiendrons informé à chaque étape.
-          </Animated.Text>
+            {msg("orderConfirmation.yourOrderIsConfirmedWeWillKeepYouUpdatedAtEveryStep")}</Animated.Text>
         </Animated.View>
 
         <Animated.View entering={FadeInDown.delay(320).duration(420)} style={styles.orderCard}>
           <View style={styles.orderCardHeader}>
             <View style={styles.orderNumberBlock}>
-              <Text style={styles.label}>NUMÉRO DE COMMANDE</Text>
+              <Text style={styles.label}>{msg("orderConfirmation.orderNumberUppercase")}</Text>
               <Text selectable style={styles.orderNumber}>
                 {orderNumber}
               </Text>
             </View>
             <View style={styles.confirmedPill}>
               <View style={styles.confirmedDot} />
-              <Text style={styles.confirmedPillText}>CONFIRMÉE</Text>
+              <Text style={styles.confirmedPillText}>{msg("orderConfirmation.confirmedUppercase")}</Text>
             </View>
           </View>
 
           <View style={styles.summaryBody}>
             <SummaryRow
               icon="wallet-outline"
-              label="Mode de paiement"
-              value={isPayOnDelivery ? "À la livraison" : "PayPal"}
+              label={msg("orderConfirmation.paymentMethod")}
+              value={isPayOnDelivery ? msg("orderConfirmation.onDelivery") : "PayPal"}
             />
             <SummaryRow
               icon="calendar-outline"
-              label="Livraison estimée"
-              value={params.estimatedDays || "2–5 jours ouvrables"}
+              label={msg("orderConfirmation.estimatedDelivery")}
+              value={preorderItems.length ? msg("preorder.delivery") : localizedContent(params.estimatedDays) || msg("orderConfirmation.25BusinessDays")}
             />
             <View style={styles.divider} />
             <View style={styles.totalRow}>
               <View>
                 <Text style={styles.totalLabel}>
-                  {isPayOnDelivery ? "Total à payer" : "Total payé"}
+                  {isPayOnDelivery ? msg("orderConfirmation.totalToPay") : msg("orderConfirmation.totalPaid")}
                 </Text>
                 <Text style={styles.totalNote}>
-                  Taxes et frais de livraison inclus
-                </Text>
+                  {msg("orderConfirmation.taxAndDeliveryFeesIncluded")}</Text>
               </View>
               <Text style={styles.totalValue}>{money(total)}</Text>
             </View>
@@ -179,7 +185,7 @@ export default function OrderConfirmationScreen() {
               <Ionicons name="mail-outline" size={19} color={palette.greenDark} />
             </View>
             <View style={styles.emailCopy}>
-              <Text style={styles.emailTitle}>Confirmation envoyée</Text>
+              <Text style={styles.emailTitle}>{msg("orderConfirmation.confirmationSent")}</Text>
               <Text numberOfLines={1} style={styles.emailAddress}>
                 {params.email}
               </Text>
@@ -191,8 +197,8 @@ export default function OrderConfirmationScreen() {
         <Animated.View entering={FadeInDown.delay(460).duration(420)} style={styles.trackingSection}>
           <View style={styles.sectionHeading}>
             <View>
-              <Text style={styles.label}>SUIVI DE LA COMMANDE</Text>
-              <Text style={styles.sectionTitle}>Prochaine étape : préparation</Text>
+              <Text style={styles.label}>{msg("orderConfirmation.orderTrackingUppercase")}</Text>
+              <Text style={styles.sectionTitle}>{msg("orderConfirmation.nextStepPreparation")}</Text>
             </View>
             <View style={styles.progressPill}>
               <Text style={styles.progressText}>1 / 3</Text>
@@ -222,7 +228,7 @@ export default function OrderConfirmationScreen() {
                 </View>
                 {item.active ? (
                   <View style={styles.currentPill}>
-                    <Text style={styles.currentText}>EN COURS</Text>
+                    <Text style={styles.currentText}>{msg("orderConfirmation.inProgressUppercase")}</Text>
                   </View>
                 ) : null}
               </View>
@@ -232,7 +238,7 @@ export default function OrderConfirmationScreen() {
 
         <Animated.View entering={FadeInDown.delay(530).duration(420)}>
           <AnimatedPressable
-            accessibilityLabel="Contacter l’assistance au sujet de cette commande"
+            accessibilityLabel={msg("orderConfirmation.contactSupportAboutThisOrder")}
             onPress={() => router.push({ pathname: "/support", params: { orderNumber } })}
             style={styles.helpRow}
           >
@@ -240,8 +246,8 @@ export default function OrderConfirmationScreen() {
               <Ionicons name="headset-outline" size={20} color={palette.greenDark} />
             </View>
             <View style={styles.helpCopy}>
-              <Text style={styles.helpTitle}>Besoin d’aide ?</Text>
-              <Text style={styles.helpText}>Notre équipe vous accompagne pour cette commande.</Text>
+              <Text style={styles.helpTitle}>{msg("orderConfirmation.needHelp")}</Text>
+              <Text style={styles.helpText}>{msg("orderConfirmation.ourTeamIsHereToHelpWithYourOrder")}</Text>
             </View>
             <View style={styles.helpArrow}>
               <Ionicons name="arrow-forward" size={16} color={palette.white} />
@@ -257,15 +263,15 @@ export default function OrderConfirmationScreen() {
         ]}
       >
         <AnimatedPressable
-          accessibilityLabel="Retour à l’accueil"
+          accessibilityLabel={msg("notFound.backToHome")}
           onPress={() => router.replace("/")}
           style={styles.homeButton}
         >
           <Ionicons name="home-outline" size={18} color={palette.ink} />
-          <Text style={styles.homeButtonText}>Accueil</Text>
+          <Text style={styles.homeButtonText}>{msg("common.home")}</Text>
         </AnimatedPressable>
         <AnimatedPressable
-          accessibilityLabel="Suivre ma commande"
+          accessibilityLabel={msg("orderConfirmation.trackMyOrder")}
           onPress={() =>
             router.push({
               pathname: "/order-tracking",
@@ -277,7 +283,7 @@ export default function OrderConfirmationScreen() {
           }
           style={styles.trackButton}
         >
-          <Text style={styles.trackButtonText}>Suivre ma commande</Text>
+          <Text style={styles.trackButtonText}>{msg("orderConfirmation.trackMyOrder")}</Text>
           <View style={styles.trackArrow}>
             <Ionicons name="arrow-forward" size={17} color={palette.ink} />
           </View>
@@ -296,6 +302,7 @@ function SummaryRow({
   label: string;
   value: string;
 }) {
+  useLocale();
   return (
     <View style={styles.summaryRow}>
       <View style={styles.summaryIcon}>

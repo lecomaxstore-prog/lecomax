@@ -1,1 +1,1 @@
-﻿export { default } from "@/screens/support-chat-screen";
+export { default } from "@/screens/support-chat-screen";

@@ -77,7 +77,7 @@ export default function RetoursPage() {
                 </div>
                 <div className="flex justify-between gap-8 text-[12px]">
                   <span className="text-white/40">Support</span>
-                  <span className="text-white font-bold">7j/7</span>
+                  <span className="text-white font-bold">Contactez-nous</span>
                 </div>
               </div>
             </div>
@@ -98,7 +98,7 @@ export default function RetoursPage() {
             { label: "30 jours pour retourner" },
             { label: "Remboursement garanti" },
             { label: "Échange taille / couleur" },
-            { label: "Support 7j/7" },
+            { label: "Service client" },
           ].map((b, i) => (
             <div key={b.label} className="flex items-center gap-3 text-[12px] font-black uppercase tracking-[0.12em] text-neutral-600">
               {i > 0 && <span className="hidden sm:block w-px h-3 bg-neutral-200" />}
@@ -173,7 +173,7 @@ export default function RetoursPage() {
             {[
               { value: "30", unit: " jours", label: "Pour initier un retour", accent: true },
               { value: "5–7", unit: " jours", label: "Pour être remboursé", accent: false },
-              { value: "100%", unit: "", label: "Remboursement garanti", accent: false },
+              { value: "Retour", unit: "", label: "Selon les conditions", accent: false },
             ].map((stat) => (
               <div key={stat.label} className="bg-white px-8 py-10 text-center">
                 <p className="font-black leading-none mb-3" style={{ fontSize: "clamp(2.4rem, 4vw, 3.5rem)", letterSpacing: "-0.03em" }}>
@@ -203,7 +203,7 @@ export default function RetoursPage() {
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3ecf4c] mb-2">Besoin d&apos;aide ?</p>
               <p className="font-black text-white text-[20px] leading-tight mb-1">On est là pour vous</p>
-              <p className="text-white/40 text-[13px]">Notre équipe répond en moins de 2h, 7j/7.</p>
+              <p className="text-white/40 text-[13px]">Contactez notre service client.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <WhatsAppLink className="bg-[#25D366] text-white font-black text-[11px] uppercase tracking-[0.18em] px-7 py-3.5 hover:opacity-90 transition-opacity text-center">

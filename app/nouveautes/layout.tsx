@@ -4,7 +4,7 @@ import { withShippingMetadata } from "@/lib/shipping-config-server";
 const baseMetadata: Metadata = {
   title: "Nouveautés | L'ecomax — Dernières Arrivées au Maroc",
   description:
-    "Découvrez les nouveautés L'ecomax : chaussures, vêtements et accessoires tech. Livraison 35 MAD partout au Maroc et paiement à la livraison.",
+    "Découvrez les nouveautés L'ecomax : chaussures, vêtements et accessoires tech. Livraison {{shipping}} partout au Maroc et paiement à la livraison.",
   keywords: [
     "nouveautés mode Maroc",
     "nouvelles chaussures Maroc",
@@ -19,7 +19,7 @@ const baseMetadata: Metadata = {
     url: "https://lecomax.com/nouveautes/",
     title: "Nouveautés | L'ecomax — Dernières Arrivées au Maroc",
     description:
-      "Découvrez les dernières nouveautés L'ecomax : styles inédits et éditions limitées. Livraison 35 MAD au Maroc.",
+      "Découvrez les dernières nouveautés L'ecomax : styles inédits et éditions limitées. Livraison {{shipping}} au Maroc.",
     images: [
       {
         url: "https://lecomax.com/ecomax-hero-banner.jpg.png",

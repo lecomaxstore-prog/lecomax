@@ -1,11 +1,14 @@
+import { localizedContent } from "@/i18n/content";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
-import { memo, useEffect, useState } from "react";
+import { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { Rating } from "@/components/rating";
-import { palette, typography, ui } from "@/constants/theme";
-import { discount, imageUrl, money } from "@/lib/format";
+import { palette, typography } from "@/constants/theme";
+import { discount, money } from "@/lib/format";
+import { useProductImage } from "@/hooks/use-product-image";
 import { requiresWishlistVariant, type WishlistVariant } from "@/lib/wishlist-utils";
 import type { Product } from "@/types/commerce";
 
@@ -30,24 +33,23 @@ export const WishlistProductCard = memo(function WishlistProductCard({
   onAdd,
   onChoose,
 }: Props) {
-  const [imageFailed, setImageFailed] = useState(false);
-  const source = imageUrl(product.thumbnail || product.images[0]);
+  useLocale();
+  const { source, imageFailed, onError: onImageError } = useProductImage(product);
   const saving = discount(product.price, product.original_price);
-  const available = product.active !== false && product.stock > 0;
+  const available = product.active !== false && (product.stock > 0 || product.preorder_enabled);
   const variantLabel = [
-    selection?.color ? `Couleur : ${selection.color}` : null,
-    selection?.size ? `Taille : ${selection.size}` : null,
+    selection?.color ? msg("variants.colorValue", { color: selection.color }) : null,
+    selection?.size ? msg("variants.sizeValue", { size: selection.size }) : null,
   ]
     .filter(Boolean)
     .join(" · ");
 
-  useEffect(() => setImageFailed(false), [source]);
 
   return (
     <View style={styles.card}>
       <View style={styles.imageFrame}>
         <AnimatedPressable
-          accessibilityLabel={`Voir ${product.name}`}
+          accessibilityLabel={msg("product.viewNamed", { name: product.name })}
           accessibilityRole="button"
           haptic={false}
           onPress={onOpen}
@@ -56,14 +58,14 @@ export const WishlistProductCard = memo(function WishlistProductCard({
         {imageFailed ? (
           <View style={styles.imageFallback}>
             <Ionicons color="#8A8E8B" name="image-outline" size={34} />
-            <Text style={styles.imageFallbackText}>IMAGE INDISPONIBLE</Text>
+            <Text style={styles.imageFallbackText}>{msg("productCard.imageUnavailableUppercase")}</Text>
           </View>
         ) : (
           <Image
             accessibilityLabel={product.name}
             cachePolicy="memory-disk"
             contentFit="cover"
-            onError={() => setImageFailed(true)}
+            onError={onImageError}
             recyclingKey={`wishlist-${product.id}`}
             source={source}
             style={StyleSheet.absoluteFill}
@@ -78,21 +80,21 @@ export const WishlistProductCard = memo(function WishlistProductCard({
         ) : product.newArrival || product.featured ? (
           <View style={styles.badge}>
             <Text style={styles.badgeText}>
-              {promotionalLabel || "NOUVEAU"}
+              {promotionalLabel || msg("productCard.newUppercase")}
             </Text>
           </View>
         ) : null}
 
         {!available ? (
           <View style={styles.stockBadge}>
-            <Text style={styles.stockBadgeText}>ÉPUISÉ</Text>
+            <Text style={styles.stockBadgeText}>{msg("homePromotionSection.soldOutUppercase")}</Text>
           </View>
         ) : null}
 
         </AnimatedPressable>
 
         <AnimatedPressable
-          accessibilityLabel={`Retirer ${product.name} des favoris`}
+          accessibilityLabel={msg("favorites.removeNamed", { name: product.name })}
           accessibilityRole="button"
           onPress={(event) => {
             event.stopPropagation();
@@ -107,7 +109,7 @@ export const WishlistProductCard = memo(function WishlistProductCard({
       <View style={styles.body}>
         <View style={styles.meta}>
           <Text numberOfLines={1} style={styles.category}>
-            {product.category.toUpperCase()}
+            {localizedContent(product.category).toUpperCase()}
           </Text>
           <View style={styles.stock}>
             <View
@@ -117,13 +119,13 @@ export const WishlistProductCard = memo(function WishlistProductCard({
               ]}
             />
             <Text style={[styles.stockText, !available && styles.unavailable]}>
-              {available ? "EN STOCK" : "INDISPONIBLE"}
+              {available ? product.stock <= 0 && product.preorder_enabled ? msg("preorder.badge") : msg("homePromotionSection.inStockUppercase") : msg("wishlistProductCard.unavailableUppercase")}
             </Text>
           </View>
         </View>
 
         <AnimatedPressable
-          accessibilityLabel={`Ouvrir ${product.name}`}
+          accessibilityLabel={msg("product.openNamed", { name: product.name })}
           accessibilityRole="link"
           haptic={false}
           onPress={onOpen}
@@ -138,14 +140,14 @@ export const WishlistProductCard = memo(function WishlistProductCard({
             value={product.rating}
           />
           {(product.review_count ?? 0) > 0 ? (
-            <Text style={styles.verified}>AVIS VÉRIFIÉS</Text>
+            <Text style={styles.verified}>{msg("wishlistProductCard.verifiedReviewsUppercase")}</Text>
           ) : null}
         </View> : null}
 
-        {requiresWishlistVariant(product) ? <AnimatedPressable accessibilityRole="button" accessibilityLabel={`Choisir les options de ${product.name}`} disabled={!available || adding} onPress={onChoose} style={styles.variantRow}>
+        {requiresWishlistVariant(product) ? <AnimatedPressable accessibilityRole="button" accessibilityLabel={msg("product.chooseNamedOptions", { name: product.name })} disabled={!available || adding} onPress={onChoose} style={styles.variantRow}>
           <Ionicons color="#6D736F" name="options-outline" size={15} />
           <Text style={styles.variantText}>
-            {variantLabel || "Choisissez votre couleur et votre taille"}
+            {variantLabel || msg("wishlistProductCard.chooseYourColorAndSize")}
           </Text>
           <Ionicons color="#698066" name="chevron-forward" size={14} />
         </AnimatedPressable> : null}
@@ -159,8 +161,8 @@ export const WishlistProductCard = memo(function WishlistProductCard({
         <AnimatedPressable
           accessibilityLabel={
             available
-              ? `Ajouter ${product.name} au panier`
-              : `${product.name} est indisponible`
+              ? msg("cart.addNamed", { name: product.name })
+              : msg("product.namedUnavailable", { name: product.name })
           }
           accessibilityRole="button"
           disabled={!available || adding}
@@ -181,10 +183,10 @@ export const WishlistProductCard = memo(function WishlistProductCard({
           )}
           <Text style={styles.addButtonText}>
             {adding
-              ? "AJOUT EN COURS…"
+              ? msg("wishlistProductCard.addingUppercase")
               : available
-                ? "Ajouter au panier"
-                : "Indisponible"}
+                ? msg("common.add")
+                : msg("wishlistProductCard.unavailable")}
           </Text>
         </AnimatedPressable>
         </View>

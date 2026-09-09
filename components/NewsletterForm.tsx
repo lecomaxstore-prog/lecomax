@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import { useSettings } from "@/lib/use-settings";
 
@@ -9,7 +9,7 @@ export default function NewsletterForm({ variant = "dark" }: { variant?: "dark" 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !email.includes("@")) return;
+    if (status === "loading" || !email.trim() || !email.includes("@")) return;
     setStatus("loading");
     try {
       const res = await fetch("/api/newsletter", {
@@ -29,7 +29,7 @@ export default function NewsletterForm({ variant = "dark" }: { variant?: "dark" 
 
   if (status === "success" || status === "already") {
     return (
-      <div role="status" className={`flex items-center gap-3.5 border border-[#3ecf4c]/30 p-4 ${variant === "light" ? "rounded-2xl bg-gradient-to-br from-emerald-50 to-white" : "bg-[#3ecf4c]/8"}`}>
+      <div role="status" className={`flex items-center gap-3.5 border border-[#3ecf4c]/30 p-4 ${variant === "light" ? "rounded-xl bg-emerald-50" : "bg-[#3ecf4c]/8"}`}>
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center border border-[#3ecf4c]/30 bg-[#3ecf4c]/12 ${variant === "light" ? "rounded-xl" : ""}`}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
         </div>
@@ -63,21 +63,23 @@ export default function NewsletterForm({ variant = "dark" }: { variant?: "dark" 
             onChange={(e) => { setEmail(e.target.value); setStatus("idle"); }}
             placeholder="votre@email.com"
             required
+            readOnly={status === "loading"}
             aria-invalid={status === "error"}
             aria-describedby={status === "error" ? "newsletter-error" : undefined}
-            className={`min-h-[50px] w-full border py-3 pl-12 pr-4 text-[13px] font-medium transition-all duration-200 focus:border-[#3ecf4c] focus:outline-none focus:ring-4 focus:ring-[#3ecf4c]/10 sm:min-h-14 sm:py-3.5 ${variant === "light" ? `rounded-xl bg-neutral-50/70 text-neutral-950 placeholder:font-normal placeholder:text-neutral-400 ${status === "error" ? "border-red-300 bg-red-50/40" : "border-neutral-200 hover:border-neutral-300"}` : "border-white/10 bg-white/5 text-white placeholder:text-neutral-600 focus:bg-[#3ecf4c]/5"}`}
+            className={`min-h-[50px] w-full border py-3 pl-12 pr-4 text-[16px] sm:text-[14px] font-medium transition-all duration-200 focus:border-[#3ecf4c] focus:outline-none focus:ring-4 focus:ring-[#3ecf4c]/10 sm:min-h-14 sm:py-3.5 ${variant === "light" ? `rounded-xl bg-white text-neutral-950 placeholder:font-normal placeholder:text-neutral-400 ${status === "error" ? "border-red-300 bg-red-50/40" : "border-neutral-200 hover:border-neutral-300"}` : "border-white/10 bg-white/5 text-white placeholder:text-neutral-600 focus:bg-[#3ecf4c]/5"}`}
           />
         </div>
         <button
           type="submit" disabled={status === "loading"}
-          className={`group inline-flex min-h-[50px] w-full items-center justify-center gap-2.5 px-5 py-3 text-[10px] font-black uppercase tracking-[0.14em] transition-all duration-200 active:scale-[0.985] disabled:cursor-wait disabled:opacity-60 sm:min-h-14 sm:py-3.5 sm:tracking-[0.18em] ${variant === "light" ? "rounded-xl bg-neutral-950 text-white shadow-[0_8px_18px_rgba(0,0,0,.12)] hover:bg-emerald-600" : "bg-[#3ecf4c] text-black hover:bg-[#2db83a]"}`}
+          aria-busy={status === "loading"}
+          className={`group inline-flex min-h-[50px] w-full items-center justify-center gap-2.5 px-5 py-3 transition-[background-color,box-shadow,transform] duration-300 ease-out active:scale-[0.985] motion-reduce:transform-none motion-reduce:transition-none disabled:cursor-wait sm:min-h-14 sm:py-3.5 ${variant === "light" ? `rounded-xl text-[13px] font-semibold tracking-wide text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 ${status === "loading" ? "bg-emerald-700 shadow-[0_4px_16px_rgba(4,120,87,0.2)]" : "bg-neutral-950 hover:bg-neutral-800 active:bg-emerald-700"}` : "bg-[#3ecf4c] text-[10px] font-black uppercase tracking-[0.14em] sm:tracking-[0.18em] text-black hover:bg-[#2db83a] disabled:opacity-60"}`}
         >
           {status === "loading" ? (
-            <><svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg><span>Inscription…</span></>
+            <><svg className="animate-spin motion-reduce:animate-none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg><span>Inscription…</span></>
           ) : (
             <>
-              <span>S&apos;abonner gratuitement</span>
-              <span className={`flex h-7 w-7 items-center justify-center rounded-full transition-all duration-200 ${variant === "light" ? "bg-white/12 group-hover:bg-black/10" : "bg-black/10"}`}>
+              <span>{variant === "light" ? "M\u2019inscrire" : "S\u2019abonner gratuitement"}</span>
+              <span className={`flex h-7 w-7 items-center justify-center rounded-full transition-all duration-200 ${variant === "light" ? "bg-transparent" : "bg-black/10"}`}>
                 <svg className="transition-transform duration-200 group-hover:translate-x-0.5" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </span>
             </>

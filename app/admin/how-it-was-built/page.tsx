@@ -5352,7 +5352,7 @@ export default function ProductsPage() {
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {palette.map(color => <button key={color.hex} onClick={() => copy(color.hex, color.hex)} className="overflow-hidden rounded-2xl border border-gray-100 bg-white text-left shadow-sm transition-transform hover:-translate-y-0.5"><div className={`flex h-20 items-end p-3 ${color.text}`} style={{ backgroundColor: color.hex }}><code className="rounded bg-black/15 px-2 py-1 text-[11px] font-black">{copied === color.hex ? '✓ Copié' : color.hex}</code></div><div className="p-3"><p className="text-xs font-black">{color.name}</p><p className="mt-1 text-[10px] leading-relaxed text-gray-500">{color.use}</p></div></button>)}
         </div>
-        <div className="mt-3 rounded-xl bg-[#0d0d0d] p-4 font-mono text-[10px] leading-6 text-white/70"><span className="text-[#6a9955]">// HEX direct dans Tailwind</span><br />className=<span className="text-[#ce9178]">&quot;bg-[#3ecf4c] text-black hover:bg-[#16b277]&quot;</span><br /><span className="text-[#6a9955]">// Couleur du design system (tailwind.config.js)</span><br />className=<span className="text-[#ce9178]">&quot;bg-brand-500 text-white hover:bg-brand-600&quot;</span></div>
+        <div className="mt-3 rounded-xl bg-[#0d0d0d] p-4 font-mono text-[10px] leading-6 text-white/70"><span className="text-[#6a9955]">{'// HEX direct dans Tailwind'}</span><br />className=<span className="text-[#ce9178]">&quot;bg-[#3ecf4c] text-black hover:bg-[#16b277]&quot;</span><br /><span className="text-[#6a9955]">{'// Couleur du design system (tailwind.config.js)'}</span><br />className=<span className="text-[#ce9178]">&quot;bg-brand-500 text-white hover:bg-brand-600&quot;</span></div>
       </section>
 
       <section className="grid gap-3 sm:grid-cols-3">
@@ -6224,7 +6224,7 @@ function SupabaseSection() {
     <div className="max-w-4xl">
       <div className="mb-6">
         <h2 className="text-xl font-black text-gray-900">🗄️ Guide Supabase complet</h2>
-        <p className="text-sm text-gray-500 mt-1">De la création du projet jusqu'aux triggers avancés.</p>
+        <p className="text-sm text-gray-500 mt-1">De la création du projet jusqu&apos;aux triggers avancés.</p>
       </div>
       <label className="mb-3 block space-y-1.5 sm:hidden">
         <span className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Étape Supabase</span>
@@ -8715,7 +8715,7 @@ function MentorSection() {
         <div className="flex items-center gap-2 mt-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-2xl">
           <span className="text-lg">💡</span>
           <p className="text-[12px] text-amber-800 leading-relaxed font-medium">
-            <strong>Philosophie:</strong> Pourquoi AVANT Comment. Chaque leçon explique d'abord POURQUOI quelque chose existe, puis HOW ça fonctionne. Avec analogies, code réel de lecomax.com, quiz et exercices.
+            <strong>Philosophie:</strong> Pourquoi AVANT Comment. Chaque leçon explique d&apos;abord POURQUOI quelque chose existe, puis HOW ça fonctionne. Avec analogies, code réel de lecomax.com, quiz et exercices.
           </p>
         </div>
       </div>

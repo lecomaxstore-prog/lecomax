@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { requestDashboard } from "@/lib/dashboard-request";
 
 type DashboardStats = {
   products: number;
@@ -307,6 +308,7 @@ export default function DashboardPage() {
   const [retryToken, setRetryToken] = useState(0);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const hasLoaded = useRef(false);
+  const retryableError = useRef(true);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -315,13 +317,12 @@ export default function DashboardPage() {
       if (hasLoaded.current) setRefreshing(true);
       else setLoading(true);
       setError(null);
+      retryableError.current = true;
 
       try {
-        const response = await fetch(`/api/admin/dashboard?days=${period}`, {
-          cache: "no-store",
-          signal: controller.signal,
-        });
+        const response = await requestDashboard(`/api/admin/dashboard?days=${period}`, controller.signal);
         if (!response.ok) {
+          retryableError.current = response.status >= 500;
           if (response.status === 401) throw new Error("Votre session a expiré. Reconnectez-vous pour continuer.");
           if (response.status === 403) throw new Error("Votre compte ne dispose plus des autorisations nécessaires.");
           throw new Error("Impossible de charger les données du tableau de bord.");
@@ -347,6 +348,24 @@ export default function DashboardPage() {
     return () => controller.abort();
   }, [period, retryToken]);
 
+  // Recover an error left on screen after reconnecting or restarting the server.
+  useEffect(() => {
+    if (!error || !retryableError.current) return;
+    const retry = () => {
+      if (document.visibilityState === "visible" && navigator.onLine) setRetryToken(token => token + 1);
+    };
+    const timer = setTimeout(retry, 30_000);
+    window.addEventListener("online", retry);
+    window.addEventListener("focus", retry);
+    document.addEventListener("visibilitychange", retry);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("online", retry);
+      window.removeEventListener("focus", retry);
+      document.removeEventListener("visibilitychange", retry);
+    };
+  }, [error]);
+
   const can = (permission: string) => payload?.permissions === null || payload?.permissions.includes(permission) === true;
   const stats = payload?.stats;
   const periodData = payload?.period;
@@ -363,6 +382,8 @@ export default function DashboardPage() {
   ].filter((item): item is NonNullable<typeof item> => item !== null) : [];
 
   const quickActions = payload ? [
+    can("promotions.edit") ? { label: "Promotions", helper: "Gérer vos offres", href: "/admin/promotions", icon: "plus" as IconName, accent: "bg-emerald-50 text-emerald-700" } : null,
+    can("banners.edit") ? { label: "Bannières", helper: "Animer l’accueil", href: "/admin/banners", icon: "box" as IconName, accent: "bg-neutral-100 text-neutral-700" } : null,
     can("products.view") ? { label: "Nouveau produit", helper: "Ajouter au catalogue", href: "/admin/products?new=1", icon: "plus" as IconName, accent: "bg-black text-white" } : null,
     can("orders.view") ? { label: "Commandes", helper: "Traiter et expédier", href: "/admin/orders", icon: "orders" as IconName, accent: "bg-orange-50 text-orange-700" } : null,
     can("stock.edit") ? { label: "Gérer le stock", helper: `${stats?.lowStock ?? 0} alerte${(stats?.lowStock ?? 0) > 1 ? "s" : ""}`, href: "/admin/stock", icon: "stock" as IconName, accent: "bg-violet-50 text-violet-700" } : null,
@@ -370,11 +391,11 @@ export default function DashboardPage() {
   ].filter((item): item is NonNullable<typeof item> => item !== null) : [];
 
   return (
-    <div className="mx-auto w-full max-w-[1500px] space-y-4 sm:space-y-6">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="admin-dashboard mx-auto w-full max-w-[1500px] space-y-4 sm:space-y-6">
+      <header className="admin-dashboard-heading flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-emerald-700">{todayLabel}</p>
-          <h1 className="mt-1 text-2xl font-black tracking-[-0.035em] text-neutral-950 sm:text-3xl">Votre boutique, en un coup d&apos;œil</h1>
+          <h1 className="mt-1 text-2xl font-black tracking-[-0.035em] text-neutral-950 sm:text-3xl">Vue d’ensemble</h1>
           <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-neutral-500">
             <span>{lastUpdate ? `Actualisé à ${lastUpdate}` : "Données de gestion en direct"}</span>
             {refreshing && <span role="status" className="inline-flex items-center gap-1.5 font-bold text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" />Mise à jour…</span>}
@@ -460,12 +481,23 @@ export default function DashboardPage() {
             <MetricCard label="Catalogue" value={numberFormatter.format(stats.products)} helper={stats.lowStock > 0 ? `${stats.lowStock} produit${stats.lowStock > 1 ? "s" : ""} en stock faible` : "Aucune alerte de stock"} icon="box" href={can("products.view") ? "/admin/products" : undefined} />
           </section>
 
+          {can("orders.view") && periodData.daily.length > 0 && (() => {
+            const day = periodData.daily[periodData.daily.length - 1];
+            return <section aria-label="Activité du jour" className="rounded-2xl border border-neutral-200 bg-white p-4">
+              <h2 className="text-sm font-bold">Aujourd’hui · Casablanca</h2>
+              <div className="mt-3 grid grid-cols-1 gap-3 min-[390px]:grid-cols-3">
+                <div><p className="text-xs text-neutral-500">Valeur des commandes</p><p className="font-bold tabular-nums">{formatMoney(day.orderValue)}</p></div>
+                <div><p className="text-xs text-neutral-500">Commandes</p><p className="font-bold tabular-nums">{day.orders}</p></div>
+                <div><p className="text-xs text-neutral-500">Panier moyen</p><p className="font-bold tabular-nums">{formatMoney(day.orders ? day.orderValue / day.orders : 0)}</p></div>
+              </div>
+            </section>;
+          })()}
           {quickActions.length > 0 && (
             <section aria-labelledby="quick-actions-title">
               <div className="mb-3 flex items-end justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-neutral-400">Raccourcis</p><h2 id="quick-actions-title" className="mt-0.5 text-base font-black">Actions rapides</h2></div></div>
-              <div className="grid grid-cols-1 gap-2.5 min-[440px]:grid-cols-2 sm:gap-3 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
                 {quickActions.map((action) => (
-                  <Link key={action.href} href={action.href} className="group flex min-h-[76px] min-w-0 items-center gap-3 rounded-xl border border-neutral-200/80 bg-white p-3.5 shadow-sm transition active:scale-[.99] hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] min-[440px]:min-h-[92px] sm:p-4">
+                  <Link key={action.href} href={action.href} className="admin-quick-action group flex min-h-[76px] min-w-0 items-center gap-3 rounded-xl border border-neutral-200/80 bg-white p-3.5 shadow-sm transition active:scale-[.99] hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] min-[440px]:min-h-[92px] sm:p-4">
                     <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${action.accent}`}><Icon name={action.icon} /></span>
                     <span className="min-w-0 flex-1"><span className="block truncate text-sm font-black text-neutral-900">{action.label}</span><span className="mt-1 block text-xs leading-4 text-neutral-500">{action.helper}</span></span>
                     <Icon name="chevron" className="h-4 w-4 shrink-0 text-neutral-300 transition-transform group-hover:translate-x-0.5" />

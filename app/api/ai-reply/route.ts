@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerShippingConfig } from "@/lib/shipping-config-server";
-import { shippingSummary } from "@/lib/shipping-config";
+import { getStoreAssistantContext } from "@/lib/store-assistant-context";
+
 import { protectAdminMutation } from "@/lib/api-security";
 import { getGroqClient } from "@/lib/groq-client";
 
@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const blocked = await protectAdminMutation(req, { key: "ai:reply", limit: 20 });
   if (blocked) return blocked;
   try {
-    const shippingConfig = await getServerShippingConfig();
+    const businessContext = await getStoreAssistantContext();
     const body = await req.json() as Record<string, unknown>;
     const subject = typeof body.subject === "string" ? body.subject.trim().slice(0, 200) : "";
     const message = typeof body.message === "string" ? body.message.trim().slice(0, 5_000) : "";
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "system",
-          content: `You are a customer support agent for L'ecomax, a Moroccan online store selling sports shoes, clothing, earphones, bluetooth speakers, and gaming accessories. ${shippingSummary(shippingConfig)} Estimated delivery: ${shippingConfig.estimatedDays}. Cash on delivery and free returns within 30 days. WhatsApp: +212699289568. Email: contact@lecomax.com.
+          content: `You are a customer support agent for L'ecomax, a Moroccan online store selling sports shoes, clothing, earphones, bluetooth speakers, and gaming accessories. ${businessContext}
 
 CRITICAL LANGUAGE RULE — You MUST detect the language of the customer's message and reply in EXACTLY that same language:
 - Customer writes in English → you reply in English

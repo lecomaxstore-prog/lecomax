@@ -1,6 +1,9 @@
 import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
+import { parseExpoTickets } from "@/lib/expo-push-response";
+import { deliverMobileWebPush } from "@/lib/mobile-web-push";
+import { claimDispatchBatch, finishDispatchBatch } from "@/lib/mobile-dispatch";
 import {
   MOBILE_AUDIENCES,
   MOBILE_NOTIFICATION_CATEGORIES,
@@ -34,6 +37,11 @@ type MobileCampaignRow = {
   audience_user_ids: string[];
   category: MobileNotificationCategory;
   status: string;
+  source_product_id?: string | null;
+  source_promotion_id?: string | null;
+  source_offer_product_id?: string | null;
+  source_event_key?: string | null;
+  attempt_count?: number;
 };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -193,11 +201,15 @@ export async function resolveMobileAudience(
 ) {
   const client = supabaseAdmin();
   const selectedUsers = await audienceUserIds(client, audience, explicitIds);
-  let query = client.from("mobile_push_tokens").select("token,platform,user_id").eq("active", true);
-  if (audience === "android" || audience === "ios") query = query.eq("platform", audience);
-  const { data, error } = await query;
-  if (error) throw new Error(error.message);
-  let tokens = (data ?? []) as AudienceToken[];
+  let tokens: AudienceToken[] = [];
+  for (let offset = 0; ; offset += 1000) {
+    let query = client.from("mobile_push_tokens").select("token,platform,user_id").eq("active", true).order("token").range(offset, offset + 999);
+    if (audience === "android" || audience === "ios") query = query.eq("platform", audience);
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+    tokens.push(...(data ?? []) as AudienceToken[]);
+    if (!data || data.length < 1000) break;
+  }
   if (selectedUsers) tokens = tokens.filter((row) => Boolean(row.user_id && selectedUsers.has(row.user_id)));
   const userIds = [...new Set(tokens.map((row) => row.user_id).filter((id): id is string => Boolean(id)))];
   if (category !== "service" && userIds.length) {
@@ -221,11 +233,12 @@ export async function resolveMobileAudience(
 
 export async function deliverMobileCampaign(campaignId: string, actor = "system:mobile-campaign") {
   const client = supabaseAdmin();
-  const { data: notificationSetting } = await client
+  const { data: notificationSetting, error: settingError } = await client
     .from("settings")
     .select("value")
     .eq("key", "app_notifications_enabled")
     .maybeSingle();
+  if (settingError) throw new Error("MOBILE_NOTIFICATION_SETTINGS_UNAVAILABLE");
   if (notificationSetting?.value === "false") throw new Error("MOBILE_NOTIFICATIONS_DISABLED");
   const { data: claimed, error: claimError } = await client
     .from("mobile_notification_campaigns")
@@ -239,16 +252,60 @@ export async function deliverMobileCampaign(campaignId: string, actor = "system:
   const campaign = claimed as MobileCampaignRow;
 
   try {
+    const { error: attemptError } = await client.from("mobile_notification_campaigns")
+      .update({ attempt_count: (campaign.attempt_count ?? 0) + 1 }).eq("id", campaign.id);
+    if (attemptError) throw new Error("CAMPAIGN_ATTEMPT_SAVE_FAILED");
+    let staleOffer = false;
+    if (campaign.source_promotion_id) {
+      const { data: offer, error } = await client.from("promotions").select("active,expires_at")
+        .eq("id", campaign.source_promotion_id).maybeSingle();
+      if (error) throw new Error("OFFER_NOTIFICATION_LOOKUP_FAILED");
+      staleOffer = !offer?.active || Boolean(offer.expires_at && Date.parse(offer.expires_at) <= Date.now());
+    }
+    if (campaign.source_offer_product_id) {
+      const { data: product, error } = await client.from("products").select("active,price,original_price")
+        .eq("id", campaign.source_offer_product_id).maybeSingle();
+      if (error) throw new Error("OFFER_PRODUCT_LOOKUP_FAILED");
+      const parts = campaign.source_event_key?.split(":") ?? [];
+      staleOffer = !product?.active || !(product.original_price > product.price)
+        || Number(parts[2]) !== Number(product.price) || Number(parts[3]) !== Number(product.original_price);
+    }
+    if (staleOffer) {
+      const { error } = await client.from("mobile_notification_campaigns")
+        .update({ status: "cancelled", updated_at: new Date().toISOString() }).eq("id", campaign.id);
+      if (error) throw new Error("OFFER_NOTIFICATION_CANCEL_FAILED");
+      return { target: 0, delivered: 0, accepted: 0, failed: 0, cancelled: true };
+    }
+    if (campaign.source_product_id) {
+      const { data: product, error } = await client.from("products").select("active").eq("id", campaign.source_product_id).maybeSingle();
+      if (error) throw new Error("PRODUCT_NOTIFICATION_LOOKUP_FAILED");
+      if (!product?.active) {
+        const { error } = await client.from("mobile_notification_campaigns").update({ status: "cancelled", updated_at: new Date().toISOString() }).eq("id", campaign.id);
+        if (error) throw new Error("PRODUCT_NOTIFICATION_CANCEL_FAILED");
+        return { target: 0, delivered: 0, accepted: 0, failed: 0, cancelled: true };
+      }
+    }
     const resolved = await resolveMobileAudience(campaign.audience, campaign.audience_user_ids, campaign.category);
     const uniqueTokens = resolved.tokens;
     let delivered = 0;
     let failed = 0;
+    let uncertain = 0;
     const invalidTokens: string[] = [];
 
-    for (const batch of chunks(uniqueTokens, 100)) {
+    for (const candidates of chunks(uniqueTokens, 100)) {
+      const batch: AudienceToken[] = [];
+      const claims = await claimDispatchBatch(campaign.id, candidates.map(row => row.token));
+      for (const [index, row] of candidates.entries()) {
+        const claim = claims[index].status;
+        if (claim === "send") batch.push(row);
+        else if (claim === "accepted") delivered++;
+        else { failed++; uncertain++; }
+      }
+      if (!batch.length) continue;
       const response = await fetch("https://exp.host/--/api/v2/push/send", {
         method: "POST",
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        headers: { Accept: "application/json", "Content-Type": "application/json", ...(process.env.EXPO_ACCESS_TOKEN ? { Authorization: `Bearer ${process.env.EXPO_ACCESS_TOKEN}` } : {}) },
+        signal: AbortSignal.timeout(15000),
         body: JSON.stringify(batch.map((row) => ({
           to: row.token,
           title: campaign.title,
@@ -260,9 +317,20 @@ export async function deliverMobileCampaign(campaignId: string, actor = "system:
           data: { url: campaign.deep_link, campaignId: campaign.id },
         }))),
       });
-      if (!response.ok) throw new Error(`EXPO_PUSH_${response.status}`);
-      const payload = await response.json() as { data?: Array<{ status?: string; details?: { error?: string } }> };
-      (payload.data ?? []).forEach((ticket, index) => {
+      if (!response.ok) {
+        // Explicit provider rejection can safely be retried; a timeout cannot.
+        await finishDispatchBatch(campaign.id, batch.map(row => row.token), "failed");
+        throw new Error(`EXPO_PUSH_${response.status}`);
+      }
+      const tickets = parseExpoTickets(await response.json(), batch.length);
+      const receiptRows = tickets.flatMap((ticket, index) => ticket.status === "ok" ? [{ ticket_id: ticket.id, campaign_id: campaign.id, token: batch[index].token }] : []);
+      if (receiptRows.length) {
+        const { error } = await client.from("mobile_push_receipts").upsert(receiptRows, { onConflict: "ticket_id" });
+        if (error) throw new Error("EXPO_RECEIPTS_SAVE_FAILED");
+      }
+      await finishDispatchBatch(campaign.id, tickets.flatMap((ticket, index) => ticket.status === "ok" ? [batch[index].token] : []), "accepted");
+      await finishDispatchBatch(campaign.id, tickets.flatMap((ticket, index) => ticket.status === "error" ? [batch[index].token] : []), "failed");
+      tickets.forEach((ticket, index) => {
         if (ticket.status === "ok") delivered += 1;
         else {
           failed += 1;
@@ -273,11 +341,16 @@ export async function deliverMobileCampaign(campaignId: string, actor = "system:
       });
     }
 
+    const webResult = await deliverMobileWebPush(campaign, resolved.userIds);
+    delivered += webResult.accepted;
+    failed += webResult.failed;
+    uncertain += webResult.uncertain;
+    const target = uniqueTokens.length + webResult.target;
     if (invalidTokens.length) {
       await client.from("mobile_push_tokens").update({ active: false, updated_at: new Date().toISOString() }).in("token", invalidTokens);
     }
     const sentAt = new Date().toISOString();
-    await client.from("mobile_notifications").insert({
+    const { error: inboxError } = await client.from("mobile_notifications").upsert({
       campaign_id: campaign.id,
       title: campaign.title,
       body: campaign.body,
@@ -288,13 +361,16 @@ export async function deliverMobileCampaign(campaignId: string, actor = "system:
       category: campaign.category,
       published_at: sentAt,
       expires_at: new Date(Date.now() + 30 * 86_400_000).toISOString(),
-    });
+    }, { onConflict: "campaign_id", ignoreDuplicates: true });
+    if (inboxError) throw new Error("MOBILE_INBOX_SAVE_FAILED");
+    if (uncertain) throw new Error("DELIVERY_UNCERTAIN_REVIEW_DISPATCHES");
     const { error: finishError } = await client
       .from("mobile_notification_campaigns")
       .update({
-        status: "sent",
+        status: failed ? "failed" : "sent",
+        error_message: failed ? "PARTIAL_DELIVERY_FAILED" : null,
         sent_at: sentAt,
-        target_count: uniqueTokens.length,
+        target_count: target,
         delivered_count: delivered,
         failed_count: failed,
         updated_at: sentAt,
@@ -306,9 +382,9 @@ export async function deliverMobileCampaign(campaignId: string, actor = "system:
       action: "campaign_sent",
       entity_type: "mobile_notification_campaign",
       entity_id: campaign.id,
-      details: { targetCount: uniqueTokens.length, delivered, failed, audience: campaign.audience, category: campaign.category },
+      details: { targetCount: target, accepted: delivered, failed, audience: campaign.audience, category: campaign.category },
     });
-    return { target: uniqueTokens.length, delivered, failed };
+    return { target, delivered, accepted: delivered, failed };
   } catch (error) {
     await client.from("mobile_notification_campaigns").update({
       status: "failed",

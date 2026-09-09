@@ -1,4 +1,7 @@
 "use client";
+import "./admin-mobile.css";
+import { useSettings as useCentralSettings } from "@/lib/use-settings";
+import { storeSettings as centralStoreSettings } from "@/lib/store-settings";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -383,6 +386,11 @@ const nav = [
     ),
   },
   {
+    label: "Historique",
+    href: "/admin/activity",
+    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>,
+  },
+  {
     label: "Comment c'est construit",
     href: "/admin/how-it-was-built",
     icon: (
@@ -401,7 +409,7 @@ const navSections: { title: string; hrefs: string[] }[] = [
   { title: "MARKETING",   hrefs: ["/admin/ecomedia", "/admin/promotions", "/admin/ads", "/admin/push", "/admin/newsletter", "/admin/coupons", "/admin/announcement", "/admin/broadcast"] },
   { title: "SAV",         hrefs: ["/admin/messages", "/admin/chat-kb", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
   { title: "LOGISTIQUE",  hrefs: ["/admin/checkout", "/admin/shipping", "/admin/size-guide"] },
-  { title: "CONFIG",      hrefs: ["/admin/mobile-app", "/admin/app-releases", "/admin/settings"] },
+  { title: "CONFIG",      hrefs: ["/admin/mobile-app", "/admin/app-releases", "/admin/settings", "/admin/activity"] },
   { title: "ÉQUIPE",      hrefs: ["/admin/roles", "/admin/staff", "/admin/approvals"] },
 ];
 
@@ -491,7 +499,7 @@ function ScrollToTop() {
       type="button"
       onClick={() => document.getElementById("admin-main")?.scrollTo({ top: 0, behavior: "smooth" })}
       aria-label="Retour en haut de la page"
-      className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-20 flex h-11 w-11 items-center justify-center rounded-2xl bg-black text-white shadow-lg transition-all hover:bg-neutral-800 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] focus-visible:ring-offset-2 lg:bottom-6 lg:right-6"
+      className="admin-scroll-top fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-20 flex h-11 w-11 items-center justify-center rounded-2xl bg-black text-white shadow-lg transition-all hover:bg-neutral-800 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] focus-visible:ring-offset-2 lg:bottom-6 lg:right-6"
       title="Retour en haut"
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -502,6 +510,7 @@ function ScrollToTop() {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const lowStockThreshold = Number(centralStoreSettings(useCentralSettings()).low_stock_threshold);
   const pathname = usePathname();
   const router = useRouter();
   const [checking, setChecking] = useState(true);
@@ -568,7 +577,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const base = "/" + pathname.split("/").slice(0, 3).join("/").replace(/^\//, "");
     const pageName = PAGE_TITLES[base] ?? PAGE_TITLES[pathname] ?? "Admin";
     document.title = `${pageName} — Admin · L'ecomax`;
-  }, [pathname]);
+  }, [pathname, lowStockThreshold]);
 
   useEffect(() => {
     if (isLoginRoute) return;
@@ -750,13 +759,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       const approvals = aRes.ok ? await aRes.json() : [];
       const ecomediaPosts = eRes.ok ? await eRes.json() : [];
       const pending = Array.isArray(orders) ? orders.filter((o: { status: string }) => o.status === "pending").length : 0;
-      const lowStock = Array.isArray(products) ? products.filter((p: { stock: number }) => p.stock <= 3).length : 0;
+      const lowStock = Array.isArray(products) ? products.filter((p: { stock: number }) => p.stock <= lowStockThreshold).length : 0;
       const unread = Array.isArray(msgs) ? msgs.length : 0;
       const pendingApprovals = Array.isArray(approvals) ? approvals.length : 0;
       const pendingEcomedia = Array.isArray(ecomediaPosts) ? ecomediaPosts.filter((post: { is_client_post?: boolean; is_published?: boolean }) => post.is_client_post && !post.is_published).length : 0;
       setBadges({ orders: pending, stock: lowStock, messages: unread, approvals: pendingApprovals, ecomedia: pendingEcomedia });
     }).catch(() => {});
-  }, [pathname]);
+  }, [pathname, lowStockThreshold]);
 
   // login page — no shell (strip trailing slash before comparing)
   if (isLoginRoute) return <>{children}</>;
@@ -829,23 +838,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       icon: <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>,
     } : null,
     canSee("/admin/products") ? {
-      href: "/admin/products?new=1",
+      href: "/admin/products",
       activePath: "/admin/products",
-      label: "Ajouter",
-      primary: true,
-      icon: <svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>,
+      label: "Produits",
+      icon: <svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m3 7 9-4 9 4v10l-9 4-9-4V7Z"/><path d="m3 7 9 4 9-4M12 11v10"/></svg>,
     } : null,
-    canSee("/admin/messages") ? {
-      href: "/admin/messages",
-      activePath: "/admin/messages",
-      label: "Messages",
-      badge: "messages" as const,
-      icon: <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+    canSee("/admin/customers") ? {
+      href: "/admin/customers",
+      activePath: "/admin/customers",
+      label: "Clients",
+      icon: <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M17 5a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-3-5"/></svg>,
     } : null,
   ].filter((item): item is NonNullable<typeof item> => item !== null);
 
   return (
-    <div className="flex h-dvh min-h-0 overflow-hidden bg-[#f4f4f2]">
+    <div className="admin-shell flex h-dvh min-h-0 overflow-hidden bg-[#f4f4f2]">
       {/* ──────────────── SIDEBAR ──────────────── */}
       <aside
         id="admin-sidebar"
@@ -1048,7 +1055,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
 
         {/* Top bar */}
-        <header className="sticky top-0 z-20 flex h-[calc(3.5rem+env(safe-area-inset-top))] min-h-14 shrink-0 items-center gap-2 border-b border-neutral-100 bg-white px-3 pt-[env(safe-area-inset-top)] shadow-[0_1px_3px_rgba(0,0,0,0.05)] md:gap-3 md:px-6 lg:h-14 lg:pt-0">
+        <header className="admin-topbar sticky top-0 z-20 flex h-[calc(3.5rem+env(safe-area-inset-top))] min-h-14 shrink-0 items-center gap-2 border-b border-neutral-100 bg-white px-3 pt-[env(safe-area-inset-top)] shadow-[0_1px_3px_rgba(0,0,0,0.05)] md:gap-3 md:px-6 lg:h-14 lg:pt-0">
           {/* Hamburger */}
           <button
             type="button"
@@ -1119,7 +1126,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* ──────────────── MOBILE BOTTOM NAV ──────────────── */}
         <nav
           aria-label="Navigation admin mobile"
-          className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-200/80 bg-white/95 shadow-[0_-4px_24px_rgba(0,0,0,0.10)] backdrop-blur-xl lg:hidden"
+          className="admin-bottom-nav fixed inset-x-0 bottom-0 z-30 border-t border-neutral-200/80 bg-white/95 shadow-[0_-4px_24px_rgba(0,0,0,0.10)] backdrop-blur-xl lg:hidden"
           style={{
             paddingBottom: "env(safe-area-inset-bottom)",
             paddingLeft: "env(safe-area-inset-left)",
@@ -1131,7 +1138,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               const active = pathname.startsWith(item.activePath);
               const badgeKey = "badge" in item ? item.badge : undefined;
               const badgeCount = badgeKey ? (badges[badgeKey] ?? 0) : 0;
-              const primary = "primary" in item && item.primary;
+              
               return (
                 <Link
                   key={item.href}
@@ -1144,11 +1151,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       {badgeCount > 9 ? "9+" : badgeCount}
                     </span>
                   )}
-                  <span className={primary ? "flex h-10 w-10 items-center justify-center rounded-2xl bg-black text-white shadow-md" : active ? "text-black" : "text-neutral-500"}>
+                  <span className={"admin-nav-icon flex h-8 w-11 items-center justify-center rounded-xl " + (active ? "bg-emerald-50 text-emerald-800" : "text-neutral-500")}>
                     {item.icon}
                   </span>
-                  <span className={`max-w-full truncate px-0.5 text-[10px] font-bold leading-3 ${active || primary ? "text-black" : "text-neutral-500"}`}>{item.label}</span>
-                  {active && !primary && <span aria-hidden="true" className="absolute bottom-0.5 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-[#3ecf4c]" />}
+                  <span className={`max-w-full truncate px-0.5 text-[10px] font-bold leading-3 ${active ? "text-black" : "text-neutral-500"}`}>{item.label}</span>
+                  {active && <span aria-hidden="true" className="absolute bottom-0.5 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-[#3ecf4c]" />}
                 </Link>
               );
             })}
@@ -1161,7 +1168,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl text-neutral-500 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] focus-visible:ring-inset"
             >
               <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
-              <span className="text-[10px] font-bold leading-3">Menu</span>
+              <span className="text-[10px] font-bold leading-3">Plus</span>
               {totalAlerts > 0 && (
                 <span aria-label={`${totalAlerts} alerte${totalAlerts > 1 ? "s" : ""}`} className="absolute right-[calc(50%-20px)] top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-orange-500 px-1 text-[9px] font-black text-white shadow-sm">
                   {totalAlerts > 9 ? "9+" : totalAlerts}

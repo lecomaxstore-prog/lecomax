@@ -4,7 +4,7 @@ import { withShippingMetadata } from "@/lib/shipping-config-server";
 const baseMetadata: Metadata = {
   title: "Promotions & Soldes | L'ecomax — Maroc",
   description:
-    "Promotions L'ecomax sur les chaussures, vêtements et accessoires tech. Livraison 35 MAD partout au Maroc et paiement à la livraison.",
+    "Promotions L'ecomax sur les chaussures, vêtements et accessoires tech. Livraison {{shipping}} partout au Maroc et paiement à la livraison.",
   keywords: [
     "promotions Maroc",
     "soldes chaussures Maroc",
@@ -18,7 +18,7 @@ const baseMetadata: Metadata = {
     locale: "fr_MA",
     url: "https://lecomax.com/promotions/",
     title: "Promotions & Soldes | L'ecomax — Maroc",
-    description: "Meilleures promotions L'ecomax. Livraison 35 MAD au Maroc.",
+    description: "Meilleures promotions L'ecomax. Livraison {{shipping}} au Maroc.",
     images: [
       {
         url: "https://lecomax.com/ecomax-hero-banner.jpg.png",

@@ -1,3 +1,5 @@
+import { localizedError } from "@/i18n/errors";
+import { currentLocale, msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
@@ -12,23 +14,25 @@ import { createSupportMessageId, getSupportConversations, startSupportConversati
 
 import { useSupportAccount, useSupportActive } from "@/hooks/use-support-account";
 
-const statusLabel = { open: "Ouverte", waiting: "Réponse envoyée", resolved: "Résolue" } as const;
+const statusLabel = { get open() { return msg("support.open"); }, get waiting() { return msg("support.replySent"); }, get resolved() { return msg("support.resolved"); } } as const;
 
 export default function SupportScreen() {
+  useLocale();
   const account = useSupportAccount();
-  if (account.error) return <Screen><View style={styles.centerState}><Text style={styles.stateTitle}>Connexion indisponible</Text><Text style={styles.stateText}>{account.error}</Text><AnimatedPressable accessibilityRole="button" onPress={account.retry} style={styles.primary}><Text style={styles.primaryText}>RÉESSAYER</Text></AnimatedPressable></View></Screen>;
-  if (!account.ready) return <Screen><View style={styles.centerState}><ActivityIndicator color={palette.greenDark} /><Text style={styles.stateText}>Vérification de votre session…</Text></View></Screen>;
+  if (account.error) return <Screen><View style={styles.centerState}><Text style={styles.stateTitle}>{msg("support.signInUnavailable")}</Text><Text style={styles.stateText}>{account.error}</Text><AnimatedPressable accessibilityRole="button" onPress={account.retry} style={styles.primary}><Text style={styles.primaryText}>{msg("notifications.tryAgainUppercase")}</Text></AnimatedPressable></View></Screen>;
+  if (!account.ready) return <Screen><View style={styles.centerState}><ActivityIndicator color={palette.greenDark} /><Text style={styles.stateText}>{msg("support.checkingYourSession")}</Text></View></Screen>;
   return <SupportContent key={account.id ?? "guest"} account={account} />;
 }
 
 function SupportContent({ account }: { account: ReturnType<typeof useSupportAccount> }) {
+  useLocale();
   const active = useSupportActive();
   const { orderNumber } = useLocalSearchParams<{ orderNumber?: string }>();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const pending = useRef<{ fingerprint: string; id: string } | null>(null);
   const [composing, setComposing] = useState(Boolean(orderNumber));
-  const [subject, setSubject] = useState(orderNumber ? `Commande ${orderNumber}` : "");
+  const [subject, setSubject] = useState(orderNumber ? msg("support.orderSubject", { number: orderNumber }) : "");
   const [message, setMessage] = useState("");
   const conversations = useQuery({ queryKey: ["support-conversations", account.id], queryFn: getSupportConversations, enabled: Boolean(account.id), refetchInterval: active ? 5000 : false, retry: false });
   const create = useMutation({
@@ -45,11 +49,11 @@ function SupportContent({ account }: { account: ReturnType<typeof useSupportAcco
     if (!message.trim() || create.isPending) return;
     const fingerprint = JSON.stringify([account.id, subject.trim(), message.trim(), orderNumber]);
     if (pending.current?.fingerprint !== fingerprint) pending.current = { fingerprint, id: createSupportMessageId() };
-    create.mutate({ subject: subject.trim() || "Demande d’assistance", message: message.trim(), order_number: orderNumber, client_message_id: pending.current.id });
+    create.mutate({ subject: subject.trim() || msg("support.supportRequest"), message: message.trim(), order_number: orderNumber, client_message_id: pending.current.id });
   };
 
   const renderConversation = ({ item }: { item: SupportConversation }) => (
-    <AnimatedPressable accessibilityLabel={`Conversation ${item.subject}`} onPress={() => router.push({ pathname: "/support-chat", params: { id: item.id } })} style={styles.conversation}>
+    <AnimatedPressable accessibilityLabel={msg("support.conversationSubject", { subject: item.subject })} onPress={() => router.push({ pathname: "/support-chat", params: { id: item.id } })} style={styles.conversation}>
       <View style={[styles.conversationIcon, item.customer_unread > 0 && styles.conversationIconUnread]}>
         <Ionicons name="chatbubble-ellipses-outline" size={20} color={item.customer_unread > 0 ? palette.white : palette.greenDark} />
       </View>
@@ -58,8 +62,8 @@ function SupportContent({ account }: { account: ReturnType<typeof useSupportAcco
           <Text numberOfLines={1} style={styles.conversationTitle}>{item.subject}</Text>
           {item.customer_unread > 0 ? <View style={styles.badge}><Text style={styles.badgeText}>{item.customer_unread}</Text></View> : null}
         </View>
-        <Text numberOfLines={2} style={styles.preview}>{item.last_message || "Conversation démarrée"}</Text>
-        <View style={styles.metaRow}><Text style={styles.status}>{statusLabel[item.status]}</Text><Text style={styles.date}>{new Date(item.last_message_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}</Text></View>
+        <Text numberOfLines={2} style={styles.preview}>{item.last_message || msg("support.conversationStarted")}</Text>
+        <View style={styles.metaRow}><Text style={styles.status}>{statusLabel[item.status]}</Text><Text style={styles.date}>{new Date(item.last_message_at).toLocaleDateString(currentLocale(), { day: "2-digit", month: "short" })}</Text></View>
       </View>
       <Ionicons name="chevron-forward" size={18} color="#8A918C" />
     </AnimatedPressable>
@@ -69,13 +73,13 @@ function SupportContent({ account }: { account: ReturnType<typeof useSupportAcco
     <Screen className="bg-white">
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <View style={styles.header}>
-          <AnimatedPressable accessibilityLabel="Retour" onPress={() => router.canGoBack() ? router.back() : router.replace("/account")} style={styles.back}><Ionicons name="arrow-back" size={22} color={palette.ink} /></AnimatedPressable>
-          <View style={styles.headerCopy}><Text style={styles.eyebrow}>SERVICE CLIENT</Text><Text accessibilityRole="header" style={styles.title}>Assistance</Text></View>
+          <AnimatedPressable accessibilityLabel={msg("addresses.back")} onPress={() => router.canGoBack() ? router.back() : router.replace("/account")} style={styles.back}><Ionicons name="arrow-back" size={22} color={palette.ink} /></AnimatedPressable>
+          <View style={styles.headerCopy}><Text style={styles.eyebrow}>{msg("support.customerServiceUppercase")}</Text><Text accessibilityRole="header" style={styles.title}>{msg("support.support")}</Text></View>
           <View style={styles.online}><Ionicons name="shield-checkmark-outline" size={19} color="#365741" /></View>
         </View>
 
         {authRequired ? (
-          <View style={styles.centerState}><Ionicons name="lock-closed-outline" size={42} color={palette.greenDark} /><Text style={styles.stateTitle}>Vos échanges sont privés</Text><Text style={styles.stateText}>Connectez-vous pour démarrer une conversation sécurisée et retrouver vos demandes.</Text><AnimatedPressable onPress={() => router.push({ pathname: "/auth", params: { returnTo: "account" } })} style={styles.primary}><Text style={styles.primaryText}>SE CONNECTER</Text></AnimatedPressable></View>
+          <View style={styles.centerState}><Ionicons name="lock-closed-outline" size={42} color={palette.greenDark} /><Text style={styles.stateTitle}>{msg("support.yourConversationsArePrivate")}</Text><Text style={styles.stateText}>{msg("support.signInToStartASecureConversationAndFindYourRequests")}</Text><AnimatedPressable onPress={() => router.push({ pathname: "/auth", params: { returnTo: "account" } })} style={styles.primary}><Text style={styles.primaryText}>{msg("support.signInUppercase")}</Text></AnimatedPressable></View>
         ) : (
           <FlatList
             data={conversations.data?.conversations ?? []}
@@ -87,22 +91,22 @@ function SupportContent({ account }: { account: ReturnType<typeof useSupportAcco
             contentContainerStyle={{ padding: 16, paddingBottom: Math.max(insets.bottom, 16) + 24 }}
             ListHeaderComponent={<>
               <View style={styles.hero}>
-                <View style={styles.heroTop}><View style={styles.heroIcon}><Ionicons name="headset-outline" size={24} color="#365741" /></View><Text style={styles.heroTag}>À VOTRE ÉCOUTE</Text></View>
-                <Text style={styles.heroTitle}>Une question ?{"\n"}On est là pour vous.</Text>
-                <Text style={styles.heroText}>Échangez directement avec notre équipe. Retrouvez chaque réponse dans vos conversations.</Text>
-                <View style={styles.topics}>{["Commande", "Livraison", "Retour", "Autre"].map(topic => <AnimatedPressable key={topic} accessibilityRole="button" accessibilityLabel={`Demande : ${topic}`} onPress={() => { setSubject(topic); setComposing(true); }} style={[styles.topic, subject === topic && styles.topicActive]}><Text style={[styles.topicText, subject === topic && styles.topicTextActive]}>{topic}</Text></AnimatedPressable>)}</View>
+                <View style={styles.heroTop}><View style={styles.heroIcon}><Ionicons name="headset-outline" size={24} color="#365741" /></View><Text style={styles.heroTag}>{msg("support.hereToHelpUppercase")}</Text></View>
+                <Text style={styles.heroTitle}>{msg("support.haveAQuestion")}{"\n"}{msg("support.weReHereForYou")}</Text>
+                <Text style={styles.heroText}>{msg("support.talkDirectlyWithOurTeamFindEveryReplyInYourConversations")}</Text>
+                <View style={styles.topics}>{[msg("support.order"), msg("support.delivery"), msg("support.return"), msg("support.other")].map(topic => <AnimatedPressable key={topic} accessibilityRole="button" accessibilityLabel={msg("support.topicRequest", { topic })} onPress={() => { setSubject(topic); setComposing(true); }} style={[styles.topic, subject === topic && styles.topicActive]}><Text style={[styles.topicText, subject === topic && styles.topicTextActive]}>{topic}</Text></AnimatedPressable>)}</View>
               </View>
-              <AnimatedPressable accessibilityRole="button" accessibilityLabel={composing ? "Fermer le formulaire" : "Démarrer une conversation"} onPress={() => setComposing((value) => !value)} style={styles.startButton}><Ionicons name={composing ? "close" : "add"} size={20} color={palette.white} /><Text style={styles.startText}>{composing ? "Fermer le formulaire" : "Écrire à notre équipe"}</Text></AnimatedPressable>
+              <AnimatedPressable accessibilityRole="button" accessibilityLabel={composing ? msg("support.closeForm") : msg("support.startAConversation")} onPress={() => setComposing((value) => !value)} style={styles.startButton}><Ionicons name={composing ? "close" : "add"} size={20} color={palette.white} /><Text style={styles.startText}>{composing ? msg("support.closeForm") : msg("support.writeToOurTeam")}</Text></AnimatedPressable>
               {composing ? <View style={styles.composerCard}>
-                <Text style={styles.composerTitle}>Votre demande</Text><Text style={styles.composerHint}>Quelques détails nous aideront ? vous répondre.</Text><Text style={styles.inputLabel}>SUJET</Text><TextInput accessibilityLabel="Sujet de votre demande" value={subject} onChangeText={setSubject} maxLength={120} placeholder="Ex. : Suivi de ma commande" placeholderTextColor="#8A918C" style={styles.input} />
-                <Text style={styles.inputLabel}>MESSAGE</Text><TextInput accessibilityLabel="D?crivez votre demande" value={message} onChangeText={setMessage} maxLength={2000} multiline placeholder="Décrivez votre demande…" placeholderTextColor="#8A918C" style={[styles.input, styles.messageInput]} />
-                {create.error ? <Text accessibilityLiveRegion="polite" style={styles.error}>{create.error.message}</Text> : null}
-                <Text style={styles.characterCount}>{message.length}/2000</Text><AnimatedPressable accessibilityRole="button" accessibilityLabel="Envoyer la demande" disabled={!message.trim() || create.isPending} onPress={submit} style={[styles.sendButton, (!message.trim() || create.isPending) && styles.disabled]}>{create.isPending ? <ActivityIndicator color={palette.white} /> : <><Text style={styles.sendText}>Envoyer ma demande</Text><Ionicons name="arrow-forward" size={18} color={palette.white} /></>}</AnimatedPressable>
-                <Text style={styles.privacy}>Vos messages sont transmis uniquement au service client L’ECOMAX.</Text>
+                <Text style={styles.composerTitle}>{msg("support.yourRequest")}</Text><Text style={styles.composerHint}>{msg("support.aFewDetailsWillHelpUsAnswerYou")}</Text><Text style={styles.inputLabel}>{msg("support.subjectUppercase")}</Text><TextInput accessibilityLabel={msg("support.requestSubject")} value={subject} onChangeText={setSubject} maxLength={120} placeholder={msg("support.eGTrackingMyOrder")} placeholderTextColor="#8A918C" style={styles.input} />
+                <Text style={styles.inputLabel}>{msg("support.messageUppercase")}</Text><TextInput accessibilityLabel={msg("support.describeYourRequest")} value={message} onChangeText={setMessage} maxLength={2000} multiline placeholder={msg("support.describeYourRequestText")} placeholderTextColor="#8A918C" style={[styles.input, styles.messageInput]} />
+                {create.error ? <Text accessibilityLiveRegion="polite" style={styles.error}>{localizedError(create.error)}</Text> : null}
+                <Text style={styles.characterCount}>{message.length}/2000</Text><AnimatedPressable accessibilityRole="button" accessibilityLabel={msg("support.sendRequest")} disabled={!message.trim() || create.isPending} onPress={submit} style={[styles.sendButton, (!message.trim() || create.isPending) && styles.disabled]}>{create.isPending ? <ActivityIndicator color={palette.white} /> : <><Text style={styles.sendText}>{msg("support.sendMyRequest")}</Text><Ionicons name="arrow-forward" size={18} color={palette.white} /></>}</AnimatedPressable>
+                <Text style={styles.privacy}>{msg("support.yourMessagesAreOnlySharedWithLEcomaxCustomerService")}</Text>
               </View> : null}
-              <View style={styles.sectionHeading}><Text style={styles.sectionTitle}>Vos conversations</Text><Text style={styles.sectionCount}>{conversations.data?.conversations.length ?? 0}</Text></View>
+              <View style={styles.sectionHeading}><Text style={styles.sectionTitle}>{msg("support.yourConversations")}</Text><Text style={styles.sectionCount}>{conversations.data?.conversations.length ?? 0}</Text></View>
             </>}
-            ListEmptyComponent={conversations.isError ? <View style={styles.empty}><Ionicons name="cloud-offline-outline" size={30} color="#365741" /><Text style={styles.emptyTitle}>Nous n’avons pas pu charger vos échanges</Text><Text style={styles.emptyText}>{conversations.error.message}</Text><AnimatedPressable accessibilityRole="button" accessibilityLabel="Actualiser les conversations" onPress={() => void conversations.refetch()} style={styles.retryButton}><Text style={styles.topicText}>Réessayer</Text></AnimatedPressable></View> : conversations.isPending ? <ActivityIndicator color={palette.greenDark} style={{ marginTop: 30 }} /> : <View style={styles.empty}><Ionicons name="chatbubbles-outline" size={34} color="#9AA09B" /><Text style={styles.emptyTitle}>Aucune conversation</Text><Text style={styles.emptyText}>Vos échanges avec notre équipe apparaîtront ici.</Text></View>}
+            ListEmptyComponent={conversations.isError ? <View style={styles.empty}><Ionicons name="cloud-offline-outline" size={30} color="#365741" /><Text style={styles.emptyTitle}>{msg("support.weCouldnTLoadYourConversations")}</Text><Text style={styles.emptyText}>{localizedError(conversations.error)}</Text><AnimatedPressable accessibilityRole="button" accessibilityLabel={msg("support.refreshConversations")} onPress={() => void conversations.refetch()} style={styles.retryButton}><Text style={styles.topicText}>{msg("support.tryAgain")}</Text></AnimatedPressable></View> : conversations.isPending ? <ActivityIndicator color={palette.greenDark} style={{ marginTop: 30 }} /> : <View style={styles.empty}><Ionicons name="chatbubbles-outline" size={34} color="#9AA09B" /><Text style={styles.emptyTitle}>{msg("support.noConversationsYet")}</Text><Text style={styles.emptyText}>{msg("support.yourConversationsWithOurTeamWillAppearHere")}</Text></View>}
           />
         )}
       </KeyboardAvoidingView>

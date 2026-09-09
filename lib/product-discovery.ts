@@ -3,10 +3,13 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { SITE_URL } from "@/lib/seo";
+import { deliverProductNotification } from "@/lib/product-notification";
+import { publishOfferNotification } from "@/lib/offer-notification";
 
 const INDEXNOW_KEY = process.env.INDEXNOW_KEY ?? "d724dd3eb875908a4448cca481e61afd";
 
 export type DiscoverableProduct = {
+  id?: string;
   slug: string;
   category?: string | null;
   active?: boolean | null;
@@ -101,6 +104,16 @@ export async function submitIndexNow(urls: string[]): Promise<{ ok: boolean; sta
 
 /** Refresh every catalogue discovery surface and notify IndexNow after the response. */
 export function publishProductDiscovery(change: ProductDiscoveryChange) {
+  if (change.current?.id && change.current.active && change.previous?.active) {
+    publishOfferNotification(change.current.id, "product");
+  }
+  if (change.current?.id && change.current.active && !change.previous?.active) {
+    const productId = change.current.id;
+    after(async () => {
+      try { await deliverProductNotification(productId); }
+      catch (error) { console.error("New product notification failed", error); }
+    });
+  }
   refreshPublicCatalogue(change);
   const urls = urlsChanged(change);
   if (urls.length === 0) return;

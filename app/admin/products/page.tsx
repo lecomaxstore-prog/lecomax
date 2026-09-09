@@ -1,7 +1,15 @@
 "use client";
+import AdminLoading from "@/components/admin/AdminLoading";
+import MobileSection from "@/components/admin/MobileSection";
+import ActionMenu from "@/components/admin/ActionMenu";
+import FilterPanel from "@/components/admin/FilterPanel";
+import Pagination, { useAdminPagination } from "@/components/admin/Pagination";
+import { useSettings as useCentralSettings } from "@/lib/use-settings";
+import { storeSettings as centralStoreSettings } from "@/lib/store-settings";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import type { Product } from "@/lib/supabase";
+import { preorderCopy } from "@/lib/preorder-copy";
 import Link from "next/link";
 import { useApproval } from "@/lib/use-approval";
 import { colorPricesFromTags, colorPriceTags, type ColorPrice } from "@/lib/product-variant-pricing";
@@ -18,6 +26,13 @@ import {
   type ProductSizeGuideType,
 } from "@/lib/product-inventory";
 import { colorImageMapFromTags, type ProductColorImageMap } from "@/lib/product-color-images";
+import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
+import ProductBulkActions from '@/components/admin/ProductBulkActions';
+import { useAdminConfirmation } from '@/components/admin/ConfirmDialog';
+
+function DuplicateButton({pending,onClick}:{pending:boolean;onClick:()=>void}) {
+  return <button type="button" onClick={onClick} disabled={pending} className="min-h-11 rounded-xl border border-neutral-200 bg-white px-3 text-[11px] font-bold disabled:opacity-50">{pending ? "Copie?" : "Dupliquer"}</button>;
+}
 
 const CATEGORIES = ["homme", "femme", "chaussures", "accessoires"];
 
@@ -36,7 +51,8 @@ const SHOE_SIZES: string[] = [...SHOE_SIZE_VALUES];
 
 const emptyForm = {
   slug: "", name: "", brand: "", category: "homme", price: "", original_price: "",
-  description: "", stock: "0", active: true, featured: false,
+  description: "", stock: "0", active: false, featured: false,
+  preorder_enabled: false, preorder_estimated_at: "", preorder_message: "",
   tags: "", weight: "", video: "",
 };
 
@@ -53,6 +69,14 @@ type ExtendedProduct = Product & {
 };
 
 export default function ProductsPage() {
+  const { confirm: confirmAction, dialog: confirmationDialog } = useAdminConfirmation();
+  const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set());
+  const selectProduct = (id: string) => setBulkSelected(current => {
+    const next = new Set(current);
+    if (next.has(id)) next.delete(id); else if (next.size < 25) next.add(id);
+    return next;
+  });
+  const lowStockThreshold = Number(centralStoreSettings(useCentralSettings()).low_stock_threshold);
   const searchParams = useSearchParams();
   const router = useRouter();
   const editId = searchParams.get("id");
@@ -82,7 +106,11 @@ export default function ProductsPage() {
   const [productDetails, setProductDetails] = useState<{ key: string; value: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [brandFilter, setBrandFilter] = useState("");
+  const [sortBy, setSortBy] = useState("default");
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [duplicating, setDuplicating] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [pendingProducts, setPendingProducts] = useState<Array<{
     id: string; action: string; description: string;
@@ -99,6 +127,29 @@ export default function ProductsPage() {
   };
 
   const showForm = isNew || !!editId;
+  useEffect(() => {
+    document.getElementById("admin-main")?.scrollTo({ top: 0 });
+  }, [showForm, editId]);
+
+  function jumpToSection(id: string) {
+    const section = document.getElementById(id);
+    if (!section) return;
+    if (section instanceof HTMLDetailsElement) section.open = true;
+    requestAnimationFrame(() => section.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
+  const editorSnapshot = JSON.stringify({ form, images, descImages, selectedColors, colorImagesByColor, colorStocks, colorPrices, selectedSizes, sizeGuideType, sizeStocks, colorSizeStocks, productDetails });
+  const latestEditorSnapshot = useRef(editorSnapshot);
+  latestEditorSnapshot.current = editorSnapshot;
+  const [savedEditorSnapshot, setSavedEditorSnapshot] = useState<string | null>(null);
+  useEffect(() => {
+    setSavedEditorSnapshot(null);
+    if (!showForm || loading) return;
+    // Initialization effects populate the editor in the next render.
+    const timer = setTimeout(() => setSavedEditorSnapshot(latestEditorSnapshot.current), 0);
+    return () => clearTimeout(timer);
+  }, [showForm, editId, isNew, loading]);
+  const editorDirty = showForm && savedEditorSnapshot !== null && editorSnapshot !== savedEditorSnapshot;
+  useUnsavedChanges(editorDirty);
 
   const load = useCallback(async () => {
     if (!ready) return;
@@ -191,6 +242,7 @@ export default function ProductsPage() {
       category: p.category,
       price: String(p.price), original_price: p.original_price ? String(p.original_price) : "",
       description: p.description ?? "",
+      preorder_enabled: p.preorder_enabled === true, preorder_estimated_at: p.preorder_estimated_at ?? "", preorder_message: p.preorder_message ?? "",
       stock: String(p.stock), active: p.active,
       featured: p.featured ?? false,
       tags: tags.filter((t) => !t.startsWith("__guide:") && !t.startsWith("__sstock:") && !t.startsWith("__vstock:") && !t.startsWith("__detail:") && !t.startsWith("__cprice:") && !t.startsWith("__cimages:") && !t.startsWith("__oos:")).join(", "),
@@ -226,8 +278,7 @@ export default function ProductsPage() {
     const sstocks = sizeStockFromTags(tags);
     setSizeStocks(sstocks);
     setColorSizeStocks(colorSizeStockFromTags(tags));
-    if (inferredGuideType === "custom") setCustomSizes(savedSizes);
-    else setCustomSizes([]);
+    setCustomSizes(savedSizes.filter(size => !SHOE_SIZES.includes(size) && !CLOTHING_SIZES.includes(size)));
   }, [editId, products]);
 
   // ── Persist images to sessionStorage while filling forms ─────────────────
@@ -300,8 +351,10 @@ export default function ProductsPage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    if (saving || uploading || uploadingDesc) return;
     setSaving(true);
     setMsg(null);
+    try {
     const selectedColorStocks = Object.fromEntries(selectedColors.map((color) => [color, Math.max(0, Math.trunc(colorStocks[color] ?? 0))]));
     const hasColorSizeStock = selectedColors.some((color) => selectedSizes.some((size) => Object.prototype.hasOwnProperty.call(colorSizeStocks[color] ?? {}, size)));
     const selectedColorSizeStocks = Object.fromEntries(selectedColors.map((color) => [color, Object.fromEntries(selectedSizes.map((size) => [size, Math.max(0, Math.trunc(colorSizeStocks[color]?.[size] ?? 0))]))]));
@@ -327,6 +380,7 @@ export default function ProductsPage() {
       images: images.filter(Boolean),
       stock: hasColorSizeStock ? colorSizeStockTotal(selectedColorSizeStocks) : selectedColors.length ? variantStockTotal : hasPerSizeStock ? sizeStockTotal(selectedSizeStocks) : parseInt(form.stock) || 0,
       color_stock: selectedColors.length ? effectiveColorStocks : {},
+      preorder_enabled: form.preorder_enabled, preorder_estimated_at: form.preorder_estimated_at || null, preorder_message: form.preorder_message || null,
       active: form.active,
       featured: form.featured,
       tags: [
@@ -362,6 +416,7 @@ export default function ProductsPage() {
       });
       setSaving(false);
       if (submitted) {
+        setSavedEditorSnapshot(editorSnapshot);
         sessionStorage.removeItem("__new_product_images");
         sessionStorage.removeItem("__new_product_desc_images");
         if (editId) { sessionStorage.removeItem(`__edit_product_images_${editId}`); sessionStorage.removeItem(`__edit_product_desc_images_${editId}`); }
@@ -382,6 +437,7 @@ export default function ProductsPage() {
     setSaving(false);
     if (!res.ok) setMsg({ type: "err", text: json.error ?? "Erreur inconnue" });
     else {
+      setSavedEditorSnapshot(editorSnapshot);
       sessionStorage.removeItem("__new_product_images");
       sessionStorage.removeItem("__new_product_desc_images");
       if (editId) { sessionStorage.removeItem(`__edit_product_images_${editId}`); sessionStorage.removeItem(`__edit_product_desc_images_${editId}`); }
@@ -390,10 +446,26 @@ export default function ProductsPage() {
       load();
       setTimeout(() => router.replace("/admin/products"), 1000);
     }
+    } catch (error) {
+      setMsg({ type: "err", text: error instanceof Error ? error.message : "Impossible d’enregistrer. Vos modifications sont conservées." });
+    } finally { setSaving(false); }
+  }
+
+  async function handleDuplicate(id: string) {
+    if (duplicating) return;
+    setDuplicating(id);
+    try {
+      const response = await fetch(`/api/products/${id}/duplicate`,{method:"POST"});
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Impossible de dupliquer.");
+      if (result.pending) setMsg({type:"ok",text:"Copie soumise pour approbation."});
+      else { setMsg({type:"ok",text:"Brouillon cr??. V?rifiez le stock avant publication."}); router.push(`/admin/products?id=${result.id}`); void load(); }
+    } catch(error) { setMsg({type:"err",text:error instanceof Error ? error.message : "Erreur r?seau"}); }
+    finally { setDuplicating(null); }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Supprimer ce produit ?")) return;
+    if (deleting || !await confirmAction(`Supprimer définitivement « ${products.find(product => product.id === id)?.name ?? id} » ? Cette action est irréversible.`)) return;
     if (isStaff) {
       const product = products.find(p => p.id === id);
       await submitForApproval({
@@ -409,21 +481,29 @@ export default function ProductsPage() {
       return;
     }
     setDeleting(id);
-    await fetch(`/api/products/${id}`, { method: "DELETE" });
-    setDeleting(null);
-    load();
+    try {
+      const response = await fetch(`/api/products/${id}`, { method: "DELETE" });
+      if (!response.ok) { const data = await response.json(); throw new Error(data.error || 'Suppression impossible.'); }
+      setBulkSelected(current => { const next = new Set(current); next.delete(id); return next; });
+      await load();
+    } catch (error) { setMsg({ type: 'err', text: error instanceof Error ? error.message : 'Erreur réseau.' }); }
+    finally { setDeleting(null); }
   }
 
   async function toggleActive(p: ExtendedProduct) {
-    await fetch(`/api/products/${p.id}`, {
+    try {
+    const response = await fetch(`/api/products/${p.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ active: !p.active }),
     });
-    load();
+    if (!response.ok) { const data = await response.json(); throw new Error(data.error || 'Modification impossible.'); }
+    await load();
+    } catch (error) { setMsg({ type: 'err', text: error instanceof Error ? error.message : 'Erreur réseau.' }); }
   }
 
-  const toggleColor = (label: string) => {
+  const toggleColor = async (label: string) => {
+    if (selectedColors.includes(label) && !await confirmAction(`Retirer la couleur « ${label} » et ses variantes du produit ?`)) return;
     setSelectedColors((prev) => prev.includes(label) ? prev.filter((c) => c !== label) : [...prev, label]);
     setColorStocks((prev) => ({ ...prev, [label]: prev[label] ?? 0 }));
     setColorPrices((prev) => ({ ...prev, [label]: prev[label] ?? { price: Number(form.price) || 0, ...(Number(form.original_price) > Number(form.price) ? { originalPrice: Number(form.original_price) } : {}) } }));
@@ -447,43 +527,52 @@ export default function ProductsPage() {
     ));
   };
 
-  const toggleSize = (s: string) =>
+  const toggleSize = async (s: string) => {
+    if (selectedSizes.includes(s) && !await confirmAction(`Retirer la taille « ${s} » et ses variantes du produit ?`)) return;
     setSelectedSizes((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
+  };
 
-  const sizeSet =
+  const presetSizes =
     sizeGuideType === "shoes" ? SHOE_SIZES
     : sizeGuideType === "clothing" ? CLOTHING_SIZES
     : sizeGuideType === "custom" ? customSizes
     : form.category === "chaussures" ? SHOE_SIZES
     : CLOTHING_SIZES;
+  const sizeSet = [...new Set([...presetSizes, ...customSizes, ...selectedSizes])];
   const hasColorSizeStock = selectedColors.some((color) => selectedSizes.some((size) => Object.prototype.hasOwnProperty.call(colorSizeStocks[color] ?? {}, size)));
 
   function enableColorSizeStock() {
-    setColorSizeStocks(Object.fromEntries(selectedColors.map((color) => [color, Object.fromEntries(selectedSizes.map((size) => [size, 0]))])));
+    setColorSizeStocks(current => Object.fromEntries(selectedColors.map((color) => [color, Object.fromEntries(selectedSizes.map((size) => [size, current[color]?.[size] ?? 0]))])));
   }
 
   function addCustomSize() {
-    const val = customSizeInput.trim().toUpperCase();
-    if (!val || customSizes.includes(val)) { setCustomSizeInput(""); return; }
+    const val = customSizeInput.trim();
+    if (!val || val.length > 40 || /[\u0000-\u001f]/.test(val)) { setMsg({ type: "err", text: "Indiquez une taille de 1 à 40 caractères." }); return; }
+    if (selectedSizes.includes(val)) { setCustomSizeInput(""); return; }
     setCustomSizes((prev) => [...prev, val]);
     setSelectedSizes((prev) => [...prev, val]);
     setCustomSizeInput("");
   }
 
-  function removeCustomSize(s: string) {
+  async function removeCustomSize(s: string) {
+    if (!await confirmAction(`Supprimer la taille « ${s} » et son stock du produit ?`)) return;
     setCustomSizes((prev) => prev.filter((x) => x !== s));
     setSelectedSizes((prev) => prev.filter((x) => x !== s));
     setSizeStocks((prev) => { const n = { ...prev }; delete n[s]; return n; });
   }
 
   const filtered = products.filter((p) => {
-    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.slug.includes(search.toLowerCase());
+    const matchSearch = !search || `${p.name} ${p.slug} ${p.brand ?? ""} ${p.id}`.toLowerCase().includes(search.toLowerCase());
     const matchCat = filterCat === "all" || p.category === filterCat;
-    return matchSearch && matchCat;
+    const matchStatus = statusFilter === "all" || (statusFilter === "active" && p.active) || (statusFilter === "inactive" && !p.active) || (statusFilter === "out" && p.stock === 0) || (statusFilter === "low" && p.stock > 0 && p.stock <= lowStockThreshold);
+    return matchSearch && matchCat && matchStatus && (!brandFilter || p.brand === brandFilter);
   });
+  filtered.sort((a, b) => sortBy === "price-up" ? a.price - b.price : sortBy === "price-down" ? b.price - a.price : sortBy === "stock" ? a.stock - b.stock : sortBy === "name" ? a.name.localeCompare(b.name, "fr") : 0);
+  const pagination = useAdminPagination(filtered, JSON.stringify([search, filterCat, statusFilter, brandFilter, sortBy]));
+  const resetFilters = () => { setSearch(""); setStatusFilter("all"); setBrandFilter(""); setSortBy("default"); router.replace("/admin/products"); };
   const activeProducts = products.filter((product) => product.active).length;
   const outOfStockProducts = products.filter((product) => product.stock === 0).length;
-  const lowStockProducts = products.filter((product) => product.stock > 0 && product.stock <= 5).length;
+  const lowStockProducts = products.filter((product) => product.stock > 0 && product.stock <= lowStockThreshold).length;
   const inventoryValue = products.reduce((sum, product) => sum + Number(product.price || 0) * Number(product.stock || 0), 0);
 
   const [aiUrl, setAiUrl] = useState("");
@@ -543,6 +632,7 @@ export default function ProductsPage() {
   }
 
   function closeEditor() {
+    if (editorDirty && !window.confirm("Des modifications ne sont pas enregistrées. Quitter sans enregistrer ?")) return;
     sessionStorage.removeItem("__new_product_images");
     sessionStorage.removeItem("__new_product_desc_images");
     if (editId) {
@@ -589,7 +679,7 @@ export default function ProductsPage() {
           <div className="relative flex h-36 w-[7.25rem] shrink-0 items-center justify-center overflow-hidden rounded-[20px] bg-gradient-to-br from-white/[.09] to-white/[.025] ring-1 ring-inset ring-white/10">
             {images[0] ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={images[0]} alt="Aperçu du produit" className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
+              <img src={images[0]} alt="Aperçu du produit" className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" loading="lazy" decoding="async" />
             ) : (
               <div className="flex flex-col items-center gap-2 text-white/25">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[.04]">
@@ -639,8 +729,9 @@ export default function ProductsPage() {
   );
 
   if (showForm) return (
-    <div className="mx-auto w-full max-w-[1440px] pb-28 lg:pb-12">
-      <div className="sticky top-0 z-30 -mx-4 mb-5 border-b border-neutral-200/80 bg-[#f6f6f4]/90 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:mb-7 lg:rounded-[26px] lg:border lg:bg-white lg:p-5 lg:shadow-[0_12px_35px_rgba(0,0,0,.055)]">
+    <div className="admin-product-editor mx-auto w-full max-w-[1440px] pb-28 lg:pb-12">
+      {confirmationDialog}
+      <div className="admin-editor-heading sticky top-0 z-30 -mx-4 mb-5 border-b border-neutral-200/80 bg-[#f6f6f4]/90 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:mb-7 lg:rounded-[26px] lg:border lg:bg-white lg:p-5 lg:shadow-[0_12px_35px_rgba(0,0,0,.055)]">
         <div className="flex items-center gap-3">
         <button type="button" onClick={closeEditor} aria-label="Retour aux produits" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-neutral-200 bg-white text-neutral-600 shadow-sm transition hover:border-black hover:text-black">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -663,16 +754,18 @@ export default function ProductsPage() {
           </button>
         </div>
         </div>
-        <div className="mt-3 flex items-center gap-3 lg:hidden">
-          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200"><div className="h-full rounded-full bg-[#3ecf4c] transition-[width] duration-500" style={{ width: `${editorCompletion}%` }} /></div>
-          <span className="text-[9px] font-black text-neutral-500">{editorCompletion}%</span>
-          <button
-            type="button"
-            onClick={() => document.getElementById("product-size-inventory")?.scrollIntoView({ behavior: "smooth", block: "center" })}
-            className="min-h-9 shrink-0 rounded-xl border border-neutral-200 bg-white px-3 text-[10px] font-black text-neutral-700 shadow-sm"
-          >
-            Tailles & pointures
-          </button>
+        <div className="admin-editor-progress mt-4 lg:hidden">
+          <div className="mb-2 flex items-center justify-between text-xs font-medium text-neutral-500">
+            <span>Votre fiche produit</span><span className="font-semibold text-emerald-700">{editorCompletion}% complété</span>
+          </div>
+          <div role="progressbar" aria-label="Fiche produit complétée" aria-valuenow={editorCompletion} aria-valuemin={0} aria-valuemax={100} className="h-1 overflow-hidden rounded-full bg-neutral-100">
+            <div className="h-full rounded-full bg-emerald-600 transition-[width]" style={{ width: editorCompletion + "%" }} />
+          </div>
+          <nav aria-label="Sections de la fiche produit" className="mt-4 grid grid-cols-3 gap-2">
+            {[['product-information', 'Informations'], ['product-images', 'Photos'], ['product-variants', 'Tailles & stock']].map(([id, label]) => (
+              <button key={id} type="button" onClick={() => jumpToSection(id)} className="rounded-xl border border-neutral-200 bg-white px-2 text-[11px] font-semibold text-neutral-600">{label}</button>
+            ))}
+          </nav>
         </div>
       </div>
 
@@ -691,7 +784,8 @@ export default function ProductsPage() {
           ))}
         </div>
         {/* ── AI IMPORT BANNER ── */}
-        <div className="relative mb-5 overflow-hidden rounded-[24px] border border-violet-200/80 bg-gradient-to-br from-violet-50 via-white to-blue-50 p-4 shadow-[0_8px_30px_rgba(109,40,217,.06)] sm:p-5">
+        <div className="mb-5"><MobileSection title="Importer un produit depuis un lien">
+        <div className="admin-editor-import relative mb-5 overflow-hidden rounded-[24px] border border-violet-200/80 bg-gradient-to-br from-violet-50 via-white to-blue-50 p-4 shadow-[0_8px_30px_rgba(109,40,217,.06)] sm:p-5">
             <div aria-hidden="true" className="absolute -right-12 -top-16 h-40 w-40 rounded-full bg-violet-300/20 blur-3xl" />
             <div className="relative flex items-center gap-3 mb-3">
               <div className="w-7 h-7 bg-violet-600 rounded-lg flex items-center justify-center shrink-0">
@@ -699,7 +793,7 @@ export default function ProductsPage() {
               </div>
               <div>
                 <p className="text-sm font-black text-violet-900">Import IA depuis AliExpress / Temu / Amazon</p>
-                <p className="text-[11px] text-violet-600">Collez un lien produit — l'IA génère automatiquement nom, description, catégorie, tags <strong>et importe les images</strong></p>
+                <p className="text-[11px] text-violet-600">Collez un lien produit — l&apos;IA génère automatiquement nom, description, catégorie, tags <strong>et importe les images</strong></p>
               </div>
             </div>
             <div className="relative flex flex-col gap-2 sm:flex-row">
@@ -709,7 +803,7 @@ export default function ProductsPage() {
                 onChange={e => setAiUrl(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleAiImport())}
                 placeholder="https://www.aliexpress.com/item/... ou https://www.temu.com/..."
-                className="min-h-12 min-w-0 flex-1 rounded-xl border border-violet-200 bg-white px-4 text-sm shadow-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+                className="min-h-12 min-w-0 flex-1 rounded-xl border border-violet-200 bg-white px-4 text-sm shadow-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100" inputMode="url"
               />
               <button
                 type="button"
@@ -728,12 +822,12 @@ export default function ProductsPage() {
               <p className={`mt-2 text-xs font-semibold ${aiMsg.type === "ok" ? "text-green-700" : "text-red-600"}`}>{aiMsg.text}</p>
             )}
           </div>
-        <div className="mb-5 lg:hidden">{editorPreview}</div>
+        </MobileSection></div>
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_390px] xl:gap-6">
           {/* ── LEFT ── */}
           <div className="space-y-4">
             {/* General info */}
-            <div className="space-y-5 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+            <MobileSection id="product-information" title="Informations générales" defaultOpen><div className="space-y-5 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="flex items-center gap-3 border-b border-neutral-100 pb-4">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-black text-[10px] font-black text-[#3ecf4c]">01</span>
                 <div><h2 className="text-xs font-black uppercase tracking-[.16em] text-neutral-800">Informations générales</h2><p className="mt-0.5 text-[10px] text-neutral-400">Identité, description et référencement du produit</p></div>
@@ -782,10 +876,10 @@ export default function ProductsPage() {
                   placeholder="running, imperméable, léger…"
                   className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
               </div>
-            </div>
+            </div></MobileSection>
 
             {/* Product Details */}
-            <div id="product-size-inventory" className="scroll-mt-40 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+            <MobileSection title="Détails du produit"><div id="product-size-inventory" className="scroll-mt-40 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Détails du produit</h2>
@@ -828,10 +922,10 @@ export default function ProductsPage() {
                   ))}
                 </div>
               )}
-            </div>
+            </div></MobileSection>
 
             {/* Category */}
-            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+            <MobileSection title="Catégorie"><div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">Catégorie</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {CATEGORIES.map((c) => {
@@ -851,10 +945,10 @@ export default function ProductsPage() {
                   );
                 })}
               </div>
-            </div>
+            </div></MobileSection>
 
             {/* Pricing */}
-            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+            <MobileSection title="Prix et inventaire"><div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="mb-5 flex items-center gap-3 border-b border-neutral-100 pb-4">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-black text-[10px] font-black text-[#3ecf4c]">03</span>
                 <div><h2 className="text-xs font-black uppercase tracking-[.16em] text-neutral-800">Tarification &amp; Stock</h2><p className="mt-0.5 text-[10px] text-neutral-400">Prix de vente, remise et inventaire disponible</p></div>
@@ -864,7 +958,7 @@ export default function ProductsPage() {
                   <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Prix *</label>
                   <div className="flex items-center border border-neutral-200 rounded-xl overflow-hidden focus-within:border-black bg-neutral-50 focus-within:bg-white transition-all">
                     <input type="number" value={form.price} required min="0" step="0.01" onChange={(e) => setForm({ ...form, price: e.target.value })}
-                      className="flex-1 pl-4 py-3 text-sm focus:outline-none bg-transparent w-0" />
+                      className="flex-1 pl-4 py-3 text-sm focus:outline-none bg-transparent w-0" inputMode="decimal" />
                     <span className="pr-3 text-xs text-neutral-400 font-semibold">MAD</span>
                   </div>
                 </div>
@@ -872,7 +966,7 @@ export default function ProductsPage() {
                   <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Ancien prix</label>
                   <div className="flex items-center border border-neutral-200 rounded-xl overflow-hidden focus-within:border-black bg-neutral-50 focus-within:bg-white transition-all">
                     <input type="number" value={form.original_price} min="0" step="0.01" onChange={(e) => setForm({ ...form, original_price: e.target.value })}
-                      className="flex-1 pl-4 py-3 text-sm focus:outline-none bg-transparent w-0" />
+                      className="flex-1 pl-4 py-3 text-sm focus:outline-none bg-transparent w-0" inputMode="decimal" />
                     <span className="pr-3 text-xs text-neutral-400 font-semibold">MAD</span>
                   </div>
                   {form.original_price && form.price && parseFloat(form.original_price) > parseFloat(form.price) && (
@@ -887,7 +981,7 @@ export default function ProductsPage() {
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     </button>
                     <input type="number" value={form.stock} min="0" onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                      className="flex-1 py-3 text-sm text-center focus:outline-none bg-transparent w-0" />
+                      className="flex-1 py-3 text-sm text-center focus:outline-none bg-transparent w-0" inputMode="decimal" />
                     <button type="button" onClick={() => setForm({ ...form, stock: String(parseInt(form.stock || "0") + 1) })}
                       className="px-3 py-3 text-neutral-400 hover:text-black transition-colors">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -898,13 +992,13 @@ export default function ProductsPage() {
                   <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Poids (g)</label>
                   <input type="number" value={form.weight} min="0" onChange={(e) => setForm({ ...form, weight: e.target.value })}
                     placeholder="250"
-                    className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+                    className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="decimal" />
                 </div>
               </div>
-            </div>
+            </div></MobileSection>
 
             {/* Colors */}
-            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+            <MobileSection title="Couleurs et prix"><div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">
                 Couleurs disponibles
                 {selectedColors.length > 0 && <span className="ml-2 text-[10px] font-bold px-2 py-0.5 bg-black text-white rounded-full">{selectedColors.length}</span>}
@@ -950,13 +1044,13 @@ export default function ProductsPage() {
                           </div>
                           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                             <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Prix de vente
-                              <span className="mt-1 flex h-11 items-center rounded-xl border border-neutral-200 bg-neutral-50 px-3 focus-within:border-black focus-within:bg-white"><input required type="number" min="0" step="0.01" value={pricing.price} onChange={(event) => setColorPrices((current) => ({ ...current, [color]: { ...pricing, price: Number(event.target.value) } }))} className="min-w-0 flex-1 bg-transparent text-sm font-bold outline-none" /><span className="text-[10px] text-neutral-400">MAD</span></span>
+                              <span className="mt-1 flex h-11 items-center rounded-xl border border-neutral-200 bg-neutral-50 px-3 focus-within:border-black focus-within:bg-white"><input required type="number" min="0" step="0.01" value={pricing.price} onChange={(event) => setColorPrices((current) => ({ ...current, [color]: { ...pricing, price: Number(event.target.value) } }))} className="min-w-0 flex-1 bg-transparent text-sm font-bold outline-none" inputMode="decimal" /><span className="text-[10px] text-neutral-400">MAD</span></span>
                             </label>
                             <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Ancien prix
-                              <span className="mt-1 flex h-11 items-center rounded-xl border border-neutral-200 bg-neutral-50 px-3 focus-within:border-black focus-within:bg-white"><input type="number" min="0" step="0.01" value={pricing.originalPrice ?? ""} onChange={(event) => setColorPrices((current) => ({ ...current, [color]: { ...pricing, originalPrice: event.target.value ? Number(event.target.value) : undefined } }))} className="min-w-0 flex-1 bg-transparent text-sm outline-none" /><span className="text-[10px] text-neutral-400">MAD</span></span>
+                              <span className="mt-1 flex h-11 items-center rounded-xl border border-neutral-200 bg-neutral-50 px-3 focus-within:border-black focus-within:bg-white"><input type="number" min="0" step="0.01" value={pricing.originalPrice ?? ""} onChange={(event) => setColorPrices((current) => ({ ...current, [color]: { ...pricing, originalPrice: event.target.value ? Number(event.target.value) : undefined } }))} className="min-w-0 flex-1 bg-transparent text-sm outline-none" inputMode="decimal" /><span className="text-[10px] text-neutral-400">MAD</span></span>
                             </label>
                             <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Stock disponible
-                              <span className="mt-1 flex h-11 items-center rounded-xl border border-neutral-200 bg-neutral-50 px-3 focus-within:border-black focus-within:bg-white"><input required type="number" min="0" step="1" value={colorStocks[color] ?? 0} onChange={(event) => setColorStocks((current) => ({ ...current, [color]: Math.max(0, Math.trunc(Number(event.target.value) || 0)) }))} className="min-w-0 flex-1 bg-transparent text-center text-sm font-black outline-none" /><span className="text-[10px] text-neutral-400">UNITÉS</span></span>
+                              <span className="mt-1 flex h-11 items-center rounded-xl border border-neutral-200 bg-neutral-50 px-3 focus-within:border-black focus-within:bg-white"><input required type="number" min="0" step="1" value={colorStocks[color] ?? 0} onChange={(event) => setColorStocks((current) => ({ ...current, [color]: Math.max(0, Math.trunc(Number(event.target.value) || 0)) }))} className="min-w-0 flex-1 bg-transparent text-center text-sm font-black outline-none" inputMode="decimal" /><span className="text-[10px] text-neutral-400">UNITÉS</span></span>
                             </label>
                           </div>
                         </div>
@@ -965,10 +1059,10 @@ export default function ProductsPage() {
                   </div>
                 </div>
               )}
-            </div>
+            </div></MobileSection>
 
             {/* Sizes */}
-            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+            <MobileSection id="product-variants" title="Tailles et stock par variante"><div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">
                   Tailles disponibles
@@ -980,6 +1074,10 @@ export default function ProductsPage() {
                   Gérer le guide
                 </Link>
               </div>
+                  <div className="rounded-xl border border-neutral-200 p-4 space-y-3">
+                    <label className="flex gap-3 text-sm font-semibold"><input type="checkbox" checked={form.preorder_enabled} onChange={e => setForm({...form, preorder_enabled:e.target.checked})}/>{preorderCopy.fr.toggle}</label>
+                    {form.preorder_enabled && <><label className="block text-xs">{preorderCopy.fr.estimated}<input type="date" className="block border rounded p-2 mt-1" value={form.preorder_estimated_at} onChange={e=>setForm({...form,preorder_estimated_at:e.target.value})}/></label><label className="block text-xs">{preorderCopy.fr.message}<textarea className="block w-full border rounded p-2 mt-1" maxLength={500} value={form.preorder_message} onChange={e=>setForm({...form,preorder_message:e.target.value})}/></label><p className="text-xs text-neutral-500">{preorderCopy.fr.quantity}</p></>}
+                  </div>
               {/* Size guide type selector */}
               <div className="flex flex-wrap items-center gap-2 mb-4">
                 <span className="text-[11px] text-neutral-500 font-semibold uppercase tracking-wider">Guide de tailles :</span>
@@ -1001,14 +1099,16 @@ export default function ProductsPage() {
               ) : (
                 <>
                   {/* Custom size input (shown for "custom" guide type) */}
-                  {sizeGuideType === "custom" && (
+                  {(
                     <div className="flex gap-2 mb-4">
                       <input
                         type="text"
                         value={customSizeInput}
                         onChange={(e) => setCustomSizeInput(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustomSize())}
-                        placeholder="Ex: XS, 42, 6 mois, Unique…"
+                        placeholder="Ex : 44.5, XXXL, 100ml, Unique…"
+                        maxLength={40}
+                        aria-label="Ajouter une taille personnalisée"
                         className="flex-1 border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all"
                       />
                       <button type="button" onClick={addCustomSize}
@@ -1087,7 +1187,7 @@ export default function ProductsPage() {
                             <input type="number" min="0" value={sizeStocks[s] ?? ""}
                               onChange={(e) => setSizeStocks((p) => ({ ...p, [s]: parseInt(e.target.value) || 0 }))}
                               placeholder="0"
-                              className="flex-1 w-0 text-center text-xs font-semibold focus:outline-none bg-transparent" />
+                              className="flex-1 w-0 text-center text-xs font-semibold focus:outline-none bg-transparent" inputMode="decimal" />
                             <button type="button" onClick={() => setSizeStocks((p) => ({ ...p, [s]: (p[s] ?? 0) + 1 }))}
                               className="text-neutral-400 hover:text-black transition-colors">
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1120,20 +1220,20 @@ export default function ProductsPage() {
                                 {selectedSizes.map((size) => (
                                   <label key={`${color}-${size}`} className="flex min-h-10 items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3">
                                     <span className="w-8 shrink-0 text-[11px] font-black text-neutral-600">{size}</span>
-                                    <input type="number" min="0" step="1" value={colorSizeStocks[color]?.[size] ?? 0} onChange={(event) => setColorSizeStocks((current) => ({ ...current, [color]: { ...(current[color] ?? {}), [size]: Math.max(0, Math.trunc(Number(event.target.value) || 0)) } }))} aria-label={`Stock ${color}, taille ${size}`} className="min-w-0 flex-1 bg-transparent text-center text-xs font-black outline-none" />
+                                    <input type="number" min="0" step="1" value={colorSizeStocks[color]?.[size] ?? 0} onChange={(event) => setColorSizeStocks((current) => ({ ...current, [color]: { ...(current[color] ?? {}), [size]: Math.max(0, Math.trunc(Number(event.target.value) || 0)) } }))} aria-label={`Stock ${color}, taille ${size}`} className="min-w-0 flex-1 bg-transparent text-center text-xs font-black outline-none" inputMode="decimal" />
                                   </label>
                                 ))}
                               </div>
                             </div>
                           ))}
-                          <button type="button" onClick={() => setColorSizeStocks({})} className="text-[10px] font-bold text-red-500 underline underline-offset-2">Désactiver la matrice</button>
+                          <button type="button" onClick={async () => { if (await confirmAction('Désactiver le suivi du stock par combinaison couleur / taille ?')) setColorSizeStocks({}); }} className="text-[10px] font-bold text-red-500 underline underline-offset-2">Désactiver la matrice</button>
                         </div>
                       )}
                     </div>
                   )}
                 </>
               )}
-            </div>
+            </div></MobileSection>
 
           </div>
 
@@ -1141,7 +1241,7 @@ export default function ProductsPage() {
           <div className="space-y-4">
             <div className="hidden lg:block">{editorPreview}</div>
             {/* Images */}
-            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+            <MobileSection id="product-images" title="Images du produit"><div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5"><span className="flex h-7 w-7 items-center justify-center rounded-xl bg-black text-[9px] font-black text-[#3ecf4c]">02</span><h2 className="text-xs font-black uppercase tracking-[.16em] text-neutral-800">Images produit</h2></div>
                 <span className="text-[10px] font-bold px-2 py-0.5 bg-neutral-100 rounded-full text-neutral-500">{images.length} photo{images.length !== 1 ? "s" : ""}</span>
@@ -1176,7 +1276,7 @@ export default function ProductsPage() {
                   {images.map((url, i) => (
                     <div key={i} className="relative group aspect-square rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                       {i === 0 && <span className="absolute top-1 left-1 text-[9px] font-black bg-black text-white px-1.5 py-0.5 rounded-full">MAIN</span>}
                       <div className="absolute inset-0 bg-black/40 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
                         {i > 0 && (
@@ -1222,7 +1322,7 @@ export default function ProductsPage() {
                                   className={`relative aspect-square overflow-hidden rounded-xl border-2 bg-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black ${selected ? "border-black shadow-sm" : "border-transparent opacity-55 hover:opacity-100"}`}
                                 >
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={url} alt="" className="h-full w-full object-cover" />
+                                  <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" decoding="async" />
                                   {selected && (
                                     <span className="absolute left-1 top-1 rounded-full bg-black px-1.5 py-0.5 text-[8px] font-black text-white">
                                       {position === 0 ? "PRINCIPALE" : position + 1}
@@ -1239,10 +1339,10 @@ export default function ProductsPage() {
                   </div>
                 </div>
               )}
-            </div>
+            </div></MobileSection>
 
             {/* Video URL */}
-            <div className="space-y-3 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+            <MobileSection title="Vidéo"><div className="space-y-3 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="flex items-center gap-2 mb-1">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-400"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
                 <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Vidéo produit</h2>
@@ -1253,7 +1353,7 @@ export default function ProductsPage() {
                   value={form.video}
                   onChange={(e) => setForm({ ...form, video: e.target.value })}
                   placeholder="https://youtube.com/watch?v=… ou URL .mp4"
-                  className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all"
+                  className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="url"
                 />
                 <p className="text-[10px] text-neutral-400 mt-1.5">YouTube, Shorts, ou lien direct vers un fichier vidéo</p>
               </div>
@@ -1277,10 +1377,10 @@ export default function ProductsPage() {
                   </div>
                 );
               })()}
-            </div>
+            </div></MobileSection>
 
             {/* Description Images */}
-            <div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+            <MobileSection title="Images de description"><div className="rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <div className="flex items-center justify-between mb-1">
                 <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Images de description</h2>
                 <span className="text-[10px] font-bold px-2 py-0.5 bg-neutral-100 rounded-full text-neutral-500">{descImages.length} photo{descImages.length !== 1 ? "s" : ""}</span>
@@ -1316,7 +1416,7 @@ export default function ProductsPage() {
                   {descImages.map((url, i) => (
                     <div key={i} className="relative group rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200" style={{ aspectRatio: "4/3" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                       <div className="absolute inset-0 bg-black/40 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <button type="button" onClick={() => setDescImages((prev) => prev.filter((_, j) => j !== i))}
                           className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-white">
@@ -1327,20 +1427,20 @@ export default function ProductsPage() {
                   ))}
                 </div>
               )}
-            </div>
+            </div></MobileSection>
 
             {/* Status & Options */}
-            <div className="space-y-4 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
+            <MobileSection title="Visibilité"><div className="space-y-4 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
               <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Statut &amp; Options</h2>
               <label className="flex items-center justify-between cursor-pointer select-none">
                 <div>
                   <p className="text-sm font-semibold">Actif</p>
                   <p className="text-[11px] text-neutral-400">Visible sur le site</p>
                 </div>
-                <div onClick={() => setForm({ ...form, active: !form.active })}
+                <button type="button" role="switch" aria-checked={form.active} aria-label="Actif" onClick={() => setForm({ ...form, active: !form.active })}
                   className={`w-10 h-6 rounded-full transition-colors flex items-center ${form.active ? "bg-black" : "bg-neutral-200"}`}>
                   <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${form.active ? "translate-x-4" : ""}`} />
-                </div>
+                </button>
               </label>
               <div className="h-px bg-neutral-100" />
               <label className="flex items-center justify-between cursor-pointer select-none">
@@ -1348,12 +1448,12 @@ export default function ProductsPage() {
                   <p className="text-sm font-semibold flex items-center gap-1.5"><span className="text-yellow-400">★</span> Mis en avant</p>
                   <p className="text-[11px] text-neutral-400">Affiché dans les bestsellers</p>
                 </div>
-                <div onClick={() => setForm({ ...form, featured: !form.featured })}
+                <button type="button" role="switch" aria-checked={form.featured} aria-label="Mis en avant" onClick={() => setForm({ ...form, featured: !form.featured })}
                   className={`w-10 h-6 rounded-full transition-colors flex items-center ${form.featured ? "bg-yellow-400" : "bg-neutral-200"}`}>
                   <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${form.featured ? "translate-x-4" : ""}`} />
-                </div>
+                </button>
               </label>
-            </div>
+            </div></MobileSection>
 
             {msg && (
               <div className={`text-sm px-4 py-3 rounded-xl ${msg.type === "ok" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
@@ -1362,10 +1462,11 @@ export default function ProductsPage() {
             )}
           </div>
         </div>
-        <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 border-t border-neutral-200 bg-white/95 p-3 shadow-[0_-12px_35px_rgba(0,0,0,.1)] backdrop-blur-xl lg:hidden">
+        <div className="mt-5 lg:hidden"><MobileSection title="Aperçu de la fiche">{editorPreview}</MobileSection></div>
+        <div className="admin-editor-actions fixed inset-x-0 bottom-[var(--admin-nav-height)] z-20 border-t border-neutral-200 bg-white/95 p-3 shadow-[0_-12px_35px_rgba(0,0,0,.1)] backdrop-blur-xl lg:hidden">
           <div className="mx-auto flex max-w-lg gap-2">
-            <button type="button" onClick={closeEditor} className="min-h-12 rounded-xl border border-neutral-200 px-4 text-xs font-black text-neutral-600">Annuler</button>
-            <button type="submit" disabled={saving} className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-black px-5 text-xs font-black text-white shadow-lg disabled:opacity-50">
+            <button type="button" onClick={closeEditor} className="min-h-12 rounded-xl border border-neutral-200 px-4 text-xs font-semibold text-neutral-600">Annuler</button>
+            <button type="submit" disabled={saving} className="flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl bg-[#173c2c] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#20533d] disabled:opacity-50">
               {saving ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Enregistrement…</> : editId ? "Enregistrer les modifications" : "Créer le produit"}
             </button>
           </div>
@@ -1428,7 +1529,7 @@ export default function ProductsPage() {
       <div className="mb-4 grid grid-cols-2 gap-2.5 sm:mb-5 sm:gap-3 lg:grid-cols-4">
         {[
           { label: "Produits actifs", value: activeProducts, detail: `${products.length - activeProducts} masqué${products.length - activeProducts !== 1 ? "s" : ""}`, tone: "emerald", icon: <path d="m5 12 4 4L19 6"/> },
-          { label: "Stock faible", value: lowStockProducts, detail: "5 unités ou moins", tone: "amber", icon: <path d="M12 9v4M12 17h.01"/> },
+          { label: "Stock faible", value: lowStockProducts, detail: `${lowStockThreshold} unités ou moins`, tone: "amber", icon: <path d="M12 9v4M12 17h.01"/> },
           { label: "Ruptures", value: outOfStockProducts, detail: "À réapprovisionner", tone: "red", icon: <path d="M18 6 6 18M6 6l12 12"/> },
           { label: "Valeur du stock", value: `${inventoryValue.toLocaleString("fr-MA")} MAD`, detail: "Au prix de vente", tone: "neutral", icon: <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7H14a3.5 3.5 0 010 7H6"/> },
         ].map((stat) => (
@@ -1463,7 +1564,7 @@ export default function ProductsPage() {
                   <div className="w-10 h-10 rounded-lg bg-neutral-100 overflow-hidden shrink-0">
                     {img
                       // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={img} alt="" className="w-full h-full object-cover" />
+                      ? <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                       : <div className="w-full h-full flex items-center justify-center">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         </div>
@@ -1489,10 +1590,10 @@ export default function ProductsPage() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
-          <input type="text" placeholder="Rechercher…" value={search} onChange={(e) => setSearch(e.target.value)}
+          <input type="search" aria-label="Rechercher un produit" placeholder="Nom, marque, référence…" value={search} onChange={(e) => setSearch(e.target.value)}
             className="h-11 w-full rounded-xl border border-neutral-200 bg-neutral-50/70 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-neutral-400 focus:border-black focus:bg-white focus:ring-4 focus:ring-black/[.04]" />
         </div>
-        <div className="flex snap-x gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none] lg:pb-0 [&::-webkit-scrollbar]:hidden">
+        <FilterPanel onReset={resetFilters}><div className="flex flex-wrap gap-2">
         {["all", ...CATEGORIES].map((c) => (
           <button key={c} onClick={() => router.replace(c === "all" ? "/admin/products" : `/admin/products?cat=${c}`)}
             className={`flex min-h-10 shrink-0 snap-start items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${filterCat === c ? "bg-black text-white shadow-md shadow-black/10" : "border border-neutral-200 bg-white text-neutral-600 hover:border-black"}`}>
@@ -1501,7 +1602,11 @@ export default function ProductsPage() {
           </button>
         ))}
         </div>
-        {/* Scroll arrows for the table below */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+  <label className="text-xs font-semibold">Statut et stock<select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="mt-1 w-full rounded-xl border p-2"><option value="all">Tous</option><option value="active">Actifs</option><option value="inactive">Inactifs</option><option value="low">Stock faible</option><option value="out">Rupture</option></select></label>
+  <label className="text-xs font-semibold">Marque<select value={brandFilter} onChange={e => setBrandFilter(e.target.value)} className="mt-1 w-full rounded-xl border p-2"><option value="">Toutes</option>{Array.from(new Set(products.map(p => p.brand).filter(Boolean))).sort().map(brand => <option key={brand} value={brand}>{brand}</option>)}</select></label>
+  <label className="text-xs font-semibold">Trier par<select value={sortBy} onChange={e => setSortBy(e.target.value)} className="mt-1 w-full rounded-xl border p-2"><option value="default">Ordre du catalogue</option><option value="name">Nom</option><option value="price-up">Prix croissant</option><option value="price-down">Prix décroissant</option><option value="stock">Stock croissant</option></select></label>
+  </div></FilterPanel>{/* Scroll arrows for the table below */}
         <div className="ml-auto hidden shrink-0 items-center gap-1.5 md:flex">
           <button
             onClick={() => scrollTable("left")}
@@ -1521,14 +1626,14 @@ export default function ProductsPage() {
       </div>
       <div className="mt-3 flex items-center justify-between border-t border-neutral-100 px-1 pt-3 text-[11px] text-neutral-400">
         <span><strong className="text-neutral-700">{filtered.length}</strong> résultat{filtered.length !== 1 ? "s" : ""}</span>
-        {(search || filterCat !== "all") && <button type="button" onClick={() => { setSearch(""); router.replace("/admin/products"); }} className="font-bold text-neutral-600 hover:text-black">Réinitialiser les filtres</button>}
+        {(search || filterCat !== "all" || statusFilter !== "all" || brandFilter || sortBy !== "default") && <button type="button" onClick={resetFilters} className="font-bold text-neutral-600 hover:text-black">Réinitialiser les filtres</button>}
       </div>
       </div>
 
+      {confirmationDialog}
+      {!isStaff && <ProductBulkActions products={filtered} selected={bulkSelected} onSelection={setBulkSelected} onComplete={load} />}
       {loading ? (
-        <div className="flex items-center justify-center h-40">
-          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
-        </div>
+        <AdminLoading />
       ) : filtered.length === 0 ? (
         <div className="bg-white rounded-2xl border border-neutral-100 p-12 text-center">
           {isStaff ? (
@@ -1556,6 +1661,7 @@ export default function ProductsPage() {
           <table className="w-full text-sm min-w-[820px]">
             <thead className="sticky top-0 z-10">
               <tr className="border-b border-neutral-100 bg-neutral-50/80 text-left">
+                {!isStaff && <th className="px-2 py-3"><span className="sr-only">Sélection</span></th>}
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Produit</th>
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Catégorie</th>
                 <th className="px-4 py-3 text-xs font-bold text-neutral-400 uppercase tracking-wider">Prix</th>
@@ -1566,14 +1672,15 @@ export default function ProductsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((p) => (
+              {pagination.items.map((p) => (
                 <tr key={p.id} className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50/70 transition-colors">
+                  {!isStaff && <td className="px-2"><label className="flex min-h-11 min-w-11 items-center justify-center"><input type="checkbox" aria-label={`Sélectionner ${p.name}`} checked={bulkSelected.has(p.id)} onChange={() => selectProduct(p.id)} /></label></td>}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-neutral-100 bg-neutral-100">
                         {p.images?.[0]
                           // eslint-disable-next-line @next/next/no-img-element
-                          ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
+                          ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                           : <div className="w-full h-full flex items-center justify-center text-neutral-300"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
                         }
                       </div>
@@ -1591,7 +1698,7 @@ export default function ProductsPage() {
                     {p.original_price && <p className="text-[11px] text-neutral-400 line-through">{p.original_price} MAD</p>}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs font-bold ${p.stock === 0 ? "text-red-500" : p.stock <= 5 ? "text-yellow-600" : "text-emerald-600"}`}>
+                    <span className={`text-xs font-bold ${p.stock === 0 ? "text-red-500" : p.stock <= lowStockThreshold ? "text-yellow-600" : "text-emerald-600"}`}>
                       {p.stock === 0 ? "Épuisé" : `${p.stock}`}
                     </span>
                   </td>
@@ -1623,7 +1730,7 @@ export default function ProductsPage() {
                         aria-label={`Modifier ${p.name}`} className="flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-neutral-400 transition-colors hover:border-neutral-200 hover:bg-white hover:text-black">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       </button>
-                      <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id}
+                      <DuplicateButton pending={duplicating === p.id} onClick={() => handleDuplicate(p.id)} /><button onClick={() => handleDelete(p.id)} disabled={deleting === p.id}
                         aria-label={`Supprimer ${p.name}`} className="flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-neutral-400 transition-colors hover:border-red-100 hover:bg-red-50 hover:text-red-600">
                         {deleting === p.id
                           ? <div className="w-3 h-3 border border-red-400 border-t-transparent rounded-full animate-spin" />
@@ -1638,13 +1745,14 @@ export default function ProductsPage() {
           </table>
         </div>
         <div className="space-y-2.5 md:hidden">
-          {filtered.map((p) => (
+          {pagination.items.map((p) => (
             <article key={p.id} className="overflow-hidden rounded-[20px] border border-neutral-200 bg-white shadow-[0_4px_16px_rgba(0,0,0,.035)]">
+              {!isStaff && <label className="flex min-h-11 items-center gap-2 px-4 text-xs"><input type="checkbox" checked={bulkSelected.has(p.id)} onChange={() => selectProduct(p.id)} />Sélectionner {p.name}{p.tags?.includes('__archived') ? ' · Archivé' : ''}</label>}
               <div className="flex gap-3 p-3.5">
                 <div className="h-[88px] w-[88px] shrink-0 overflow-hidden rounded-[14px] border border-neutral-100 bg-neutral-100">
                   {p.images?.[0]
                     // eslint-disable-next-line @next/next/no-img-element
-                    ? <img src={p.images[0]} alt="" className="h-full w-full object-cover" />
+                    ? <img src={p.images[0]} alt="" className="h-full w-full object-cover" loading="lazy" decoding="async" />
                     : <div className="flex h-full w-full items-center justify-center text-neutral-300"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -1659,21 +1767,22 @@ export default function ProductsPage() {
                   </div>
                   <div className="mt-2 flex items-end justify-between gap-2">
                     <div><p className="text-base font-black">{p.price} MAD</p>{p.original_price && <p className="text-[10px] text-neutral-400 line-through">{p.original_price} MAD</p>}</div>
-                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-black ${p.stock === 0 ? "bg-red-50 text-red-600" : p.stock <= 5 ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{p.stock === 0 ? "Épuisé" : `${p.stock} en stock`}</span>
+                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-black ${p.stock === 0 ? "bg-red-50 text-red-600" : p.stock <= lowStockThreshold ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{p.stock === 0 ? "Épuisé" : `${p.stock} en stock`}</span>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 border-t border-neutral-100 bg-neutral-50/70 p-2.5">
+              <div className="flex flex-wrap items-center gap-2 border-t border-neutral-100 bg-neutral-50/70 p-2.5">
                 <span className="mr-auto rounded-lg bg-white px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wide text-neutral-500 ring-1 ring-neutral-200">{p.category}</span>
                 <Link href={`/produit/${p.slug}`} target="_blank" className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-neutral-500 shadow-sm ring-1 ring-neutral-200" aria-label={`Voir ${p.name}`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></Link>
                 <button onClick={() => router.push(`/admin/products?id=${p.id}`)} className="flex h-10 items-center gap-2 rounded-xl bg-black px-4 text-[10px] font-black text-white shadow-sm"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="m18.5 2.5 3 3L12 15l-4 1 1-4z"/></svg>Modifier</button>
-                <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id} className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600 ring-1 ring-red-100 disabled:opacity-50" aria-label={`Supprimer ${p.name}`}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6"/></svg></button>
+                <ActionMenu label={"Autres actions pour " + p.name}><DuplicateButton pending={duplicating === p.id} onClick={() => handleDuplicate(p.id)} /><button onClick={() => handleDelete(p.id)} disabled={deleting === p.id} className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600 ring-1 ring-red-100 disabled:opacity-50" aria-label={`Supprimer ${p.name}`}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6"/></svg></button></ActionMenu>
               </div>
             </article>
           ))}
         </div>
         </>
       )}
+      {!loading && <Pagination {...pagination} />}
     </div>
   );
 }

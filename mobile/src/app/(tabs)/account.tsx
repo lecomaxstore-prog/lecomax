@@ -1,3 +1,6 @@
+import { localizedContent } from "@/i18n/content";
+import { localizedError } from "@/i18n/errors";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Constants from "expo-constants";
 import { Image } from "expo-image";
@@ -25,7 +28,6 @@ import { Screen } from "@/components/screen";
 import { typography } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useSettings } from "@/hooks/use-catalog";
-import { apiRequest } from "@/lib/api-client";
 import { runtimeConfig } from "@/lib/runtime-config";
 import { supabase } from "@/lib/supabase";
 import { triggerSelectionHaptic } from "@/services/haptics";
@@ -59,7 +61,6 @@ const colors = {
 const languages: { value: Language; label: string; native: string }[] = [
   { value: "fr", label: "Français", native: "FR" },
   { value: "en", label: "English", native: "EN" },
-  { value: "ar", label: "العربية", native: "AR" },
 ];
 
 type Sheet = "settings" | "language" | "appearance" | "notifications" | null;
@@ -67,6 +68,7 @@ type NotificationState =
   "loading" | "enabled" | "disabled" | "denied" | "unsupported";
 
 export default function AccountScreen() {
+  useLocale();
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const dark = colorScheme === "dark";
@@ -74,6 +76,8 @@ export default function AccountScreen() {
   const language = usePreferences((state) => state.language);
   const theme = usePreferences((state) => state.theme);
   const setLanguage = usePreferences((state) => state.setLanguage);
+  const languageOverride = usePreferences((state) => state.languageOverride);
+  const followPhoneLanguage = usePreferences((state) => state.useDeviceLanguage);
   const setTheme = usePreferences((state) => state.setTheme);
   const hapticsEnabled = usePreferences((state) => state.hapticsEnabled);
   const preferencesHydrated = usePreferences((state) => state.hydrated);
@@ -122,7 +126,7 @@ export default function AccountScreen() {
       .then(({ data, error }) => {
         if (!active) return;
         if (error) {
-          setSessionError("Impossible de charger votre session.");
+          setSessionError(msg("account.unableToLoadYourSession"));
           setSession(null);
           return;
         }
@@ -131,7 +135,7 @@ export default function AccountScreen() {
       })
       .catch(() => {
         if (!active) return;
-        setSessionError("Connexion au compte indisponible.");
+        setSessionError(msg("account.accountSignInIsUnavailable"));
         setSession(null);
       });
     const auth = supabase.auth.onAuthStateChange((_event, nextSession) => {
@@ -172,7 +176,7 @@ export default function AccountScreen() {
     let active = true;
     void getMobileNotificationPreferences()
       .then(({ preferences }) => { if (active) setNotificationPreferences(preferences); })
-      .catch((error) => { if (active) Alert.alert("Préférences indisponibles", error instanceof Error ? error.message : "Veuillez réessayer."); })
+      .catch((error) => { if (active) Alert.alert(msg("account.preferencesUnavailable"), error instanceof Error ? localizedError(error) : msg("checkoutScreen.pleaseTryAgain")); })
       .finally(() => { if (active) setPreferenceSaving(false); });
     return () => { active = false; };
   }, [session, sheet]);
@@ -188,7 +192,7 @@ export default function AccountScreen() {
       setNotificationPreferences(result.preferences);
     } catch (error) {
       setNotificationPreferences(previous);
-      Alert.alert("Préférence non enregistrée", error instanceof Error ? error.message : "Veuillez réessayer.");
+      Alert.alert(msg("account.preferenceNotSaved"), error instanceof Error ? localizedError(error) : msg("checkoutScreen.pleaseTryAgain"));
     } finally {
       setPreferenceSaving(false);
     }
@@ -203,7 +207,7 @@ export default function AccountScreen() {
       .filter(Boolean)
       .join(" ") ||
     localName ||
-    "Client L’ECOMAX";
+    msg("account.lEcomaxCustomer");
   const email = session?.user.email ?? "";
   const initials = displayName
     .split(/\s+/)
@@ -216,7 +220,7 @@ export default function AccountScreen() {
   const languageLabel =
     languages.find((option) => option.value === language)?.label ?? "Français";
   const appearanceLabel =
-    theme === "dark" ? "Sombre" : theme === "light" ? "Clair" : "Automatique";
+    theme === "dark" ? msg("common.dark") : theme === "light" ? msg("common.light") : msg("account.automatic");
   const appVersion = Constants.expoConfig?.version ?? "1.0.0";
 
   const requireAccount = (pathname: "/orders" | "/addresses" | "/profile") => {
@@ -256,12 +260,12 @@ export default function AccountScreen() {
             state.status === "denied" ? "denied" : "disabled",
           );
           Alert.alert(
-            "Notifications désactivées",
-            "Autorisez les notifications dans les réglages de votre appareil.",
+            msg("account.notificationsDisabled"),
+            msg("account.allowNotificationsInYourDeviceSettings"),
             [
-              { text: "Plus tard", style: "cancel" },
+              { text: msg("appUpdateGate.later"), style: "cancel" },
               {
-                text: "Ouvrir les réglages",
+                text: msg("scanner.openSettings"),
                 onPress: () => void Linking.openSettings(),
               },
             ],
@@ -276,10 +280,10 @@ export default function AccountScreen() {
     } catch (error) {
       setNotificationState(previous);
       Alert.alert(
-        "Préférence non enregistrée",
+        msg("account.preferenceNotSaved"),
         error instanceof Error
-          ? error.message
-          : "Veuillez vérifier votre connexion.",
+          ? localizedError(error)
+          : msg("account.pleaseCheckYourConnection"),
       );
     } finally {
       setNotificationSaving(false);
@@ -288,19 +292,19 @@ export default function AccountScreen() {
 
   const confirmLogout = () => {
     Alert.alert(
-      "Se déconnecter",
-      "Votre panier invité et vos préférences seront conservés sur cet appareil.",
+      msg("common.signOut"),
+      msg("account.yourGuestCartAndPreferencesWillStayOnThisDevice"),
       [
-        { text: "Annuler", style: "cancel" },
+        { text: msg("addresses.cancel"), style: "cancel" },
         {
-          text: "Se déconnecter",
+          text: msg("common.signOut"),
           style: "destructive",
           onPress: async () => {
             setLogoutLoading(true);
             const { error } = await supabase.auth.signOut();
             setLogoutLoading(false);
             if (error) {
-              Alert.alert("Déconnexion impossible", error.message);
+              Alert.alert(msg("account.unableToSignOut"), localizedError(error));
               return;
             }
             setSheet(null);
@@ -311,39 +315,15 @@ export default function AccountScreen() {
   };
 
   const requestDeletion = () => {
-    Alert.alert(
-      "Supprimer votre compte ?",
-      "Une demande sécurisée sera envoyée. Vos données seront traitées selon les obligations légales de conservation.",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Envoyer la demande",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const result = await apiRequest<{ message: string }>(
-                "/api/account/delete-request",
-                { method: "POST", authenticated: true },
-              );
-              Alert.alert("Demande enregistrée", result.message);
-            } catch (error) {
-              Alert.alert(
-                "Demande impossible",
-                error instanceof Error ? error.message : "Veuillez réessayer.",
-              );
-            }
-          },
-        },
-      ],
-    );
+    setSheet(null);
+    router.push("/delete-account");
   };
-
   if (session === undefined) {
     return (
       <Screen className="bg-white">
         <View style={styles.loading}>
           <ActivityIndicator color={colors.primaryDark} />
-          <Text style={styles.loadingText}>Chargement de votre compte…</Text>
+          <Text style={styles.loadingText}>{msg("account.loadingYourAccount")}</Text>
         </View>
       </Screen>
     );
@@ -361,7 +341,7 @@ export default function AccountScreen() {
         <View style={styles.header}>
           <BrandLogo header />
           <AnimatedPressable
-            accessibilityLabel="Ouvrir les réglages du compte"
+            accessibilityLabel={msg("account.openAccountSettings")}
             onPress={() => setSheet("settings")}
             style={[styles.settingsButton, dark && styles.darkControl]}
           >
@@ -374,13 +354,11 @@ export default function AccountScreen() {
         </View>
 
         <View style={styles.heading}>
-          <Text style={styles.pageEyebrow}>ESPACE PERSONNEL</Text>
+          <Text style={styles.pageEyebrow}>{msg("account.yourAccountUppercase")}</Text>
           <Text style={[styles.title, dark && styles.darkText]}>
-            Mon compte
-          </Text>
+            {msg("common.accountTitle")}</Text>
           <Text style={[styles.subtitle, dark && styles.darkSecondary]}>
-            Votre quotidien, un peu plus simple.
-          </Text>
+            {msg("account.yourEverydayALittleSimpler")}</Text>
         </View>
 
         {sessionError ? (
@@ -392,7 +370,7 @@ export default function AccountScreen() {
             />
             <Text style={styles.errorText}>{sessionError}</Text>
             <AnimatedPressable
-              accessibilityLabel="Réessayer de charger le compte"
+              accessibilityLabel={msg("account.tryLoadingYourAccountAgain")}
               haptic={false}
               onPress={() => {
                 setSession(undefined);
@@ -403,7 +381,7 @@ export default function AccountScreen() {
               }}
               style={styles.retry}
             >
-              <Text style={styles.retryText}>RÉESSAYER</Text>
+              <Text style={styles.retryText}>{msg("notifications.tryAgainUppercase")}</Text>
             </AnimatedPressable>
           </View>
         ) : session ? (
@@ -431,17 +409,17 @@ export default function AccountScreen() {
               </Text>
               {clubEnabled ? (
                 <View style={styles.clubBadge}>
-                  <Ionicons color={colors.primaryDark} name="sparkles" size={9} />
-                  <Text style={styles.clubStatus}>MEMBRE ECOCLUB</Text>
+                  <Ionicons color={"#0B2A14"} name="sparkles" size={10} />
+                  <Text style={styles.clubStatus}>{msg("account.ecoclubMemberUppercase")}</Text>
                 </View>
               ) : null}
             </View>
             <AnimatedPressable
-              accessibilityLabel="Modifier mon profil"
+              accessibilityLabel={msg("account.editMyProfile")}
               onPress={() => router.push("/profile")}
               style={styles.editProfile}
             >
-              <Ionicons color={colors.text} name="create-outline" size={18} />
+              <Ionicons color={"#FFFFFF"} name="create-outline" size={18} />
             </AnimatedPressable>
           </View>
         ) : (
@@ -451,18 +429,17 @@ export default function AccountScreen() {
             <View style={styles.guestTopRow}>
               <View style={styles.guestBadge}>
                 <View style={styles.guestBadgeDot} />
-                <Text style={styles.guestEyebrow}>VOTRE ESPACE, VOS ENVIES</Text>
+                <Text style={styles.guestEyebrow}>{msg("account.yourSpaceYourStyleUppercase")}</Text>
               </View>
               <View style={styles.guestEmblem}>
                 <Ionicons name="person-outline" size={21} color="#C6F6CB" />
               </View>
             </View>
-            <Text style={styles.guestTitle}>{"Bienvenue\nchez vous."}</Text>
+            <Text style={styles.guestTitle}>{msg("account.welcomeHome")}</Text>
             <Text style={styles.guestDescription}>
-              Vos commandes, vos coups de cœur et tous vos avantages, au même endroit.
-            </Text>
+              {msg("account.yourOrdersFavoritesAndBenefitsAllInOnePlace")}</Text>
             <AnimatedPressable
-              accessibilityLabel="Se connecter"
+              accessibilityLabel={msg("auth.signInText")}
               onPress={() =>
                 router.push({
                   pathname: "/auth",
@@ -471,13 +448,13 @@ export default function AccountScreen() {
               }
               style={styles.loginButton}
             >
-              <Text style={styles.loginButtonText}>Se connecter</Text>
+              <Text style={styles.loginButtonText}>{msg("auth.signInText")}</Text>
               <View style={styles.loginArrow}>
                 <Ionicons color={colors.text} name="arrow-forward" size={18} />
               </View>
             </AnimatedPressable>
             <AnimatedPressable
-              accessibilityLabel="Créer un compte"
+              accessibilityLabel={msg("auth.createAnAccount")}
               haptic={false}
               onPress={() =>
                 router.push({
@@ -487,35 +464,35 @@ export default function AccountScreen() {
               }
               style={styles.registerButton}
             >
-              <Text style={styles.registerPrompt}>Nouveau ici ? <Text style={styles.registerText}>Créer un compte</Text></Text>
+              <Text style={styles.registerPrompt}>{msg("account.newHere")}{" "}<Text style={styles.registerText}>{msg("auth.createAnAccount")}</Text></Text>
             </AnimatedPressable>
           </View>
         )}
 
-        <SectionTitle dark={dark} title="À portée de main" />
+        <SectionTitle dark={dark} title={msg("account.atYourFingertips")} />
         <View style={styles.services}>
           <ServiceTile
             dark={dark}
             icon="cube-outline"
             onPress={() => requireAccount("/orders")}
-            subtitle="Suivre, retourner ou racheter"
-            title="Mes commandes"
+            subtitle={msg("common.ordersSubtitle")}
+            title={msg("common.orders")}
           />
           {wishlistEnabled ? (
             <ServiceTile
               dark={dark}
               icon="heart-outline"
               onPress={() => router.push("/wishlist")}
-              subtitle="Retrouvez vos articles enregistrés"
-              title="Mes favoris"
+              subtitle={msg("account.findYourSavedItems")}
+              title={msg("common.myFavorites")}
             />
           ) : null}
           <ServiceTile
             dark={dark}
             icon="location-outline"
             onPress={() => requireAccount("/addresses")}
-            subtitle="Gérez vos adresses de livraison"
-            title="Mes adresses"
+            subtitle={msg("account.manageYourDeliveryAddresses")}
+            title={msg("addresses.myAddresses")}
           />
           <ServiceTile
             dark={dark}
@@ -523,30 +500,30 @@ export default function AccountScreen() {
             onPress={openSupport}
             subtitle={
               settings.checkout_contact_subtitle?.trim() ||
-              "Nous sommes là pour vous aider"
+              msg("account.weReHereToHelp")
             }
-            title={settings.checkout_contact_title?.trim() || "Assistance"}
+            title={settings.checkout_contact_title?.trim() || msg("support.support")}
           />
           <ServiceTile
             dark={dark}
             icon="person-circle-outline"
             onPress={() => requireAccount("/profile")}
-            subtitle="Photo, nom, téléphone et sécurité"
-            title="Mon profil"
+            subtitle={msg("account.photoNamePhoneAndSecurity")}
+            title={msg("account.myProfile")}
           />
           <ServiceTile
             dark={dark}
             icon="notifications-outline"
             onPress={() => router.push("/notifications")}
-            subtitle="Consultez vos offres et actualités"
-            title="Mes notifications"
+            subtitle={msg("account.viewYourOffersAndUpdates")}
+            title={msg("account.myNotifications")}
           />
         </View>
 
         {clubEnabled ? (
           <AnimatedPressable
             accessibilityLabel={
-              settings.app_club_cta_label?.trim() || "Découvrir EcoClub"
+              localizedContent(settings.app_club_cta_label?.trim()) || msg("account.discoverEcoclub")
             }
             onPress={() =>
               openWebsitePage(
@@ -564,25 +541,25 @@ export default function AccountScreen() {
                 {clubTitle}
               </Text>
               <Text style={styles.clubDescription}>
-                {settings.app_club_description?.trim() ||
-                  "Des avantages pensés pour vous."}
+                {localizedContent(settings.app_club_description?.trim()) ||
+                  msg("account.benefitsDesignedForYou")}
               </Text>
             </View>
             <View style={styles.clubCta}>
               <Text style={styles.clubCtaText}>
-                {settings.app_club_cta_label?.trim() || "Découvrir"}
+                {localizedContent(settings.app_club_cta_label?.trim()) || msg("campaignHero.discover")}
               </Text>
               <Ionicons color={colors.text} name="arrow-forward" size={15} />
             </View>
           </AnimatedPressable>
         ) : null}
 
-        <SectionTitle dark={dark} title="PRÉFÉRENCES" />
+        <SectionTitle dark={dark} title={msg("common.preferences")} />
         <View style={[styles.list, dark && styles.darkSurface]}>
           <PreferenceRow
             dark={dark}
             icon="language-outline"
-            label="Langue"
+            label={msg("account.language")}
             onPress={() => setSheet("language")}
             value={languageLabel}
           />
@@ -590,7 +567,7 @@ export default function AccountScreen() {
           <PreferenceRow
             dark={dark}
             icon="contrast-outline"
-            label="Apparence"
+            label={msg("common.appearance")}
             onPress={() => setSheet("appearance")}
             value={appearanceLabel}
           />
@@ -609,8 +586,7 @@ export default function AccountScreen() {
                   <Text
                     style={[styles.preferenceLabel, dark && styles.darkText]}
                   >
-                    Notifications
-                  </Text>
+                    {msg("common.notifications")}</Text>
                   <Text
                     style={[
                       styles.preferenceValue,
@@ -618,19 +594,19 @@ export default function AccountScreen() {
                     ]}
                   >
                     {notificationState === "denied"
-                      ? "Refusées dans les réglages"
+                      ? msg("account.blockedInSettings")
                       : notificationState === "unsupported"
-                        ? "Non disponibles sur cet appareil"
+                        ? msg("account.unavailableOnThisDevice")
                         : notificationState === "enabled"
-                          ? "Activées"
-                          : "Désactivées"}
+                          ? msg("account.enabled")
+                          : msg("account.disabled")}
                   </Text>
                 </View>
                 {notificationSaving || notificationState === "loading" ? (
                   <ActivityIndicator color={colors.primaryDark} size="small" />
                 ) : (
                   <Switch
-                    accessibilityLabel="Activer les notifications"
+                    accessibilityLabel={msg("account.enableNotifications")}
                     disabled={notificationState === "unsupported"}
                     ios_backgroundColor="#D5D9D6"
                     onValueChange={(value) => void toggleNotifications(value)}
@@ -645,19 +621,19 @@ export default function AccountScreen() {
               </View>
               {notificationState === "enabled" && session ? (
                 <AnimatedPressable
-                  accessibilityLabel="Personnaliser les notifications"
+                  accessibilityLabel={msg("account.customizeNotifications")}
                   haptic={false}
                   onPress={() => { setPreferenceSaving(true); setSheet("notifications"); }}
                   style={{ minHeight: 44, alignItems: "center", justifyContent: "center", borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: dark ? "#303630" : colors.border }}
                 >
-                  <Text style={{ color: colors.primaryDark, fontFamily: typography.black, fontSize: 11, letterSpacing: 0.5 }}>PERSONNALISER LES ALERTES</Text>
+                  <Text style={{ color: colors.primaryDark, fontFamily: typography.black, fontSize: 11, letterSpacing: 0.5 }}>{msg("account.customizeAlertsUppercase")}</Text>
                 </AnimatedPressable>
               ) : null}
             </>
           ) : null}
         </View>
 
-        <SectionTitle dark={dark} title="AIDE & INFORMATIONS" />
+        <SectionTitle dark={dark} title={msg("account.helpInformationUppercase")} />
         <View style={[styles.list, dark && styles.darkSurface]}>
           <LinkRow
             dark={dark}
@@ -669,20 +645,20 @@ export default function AccountScreen() {
           <LinkRow
             dark={dark}
             icon="car-outline"
-            label="Livraison & retours"
+            label={msg("account.deliveryReturns")}
             onPress={() => openWebsitePage("/retours")}
           />
           <View style={[styles.rowDivider, dark && styles.darkBorder]} />
           <LinkRow
             dark={dark}
             icon="shield-checkmark-outline"
-            label="Confidentialité"
+            label={msg("account.privacy")}
             onPress={() => openWebsitePage("/politique-confidentialite")}
           />
         </View>
 
         <Text style={[styles.version, dark && styles.darkSecondary]}>
-          L’ECOMAX · VERSION {appVersion}
+          {msg("account.lEcomaxVersionUppercase")}{appVersion}
         </Text>
       </ScrollView>
 
@@ -694,7 +670,7 @@ export default function AccountScreen() {
       >
         <AppViewportOverlay align="bottom">
           <Pressable
-            accessibilityLabel="Fermer"
+            accessibilityLabel={msg("scanner.close")}
             onPress={() => setSheet(null)}
             style={styles.sheetBackdrop}
           />
@@ -709,15 +685,15 @@ export default function AccountScreen() {
             <View style={styles.sheetHeader}>
               <Text style={[styles.sheetTitle, dark && styles.darkText]}>
                 {sheet === "language"
-                  ? "Langue"
+                  ? msg("account.language")
                   : sheet === "appearance"
-                    ? "Apparence"
+                    ? msg("common.appearance")
                     : sheet === "notifications"
-                      ? "Notifications"
-                    : "Réglages"}
+                      ? msg("common.notifications")
+                    : msg("account.settings")}
               </Text>
               <AnimatedPressable
-                accessibilityLabel="Fermer"
+                accessibilityLabel={msg("scanner.close")}
                 haptic={false}
                 onPress={() => setSheet(null)}
                 style={[styles.sheetClose, dark && styles.sheetCloseDark]}
@@ -732,6 +708,9 @@ export default function AccountScreen() {
 
             {sheet === "language" ? (
               <View style={styles.sheetOptions}>
+                <SheetOption dark={dark} label={msg("account.deviceLanguage")} leading={msg("account.autoUppercase")}
+                  selected={languageOverride === null}
+                  onPress={() => { followPhoneLanguage(); setSheet(null); }} />
                 {languages.map((option) => (
                   <SheetOption
                     dark={dark}
@@ -742,7 +721,7 @@ export default function AccountScreen() {
                       setLanguage(option.value);
                       setSheet(null);
                     }}
-                    selected={language === option.value}
+                    selected={languageOverride === option.value}
                   />
                 ))}
               </View>
@@ -750,8 +729,8 @@ export default function AccountScreen() {
               <View style={styles.sheetOptions}>
                 <SheetOption
                   dark={dark}
-                  label="Automatique"
-                  leading="AUTO"
+                  label={msg("account.automatic")}
+                  leading={msg("account.autoUppercase")}
                   onPress={() => {
                     setTheme("system");
                     setSheet(null);
@@ -760,7 +739,7 @@ export default function AccountScreen() {
                 />
                 <SheetOption
                   dark={dark}
-                  label="Clair"
+                  label={msg("common.light")}
                   leading="☀"
                   onPress={() => {
                     setTheme("light");
@@ -770,7 +749,7 @@ export default function AccountScreen() {
                 />
                 <SheetOption
                   dark={dark}
-                  label="Sombre"
+                  label={msg("common.dark")}
                   leading="◐"
                   onPress={() => {
                     setTheme("dark");
@@ -782,12 +761,12 @@ export default function AccountScreen() {
             ) : sheet === "notifications" ? (
               <View style={styles.sheetOptions}>
                 {([
-                  ["marketing_enabled", "Actualités et recommandations"],
-                  ["promotions", "Promotions et offres"],
-                  ["new_products", "Nouveaux produits"],
-                  ["loyalty", "Club et fidélité"],
-                  ["price_drops", "Baisses de prix"],
-                  ["back_in_stock", "Retours en stock"],
+                  ["marketing_enabled", msg("account.newsAndRecommendations")],
+                  ["promotions", msg("account.promotionsAndOffers")],
+                  ["new_products", msg("account.newProducts")],
+                  ["loyalty", msg("account.clubAndLoyalty")],
+                  ["price_drops", msg("account.priceDrops")],
+                  ["back_in_stock", msg("account.backInStock")],
                 ] as const).map(([key, label]) => (
                   <View key={key} style={[styles.preferenceRow, dark && styles.darkSurface]}>
                     <View style={styles.preferenceCopy}>
@@ -805,32 +784,32 @@ export default function AccountScreen() {
                     )}
                   </View>
                 ))}
-                <Text style={[styles.preferenceValue, dark && styles.darkSecondary, { paddingHorizontal: 4, lineHeight: 18 }]}>Les alertes de service liées à votre compte et à vos commandes restent actives pour assurer le suivi essentiel.</Text>
+                <Text style={[styles.preferenceValue, dark && styles.darkSecondary, { paddingHorizontal: 4, lineHeight: 18 }]}>{msg("account.serviceAlertsAboutYourAccountAndOrdersRemainActiveToProvideEssential")}</Text>
               </View>
             ) : (
               <View style={styles.settingsList}>
-                <Text style={[styles.settingsSectionLabel, dark && styles.darkSecondary]}>COMPTE</Text>
+                <Text style={[styles.settingsSectionLabel, dark && styles.darkSecondary]}>{msg("account.accountUppercase")}</Text>
                 <View style={[styles.settingsGroup, dark && styles.darkSurface]}>
-                  <SettingsRow dark={dark} icon="person-outline" label={session ? "Modifier le profil" : "Se connecter"} subtitle="Photo et informations personnelles" onPress={() => { setSheet(null); requireAccount("/profile"); }} />
-                  <SettingsRow dark={dark} icon="shield-checkmark-outline" label="Confidentialité et sécurité" subtitle="Mot de passe et protection du compte" onPress={() => { setSheet(null); if (session) router.push("/profile"); else openWebsitePage("/politique-confidentialite"); }} />
+                  <SettingsRow dark={dark} icon="person-outline" label={session ? msg("account.editProfile") : msg("auth.signInText")} subtitle={msg("account.photoAndPersonalInformation")} onPress={() => { setSheet(null); requireAccount("/profile"); }} />
+                  <SettingsRow dark={dark} icon="shield-checkmark-outline" label={msg("account.privacyAndSecurity")} subtitle={msg("account.passwordAndAccountProtection")} onPress={() => { setSheet(null); if (session) router.push("/profile"); else openWebsitePage("/politique-confidentialite"); }} />
                 </View>
-                <Text style={[styles.settingsSectionLabel, dark && styles.darkSecondary]}>PRÉFÉRENCES</Text>
+                <Text style={[styles.settingsSectionLabel, dark && styles.darkSecondary]}>{msg("common.preferences")}</Text>
                 <View style={[styles.settingsGroup, dark && styles.darkSurface]}>
-                  <SettingsRow dark={dark} icon="language-outline" label="Langue" subtitle="Français" onPress={() => setSheet("language")} />
-                  <SettingsRow dark={dark} icon="contrast-outline" label="Apparence" subtitle="Clair, sombre ou automatique" onPress={() => setSheet("appearance")} />
+                  <SettingsRow dark={dark} icon="language-outline" label={msg("account.language")} subtitle={languageLabel} onPress={() => setSheet("language")} />
+                  <SettingsRow dark={dark} icon="contrast-outline" label={msg("common.appearance")} subtitle={msg("account.lightDarkOrAutomatic")} onPress={() => setSheet("appearance")} />
                   <SettingsToggleRow
                     dark={dark}
                     enabled={hapticsEnabled}
                     hydrated={preferencesHydrated}
                     icon="phone-portrait-outline"
-                    label="Vibration & haptics"
-                    subtitle="Use vibration feedback for interactions inside the app."
+                    label={msg("account.vibrationHaptics")}
+                    subtitle={msg("account.useVibrationFeedbackForInteractionsInsideTheApp")}
                     onChange={(enabled) => {
                       setHapticsEnabled(enabled);
                       if (enabled) void triggerSelectionHaptic();
                     }}
                   />
-                  <SettingsRow dark={dark} icon="headset-outline" label="Assistance" subtitle="Nous sommes là pour vous aider" onPress={() => { setSheet(null); openSupport(); }} />
+                  <SettingsRow dark={dark} icon="headset-outline" label={msg("support.support")} subtitle={msg("account.weReHereToHelp")} onPress={() => { setSheet(null); openSupport(); }} />
                 </View>
                 {session ? (
                   <View style={[styles.settingsGroup, styles.dangerGroup, dark && styles.darkSurface]}>
@@ -838,16 +817,16 @@ export default function AccountScreen() {
                       danger
                       dark={dark}
                       icon="log-out-outline"
-                      label={logoutLoading ? "Déconnexion…" : "Se déconnecter"}
-                      subtitle="Fermer la session sur cet appareil"
+                      label={logoutLoading ? msg("account.signingOut") : msg("common.signOut")}
+                      subtitle={msg("account.signOutOnThisDevice")}
                       onPress={confirmLogout}
                     />
                     <SettingsRow
                       danger
                       dark={dark}
                       icon="trash-outline"
-                      label="Supprimer mon compte"
-                      subtitle="Demander la suppression de vos données"
+                      label={msg("deleteAccount.deleteMyAccount")}
+                      subtitle={msg("account.requestDeletionOfYourData")}
                       onPress={requestDeletion}
                     />
                   </View>
@@ -862,6 +841,7 @@ export default function AccountScreen() {
 }
 
 function SectionTitle({ title, dark }: { title: string; dark: boolean }) {
+  useLocale();
   return (
     <View style={styles.sectionTitleRow}>
       <View style={styles.sectionLine} />
@@ -885,6 +865,7 @@ function ServiceTile({
   onPress: () => void;
   dark: boolean;
 }) {
+  useLocale();
   return (
     <AnimatedPressable
       accessibilityLabel={`${title}. ${subtitle}`}
@@ -931,6 +912,7 @@ function PreferenceRow({
   onPress: () => void;
   dark: boolean;
 }) {
+  useLocale();
   return (
     <AnimatedPressable
       accessibilityLabel={`${label}, ${value}`}
@@ -969,6 +951,7 @@ function LinkRow({
   onPress: () => void;
   dark: boolean;
 }) {
+  useLocale();
   return (
     <AnimatedPressable
       accessibilityLabel={label}
@@ -1000,6 +983,7 @@ function SheetOption({
   onPress: () => void;
   dark: boolean;
 }) {
+  useLocale();
   return (
     <AnimatedPressable
       accessibilityLabel={label}
@@ -1048,6 +1032,7 @@ function SettingsRow({
   dark: boolean;
   danger?: boolean;
 }) {
+  useLocale();
   return (
     <AnimatedPressable
       accessibilityLabel={label}
@@ -1087,6 +1072,7 @@ function SettingsToggleRow({
   subtitle: string;
   onChange: (enabled: boolean) => void;
 }) {
+  useLocale();
   return (
     <View style={styles.settingsRow}>
       <View style={[styles.settingsIcon, dark && styles.settingsIconDark]}>
@@ -1098,8 +1084,8 @@ function SettingsToggleRow({
       </View>
       {hydrated ? (
         <Switch
-          accessibilityHint="Turns all vibration feedback generated by L'ecomax on or off."
-          accessibilityLabel="Vibration & haptics"
+          accessibilityHint={msg("account.turnsAllVibrationFeedbackGeneratedByLEcomaxOnOrOff")}
+          accessibilityLabel={msg("account.vibrationHaptics")}
           accessibilityRole="switch"
           accessibilityState={{ checked: enabled }}
           ios_backgroundColor="#D5D9D6"
@@ -1109,7 +1095,7 @@ function SettingsToggleRow({
           value={enabled}
         />
       ) : (
-        <ActivityIndicator accessibilityLabel="Loading haptics preference" color={colors.primaryDark} size="small" />
+        <ActivityIndicator accessibilityLabel={msg("account.loadingHapticsPreference")} color={colors.primaryDark} size="small" />
       )}
     </View>
   );
@@ -1143,28 +1129,28 @@ const styles = StyleSheet.create({
     borderColor: "#343A35",
     backgroundColor: colors.darkSurface,
   },
-  heading: { paddingBottom: 23, paddingTop: 14 },
+  heading: { paddingBottom: 18, paddingTop: 6 },
   pageEyebrow: {
-    marginBottom: 7,
-    color: colors.primaryDark,
+    marginBottom: 6,
+    color: colors.primary,
     fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 1.8,
+    fontSize: 10,
+    letterSpacing: 2.2,
   },
   title: {
     color: colors.text,
     fontFamily: typography.black,
-    fontSize: 34,
-    lineHeight: 40,
-    letterSpacing: -1.4,
+    fontSize: 38,
+    lineHeight: 38,
+    letterSpacing: -1.6,
   },
   subtitle: {
-    maxWidth: 350,
-    marginTop: 7,
-    color: colors.secondaryText,
-    fontFamily: typography.regular,
-    fontSize: 12.5,
-    lineHeight: 19,
+    maxWidth: 320,
+    marginTop: 8,
+    color: "#7A807C",
+    fontFamily: typography.medium,
+    fontSize: 14,
+    lineHeight: 20,
   },
   guestCard: {
     padding: 22,
@@ -1232,39 +1218,45 @@ const styles = StyleSheet.create({
   },
   registerPrompt: { color: "#C1D0C5", fontFamily: typography.regular, fontSize: 11 },
   memberCard: {
-    minHeight: 112,
-    paddingHorizontal: 16,
-    paddingVertical: 17,
+    minHeight: 116,
+    paddingHorizontal: 18,
+    paddingVertical: 18,
     flexDirection: "row",
     alignItems: "center",
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#E2E7E2",
-    borderRadius: 18,
-    backgroundColor: "#F7F9F7",
+    borderWidth: 0,
+    borderRadius: 24,
+    backgroundColor: "#0F1F16",
+    shadowColor: "#000",
+    shadowOpacity: 0.18,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 6,
   },
   memberAccent: {
     position: "absolute",
     top: 0,
     bottom: 0,
     left: 0,
-    width: 4,
-    backgroundColor: colors.primary,
+    width: 0,
+    backgroundColor: "transparent",
   },
   memberCardDark: {
-    borderColor: "#343A35",
-    backgroundColor: colors.darkSurface,
+    borderColor: "#1A2A1F",
+    backgroundColor: "#0F1F16",
+    shadowOpacity: 0.18,
+    elevation: 6,
   },
   avatar: {
     overflow: "hidden",
-    width: 56,
-    height: 56,
+    width: 64,
+    height: 64,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 28,
-    borderWidth: 3,
-    borderColor: "#CFF4D9",
-    backgroundColor: colors.text,
+    borderRadius: 32,
+    borderWidth: 2.5,
+    borderColor: "rgba(255,255,255,0.9)",
+    backgroundColor: "#1A3324",
   },
   avatarText: {
     color: colors.white,
@@ -1273,51 +1265,55 @@ const styles = StyleSheet.create({
   },
   memberCopy: { minWidth: 0, flex: 1, marginLeft: 14 },
   memberName: {
-    color: colors.text,
+    color: colors.white,
     fontFamily: typography.black,
-    fontSize: 16,
+    fontSize: 18,
+    letterSpacing: -0.4,
+    lineHeight: 20,
   },
   memberEmail: {
-    marginTop: 4,
-    color: colors.secondaryText,
-    fontFamily: typography.medium,
-    fontSize: 10.5,
+    marginTop: 2,
+    color: "rgba(255,255,255,0.62)",
+    fontFamily: typography.regular,
+    fontSize: 12.5,
+    lineHeight: 15,
   },
   clubBadge: {
     alignSelf: "flex-start",
-    minHeight: 21,
-    marginTop: 8,
-    paddingHorizontal: 8,
+    minHeight: 24,
+    marginTop: 10,
+    paddingHorizontal: 10,
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
-    borderRadius: 11,
-    backgroundColor: "#E1F7E7",
+    gap: 6,
+    borderRadius: 999,
+    backgroundColor: "#B8F28A",
+    borderWidth: 0,
   },
   clubStatus: {
-    color: colors.primaryDark,
+    color: "#0B2A14",
     fontFamily: typography.black,
-    fontSize: 7.5,
-    letterSpacing: 0.75,
+    fontSize: 8.5,
+    letterSpacing: 0.8,
   },
   editProfile: {
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 20,
-    backgroundColor: colors.white,
+    borderColor: "rgba(255,255,255,0.16)",
+    borderRadius: 21,
+    backgroundColor: "rgba(255,255,255,0.10)",
   },
   sectionTitleRow: {
-    marginBottom: 13,
-    marginTop: 29,
+    marginBottom: 14,
+    marginTop: 28,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
   },
-  sectionLine: { width: 24, height: 2, borderRadius: 1, backgroundColor: colors.primary },
+  sectionLine: { width: 26, height: 2.5, borderRadius: 999, backgroundColor: colors.primary },
   sectionTitle: {
     color: colors.text,
     fontFamily: typography.black,

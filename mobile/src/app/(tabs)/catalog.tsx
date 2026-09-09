@@ -1,3 +1,5 @@
+import { localizedContent } from "@/i18n/content";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -39,6 +41,7 @@ const webInputReset =
     : undefined;
 
 export default function CatalogScreen() {
+  useLocale();
   const params = useLocalSearchParams<{
     category?: string;
     sort?: Sort;
@@ -58,6 +61,7 @@ function CatalogContent({
 }: {
   params: { category?: string; sort?: Sort; filters?: string; promotion?: string };
 }) {
+  useLocale();
   const { t } = useT();
   const promotionOnly = params.promotion === "true";
   const { contentWidth, isTablet } = useAppViewport();
@@ -142,9 +146,9 @@ function CatalogContent({
           <View style={styles.headingCopy}>
             <View style={styles.eyebrowRow}>
               <View style={styles.eyebrowLine} />
-              <Text style={styles.eyebrow}>LECOMAX SHOP</Text>
+              <Text style={styles.eyebrow}>{msg("catalog.lecomaxShopUppercase")}</Text>
             </View>
-            <Text style={styles.title}>{promotionOnly ? "Promotions" : t.shopTitle}</Text>
+            <Text style={styles.title}>{promotionOnly ? msg("homePromotionSection.promotions") : t.shopTitle}</Text>
             <View style={styles.titleAccent} />
           </View>
           <View style={styles.inventoryCard}>
@@ -183,7 +187,7 @@ function CatalogContent({
             />
             {query ? (
               <Pressable
-                accessibilityLabel="Effacer"
+                accessibilityLabel={msg("catalog.clear")}
                 onPress={() => setQuery("")}
                 hitSlop={8}
               >
@@ -224,7 +228,7 @@ function CatalogContent({
               return (
                 <AnimatedPressable
                   key={item.id}
-                  accessibilityLabel={item.label}
+                  accessibilityLabel={localizedContent(item.label)}
                   accessibilityState={{ selected }}
                   onPress={() => setCategory(item.slug)}
                   style={[
@@ -238,7 +242,7 @@ function CatalogContent({
                       selected && styles.categoryLabelSelected,
                     ]}
                   >
-                    {item.label}
+                    {localizedContent(item.label)}
                   </Text>
                 </AnimatedPressable>
               );
@@ -290,7 +294,7 @@ function CatalogContent({
               return (
                 <AnimatedPressable
                   key={item.value}
-                  accessibilityLabel={item.label}
+                  accessibilityLabel={localizedContent(item.label)}
                   accessibilityState={{ selected }}
                   onPress={() => setSort(item.value)}
                   style={[
@@ -304,7 +308,7 @@ function CatalogContent({
                       selected && styles.sortLabelSelected,
                     ]}
                   >
-                    {item.label}
+                    {localizedContent(item.label)}
                   </Text>
                   <View
                     style={[

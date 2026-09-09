@@ -83,9 +83,9 @@ export async function GET(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({
-    reviews: (data ?? []).map((review) => ({
+    reviews: (data ?? []).filter((review) => review.verified_purchase === true).map((review) => ({
       ...review,
-      verified_purchase: "verified_purchase" in review ? review.verified_purchase === true : true,
+      verified_purchase: review.verified_purchase === true,
     })),
   });
 }

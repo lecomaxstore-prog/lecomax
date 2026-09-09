@@ -22,7 +22,7 @@ export default function TrustBar() {
                 Paiement à la livraison
               </p>
               <p className="text-[10px] text-[#3ecf4c]/70 leading-tight mt-0.5 font-semibold">
-                100% sécurisé
+                Paiement à réception
               </p>
             </div>
           </div>
@@ -30,7 +30,7 @@ export default function TrustBar() {
           {/* Divider */}
           <div className="w-px h-8 bg-neutral-800 shrink-0" />
 
-          {/* Support 7j/7 */}
+          {/* Service client */}
           <div className="flex items-center gap-3 px-6 sm:px-10 py-4 sm:py-5 flex-1 justify-center group">
             <div className="relative shrink-0">
               <div className="absolute inset-0 bg-[#3ecf4c]/20 rounded-full blur-md group-hover:bg-[#3ecf4c]/30 transition-all" />
@@ -42,7 +42,7 @@ export default function TrustBar() {
             </div>
             <div className="min-w-0">
               <p className="font-black text-[11px] sm:text-[12px] uppercase tracking-widest text-white leading-tight">
-                Support 7j/7
+                Service client
               </p>
               <p className="text-[10px] text-[#3ecf4c]/70 leading-tight mt-0.5 font-semibold">
                 Via WhatsApp

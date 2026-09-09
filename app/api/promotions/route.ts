@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation } from "@/lib/api-security";
+import { publishOfferNotification } from "@/lib/offer-notification";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,5 +25,6 @@ export async function POST(req: NextRequest) {
   }
   const { data, error } = await supabase.from("promotions").insert(body as object).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  publishOfferNotification(data.id, "promotion");
   return NextResponse.json(data, { status: 201 });
 }

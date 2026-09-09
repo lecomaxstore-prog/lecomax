@@ -78,6 +78,7 @@ function buildTrustpilotInviteHtml(customerName: string, orderNumber: string): s
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return NextResponse.json({ error: "Identifiant invalide." }, { status: 400 });
   const { data, error } = await supabase.from("orders").select("*").eq("id", id).single();
   if (error) return NextResponse.json({ error: error.message }, { status: 404 });
   return NextResponse.json(data);
@@ -87,10 +88,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return NextResponse.json({ error: "Identifiant invalide." }, { status: 400 });
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
+
+  if (!body || typeof body !== "object" || Array.isArray(body)) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 
   const update: { status?: string; tracking_number?: string | null; notes?: string | null; updated_at: string } = {
     updated_at: new Date().toISOString(),
@@ -122,13 +126,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     .eq("id", id)
     .single();
 
-  const { data, error } = await supabase
-    .from("orders")
-    .update(update)
-    .eq("id", id)
-    .select()
-    .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  const { data, error } = await supabase.rpc("update_order_with_inventory", { p_id: id, p_patch: update });
+  if (error) return NextResponse.json({ error: /STOCK/.test(error.message) ? "Pr?commande en attente de stock. R?approvisionnez les variantes avant de pr?parer la commande." : error.message }, { status: 409 });
 
   let loyalty: unknown = null;
   if (update.status === "delivered") {
@@ -140,22 +139,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     loyalty = result.data;
     if (result.error) console.error("EcoClub reversal failed:", result.error.message);
 
-    if (prev?.status !== "cancelled") {
-      const inventoryItems = ((data as {
-        items?: { slug?: string; qty?: number; quantity?: number; color?: string; size?: string }[];
-      }).items ?? [])
-        .map((item) => ({
-          slug: item.slug,
-          qty: Number(item.qty ?? item.quantity),
-          color: item.color || null,
-          size: item.size || null,
-        }))
-        .filter((item) => item.slug && Number.isInteger(item.qty) && item.qty > 0);
-      if (inventoryItems.length > 0) {
-        const released = await supabase.rpc("release_order_inventory", { p_items: inventoryItems });
-        if (released.error) console.error("Cancelled order inventory release failed:", released.error.message);
-      }
-    }
   }
 
   let reviewAutomation: {
@@ -233,6 +216,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return NextResponse.json({ error: "Identifiant invalide." }, { status: 400 });
   const { error } = await supabase.from("orders").delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });

@@ -1,3 +1,4 @@
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { memo } from "react";
@@ -13,21 +14,22 @@ const colors = {
 };
 
 export const HomeSearchBar = memo(function HomeSearchBar() {
+  useLocale();
   return (
     <View style={styles.shell}>
       <AnimatedPressable
-        accessibilityLabel="Ouvrir la recherche de produits"
+        accessibilityLabel={msg("homeSearchBar.openProductSearch")}
         accessibilityRole="search"
         onPress={() => router.push("/search")}
         pressedScale={0.99}
         style={styles.searchTarget}
       >
         <Ionicons name="search-outline" size={21} color={colors.ink} />
-        <Text numberOfLines={1} style={styles.placeholder}>Que recherchez-vous ?</Text>
+        <Text numberOfLines={1} style={styles.placeholder}>{msg("homeSearchBar.whatAreYouLookingFor")}</Text>
       </AnimatedPressable>
       <AnimatedPressable
         accessibilityRole="button"
-        accessibilityLabel="Ouvrir les filtres produits"
+        accessibilityLabel={msg("homeSearchBar.openProductFilters")}
         onPress={() => router.push({ pathname: "/catalog", params: { filters: "open" } })}
         pressedScale={0.92}
         style={styles.filter}

@@ -1,3 +1,5 @@
+import { localizedError } from "@/i18n/errors";
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { useCallback, useMemo } from "react";
@@ -12,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { useAppViewport } from "@/components/app-viewport";
 import { CampaignHero } from "@/components/campaign-hero";
+import { NotificationOptIn } from "@/components/notification-opt-in";
 import { CategoryShortcuts } from "@/components/category-shortcuts";
 import { HomeHeader } from "@/components/home-header";
 import { HomePromotionSection } from "@/components/home-promotion-section";
@@ -52,6 +55,7 @@ const colors = {
 };
 
 export default function HomeScreen() {
+  useLocale();
   const { contentWidth, isTablet } = useAppViewport();
   // On tablets the navigation rail sits inside contentWidth, so the row the
   // cards actually get is narrower than the viewport.
@@ -151,8 +155,8 @@ export default function HomeScreen() {
 
   const productError =
     productsQuery.error instanceof Error
-      ? productsQuery.error.message
-      : "Impossible de charger les nouveautés.";
+      ? localizedError(productsQuery.error)
+      : msg("home.unableToLoadNewArrivals");
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
@@ -185,8 +189,7 @@ export default function HomeScreen() {
         <CategoryShortcuts categories={categoriesQuery.data ?? []} />
         {categoriesQuery.isError ? (
           <Text style={styles.categoryError}>
-            Les catégories n’ont pas pu être actualisées.
-          </Text>
+            {msg("home.categoriesCouldNotBeRefreshed")}</Text>
         ) : null}
 
         {productsQuery.isPending ? (
@@ -196,9 +199,9 @@ export default function HomeScreen() {
         ) : productsQuery.isError ? (
           <InlineState
             icon="cloud-offline-outline"
-            title="Connexion impossible"
+            title={msg("home.unableToConnect")}
             description={productError}
-            action="Réessayer"
+            action={msg("support.tryAgain")}
             onPress={() => void productsQuery.refetch()}
           />
         ) : (
@@ -217,10 +220,10 @@ export default function HomeScreen() {
             {settingEnabled("app_home_products") ? (
               <>
                 <CollectionHeader
-                  eyebrow="LA BOUTIQUE L’ECOMAX"
-                  title="NOS PRODUITS"
-                  description="Une sélection pensée pour votre quotidien."
-                  action="Tout explorer"
+                  eyebrow={msg("home.theLEcomaxShopUppercase")}
+                  title={msg("home.ourProductsUppercase")}
+                  description={msg("home.aSelectionDesignedForYourEveryday")}
+                  action={msg("home.exploreAll")}
                   onPress={() => router.push("/catalog")}
                 />
                 <ProductGrid products={catalogProducts} />
@@ -228,13 +231,12 @@ export default function HomeScreen() {
             ) : null}
 
             <AnimatedPressable
-              accessibilityLabel="Explorer toute la boutique"
+              accessibilityLabel={msg("home.exploreTheWholeShop")}
               onPress={() => router.push("/catalog")}
               style={styles.catalogCta}
             >
               <Text style={styles.catalogCtaText}>
-                EXPLORER TOUTE LA BOUTIQUE
-              </Text>
+                {msg("home.exploreTheWholeShopUppercase")}</Text>
               <Ionicons
                 name="arrow-forward"
                 size={18}
@@ -249,6 +251,7 @@ export default function HomeScreen() {
         settingEnabled("app_home_welcome_offer") ? (
           <HomeSignupOffer />
         ) : null}
+        <View style={{ paddingHorizontal: 16, marginTop: 20 }}><NotificationOptIn /></View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -267,6 +270,7 @@ function InlineState({
   action?: string;
   onPress?: () => void;
 }) {
+  useLocale();
   return (
     <View accessibilityLiveRegion="polite" style={styles.state}>
       <View style={styles.stateIcon}>
@@ -290,6 +294,7 @@ function InlineState({
 }
 
 function ProductGrid({ products }: { products: Product[] }) {
+  useLocale();
   const { contentWidth, isTablet } = useAppViewport();
   const gridWidth = isTablet ? contentWidth - TABLET_NAV_RAIL : contentWidth;
   const columns = productGridColumns(gridWidth);
@@ -298,8 +303,8 @@ function ProductGrid({ products }: { products: Product[] }) {
     return (
       <InlineState
         icon="sparkles-outline"
-        title="De nouveaux produits arrivent"
-        description="Revenez bientôt pour découvrir la prochaine sélection."
+        title={msg("home.newProductsAreOnTheirWay")}
+        description={msg("home.comeBackSoonToExploreTheNextSelection")}
       />
     );
   }
@@ -332,23 +337,26 @@ function CollectionHeader({
   action: string;
   onPress: () => void;
 }) {
+  useLocale();
   return (
     <View style={styles.collectionHeader}>
-      <View style={styles.collectionCopy}>
-        <Text style={styles.collectionEyebrow}>{eyebrow}</Text>
+      <Text style={styles.collectionEyebrow}>{eyebrow}</Text>
+      <View style={styles.collectionHeadingRow}>
         <Text accessibilityRole="header" style={styles.collectionTitle}>
           {title}
         </Text>
-        <Text style={styles.collectionDescription}>{description}</Text>
-      </View>
       <AnimatedPressable
+        accessibilityRole="button"
         accessibilityLabel={action}
+        hitSlop={4}
         onPress={onPress}
         style={styles.collectionAction}
       >
         <Text style={styles.collectionActionText}>{action}</Text>
-        <Ionicons name="arrow-forward" size={15} color={colors.primaryDark} />
+        <Ionicons name="arrow-forward" size={13} color="#203D2C" />
       </AnimatedPressable>
+      </View>
+      <Text style={styles.collectionDescription}>{description}</Text>
     </View>
   );
 }
@@ -388,51 +396,57 @@ const styles = StyleSheet.create({
     marginTop: 28,
   },
   collectionHeader: {
-    marginTop: 40,
-    marginBottom: 15,
+    marginTop: 30,
+    marginBottom: 18,
     paddingHorizontal: 16,
-    paddingTop: 27,
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    gap: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
+    paddingTop: 20,
+    gap: 6,
   },
-  collectionCopy: { minWidth: 0, flex: 1 },
+  collectionHeadingRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
+    columnGap: 12,
+    rowGap: 8,
+  },
   collectionEyebrow: {
-    color: colors.primaryDark,
-    fontFamily: typography.black,
-    fontSize: 7.5,
-    letterSpacing: 1.3,
+    color: "#667363",
+    fontFamily: typography.semibold,
+    fontSize: 8,
+    lineHeight: 12,
+    letterSpacing: 1.5,
   },
   collectionTitle: {
-    marginTop: 4,
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 24,
-    lineHeight: 27,
-    letterSpacing: -0.7,
+    flexShrink: 1,
+    color: "#203D2C",
+    fontFamily: typography.bold,
+    fontSize: 22,
+    lineHeight: 28,
+    letterSpacing: -0.6,
   },
   collectionDescription: {
-    marginTop: 4,
     color: colors.textSecondary,
     fontFamily: typography.regular,
-    fontSize: 9,
-    lineHeight: 13,
+    fontSize: 11,
+    lineHeight: 16,
   },
   collectionAction: {
-    minWidth: 86,
-    minHeight: 44,
+    minHeight: 36,
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 18,
+    backgroundColor: "#EFF4EC",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
-    gap: 5,
+    justifyContent: "center",
+    gap: 6,
   },
   collectionActionText: {
-    color: colors.primaryDark,
-    fontFamily: typography.bold,
-    fontSize: 9.5,
+    color: "#203D2C",
+    fontFamily: typography.semibold,
+    fontSize: 10,
+    lineHeight: 14,
   },
   catalogCta: {
     minHeight: 54,

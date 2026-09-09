@@ -1,3 +1,4 @@
+import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { memo } from "react";
@@ -16,20 +17,21 @@ export const NewArrivalsSection = memo(function NewArrivalsSection({
 }: {
   count: number;
 }) {
+  useLocale();
   return (
     <View style={styles.header}>
       <View style={styles.headerCopy}>
-        <Text style={styles.eyebrow}>SÉLECTION L’ECOMAX</Text>
-        <Text accessibilityRole="header" style={styles.title}>NOUVEAUTÉS</Text>
-        <Text style={styles.count}>{count} produit{count > 1 ? "s" : ""}</Text>
+        <Text style={styles.eyebrow}>{msg("newArrivalsSection.lEcomaxSelectionUppercase")}</Text>
+        <Text accessibilityRole="header" style={styles.title}>{msg("common.newArrivalsTitle")}</Text>
+        <Text style={styles.count}>{msg("counts.productCount", { count })}</Text>
       </View>
       <AnimatedPressable
-        accessibilityLabel="Voir toutes les nouveautés"
+        accessibilityLabel={msg("newArrivalsSection.viewAllNewArrivals")}
         onPress={() => router.push({ pathname: "/catalog", params: { sort: "new" } })}
         pressedScale={0.95}
         style={styles.action}
       >
-        <Text style={styles.actionText}>Voir tout</Text>
+        <Text style={styles.actionText}>{msg("common.viewAll")}</Text>
         <Ionicons name="arrow-forward" size={15} color={colors.primaryDark} />
       </AnimatedPressable>
     </View>

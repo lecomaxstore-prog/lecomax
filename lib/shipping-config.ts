@@ -1,13 +1,15 @@
+import { STORE_SETTING_DEFAULTS } from "./store-settings.ts";
 export type ShippingConfig = {
   cost: number;
   freeThreshold: number;
   estimatedDays: string;
+  freeShippingEnabled?: boolean;
 };
 
 export const DEFAULT_SHIPPING_CONFIG: ShippingConfig = {
-  cost: 40,
-  freeThreshold: 500,
-  estimatedDays: "2–5 jours ouvrables",
+  cost: Number(STORE_SETTING_DEFAULTS.shipping_cost),
+  freeThreshold: Number(STORE_SETTING_DEFAULTS.free_shipping_threshold),
+  estimatedDays: STORE_SETTING_DEFAULTS.shipping_estimated_days,
 };
 
 // A one-dirham courtesy margin avoids charging delivery when a cart lands at
@@ -32,7 +34,8 @@ function nonNegativeNumber(value: unknown, fallback: number) {
 export function shippingConfigFromSettings(settings: Record<string, unknown> | null | undefined): ShippingConfig {
   return {
     cost: nonNegativeNumber(settings?.shipping_cost, DEFAULT_SHIPPING_CONFIG.cost),
-    freeThreshold: nonNegativeNumber(settings?.free_shipping_threshold, DEFAULT_SHIPPING_CONFIG.freeThreshold),
+    freeShippingEnabled: String(settings?.free_shipping_enabled) !== "false",
+    freeThreshold: String(settings?.free_shipping_enabled) === "false" ? 0 : nonNegativeNumber(settings?.free_shipping_threshold, DEFAULT_SHIPPING_CONFIG.freeThreshold),
     estimatedDays: deliveryEstimate(settings?.shipping_estimated_days),
   };
 }

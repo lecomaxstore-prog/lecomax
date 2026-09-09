@@ -1,5 +1,7 @@
+import { getAdminAccess } from "@/lib/admin-access";
+import { adminApiPermission, hasAdminPermission } from "@/lib/admin-policy";
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, verifyStaffPermissionsToken } from "@/lib/admin-session";
+import { verifySessionToken } from "@/lib/admin-session";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -73,6 +75,8 @@ async function hasHowBuiltPin(req: NextRequest): Promise<boolean> {
 const ROUTE_PERMISSIONS: Record<string, string | null | undefined> = {
   "dashboard":       null,
   "mobile-app":      "settings.edit",
+  "app-releases": "settings.edit",
+  "checkout": "settings.edit",
   "analytics":       "analytics.view",
   "recordings":      "recordings.view",
   "products":        "products.view",
@@ -125,7 +129,7 @@ function isSameOrigin(req: NextRequest): boolean {
 }
 
 const MOBILE_PUBLIC_API =
-  /^\/api\/(?:products|search|categories|promotions|settings|banners|recommendations|reviews(?:\/(?:stats|check))?|shipping\/quote|checkout\/quote|payment-methods|paypal\/mobile\/(?:create|capture)|orders|wishlist|points|coupons\/validate|newsletter|size-guide|account\/(?:profile|avatar|delete-request)|mobile\/push-subscribe|app-releases\/android\/latest|support\/conversations(?:\/[0-9a-f-]+(?:\/messages)?)?)$/;
+  /^\/api\/(?:products|product-translations|search|categories|promotions|settings|banners|recommendations|reviews(?:\/(?:stats|check))?|shipping\/quote|checkout\/quote|payment-methods|paypal\/mobile\/(?:create|capture)|orders|wishlist|points|coupons\/validate|newsletter|size-guide|account\/(?:profile|avatar|delete-request)|mobile\/push-subscribe|app-releases\/android\/latest|support\/conversations(?:\/[0-9a-f-]+(?:\/messages)?)?)$/;
 const MOBILE_WEB_ORIGINS = new Set([
   "https://app.lecomax.com",
   "http://localhost:8081",
@@ -138,7 +142,7 @@ function isAllowedMobileOrigin(origin: string) {
 }
 
 function mobileCorsHeaders(req: NextRequest, response: NextResponse, pathname: string) {
-  if (!MOBILE_PUBLIC_API.test(pathname)) return response;
+  if (!MOBILE_PUBLIC_API.test(pathname) && !/^\/api\/mobile\/(notifications|notification-preferences|web-push)$/.test(pathname)) return response;
   const origin = req.headers.get("origin");
   if (!origin || !isAllowedMobileOrigin(origin)) return response;
   response.headers.set("Access-Control-Allow-Origin", origin);
@@ -161,7 +165,7 @@ export async function middleware(req: NextRequest) {
     return new NextResponse(null, { status: 404 });
   }
 
-  if (req.method === "OPTIONS" && MOBILE_PUBLIC_API.test(pathname)) {
+  if (req.method === "OPTIONS" && (MOBILE_PUBLIC_API.test(pathname) || /^\/api\/mobile\/(notifications|notification-preferences|web-push)$/.test(pathname))) {
     return mobileCorsHeaders(req, new NextResponse(null, { status: 204 }), pathname);
   }
 
@@ -198,26 +202,10 @@ export async function middleware(req: NextRequest) {
     // ── Staff permission enforcement ──────────────────────────────────────
     // If a signed staff_permissions cookie exists, this is a restricted staff
     // member. Verify the token and block any route they don't have access to.
-    const staffToken = req.cookies.get("staff_permissions")?.value;
-    if (staffToken) {
-      const staffPerms = await verifyStaffPermissionsToken(staffToken);
-      if (staffPerms !== null) {
-        // Valid staff token — enforce route permission
-        const pageKey = pathname.split("/admin/")[1]?.split("/")[0] ?? "dashboard";
-        const required = ROUTE_PERMISSIONS[pageKey];
-        const allowed =
-          required === null ||                          // always allowed
-          (required !== undefined && staffPerms.includes(required)); // has perm
-        if (!allowed) {
-          return NextResponse.redirect(new URL("/admin/dashboard", req.url));
-        }
-      } else {
-        // Tampered / malformed staff cookie — force re-login
-        const loginUrl = new URL("/admin", req.url);
-        loginUrl.searchParams.set("from", pathname);
-        return NextResponse.redirect(loginUrl);
-      }
-    }
+    const access = await getAdminAccess(req);
+    const pageKey = pathname.split("/admin/")[1]?.split("/")[0] ?? "dashboard";
+    if (!access) return NextResponse.redirect(new URL("/admin", req.url));
+    if (!hasAdminPermission(access, ROUTE_PERMISSIONS[pageKey])) return NextResponse.redirect(new URL("/admin/dashboard", req.url));
 
     // The owner-only learning/code area requires a second PIN unlock. Keep the
     // unlock screen reachable, but never serve the real course bundle first.
@@ -238,6 +226,7 @@ export async function middleware(req: NextRequest) {
   const isAdminApiWrite =
     req.method !== "GET" &&
     !pathname.startsWith("/api/admin/auth/") &&
+    pathname !== "/api/admin/staff/verify-invite" &&
     !pathname.startsWith("/api/coupons/validate") &&
     !isPublicNewsletterSignup &&
     /^\/api\/(products|coupons|promotions|categories|settings|announcements|shipping|size-guide|newsletter|admin\/|ads|ai-(?:broadcast|product|reply|review)|send-confirmation|upload(?:-media)?|media|trustpilot-featured)/.test(
@@ -256,15 +245,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.json({ error: "Origine non autorisée" }, { status: 403 });
   }
 
-  if (isAdminApiWrite || isCouponManagementApi || isNewsletterAdminApi) {
+  if (isAdminApiWrite || isCouponManagementApi || isNewsletterAdminApi || (pathname.startsWith("/api/admin/") && !pathname.startsWith("/api/admin/auth/") && pathname !== "/api/admin/staff/verify-invite")) {
     // Reject cross-origin write requests (CSRF defence in depth)
     if (!isSameOrigin(req)) {
       return NextResponse.json({ error: "Origine non autorisée" }, { status: 403 });
     }
-    const valid = await isValidAdminSession(req);
-    if (!valid) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
+    const access = await getAdminAccess(req);
+    if (!access) return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
+    if (!hasAdminPermission(access, adminApiPermission(pathname, req.method))) return NextResponse.json({ error: "Forbidden", code: "FORBIDDEN" }, { status: 403 });
   }
 
   return mobileCorsHeaders(req, applyRobotsHeader(NextResponse.next(), pathname), pathname);

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { withSessionTimeout } from "../mobile/src/lib/session-timeout.ts";
+import { loadMobileModule } from './helpers/mobile-module.ts';
+const { withSessionTimeout } = loadMobileModule<typeof import('../mobile/src/lib/session-timeout.ts')>('lib/session-timeout.ts');
 
 test("session lookup preserves a successful session", async () => {
   const session = { user: { id: "customer" } };
