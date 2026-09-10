@@ -1,3 +1,4 @@
+import { OFFICIAL_SOCIAL_IMAGE, SOCIAL_IMAGE_METADATA } from "@/lib/social-image";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import HeroBanner from "@/components/HeroBanner";
@@ -13,7 +14,7 @@ const OurProductsGrid = dynamic(() => import("@/components/OurProductsGrid"));
 const ScrollReveal = dynamic(() => import("@/components/ScrollReveal"));
 const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
-import { products as staticProducts, type CardProduct } from "@/lib/products";
+import { type CardProduct } from "@/lib/products";
 import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import type { HeroBannerRecord } from "@/lib/hero-banners";
 import { shippingConfigFromSettings, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
@@ -46,22 +47,14 @@ const defaultHomeMetadata: Metadata = {
     title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
     description:
       "Boutique en ligne Maroc — chaussures, vêtements sport, écouteurs, enceintes et gaming. Livraison {{shipping}} partout au Maroc. Paiement à la livraison.",
-    images: [
-      {
-        url: `${SITE_URL_PAGE}/ecomax-hero-banner.jpg.png`,
-        width: 1200,
-        height: 630,
-        alt: "L'ecomax — Boutique en ligne Maroc",
-        type: "image/png",
-      },
-    ],
+    images: [SOCIAL_IMAGE_METADATA],
   },
   twitter: {
     card: "summary_large_image",
     title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
     description:
       "Boutique en ligne Maroc — chaussures, vêtements, écouteurs, enceintes et gaming. Livraison {{shipping}}.",
-    images: [`${SITE_URL_PAGE}/ecomax-hero-banner.jpg.png`],
+    images: [OFFICIAL_SOCIAL_IMAGE],
   },
 };
 
@@ -95,7 +88,7 @@ async function getHeroImages() {
           apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
           Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
         },
-        next: { revalidate: 60 },
+        cache: "no-store",
       }
     );
     if (!res.ok) return {};
@@ -110,19 +103,20 @@ async function getHeroBanners(): Promise<HeroBannerRecord[]> {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/banners?active=eq.true&select=*&order=sort_order.asc,created_at.asc`,
-      { headers: supabaseServiceHeaders(), next: { revalidate: 60 } }
+      { headers: supabaseServiceHeaders(), cache: "no-store" }
     );
     return response.ok ? await response.json() : [];
   } catch { return []; }
 }
 
 export default async function HomePage() {
-  // Merge DB products with static, DB products appear first
-  const [dbProducts, heroImages, heroBanners, reviewStats] = await Promise.all([
+  // Read the same live catalogue used by the app.
+  const [dbProducts, heroImages, heroBanners, reviewStats, promotionProducts] = await Promise.all([
     getDbProducts({ activeOnly: true }),
     getHeroImages(),
     getHeroBanners(),
     getReviewStats(),
+    getDbProducts({ activeOnly: true, promotionOnly: true }),
   ]);
   const shippingConfig = shippingConfigFromSettings(heroImages);
 
@@ -143,17 +137,13 @@ export default async function HomePage() {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/ecomedia_posts?${ecomediaParams}`,
       {
         headers: supabaseServiceHeaders(),
-        next: { revalidate: 60 },
+        cache: "no-store",
       }
     );
     if (res.ok) { const rows = await res.json(); latestPost = rows[0] ?? null; }
   } catch { /* silent */ }
 
-  const dbSlugs = new Set(dbProducts.map((p) => p.slug));
-  const allProducts: CardProduct[] = [
-    ...dbProducts,
-    ...(staticProducts as CardProduct[]).filter((p) => !dbSlugs.has(p.slug)),
-  ].map((p) => ({
+  const allProducts: CardProduct[] = dbProducts.map((p) => ({
     ...p,
     rating: reviewStats[p.slug]?.rating,
     reviewCount: reviewStats[p.slug]?.count,
@@ -322,7 +312,7 @@ export default async function HomePage() {
 
       <ProductRail
         title="En promotion"
-        products={allProducts.filter((p) => p.oldPrice)}
+        products={promotionProducts.map(p => ({ ...p, rating: reviewStats[p.slug]?.rating, reviewCount: reviewStats[p.slug]?.count }))}
         cta={{ label: "Voir les promos", href: "/promotions" }}
       />
 

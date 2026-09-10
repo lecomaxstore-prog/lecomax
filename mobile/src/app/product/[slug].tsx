@@ -1,4 +1,5 @@
-import { selectedInventory, preorderSnapshot } from "@/lib/purchasability";
+import { sortProductSizes } from "@/lib/product-sizes";
+import { selectedInventory, preorderSnapshot, availableSizesForColor } from "@/lib/purchasability";
 import { PreorderNotice } from "@/components/preorder-notice";
 import { localizedContent } from "@/i18n/content";
 import { localizedError } from "@/i18n/errors";
@@ -288,18 +289,12 @@ export default function ProductScreen() {
   const wishlistEnabled = settingsMap.enable_wishlist === "true";
   const reviewsEnabled = settingsMap.enable_reviews !== "false";
   const outOfStockColors = product.out_of_stock_colors ?? [];
-  const outOfStockSizes = product.out_of_stock_sizes ?? [];
   const defaultColor =
     product.colors?.find((item) => !outOfStockColors.includes(item)) ??
     product.colors?.[0];
   const selectedColor =
     color && product.colors?.includes(color) ? color : defaultColor;
-  const colorSizes = product.color_sizes;
-  const sizesForColor = (value?: string) =>
-    (!product.preorder_enabled && value && outOfStockColors.includes(value)
-      ? []
-      : product.preorder_enabled ? product.sizes || [] : (value && colorSizes?.[value]) || product.sizes || []
-    ).filter((item) => product.preorder_enabled ? selectedInventory(product,value,item)>=0 : !outOfStockSizes.includes(item));
+  const sizesForColor = (value?: string) => availableSizesForColor(product, value);
   const availableSizes = sizesForColor(selectedColor);
   const selectedSize =
     size && availableSizes.includes(size) ? size : availableSizes[0];
@@ -612,7 +607,7 @@ export default function ProductScreen() {
                 </AnimatedPressable>
               </View>
               <View style={styles.sizes}>
-                {product.sizes?.map((item) => {
+                {sortProductSizes(product.sizes ?? []).map((item) => {
                   const selected = item === selectedSize;
                   const unavailable = !availableSizes.includes(item);
                   return (

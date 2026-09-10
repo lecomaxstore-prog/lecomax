@@ -1,30 +1,27 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useStoreRefresh } from "@/lib/use-store-refresh";
+import { useMemo, useRef, useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { products as staticProducts, apiToCard, type CardProduct } from "@/lib/products";
+import { apiToCard, type CardProduct } from "@/lib/products";
 
 export default function NouveautesPage() {
   const PRODUCTS_PER_PAGE = 10;
-  const [list, setList] = useState<CardProduct[]>(
-    staticProducts.filter((p) => p.badge === "Nouveau")
-  );
+  const [list, setList] = useState<CardProduct[]>([]);
   const [page, setPage] = useState(1);
   const productsStartRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    fetch("/api/products?active=true")
+  useStoreRefresh(async (signal) => {
+    await fetch("/api/products?active=true", { signal, cache: "no-store" })
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
           const dbCards = data.map(apiToCard);
-          const staticSlugs = new Set(dbCards.map((p) => p.slug));
-          const staticNew = staticProducts.filter((p) => p.badge === "Nouveau" && !staticSlugs.has(p.slug));
-          setList([...dbCards, ...staticNew]);
-          setPage(1);
+          setList(dbCards);
+          setPage(current => Math.max(1, Math.min(current, Math.ceil(dbCards.length / PRODUCTS_PER_PAGE))));
         }
       })
       .catch(() => {});
-  }, []);
+  });
 
   const pageCount = Math.ceil(list.length / PRODUCTS_PER_PAGE);
   const visibleProducts = useMemo(

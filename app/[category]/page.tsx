@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   categories,
-  productsByCategory,
   subCategoriesFor,
   type CardProduct,
 } from "@/lib/products";
@@ -167,17 +166,12 @@ export default async function CategoryPage({
     imageMobilePosition: dbCategory?.image_mobile_position || dbCategory?.image_position || "50% 50%",
   };
 
-  // Fetch DB products + static products, deduplicated by slug
-  const [dbProducts, staticList, reviewStats] = await Promise.all([
+  // Use only the live catalogue shared with the app.
+  const [dbProducts, reviewStats] = await Promise.all([
     getDbProducts({ category, activeOnly: true }),
-    Promise.resolve(productsByCategory(category) as CardProduct[]),
     getReviewStats(),
   ]);
-  const dbSlugs = new Set(dbProducts.map((p) => p.slug));
-  const list: CardProduct[] = [
-    ...dbProducts,
-    ...staticList.filter((p) => !dbSlugs.has(p.slug)),
-  ].map((p) => ({
+  const list: CardProduct[] = dbProducts.map((p) => ({
     ...p,
     rating: reviewStats[p.slug]?.rating,
     reviewCount: reviewStats[p.slug]?.count,

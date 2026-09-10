@@ -133,6 +133,7 @@ export async function apiRequest<T>(pathname: string, options: ApiRequestOptions
       if (token) headers.set("Authorization", `Bearer ${token}`);
       const { authenticated: _authenticated, timeoutMs: _timeoutMs, retries: _retries, ...requestOptions } = options;
       const response = await fetch(endpoint(pathname), {
+        ...(safeRequest ? { cache: "no-store" as const } : {}),
         ...requestOptions,
         signal: controller.signal,
         headers,

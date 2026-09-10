@@ -10,7 +10,7 @@ function timeoutFetch(timeoutMs: number): typeof fetch {
     const signal = init?.signal
       ? AbortSignal.any([init.signal, timeoutSignal])
       : timeoutSignal;
-    return fetch(input, { ...init, signal });
+    return fetch(input, { ...init, cache: "no-store", signal });
   };
 }
 

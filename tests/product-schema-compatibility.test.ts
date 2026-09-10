@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
+import { loadMobileModule } from './helpers/mobile-module.ts';
+
+const availability = loadMobileModule<typeof import('../mobile/src/lib/catalog-availability.ts')>('lib/catalog-availability.ts');
 
 function loadRoute(firstError: { code: string; message: string } | null) {
   const selections: string[] = [];
@@ -17,7 +20,7 @@ function loadRoute(firstError: { code: string; message: string } | null) {
       requests++;
       resolve(requests === 1 && firstError
         ? { data: null, error: firstError }
-        : { data: [{ slug: 'running-shoe' }], error: null });
+        : { data: [{ slug: 'running-shoe', active: true, stock: 2, sizes: ['42', '43'], tags: ['__sstock:42:0', '__sstock:43:2'] }], error: null });
     },
   };
   const exports: Record<string, any> = {};
@@ -29,6 +32,7 @@ function loadRoute(firstError: { code: string; message: string } | null) {
     require(name: string) {
       if (name === 'next/server') return { NextResponse: { json: (body: unknown, options?: { status?: number }) => ({ body, status: options?.status ?? 200 }) } };
       if (name === '@supabase/supabase-js') return { createClient: () => ({ from: () => query }) };
+      if (name === '@/mobile/src/lib/catalog-availability') return availability;
       return {};
     },
   });
@@ -45,6 +49,8 @@ test('legacy product schema preserves public fields, category and limit on retry
   assert.ok(!route.selections[1].includes('*'));
   assert.ok(!route.selections[1].includes('created_by'));
   assert.deepEqual(route.filters, [['category', 'chaussures'], ['active', true], ['limit', 2]]);
+  assert.equal(result.body[0].purchasable, true);
+  assert.deepEqual(Array.from(result.body[0].out_of_stock_sizes), ['42']);
 });
 
 test('migrated product schema retains preorder fields without a retry', async () => {

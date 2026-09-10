@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import vm from 'node:vm';
 import ts from 'typescript';
 import { writeProductWithSchemaCompatibility, productWriteError } from '../lib/product-schema-compatibility.ts';
@@ -41,7 +41,8 @@ for (const method of ['POST', 'PUT']) {
         compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
       }).outputText, { exports, console, process: { env: {} }, require: (name: string) => {
         if (name in mocks) return mocks[name];
-        return load(name.replace('@/', '') + '.ts');
+        const dependency = name.startsWith('@/') ? resolve(name.slice(2)) : resolve(dirname(path), name);
+        return load(dependency.endsWith('.ts') ? dependency : dependency + '.ts');
       } });
       return exports;
     }

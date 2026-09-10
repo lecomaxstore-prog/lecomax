@@ -1,26 +1,23 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useStoreRefresh } from "@/lib/use-store-refresh";
+import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { products as staticProducts, apiToCard, type CardProduct } from "@/lib/products";
+import { apiToCard, type CardProduct } from "@/lib/products";
 
 export default function BestsellersPage() {
-  const [list, setList] = useState<CardProduct[]>(
-    staticProducts.filter((p) => p.badge === "Bestseller")
-  );
+  const [list, setList] = useState<CardProduct[]>([]);
 
-  useEffect(() => {
-    fetch("/api/products?active=true")
+  useStoreRefresh(async (signal) => {
+    await fetch("/api/products?active=true", { signal, cache: "no-store" })
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
           const dbFeatured = data.filter((p: { featured: boolean }) => p.featured).map(apiToCard);
-          const staticSlugs = new Set(dbFeatured.map((p) => p.slug));
-          const staticBest = staticProducts.filter((p) => p.badge === "Bestseller" && !staticSlugs.has(p.slug));
-          setList([...dbFeatured, ...staticBest]);
+          setList(dbFeatured);
         }
       })
       .catch(() => {});
-  }, []);
+  });
 
   return (
     <div>
