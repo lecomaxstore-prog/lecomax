@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "./CartContext";
 import { useProductColor } from "./ProductColorContext";
 import SizeGuideModal from "./SizeGuideModal";
+import { productSizeGuideFromTags } from "@/mobile/src/lib/product-size-guide";
 import type { Product } from "@/lib/products";
 import { trackAddToCart } from "@/lib/analytics";
 import { useWishlist } from "./WishlistContext";
@@ -707,6 +708,7 @@ export default function ProductActions({
 
       {sizeGuideOpen && (
         <SizeGuideModal
+          customGuide={productSizeGuideFromTags(product.tags)}
           open
           onClose={() => {
             sizeGuideIntentRef.current = false;

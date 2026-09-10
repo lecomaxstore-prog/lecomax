@@ -34,6 +34,7 @@ import { ProductGallery } from "@/components/product-gallery";
 import { ProductReviews } from "@/components/product-reviews";
 import { useProductImage } from "@/hooks/use-product-image";
 import { ShoeSizeGuide } from "@/components/shoe-size-guide";
+import { productSizeGuideFromTags } from "@/lib/product-size-guide";
 import { palette, typography } from "@/constants/theme";
 import {
   useProducts,
@@ -775,6 +776,7 @@ export default function ProductScreen() {
         </View>
 
         <ShoeSizeGuide
+          customGuide={productSizeGuideFromTags(product.tags)}
           open={sizeGuideOpen}
           onClose={() => setSizeGuideOpen(false)}
           productSizes={product.sizes ?? []}

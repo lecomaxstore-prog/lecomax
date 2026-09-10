@@ -1,6 +1,7 @@
 "use client";
 import { DEFAULT_SHOE_GUIDE, completeShoeGuide, normalizeShoeSize } from "@/lib/shoe-size-guide";
 import { STORE_REFRESH_EVENT } from "@/mobile/src/lib/store-sync";
+import type { ProductSizeGuide } from "@/mobile/src/lib/product-size-guide";
 
 import { useEffect, useRef, useState } from "react";
 
@@ -24,12 +25,14 @@ export default function SizeGuideModal({
   type = "chaussures",
   availableSizes = [],
   selectedSize,
+  customGuide,
 }: {
   open: boolean;
   onClose: () => void;
   type?: "chaussures" | "vetements";
   availableSizes?: string[];
   selectedSize?: string;
+  customGuide?: ProductSizeGuide | null;
 }) {
   const [shoesSizes, setShoesSizes]       = useState<ShoeRow[]>(DEFAULT_SHOES);
   const [clothingSizes, setClothingSizes] = useState<ClothingRow[]>(DEFAULT_CLOTHING);
@@ -44,7 +47,7 @@ export default function SizeGuideModal({
     return () => clearTimeout(timeout);
   }, [open, selectedSize, shoesSizes]);
   useEffect(() => {
-    if (!open) return;
+    if (!open || customGuide) return;
     const controller = new AbortController();
     const refresh = () => { void fetch("/api/size-guide", { cache: "no-store", signal: controller.signal })
       .then((r) => { if (!r.ok) throw new Error("Size guide unavailable"); return r.json(); })
@@ -56,7 +59,7 @@ export default function SizeGuideModal({
     refresh();
     window.addEventListener(STORE_REFRESH_EVENT, refresh);
     return () => { controller.abort(); window.removeEventListener(STORE_REFRESH_EVENT, refresh); };
-  }, [open]);
+  }, [open, customGuide]);
 
   useEffect(() => {
     if (!open) return;
@@ -94,7 +97,7 @@ export default function SizeGuideModal({
         <div className="flex items-center justify-between px-6 pt-6 pb-5 border-b border-neutral-100">
           <div>
             <p className="text-[10px] uppercase tracking-[0.25em] text-neutral-400 mb-0.5">L&apos;ecomax</p>
-            <h2 className="font-black text-xl">Guide des tailles</h2>
+            <h2 className="font-black text-xl">{customGuide?.title || "Guide des tailles"}</h2>
           </div>
           <button
             onClick={onClose}
@@ -167,7 +170,7 @@ export default function SizeGuideModal({
             )}
           </div>
 
-          {type === "chaussures" && (
+          {!customGuide && type === "chaussures" && (
             <p className="px-6 pb-4 text-xs text-neutral-500">Demi-pointures incluses. « ≈ » indique une estimation entre les mesures du guide ; « — », une mesure indisponible. La correspondance peut varier selon le modèle.</p>
           )}
 
@@ -177,11 +180,19 @@ export default function SizeGuideModal({
           {/* Size table */}
           <div className="px-6 py-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-4">
-              {type === "chaussures" ? "Tableau des pointures" : "Tableau des tailles"}
+              {customGuide?.title || (type === "chaussures" ? "Tableau des pointures" : "Tableau des tailles")}
             </p>
 
             <div className="rounded-2xl overflow-hidden border border-neutral-200">
-              {type === "chaussures" ? (
+              {customGuide ? (
+                <table className="w-full table-fixed text-sm text-center">
+                  <thead><tr className="bg-black text-white">{customGuide.columns.map((column, i) => <th key={i} className="break-words px-2 py-3">{column}</th>)}</tr></thead>
+                  <tbody>{customGuide.rows.map((row, i) => {
+                    const selected = !!selectedSize && normalizeShoeSize(row[0]) === normalizeShoeSize(selectedSize);
+                    return <tr key={i} ref={selected ? selectedRowRef : undefined} className={selected ? "bg-green-50 font-semibold" : i % 2 ? "bg-neutral-50" : "bg-white"}>{row.map((cell, j) => <td key={j} className="break-words px-2 py-3">{cell || "—"}</td>)}</tr>;
+                  })}</tbody>
+                </table>
+              ) : type === "chaussures" ? (
                 <table className="w-full text-sm text-center">
                   <thead>
                     <tr className="bg-black text-white text-[11px] uppercase tracking-wider">

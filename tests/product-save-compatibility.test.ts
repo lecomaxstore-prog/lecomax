@@ -5,6 +5,7 @@ import { dirname, resolve } from 'node:path';
 import vm from 'node:vm';
 import ts from 'typescript';
 import { writeProductWithSchemaCompatibility, productWriteError } from '../lib/product-schema-compatibility.ts';
+import { withProductSizeGuide, productSizeGuideFromTags, type ProductSizeGuide } from '../mobile/src/lib/product-size-guide.ts';
 
 const defaults = { preorder_enabled: false, preorder_estimated_at: null, preorder_message: null };
 const missing = (field: string) => ({ code: 'PGRST204', message: `Could not find the '${field}' column of 'products' in the schema cache` });
@@ -47,14 +48,16 @@ for (const method of ['POST', 'PUT']) {
       return exports;
     }
     const route = load(method === 'POST' ? 'app/api/products/route.ts' : 'app/api/products/[id]/route.ts');
+    const guide: ProductSizeGuide = { title: 'Guide fabricant', columns: ['EU', 'US', 'UK', 'CM'], rows: [['44', '10', '9', '28'], ['44.5', '', '9.5', '28.5']], note: 'Mesures exactes' };
     const response = await route[method]({ json: async () => ({
       ...defaults, name: 'Test shoe', slug: 'test-shoe', price: 100, category: 'chaussures',
-      sizes: ['44', '44.5', '41'], tags: [], colors: [], color_stock: {},
+      sizes: ['44', '44.5', '41'], tags: withProductSizeGuide([], guide), colors: [], color_stock: {},
       size_guide_type: 'shoes', size_stock: { '44': 0, '44.5': 1, '41': 0 },
     }) }, { params: Promise.resolve({ id: stored.id }) });
     assert.equal(response.status, method === 'POST' ? 201 : 200);
     const product = await response.json();
     assert.equal(product.stock, 1);
+    assert.deepEqual(productSizeGuideFromTags(product.tags), guide);
     assert.deepEqual(product.sizes, ['44', '44.5', '41']);
     for (const tag of ['__sstock:44:0', '__sstock:44.5:1', '__sstock:41:0']) assert.ok(product.tags.includes(tag));
     assert.equal(writes.length, 4);
