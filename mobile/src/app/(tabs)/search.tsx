@@ -26,6 +26,7 @@ import { Screen } from "@/components/screen";
 import { SearchProductCard } from "@/components/search-product-card";
 import { typography } from "@/constants/theme";
 import { useCategories, useProducts, useSettings } from "@/hooks/use-catalog";
+import { useScrollReturn } from "@/hooks/use-scroll-return";
 import { categoryCampaignImage } from "@/lib/category-campaign-images";
 import { imageUrl, money } from "@/lib/format";
 import { useCommerceStore } from "@/stores/commerce";
@@ -69,6 +70,8 @@ export default function SearchScreen() {
   const [sort, setSort] = useState<Sort>("popular");
   const [stockOnly, setStockOnly] = useState(false);
   const [promotionOnly, setPromotionOnly] = useState(false);
+  const listRef = useRef<FlatList<Product>>(null);
+  const scrollReturn = useScrollReturn(listRef, JSON.stringify([debouncedQuery, sort, stockOnly, promotionOnly]));
 
   const interceptAndroidBack = useCallback(() => {
     if (focused) {
@@ -231,6 +234,8 @@ export default function SearchScreen() {
   return (
     <Screen>
       <FlatList
+        ref={listRef}
+        {...scrollReturn}
         data={productsQuery.isPending ? [] : products}
         keyExtractor={(item) => item.id}
         renderItem={renderProduct}

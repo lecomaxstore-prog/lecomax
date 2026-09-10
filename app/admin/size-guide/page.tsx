@@ -1,4 +1,5 @@
 "use client";
+import { DEFAULT_SHOE_GUIDE } from "@/lib/shoe-size-guide";
 import AdminLoading from "@/components/admin/AdminLoading";
 import ResponsiveTable from "@/components/admin/ResponsiveTable";
 import { useEffect, useState, useCallback } from "react";
@@ -15,17 +16,7 @@ const CLOTHING_DEFAULTS: ClothingRow[] = [
   { label: "XXL", fr: "44-46", poitrine: "104-110", taille: "84-90" },
 ];
 
-const SHOES_DEFAULTS: ShoeRow[] = [
-  { eu: "38", us: "6",   uk: "5",   cm: "24.0" },
-  { eu: "39", us: "6.5", uk: "5.5", cm: "24.5" },
-  { eu: "40", us: "7",   uk: "6",   cm: "25.0" },
-  { eu: "41", us: "7.5", uk: "6.5", cm: "25.5" },
-  { eu: "42", us: "8.5", uk: "7.5", cm: "26.5" },
-  { eu: "43", us: "9.5", uk: "8.5", cm: "27.5" },
-  { eu: "44", us: "10",  uk: "9",   cm: "28.0" },
-  { eu: "45", us: "11",  uk: "10",  cm: "29.0" },
-  { eu: "46", us: "12",  uk: "11",  cm: "30.0" },
-];
+const SHOES_DEFAULTS = DEFAULT_SHOE_GUIDE;
 
 function TableEditor<T extends Record<string, string>>({
   title,

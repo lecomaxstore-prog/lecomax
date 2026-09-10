@@ -38,7 +38,6 @@ const cols = [
     title: "Société",
     links: [
       { label: "À propos", href: "/a-propos/" },
-      { label: "Carrières", href: "/carrieres/" },
       { label: "Notre boutique", href: "/boutiques/" },
       { label: "ecoClub", href: "/ecoclub/" },
     ],

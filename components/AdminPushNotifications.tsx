@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const VAPID_PUBLIC_KEY = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "").replace(/\s+/g, "");
 const STORAGE_KEY = "lecomax_admin_push_enabled";
 const SERVICE_WORKER_URL = "/sw.js";
 const PUSH_TIMEOUT_MS = 20_000;
 
-type PushState = "checking" | "off" | "on" | "loading" | "denied" | "unsupported" | "error";
+type PushState = "checking" | "off" | "on" | "loading" | "denied" | "unsupported" | "unconfigured" | "error";
 
 function urlBase64ToUint8Array(value: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (value.length % 4)) % 4);
@@ -31,7 +31,10 @@ function waitForActiveWorker(registration: ServiceWorkerRegistration) {
   if (!worker) return navigator.serviceWorker.ready;
 
   return new Promise<ServiceWorkerRegistration>((resolve, reject) => {
-    const timeout = window.setTimeout(() => reject(new Error("Le service de notifications met trop de temps à démarrer.")), PUSH_TIMEOUT_MS);
+    const timeout = window.setTimeout(() => {
+      worker.removeEventListener("statechange", onStateChange);
+      reject(new Error("Le service de notifications met trop de temps à démarrer."));
+    }, PUSH_TIMEOUT_MS);
     const onStateChange = () => {
       if (worker.state === "activated") {
         window.clearTimeout(timeout);
@@ -44,6 +47,7 @@ function waitForActiveWorker(registration: ServiceWorkerRegistration) {
       }
     };
     worker.addEventListener("statechange", onStateChange);
+    onStateChange();
   });
 }
 
@@ -97,11 +101,31 @@ export default function AdminPushNotifications() {
   const [state, setState] = useState<PushState>("checking");
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [testing, setTesting] = useState(false);
+  const [lastChecked, setLastChecked] = useState<string | null>(null);
+  const busy = useRef(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement;
+    const dialog = dialogRef.current;
+    dialog?.showModal();
+    return () => {
+      dialog?.close();
+      if (previous instanceof HTMLElement) previous.focus();
+    };
+  }, [open]);
 
   useEffect(() => {
     let cancelled = false;
     async function check() {
-      if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window) || !VAPID_PUBLIC_KEY) {
+      if (busy.current || document.visibilityState === "hidden") return;
+      if (!VAPID_PUBLIC_KEY) {
+        if (!cancelled) setState("unconfigured");
+        return;
+      }
+      if (!window.isSecureContext || !("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) {
         if (!cancelled) setState("unsupported");
         return;
       }
@@ -113,30 +137,56 @@ export default function AdminPushNotifications() {
         if (!cancelled) setState("off");
         return;
       }
+      busy.current = true;
       try {
         const registration = await registerPushWorker();
-        const subscription = await registration.pushManager.getSubscription();
-        if (!subscription) {
-          localStorage.removeItem(STORAGE_KEY);
+        if (Notification.permission !== "granted") {
           if (!cancelled) setState("off");
           return;
         }
+        const key = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+        let subscription = await registration.pushManager.getSubscription();
+        if (subscription && !sameApplicationServerKey(subscription, key)) {
+          await subscription.unsubscribe();
+          subscription = null;
+        }
+        subscription ??= await subscribeWithTimeout(registration, key);
         const response = await fetch("/api/admin/push-subscribe", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(subscription.toJSON()),
+          signal: AbortSignal.timeout(PUSH_TIMEOUT_MS),
         });
-        if (!response.ok) throw new Error("Synchronisation impossible");
-        if (!cancelled) setState("on");
-      } catch {
-        if (!cancelled) setState("error");
+        if (!response.ok) throw new Error(response.status === 401 ? "Reconnectez-vous au panneau admin pour rétablir les alertes." : "Synchronisation impossible. Une nouvelle tentative sera faite à la reconnexion.");
+        registration.active?.postMessage({ type: "RETRY_PUSH_RENEWAL" });
+        if (!cancelled) {
+          setState("on");
+          setMessage(null);
+          setLastChecked(new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }));
+        }
+      } catch (error) {
+        if (!cancelled) { setState("error"); setMessage(friendlyPushError(error)); }
+      } finally {
+        busy.current = false;
       }
     }
     void check();
-    return () => { cancelled = true; };
+    window.addEventListener("online", check);
+    window.addEventListener("focus", check);
+    document.addEventListener("visibilitychange", check);
+    const interval = window.setInterval(check, 5 * 60_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      window.removeEventListener("online", check);
+      window.removeEventListener("focus", check);
+      document.removeEventListener("visibilitychange", check);
+    };
   }, []);
 
   async function enable() {
+    if (busy.current) return;
+    busy.current = true;
     setState("loading");
     setMessage(null);
     try {
@@ -164,12 +214,8 @@ export default function AdminPushNotifications() {
       } catch (firstError) {
         if (!isRecoverablePushError(firstError)) throw firstError;
 
-        // Android/Chromium can retain a broken FCM registration. Reinstalling the
-        // dedicated worker once clears that stale state without repeatedly prompting.
-        const staleSubscription = await registration.pushManager.getSubscription().catch(() => null);
-        if (staleSubscription) await staleSubscription.unsubscribe().catch(() => false);
-        await registration.unregister();
-        await new Promise((resolve) => window.setTimeout(resolve, 900));
+        // This worker is shared with customer notifications; never unregister it.
+        await registration.update().catch(() => undefined);
         registration = await registerPushWorker();
         subscription = await subscribeWithTimeout(registration, applicationServerKey);
       }
@@ -178,32 +224,38 @@ export default function AdminPushNotifications() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(subscription.toJSON()),
+        signal: AbortSignal.timeout(PUSH_TIMEOUT_MS),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Activation impossible");
       localStorage.setItem(STORAGE_KEY, "1");
       setState("on");
+      setLastChecked(new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }));
       setMessage("Notifications activées sur cet appareil.");
     } catch (error) {
       setState("error");
-      localStorage.removeItem(STORAGE_KEY);
       setMessage(friendlyPushError(error));
+    } finally {
+      busy.current = false;
     }
   }
 
   async function disable() {
+    if (busy.current) return;
+    busy.current = true;
     setState("loading");
     setMessage(null);
     try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
+      const registration = await navigator.serviceWorker.getRegistration("/");
+      const subscription = await registration?.pushManager.getSubscription();
       if (subscription) {
-        await fetch("/api/admin/push-subscribe", {
+        const response = await fetch("/api/admin/push-subscribe", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ endpoint: subscription.endpoint }),
+          signal: AbortSignal.timeout(PUSH_TIMEOUT_MS),
         });
-        await subscription.unsubscribe();
+        if (!response.ok) throw new Error("Désactivation impossible");
       }
       localStorage.removeItem(STORAGE_KEY);
       setState("off");
@@ -211,18 +263,32 @@ export default function AdminPushNotifications() {
     } catch {
       setState("error");
       setMessage("Impossible de désactiver les notifications.");
+    } finally {
+      busy.current = false;
     }
   }
 
   async function sendTest() {
+    if (testing) return;
+    setTesting(true);
     setMessage("Envoi du test…");
     try {
-      const response = await fetch("/api/admin/push-test", { method: "POST" });
+      const registration = await navigator.serviceWorker.getRegistration("/");
+      const subscription = await registration?.pushManager.getSubscription();
+      if (!subscription) throw new Error("Réactivez les alertes sur cet appareil avant de lancer le test.");
+      const response = await fetch("/api/admin/push-test", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ endpoint: subscription.endpoint }),
+        signal: AbortSignal.timeout(PUSH_TIMEOUT_MS),
+      });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Échec du test");
-      setMessage(result.sent > 0 ? "Notification test envoyée ✓" : "Aucun appareil admin enregistré.");
+      if (!result.sent) throw new Error("Le test n’a pas été accepté. Réactivez les alertes puis réessayez.");
+      setMessage("Test transmis à cet appareil. Vérifiez sa réception dans vos notifications.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Échec du test");
+    } finally {
+      setTesting(false);
     }
   }
 
@@ -236,13 +302,14 @@ export default function AdminPushNotifications() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/45 p-3 backdrop-blur-sm sm:items-center" onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
-          <div role="dialog" aria-modal="true" aria-labelledby="admin-push-title" className="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl">
-            <div className="relative bg-neutral-950 px-5 py-5 text-white sm:px-6">
-              <button onClick={() => setOpen(false)} aria-label="Fermer" className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m18 6-12 12M6 6l12 12"/></svg></button>
-              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#3ecf4c] text-black"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></div>
-              <h2 id="admin-push-title" className="text-lg font-black">Alertes admin sur cet appareil</h2>
-              <p className="mt-1 pr-8 text-xs leading-relaxed text-white/60">Recevez les commandes et demandes clients même lorsque le panneau admin est fermé.</p>
+          <dialog ref={dialogRef} aria-labelledby="admin-push-title" aria-describedby="admin-push-description"
+            onCancel={(event) => { event.preventDefault(); setOpen(false); }}
+            className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto overscroll-contain rounded-3xl border border-neutral-200 bg-white p-0 text-neutral-900 shadow-2xl backdrop:bg-black/50 backdrop:backdrop-blur-sm">
+            <div className="relative bg-[#173c2c] px-5 py-5 text-white sm:px-6">
+              <button type="button" onClick={() => setOpen(false)} aria-label="Fermer les alertes admin" className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 hover:bg-white/15 hover:text-white"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m18 6-12 12M6 6l12 12"/></svg></button>
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-[#c0dec9]"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></div>
+              <h2 id="admin-push-title" className="pr-8 text-xl font-semibold tracking-tight">Vos alertes admin</h2>
+              <p id="admin-push-description" className="mt-2 text-sm leading-relaxed text-white/70">Commandes et demandes clients, même lorsque le panneau admin est fermé.</p>
             </div>
             <div className="p-5 sm:p-6">
               <div className="grid grid-cols-3 gap-2">
@@ -250,28 +317,30 @@ export default function AdminPushNotifications() {
               </div>
 
               {state === "denied" && <div className="mt-4 rounded-xl border border-red-100 bg-red-50 p-3 text-xs leading-relaxed text-red-700">Les notifications sont bloquées dans le navigateur. Autorisez-les dans les réglages du site, puis rechargez cette page.</div>}
-              {state === "unsupported" && <div className="mt-4 rounded-xl border border-amber-100 bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">Sur iPhone, ajoutez d&apos;abord L&apos;ecomax à l&apos;écran d&apos;accueil depuis Safari, ouvrez l&apos;application installée, puis activez les alertes ici.</div>}
-              {message && <div className={`mt-4 rounded-xl p-3 text-center text-xs font-semibold ${state === "error" ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}>{message}</div>}
+              {state === "unsupported" && <div className="mt-4 rounded-xl border border-amber-100 bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">Ouvrez le site en HTTPS dans un navigateur compatible. Sur iPhone, ajoutez L&apos;ecomax à l&apos;écran d&apos;accueil depuis Safari, puis ouvrez l&apos;application installée.</div>}
+              {state === "unconfigured" && <p className="mt-4 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">Le service de notifications n’est pas configuré sur cette version du site.</p>}
+              {message && <div role="status" aria-live="polite" className={`mt-4 rounded-xl p-3 text-xs leading-relaxed ${state === "error" ? "bg-red-50 text-red-700" : "bg-neutral-50 text-neutral-700"}`}>{message}</div>}
 
               <div className="mt-5 flex flex-col gap-2">
                 {isOn ? (
                   <>
                     <div className="flex items-center justify-center gap-2 rounded-xl bg-emerald-50 py-3 text-xs font-black text-emerald-700"><span className="h-2 w-2 rounded-full bg-emerald-500"/>Alertes actives sur cet appareil</div>
-                    <button onClick={sendTest} className="rounded-xl bg-black px-4 py-3 text-xs font-black text-white hover:bg-neutral-800">Envoyer une notification test</button>
-                    <button onClick={disable} className="py-2 text-xs font-semibold text-neutral-400 hover:text-red-600">Désactiver sur cet appareil</button>
+                    {lastChecked && <p className="text-center text-[11px] text-neutral-500">Connexion vérifiée à {lastChecked}</p>}
+                    <button type="button" onClick={sendTest} disabled={testing} className="min-h-12 rounded-xl bg-[#173c2c] px-4 py-3 text-sm font-semibold text-white hover:bg-[#20533d] disabled:opacity-50">{testing ? "Envoi en cours…" : "Tester sur cet appareil"}</button>
+                    <button type="button" onClick={disable} disabled={testing} className="min-h-11 py-2 text-xs font-semibold text-neutral-500 hover:text-red-600">Désactiver sur cet appareil</button>
                   </>
                 ) : (
-                  <button onClick={enable} disabled={state === "loading" || state === "denied" || state === "unsupported"}
-                    className="flex items-center justify-center gap-2 rounded-xl bg-black px-4 py-3 text-xs font-black text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40">
+                  <button type="button" onClick={enable} disabled={["loading", "checking", "denied", "unsupported", "unconfigured"].includes(state)}
+                    className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#173c2c] px-4 py-3 text-sm font-semibold text-white hover:bg-[#20533d] disabled:cursor-not-allowed disabled:opacity-40">
                     {state === "loading" && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white"/>}
-                    {state === "loading" ? "Activation…" : "Activer les alertes admin"}
+                    {state === "loading" ? "Mise à jour…" : state === "checking" ? "Vérification…" : state === "error" ? "Rétablir les alertes" : "Activer sur cet appareil"}
                   </button>
                 )}
               </div>
-              <p className="mt-4 text-center text-[9px] leading-relaxed text-neutral-400">Activez séparément chaque téléphone ou ordinateur sur lequel vous souhaitez recevoir les alertes.</p>
+              <p className="mt-4 text-xs leading-relaxed text-neutral-500">Autorisez les notifications et l’activité en arrière-plan dans les réglages du téléphone. Le mode Ne pas déranger et les économies de batterie peuvent retarder les alertes.</p>
+              <p className="mt-3 text-[11px] leading-relaxed text-neutral-400">Activez les alertes sur chaque appareil souhaité. La connexion est vérifiée automatiquement à votre retour et après une reconnexion.</p>
             </div>
-          </div>
-        </div>
+          </dialog>
       )}
     </>
   );

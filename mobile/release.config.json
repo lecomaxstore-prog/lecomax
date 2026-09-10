@@ -1,15 +1,14 @@
 {
-  "versionName": "1.0.4",
-  "versionCode": 17,
+  "versionName": "1.0.5",
+  "versionCode": 21,
   "minimumAndroidVersion": "8.0",
-  "apkFileName": "lecomax-v1.0.4.apk",
+  "apkFileName": "lecomax-v1.0.5.apk",
   "required": false,
   "releaseNotes": [
-    "En-tête produit professionnel avec logo parfaitement centré et actions équilibrées.",
-    "Le bouton Retour Android conserve l’historique des pages et ne ferme plus l’application.",
-    "Nouveau centre de notifications avec offres, nouveautés et informations importantes.",
-    "Navigation améliorée sur téléphone et tablette, avec grilles adaptatives.",
-    "Protection renforcée des données locales et meilleure fiabilité des API.",
-    "Chargement du catalogue optimisé et réduction des appels réseau inutiles."
+    "Nouvelle interface de la boutique, adaptée aux téléphones et tablettes.",
+    "Fiches produits, recherche, panier et parcours de commande améliorés.",
+    "Comptes clients, notifications et assistance avec pièces jointes améliorés.",
+    "Synchronisation des prix et des paramètres avec la boutique en ligne.",
+    "Corrections de navigation et de fiabilité du chargement."
   ]
 }

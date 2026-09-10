@@ -5,6 +5,7 @@ import process from "node:process";
 import { createClient } from "@supabase/supabase-js";
 import * as tus from "tus-js-client";
 import { supabaseUrl, serviceRoleKey } from "./supabase-admin-env.mjs";
+import { trustedApkArtifact } from "../lib/app-release-hosts.ts";
 
 const root = path.resolve(import.meta.dirname, "..");
 const config = JSON.parse(
@@ -26,10 +27,9 @@ const externalArtifactUrl = process.env.ANDROID_EXTERNAL_URL
   : null;
 if (
   externalArtifactUrl &&
-  (externalArtifactUrl.protocol !== "https:" ||
-    externalArtifactUrl.hostname !== "expo.dev")
+  !trustedApkArtifact(externalArtifactUrl.href)
 ) {
-  throw new Error("ANDROID_EXTERNAL_URL must be an HTTPS expo.dev artifact URL.");
+  throw new Error("ANDROID_EXTERNAL_URL must be an official Expo or Lecomax GitHub APK artifact URL.");
 }
 const storagePath = externalArtifactUrl
   ? `external:${externalArtifactUrl.href}`

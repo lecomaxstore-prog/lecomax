@@ -24,6 +24,8 @@ import { useAppViewport } from "@/components/app-viewport";
 import { ProductSkeleton } from "@/components/skeleton";
 import { palette, typography } from "@/constants/theme";
 import { useCategories, useProducts } from "@/hooks/use-catalog";
+import { useScrollReturn } from "@/hooks/use-scroll-return";
+import type { Product } from "@/types/commerce";
 import { useT } from "@/lib/i18n";
 import { productGridColumns, TABLET_NAV_RAIL } from "@/lib/responsive";
 
@@ -77,6 +79,8 @@ function CatalogContent({
   const [filtersOpen, setFiltersOpen] = useState(params.filters === "open");
   const [searchFocused, setSearchFocused] = useState(false);
   const searchInputRef = useRef<TextInput>(null);
+  const listRef = useRef<FlatList<Product>>(null);
+  const scrollReturn = useScrollReturn(listRef, JSON.stringify([category, sort, query, stockOnly, promotionOnly]));
 
   const interceptAndroidBack = useCallback(() => {
     if (searchFocused) {
@@ -364,6 +368,8 @@ function CatalogContent({
       ) : null}
 
       <FlatList
+        ref={listRef}
+        {...scrollReturn}
         key={`catalog-${columns}`}
         data={isLoading ? [] : products}
         numColumns={columns}

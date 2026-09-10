@@ -863,7 +863,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           ${open ? "visible translate-x-0 shadow-2xl" : "invisible -translate-x-full pointer-events-none"} lg:visible lg:pointer-events-auto`}>
 
         {/* Brand header */}
-        <div className="px-4 py-4 border-b border-white/[0.07] flex items-center gap-3 shrink-0">
+        <div className="admin-drawer-brand px-4 py-4 border-b border-white/[0.07] flex items-center gap-3 shrink-0">
           <img
             src="/favicon.png?v=5"
             alt="L'ecomax"
@@ -874,8 +874,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex-1 min-w-0">
             <p className="font-black text-[13px] tracking-wide truncate">L&apos;ECOMAX</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf4c] animate-pulse" />
-              <p className="text-white/30 text-[10px] font-medium">Panel Admin · {now}</p>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#90bda0]" />
+              <p className="text-white/30 text-[10px] font-medium">Administration · {now}</p>
             </div>
           </div>
           <button
@@ -919,7 +919,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Quick actions */}
         {!search && (canSee("/admin/orders") || canSee("/admin/messages")) && (
-          <div className="px-3 pb-2 shrink-0">
+          <div className="admin-drawer-shortcuts px-3 pb-2 shrink-0">
             <div className={`grid gap-1.5 ${canSee("/admin/orders") && canSee("/admin/messages") ? "grid-cols-2" : "grid-cols-1"}`}>
               {canSee("/admin/orders") && <Link href="/admin/orders" onClick={closeDrawer}
                 aria-current={pathname.startsWith("/admin/orders") ? "page" : undefined}
@@ -954,7 +954,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         )}
 
         {/* Nav */}
-        <nav aria-label="Sections de l’administration" aria-busy={permissionState.status === "loading"} className="min-h-0 flex-1 space-y-0 overflow-y-auto overscroll-contain px-3 py-1.5">
+        <nav aria-label="Sections de l’administration" aria-busy={permissionState.status === "loading"} className="admin-drawer-navigation min-h-0 flex-1 space-y-0 overflow-y-auto overscroll-contain px-3 py-1.5">
           {search ? (
             <div className="space-y-1 py-1">
               {allNavItems.length === 0 && (
@@ -988,7 +988,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             if (items.length === 0) return null;
             return (
               <div key={section.title} className="mb-1.5">
-                <div className="flex items-center gap-2 px-2 pb-1.5 pt-3.5">
+                <div className="admin-drawer-section-heading flex items-center gap-2 px-2 pb-1.5 pt-3.5">
                   <span className="h-1 w-1 rounded-full bg-[#3ecf4c]/80 shadow-[0_0_8px_rgba(62,207,76,.45)]" />
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30">{section.title}</p>
                   <span className="h-px flex-1 bg-gradient-to-r from-white/[.07] to-transparent" />
@@ -1021,7 +1021,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Footer */}
-        <div className="shrink-0 space-y-1.5 border-t border-white/[0.07] bg-black/10 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:pb-3">
+        <div className="admin-drawer-footer shrink-0 space-y-1.5 border-t border-white/[0.07] bg-black/10 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:pb-3">
           <Link href="/" target="_blank" rel="noreferrer"
             className="group flex min-h-12 items-center gap-2.5 rounded-[14px] border border-transparent px-2 py-2 text-[12px] font-semibold text-white/55 transition-all hover:border-[#3ecf4c]/15 hover:bg-[#3ecf4c]/[.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c]">
             <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/[.045] text-white/35 transition group-hover:bg-[#3ecf4c]/15 group-hover:text-[#66e875]"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>

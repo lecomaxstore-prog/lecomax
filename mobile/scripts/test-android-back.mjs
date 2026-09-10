@@ -71,3 +71,50 @@ for (const scenario of scenarios) {
   assert.deepEqual(calls, scenario.expected, scenario.name);
 }
 console.log(`Passed ${scenarios.length} Android back-controller scenarios.`);
+
+const { createScrollReturn: createPosition } = loadModule('../src/lib/scroll-return.ts');
+function createScrollReturn(scrollTo) {
+  const position = createPosition();
+  return { ...position, restore() {
+    const offset = position.restore();
+    if (offset !== undefined) scrollTo(offset);
+  } };
+}
+const restored = [];
+const position = createScrollReturn(offset => restored.push(offset));
+position.focus();
+position.restore();
+position.record(0);
+position.beginDrag();
+position.record(1846);
+position.blur();
+position.record(0); // Android detaches the background list.
+position.restore();
+assert.deepEqual(restored, [0], 'An unfocused screen must never scroll');
+position.focus();
+position.record(0); // Reattachment arrives before content layout.
+position.restore();
+position.record(320); // An incomplete/loading list clamps the offset.
+position.restore(); // Retry when full content arrives.
+assert.deepEqual(restored, [0, 1846, 1846], 'Back must restore the exact departure offset after data loads');
+position.record(1846);
+position.restore();
+assert.equal(restored.length, 3, 'Finished restoration must not fight later layout changes');
+position.blur();
+position.focus();
+position.beginDrag();
+position.record(920);
+position.restore();
+assert.equal(restored.length, 3, 'User scrolling cancels a pending restoration');
+position.blur();
+position.focus();
+position.restore();
+assert.equal(restored.at(-1), 920, 'A second Back restores the latest position');
+const otherScreen = createScrollReturn(offset => restored.push(offset));
+otherScreen.focus();
+otherScreen.restore();
+assert.equal(restored.at(-1), 0, 'New routes and changed filters must not inherit another list position');
+position.record(Number.NaN);
+position.restore();
+assert.equal(restored.at(-1), 920, 'Invalid native offsets cannot erase the saved position');
+console.log('Passed scroll-return scenarios: background detach, delayed content, exact offset, repeated Back, user override, and independent routes.');

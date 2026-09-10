@@ -1,3 +1,4 @@
+import { DEFAULT_SHOE_GUIDE, completeShoeGuide } from "@/lib/shoe-size-guide";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
@@ -19,17 +20,7 @@ const DEFAULT_CLOTHING = [
   { label: "XXL", fr: "44-46", poitrine: "104-110", taille: "84-90" },
 ];
 
-const DEFAULT_SHOES = [
-  { eu: "38", us: "6",   uk: "5",   cm: "24.0" },
-  { eu: "39", us: "6.5", uk: "5.5", cm: "24.5" },
-  { eu: "40", us: "7",   uk: "6",   cm: "25.0" },
-  { eu: "41", us: "7.5", uk: "6.5", cm: "25.5" },
-  { eu: "42", us: "8.5", uk: "7.5", cm: "26.5" },
-  { eu: "43", us: "9.5", uk: "8.5", cm: "27.5" },
-  { eu: "44", us: "10",  uk: "9",   cm: "28.0" },
-  { eu: "45", us: "11",  uk: "10",  cm: "29.0" },
-  { eu: "46", us: "12",  uk: "11",  cm: "30.0" },
-];
+const DEFAULT_SHOES = DEFAULT_SHOE_GUIDE;
 
 export async function GET() {
   try {
@@ -43,7 +34,7 @@ export async function GET() {
 
     return NextResponse.json({
       clothing: clothing ? JSON.parse(clothing.value) : DEFAULT_CLOTHING,
-      shoes: shoes ? JSON.parse(shoes.value) : DEFAULT_SHOES,
+      shoes: shoes ? completeShoeGuide(JSON.parse(shoes.value)) : DEFAULT_SHOES,
     });
   } catch {
     return NextResponse.json({ clothing: DEFAULT_CLOTHING, shoes: DEFAULT_SHOES });

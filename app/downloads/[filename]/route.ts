@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { enforceRateLimit } from "@/lib/api-security";
 import { releaseSupabase } from "@/lib/app-release-server";
 import { APP_RELEASE_BUCKET } from "@/lib/app-releases";
+import { trustedApkArtifact } from "@/lib/app-release-hosts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,11 +28,8 @@ async function serve(req: NextRequest, context: Context, includeBody: boolean) {
   if (error || !release) return NextResponse.json({ error: "Fichier Android introuvable." }, { status: 404 });
 
   if (release.storage_path.startsWith("external:")) {
-    const externalUrl = new URL(release.storage_path.slice("external:".length));
-    if (
-      externalUrl.protocol !== "https:" ||
-      externalUrl.hostname !== "expo.dev"
-    ) {
+    const externalUrl = trustedApkArtifact(release.storage_path.slice("external:".length));
+    if (!externalUrl) {
       return NextResponse.json(
         { error: "Le téléchargement est temporairement indisponible." },
         { status: 503 },

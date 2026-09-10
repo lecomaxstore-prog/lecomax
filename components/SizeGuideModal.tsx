@@ -1,21 +1,12 @@
 "use client";
+import { DEFAULT_SHOE_GUIDE, completeShoeGuide, normalizeShoeSize } from "@/lib/shoe-size-guide";
 
 import { useEffect, useRef, useState } from "react";
 
 type ClothingRow = { label: string; fr: string; poitrine: string; taille: string };
 type ShoeRow = { eu: string; us: string; uk: string; cm: string };
 
-const DEFAULT_SHOES: ShoeRow[] = [
-  { eu: "38", us: "6",   uk: "5",   cm: "24.0" },
-  { eu: "39", us: "6.5", uk: "5.5", cm: "24.5" },
-  { eu: "40", us: "7",   uk: "6",   cm: "25.0" },
-  { eu: "41", us: "7.5", uk: "6.5", cm: "25.5" },
-  { eu: "42", us: "8.5", uk: "7.5", cm: "26.5" },
-  { eu: "43", us: "9.5", uk: "8.5", cm: "27.5" },
-  { eu: "44", us: "10",  uk: "9",   cm: "28.0" },
-  { eu: "45", us: "11",  uk: "10",  cm: "29.0" },
-  { eu: "46", us: "12",  uk: "11",  cm: "30.0" },
-];
+const DEFAULT_SHOES = DEFAULT_SHOE_GUIDE;
 
 const DEFAULT_CLOTHING: ClothingRow[] = [
   { label: "XS",  fr: "34-36", poitrine: "82-86",   taille: "62-66" },
@@ -50,7 +41,7 @@ export default function SizeGuideModal({
       selectedRowRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
     }, 320); // after drawer slide-in
     return () => clearTimeout(timeout);
-  }, [open, selectedSize]);
+  }, [open, selectedSize, shoesSizes]);
   useEffect(() => {
     if (!open) return;
     fetch("/api/size-guide")
@@ -171,6 +162,10 @@ export default function SizeGuideModal({
             )}
           </div>
 
+          {type === "chaussures" && (
+            <p className="px-6 pb-4 text-xs text-neutral-500">Demi-pointures incluses. « — » indique une correspondance non renseignée. Contactez-nous pour les mesures du modèle choisi.</p>
+          )}
+
           {/* Divider */}
           <div className="mx-6 border-t border-neutral-100" />
 
@@ -192,9 +187,9 @@ export default function SizeGuideModal({
                     </tr>
                   </thead>
                   <tbody>
-                    {shoesSizes.map((row, i) => {
-                      const isAvailable = availableSizes.includes(row.eu);
-                      const isSelected = selectedSize === row.eu;
+                    {completeShoeGuide(shoesSizes, [...availableSizes, ...(selectedSize ? [selectedSize] : [])]).map((row, i) => {
+                      const isAvailable = availableSizes.some(size => normalizeShoeSize(size) === normalizeShoeSize(row.eu));
+                      const isSelected = !!selectedSize && normalizeShoeSize(selectedSize) === normalizeShoeSize(row.eu);
                       return (
                         <tr
                           key={row.eu}

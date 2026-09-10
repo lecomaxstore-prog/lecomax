@@ -2,7 +2,7 @@
   "expo": {
     "name": "Lecomax",
     "slug": "lecomax",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "runtimeVersion": {
       "policy": "appVersion"
     },
@@ -28,7 +28,7 @@
       "associatedDomains": [
         "applinks:lecomax.com"
       ],
-      "buildNumber": "17"
+      "buildNumber": "21"
     },
     "android": {
       "package": "com.lecomax.app",
@@ -56,7 +56,7 @@
         "backgroundImage": "./assets/images/android-icon-background-v2.png",
         "monochromeImage": "./assets/images/android-icon-monochrome-v2.png"
       },
-      "versionCode": 17
+      "versionCode": 21
     },
     "web": {
       "output": "static",
@@ -74,7 +74,16 @@
         }
       ],
       "expo-secure-store",
-      ["expo-localization", { "supportedLocales": ["fr", "en"], "supportsRTL": false }],
+      [
+        "expo-localization",
+        {
+          "supportedLocales": [
+            "fr",
+            "en"
+          ],
+          "supportsRTL": false
+        }
+      ],
       [
         "expo-image-picker",
         {

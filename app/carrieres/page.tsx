@@ -65,6 +65,17 @@ const deptAccent: Record<string, string> = {
 };
 
 export default function CarrieresPage() {
+  // Recruitment is paused; retain the listings below for a future reopening.
+  const recruitmentEnabled = false;
+  if (!recruitmentEnabled) {
+    return (
+      <main className="min-h-[60vh] bg-white px-6 py-24 text-center">
+        <h1 className="text-3xl font-black">Carrières</h1>
+        <p className="mt-4 text-neutral-500">Aucune offre d&apos;emploi disponible pour le moment.</p>
+        <Link href="/" className="mt-8 inline-block font-semibold underline">Retour à l&apos;accueil</Link>
+      </main>
+    );
+  }
   return (
     <div className="min-h-screen bg-white">
 

@@ -1,15 +1,12 @@
-export default function GuideTaillesPage() {
-  const shoesSizes = [
-    { eu: "38", us: "6", uk: "5", cm: "24.0" },
-    { eu: "39", us: "6.5", uk: "5.5", cm: "24.5" },
-    { eu: "40", us: "7", uk: "6", cm: "25.0" },
-    { eu: "41", us: "7.5", uk: "6.5", cm: "25.5" },
-    { eu: "42", us: "8.5", uk: "7.5", cm: "26.5" },
-    { eu: "43", us: "9.5", uk: "8.5", cm: "27.5" },
-    { eu: "44", us: "10", uk: "9", cm: "28.0" },
-    { eu: "45", us: "11", uk: "10", cm: "29.0" },
-    { eu: "46", us: "12", uk: "11", cm: "30.0" },
-  ];
+import { DEFAULT_SHOE_GUIDE, completeShoeGuide } from "@/lib/shoe-size-guide";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
+
+export default async function GuideTaillesPage() {
+  let shoesSizes = DEFAULT_SHOE_GUIDE;
+  try {
+    const { data } = await createServerSupabaseClient().from("settings").select("value").eq("key", "size_guide_shoes").maybeSingle();
+    if (data) shoesSizes = completeShoeGuide(JSON.parse(data.value));
+  } catch { /* Keep the complete default guide available when settings cannot load. */ }
 
   const clothingSizes = [
     { label: "XS", fr: "34-36", poitrine: "82-86", taille: "62-66" },
@@ -49,6 +46,7 @@ export default function GuideTaillesPage() {
       {/* Tableau chaussures */}
       <section className="mb-14">
         <h2 className="text-xl font-bold mb-5">Chaussures</h2>
+        <p className="mb-4 text-sm text-neutral-500">Demi-pointures incluses. « — » indique une correspondance non renseignée pour cette pointure. Contactez-nous pour les mesures du modèle choisi.</p>
         <div className="overflow-x-auto rounded-2xl border border-neutral-200">
           <table className="w-full text-sm text-center">
             <thead className="bg-black text-white">

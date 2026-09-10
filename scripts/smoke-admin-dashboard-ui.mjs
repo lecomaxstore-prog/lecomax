@@ -248,6 +248,7 @@ async function main() {
           if (url.pathname === '/api/admin/dashboard') return json(fixtures[url.searchParams.get('days') === '30' ? 30 : 7]);
           if (url.pathname === '/api/admin/auth/verify') return json({ ok: true, email: ownerEmail });
           if (url.pathname === '/api/admin/staff/permissions') return json({ isStaff: false, permissions: [] });
+          if (url.pathname === '/api/products' && location.search.includes('id=smoke-edit')) return json([{ id: 'smoke-edit', name: 'Produit test', slug: 'produit-test', category: 'chaussures', price: 100, stock: 1, images: [], sizes: [], tags: [], active: true, details: {} }]);
           if (['/api/orders', '/api/products', '/api/messages', '/api/admin/approvals'].includes(url.pathname)) return json([]);
           return originalFetch(input, init);
         };
@@ -383,6 +384,32 @@ async function main() {
     await setViewport(pageClient, 390, 844);
     await evaluate(pageClient, `document.querySelector('.admin-editor-progress nav button:last-child').click()`);
     await waitFor(pageClient, `document.querySelector('#product-variants').open`, "expanded variant section");
+    await evaluate(pageClient, `[...document.querySelectorAll('#product-variants button')].find(button => button.textContent.trim() === 'Chaussures').click()`);
+    await waitFor(pageClient, `[...document.querySelectorAll('#product-variants button')].some(button => button.textContent.trim() === '44')`, "shoe sizes");
+    await evaluate(pageClient, `[...document.querySelectorAll('#product-variants button')].find(button => button.textContent.trim() === '44').click()`);
+    await waitFor(pageClient, `Boolean(document.getElementById('size-stock-44'))`, "size stock field");
+    await evaluate(pageClient, `document.getElementById('size-stock-44').parentElement.lastElementChild.click()`);
+    await waitFor(pageClient, `document.getElementById('size-stock-44').value === '1'`, "stock increment");
+    for (const width of [320, 390, 518, 768, 1440]) {
+      await setViewport(pageClient, width, 900);
+      const stock = await evaluate(pageClient, `(() => {
+        const input = document.getElementById('size-stock-44');
+        const controls = input.parentElement;
+        return {
+          width: input.getBoundingClientRect().width,
+          overflow: controls.scrollWidth - controls.clientWidth,
+          buttons: [...controls.querySelectorAll('button')].map(button => button.getBoundingClientRect().width),
+          value: input.value,
+        };
+      })()`);
+      assert(stock.width >= 48 && stock.overflow <= 2 && stock.value === '1', `Stock quantity is clipped at ${width}px: ${JSON.stringify(stock)}`);
+      assert(stock.buttons.every(width => width >= 44), `Stock buttons are too small at ${width}px.`);
+    }
+    await evaluate(pageClient, `document.getElementById('size-stock-44').parentElement.firstElementChild.click()`);
+    await waitFor(pageClient, `document.getElementById('size-stock-44').value === '0'`, "stock decrement");
+    await evaluate(pageClient, `document.getElementById('size-stock-44').parentElement.firstElementChild.click()`);
+    assert(await evaluate(pageClient, `document.getElementById('size-stock-44').value === '0'`), "Stock must stay nonnegative.");
+    await setViewport(pageClient, 390, 844);
     await evaluate(pageClient, `document.querySelector('#admin-main').scrollTo({top: 0, behavior: 'instant'})`);
     await saveScreenshot(pageClient, process.env.ADMIN_DASHBOARD_SCREENSHOT_DIR, "product-editor-mobile-390.png");
 
@@ -394,6 +421,50 @@ async function main() {
     })()`);
     assert(desktopEditor.overflow <= 2 && desktopEditor.importVisible && desktopEditor.actionsHidden, "Desktop product editor layout regressed.");
 
+    await pageClient.send("Page.navigate", { url: `${baseUrl}/admin/products?id=smoke-edit` });
+    await waitFor(pageClient, `Boolean(document.querySelector('#product-size-inventory'))`, "edit product details");
+    await evaluate(pageClient, `document.querySelector('#product-size-inventory').closest('details').open = true`);
+    for (const width of [320, 390, 518, 768, 1440]) {
+      await setViewport(pageClient, width, 900);
+      assert(await evaluate(pageClient, `document.querySelector('#product-size-inventory button').getBoundingClientRect().height >= ${width < 1024 ? 44 : 24}`), `Add detail is hidden or too small at ${width}px.`);
+    }
+    await setViewport(pageClient, 390, 844);
+    await evaluate(pageClient, `document.querySelector('#product-size-inventory button').click()`);
+    await waitFor(pageClient, `document.querySelectorAll('#product-size-inventory input').length === 2`, "added detail fields");
+    await evaluate(pageClient, `(() => {
+      const fields = [...document.querySelectorAll('#product-size-inventory input')];
+      fields.forEach((field, index) => {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(field, index ? 'Coton' : 'Matière');
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    })()`);
+    assert(await evaluate(pageClient, `(() => {
+      const fields = [...document.querySelectorAll('#product-size-inventory input')];
+      return fields[0].value === 'Matière' && fields[1].value === 'Coton' && fields.every(field => field.getBoundingClientRect().width >= 100);
+    })()`), "Product detail fields must remain editable and readable.");
+    await evaluate(pageClient, `document.querySelector('#product-size-inventory button[aria-label]').click()`);
+    await waitFor(pageClient, `document.querySelectorAll('#product-size-inventory input').length === 0`, "removed detail");
+
+    for (const width of [320, 518]) {
+      await setViewport(pageClient, width, 740);
+      await evaluate(pageClient, `document.querySelector('button[aria-label="Activer les notifications admin"], button[aria-label="Notifications admin activées"]').click()`);
+      await waitFor(pageClient, `Boolean(document.querySelector('dialog:modal #admin-push-title'))`, "top-layer admin notification dialog");
+      const alertPanel = await evaluate(pageClient, `(() => {
+        const dialog = document.querySelector('dialog:modal');
+        const bounds = dialog.getBoundingClientRect();
+        dialog.scrollTop = dialog.scrollHeight;
+        const actions = [...dialog.querySelectorAll('button')].filter(button => !button.hasAttribute('aria-label'));
+        const action = actions[0];
+        const rect = action.getBoundingClientRect();
+        return { fits: bounds.left >= 0 && bounds.right <= innerWidth && bounds.top >= 0 && bounds.bottom <= innerHeight,
+          overflow: dialog.scrollWidth - dialog.clientWidth,
+          reachable: action.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)) };
+      })()`);
+      assert(alertPanel.fits && alertPanel.overflow <= 2 && alertPanel.reachable, `Admin alerts are covered or clipped at ${width}px: ${JSON.stringify(alertPanel)}`);
+      await saveScreenshot(pageClient, process.env.ADMIN_DASHBOARD_SCREENSHOT_DIR, `admin-alerts-${width}.png`);
+      await evaluate(pageClient, `document.querySelector('dialog:modal button[aria-label="Fermer les alertes admin"]').click()`);
+      await waitFor(pageClient, `!document.querySelector('dialog:modal')`, "closed notification dialog");
+    }
     const exceptions = pageClient.events.filter(event => event.method === "Runtime.exceptionThrown");
     assert(exceptions.length === 0, "The browser reported an uncaught dashboard runtime exception.");
     console.log("Admin browser smoke test passed: dashboard, drawer, tablet, desktop, and product editor at 320/390/768px with aligned actions and working section shortcuts.");

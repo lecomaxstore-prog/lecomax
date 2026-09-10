@@ -2,7 +2,8 @@ import { localizedError } from "@/i18n/errors";
 import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
+import { useScrollReturn } from "@/hooks/use-scroll-return";
 import {
   RefreshControl,
   ScrollView,
@@ -56,6 +57,8 @@ const colors = {
 
 export default function HomeScreen() {
   useLocale();
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollReturn = useScrollReturn(scrollRef);
   const { contentWidth, isTablet } = useAppViewport();
   // On tablets the navigation rail sits inside contentWidth, so the row the
   // cards actually get is narrower than the viewport.
@@ -161,6 +164,8 @@ export default function HomeScreen() {
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
       <ScrollView
+        ref={scrollRef}
+        {...scrollReturn}
         style={styles.list}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"

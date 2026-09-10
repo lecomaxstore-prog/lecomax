@@ -35,6 +35,23 @@ function configureWebPush() {
   webpush.setVapidDetails(subject, publicKey.replace(/\s+/g, ""), privateKey.replace(/\s+/g, ""));
 }
 
+async function sendAdminAlert(subscription: { endpoint: string; p256dh: string; auth: string }, message: string) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      await webpush.sendNotification(
+        { endpoint: subscription.endpoint, keys: { p256dh: subscription.p256dh, auth: subscription.auth } },
+        message,
+        { urgency: "high", TTL: 24 * 60 * 60, timeout: 10_000 },
+      );
+      return;
+    } catch (error) {
+      const status = (error as { statusCode?: number }).statusCode;
+      if (attempt > 0 || (status !== undefined && status < 500)) throw error;
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
+}
+
 /** Broadcasts to every customer who explicitly enabled browser notifications. */
 export async function broadcastPushNotification(payload: PushPayload): Promise<PushResult> {
   configureWebPush();
@@ -89,13 +106,15 @@ export async function broadcastPushNotification(payload: PushPayload): Promise<P
 }
 
 /** Sends operational alerts only to authenticated admin devices. */
-export async function broadcastAdminPushNotification(payload: PushPayload): Promise<PushResult> {
+export async function broadcastAdminPushNotification(payload: PushPayload, endpoint?: string): Promise<PushResult> {
   configureWebPush();
   const supabase = getSupabase();
-  const { data, error } = await supabase
+  let query = supabase
     .from("push_subscriptions")
     .select("endpoint, p256dh, auth")
     .like("user_agent", `${ADMIN_PUSH_USER_AGENT_PREFIX}%`);
+  if (endpoint) query = query.eq("endpoint", endpoint);
+  const { data, error } = await query;
   if (error) throw new Error(error.message);
 
   const subscriptions = data ?? [];
@@ -117,10 +136,7 @@ export async function broadcastAdminPushNotification(payload: PushPayload): Prom
   const expiredEndpoints: string[] = [];
   await Promise.allSettled(subscriptions.map(async (subscription) => {
     try {
-      await webpush.sendNotification(
-        { endpoint: subscription.endpoint, keys: { p256dh: subscription.p256dh, auth: subscription.auth } },
-        message,
-      );
+      await sendAdminAlert(subscription, message);
       sent += 1;
     } catch (error: unknown) {
       failed += 1;

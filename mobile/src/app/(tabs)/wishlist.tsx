@@ -4,7 +4,8 @@ import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import type { Session } from "@supabase/supabase-js";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useScrollReturn } from "@/hooks/use-scroll-return";
 import {
   ActivityIndicator,
   FlatList,
@@ -84,6 +85,8 @@ export default function WishlistScreen() {
   const [session, setSession] = useState<Session | null>();
   const [inStockOnly, setInStockOnly] = useState(false);
   const [selectedSort, setSelectedSort] = useState<WishlistSort>();
+  const listRef = useRef<FlatList<Product>>(null);
+  const scrollReturn = useScrollReturn(listRef, JSON.stringify([inStockOnly, selectedSort]));
   const [sortOpen, setSortOpen] = useState(false);
   const [variantProduct, setVariantProduct] = useState<Product>();
   const [variant, setVariant] = useState<WishlistVariant>({});
@@ -386,6 +389,8 @@ export default function WishlistScreen() {
         />
       ) : (
         <FlatList
+          ref={listRef}
+          {...scrollReturn}
           initialNumToRender={5}
           maxToRenderPerBatch={5}
           updateCellsBatchingPeriod={50}

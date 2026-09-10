@@ -44,6 +44,7 @@ import { safeParentPath } from "@/lib/navigation-policy";
 import { realSimilarProducts } from "@/lib/product-similarity";
 import { useCommerceStore } from "@/stores/commerce";
 import { useCartFeedbackStore } from "@/stores/cart-feedback";
+import { useScrollReturn } from "@/hooks/use-scroll-return";
 import { getFreshProduct } from "@/services/catalog";
 
 const PRODUCT_BACKGROUND = "#FFFFFF";
@@ -191,6 +192,7 @@ export default function ProductScreen() {
   const view = useCommerceStore((state) => state.view);
   const startCartFlight = useCartFeedbackStore((state) => state.startFlight);
   const pageRef = useRef<ScrollView>(null);
+  const scrollReturn = useScrollReturn(pageRef, slug);
   const successTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
@@ -206,6 +208,7 @@ export default function ProductScreen() {
   const showPurchaseBar = purchaseBarState.slug === slug && purchaseBarState.visible;
 
   const handleProductScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    scrollReturn.onScroll(event);
     const offset = event.nativeEvent.contentOffset.y;
     setPurchaseBarState((previous) => {
       // Keep the purchase action available while previewing a chosen color.
@@ -217,7 +220,7 @@ export default function ProductScreen() {
         ? previous
         : { slug, visible, colorSelected: false };
     });
-  }, [slug]);
+  }, [slug, scrollReturn]);
 
   const goBack = useCallback(() => {
     if (router.canGoBack()) {
@@ -439,6 +442,7 @@ export default function ProductScreen() {
   return (
     <View style={styles.screen}>
       <ScrollView
+        {...scrollReturn}
         ref={pageRef}
         showsVerticalScrollIndicator={false}
         onScroll={handleProductScroll}

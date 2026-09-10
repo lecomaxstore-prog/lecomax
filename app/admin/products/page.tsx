@@ -660,6 +660,7 @@ export default function ProductsPage() {
   const previewColors = selectedColors
     .map((color) => AVAILABLE_COLORS.find((item) => item.label === color))
     .filter((color): color is (typeof AVAILABLE_COLORS)[number] => Boolean(color));
+  const savedProductSlug = products.find((product) => product.id === editId)?.slug;
   const editorPreview = (
     <div className="group relative overflow-hidden rounded-[26px] border border-neutral-800/90 bg-[#090b0a] text-white shadow-[0_22px_55px_rgba(0,0,0,.2)]">
       <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-52 w-52 rounded-full bg-emerald-400/[.09] blur-3xl" />
@@ -719,10 +720,16 @@ export default function ProductsPage() {
             <p className="text-[8px] font-black uppercase tracking-[.14em] text-white/25">Disponibilité</p>
             <p className="mt-0.5 truncate text-[10px] font-bold text-white/65">{previewStock > 0 ? `${previewStock} unité${previewStock > 1 ? "s" : ""} disponible${previewStock > 1 ? "s" : ""}` : "Indisponible à la commande"}</p>
           </div>
-          <span className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl px-4 text-[10px] font-black transition ${previewStock > 0 ? "bg-white text-black shadow-[0_8px_22px_rgba(255,255,255,.08)]" : "cursor-not-allowed bg-white/[.07] text-white/30"}`}>
-            Voir la fiche
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </span>
+          {savedProductSlug ? (
+            <Link href={`/produit/${encodeURIComponent(savedProductSlug)}`} target="_blank" rel="noopener noreferrer"
+              aria-label="Voir la fiche produit (nouvel onglet)"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-[10px] font-black text-black shadow-[0_8px_22px_rgba(255,255,255,.08)] transition hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black">
+              Voir la fiche
+              <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </Link>
+          ) : (
+            <span className="max-w-36 text-right text-[10px] leading-4 text-white/60">Enregistrez le produit pour ouvrir sa fiche.</span>
+          )}
         </div>
       </div>
     </div>
@@ -880,7 +887,7 @@ export default function ProductsPage() {
 
             {/* Product Details */}
             <MobileSection title="Détails du produit"><div id="product-size-inventory" className="scroll-mt-40 rounded-[24px] border border-neutral-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(0,0,0,.035)] sm:p-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
                   <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Détails du produit</h2>
                   <p className="text-[11px] text-neutral-400 mt-0.5">Ex: Matière, Coupe, Entretien, Origine…</p>
@@ -903,6 +910,7 @@ export default function ProductsPage() {
                         value={detail.key}
                         onChange={(e) => setProductDetails((p) => p.map((d, j) => j === i ? { ...d, key: e.target.value } : d))}
                         placeholder="Ex: Matière"
+                        aria-label={`Nom du détail ${i + 1}`}
                         className="min-h-10 min-w-0 rounded-xl border border-neutral-200 bg-white px-3 text-xs font-semibold outline-none transition focus:border-black sm:w-full"
                       />
                       <span className="hidden shrink-0 text-xs text-neutral-300 sm:block">:</span>
@@ -911,11 +919,13 @@ export default function ProductsPage() {
                         value={detail.value}
                         onChange={(e) => setProductDetails((p) => p.map((d, j) => j === i ? { ...d, value: e.target.value } : d))}
                         placeholder="Ex: 100% coton biologique"
-                        className="min-h-10 min-w-0 rounded-xl border border-neutral-200 bg-white px-3 text-xs outline-none transition focus:border-black"
+                        aria-label={`Valeur du détail ${i + 1}`}
+                        className="col-start-1 row-start-2 min-h-10 min-w-0 rounded-xl border border-neutral-200 bg-white px-3 text-xs outline-none transition focus:border-black sm:col-start-3 sm:row-start-1"
                       />
                       <button type="button"
                         onClick={() => setProductDetails((p) => p.filter((_, j) => j !== i))}
-                        className="row-span-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-neutral-300 transition-colors hover:bg-red-50 hover:text-red-500 sm:row-span-1">
+                        aria-label={`Supprimer le détail ${i + 1}`}
+                        className="col-start-2 row-start-1 row-span-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-neutral-500 transition-colors hover:bg-red-50 hover:text-red-500 sm:col-start-4 sm:row-span-1">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                       </button>
                     </div>
@@ -1049,8 +1059,11 @@ export default function ProductsPage() {
                             <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Ancien prix
                               <span className="mt-1 flex h-11 items-center rounded-xl border border-neutral-200 bg-neutral-50 px-3 focus-within:border-black focus-within:bg-white"><input type="number" min="0" step="0.01" value={pricing.originalPrice ?? ""} onChange={(event) => setColorPrices((current) => ({ ...current, [color]: { ...pricing, originalPrice: event.target.value ? Number(event.target.value) : undefined } }))} className="min-w-0 flex-1 bg-transparent text-sm outline-none" inputMode="decimal" /><span className="text-[10px] text-neutral-400">MAD</span></span>
                             </label>
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Stock disponible
-                              <span className="mt-1 flex h-11 items-center rounded-xl border border-neutral-200 bg-neutral-50 px-3 focus-within:border-black focus-within:bg-white"><input required type="number" min="0" step="1" value={colorStocks[color] ?? 0} onChange={(event) => setColorStocks((current) => ({ ...current, [color]: Math.max(0, Math.trunc(Number(event.target.value) || 0)) }))} className="min-w-0 flex-1 bg-transparent text-center text-sm font-black outline-none" inputMode="decimal" /><span className="text-[10px] text-neutral-400">UNITÉS</span></span>
+                            <label className="min-w-0 text-[10px] font-bold uppercase tracking-wider text-neutral-500">Stock disponible
+                              <span className="mt-1.5 flex min-h-14 items-center overflow-hidden rounded-xl border border-neutral-300 bg-white shadow-sm transition focus-within:border-emerald-700 focus-within:ring-2 focus-within:ring-emerald-700/15">
+                                <input required type="number" min="0" step="1" aria-label={`Stock disponible, ${color}`} value={colorStocks[color] ?? 0} onChange={(event) => setColorStocks((current) => ({ ...current, [color]: Math.max(0, Math.trunc(Number(event.target.value) || 0)) }))} className="h-14 w-full min-w-0 flex-1 bg-transparent px-4 text-left text-base font-semibold tabular-nums tracking-normal text-neutral-900 outline-none" inputMode="numeric" />
+                                <span className="shrink-0 border-l border-neutral-200 px-3 text-xs font-medium normal-case tracking-normal text-neutral-500">unités</span>
+                              </span>
                             </label>
                           </div>
                         </div>
@@ -1176,22 +1189,24 @@ export default function ProductsPage() {
                             : "À RÉPARTIR"}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-2">
                         {selectedSizes.map((s) => (
-                          <div key={s} className="flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2">
-                            <span className="text-xs font-black text-neutral-700 w-8 shrink-0">{s}</span>
+                          <div key={s} className="min-w-0 bg-neutral-50 border border-neutral-200 rounded-xl p-3">
+                            <label htmlFor={`size-stock-${s}`} className="mb-2 block text-xs font-black text-neutral-700">Taille {s}</label>
+                            <div className="grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-1">
                             <button type="button" onClick={() => setSizeStocks((p) => ({ ...p, [s]: Math.max(0, (p[s] ?? 0) - 1) }))}
-                              className="text-neutral-400 hover:text-black transition-colors">
+                              aria-label={`Retirer une unité, taille ${s}`} className="flex h-11 w-11 items-center justify-center rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:text-black transition-colors">
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
                             </button>
-                            <input type="number" min="0" value={sizeStocks[s] ?? ""}
-                              onChange={(e) => setSizeStocks((p) => ({ ...p, [s]: parseInt(e.target.value) || 0 }))}
+                            <input id={`size-stock-${s}`} type="number" min="0" step="1" value={sizeStocks[s] ?? ""}
+                              onChange={(e) => setSizeStocks((p) => ({ ...p, [s]: Math.max(0, parseInt(e.target.value) || 0) }))}
                               placeholder="0"
-                              className="flex-1 w-0 text-center text-xs font-semibold focus:outline-none bg-transparent" inputMode="decimal" />
+                              className="admin-stock-number h-11 w-full min-w-0 rounded-lg border border-neutral-200 bg-white text-center text-base font-bold tabular-nums text-neutral-900 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-emerald-600" inputMode="numeric" />
                             <button type="button" onClick={() => setSizeStocks((p) => ({ ...p, [s]: (p[s] ?? 0) + 1 }))}
-                              className="text-neutral-400 hover:text-black transition-colors">
+                              aria-label={`Ajouter une unité, taille ${s}`} className="flex h-11 w-11 items-center justify-center rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:text-black transition-colors">
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                             </button>
+                            </div>
                           </div>
                         ))}
                       </div>

@@ -191,6 +191,20 @@ https://lecomax.com/downloads/lecomax-v1.0.1.apk
 
 ## Website download behavior
 
+### Durable public APK hosting
+
+Signed APKs may also be hosted in the public `lecomaxstore-prog/lecomax-android-releases`
+GitHub repository. This repository contains APKs, checksums, and download instructions
+only; the application source repository remains private. Use matching version tags
+and filenames, for example `v1.0.5/lecomax-v1.0.5.apk`.
+
+Before publication, verify the Android signing certificate against the previous
+release and download the uploaded artifact to verify its SHA-256. Pass its full
+GitHub release asset URL as `ANDROID_EXTERNAL_URL` to the publishing script.
+The website permits only this exact repository and official Expo APK artifact paths.
+Prefer GitHub release assets for permanent downloads: EAS build artifacts expire,
+and the Supabase project-wide upload limit can be lower than the bucket limit.
+
 `/download` dynamically loads the published release. It displays version, exact file size, release date, Android minimum, checksum, changelog, installation instructions, iPhone guidance, security information, and FAQ.
 
 The button performs a HEAD availability check and then starts the attachment download. Desktop browsers may download the APK; device detection only changes guidance.
