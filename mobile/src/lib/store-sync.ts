@@ -7,6 +7,6 @@ export const STORE_TABLE_QUERIES = {
   promotions: ["promotions", "products"],
   banners: ["banners"],
   // Category media is stored in settings, alongside store preferences.
-  settings: ["settings", "categories", "recommendations"],
+  settings: ["settings", "categories", "recommendations", "size-guide"],
   reviews: ["reviews", "products"],
 } as const;

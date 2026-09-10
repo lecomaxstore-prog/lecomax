@@ -35,9 +35,9 @@ export async function GET() {
     return NextResponse.json({
       clothing: clothing ? JSON.parse(clothing.value) : DEFAULT_CLOTHING,
       shoes: shoes ? completeShoeGuide(JSON.parse(shoes.value)) : DEFAULT_SHOES,
-    });
+    }, { headers: { "Cache-Control": "no-store, max-age=0" } });
   } catch {
-    return NextResponse.json({ clothing: DEFAULT_CLOTHING, shoes: DEFAULT_SHOES });
+    return NextResponse.json({ clothing: DEFAULT_CLOTHING, shoes: DEFAULT_SHOES }, { headers: { "Cache-Control": "no-store, max-age=0" } });
   }
 }
 

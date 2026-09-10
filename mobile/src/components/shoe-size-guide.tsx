@@ -7,6 +7,7 @@ import { AnimatedPressable } from "@/components/animated-pressable";
 import { useAppViewport } from "@/components/app-viewport";
 import { typography } from "@/constants/theme";
 import { apiRequest } from "@/lib/api-client";
+import { STORE_REFRESH_INTERVAL_MS } from "@/lib/store-sync";
 import { normalizeSize, sizeGuideRows, usesClothingSizes, type SizeGuideData } from "@/lib/size-guide";
 
 export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, selectedSize, onSelectSize }: {
@@ -23,6 +24,9 @@ export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, sel
   const guide = useQuery({
     queryKey: ["size-guide", clothing],
     enabled: open,
+    staleTime: 0,
+    refetchInterval: open ? STORE_REFRESH_INTERVAL_MS : false,
+    refetchOnWindowFocus: "always",
     retry: false,
     queryFn: async () => {
       const result = await apiRequest<SizeGuideData>("/api/size-guide");

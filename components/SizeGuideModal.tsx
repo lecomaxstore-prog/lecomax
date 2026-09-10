@@ -1,5 +1,6 @@
 "use client";
 import { DEFAULT_SHOE_GUIDE, completeShoeGuide, normalizeShoeSize } from "@/lib/shoe-size-guide";
+import { STORE_REFRESH_EVENT } from "@/mobile/src/lib/store-sync";
 
 import { useEffect, useRef, useState } from "react";
 
@@ -44,13 +45,17 @@ export default function SizeGuideModal({
   }, [open, selectedSize, shoesSizes]);
   useEffect(() => {
     if (!open) return;
-    fetch("/api/size-guide")
-      .then((r) => r.json())
+    const controller = new AbortController();
+    const refresh = () => { void fetch("/api/size-guide", { cache: "no-store", signal: controller.signal })
+      .then((r) => { if (!r.ok) throw new Error("Size guide unavailable"); return r.json(); })
       .then((data) => {
         if (data.shoes?.length)    setShoesSizes(data.shoes);
         if (data.clothing?.length) setClothingSizes(data.clothing);
       })
-      .catch(() => {});
+      .catch(() => {}); };
+    refresh();
+    window.addEventListener(STORE_REFRESH_EVENT, refresh);
+    return () => { controller.abort(); window.removeEventListener(STORE_REFRESH_EVENT, refresh); };
   }, [open]);
 
   useEffect(() => {
@@ -163,7 +168,7 @@ export default function SizeGuideModal({
           </div>
 
           {type === "chaussures" && (
-            <p className="px-6 pb-4 text-xs text-neutral-500">Demi-pointures incluses. « — » indique une correspondance non renseignée. Contactez-nous pour les mesures du modèle choisi.</p>
+            <p className="px-6 pb-4 text-xs text-neutral-500">Demi-pointures incluses. « ≈ » indique une estimation entre les mesures du guide ; « — », une mesure indisponible. La correspondance peut varier selon le modèle.</p>
           )}
 
           {/* Divider */}
