@@ -51,7 +51,7 @@ const SHOE_SIZES: string[] = [...SHOE_SIZE_VALUES];
 
 const emptyForm = {
   slug: "", name: "", brand: "", category: "homme", price: "", original_price: "",
-  description: "", stock: "0", active: false, featured: false,
+  description: "", stock: "0", active: true, featured: false,
   preorder_enabled: false, preorder_estimated_at: "", preorder_message: "",
   tags: "", weight: "", video: "",
 };
@@ -442,7 +442,9 @@ export default function ProductsPage() {
       sessionStorage.removeItem("__new_product_desc_images");
       if (editId) { sessionStorage.removeItem(`__edit_product_images_${editId}`); sessionStorage.removeItem(`__edit_product_desc_images_${editId}`); }
       initializedEditIdRef.current = null;
-      setMsg({ type: "ok", text: editId ? "Produit mis à jour ✓" : "Produit créé ✓" });
+      setMsg({ type: "ok", text: json.active
+        ? "Produit enregistré et visible sur le site ✓"
+        : "Brouillon enregistré — produit masqué sur le site." });
       load();
       setTimeout(() => router.replace("/admin/products"), 1000);
     }
@@ -1450,7 +1452,7 @@ export default function ProductsPage() {
               <label className="flex items-center justify-between cursor-pointer select-none">
                 <div>
                   <p className="text-sm font-semibold">Actif</p>
-                  <p className="text-[11px] text-neutral-400">Visible sur le site</p>
+                  <p className="text-[11px] text-neutral-400">{form.active ? "Visible sur le site après enregistrement" : "Brouillon : masqué sur le site"}</p>
                 </div>
                 <button type="button" role="switch" aria-checked={form.active} aria-label="Actif" onClick={() => setForm({ ...form, active: !form.active })}
                   className={`w-10 h-6 rounded-full transition-colors flex items-center ${form.active ? "bg-black" : "bg-neutral-200"}`}>
