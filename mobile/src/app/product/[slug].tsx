@@ -846,22 +846,20 @@ export default function ProductScreen() {
           { paddingBottom: Math.max(insets.bottom, 9) },
         ]}
       >
-        <View
-          style={[
-            styles.purchasePrice,
-            contentWidth <= 340 && styles.purchasePriceCompact,
-          ]}
-        >
+        <View style={styles.purchasePrice}>
           <Text style={styles.purchasePriceLabel}>{msg("product.unitPrice")}</Text>
           <Text
             numberOfLines={1}
+            ellipsizeMode="clip"
             accessibilityLabel={money(selectedPrice, currency)}
             adjustsFontSizeToFit
             minimumFontScale={0.75}
             style={[styles.purchasePriceValue, saving > 0 && styles.promotionalPrice]}
           >
             {displayAmount}
-            <Text style={styles.priceCurrency}>{"\u00A0"}{displayCurrency}</Text>
+          </Text>
+          <Text accessible={false} style={styles.purchasePriceCurrency}>
+            {displayCurrency}
           </Text>
         </View>
         <AnimatedPressable
@@ -1511,11 +1509,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   purchasePrice: {
-    width: 100,
+    width: "42%",
+    maxWidth: 160,
     minWidth: 0,
+    flexShrink: 0,
     justifyContent: "center",
   },
-  purchasePriceCompact: { width: 82 },
   purchasePriceLabel: {
     color: "#777C76",
     fontFamily: typography.medium,
@@ -1528,11 +1527,18 @@ const styles = StyleSheet.create({
     marginTop: 3,
     color: "#202521",
     fontFamily: typography.semibold,
-    fontSize: 20,
-    lineHeight: 26,
-    letterSpacing: -0.5,
+    fontSize: 18,
+    lineHeight: 24,
+    letterSpacing: -0.6,
     includeFontPadding: false,
     fontVariant: ["tabular-nums"],
+  },
+  purchasePriceCurrency: {
+    color: "#777C76",
+    fontFamily: typography.medium,
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 0.4,
   },
   addButton: {
     minWidth: 0,

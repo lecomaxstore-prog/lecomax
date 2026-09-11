@@ -81,7 +81,7 @@ const defaultMetadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico?v=5", sizes: "any", type: "image/x-icon" },
-      { url: "/favicon.png?v=5", sizes: "1200x1200", type: "image/png" },
+      { url: "/brand/lecomax-premium-icon.png?v=1", sizes: "1280x1280", type: "image/png" },
       { url: "/icons/icon-192.png?v=5", sizes: "192x192", type: "image/png" },
       { url: "/icons/icon-512.png?v=5", sizes: "512x512", type: "image/png" },
     ],
@@ -293,3 +293,4 @@ export default async function RootLayout({
     </html>
   );
 }
+

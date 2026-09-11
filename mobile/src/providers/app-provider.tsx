@@ -49,11 +49,10 @@ const persister = createAsyncStoragePersister({
 });
 
 function ThemeSync() {
-  const theme = usePreferences((state) => state.theme);
   const { setColorScheme } = useColorScheme();
   useEffect(() => {
-    setColorScheme(theme);
-  }, [setColorScheme, theme]);
+    setColorScheme("light");
+  }, [setColorScheme]);
   return null;
 }
 

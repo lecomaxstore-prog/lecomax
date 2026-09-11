@@ -191,7 +191,8 @@ export default function AuthScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      enabled
       style={styles.screen}
     >
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 10) }]}>
@@ -303,6 +304,7 @@ export default function AuthScreen() {
                         autoComplete="given-name"
                         returnKeyType="next"
                         selectionColor={palette.greenDark}
+                        showSoftInputOnFocus
                         style={[styles.input, styles.nameInput, webInputReset]}
                       />
                     </View>
@@ -336,6 +338,7 @@ export default function AuthScreen() {
                         autoComplete="family-name"
                         returnKeyType="next"
                         selectionColor={palette.greenDark}
+                        showSoftInputOnFocus
                         style={[styles.input, styles.nameInput, webInputReset]}
                       />
                     </View>
@@ -386,7 +389,8 @@ export default function AuthScreen() {
                     keyboardType="email-address"
                     returnKeyType="next"
                     selectionColor={palette.greenDark}
-                    style={[styles.input, webInputReset]}
+                      showSoftInputOnFocus
+                      style={[styles.input, webInputReset]}
                   />
                   {value && !errors.email ? (
                     <Ionicons
@@ -540,6 +544,7 @@ export default function AuthScreen() {
                         returnKeyType="done"
                         secureTextEntry={!showPassword}
                         selectionColor={palette.greenDark}
+                        showSoftInputOnFocus
                         style={[styles.input, webInputReset]}
                       />
                       {passwordMatches ? (

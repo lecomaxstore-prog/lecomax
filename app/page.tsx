@@ -14,7 +14,7 @@ const OurProductsGrid = dynamic(() => import("@/components/OurProductsGrid"));
 const ScrollReveal = dynamic(() => import("@/components/ScrollReveal"));
 const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
-import { type CardProduct } from "@/lib/products";
+import { type CardProduct, products as catalogProducts } from "@/lib/products";
 import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import type { HeroBannerRecord } from "@/lib/hero-banners";
 import { shippingConfigFromSettings, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
@@ -126,7 +126,7 @@ export default async function HomePage() {
   try {
     const ecomediaParams = new URLSearchParams({
       is_published: "eq.true",
-      type: "in.(image,product,promotion)",
+      type: "eq.image",
       media_url: "not.is.null",
       or: `(cta_text.is.null,cta_text.not.like.${ECOMEDIA_COMMUNITY_AUTHOR_PREFIX}*)`,
       order: "created_at.desc",
@@ -143,7 +143,9 @@ export default async function HomePage() {
     if (res.ok) { const rows = await res.json(); latestPost = rows[0] ?? null; }
   } catch { /* silent */ }
 
-  const allProducts: CardProduct[] = dbProducts.map((p) => ({
+  // Keep the storefront populated while the live catalogue is unavailable.
+  const sourceProducts = dbProducts.length > 0 ? dbProducts : catalogProducts;
+  const allProducts: CardProduct[] = sourceProducts.map((p) => ({
     ...p,
     rating: reviewStats[p.slug]?.rating,
     reviewCount: reviewStats[p.slug]?.count,
@@ -152,8 +154,8 @@ export default async function HomePage() {
   const newArrivals = allProducts.filter((p) => p.badge === "Nouveau");
   const bestSellers = allProducts.filter((p) => p.badge === "Bestseller");
   // Fall back: if no featured in DB, show first 4 DB products as "nouveautés"
-  const featuredForRail = (newArrivals.length > 0 ? newArrivals : dbProducts).slice(0, 8);
-  const bestSellersForRail = bestSellers.length > 0 ? bestSellers : dbProducts.slice(0, 8);
+  const featuredForRail = (newArrivals.length > 0 ? newArrivals : allProducts).slice(0, 8);
+  const bestSellersForRail = bestSellers.length > 0 ? bestSellers : allProducts.slice(0, 8);
 
   const SITE_URL = "https://lecomax.com";
   const itemListSchema = {
@@ -312,7 +314,7 @@ export default async function HomePage() {
 
       <ProductRail
         title="En promotion"
-        products={promotionProducts.map(p => ({ ...p, rating: reviewStats[p.slug]?.rating, reviewCount: reviewStats[p.slug]?.count }))}
+        products={(promotionProducts.length > 0 ? promotionProducts : allProducts.filter(p => (p.oldPrice ?? 0) > p.price)).slice(0, 8).map(p => ({ ...p, rating: reviewStats[p.slug]?.rating, reviewCount: reviewStats[p.slug]?.count }))}
         cta={{ label: "Voir les promos", href: "/promotions" }}
       />
 
@@ -436,7 +438,7 @@ export default async function HomePage() {
                 <Link href={`/ecomedia/${latestPost.slug}`} className="group block w-full max-w-[430px]" aria-label={`Voir la publication : ${latestPost.title}`}>
                   <div className="overflow-hidden rounded-[1.4rem] border border-white/15 bg-[#111512] shadow-[0_28px_70px_rgba(0,0,0,.5)] transition duration-500 group-hover:-translate-y-1 group-hover:border-[#3ecf4c]/60">
                     <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3.5">
-                      <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-[#3ecf4c]/60 bg-black p-1"><img src="/images/lm-icon.svg" alt="" className="h-full w-full object-cover" /></div>
+                      <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-[#3ecf4c]/60 bg-black p-1"><img src="/brand/lecomax-premium-icon.png" alt="" className="h-full w-full object-cover" /></div>
                       <div><p className="text-[11px] font-black">L&apos;ecomax</p><p className="mt-0.5 text-[9px] text-white/35">Publication officielle</p></div>
                       <span className="ml-auto flex items-center gap-1.5 rounded-full border border-[#3ecf4c]/25 bg-[#3ecf4c]/10 px-2.5 py-1 text-[8px] font-black uppercase tracking-wider text-[#3ecf4c]"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#3ecf4c]"/>Nouveau</span>
                     </div>
@@ -572,3 +574,4 @@ export default async function HomePage() {
     </>
   );
 }
+
