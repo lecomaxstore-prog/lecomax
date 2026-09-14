@@ -2,10 +2,11 @@
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import { products as staticProducts, apiToCard, type CardProduct } from "@/lib/products";
+import { selectBestsellers } from "@/lib/bestseller-eligibility";
 
 export default function BestsellersPage() {
   const [list, setList] = useState<CardProduct[]>(
-    staticProducts.filter((p) => p.badge === "Bestseller")
+    selectBestsellers(staticProducts, staticProducts.filter((p) => p.badge === "Bestseller"))
   );
 
   useEffect(() => {
@@ -14,9 +15,7 @@ export default function BestsellersPage() {
       .then((data) => {
         if (Array.isArray(data)) {
           const dbFeatured = data.filter((p: { featured: boolean }) => p.featured).map(apiToCard);
-          const staticSlugs = new Set(dbFeatured.map((p) => p.slug));
-          const staticBest = staticProducts.filter((p) => p.badge === "Bestseller" && !staticSlugs.has(p.slug));
-          setList([...dbFeatured, ...staticBest]);
+          setList(selectBestsellers(data.map(apiToCard), dbFeatured));
         }
       })
       .catch(() => {});

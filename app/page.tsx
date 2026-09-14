@@ -1,3 +1,5 @@
+import { isBestsellerEligible, selectBestsellers } from "@/lib/bestseller-eligibility";
+import { STOREFRONT_TITLE, STOREFRONT_DESCRIPTION } from "@/lib/storefront-metadata";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import HeroBanner from "@/components/HeroBanner";
@@ -23,9 +25,8 @@ import { serializeJsonLd } from "@/lib/seo";
 const SITE_URL_PAGE = "https://lecomax.com";
 
 const defaultHomeMetadata: Metadata = {
-  title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
-  description:
-    "Boutique en ligne au Maroc : chaussures, mode et accessoires tech. Livraison partout à {{shipping}}, paiement à la livraison et Retours sous 30 jours, selon conditions.",
+  title: STOREFRONT_TITLE,
+  description: STOREFRONT_DESCRIPTION,
   keywords: [
     "boutique en ligne Maroc",
     "acheter chaussures Maroc",
@@ -160,10 +161,11 @@ export default async function HomePage() {
   }));
 
   const newArrivals = allProducts.filter((p) => p.badge === "Nouveau");
-  const bestSellers = allProducts.filter((p) => p.badge === "Bestseller");
+  const bestsellerCandidates = allProducts.filter(isBestsellerEligible);
+  const bestSellers = bestsellerCandidates.filter((p) => p.badge === "Bestseller");
   // Fall back: if no featured in DB, show first 4 DB products as "nouveautés"
-  const featuredForRail = (newArrivals.length > 0 ? newArrivals : dbProducts).slice(0, 8);
-  const bestSellersForRail = bestSellers.length > 0 ? bestSellers : dbProducts.slice(0, 8);
+  const featuredForRail = (newArrivals.length > 0 ? newArrivals : allProducts).slice(0, 8);
+  const bestSellersForRail = selectBestsellers(allProducts, bestSellers.length > 0 ? bestSellers : bestsellerCandidates).slice(0, 8);
 
   const SITE_URL = "https://lecomax.com";
   const itemListSchema = {
@@ -229,7 +231,7 @@ export default async function HomePage() {
         "name": "Quels types de produits vend L'ecomax ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "L'ecomax propose des chaussures de sport et lifestyle, des vêtements tendance (homme et femme), des écouteurs Bluetooth, des enceintes HiFi et des accessoires gaming comme des manettes sans fil. Tous les produits sont sélectionnés pour leur qualité et leur rapport qualité-prix."
+          "text": "L'ecomax est une marketplace lifestyle généraliste, ouverte à tous les univers du quotidien. Découvrez nos catégories et nos produits disponibles : notre sélection évolue au fil des nouveautés, sans se limiter à la mode, au sport ou à la tech."
         }
       }
     ]
@@ -240,7 +242,7 @@ export default async function HomePage() {
     "@type": "WebPage",
     "@id": `${SITE_URL_PAGE}/#webpage`,
     "url": SITE_URL_PAGE,
-    "name": "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
+    "name": STOREFRONT_TITLE,
     "description": `Boutique en ligne au Maroc — chaussures running, vêtements tendance, écouteurs Bluetooth, enceintes HiFi et accessoires gaming. Livraison ${formatShippingAmount(shippingConfig.cost)} MAD partout au Maroc.`,
     "isPartOf": { "@id": `${SITE_URL_PAGE}/#website` },
     "about": { "@id": `${SITE_URL_PAGE}/#organization` },
@@ -266,6 +268,7 @@ export default async function HomePage() {
 
       <ProductRail
         title="Nouveautés"
+        cardStyle="collection"
         products={featuredForRail}
         cta={{ label: "Tout voir", href: "/nouveautes" }}
       />
@@ -276,6 +279,7 @@ export default async function HomePage() {
 
       <ProductRail
         title="Bestsellers"
+        refined
         products={bestSellersForRail}
         cta={{ label: "Tout voir", href: "/bestsellers" }}
       />
@@ -564,12 +568,12 @@ export default async function HomePage() {
       {/* ── SEO text block ──────────────────────────────────── */}
       <section className="max-w-5xl mx-auto px-6 py-16 border-t border-neutral-100">
         <h2 className="text-xl font-black mb-6 text-neutral-800">
-          L&apos;ecomax — Boutique en ligne au Maroc : Mode, Sport &amp; Tech
+          L&apos;ecomax — Votre marketplace lifestyle au Maroc
         </h2>
         <div className="grid md:grid-cols-2 gap-8 text-neutral-500 text-[14px] leading-relaxed">
           <div>
             <p>
-              L&apos;ecomax est une boutique en ligne marocaine spécialisée dans les vêtements tendance, les chaussures de sport et les accessoires tech. Retrouvez une sélection soignée de baskets respirantes pour la course à pied, de chaussons confortables pour femme, de vestes et hoodies homme et femme, ainsi que des accessoires gaming et audio de qualité premium.
+              L&apos;ecomax est une marketplace lifestyle généraliste qui réunit des trouvailles, des envies et des essentiels pour votre quotidien. Explorez nos univers et découvrez une sélection qui s&apos;enrichit au fil des nouveautés. Une seule adresse pour accompagner votre style de vie, aujourd&apos;hui et demain.
             </p>
           </div>
           <div>

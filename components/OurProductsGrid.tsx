@@ -1,17 +1,18 @@
-﻿"use client";
+"use client";
+import ProductCard from "./CollectionProductCard";
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { CardProduct } from "@/lib/products";
-import { personalizeProducts, recordCategorySignal, recordProductSignal } from "@/lib/personalization";
+import { personalizeProducts, recordCategorySignal } from "@/lib/personalization";
 
 const COLOR_MAP: Record<string, string> = {
   "Noir": "#0a0a0a", "Blanc": "#f5f5f5", "Gris": "#9ca3af",
   "Bleu": "#3b82f6", "Rouge": "#dc2626", "Vert": "#22c55e",
   "Jaune": "#facc15", "Rose": "#f9a8d4", "Beige": "#f5f0e8",
   "Caramel": "#d4a574", "Marine": "#1e3a5f", "Kaki": "#8b7355",
-  "Édition Standard": "#1a1a2e",
+  "�dition Standard": "#1a1a2e",
 };
 const getHex = (name: string) => COLOR_MAP[name.split("/")[0].trim()] ?? "#e5e7eb";
 
@@ -43,108 +44,6 @@ function useInView(threshold = 0.08) {
   return { ref, visible };
 }
 
-function ProductCard({ product, index, visibilityClass = "" }: { product: CardProduct; index: number; visibilityClass?: string }) {
-  const hasDiscount = product.oldPrice && product.oldPrice > product.price;
-  const outOfStock = product.stock !== undefined && product.stock <= 0;
-  const discount = hasDiscount
-    ? Math.round(((product.oldPrice! - product.price) / product.oldPrice!) * 100)
-    : null;
-
-  return (
-    <div
-      className={`h-full ${visibilityClass}`}
-      style={{
-        animation: `cardFadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both`,
-        animationDelay: `${index * 55}ms`,
-      }}
-    >
-      <Link
-        href={`/produit/${product.slug}`}
-        onClick={() => recordProductSignal(product, 2)}
-        className="group flex flex-col bg-white border border-neutral-100 hover:border-[#3ecf4c]/40 hover:shadow-[0_8px_32px_rgba(62,207,76,0.10)] transition-all duration-300 overflow-hidden h-full"
-      >
-        {/* Image */}
-        <div className="relative aspect-[4/5] bg-neutral-50 overflow-hidden">
-          {product.image && (
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-              className={`object-cover transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${outOfStock ? "opacity-60 grayscale-[25%]" : "group-hover:scale-[1.05]"}`}
-            />
-          )}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
-          {/* Top-left green accent line on hover */}
-          <div className="absolute top-0 left-0 w-0 group-hover:w-full h-[2px] bg-[#3ecf4c] transition-all duration-500 ease-out" />
-          {/* Badges */}
-          <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
-            {outOfStock && (
-              <span className="bg-neutral-950 px-2.5 py-[5px] text-[10px] font-black uppercase tracking-[0.12em] leading-none text-white">
-                Épuisé
-              </span>
-            )}
-            {product.badge && (
-              <span className="text-[10px] font-black uppercase px-2.5 py-[5px] tracking-[0.12em] leading-none bg-black text-white">
-                {product.badge}
-              </span>
-            )}
-            {discount && (
-              <span className="bg-red-600 text-white text-[10px] font-black px-2.5 py-[5px] tracking-[0.12em] leading-none">
-                -{discount}%
-              </span>
-            )}
-          </div>
-          {/* Refined CTA */}
-          <div className="absolute inset-x-0 bottom-0 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 px-3 pb-3 pt-12 bg-gradient-to-t from-black/55 via-black/15 to-transparent">
-            <div className={`flex min-h-11 items-center justify-between rounded-xl border px-3.5 pl-4 shadow-[0_8px_24px_rgba(0,0,0,.16)] backdrop-blur-md ${outOfStock ? "border-white/10 bg-neutral-950/95 text-white" : "border-white/70 bg-white/95 text-neutral-950"}`}>
-              <span className="text-[10px] font-extrabold tracking-[0.08em]">
-                {outOfStock ? "Produit épuisé" : "Voir le produit"}
-              </span>
-              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${outOfStock ? "bg-white/10 text-white" : "bg-neutral-950 text-white group-hover:bg-emerald-500 group-hover:text-neutral-950"}`}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Info */}
-        <div className="px-3 pt-3 pb-4 flex flex-col flex-1">
-          {product.colors && product.colors.length > 0 && (
-            <div className="mb-2 flex min-h-5 items-center gap-2">
-              {product.colors.slice(0, 4).map((c) => (
-                <span
-                  key={c}
-                  className="h-4 w-4 shrink-0 rounded-full border-2 border-white shadow-[0_1px_3px_rgba(0,0,0,.14)] ring-1 ring-neutral-300"
-                  style={{ backgroundColor: getHex(c) }}
-                  title={c}
-                />
-              ))}
-            </div>
-          )}
-          <h3 className="min-h-[36px] line-clamp-2 text-[13px] font-semibold leading-[1.4] tracking-[-0.01em] text-neutral-800 transition-colors duration-200 group-hover:text-neutral-600">
-            {product.name}
-          </h3>
-          <p className="text-neutral-400 text-[10.5px] mt-0.5 uppercase tracking-wider font-semibold">
-            {product.category}
-          </p>
-          <div className="mt-2.5 flex items-baseline gap-2 border-t border-neutral-100 pt-3">
-            <span className={`text-[14px] font-extrabold tracking-[-0.02em] ${hasDiscount ? "text-red-600" : "text-neutral-950"}`}>
-              {product.price}&nbsp;MAD
-            </span>
-            {hasDiscount && (
-              <span className="text-neutral-400 line-through text-[12px]">
-                {product.oldPrice}&nbsp;MAD
-              </span>
-            )}
-          </div>
-        </div>
-      </Link>
-    </div>
-  );
-}
 
 export default function OurProductsGrid({ products }: { products: CardProduct[] }) {
   const [active, setActive] = useState("tous");
@@ -244,7 +143,7 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
         <button
           type="button"
           onClick={() => loadMore(mode)}
-          aria-label={`Afficher ${nextBatch} produit${nextBatch > 1 ? "s" : ""} supplémentaire${nextBatch > 1 ? "s" : ""}`}
+          aria-label={`Afficher ${nextBatch} produit${nextBatch > 1 ? "s" : ""} suppl�mentaire${nextBatch > 1 ? "s" : ""}`}
           className="group mt-4 inline-flex h-11 w-full max-w-[220px] items-center justify-center gap-2.5 rounded-lg border border-neutral-200 bg-neutral-100 px-5 text-neutral-800 transition-colors duration-200 hover:bg-neutral-200"
         >
           <span className="text-[11px] font-bold">
@@ -261,36 +160,37 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
   };
 
   return (
-    <section id="nos-produits" className="py-16 bg-neutral-50/60 border-y border-neutral-100" ref={ref}>
+    <section id="nos-produits" className="border-y border-neutral-100 bg-neutral-50/60 pb-10 pt-7 sm:py-10 md:py-12" ref={ref}>
       <div className="max-w-7xl mx-auto px-4 md:px-6">
 
-        {/* â”€â”€ Header â”€â”€ */}
+        {/* ── Header ── */}
         <div
-          className="mb-8 flex flex-col justify-between gap-5 border-b border-[#e0e5dd] pb-7 sm:flex-row sm:items-end sm:gap-8 md:mb-10"
+          className="mb-5 flex items-end justify-between gap-3 border-b border-[#e0e5dd] pb-5 sm:mb-6 sm:gap-8 sm:pb-6"
           style={{
             opacity: visible ? 1 : 0,
             transform: visible ? "translateY(0)" : "translateY(24px)",
             transition: "opacity 0.6s ease, transform 0.6s ease",
           }}
         >
-          <div>
-            <p className="mb-3 flex items-center gap-2.5 text-[9px] font-semibold uppercase tracking-[0.22em] text-[#65816c] sm:text-[10px]">
+          <div className="min-w-0">
+            <p className="mb-2 flex items-center gap-2 text-[8px] font-semibold uppercase tracking-[0.18em] text-[#65816c] sm:text-[10px]">
               <span aria-hidden="true" className="h-px w-6 bg-[#8fa38d]" />
               Catalogue complet
             </p>
-            <h2 className="text-[32px] font-medium leading-[1.1] tracking-[-0.045em] text-[#183c30] sm:text-[38px] md:text-[46px]">
+            <h2 className="text-[28px] font-medium leading-[1.15] tracking-[-0.045em] text-[#183c30] sm:text-[36px] md:text-[42px]">
               Nos produits
             </h2>
-            <p className="mt-3 text-xs leading-5 text-[#7b8279] sm:text-[13px]">
+            <p className="mt-1.5 text-[11px] leading-5 text-[#7b8279] sm:text-[13px]">
               {products.length} article{products.length !== 1 ? "s" : ""} à découvrir
             </p>
           </div>
           <Link
             href="/boutique"
-            className="group inline-flex min-h-11 items-center gap-5 self-start rounded-full border border-[#dce3d8] bg-white py-1.5 pl-5 pr-1.5 text-xs font-medium text-[#183c30] shadow-[0_2px_4px_rgba(24,60,48,0.025)] transition-colors duration-200 hover:border-[#183c30] hover:bg-[#f0f3ed] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#183c30] focus-visible:ring-offset-4 sm:self-auto"
+            className="group inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-[#dce3d8] bg-white py-1.5 pl-3 pr-1.5 text-[11px] font-medium text-[#183c30] transition-colors duration-200 hover:border-[#183c30] hover:bg-[#f0f3ed] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#183c30] focus-visible:ring-offset-4 sm:gap-4 sm:pl-5 sm:text-xs"
           >
-            Voir la boutique
-            <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-full bg-[#183c30] text-white">
+            <span className="sm:hidden">Voir tout</span>
+            <span className="hidden sm:inline">Voir la boutique</span>
+            <span aria-hidden="true" className="flex h-7 w-7 items-center justify-center rounded-full bg-[#183c30] text-white sm:h-8 sm:w-8">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
@@ -298,7 +198,7 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
           </Link>
         </div>
 
-        {/* â”€â”€ Grid â”€â”€ */}
+        {/* ── Grid ── */}
         <div
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
           style={{
@@ -330,11 +230,11 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
             </div>
-            <p className="text-neutral-400 text-[13px] font-semibold">Aucun produit dans cette catÃ©gorie.</p>
+            <p className="text-neutral-400 text-[13px] font-semibold">Aucun produit dans cette catégorie.</p>
           </div>
         )}
 
-        {/* â”€â”€ Responsive load more controls â”€â”€ */}
+        {/* ── Responsive load more controls ── */}
         {loadMoreControl("mobile")}
         {loadMoreControl("desktop")}
       </div>

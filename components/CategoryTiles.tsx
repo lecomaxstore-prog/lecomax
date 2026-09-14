@@ -24,6 +24,13 @@ const fallbackImages: Record<string, string> = {
   accessoires: "/images/pages images/accessoires.png",
 };
 
+const printedClothingImages: Record<string, string> = {
+  homme: "/images/collection-homme-printed-v3.webp",
+  femme: "/images/collection-femme-printed-v3.webp",
+  chaussures: "/images/collection-chaussures-v4.webp",
+  accessoires: "/images/collection-accessoires-v4.webp",
+};
+
 function useInView() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -82,7 +89,7 @@ export default function CategoryTiles() {
   if (!categories.length) return null;
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 md:px-6" ref={ref}>
+    <section hidden={!categories.length} className="mx-auto max-w-7xl px-4 pb-7 pt-10 sm:pb-10 md:px-6 md:pt-14" ref={ref}>
       <div className="mb-8 flex items-end justify-between border-b border-neutral-100 pb-6" style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(18px)", transition: "all .6s ease" }}>
         <div><p className="mb-2 text-[10px] font-black uppercase tracking-[.28em] text-[#22a936]">Collections</p><h2 className="h-display text-3xl md:text-[2.6rem]">Acheter par catégorie</h2></div>
         <span className="hidden text-[11px] font-bold uppercase tracking-[.2em] text-neutral-400 md:block">{total} articles</span>
@@ -98,13 +105,20 @@ export default function CategoryTiles() {
 }
 
 function CategoryTile({ category, index, visible }: { category: StoreCategory & { count: number }; index: number; visible: boolean }) {
+  const printedImage = printedClothingImages[category.slug];
   const collectionImage = ["homme", "femme", "chaussures", "accessoires"].includes(category.slug)
     ? `/images/collection-${category.slug}-v2.webp`
     : null;
-  const desktop = collectionImage || category.image || fallbackImages[category.slug] || "/images/pages images/homme.png";
-  const mobile = collectionImage || category.image_mobile || desktop;
-  const desktopPosition = collectionImage ? "50% 50%" : category.image_position || "50% 50%";
-  const mobilePosition = collectionImage ? "50% 50%" : category.image_mobile_position || desktopPosition;
+  // Replace the original campaign photos while retaining custom admin uploads.
+  const isDefaultImage = (image: string | null | undefined) => !image || image === fallbackImages[category.slug] || image === collectionImage;
+  const desktop = printedImage && isDefaultImage(category.image)
+    ? printedImage
+    : category.image || collectionImage || fallbackImages[category.slug] || "/images/pages images/homme.png";
+  const mobile = printedImage && category.image_mobile && isDefaultImage(category.image_mobile)
+    ? printedImage
+    : category.image_mobile || desktop;
+  const desktopPosition = desktop === printedImage || desktop === collectionImage ? "50% 50%" : category.image_position || "50% 50%";
+  const mobilePosition = mobile === printedImage || mobile === collectionImage ? "50% 50%" : category.image_mobile_position || desktopPosition;
   return (
     <Link
       href={`/boutique?cat=${encodeURIComponent(category.slug)}`}
