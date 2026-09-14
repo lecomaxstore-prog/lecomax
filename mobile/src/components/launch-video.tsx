@@ -73,7 +73,12 @@ function OpeningVideo() {
       if (state !== "active") player.pause();
       else play();
     });
-    return () => { mounted.current = false; subscription.remove(); player.pause(); };
+    return () => {
+      mounted.current = false;
+      subscription.remove();
+      // useVideoPlayer owns teardown and releases the native player on unmount.
+      // Calling pause here can run after that release and crash the next screen.
+    };
   }, [player, play]);
 
   useEffect(() => {

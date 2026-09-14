@@ -1,26 +1,25 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useStoreRefresh } from "@/lib/use-store-refresh";
+import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { products as staticProducts, apiToCard, type CardProduct } from "@/lib/products";
+import { apiToCard, type CardProduct } from "@/lib/products";
+import { selectPromotionProducts } from "@/mobile/src/lib/store-promotions";
 
 export default function PromotionsPage() {
-  const [list, setList] = useState<CardProduct[]>(staticProducts.filter((p) => p.oldPrice));
+  const [list, setList] = useState<CardProduct[]>([]);
 
-  useEffect(() => {
-    fetch("/api/products?active=true")
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          const dbPromo = data.filter((p: { original_price: number | null; price: number }) =>
-            p.original_price && p.original_price > p.price
-          ).map(apiToCard);
-          const staticSlugs = new Set(dbPromo.map((p) => p.slug));
-          const staticPromo = staticProducts.filter((p) => p.oldPrice && !staticSlugs.has(p.slug));
-          setList([...dbPromo, ...staticPromo]);
-        }
-      })
-      .catch(() => {});
-  }, []);
+  useStoreRefresh(async (signal) => {
+    const [products, promotions] = await Promise.all(
+      ["/api/products?active=true", "/api/promotions"].map(async (url) => {
+        const response = await fetch(url, { signal, cache: "no-store" });
+        if (!response.ok) throw new Error("Store data unavailable");
+        const rows = await response.json();
+        if (!Array.isArray(rows)) throw new Error("Invalid store data");
+        return rows;
+      }),
+    );
+    setList(selectPromotionProducts(products, promotions).map(apiToCard));
+  });
   return (
     <div>
       <section className="bg-red-600 text-white">
@@ -28,7 +27,7 @@ export default function PromotionsPage() {
           <p className="text-xs uppercase tracking-[0.3em]">Offres</p>
           <h1 className="h-display text-5xl mt-2">Promotions</h1>
           <p className="mt-3 max-w-xl">
-            Jusqu&apos;à -40% sur une sélection de chaussures et de vêtements.
+            Découvrez les offres et la sélection du moment.
           </p>
         </div>
       </section>

@@ -10,7 +10,7 @@ function internalPath(value: string) {
     if (path === "/suivre-commande" || path.startsWith("/commande/")) {
       return "/orders";
     }
-    if (path === "/promotions") return "/catalog?sort=low";
+    if (path === "/promotions") return "/catalog?promotion=true&sort=low";
     if (path === "/nouveautes") return "/catalog?sort=new";
     return `${path}${url.search}`;
   } catch {

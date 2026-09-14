@@ -46,7 +46,7 @@ export default async function GuideTaillesPage() {
       {/* Tableau chaussures */}
       <section className="mb-14">
         <h2 className="text-xl font-bold mb-5">Chaussures</h2>
-        <p className="mb-4 text-sm text-neutral-500">Demi-pointures incluses. « — » indique une correspondance non renseignée pour cette pointure. Contactez-nous pour les mesures du modèle choisi.</p>
+        <p className="mb-4 text-sm text-neutral-500">Demi-pointures incluses. « ≈ » indique une estimation entre les mesures du guide ; « — », une mesure indisponible. La correspondance peut varier selon le modèle.</p>
         <div className="overflow-x-auto rounded-2xl border border-neutral-200">
           <table className="w-full text-sm text-center">
             <thead className="bg-black text-white">

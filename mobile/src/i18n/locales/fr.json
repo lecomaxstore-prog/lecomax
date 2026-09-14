@@ -565,7 +565,7 @@
   "shoeSizeGuide.howToMeasureYourFoot": "Comment mesurer votre pied",
   "shoeSizeGuide.measureAroundTheFullestPartOfYourChestThenAroundYourWaist": "Mesurez le tour de poitrine à l’endroit le plus large, puis le tour de taille sans serrer le ruban.",
   "shoeSizeGuide.placeYourFootOnASheetOfPaperAndMeasureFromYour": "Posez le pied sur une feuille et mesurez du talon à l’orteil le plus long. Entre deux pointures, privilégiez la plus grande.",
-  "shoeSizeGuide.measurementsAreApproximateFitMayVaryByStyle": "Mesures indicatives. La coupe peut varier selon le modèle.",
+  "shoeSizeGuide.measurementsAreApproximateFitMayVaryByStyle": "≈ : estimation entre les mesures du guide. — : mesure indisponible. La correspondance peut varier selon le modèle.",
   "trustStrip.fastDelivery": "Livraison rapide",
   "trustStrip.acrossMorocco": "Partout au Maroc",
   "trustStrip.protectedOrder": "Commande protégée",
@@ -1152,5 +1152,15 @@
   "preorder.unavailable": "Cet article ou cette variante n’est plus disponible à la commande.",
   "preorder.review": "Cet article nécessite une précommande. Vérifiez votre panier avant de confirmer.",
   "preorder.changed": "Le stock, le prix ou la précommande a changé. Vérifiez votre panier.",
-  "preorder.quoteUnavailable": "Cet article ou cette variante n’est plus disponible."
+  "preorder.quoteUnavailable": "Cet article ou cette variante n’est plus disponible.",
+  "auth.confirmEyebrow": "VOTRE COMPTE L’ECOMAX",
+  "auth.confirmTitle": "Un dernier clic.\nEt c’est à vous.",
+  "auth.confirmIntro": "Confirmez votre email pour nous rejoindre.",
+  "auth.confirmSentTo": "Adresse email à confirmer",
+  "auth.confirmInstructions": "Ouvrez l’email de confirmation et appuyez sur « Confirmer mon email ». Revenez ensuite ici pour vous connecter.",
+  "auth.confirmSpam": "Rien dans votre boîte de réception ? Regardez aussi dans les courriers indésirables.",
+  "auth.confirmSignIn": "Continuer vers la connexion",
+  "auth.confirmResend": "Renvoyer l’email de confirmation",
+  "auth.confirmResendWait": "Renvoyer dans {{seconds}} s",
+  "auth.confirmResent": "Un nouvel email de confirmation a été demandé. Vérifiez votre boîte de réception."
 }

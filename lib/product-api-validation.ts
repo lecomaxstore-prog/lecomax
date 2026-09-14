@@ -15,6 +15,7 @@ import {
   type ProductSizeGuideType,
 } from "@/lib/product-inventory";
 import { cleanColorImageMap, syncColorImageTags } from "@/lib/product-color-images";
+import { PRODUCT_SIZE_GUIDE_PREFIX, productSizeGuideFromTags } from "@/mobile/src/lib/product-size-guide";
 
 const CATEGORIES = new Set(["homme", "femme", "chaussures", "accessoires"]);
 const MAX_TEXT = 10_000;
@@ -100,8 +101,15 @@ export function cleanProductPayload(body: unknown, mode: "create" | "update") {
 
   for (const key of ["colors", "sizes", "tags"] as const) {
     if (!(key in body)) continue;
-    const values = stringArray(body[key]);
+    const values = key === "tags" && Array.isArray(body[key])
+      ? stringArray(body[key], 101, 20_000) : stringArray(body[key]);
     if (!values) return { error: `Liste ${key} invalide.` } as const;
+    if (key === "tags") {
+      const guides = values.filter(tag => tag.startsWith(PRODUCT_SIZE_GUIDE_PREFIX));
+      if (guides.length > 1 || (guides.length && !productSizeGuideFromTags(guides)) || values.some(tag => !tag.startsWith(PRODUCT_SIZE_GUIDE_PREFIX) && tag.length > 200)) {
+        return { error: "Guide des tailles ou tags invalides." } as const;
+      }
+    }
     payload[key] = values;
   }
 

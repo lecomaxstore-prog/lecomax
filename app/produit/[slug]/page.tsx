@@ -17,7 +17,8 @@ import ShareButtons from "@/components/ShareButtons";
 import NewsletterSection from "@/components/NewsletterSection";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { calculateShipping, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
-import { cleanColorStock, colorSizeStockFromTags, resolveProductAvailability, sizeStockFromTags } from "@/lib/product-inventory";
+import { colorSizeStockFromTags } from "@/lib/product-inventory";
+import { catalogAvailability } from "@/mobile/src/lib/catalog-availability";
 import { inferProductBrand, serializeJsonLd } from "@/lib/seo";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { getProductShareData } from "@/lib/product-share";
@@ -126,11 +127,10 @@ export default async function ProductPage({
   const shippingConfig = await getServerShippingConfig();
 
   // Supabase is the shared source of truth for the website, mobile app and
-  // admin. The bundled catalogue is only a resilience fallback when the live
-  // product cannot be reached.
+  // admin. Deleted products must not reappear from the bundled catalogue.
   const dbProd = await getDbProductRaw(slug);
   if (dbProd?.active === false) notFound();
-  let product: Product | null = getProduct(slug) ?? null;
+  let product: Product | null = null;
 
   if (dbProd) {
     // Convert the live product to the website's Product-compatible shape.
@@ -210,21 +210,12 @@ export default async function ProductPage({
       const dbColors = Array.isArray(stockData.colors) && stockData.colors.length > 0
         ? stockData.colors as string[]
         : product.colors;
-      const availability = resolveProductAvailability({
-        stock: realStock,
-        colors: dbColors,
-        colorStock: cleanColorStock(stockData.color_stock),
-        fallbackOutOfStockColors: product.outOfStockColors,
-      });
+      const availability = catalogAvailability(stockData);
       const tags = Array.isArray(stockData.tags) ? stockData.tags as string[] : [];
-      const sizeStock = sizeStockFromTags(tags);
       const colorSizeStock = colorSizeStockFromTags(tags);
       const dbSizes = Array.isArray(stockData.sizes) && stockData.sizes.length > 0
         ? stockData.sizes as string[]
         : product.sizes;
-      const outOfStockSizes = Object.keys(sizeStock).length > 0
-        ? dbSizes.filter((size) => (sizeStock[size] ?? 0) <= 0)
-        : product.outOfStockSizes;
       product = {
         ...product,
         price: typeof stockData.price === "number" ? stockData.price : product.price,
@@ -239,8 +230,10 @@ export default async function ProductPage({
         preorder_enabled: stockData.preorder_enabled === true,
         preorder_estimated_at: stockData.preorder_estimated_at,
         preorder_message: stockData.preorder_message,
-        outOfStockColors: availability.outOfStockColors,
-        outOfStockSizes,
+        outOfStockColors: availability.out_of_stock_colors,
+        outOfStockSizes: availability.out_of_stock_sizes,
+        colorSizes: availability.color_sizes,
+        colorPrices: availability.color_prices,
         colorSizeStock,
       };
     }

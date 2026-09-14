@@ -8,12 +8,14 @@ import { useRouter } from "next/navigation";
 import { useCart } from "./CartContext";
 import { useProductColor } from "./ProductColorContext";
 import SizeGuideModal from "./SizeGuideModal";
+import { productSizeGuideFromTags } from "@/mobile/src/lib/product-size-guide";
 import type { Product } from "@/lib/products";
 import { trackAddToCart } from "@/lib/analytics";
 import { useWishlist } from "./WishlistContext";
 import { collectEvent } from "@/lib/collect";
 import { recordProductSignal } from "@/lib/personalization";
 import { sortProductSizes } from "@/lib/product-inventory";
+import { availableSizesForColor } from "@/mobile/src/lib/purchasability";
 
 /* ── Cart fly animation (pure DOM, Web Animations API) ── */
 function celebrateCart(cartEl: HTMLElement | null, x: number, y: number) {
@@ -264,14 +266,10 @@ export default function ProductActions({
   }, [colorImageGalleries, colorImagesProp, product.colorImages, product.colors, product.gallery, product.image]);
   const hasColorImages = Object.keys(effectiveColorImages).length > 0;
   const outOfStockColors = product.outOfStockColors ?? [];
-  const outOfStockSizes = product.outOfStockSizes ?? [];
   const colorSizeStock = product.colorSizeStock ?? {};
   const hasColorSizeStock = Object.keys(colorSizeStock).length > 0;
   const isProductOOS = product.stock !== undefined && product.stock <= 0;
   const isCurrentColorOOS = outOfStockColors.includes(color) || (hasColorSizeStock && color && !Object.values(colorSizeStock[color] ?? {}).some((quantity) => quantity > 0));
-  const stockedSizes = ((isProductOOS || isCurrentColorOOS) ? [] : (((product.colorSizes && color && product.colorSizes[color])
-    ? product.colorSizes[color]
-    : product.sizes) ?? []).filter((s) => !outOfStockSizes.includes(s) && (!hasColorSizeStock || !color || (colorSizeStock[color]?.[s] ?? 0) > 0)));
 
   const [size, setSize] = useState<string | null>(
     (product.sizes ?? []).length === 1 && product.sizes[0] === "Taille unique" ? "Taille unique" : null
@@ -326,9 +324,12 @@ export default function ProductActions({
   };
 
   // Pre-orders retain only real configured variant combinations.
-  const availableSizes = product.preorder_enabled
-    ? product.sizes.filter(s => !hasColorSizeStock || Boolean(colorSizeStock[color] && Object.hasOwn(colorSizeStock[color],s)))
-    : stockedSizes;
+  const availableSizes = availableSizesForColor({
+    ...product,
+    color_sizes: product.colorSizes,
+    out_of_stock_colors: product.outOfStockColors,
+    out_of_stock_sizes: product.outOfStockSizes,
+  }, color || undefined);
   const selectedStock = selectedInventory(product, color || undefined, size || undefined);
   const preorder = preorderSnapshot(product, selectedStock);
 
@@ -707,6 +708,7 @@ export default function ProductActions({
 
       {sizeGuideOpen && (
         <SizeGuideModal
+          customGuide={productSizeGuideFromTags(product.tags)}
           open
           onClose={() => {
             sizeGuideIntentRef.current = false;

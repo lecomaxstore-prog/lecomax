@@ -1,3 +1,4 @@
+import { OFFICIAL_SOCIAL_IMAGE, SOCIAL_IMAGE_METADATA } from "@/lib/social-image";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -11,6 +12,7 @@ import Footer from "@/components/Footer";
 import { CartProvider } from "@/components/CartContext";
 import { WishlistProvider } from "@/components/WishlistContext";
 import PageTracker from "@/components/PageTracker";
+import StoreSync from "@/components/StoreSync";
 import AdminLayoutWrapper from "@/components/AdminLayoutWrapper";
 import SiteProtection from "@/components/SiteProtection";
 import CookieBanner from "@/components/CookieBanner";
@@ -39,7 +41,7 @@ const sora = Sora({
 const SITE_URL = "https://lecomax.com";
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", interactiveWidget: "resizes-content" };
 const BING_SITE_VERIFICATION = process.env.BING_SITE_VERIFICATION?.trim();
-const OFFICIAL_SOCIAL_IMAGE = "/ecomax-hero-banner.jpg.png?v=2";
+
 const SOCIAL_TITLE = "L'ecomax | Mode, Tech & Sport au Maroc";
 const SOCIAL_DESCRIPTION = "Chaussures, vêtements et accessoires tech sélectionnés pour vous. Livraison partout au Maroc, paiement sécurisé et retours sous 30 jours.";
 
@@ -79,7 +81,7 @@ const defaultMetadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico?v=5", sizes: "any", type: "image/x-icon" },
-      { url: "/favicon.png?v=5", sizes: "1200x1200", type: "image/png" },
+      { url: "/brand/lecomax-premium-icon.png?v=1", sizes: "1280x1280", type: "image/png" },
       { url: "/icons/icon-192.png?v=5", sizes: "192x192", type: "image/png" },
       { url: "/icons/icon-512.png?v=5", sizes: "512x512", type: "image/png" },
     ],
@@ -95,14 +97,7 @@ const defaultMetadata: Metadata = {
     siteName: "L'ecomax",
     title: SOCIAL_TITLE,
     description: SOCIAL_DESCRIPTION,
-    images: [
-      {
-        url: OFFICIAL_SOCIAL_IMAGE,
-        width: 1536,
-        height: 1024,
-        alt: "Sélection officielle L'ecomax : mode, sport, gaming et accessoires tech",
-      },
-    ],
+    images: [SOCIAL_IMAGE_METADATA],
   },
   twitter: {
     card: "summary_large_image",
@@ -149,7 +144,8 @@ export async function generateMetadata(): Promise<Metadata> {
     const seoTitle = settings.seo_title?.trim();
     const seoDescription = settings.seo_description?.trim();
     const configuredOgImage = settings.og_image?.trim();
-    const ogImage = configuredOgImage === "/images/lecomax logo.png" ? OFFICIAL_SOCIAL_IMAGE : configuredOgImage;
+    const ogImage = !configuredOgImage || configuredOgImage === "/images/lecomax logo.png" || configuredOgImage.includes("ecomax-hero-banner")
+      ? OFFICIAL_SOCIAL_IMAGE : configuredOgImage;
     const shippingConfig = shippingConfigFromSettings(settings);
     const replaceShipping = (value: unknown) => typeof value === "string"
       ? value.replace(/\{\{shipping\}\}/g, `${formatShippingAmount(shippingConfig.cost)} MAD`)
@@ -169,8 +165,9 @@ export async function generateMetadata(): Promise<Metadata> {
         description: seoDescription || replaceShipping(defaultMetadata.openGraph?.description),
         images: ogImage ? [{
           url: ogImage,
-          width: ogImage.includes("ecomax-hero-banner") ? 1536 : undefined,
-          height: ogImage.includes("ecomax-hero-banner") ? 1024 : undefined,
+          width: ogImage === OFFICIAL_SOCIAL_IMAGE ? 1200 : undefined,
+          height: ogImage === OFFICIAL_SOCIAL_IMAGE ? 630 : undefined,
+          type: ogImage === OFFICIAL_SOCIAL_IMAGE ? "image/jpeg" : undefined,
           alt: `${storeName} — boutique officielle au Maroc`,
         }] : defaultMetadata.openGraph?.images,
       },
@@ -268,6 +265,7 @@ export default async function RootLayout({
           <WishlistProvider>
           <SiteProtection />
           <PageTracker />
+          <StoreSync />
           <AdminLayoutWrapper>
             <Header />
           </AdminLayoutWrapper>
@@ -295,3 +293,4 @@ export default async function RootLayout({
     </html>
   );
 }
+

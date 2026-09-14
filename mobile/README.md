@@ -1,6 +1,6 @@
 # Lecomax Mobile
 
-Premium Expo SDK 57 application for Android, iOS and web. The app reads the same Supabase tables as the Lecomax admin dashboard and subscribes to realtime catalog changes.
+Premium Expo SDK 57 application for Android, iOS and web. The app reads the website API at `EXPO_PUBLIC_API_URL` (production: `https://lecomax.com`). The API and dashboard use the same Supabase database.
 
 ## Run
 
@@ -8,7 +8,7 @@ Premium Expo SDK 57 application for Android, iOS and web. The app reads the same
 2. Run `npm install`.
 3. Run `npm start` for Expo, or `npm run web`.
 
-The catalog remains usable without credentials through a small offline fallback set. Authentication tokens use iOS Keychain / Android Keystore through Expo Secure Store. Catalog queries, cart, wishlist, preferences, recent products and search history persist locally.
+Previously fetched public catalog data remains available offline. New catalog reads use the live API, without a bundled catalog fallback. Authentication tokens use iOS Keychain / Android Keystore through Expo Secure Store. Catalog queries, cart, wishlist, preferences, recent products and search history persist locally.
 
 ## Architecture
 
@@ -19,4 +19,4 @@ The catalog remains usable without credentials through a small offline fallback 
 - `src/hooks`: React Query hooks
 - `src/types`: backend-facing domain models
 
-Backend writes stay in the existing dashboard. Products, categories and promotions are refreshed through Supabase Realtime; orders are inserted into the existing `orders` table.
+Store content is managed in the existing website dashboard. Products, categories, promotions, banners and settings refresh through Supabase Realtime where enabled, with a 30-second polling fallback and refresh on returning to the app. Orders and checkout use the website API. See [shared store synchronization](../docs/shared-store-sync.md) for setup and verification.

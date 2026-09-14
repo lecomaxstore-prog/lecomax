@@ -9,7 +9,7 @@ const PUBLIC_QUERY_ROOTS = new Set([
   "product-translations",
 ]);
 
-export const QUERY_CACHE_BUSTER = "public-catalog-v3-inventory";
+export const QUERY_CACHE_BUSTER = "public-catalog-v4-shared-availability";
 
 export function isPublicPersistedQuery(queryKey: readonly unknown[]) {
   const root = queryKey[0];

@@ -35,9 +35,9 @@ export async function GET() {
     return NextResponse.json({
       clothing: clothing ? JSON.parse(clothing.value) : DEFAULT_CLOTHING,
       shoes: shoes ? completeShoeGuide(JSON.parse(shoes.value)) : DEFAULT_SHOES,
-    });
+    }, { headers: { "Cache-Control": "no-store, max-age=0" } });
   } catch {
-    return NextResponse.json({ clothing: DEFAULT_CLOTHING, shoes: DEFAULT_SHOES });
+    return NextResponse.json({ clothing: DEFAULT_CLOTHING, shoes: DEFAULT_SHOES }, { headers: { "Cache-Control": "no-store, max-age=0" } });
   }
 }
 
@@ -60,7 +60,11 @@ export async function POST(req: NextRequest) {
       { key: "size_guide_shoes",    value: JSON.stringify(shoes) },
     ], { onConflict: "key" });
     if (error) return NextResponse.json({ error: "Impossible d'enregistrer le guide des tailles." }, { status: 500 });
+    // The public guide is server-rendered from these settings, while the site
+    // modal and mobile app read this endpoint. Revalidate both paths so an
+    // admin save is visible everywhere immediately.
     revalidatePath("/", "layout");
+    revalidatePath("/guide-des-tailles");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });

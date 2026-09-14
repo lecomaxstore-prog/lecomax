@@ -4,30 +4,7 @@ export const SHOE_SIZE_VALUES = Array.from({ length: 27 }, (_, index) => String(
 export type ProductSizeGuideType = "none" | "clothing" | "shoes" | "custom";
 export type ColorSizeStock = Record<string, Record<string, number>>;
 
-const CLOTHING_SIZE_ORDER = new Map<string, number>(
-  CLOTHING_SIZE_VALUES.map((size, index) => [size, index]),
-);
-const SIZE_COLLATOR = new Intl.Collator("fr", { numeric: true, sensitivity: "base" });
-
-/** Returns a new customer-facing size list ordered from smallest to largest. */
-export function sortProductSizes(sizes: readonly string[]) {
-  return [...new Set(sizes)].sort((first, second) => {
-    const firstClothingIndex = CLOTHING_SIZE_ORDER.get(first.toUpperCase());
-    const secondClothingIndex = CLOTHING_SIZE_ORDER.get(second.toUpperCase());
-    if (firstClothingIndex !== undefined && secondClothingIndex !== undefined) {
-      return firstClothingIndex - secondClothingIndex;
-    }
-    if (firstClothingIndex !== undefined) return -1;
-    if (secondClothingIndex !== undefined) return 1;
-
-    const firstNumber = /^\d+(?:[.,]\d+)?$/.test(first) ? Number(first.replace(",", ".")) : null;
-    const secondNumber = /^\d+(?:[.,]\d+)?$/.test(second) ? Number(second.replace(",", ".")) : null;
-    if (firstNumber !== null && secondNumber !== null) return firstNumber - secondNumber;
-    if (firstNumber !== null) return -1;
-    if (secondNumber !== null) return 1;
-    return SIZE_COLLATOR.compare(first, second);
-  });
-}
+export { sortProductSizes } from "../mobile/src/lib/product-sizes.ts";
 
 export function asStock(value: unknown): number | null {
   if ((typeof value !== "number" && typeof value !== "string") || String(value).trim() === "") return null;

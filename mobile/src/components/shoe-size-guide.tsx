@@ -7,9 +7,12 @@ import { AnimatedPressable } from "@/components/animated-pressable";
 import { useAppViewport } from "@/components/app-viewport";
 import { typography } from "@/constants/theme";
 import { apiRequest } from "@/lib/api-client";
+import { STORE_REFRESH_INTERVAL_MS } from "@/lib/store-sync";
 import { normalizeSize, sizeGuideRows, usesClothingSizes, type SizeGuideData } from "@/lib/size-guide";
+import { productGuideRows, type ProductSizeGuide } from "@/lib/product-size-guide";
 
-export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, selectedSize, onSelectSize }: {
+export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, selectedSize, onSelectSize, customGuide }: {
+  customGuide?: ProductSizeGuide | null;
   open: boolean;
   onClose: () => void;
   availableSizes: string[];
@@ -22,7 +25,10 @@ export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, sel
   const clothing = usesClothingSizes(productSizes);
   const guide = useQuery({
     queryKey: ["size-guide", clothing],
-    enabled: open,
+    enabled: open && !customGuide,
+    staleTime: 0,
+    refetchInterval: open && !customGuide ? STORE_REFRESH_INTERVAL_MS : false,
+    refetchOnWindowFocus: "always",
     retry: false,
     queryFn: async () => {
       const result = await apiRequest<SizeGuideData>("/api/size-guide");
@@ -30,8 +36,8 @@ export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, sel
       return result;
     },
   });
-  const rows = sizeGuideRows(guide.data ?? {}, clothing, productSizes);
-  const status = guide.isFetching || guide.isPending ? "loading" : guide.isError ? "error" : "ready";
+  const rows = customGuide ? productGuideRows(customGuide) : sizeGuideRows(guide.data ?? {}, clothing, productSizes);
+  const status = customGuide ? "ready" : guide.isPending ? "loading" : guide.isError && !guide.data ? "error" : "ready";
 
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
@@ -42,7 +48,7 @@ export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, sel
           <View style={styles.header}>
             <View style={styles.heading}>
               <Text style={styles.brand}>{msg("shoeSizeGuide.lEcomaxTheRightFitUppercase")}</Text>
-              <Text accessibilityRole="header" style={styles.title}>{clothing ? msg("shoeSizeGuide.sizeGuide") : msg("shoeSizeGuide.shoeSizeGuide")}</Text>
+              <Text accessibilityRole="header" style={styles.title}>{customGuide?.title || (clothing ? msg("shoeSizeGuide.sizeGuide") : msg("shoeSizeGuide.shoeSizeGuide"))}</Text>
             </View>
             <AnimatedPressable accessibilityRole="button" accessibilityLabel={msg("shoeSizeGuide.closeGuide")} onPress={onClose} style={styles.close}>
               <Ionicons name="close" size={21} color="#33473B" />
@@ -55,7 +61,7 @@ export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, sel
               {selectedSize ? (
                 <View style={styles.selection}>
                   <Ionicons name="checkmark" size={13} color="#294E3A" />
-                  <Text style={styles.selectionText}>{clothing ? msg("shoeSizeGuide.size") : "EU"} {selectedSize} {msg("shoeSizeGuide.selected")}</Text>
+                  <Text style={styles.selectionText}>{customGuide?.columns[0] || (clothing ? msg("shoeSizeGuide.size") : "EU")} {selectedSize} {msg("shoeSizeGuide.selected")}</Text>
                 </View>
               ) : null}
             </View>
@@ -75,8 +81,8 @@ export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, sel
             ) : (
               <View style={styles.table}>
                 <View style={styles.tableHeader}>
-                  {(clothing ? [msg("shoeSizeGuide.size"), "FR", msg("shoeSizeGuide.chest"), msg("shoeSizeGuide.waistMeasurement")] : ["EU", "US", "UK", "CM"]).map((heading) => (
-                    <Text key={heading} style={styles.columnHeading}>{heading}</Text>
+                  {(customGuide?.columns ?? (clothing ? [msg("shoeSizeGuide.size"), "FR", msg("shoeSizeGuide.chest"), msg("shoeSizeGuide.waistMeasurement")] : ["EU", "US", "UK", "CM"])).map((heading, index) => (
+                    <Text key={index} style={styles.columnHeading}>{heading}</Text>
                   ))}
                 </View>
                 {rows.map((row) => {
@@ -87,7 +93,7 @@ export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, sel
                     <Pressable
                       key={row.size}
                       accessibilityRole="button"
-                      accessibilityLabel={`${clothing ? msg("shoeSizeGuide.size") : msg("shoeSizeGuide.euSize")} ${row.size}, ${row.values.join(", ")}${selected ? msg("shoeSizeGuide.selectedText") : ""}${available ? msg("shoeSizeGuide.available") : msg("shoeSizeGuide.unavailable")}`}
+                      accessibilityLabel={`${customGuide?.columns[0] || (clothing ? msg("shoeSizeGuide.size") : msg("shoeSizeGuide.euSize"))} ${row.size}, ${row.values.join(", ")}${selected ? msg("shoeSizeGuide.selectedText") : ""}${available ? msg("shoeSizeGuide.available") : msg("shoeSizeGuide.unavailable")}`}
                       accessibilityState={{ selected, disabled: !available }}
                       disabled={!available}
                       onPress={() => { onSelectSize(productSize ?? row.size); onClose(); }}
@@ -114,6 +120,7 @@ export function ShoeSizeGuide({ open, onClose, availableSizes, productSizes, sel
                 <Text style={styles.legendText}>{msg("shoeSizeGuide.availableForThisProductTapASizeToChooseIt")}</Text>
               </View>
             ) : null}
+            {customGuide?.note ? <Text style={styles.note}>{customGuide.note}</Text> : null}
             <View style={styles.help}>
               <Ionicons name={clothing ? "shirt-outline" : "footsteps-outline"} size={21} color="#647267" />
               <View style={styles.helpContent}>

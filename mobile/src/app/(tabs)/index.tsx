@@ -1,4 +1,5 @@
 import { localizedError } from "@/i18n/errors";
+import { selectPromotionProducts } from "@/lib/store-promotions";
 import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
@@ -95,28 +96,12 @@ export default function HomeScreen() {
 
   const promotionProducts = useMemo(() => {
     const products = productsQuery.data ?? [];
-    const promotionIds = new Set(
-      (promotionsQuery.data ?? []).flatMap(
-        (promotion) => promotion.product_ids ?? [],
-      ),
-    );
-    const selected = products.filter((product) => promotionIds.has(product.id));
-    const discounted = products
-      .filter((product) => discount(product.price, product.original_price) > 0)
+    return selectPromotionProducts(products, promotionsQuery.data ?? [])
       .sort(
         (left, right) =>
           discount(right.price, right.original_price) -
           discount(left.price, left.original_price),
-      );
-    const featured = products.filter((product) => product.featured);
-    return [
-      ...new Map(
-        [...selected, ...discounted, ...featured].map((product) => [
-          product.id,
-          product,
-        ]),
-      ).values(),
-    ].slice(0, 5);
+      ).slice(0, 5);
   }, [productsQuery.data, promotionsQuery.data]);
 
   const catalogProducts = useMemo(() => {

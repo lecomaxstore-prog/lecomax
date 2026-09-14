@@ -1,0 +1,58 @@
+.refined :global(.rail-header) {
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e6eae2;
+}
+
+.refined :global(.rail-header) p {
+  color: #70816f;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  margin-bottom: 7px;
+}
+
+.refined :global(.rail-header) h2 {
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -.04em;
+  text-transform: none;
+  color: #183c30;
+}
+
+.refined :global(.rail-header) button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border-color: #dce3d8;
+  color: #183c30;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.refined :global(.rail-header) button:disabled { opacity: .3; }
+.refined :global(.rail-header) button:hover:not(:disabled) { background: #eef3ec; }
+.refined :global(.rail-header) button:focus-visible { outline: 2px solid #183c30; outline-offset: 3px; }
+
+.refined :global(.rail-header) a {
+  border-color: #dce3d8;
+  border-radius: 999px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: #183c30;
+  min-height: 44px;
+}
+.refined :global(.rail-header) a:hover { background: #eef3ec; }
+.refined :global(.product-card) { border-color: #e5e9e1; box-shadow: 0 2px 5px #183c3004; }
+.refined :global(.product-card) h3 { font-weight: 500; line-height: 1.5; }
+
+@media (min-width: 640px) {
+  .refined :global(.rail-header) { margin-bottom: 24px; padding-bottom: 22px; }
+  .refined :global(.rail-header) h2 { font-size: 36px; }
+  .refined :global(.rail-header) p { font-size: 9px; }
+}

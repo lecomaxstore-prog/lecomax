@@ -706,6 +706,12 @@ export default function AccountScreen() {
               </AnimatedPressable>
             </View>
 
+            <ScrollView
+              style={styles.sheetScroll}
+              contentContainerStyle={styles.sheetScrollContent}
+              showsVerticalScrollIndicator={true}
+              nestedScrollEnabled
+            >
             {sheet === "language" ? (
               <View style={styles.sheetOptions}>
                 <SheetOption dark={dark} label={msg("account.deviceLanguage")} leading={msg("account.autoUppercase")}
@@ -729,16 +735,6 @@ export default function AccountScreen() {
               <View style={styles.sheetOptions}>
                 <SheetOption
                   dark={dark}
-                  label={msg("account.automatic")}
-                  leading={msg("account.autoUppercase")}
-                  onPress={() => {
-                    setTheme("system");
-                    setSheet(null);
-                  }}
-                  selected={theme === "system"}
-                />
-                <SheetOption
-                  dark={dark}
                   label={msg("common.light")}
                   leading="☀"
                   onPress={() => {
@@ -746,16 +742,6 @@ export default function AccountScreen() {
                     setSheet(null);
                   }}
                   selected={theme === "light"}
-                />
-                <SheetOption
-                  dark={dark}
-                  label={msg("common.dark")}
-                  leading="◐"
-                  onPress={() => {
-                    setTheme("dark");
-                    setSheet(null);
-                  }}
-                  selected={theme === "dark"}
                 />
               </View>
             ) : sheet === "notifications" ? (
@@ -833,6 +819,7 @@ export default function AccountScreen() {
                 ) : null}
               </View>
             )}
+            </ScrollView>
           </View>
         </AppViewportOverlay>
       </Modal>
@@ -1570,6 +1557,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   settingsList: { paddingBottom: 8 },
+  // Explicit web overflow keeps the sheet wheel-scrollable with a mouse/trackpad.
+  sheetScroll: { flexShrink: 1, maxHeight: "78%", overflowY: "auto" },
+  sheetScrollContent: { paddingBottom: 8 },
   settingsSectionLabel: {
     marginBottom: 8,
     marginLeft: 4,
@@ -1627,3 +1617,4 @@ const styles = StyleSheet.create({
   },
   darkBorder: { backgroundColor: "#343A35" },
 });
+

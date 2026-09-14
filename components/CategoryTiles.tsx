@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
-import { categories as fallbackCategories, productsByCategory } from "@/lib/products";
+import { useStoreRefresh } from "@/lib/use-store-refresh";
+import { products as catalogProducts } from "@/lib/products";
 
 type StoreCategory = {
   id?: string;
@@ -22,6 +23,13 @@ const fallbackImages: Record<string, string> = {
   femme: "/images/pages images/femme.png",
   chaussures: "/images/pages images/chaussures.png",
   accessoires: "/images/pages images/accessoires.png",
+};
+
+const printedClothingImages: Record<string, string> = {
+  homme: "/images/collection-homme-printed-v3.webp",
+  femme: "/images/collection-femme-printed-v3.webp",
+  chaussures: "/images/collection-chaussures-v4.webp",
+  accessoires: "/images/collection-accessoires-v4.webp",
 };
 
 function useInView() {
@@ -44,10 +52,10 @@ export default function CategoryTiles() {
   const [counts, setCounts] = useState<Record<string, number>>({});
   const { ref, visible } = useInView();
 
-  useEffect(() => {
-    Promise.all([
-      fetch("/api/categories", { cache: "no-store" }).then((response) => response.json()),
-      fetch("/api/products?active=true&fields=category").then((response) => response.json()),
+  useStoreRefresh(async (signal) => {
+    await Promise.all([
+      fetch("/api/categories", { signal, cache: "no-store" }).then((response) => { if (!response.ok) throw new Error("Categories unavailable"); return response.json(); }),
+      fetch("/api/products?active=true", { signal, cache: "no-store" }).then((response) => { if (!response.ok) throw new Error("Products unavailable"); return response.json(); }),
     ]).then(([categoryData, productData]) => {
       if (Array.isArray(categoryData)) setDbCategories(categoryData.filter((category) => category.active !== false));
       if (Array.isArray(productData)) {
@@ -59,30 +67,27 @@ export default function CategoryTiles() {
         setCounts(nextCounts);
       }
     }).catch(() => {});
-  }, []);
+  });
 
-  const fallback: StoreCategory[] = fallbackCategories.map((category, index) => ({
-    slug: category.slug,
-    label: category.label,
-    description: category.description,
-    image: fallbackImages[category.slug],
-    image_mobile: fallbackImages[category.slug],
-    image_position: category.slug === "chaussures" ? "50% 65%" : "50% 50%",
-    image_mobile_position: category.slug === "femme" ? "65% 50%" : "50% 50%",
-    active: true,
-    sort_order: (index + 1) * 10,
-  }));
-  const source = dbCategories.length ? dbCategories : fallback;
-  const categories = [...source].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)).map((category) => ({
+  const fallbackCategories: StoreCategory[] = [
+    { slug: "homme", label: "Homme", image: null, sort_order: 1 },
+    { slug: "femme", label: "Femme", image: null, sort_order: 2 },
+    { slug: "chaussures", label: "Chaussures", image: null, sort_order: 3 },
+    { slug: "accessoires", label: "Accessoires", image: null, sort_order: 4 },
+  ];
+  const sourceCategories = dbCategories.length ? dbCategories : fallbackCategories;
+  const sourceCounts = Object.keys(counts).length ? counts : catalogProducts.reduce<Record<string, number>>((result, product) => {
+    result[product.category] = (result[product.category] || 0) + 1;
+    return result;
+  }, {});
+  const categories = [...sourceCategories].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)).map((category) => ({
     ...category,
-    count: counts[category.slug] ?? productsByCategory(category.slug).length,
+    count: sourceCounts[category.slug] ?? 0,
   }));
   const total = categories.reduce((sum, category) => sum + category.count, 0);
 
-  if (!categories.length) return null;
-
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 md:px-6" ref={ref}>
+    <section hidden={!categories.length} className="mx-auto max-w-7xl px-4 pb-7 pt-10 sm:pb-10 md:px-6 md:pt-14" ref={ref}>
       <div className="mb-8 flex items-end justify-between border-b border-neutral-100 pb-6" style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(18px)", transition: "all .6s ease" }}>
         <div><p className="mb-2 text-[10px] font-black uppercase tracking-[.28em] text-[#22a936]">Collections</p><h2 className="h-display text-3xl md:text-[2.6rem]">Acheter par catégorie</h2></div>
         <span className="hidden text-[11px] font-bold uppercase tracking-[.2em] text-neutral-400 md:block">{total} articles</span>
@@ -98,13 +103,20 @@ export default function CategoryTiles() {
 }
 
 function CategoryTile({ category, index, visible }: { category: StoreCategory & { count: number }; index: number; visible: boolean }) {
+  const printedImage = printedClothingImages[category.slug];
   const collectionImage = ["homme", "femme", "chaussures", "accessoires"].includes(category.slug)
     ? `/images/collection-${category.slug}-v2.webp`
     : null;
-  const desktop = collectionImage || category.image || fallbackImages[category.slug] || "/images/pages images/homme.png";
-  const mobile = collectionImage || category.image_mobile || desktop;
-  const desktopPosition = collectionImage ? "50% 50%" : category.image_position || "50% 50%";
-  const mobilePosition = collectionImage ? "50% 50%" : category.image_mobile_position || desktopPosition;
+  // Replace the original campaign photos while retaining custom admin uploads.
+  const isDefaultImage = (image: string | null | undefined) => !image || image === fallbackImages[category.slug] || image === collectionImage;
+  const desktop = printedImage && isDefaultImage(category.image)
+    ? printedImage
+    : category.image || collectionImage || fallbackImages[category.slug] || "/images/pages images/homme.png";
+  const mobile = printedImage && category.image_mobile && isDefaultImage(category.image_mobile)
+    ? printedImage
+    : category.image_mobile || desktop;
+  const desktopPosition = desktop === printedImage || desktop === collectionImage ? "50% 50%" : category.image_position || "50% 50%";
+  const mobilePosition = mobile === printedImage || mobile === collectionImage ? "50% 50%" : category.image_mobile_position || desktopPosition;
   return (
     <Link
       href={`/boutique?cat=${encodeURIComponent(category.slug)}`}

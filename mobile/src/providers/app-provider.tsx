@@ -1,3 +1,4 @@
+import { STORE_TABLE_QUERIES } from "@/lib/store-sync";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
@@ -48,11 +49,10 @@ const persister = createAsyncStoragePersister({
 });
 
 function ThemeSync() {
-  const theme = usePreferences((state) => state.theme);
   const { setColorScheme } = useColorScheme();
   useEffect(() => {
-    setColorScheme(theme);
-  }, [setColorScheme, theme]);
+    setColorScheme("light");
+  }, [setColorScheme]);
   return null;
 }
 
@@ -213,34 +213,13 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
-    const channel = supabase
-      .channel("mobile-catalog")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "products" },
-        () => void queryClient.invalidateQueries({ queryKey: ["products"] }),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "categories" },
-        () => void queryClient.invalidateQueries({ queryKey: ["categories"] }),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "promotions" },
-        () => void queryClient.invalidateQueries({ queryKey: ["promotions"] }),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "banners" },
-        () => void queryClient.invalidateQueries({ queryKey: ["banners"] }),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "settings" },
-        () => void queryClient.invalidateQueries({ queryKey: ["settings"] }),
-      )
-      .subscribe();
+    const channel = supabase.channel("mobile-catalog");
+    for (const [table, queryKeys] of Object.entries(STORE_TABLE_QUERIES)) {
+      channel.on("postgres_changes", { event: "*", schema: "public", table }, () => {
+        for (const key of queryKeys) void queryClient.invalidateQueries({ queryKey: [key] });
+      });
+    }
+    channel.subscribe();
     return () => {
       void supabase.removeChannel(channel);
     };

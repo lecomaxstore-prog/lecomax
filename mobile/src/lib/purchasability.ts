@@ -57,3 +57,17 @@ export function preorderSnapshot(product: PreorderFields, stock: number, quantit
     preorder_message: fulfillment === "PREORDER" ? product.preorder_message ?? null : null,
   };
 }
+
+/** Only offer sizes purchasable in the selected color, not another color's stock. */
+export function availableSizesForColor(product: Parameters<typeof selectedInventory>[0] & PreorderFields & {
+  color_sizes?: Record<string, string[]>;
+  out_of_stock_colors?: string[];
+  out_of_stock_sizes?: string[];
+}, color?: string): string[] {
+  if (!product.preorder_enabled && color && product.out_of_stock_colors?.includes(color)) return [];
+  const sizes = product.preorder_enabled ? product.sizes ?? [] : (color && product.color_sizes?.[color]) || product.sizes || [];
+  return sizes.filter(size => {
+    const stock = selectedInventory(product, color, size);
+    return product.preorder_enabled ? stock >= 0 : stock > 0 && !product.out_of_stock_sizes?.includes(size);
+  });
+}

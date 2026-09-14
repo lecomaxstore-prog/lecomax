@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation } from "@/lib/api-security";
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest) {
   }
   const { data, error } = await supabase.from("promotions").insert(body as object).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  revalidatePath("/", "layout");
   publishOfferNotification(data.id, "promotion");
   return NextResponse.json(data, { status: 201 });
 }

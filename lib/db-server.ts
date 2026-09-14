@@ -4,6 +4,7 @@
  */
 import { apiToCard, type CardProduct } from "./products";
 import { createServerSupabaseClient } from "./supabase-server";
+import { selectPromotionProducts } from "@/mobile/src/lib/store-promotions";
 
 function getClient() {
   return createServerSupabaseClient();
@@ -38,6 +39,7 @@ export async function getDbProducts(options?: {
   category?: string;
   featured?: boolean;
   activeOnly?: boolean;
+  promotionOnly?: boolean;
   limit?: number;
 }): Promise<CardProduct[]> {
   try {
@@ -46,9 +48,15 @@ export async function getDbProducts(options?: {
     if (options?.category) q = q.eq("category", options.category);
     if (options?.featured) q = q.eq("featured", true);
     if (options?.activeOnly !== false) q = q.eq("active", true);
-    if (options?.limit) q = q.limit(options.limit);
-    const { data } = await q;
-    return ((data as ApiProduct[]) ?? []).map(apiToCard);
+    if (options?.limit && !options.promotionOnly) q = q.limit(options.limit);
+    const [{ data, error }, promotions] = await Promise.all([
+      q,
+      options?.promotionOnly ? sb.from("promotions").select("active,expires_at,product_ids") : Promise.resolve(null),
+    ]);
+    if (error || promotions?.error) return [];
+    const products = (data as ApiProduct[]) ?? [];
+    const selected = options?.promotionOnly ? selectPromotionProducts(products, promotions?.data ?? []) : products;
+    return (options?.limit ? selected.slice(0, options.limit) : selected).map(apiToCard);
   } catch {
     return [];
   }

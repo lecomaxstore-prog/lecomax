@@ -1,3 +1,6 @@
+import { OFFICIAL_SOCIAL_IMAGE, SOCIAL_IMAGE_METADATA } from "@/lib/social-image";
+import { isBestsellerEligible, selectBestsellers } from "@/lib/bestseller-eligibility";
+import { STOREFRONT_TITLE, STOREFRONT_DESCRIPTION } from "@/lib/storefront-metadata";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import HeroBanner from "@/components/HeroBanner";
@@ -13,7 +16,7 @@ const OurProductsGrid = dynamic(() => import("@/components/OurProductsGrid"));
 const ScrollReveal = dynamic(() => import("@/components/ScrollReveal"));
 const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
-import { products as staticProducts, type CardProduct } from "@/lib/products";
+import { type CardProduct, products as catalogProducts } from "@/lib/products";
 import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import type { HeroBannerRecord } from "@/lib/hero-banners";
 import { shippingConfigFromSettings, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
@@ -23,9 +26,8 @@ import { serializeJsonLd } from "@/lib/seo";
 const SITE_URL_PAGE = "https://lecomax.com";
 
 const defaultHomeMetadata: Metadata = {
-  title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
-  description:
-    "Boutique en ligne au Maroc : chaussures, mode et accessoires tech. Livraison partout à {{shipping}}, paiement à la livraison et Retours sous 30 jours, selon conditions.",
+  title: STOREFRONT_TITLE,
+  description: STOREFRONT_DESCRIPTION,
   keywords: [
     "boutique en ligne Maroc",
     "acheter chaussures Maroc",
@@ -43,25 +45,15 @@ const defaultHomeMetadata: Metadata = {
     locale: "fr_MA",
     url: SITE_URL_PAGE,
     siteName: "L'ecomax",
-    title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
-    description:
-      "Boutique en ligne Maroc — chaussures, vêtements sport, écouteurs, enceintes et gaming. Livraison {{shipping}} partout au Maroc. Paiement à la livraison.",
-    images: [
-      {
-        url: `${SITE_URL_PAGE}/ecomax-hero-banner.jpg.png`,
-        width: 1200,
-        height: 630,
-        alt: "L'ecomax — Boutique en ligne Maroc",
-        type: "image/png",
-      },
-    ],
+    title: STOREFRONT_TITLE,
+    description: STOREFRONT_DESCRIPTION,
+    images: [SOCIAL_IMAGE_METADATA],
   },
   twitter: {
     card: "summary_large_image",
-    title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
-    description:
-      "Boutique en ligne Maroc — chaussures, vêtements, écouteurs, enceintes et gaming. Livraison {{shipping}}.",
-    images: [`${SITE_URL_PAGE}/ecomax-hero-banner.jpg.png`],
+    title: STOREFRONT_TITLE,
+    description: STOREFRONT_DESCRIPTION,
+    images: [OFFICIAL_SOCIAL_IMAGE],
   },
 };
 
@@ -95,7 +87,7 @@ async function getHeroImages() {
           apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
           Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
         },
-        next: { revalidate: 60 },
+        cache: "no-store",
       }
     );
     if (!res.ok) return {};
@@ -110,19 +102,20 @@ async function getHeroBanners(): Promise<HeroBannerRecord[]> {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/banners?active=eq.true&select=*&order=sort_order.asc,created_at.asc`,
-      { headers: supabaseServiceHeaders(), next: { revalidate: 60 } }
+      { headers: supabaseServiceHeaders(), cache: "no-store" }
     );
     return response.ok ? await response.json() : [];
   } catch { return []; }
 }
 
 export default async function HomePage() {
-  // Merge DB products with static, DB products appear first
-  const [dbProducts, heroImages, heroBanners, reviewStats] = await Promise.all([
+  // Read the same live catalogue used by the app.
+  const [dbProducts, heroImages, heroBanners, reviewStats, promotionProducts] = await Promise.all([
     getDbProducts({ activeOnly: true }),
     getHeroImages(),
     getHeroBanners(),
     getReviewStats(),
+    getDbProducts({ activeOnly: true, promotionOnly: true }),
   ]);
   const shippingConfig = shippingConfigFromSettings(heroImages);
 
@@ -132,7 +125,7 @@ export default async function HomePage() {
   try {
     const ecomediaParams = new URLSearchParams({
       is_published: "eq.true",
-      type: "in.(image,product,promotion)",
+      type: "eq.image",
       media_url: "not.is.null",
       or: `(cta_text.is.null,cta_text.not.like.${ECOMEDIA_COMMUNITY_AUTHOR_PREFIX}*)`,
       order: "created_at.desc",
@@ -143,27 +136,26 @@ export default async function HomePage() {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/ecomedia_posts?${ecomediaParams}`,
       {
         headers: supabaseServiceHeaders(),
-        next: { revalidate: 60 },
+        cache: "no-store",
       }
     );
     if (res.ok) { const rows = await res.json(); latestPost = rows[0] ?? null; }
   } catch { /* silent */ }
 
-  const dbSlugs = new Set(dbProducts.map((p) => p.slug));
-  const allProducts: CardProduct[] = [
-    ...dbProducts,
-    ...(staticProducts as CardProduct[]).filter((p) => !dbSlugs.has(p.slug)),
-  ].map((p) => ({
+  // Keep the storefront populated while the live catalogue is unavailable.
+  const sourceProducts = dbProducts.length > 0 ? dbProducts : catalogProducts;
+  const allProducts: CardProduct[] = sourceProducts.map((p) => ({
     ...p,
     rating: reviewStats[p.slug]?.rating,
     reviewCount: reviewStats[p.slug]?.count,
   }));
 
   const newArrivals = allProducts.filter((p) => p.badge === "Nouveau");
-  const bestSellers = allProducts.filter((p) => p.badge === "Bestseller");
+  const bestsellerCandidates = allProducts.filter(isBestsellerEligible);
+  const bestSellers = bestsellerCandidates.filter((p) => p.badge === "Bestseller");
   // Fall back: if no featured in DB, show first 4 DB products as "nouveautés"
-  const featuredForRail = (newArrivals.length > 0 ? newArrivals : dbProducts).slice(0, 8);
-  const bestSellersForRail = bestSellers.length > 0 ? bestSellers : dbProducts.slice(0, 8);
+  const featuredForRail = (newArrivals.length > 0 ? newArrivals : allProducts).slice(0, 8);
+  const bestSellersForRail = selectBestsellers(allProducts, bestSellers.length > 0 ? bestSellers : bestsellerCandidates).slice(0, 8);
 
   const SITE_URL = "https://lecomax.com";
   const itemListSchema = {
@@ -229,7 +221,7 @@ export default async function HomePage() {
         "name": "Quels types de produits vend L'ecomax ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "L'ecomax propose des chaussures de sport et lifestyle, des vêtements tendance (homme et femme), des écouteurs Bluetooth, des enceintes HiFi et des accessoires gaming comme des manettes sans fil. Tous les produits sont sélectionnés pour leur qualité et leur rapport qualité-prix."
+          "text": "L'ecomax est une marketplace lifestyle généraliste, ouverte à tous les univers du quotidien. Découvrez nos catégories et nos produits disponibles : notre sélection évolue au fil des nouveautés, sans se limiter à la mode, au sport ou à la tech."
         }
       }
     ]
@@ -240,7 +232,7 @@ export default async function HomePage() {
     "@type": "WebPage",
     "@id": `${SITE_URL_PAGE}/#webpage`,
     "url": SITE_URL_PAGE,
-    "name": "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
+    "name": STOREFRONT_TITLE,
     "description": `Boutique en ligne au Maroc — chaussures running, vêtements tendance, écouteurs Bluetooth, enceintes HiFi et accessoires gaming. Livraison ${formatShippingAmount(shippingConfig.cost)} MAD partout au Maroc.`,
     "isPartOf": { "@id": `${SITE_URL_PAGE}/#website` },
     "about": { "@id": `${SITE_URL_PAGE}/#organization` },
@@ -266,6 +258,7 @@ export default async function HomePage() {
 
       <ProductRail
         title="Nouveautés"
+        cardStyle="collection"
         products={featuredForRail}
         cta={{ label: "Tout voir", href: "/nouveautes" }}
       />
@@ -276,6 +269,7 @@ export default async function HomePage() {
 
       <ProductRail
         title="Bestsellers"
+        refined
         products={bestSellersForRail}
         cta={{ label: "Tout voir", href: "/bestsellers" }}
       />
@@ -322,7 +316,7 @@ export default async function HomePage() {
 
       <ProductRail
         title="En promotion"
-        products={allProducts.filter((p) => p.oldPrice)}
+        products={(promotionProducts.length > 0 ? promotionProducts : allProducts.filter(p => (p.oldPrice ?? 0) > p.price)).slice(0, 8).map(p => ({ ...p, rating: reviewStats[p.slug]?.rating, reviewCount: reviewStats[p.slug]?.count }))}
         cta={{ label: "Voir les promos", href: "/promotions" }}
       />
 
@@ -446,7 +440,7 @@ export default async function HomePage() {
                 <Link href={`/ecomedia/${latestPost.slug}`} className="group block w-full max-w-[430px]" aria-label={`Voir la publication : ${latestPost.title}`}>
                   <div className="overflow-hidden rounded-[1.4rem] border border-white/15 bg-[#111512] shadow-[0_28px_70px_rgba(0,0,0,.5)] transition duration-500 group-hover:-translate-y-1 group-hover:border-[#3ecf4c]/60">
                     <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3.5">
-                      <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-[#3ecf4c]/60 bg-black p-1"><img src="/images/lm-icon.svg" alt="" className="h-full w-full object-cover" /></div>
+                      <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-[#3ecf4c]/60 bg-black p-1"><img src="/brand/lecomax-premium-icon.png" alt="" className="h-full w-full object-cover" /></div>
                       <div><p className="text-[11px] font-black">L&apos;ecomax</p><p className="mt-0.5 text-[9px] text-white/35">Publication officielle</p></div>
                       <span className="ml-auto flex items-center gap-1.5 rounded-full border border-[#3ecf4c]/25 bg-[#3ecf4c]/10 px-2.5 py-1 text-[8px] font-black uppercase tracking-wider text-[#3ecf4c]"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#3ecf4c]"/>Nouveau</span>
                     </div>
@@ -564,12 +558,12 @@ export default async function HomePage() {
       {/* ── SEO text block ──────────────────────────────────── */}
       <section className="max-w-5xl mx-auto px-6 py-16 border-t border-neutral-100">
         <h2 className="text-xl font-black mb-6 text-neutral-800">
-          L&apos;ecomax — Boutique en ligne au Maroc : Mode, Sport &amp; Tech
+          L&apos;ecomax — Votre marketplace lifestyle au Maroc
         </h2>
         <div className="grid md:grid-cols-2 gap-8 text-neutral-500 text-[14px] leading-relaxed">
           <div>
             <p>
-              L&apos;ecomax est une boutique en ligne marocaine spécialisée dans les vêtements tendance, les chaussures de sport et les accessoires tech. Retrouvez une sélection soignée de baskets respirantes pour la course à pied, de chaussons confortables pour femme, de vestes et hoodies homme et femme, ainsi que des accessoires gaming et audio de qualité premium.
+              L&apos;ecomax est une marketplace lifestyle généraliste qui réunit des trouvailles, des envies et des essentiels pour votre quotidien. Explorez nos univers et découvrez une sélection qui s&apos;enrichit au fil des nouveautés. Une seule adresse pour accompagner votre style de vie, aujourd&apos;hui et demain.
             </p>
           </div>
           <div>
@@ -582,3 +576,4 @@ export default async function HomePage() {
     </>
   );
 }
+

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Lecomax",
     "slug": "lecomax",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "runtimeVersion": {
       "policy": "appVersion"
     },
@@ -13,11 +13,11 @@
       "fallbackToCacheTimeout": 0
     },
     "orientation": "default",
-    "icon": "./assets/images/app-icon-v2.png",
+    "icon": "./assets/images/app-icon-v3.png",
     "scheme": "lecomax",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/images/app-icon-v2.png",
+      "icon": "./assets/images/app-icon-v3.png",
       "bundleIdentifier": "com.lecomax.app",
       "supportsTablet": true,
       "infoPlist": {
@@ -28,7 +28,7 @@
       "associatedDomains": [
         "applinks:lecomax.com"
       ],
-      "buildNumber": "21"
+      "buildNumber": "24"
     },
     "android": {
       "package": "com.lecomax.app",
@@ -56,11 +56,11 @@
         "backgroundImage": "./assets/images/android-icon-background-v2.png",
         "monochromeImage": "./assets/images/android-icon-monochrome-v2.png"
       },
-      "versionCode": 21
+      "versionCode": 24
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon-v2.png"
+      "favicon": "./assets/images/favicon-v3.png"
     },
     "plugins": [
       "expo-router",
@@ -119,3 +119,4 @@
     }
   }
 }
+

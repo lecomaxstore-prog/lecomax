@@ -22,6 +22,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { BrandLogo } from "@/components/brand-logo";
+import { AuthConfirmation } from "@/components/auth-confirmation";
 import { palette, typography } from "@/constants/theme";
 import { supabase } from "@/lib/supabase";
 import { runtimeConfig } from "@/lib/runtime-config";
@@ -68,6 +69,7 @@ export default function AuthScreen() {
     message: string;
   }>();
   const [resetting, setResetting] = useState(false);
+  const [confirmationEmail, setConfirmationEmail] = useState<string>();
 
   const {
     control,
@@ -127,6 +129,10 @@ export default function AuthScreen() {
             });
 
       if (result.error) {
+        if (mode === "login" && result.error.code === "email_not_confirmed") {
+          setConfirmationEmail(normalizedEmail);
+          return;
+        }
         setFeedback({
           type: "error",
           message:
@@ -142,11 +148,7 @@ export default function AuthScreen() {
           );
           return;
         }
-        setFeedback({
-          type: "success",
-          message:
-            msg("auth.accountCreatedCheckYourInboxIfConfirmationIsRequired"),
-        });
+        setConfirmationEmail(normalizedEmail);
         return;
       }
 
@@ -191,7 +193,8 @@ export default function AuthScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      enabled
       style={styles.screen}
     >
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 10) }]}>
@@ -224,6 +227,14 @@ export default function AuthScreen() {
           { paddingBottom: Math.max(insets.bottom, 24) + 20 },
         ]}
       >
+        {confirmationEmail ? (
+          <AuthConfirmation email={confirmationEmail} onSignIn={() => {
+            setConfirmationEmail(undefined);
+            setMode("login");
+            setFeedback(undefined);
+            clearErrors();
+          }} />
+        ) : <>
         <Animated.View entering={FadeIn.duration(320)} style={styles.intro}>
           <Text style={styles.title}>
             {mode === "login" ? msg("auth.welcomeBack") : msg("auth.welcomeToLEcomax")}
@@ -303,6 +314,7 @@ export default function AuthScreen() {
                         autoComplete="given-name"
                         returnKeyType="next"
                         selectionColor={palette.greenDark}
+                        showSoftInputOnFocus
                         style={[styles.input, styles.nameInput, webInputReset]}
                       />
                     </View>
@@ -336,6 +348,7 @@ export default function AuthScreen() {
                         autoComplete="family-name"
                         returnKeyType="next"
                         selectionColor={palette.greenDark}
+                        showSoftInputOnFocus
                         style={[styles.input, styles.nameInput, webInputReset]}
                       />
                     </View>
@@ -386,7 +399,8 @@ export default function AuthScreen() {
                     keyboardType="email-address"
                     returnKeyType="next"
                     selectionColor={palette.greenDark}
-                    style={[styles.input, webInputReset]}
+                      showSoftInputOnFocus
+                      style={[styles.input, webInputReset]}
                   />
                   {value && !errors.email ? (
                     <Ionicons
@@ -540,6 +554,7 @@ export default function AuthScreen() {
                         returnKeyType="done"
                         secureTextEntry={!showPassword}
                         selectionColor={palette.greenDark}
+                        showSoftInputOnFocus
                         style={[styles.input, webInputReset]}
                       />
                       {passwordMatches ? (
@@ -655,6 +670,7 @@ export default function AuthScreen() {
             />
           </AnimatedPressable>
         </Animated.View>
+        </>}
       </ScrollView>
     </KeyboardAvoidingView>
   );

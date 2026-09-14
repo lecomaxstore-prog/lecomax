@@ -1,4 +1,5 @@
-import { selectedInventory, preorderSnapshot } from "@/lib/purchasability";
+import { sortProductSizes } from "@/lib/product-sizes";
+import { selectedInventory, preorderSnapshot, availableSizesForColor } from "@/lib/purchasability";
 import { PreorderNotice } from "@/components/preorder-notice";
 import { localizedContent } from "@/i18n/content";
 import { localizedError } from "@/i18n/errors";
@@ -33,6 +34,7 @@ import { ProductGallery } from "@/components/product-gallery";
 import { ProductReviews } from "@/components/product-reviews";
 import { useProductImage } from "@/hooks/use-product-image";
 import { ShoeSizeGuide } from "@/components/shoe-size-guide";
+import { productSizeGuideFromTags } from "@/lib/product-size-guide";
 import { palette, typography } from "@/constants/theme";
 import {
   useProducts,
@@ -288,18 +290,12 @@ export default function ProductScreen() {
   const wishlistEnabled = settingsMap.enable_wishlist === "true";
   const reviewsEnabled = settingsMap.enable_reviews !== "false";
   const outOfStockColors = product.out_of_stock_colors ?? [];
-  const outOfStockSizes = product.out_of_stock_sizes ?? [];
   const defaultColor =
     product.colors?.find((item) => !outOfStockColors.includes(item)) ??
     product.colors?.[0];
   const selectedColor =
     color && product.colors?.includes(color) ? color : defaultColor;
-  const colorSizes = product.color_sizes;
-  const sizesForColor = (value?: string) =>
-    (!product.preorder_enabled && value && outOfStockColors.includes(value)
-      ? []
-      : product.preorder_enabled ? product.sizes || [] : (value && colorSizes?.[value]) || product.sizes || []
-    ).filter((item) => product.preorder_enabled ? selectedInventory(product,value,item)>=0 : !outOfStockSizes.includes(item));
+  const sizesForColor = (value?: string) => availableSizesForColor(product, value);
   const availableSizes = sizesForColor(selectedColor);
   const selectedSize =
     size && availableSizes.includes(size) ? size : availableSizes[0];
@@ -612,7 +608,7 @@ export default function ProductScreen() {
                 </AnimatedPressable>
               </View>
               <View style={styles.sizes}>
-                {product.sizes?.map((item) => {
+                {sortProductSizes(product.sizes ?? []).map((item) => {
                   const selected = item === selectedSize;
                   const unavailable = !availableSizes.includes(item);
                   return (
@@ -780,6 +776,7 @@ export default function ProductScreen() {
         </View>
 
         <ShoeSizeGuide
+          customGuide={productSizeGuideFromTags(product.tags)}
           open={sizeGuideOpen}
           onClose={() => setSizeGuideOpen(false)}
           productSizes={product.sizes ?? []}
@@ -849,22 +846,20 @@ export default function ProductScreen() {
           { paddingBottom: Math.max(insets.bottom, 9) },
         ]}
       >
-        <View
-          style={[
-            styles.purchasePrice,
-            contentWidth <= 340 && styles.purchasePriceCompact,
-          ]}
-        >
+        <View style={styles.purchasePrice}>
           <Text style={styles.purchasePriceLabel}>{msg("product.unitPrice")}</Text>
           <Text
             numberOfLines={1}
+            ellipsizeMode="clip"
             accessibilityLabel={money(selectedPrice, currency)}
             adjustsFontSizeToFit
             minimumFontScale={0.75}
             style={[styles.purchasePriceValue, saving > 0 && styles.promotionalPrice]}
           >
             {displayAmount}
-            <Text style={styles.priceCurrency}>{"\u00A0"}{displayCurrency}</Text>
+          </Text>
+          <Text accessible={false} style={styles.purchasePriceCurrency}>
+            {displayCurrency}
           </Text>
         </View>
         <AnimatedPressable
@@ -1514,11 +1509,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   purchasePrice: {
-    width: 100,
+    width: "42%",
+    maxWidth: 160,
     minWidth: 0,
+    flexShrink: 0,
     justifyContent: "center",
   },
-  purchasePriceCompact: { width: 82 },
   purchasePriceLabel: {
     color: "#777C76",
     fontFamily: typography.medium,
@@ -1531,11 +1527,18 @@ const styles = StyleSheet.create({
     marginTop: 3,
     color: "#202521",
     fontFamily: typography.semibold,
-    fontSize: 20,
-    lineHeight: 26,
-    letterSpacing: -0.5,
+    fontSize: 18,
+    lineHeight: 24,
+    letterSpacing: -0.6,
     includeFontPadding: false,
     fontVariant: ["tabular-nums"],
+  },
+  purchasePriceCurrency: {
+    color: "#777C76",
+    fontFamily: typography.medium,
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 0.4,
   },
   addButton: {
     minWidth: 0,
