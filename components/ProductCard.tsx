@@ -1,9 +1,11 @@
-﻿"use client";
-import Image from "next/image";
+"use client";
+import ProductImage from "./ProductImage";
+import CardColorOptions from "./CardColorOptions";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { formatMAD, type CardProduct } from "@/lib/products";
 import { useWishlist } from "./WishlistContext";
+import styles from "./ProductCard.module.css";
 
 const COLOR_MAP: Record<string, string> = {
   "Noir": "#0a0a0a", "Blanc": "#f5f5f5", "Blanc casse": "#fafaf5",
@@ -22,7 +24,7 @@ const COLOR_MAP: Record<string, string> = {
 const getColor = (name: string) => COLOR_MAP[name.split("/")[0].trim()] ?? "#e5e7eb";
 
 
-export default function ProductCard({ product }: { product: CardProduct }) {
+export default function ProductCard({ product, recommendation = false }: { product: CardProduct; recommendation?: boolean }) {
   const [mounted, setMounted] = useState(false);
   const { slugs: wishlistSlugs, pending: wishlistPending, toggle: toggleWishlist } = useWishlist();
   const wished = wishlistSlugs.has(product.slug);
@@ -38,26 +40,26 @@ export default function ProductCard({ product }: { product: CardProduct }) {
 
   return (
     <article
-      className="group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm transition-[box-shadow,border-color] duration-300 hover:border-neutral-300 hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2 motion-reduce:transition-none"
+      className={`${styles.card} product-card group relative isolate flex h-full flex-col overflow-hidden bg-white focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2`}
     >
       {/* Image */}
-      <div className="relative aspect-[4/5] overflow-hidden border-b border-[#f0f1ec] bg-white">
-        <Image
+      <div className={`${styles.media} relative aspect-square overflow-hidden`}>
+        <ProductImage
           src={displayImage}
           alt={product.name}
           fill
-          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-          className={`object-contain px-2.5 pb-3 pt-9 transition-transform duration-500 motion-reduce:transition-none sm:px-4 sm:pb-4 sm:pt-10 ${outOfStock ? "opacity-60 grayscale-[25%]" : "group-hover:scale-[1.03] motion-reduce:transform-none"}`}
+          sizes="(min-width: 1024px) 25vw, 50vw"
+          className={`${styles.productImage} object-contain transition-transform duration-500 motion-reduce:transition-none ${outOfStock ? "opacity-60 grayscale-[25%]" : "group-hover:scale-[1.03] motion-reduce:transform-none"}`}
         />
 
         {/* Top-left badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+        <div className={`${styles.badges} absolute top-3 left-3 flex flex-col gap-1.5 items-start`}>
           {outOfStock && (
             <span className="rounded-full bg-neutral-950 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-white shadow-sm">
               Épuisé
             </span>
           )}
-          {product.badge && (
+          {product.badge && product.badge !== "Promo" && (
             <span className={`text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full leading-none ${
               product.badge === "Nouveau" ? "bg-black text-white" :
               product.badge === "Bestseller" ? "bg-amber-400 text-black" :
@@ -68,7 +70,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
             </span>
           )}
           {onSale && discount >= 5 && (
-            <span className="bg-red-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full leading-none">
+            <span className={styles.discount}>
               -{discount}%
             </span>
           )}
@@ -93,34 +95,9 @@ export default function ProductCard({ product }: { product: CardProduct }) {
       </div>
 
       {/* Info */}
-      <div className="flex flex-1 flex-col p-3 sm:p-4">
-        {/* Colors */}
-        {product.colors.length > 0 && (
-          <div className="mb-2.5 flex min-h-5 items-center gap-2">
-            {product.colors.slice(0, 5).map((c, i) => (
-              <span
-                key={i}
-                aria-label={c}
-                title={c}
-                className="group/swatch relative h-4 w-4 shrink-0 cursor-default rounded-full border-2 border-white shadow-[0_1px_3px_rgba(0,0,0,.14)] ring-1 ring-neutral-300 transition-transform duration-150 hover:z-10 hover:scale-110 hover:ring-neutral-500"
-                style={{ backgroundColor: getColor(c) }}
-              >
-                {/* Tooltip */}
-                <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap bg-neutral-900 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md opacity-0 group-hover/swatch:opacity-100 transition-opacity duration-150 shadow-lg">
-                  {c}
-                </span>
-              </span>
-            ))}
-            {product.colors.length > 5 && (
-              <span className="flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-neutral-100 px-1 text-[8px] font-bold text-neutral-500">
-                +{product.colors.length - 5}
-              </span>
-            )}
-          </div>
-        )}
-
+      <div className={`${styles.info} flex flex-1 flex-col`}>
         {/* Title */}
-        <h3 title={product.name} className="min-h-[3.9em] line-clamp-3 text-[13px] font-semibold leading-[1.3] tracking-[-0.01em] text-neutral-800 sm:text-sm">
+        <h3 title={product.name} className={`${styles.title} line-clamp-2`}>
           {product.name}
         </h3>
 
@@ -153,9 +130,9 @@ export default function ProductCard({ product }: { product: CardProduct }) {
         )}
 
         {/* Price */}
-        <div className="mt-auto pt-3">
+        <div className={styles.prices}>
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1.5">
-            <span className={`text-lg font-extrabold leading-none tracking-[-0.03em] sm:text-xl ${onSale ? "text-red-600" : "text-neutral-950"}`}>
+            <span className={styles.price}>
               {formatMAD(product.price)}
             </span>
             {onSale && (
@@ -165,13 +142,16 @@ export default function ProductCard({ product }: { product: CardProduct }) {
             )}
           </div>
         </div>
+        <div className="mt-auto border-t border-neutral-100">
+          <CardColorOptions colors={product.colors ?? []} />
+        </div>
         <Link
           href={`/produit/${product.slug}`}
           aria-label={`Voir le produit : ${product.name}`}
-          className={`mt-4 flex min-h-11 items-center justify-between gap-2 rounded-xl px-3 text-[11px] font-semibold transition-colors after:absolute after:inset-0 after:z-10 after:content-[''] focus-visible:outline-none sm:text-xs ${outOfStock ? "bg-neutral-100 text-neutral-600" : "bg-emerald-50 text-emerald-900 group-hover:bg-emerald-100"}`}
+          className={`${styles.action} mt-2 flex min-h-11 items-center justify-between gap-1.5 px-3 text-[11px] font-semibold transition-colors after:absolute after:inset-0 after:z-10 after:content-[''] focus-visible:outline-none ${outOfStock ? "bg-neutral-100 text-neutral-600" : "bg-[#183c30] text-white group-hover:bg-[#235340]"}`}
         >
           <span>{outOfStock ? "Voir les détails" : "Voir le produit"}</span>
-          <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${outOfStock ? "bg-neutral-200 text-neutral-600" : "bg-emerald-600 text-white"}`}>
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </span>
         </Link>

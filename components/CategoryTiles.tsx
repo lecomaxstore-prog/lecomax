@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { useStoreRefresh } from "@/lib/use-store-refresh";
+import { products as catalogProducts } from "@/lib/products";
 
 type StoreCategory = {
   id?: string;
@@ -22,6 +23,13 @@ const fallbackImages: Record<string, string> = {
   femme: "/images/pages images/femme.png",
   chaussures: "/images/pages images/chaussures.png",
   accessoires: "/images/pages images/accessoires.png",
+};
+
+const printedClothingImages: Record<string, string> = {
+  homme: "/images/collection-homme-printed-v3.webp",
+  femme: "/images/collection-femme-printed-v3.webp",
+  chaussures: "/images/collection-chaussures-v4.webp",
+  accessoires: "/images/collection-accessoires-v4.webp",
 };
 
 function useInView() {
@@ -61,14 +69,25 @@ export default function CategoryTiles() {
     }).catch(() => {});
   });
 
-  const categories = [...dbCategories].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)).map((category) => ({
+  const fallbackCategories: StoreCategory[] = [
+    { slug: "homme", label: "Homme", image: null, sort_order: 1 },
+    { slug: "femme", label: "Femme", image: null, sort_order: 2 },
+    { slug: "chaussures", label: "Chaussures", image: null, sort_order: 3 },
+    { slug: "accessoires", label: "Accessoires", image: null, sort_order: 4 },
+  ];
+  const sourceCategories = dbCategories.length ? dbCategories : fallbackCategories;
+  const sourceCounts = Object.keys(counts).length ? counts : catalogProducts.reduce<Record<string, number>>((result, product) => {
+    result[product.category] = (result[product.category] || 0) + 1;
+    return result;
+  }, {});
+  const categories = [...sourceCategories].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)).map((category) => ({
     ...category,
-    count: counts[category.slug] ?? 0,
+    count: sourceCounts[category.slug] ?? 0,
   }));
   const total = categories.reduce((sum, category) => sum + category.count, 0);
 
   return (
-    <section hidden={!categories.length} className="mx-auto max-w-7xl px-4 py-16 md:px-6" ref={ref}>
+    <section hidden={!categories.length} className="mx-auto max-w-7xl px-4 pb-7 pt-10 sm:pb-10 md:px-6 md:pt-14" ref={ref}>
       <div className="mb-8 flex items-end justify-between border-b border-neutral-100 pb-6" style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(18px)", transition: "all .6s ease" }}>
         <div><p className="mb-2 text-[10px] font-black uppercase tracking-[.28em] text-[#22a936]">Collections</p><h2 className="h-display text-3xl md:text-[2.6rem]">Acheter par catégorie</h2></div>
         <span className="hidden text-[11px] font-bold uppercase tracking-[.2em] text-neutral-400 md:block">{total} articles</span>
@@ -84,13 +103,20 @@ export default function CategoryTiles() {
 }
 
 function CategoryTile({ category, index, visible }: { category: StoreCategory & { count: number }; index: number; visible: boolean }) {
+  const printedImage = printedClothingImages[category.slug];
   const collectionImage = ["homme", "femme", "chaussures", "accessoires"].includes(category.slug)
     ? `/images/collection-${category.slug}-v2.webp`
     : null;
-  const desktop = category.image || collectionImage || fallbackImages[category.slug] || "/images/pages images/homme.png";
-  const mobile = category.image_mobile || desktop;
-  const desktopPosition = collectionImage ? "50% 50%" : category.image_position || "50% 50%";
-  const mobilePosition = collectionImage ? "50% 50%" : category.image_mobile_position || desktopPosition;
+  // Replace the original campaign photos while retaining custom admin uploads.
+  const isDefaultImage = (image: string | null | undefined) => !image || image === fallbackImages[category.slug] || image === collectionImage;
+  const desktop = printedImage && isDefaultImage(category.image)
+    ? printedImage
+    : category.image || collectionImage || fallbackImages[category.slug] || "/images/pages images/homme.png";
+  const mobile = printedImage && category.image_mobile && isDefaultImage(category.image_mobile)
+    ? printedImage
+    : category.image_mobile || desktop;
+  const desktopPosition = desktop === printedImage || desktop === collectionImage ? "50% 50%" : category.image_position || "50% 50%";
+  const mobilePosition = mobile === printedImage || mobile === collectionImage ? "50% 50%" : category.image_mobile_position || desktopPosition;
   return (
     <Link
       href={`/boutique?cat=${encodeURIComponent(category.slug)}`}

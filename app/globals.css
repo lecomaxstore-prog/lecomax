@@ -80,6 +80,21 @@ body {
   line-height: 0.92;
 }
 
+/* Reveal product actions on hover, touch press, or keyboard focus. */
+.product-card-cta {
+  opacity: 0;
+  transition: opacity 160ms ease, background-color 160ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .product-card:hover .product-card-cta { opacity: 1; }
+}
+.product-card:active .product-card-cta,
+.product-card:focus-visible .product-card-cta,
+.product-card:has(:focus-visible) .product-card-cta { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .product-card-cta { transition: none; }
+}
+
 /* Mobile drawer scroll — hide scrollbar */
 .drawer-scroll::-webkit-scrollbar { display: none; }
 
@@ -1156,6 +1171,11 @@ body {
   1% { transform: translateY(-2px) rotate(-8deg); }
   2.5% { transform: translateY(-1px) rotate(5deg); }
 }
+/* Keep assistance clear of the size menu; restore it as soon as the menu closes. */
+body:has([data-size-select-open="true"]) .eco-chat-launcher {
+  display: none;
+}
+
 .eco-chat-launcher {
   animation: eco-chat-enter 550ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
   transition: transform 200ms ease, background-color 200ms ease, box-shadow 200ms ease;

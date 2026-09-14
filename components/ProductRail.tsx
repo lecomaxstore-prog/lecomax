@@ -2,17 +2,23 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import ProductCard from "./ProductCard";
+import CollectionProductCard from "./CollectionProductCard";
 import Link from "next/link";
 import type { CardProduct } from "@/lib/products";
+import styles from "./ProductRail.module.css";
 
 export default function ProductRail({
   title,
   products,
   cta,
+  cardStyle = "default",
+  refined = false,
 }: {
   title: string;
   products: CardProduct[];
   cta?: { label: string; href: string };
+  cardStyle?: "default" | "collection";
+  refined?: boolean;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -20,7 +26,13 @@ export default function ProductRail({
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);
 
-  const VISIBLE = 4; // cards visible at once on desktop
+  const [VISIBLE, setVisibleCount] = useState(4);
+  useEffect(() => {
+    const update = () => setVisibleCount(window.innerWidth < 640 ? 2 : window.innerWidth < 768 ? 3 : 4);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
   const total = products.length;
   const maxIndex = Math.max(0, total - VISIBLE);
 
@@ -107,11 +119,11 @@ export default function ProductRail({
   }, [maxIndex]);
 
   return (
-    <section ref={sectionRef} className="max-w-7xl mx-auto px-4 md:px-6 py-10">
+    <section ref={sectionRef} className={`${refined ? styles.refined : ""} max-w-7xl mx-auto px-4 md:px-6 py-10`}>
       {/* Header */}
       <div className="rail-header sr sr-up flex items-center justify-between mb-8">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400 mb-1.5">Collection</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400 mb-1.5">{refined ? "La sélection L’ecomax" : "Collection"}</p>
           <h2 className="h-display text-2xl md:text-3xl leading-none">{title}</h2>
         </div>
         <div className="flex items-center gap-2.5">
@@ -209,7 +221,7 @@ export default function ProductRail({
               className="card-sr w-[calc(50%-6px)] sm:w-[calc(33.333%-8px)] md:w-[calc(25%-9px)] flex-none"
               style={{ scrollSnapAlign: "start" }}
             >
-              <ProductCard product={p} />
+              {cardStyle === "collection" ? <CollectionProductCard product={p} /> : <ProductCard product={p} />}
             </div>
           )) : (
             <div className="w-full py-12 flex flex-col items-center justify-center text-center border border-dashed border-neutral-200">
