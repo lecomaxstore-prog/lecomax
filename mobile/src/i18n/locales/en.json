@@ -1152,5 +1152,15 @@
   "preorder.unavailable": "This item or variant is no longer available to order.",
   "preorder.review": "This item now requires a pre-order. Review your cart before confirming.",
   "preorder.changed": "Stock, pricing or pre-order availability has changed. Review your cart.",
-  "preorder.quoteUnavailable": "This item or variant is no longer available."
+  "preorder.quoteUnavailable": "This item or variant is no longer available.",
+  "auth.confirmEyebrow": "YOUR L’ECOMAX ACCOUNT",
+  "auth.confirmTitle": "One last click.\nThen it’s all you.",
+  "auth.confirmIntro": "Confirm your email to join us.",
+  "auth.confirmSentTo": "Email address to confirm",
+  "auth.confirmInstructions": "Open the confirmation email and tap the confirmation button. Then come back here to sign in.",
+  "auth.confirmSpam": "Can’t see the email? Check your junk or spam folder too.",
+  "auth.confirmSignIn": "Continue to sign in",
+  "auth.confirmResend": "Resend confirmation email",
+  "auth.confirmResendWait": "Resend in {{seconds}}s",
+  "auth.confirmResent": "A new confirmation email has been requested. Check your inbox."
 }
