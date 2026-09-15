@@ -1156,20 +1156,22 @@ body {
   }
 }
 
-/* Chat launcher: a soft entrance, then a brief cue every 35 seconds. */
+/* Chat launcher: a gentle arrival and a short, quiet invitation every 14 seconds. */
 @keyframes eco-chat-enter {
-  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  from { opacity: 0; transform: translateY(16px) scale(0.94); }
+  70% { opacity: 1; transform: translateY(-2px) scale(1.01); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 @keyframes eco-chat-pulse {
-  0% { opacity: 0; transform: scale(1); }
-  1% { opacity: 0.35; transform: scale(1); }
-  4%, 100% { opacity: 0; transform: scale(1.07, 1.2); }
+  0%, 14%, 100% { opacity: 0; transform: scale(1); }
+  2% { opacity: 0.3; transform: scale(1); }
+  12% { opacity: 0; transform: scale(1.35); }
 }
 @keyframes eco-chat-icon-nudge {
-  0%, 4%, 100% { transform: translateY(0) rotate(0); }
-  1% { transform: translateY(-2px) rotate(-8deg); }
-  2.5% { transform: translateY(-1px) rotate(5deg); }
+  0%, 12%, 100% { transform: translateY(0) rotate(0); }
+  3% { transform: translateY(-1px) rotate(-9deg); }
+  6% { transform: translateY(-1px) rotate(6deg); }
+  9% { transform: translateY(0) rotate(-3deg); }
 }
 /* Keep assistance clear of the size menu; restore it as soon as the menu closes. */
 body:has([data-size-select-open="true"]) .eco-chat-launcher {
@@ -1177,33 +1179,50 @@ body:has([data-size-select-open="true"]) .eco-chat-launcher {
 }
 
 .eco-chat-launcher {
-  animation: eco-chat-enter 550ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  transition: transform 200ms ease, background-color 200ms ease, box-shadow 200ms ease;
+  animation: eco-chat-enter 800ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  box-shadow: 0 4px 16px rgb(24 60 48 / 9%);
+  transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
-.eco-chat-launcher::after {
+.eco-chat-launcher-icon {
+  position: relative;
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #183c30;
+  color: #fff;
+  transition: transform 250ms ease, background-color 250ms ease;
+}
+.eco-chat-launcher-icon::before {
   content: "";
   position: absolute;
-  inset: -3px;
-  border: 1px solid #3c8c6e;
+  inset: 0;
+  border: 1px solid #41785c;
   border-radius: inherit;
   opacity: 0;
   pointer-events: none;
-  animation: eco-chat-pulse 35s ease-out 35s infinite;
+  animation: eco-chat-pulse 14s ease-out 4s infinite;
 }
-.eco-chat-launcher-icon {
-  display: inline-flex;
-  animation: eco-chat-icon-nudge 35s ease-in-out 35s infinite;
+.eco-chat-launcher-icon svg {
+  animation: eco-chat-icon-nudge 14s ease-in-out 4s infinite;
+  transform-origin: 50% 70%;
 }
 @media (hover: hover) {
-  .eco-chat-launcher:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgb(24 60 48 / 22%); }
-  .eco-chat-launcher:hover::after,
-  .eco-chat-launcher:hover .eco-chat-launcher-icon { animation-play-state: paused; }
+  .eco-chat-launcher:hover { transform: translateY(-2px); border-color: #bdcdb6; box-shadow: 0 6px 20px rgb(24 60 48 / 13%); }
+  .eco-chat-launcher:hover .eco-chat-launcher-icon { transform: rotate(-6deg); background: #28533f; }
+  .eco-chat-launcher:hover .eco-chat-launcher-icon::before,
+  .eco-chat-launcher:hover .eco-chat-launcher-icon svg { animation-play-state: paused; }
 }
 .eco-chat-launcher:active { transform: translateY(0) scale(0.97); }
 @media (prefers-reduced-motion: reduce) {
   .eco-chat-launcher,
-  .eco-chat-launcher::after,
+  .eco-chat-launcher-icon::before,
+  .eco-chat-launcher-icon svg,
   .eco-chat-launcher-icon { animation: none; transition: none; }
+  .eco-chat-launcher:hover .eco-chat-launcher-icon,
   .eco-chat-launcher:hover,
   .eco-chat-launcher:active { transform: none; }
 }

@@ -1,4 +1,5 @@
 .card {
+  --card-inset: 12px;
   border: 1px solid #e6e8e1;
   border-radius: 14px;
   transition: border-color 180ms ease, box-shadow 180ms ease;
@@ -34,12 +35,41 @@
   box-shadow: none;
 }
 .badges > .discount { background: #edf2e7; color: #35512f; border-color: #e0e8d7; }
-.action { border-radius: 7px; }
+.action {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 4px calc(-1 * var(--card-inset)) calc(-1 * var(--card-inset));
+  padding: 12px var(--card-inset);
+  border-top: 1px solid #e6e8e1;
+  background: #fff;
+  color: #203d2b;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  transition: background-color 180ms ease;
+}
+.card:hover .action,
+.action:focus-visible {
+  background: #f6f8f3;
+}
+.actionArrow { transition: transform 180ms ease; }
+.card:hover .actionArrow,
+.action:focus-visible .actionArrow { transform: translateX(3px); }
+.actionUnavailable { color: #737373; }
+.card:hover .actionUnavailable,
+.actionUnavailable:focus-visible { background: #fafafa; }
 @media (min-width: 640px) {
+  .card { --card-inset: 16px; }
   .productImage { padding: 12px; }
   .info { padding: 16px; }
   .title { font-size: 14px; }
   .price { font-size: 20px; }
   .badges > span { font-size: 9px; }
 }
-@media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .card, .action, .actionArrow { transition: none; }
+  .card:hover .actionArrow, .action:focus-visible .actionArrow { transform: none; }
+}
