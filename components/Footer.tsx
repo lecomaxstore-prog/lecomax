@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND_COPY } from "@/mobile/src/lib/brand-copy";
 import { useState } from "react";
 import Link from "next/link";
 import Logo from "./Logo";
@@ -165,7 +166,7 @@ export default function Footer() {
           <div>
             <Logo variant="light" />
             <p className="text-white/50 text-[13px] mt-4 leading-relaxed">
-              Sport, style et tech — tout ce qu&apos;il vous faut pour performer au quotidien. Livraison rapide partout au Maroc.
+              Votre marketplace lifestyle — des trouvailles et des essentiels pour tous les univers du quotidien. Livraison partout au Maroc.
             </p>
             <div className="flex items-center gap-2 mt-6">
               {socials.map((s) => (

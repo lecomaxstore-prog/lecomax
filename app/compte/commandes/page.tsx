@@ -3,8 +3,9 @@
 import Link from "next/link";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useStoreRefresh } from "@/lib/use-store-refresh";
 import { customerApiFetch } from "@/lib/customer-api";
 
 const TABS = ["Toutes", "En cours", "Livrées", "Annulées"] as const;
@@ -41,20 +42,23 @@ export default function CommandesPage() {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) { setLoading(false); return; }
+  useStoreRefresh(async (signal) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (signal.aborted) return;
+      if (!session) { setOrders([]); setEmail(""); return; }
       const userEmail = session.user.email ?? "";
       setEmail(userEmail);
-      customerApiFetch(`/api/orders?email=${encodeURIComponent(userEmail)}`)
-        .then(r => r.json())
-        .then((data: Order[]) => {
-          setOrders(Array.isArray(data) ? data : []);
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    });
-  }, []);
+      const response = await customerApiFetch('/api/orders?email=' + encodeURIComponent(userEmail), {
+        signal, cache: "no-store",
+      });
+      if (!response.ok) throw new Error("Unable to refresh orders");
+      const data = await response.json();
+      if (!signal.aborted && Array.isArray(data)) setOrders(data);
+    } finally {
+      if (!signal.aborted) setLoading(false);
+    }
+  });
 
   const filtered = orders.filter(o => {
     if (activeTab === "Toutes") return true;

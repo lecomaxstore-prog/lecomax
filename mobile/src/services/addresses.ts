@@ -30,19 +30,25 @@ function fromWebsite(value: unknown, email: string): SavedAddress | null {
     .filter(Boolean)
     .join(", ");
   if (!id || !name || !phone || !city || !line) return null;
-  return { id, name, email, phone, city, address: line };
+  return { id, name, email, phone, city, address: line, websiteAddress: {
+    label: clean(address.label, 100), line1: clean(address.line1, 220),
+    line2: clean(address.line2, 120), zip: clean(address.zip, 20),
+    country: clean(address.country, 100),
+  } };
 }
 
 function toWebsite(address: SavedAddress, isDefault: boolean): WebsiteAddress {
+  const original = address.websiteAddress;
+  const unchanged = original && address.address === [original.line1, original.line2, original.zip].filter(Boolean).join(", ");
   return {
     id: address.id,
-    label: isDefault ? "Adresse principale" : "Adresse",
+    label: original?.label || (isDefault ? "Adresse principale" : "Adresse"),
     fullName: address.name,
-    line1: address.address,
-    line2: "",
+    line1: unchanged ? original.line1 : address.address,
+    line2: unchanged ? original.line2 : "",
     city: address.city,
-    zip: "",
-    country: "Maroc",
+    zip: unchanged ? original.zip : "",
+    country: original?.country || "Maroc",
     phone: address.phone,
     isDefault,
   };
@@ -59,14 +65,18 @@ export async function loadAccountAddresses() {
     .map((value) => fromWebsite(value, email))
     .filter((value): value is SavedAddress => Boolean(value));
   const defaultValue = values.find((value) =>
-    value && typeof value === "object" && !Array.isArray(value) && value.isDefault === true
+    value && typeof value === "object" && !Array.isArray(value) && value.isDefault === true &&
+    addresses.some(address => address.id === value.id)
   ) as Partial<WebsiteAddress> | undefined;
   return { addresses, defaultId: clean(defaultValue?.id, 80) || addresses[0]?.id || null };
 }
 
 export async function saveAccountAddresses(addresses: SavedAddress[], selectedAddressId: string | null) {
-  const normalized = addresses.slice(0, 10).map((address) =>
-    toWebsite(address, address.id === selectedAddressId),
+  const limited = addresses.slice(0, 10);
+  const defaultId = limited.some(address => address.id === selectedAddressId)
+    ? selectedAddressId : limited[0]?.id;
+  const normalized = limited.map((address) =>
+    toWebsite(address, address.id === defaultId),
   );
   const { error } = await supabase.auth.updateUser({ data: { addresses: normalized } });
   if (error) throw new Error(msg("addresses.unableToSyncYourAddresses"));

@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { enforceRateLimit, isSameOrigin } from "@/lib/api-security";
@@ -35,7 +37,7 @@ export async function POST(req: NextRequest) {
   const limited = enforceRateLimit(req, "admin:invite:activate", 10, 600_000);
   if (limited) return limited;
 
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   if (!body?.token || !/^[a-f0-9]{64}$/i.test(body.token)) {
     return NextResponse.json({ error: "Invalid or expired token" }, { status: 404 });
   }
@@ -46,6 +48,6 @@ export async function POST(req: NextRequest) {
     .eq("invite_token", body.token)
     .eq("status", "invited");
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

@@ -1,6 +1,10 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readFormDataLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { verifySessionToken } from "@/lib/admin-session";
+import { isAdminRequest } from "@/lib/request-auth";
+import { enforceRateLimit } from "@/lib/api-security";
+import { validMediaBytes } from "@/lib/upload-validation";
 import { getEcomediaUser } from "@/lib/ecomedia-auth";
 
 const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
@@ -16,20 +20,21 @@ async function getActor(req: NextRequest) {
   const user = await getEcomediaUser(req);
   if (user) return { id: user.id, isAdmin: false };
 
-  const adminToken = req.cookies.get("admin_session")?.value;
-  if (adminToken && await verifySessionToken(adminToken)) return { id: "admin", isAdmin: true };
+  if (await isAdminRequest(req)) return { id: "admin", isAdmin: true };
   return null;
 }
 
 export async function POST(req: NextRequest) {
+  const limited = enforceRateLimit(req, "community:upload", 15, 600_000);
+  if (limited) return limited;
   const actor = await getActor(req);
   if (!actor) return NextResponse.json({ error: "Connexion requise" }, { status: 401 });
 
   let formData: FormData;
-  try { formData = await req.formData(); }
+  try { formData = await readFormDataLimited(req, actor.isAdmin ? 101 * 1024 * 1024 : MAX_IMAGE_SIZE + 100_000); }
   catch { return NextResponse.json({ error: "Formulaire invalide" }, { status: 400 }); }
   const file = formData.get("file") as File | null;
-  if (!file) return NextResponse.json({ error: "Aucun fichier sélectionné" }, { status: 400 });
+  if (!(file instanceof File)) return NextResponse.json({ error: "Aucun fichier sélectionné" }, { status: 400 });
 
   const isImage = ALLOWED_IMAGE_TYPES.includes(file.type);
   const isVideo = ALLOWED_VIDEO_TYPES.includes(file.type);
@@ -54,18 +59,19 @@ export async function POST(req: NextRequest) {
   const filename = `${Date.now()}-${crypto.randomUUID()}.${extension}`;
   const path = `${actor.isAdmin ? "admin" : `community/${actor.id}`}/${folder}/${filename}`;
   const bytes = Buffer.from(await file.arrayBuffer());
+  if (!(await validMediaBytes(bytes, file.type))) return NextResponse.json({ error: "Fichier invalide ou dimensions excessives." }, { status: 415 });
 
   let usedBucket = BUCKET;
   let storedPath = path;
   const { error } = await sb.storage.from(BUCKET).upload(path, bytes, { contentType: file.type, upsert: false });
   if (error) {
     if (!error.message.toLowerCase().includes("bucket") && !error.message.toLowerCase().includes("not found")) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
     }
     usedBucket = "product-images";
     storedPath = `ecomedia/${path}`;
     const { error: fallbackError } = await sb.storage.from(usedBucket).upload(storedPath, bytes, { contentType: file.type, upsert: false });
-    if (fallbackError) return NextResponse.json({ error: fallbackError.message }, { status: 500 });
+    if (fallbackError) return NextResponse.json({ error: publicDatabaseError(fallbackError) }, { status: 500 });
   }
 
   const { data: publicUrl } = sb.storage.from(usedBucket).getPublicUrl(storedPath);

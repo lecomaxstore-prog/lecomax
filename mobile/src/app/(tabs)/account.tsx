@@ -7,7 +7,7 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import type { Session } from "@supabase/supabase-js";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -99,6 +99,16 @@ export default function AccountScreen() {
     back_in_stock: true,
   });
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [logoutConfirming, setLogoutConfirming] = useState(false);
+  const [logoutError, setLogoutError] = useState<string>();
+  const logoutPending = useRef(false);
+
+  useEffect(() => {
+    if (sheet !== "settings") {
+      setLogoutConfirming(false);
+      setLogoutError(undefined);
+    }
+  }, [sheet]);
 
   const settings = useMemo(
     () =>
@@ -291,27 +301,28 @@ export default function AccountScreen() {
   };
 
   const confirmLogout = () => {
-    Alert.alert(
-      msg("common.signOut"),
-      msg("account.yourGuestCartAndPreferencesWillStayOnThisDevice"),
-      [
-        { text: msg("addresses.cancel"), style: "cancel" },
-        {
-          text: msg("common.signOut"),
-          style: "destructive",
-          onPress: async () => {
-            setLogoutLoading(true);
-            const { error } = await supabase.auth.signOut();
-            setLogoutLoading(false);
-            if (error) {
-              Alert.alert(msg("account.unableToSignOut"), localizedError(error));
-              return;
-            }
-            setSheet(null);
-          },
-        },
-      ],
-    );
+    if (logoutPending.current) return;
+    setLogoutError(undefined);
+    setLogoutConfirming(true);
+  };
+
+  const performLogout = async () => {
+    if (logoutPending.current) return;
+    logoutPending.current = true;
+    setLogoutLoading(true);
+    setLogoutError(undefined);
+    try {
+      const { error } = await supabase.auth.signOut({ scope: "local" });
+      if (error) throw error;
+      setSession(null);
+      setLogoutConfirming(false);
+      setSheet(null);
+    } catch (error) {
+      setLogoutError(error instanceof Error ? localizedError(error) : msg("account.pleaseCheckYourConnection"));
+    } finally {
+      logoutPending.current = false;
+      setLogoutLoading(false);
+    }
   };
 
   const requestDeletion = () => {
@@ -354,7 +365,6 @@ export default function AccountScreen() {
         </View>
 
         <View style={styles.heading}>
-          <Text style={styles.pageEyebrow}>{msg("account.yourAccountUppercase")}</Text>
           <Text style={[styles.title, dark && styles.darkText]}>
             {msg("common.accountTitle")}</Text>
           <Text style={[styles.subtitle, dark && styles.darkSecondary]}>
@@ -423,22 +433,20 @@ export default function AccountScreen() {
             </AnimatedPressable>
           </View>
         ) : (
-          <View style={styles.guestCard}>
-            <View pointerEvents="none" accessible={false} style={styles.guestOrbit} />
-            <View pointerEvents="none" accessible={false} style={styles.guestOrbitInner} />
+          <View style={[styles.guestCard, dark && styles.darkSurface]}>
             <View style={styles.guestTopRow}>
-              <View style={styles.guestBadge}>
-                <View style={styles.guestBadgeDot} />
-                <Text style={styles.guestEyebrow}>{msg("account.yourSpaceYourStyleUppercase")}</Text>
+              <View style={[styles.guestEmblem, dark && styles.darkControl]}>
+                <Ionicons name="person-outline" size={24} color={dark ? "#DCE6D9" : "#294635"} />
               </View>
-              <View style={styles.guestEmblem}>
-                <Ionicons name="person-outline" size={21} color="#C6F6CB" />
+              <View style={styles.guestBadge}>
+                <Text style={[styles.guestEyebrow, dark && styles.darkSecondary]}>{msg("account.yourSpaceYourStyleUppercase")}</Text>
               </View>
             </View>
-            <Text style={styles.guestTitle}>{msg("account.welcomeHome")}</Text>
-            <Text style={styles.guestDescription}>
+            <Text style={[styles.guestTitle, dark && styles.darkText]}>{msg("account.welcomeHome").replace(/\n/g, " ")}</Text>
+            <Text style={[styles.guestDescription, dark && styles.darkSecondary]}>
               {msg("account.yourOrdersFavoritesAndBenefitsAllInOnePlace")}</Text>
             <AnimatedPressable
+              accessibilityRole="button"
               accessibilityLabel={msg("auth.signInText")}
               onPress={() =>
                 router.push({
@@ -450,10 +458,11 @@ export default function AccountScreen() {
             >
               <Text style={styles.loginButtonText}>{msg("auth.signInText")}</Text>
               <View style={styles.loginArrow}>
-                <Ionicons color={colors.text} name="arrow-forward" size={18} />
+                <Ionicons color="#F6F5EF" name="arrow-forward" size={18} />
               </View>
             </AnimatedPressable>
             <AnimatedPressable
+              accessibilityRole="button"
               accessibilityLabel={msg("auth.createAnAccount")}
               haptic={false}
               onPress={() =>
@@ -464,13 +473,17 @@ export default function AccountScreen() {
               }
               style={styles.registerButton}
             >
-              <Text style={styles.registerPrompt}>{msg("account.newHere")}{" "}<Text style={styles.registerText}>{msg("auth.createAnAccount")}</Text></Text>
+              <Text style={[styles.registerPrompt, dark && styles.darkSecondary]}>{msg("account.newHere")}</Text>
+              <View style={styles.registerLink}>
+                <Text style={[styles.registerText, dark && styles.darkText]}>{msg("auth.createAnAccount")}</Text>
+                <Ionicons name="chevron-forward" size={14} color={dark ? "#E4EDDE" : "#294635"} />
+              </View>
             </AnimatedPressable>
           </View>
         )}
 
         <SectionTitle dark={dark} title={msg("account.atYourFingertips")} />
-        <View style={styles.services}>
+        <View style={[styles.services, dark && styles.darkSurface]}>
           <ServiceTile
             dark={dark}
             icon="cube-outline"
@@ -512,6 +525,7 @@ export default function AccountScreen() {
             title={msg("account.myProfile")}
           />
           <ServiceTile
+            last
             dark={dark}
             icon="notifications-outline"
             onPress={() => router.push("/notifications")}
@@ -706,6 +720,12 @@ export default function AccountScreen() {
               </AnimatedPressable>
             </View>
 
+            <ScrollView
+              style={styles.sheetScroll}
+              contentContainerStyle={styles.sheetScrollContent}
+              showsVerticalScrollIndicator={true}
+              nestedScrollEnabled
+            >
             {sheet === "language" ? (
               <View style={styles.sheetOptions}>
                 <SheetOption dark={dark} label={msg("account.deviceLanguage")} leading={msg("account.autoUppercase")}
@@ -729,16 +749,6 @@ export default function AccountScreen() {
               <View style={styles.sheetOptions}>
                 <SheetOption
                   dark={dark}
-                  label={msg("account.automatic")}
-                  leading={msg("account.autoUppercase")}
-                  onPress={() => {
-                    setTheme("system");
-                    setSheet(null);
-                  }}
-                  selected={theme === "system"}
-                />
-                <SheetOption
-                  dark={dark}
                   label={msg("common.light")}
                   leading="☀"
                   onPress={() => {
@@ -746,16 +756,6 @@ export default function AccountScreen() {
                     setSheet(null);
                   }}
                   selected={theme === "light"}
-                />
-                <SheetOption
-                  dark={dark}
-                  label={msg("common.dark")}
-                  leading="◐"
-                  onPress={() => {
-                    setTheme("dark");
-                    setSheet(null);
-                  }}
-                  selected={theme === "dark"}
                 />
               </View>
             ) : sheet === "notifications" ? (
@@ -821,6 +821,21 @@ export default function AccountScreen() {
                       subtitle={msg("account.signOutOnThisDevice")}
                       onPress={confirmLogout}
                     />
+                    {logoutConfirming && (
+                      <View style={styles.logoutConfirmation}>
+                        <Text style={styles.logoutDescription}>{msg("account.yourGuestCartAndPreferencesWillStayOnThisDevice")}</Text>
+                        {logoutError && <Text accessibilityRole="alert" style={styles.logoutError}>{msg("account.unableToSignOut")}: {logoutError}</Text>}
+                        <View style={styles.logoutActions}>
+                          <AnimatedPressable accessibilityRole="button" disabled={logoutLoading} onPress={() => { setLogoutConfirming(false); setLogoutError(undefined); }} style={styles.logoutCancel}>
+                            <Text style={styles.logoutDescription}>{msg("addresses.cancel")}</Text>
+                          </AnimatedPressable>
+                          <AnimatedPressable accessibilityRole="button" accessibilityState={{ disabled: logoutLoading, busy: logoutLoading }} disabled={logoutLoading} onPress={() => void performLogout()} style={[styles.logoutSubmit, logoutLoading && { opacity: 0.6 }]}>
+                            {logoutLoading && <ActivityIndicator size="small" color="#FFFFFF" />}
+                            <Text style={styles.logoutSubmitText}>{logoutLoading ? msg("account.signingOut") : msg("common.signOut")}</Text>
+                          </AnimatedPressable>
+                        </View>
+                      </View>
+                    )}
                     <SettingsRow
                       danger
                       dark={dark}
@@ -833,6 +848,7 @@ export default function AccountScreen() {
                 ) : null}
               </View>
             )}
+            </ScrollView>
           </View>
         </AppViewportOverlay>
       </Modal>
@@ -844,7 +860,6 @@ function SectionTitle({ title, dark }: { title: string; dark: boolean }) {
   useLocale();
   return (
     <View style={styles.sectionTitleRow}>
-      <View style={styles.sectionLine} />
       <Text style={[styles.sectionTitle, dark && styles.darkText]}>
         {title}
       </Text>
@@ -858,43 +873,48 @@ function ServiceTile({
   icon,
   onPress,
   dark,
+  last = false,
 }: {
   title: string;
   subtitle: string;
   icon: keyof typeof Ionicons.glyphMap;
   onPress: () => void;
   dark: boolean;
+  last?: boolean;
 }) {
   useLocale();
   return (
     <AnimatedPressable
+      accessibilityRole="button"
       accessibilityLabel={`${title}. ${subtitle}`}
       onPress={onPress}
-      pressedScale={0.975}
-      style={[styles.serviceTile, dark && styles.darkSurface]}
+      pressedScale={0.99}
+      style={styles.serviceTile}
     >
-      <View style={styles.serviceTileTop}>
-        <View style={styles.serviceIcon}>
-          <Ionicons color={colors.primaryDark} name={icon} size={21} />
+      <View style={[styles.serviceIcon, dark && styles.serviceIconDark]}>
+        <Ionicons color={dark ? "#C3D5BC" : "#49624C"} name={icon} size={21} />
+      </View>
+      <View style={[
+        styles.serviceBody,
+        dark && styles.serviceBodyDark,
+        last && styles.serviceBodyLast,
+      ]}>
+        <View style={styles.serviceCopy}>
+          <Text style={[styles.serviceTitle, dark && styles.darkText]}>
+            {title}
+          </Text>
+          <Text style={[styles.serviceSubtitle, dark && styles.darkSecondary]}>
+            {subtitle}
+          </Text>
         </View>
-        <View style={[styles.serviceArrow, dark && styles.serviceArrowDark]}>
+        <View style={styles.serviceArrow}>
           <Ionicons
-            color={dark ? colors.white : colors.text}
-            name="arrow-forward"
-            size={15}
+            color={dark ? "#89998B" : "#969D91"}
+            name="chevron-forward"
+            size={16}
           />
         </View>
       </View>
-      <Text style={[styles.serviceTitle, dark && styles.darkText]}>
-        {title}
-      </Text>
-      <Text
-        maxFontSizeMultiplier={1.2}
-        numberOfLines={2}
-        style={[styles.serviceSubtitle, dark && styles.darkSecondary]}
-      >
-        {subtitle}
-      </Text>
     </AnimatedPressable>
   );
 }
@@ -1102,6 +1122,13 @@ function SettingsToggleRow({
 }
 
 const styles = StyleSheet.create({
+  logoutConfirmation: { paddingHorizontal: 12, paddingBottom: 18, gap: 12 },
+  logoutDescription: { fontFamily: typography.medium, fontSize: 12, lineHeight: 18, color: "#5B605B" },
+  logoutError: { fontSize: 12, lineHeight: 18, color: "#B42318" },
+  logoutActions: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  logoutCancel: { minHeight: 44, paddingHorizontal: 16, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: "#F0F2ED" },
+  logoutSubmit: { minHeight: 44, paddingHorizontal: 16, borderRadius: 12, flexDirection: "row", gap: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#B42318" },
+  logoutSubmitText: { fontFamily: typography.semibold, fontSize: 12, color: "#FFFFFF" },
   content: {
     width: "100%",
     maxWidth: 560,
@@ -1129,94 +1156,56 @@ const styles = StyleSheet.create({
     borderColor: "#343A35",
     backgroundColor: colors.darkSurface,
   },
-  heading: { paddingBottom: 18, paddingTop: 6 },
-  pageEyebrow: {
-    marginBottom: 6,
-    color: colors.primary,
-    fontFamily: typography.black,
-    fontSize: 10,
-    letterSpacing: 2.2,
-  },
+  heading: { paddingBottom: 28, paddingTop: 20 },
   title: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 38,
-    lineHeight: 38,
-    letterSpacing: -1.6,
+    color: "#202B24", fontFamily: typography.medium,
+    fontSize: 29, lineHeight: 37, letterSpacing: -1,
   },
   subtitle: {
-    maxWidth: 320,
-    marginTop: 8,
-    color: "#7A807C",
-    fontFamily: typography.medium,
-    fontSize: 14,
-    lineHeight: 20,
+    marginTop: 7, color: "#72766F", fontFamily: typography.regular,
+    fontSize: 13, lineHeight: 21,
   },
   guestCard: {
-    padding: 22,
-    overflow: "hidden",
-    borderRadius: 26,
-    backgroundColor: "#12291F",
+    paddingHorizontal: 24, paddingTop: 28, paddingBottom: 20,
+    borderRadius: 16, borderWidth: 1, borderColor: "#E6E5DD",
+    backgroundColor: "#FDFCF8",
+    boxShadow: "0px 4px 20px rgba(30, 44, 34, 0.04)",
   },
-  guestOrbit: { position: "absolute", width: 280, height: 280, borderRadius: 140, borderWidth: 1, borderColor: "#2D493A", top: -125, right: -136 },
-  guestOrbitInner: { position: "absolute", width: 206, height: 206, borderRadius: 103, borderWidth: 1, borderColor: "#2D493A", top: -88, right: -99, backgroundColor: "#193526" },
-  guestTopRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
-  guestBadge: { flexDirection: "row", alignItems: "center", gap: 7, flexShrink: 1 },
-  guestBadgeDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: "#A8EDB1" },
-  guestEmblem: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", backgroundColor: "#2C4939", borderWidth: 1, borderColor: "#42604B" },
+  guestTopRow: { gap: 20, alignItems: "flex-start" },
+  guestBadge: { flexShrink: 1 },
+  guestEmblem: {
+    width: 52, height: 52, borderRadius: 26,
+    alignItems: "center", justifyContent: "center",
+    backgroundColor: "#EEF0E7", borderWidth: 1, borderColor: "#E3E7DA",
+  },
   guestEyebrow: {
-    color: "#BAE2C1",
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 1.2,
+    color: "#727965", fontFamily: typography.medium,
+    fontSize: 8, lineHeight: 14, letterSpacing: 1.6,
   },
   guestTitle: {
-    maxWidth: 310,
-    marginTop: 12,
-    color: colors.white,
-    fontFamily: typography.black,
-    fontSize: 34,
-    lineHeight: 37,
-    letterSpacing: -1.2,
+    marginTop: 10, color: "#243A2C", fontFamily: typography.medium,
+    fontSize: 27, lineHeight: 35, letterSpacing: -0.9,
   },
   guestDescription: {
-    maxWidth: 300,
-    marginTop: 8,
-    color: "#C1D0C5",
-    fontFamily: typography.regular,
-    fontSize: 12,
-    lineHeight: 19,
+    maxWidth: 285, marginTop: 10, color: "#74786F",
+    fontFamily: typography.regular, fontSize: 13, lineHeight: 22,
   },
   loginButton: {
-    minHeight: 54,
-    marginTop: 18,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderRadius: 15,
-    backgroundColor: "#B8F28B",
+    minHeight: 52, marginTop: 28, paddingHorizontal: 19,
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    borderRadius: 8, backgroundColor: "#243F2F",
   },
   loginButtonText: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 13,
-    letterSpacing: 0,
+    color: "#F6F5EF", fontFamily: typography.medium, fontSize: 13, letterSpacing: 0.2,
   },
-  loginArrow: { width: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.3)" },
+  loginArrow: { width: 26, height: 26, alignItems: "center", justifyContent: "center" },
   registerButton: {
-    minHeight: 44,
-    marginTop: 5,
-    alignItems: "center",
-    justifyContent: "center",
+    minHeight: 48, marginTop: 10, flexDirection: "row", flexWrap: "wrap",
+    columnGap: 6, rowGap: 4, alignItems: "center", justifyContent: "center",
   },
-  registerText: {
-    color: colors.white,
-    fontFamily: typography.bold,
-    fontSize: 11,
-    textDecorationLine: "underline",
-  },
-  registerPrompt: { color: "#C1D0C5", fontFamily: typography.regular, fontSize: 11 },
+  registerText: { color: "#294635", fontFamily: typography.semibold, fontSize: 11 },
+  registerPrompt: { color: "#767A72", fontFamily: typography.regular, fontSize: 11 },
+  registerLink: { flexDirection: "row", alignItems: "center", gap: 3 },
   memberCard: {
     minHeight: 116,
     paddingHorizontal: 18,
@@ -1307,67 +1296,73 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.10)",
   },
   sectionTitleRow: {
-    marginBottom: 14,
-    marginTop: 28,
+    marginBottom: 13,
+    marginTop: 30,
+    paddingHorizontal: 2,
+  },
+  sectionTitle: {
+    color: "#364438",
+    fontFamily: typography.semibold,
+    fontSize: 14,
+    lineHeight: 21,
+    letterSpacing: -0.2,
+  },
+  services: {
+    borderWidth: 1,
+    borderColor: "#E6E5DD",
+    borderRadius: 16,
+    backgroundColor: "#FDFCF8",
+    overflow: "hidden",
+  },
+  serviceTile: {
+    minHeight: 78,
+    paddingLeft: 18,
+    paddingRight: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  serviceIcon: {
+    width: 38,
+    height: 38,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+    backgroundColor: "#EFF1E9",
+  },
+  serviceIconDark: { backgroundColor: "#29332B" },
+  serviceBody: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: 78,
+    paddingVertical: 17,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#E2E5DC",
   },
-  sectionLine: { width: 26, height: 2.5, borderRadius: 999, backgroundColor: colors.primary },
-  sectionTitle: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 16,
-    letterSpacing: -0.4,
-  },
-  services: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  serviceTile: {
-    flexBasis: "46%",
-    flexGrow: 1,
-    minWidth: 0,
-    minHeight: 138,
-    padding: 16,
-    alignItems: "flex-start",
-    borderWidth: 1,
-    borderColor: "#E7EAE3",
-    borderRadius: 21,
-    backgroundColor: colors.white,
-  },
-  serviceTileTop: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  serviceIcon: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 13,
-    backgroundColor: "#F0F5E9",
-  },
+  serviceBodyDark: { borderBottomColor: "#343D35" },
+  serviceBodyLast: { borderBottomWidth: 0 },
+  serviceCopy: { flex: 1, minWidth: 0 },
   serviceArrow: {
-    width: 30,
-    height: 30,
+    width: 20,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 15,
-    backgroundColor: "transparent",
   },
-  serviceArrowDark: { backgroundColor: "#303530" },
   serviceTitle: {
-    marginTop: 14,
-    color: colors.text,
-    fontFamily: typography.black,
+    color: "#283A2D",
+    fontFamily: typography.semibold,
     fontSize: 13,
+    lineHeight: 19,
+    letterSpacing: -0.15,
   },
   serviceSubtitle: {
-    marginTop: 5,
-    color: colors.secondaryText,
+    marginTop: 3,
+    color: "#747B70",
     fontFamily: typography.regular,
-    fontSize: 10.5,
-    lineHeight: 16,
+    fontSize: 11,
+    lineHeight: 17,
   },
   clubBanner: {
     minHeight: 96,
@@ -1570,6 +1565,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   settingsList: { paddingBottom: 8 },
+  // Explicit web overflow keeps the sheet wheel-scrollable with a mouse/trackpad.
+  sheetScroll: { flexShrink: 1, maxHeight: "78%", overflowY: "auto" },
+  sheetScrollContent: { paddingBottom: 8 },
   settingsSectionLabel: {
     marginBottom: 8,
     marginLeft: 4,

@@ -1,3 +1,7 @@
+import { readJsonLimited } from "@/lib/request-body";
+import { readTextLimited } from "@/lib/request-body";
+import { verifyWhatsAppSignature } from "@/lib/webhook-signature";
+import { securityLog } from "@/lib/security-log";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type OpenAI from "openai";
@@ -12,7 +16,7 @@ const supabase = createClient(
 );
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "lecomax_webhook_token";
+const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_NUMBER_ID!;
 const WA_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN!;
 
@@ -87,7 +91,7 @@ export async function GET(req: Request) {
   const token = searchParams.get("hub.verify_token");
   const challenge = searchParams.get("hub.challenge");
 
-  if (mode === "subscribe" && token === VERIFY_TOKEN) {
+  if (mode === "subscribe" && VERIFY_TOKEN && token === VERIFY_TOKEN) {
     return new Response(challenge, { status: 200 });
   }
   return new Response("Forbidden", { status: 403 });
@@ -95,9 +99,15 @@ export async function GET(req: Request) {
 
 // ─── POST — receive incoming messages ───────────────────────────────────────
 export async function POST(req: Request) {
+  if (!process.env.WHATSAPP_APP_SECRET) return NextResponse.json({ error: "Webhook unavailable" }, { status: 503 });
   let body: unknown;
   try {
-    body = await req.json();
+    const raw = await readTextLimited(req, 256 * 1024);
+    if (!verifyWhatsAppSignature(raw, req.headers.get("x-hub-signature-256"), process.env.WHATSAPP_APP_SECRET)) {
+      securityLog("webhook_rejected", "/api/whatsapp/webhook");
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+    body = JSON.parse(raw);
   } catch {
     return NextResponse.json({ ok: false }, { status: 400 });
   }

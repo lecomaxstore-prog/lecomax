@@ -25,7 +25,7 @@ import { LaunchIntro } from "@/components/launch-intro";
 import { MobileNotificationLifecycle } from "@/components/mobile-notification-lifecycle";
 import { CartFlyOverlay } from "@/components/cart-fly-overlay";
 import { usePreferences } from "@/stores/preferences";
-import { useAppOpeningLifecycle } from "@/stores/app-opening";
+import { useAppOpening, useAppOpeningLifecycle } from "@/stores/app-opening";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -216,6 +216,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 
 export default function RootLayout() {
   useAppOpeningLifecycle();
+  const openingReady = useAppOpening((state) => state.ready);
   useLocale();
   const preferencesReady = usePreferences((state) => state.hydrated);
   const [fontsLoaded, fontError] = useFonts({
@@ -227,10 +228,10 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (preferencesReady && (fontsLoaded || fontError)) void SplashScreen.hideAsync();
-  }, [fontError, fontsLoaded, preferencesReady]);
+    if (openingReady && preferencesReady && (fontsLoaded || fontError)) void SplashScreen.hideAsync();
+  }, [fontError, fontsLoaded, preferencesReady, openingReady]);
 
-  if (!preferencesReady || (!fontsLoaded && !fontError)) return null;
+  if (!openingReady || !preferencesReady || (!fontsLoaded && !fontError)) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

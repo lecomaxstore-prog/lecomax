@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { revalidatePath, revalidateTag } from "next/cache";
@@ -23,7 +24,7 @@ export async function PUT(req: NextRequest) {
   if (denied) return denied;
   const blocked = await protectAdminMutation(req, { key: "checkout-settings:update", limit: 20 });
   if (blocked) return blocked;
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   const normalized = normalizeCheckoutSettings(body);
   if (!normalized.settings) return NextResponse.json({ error: normalized.error }, { status: 400, headers: noStore });
   const previous = await supabase.from("settings").select("key,value").in("key", STORE_SETTING_KEYS);

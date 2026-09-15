@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { protectAdminMutation } from "@/lib/api-security";
 
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
   const blocked = await protectAdminMutation(req, { key: "ai:broadcast", limit: 15 });
   if (blocked) return blocked;
   try {
-    const input = await req.json() as { subject?: unknown; template?: unknown };
+    const input = await readJsonLimited(req) as { subject?: unknown; template?: unknown };
     const subject = typeof input.subject === "string" ? input.subject.trim().slice(0, 500) : "";
     const template = typeof input.template === "string" ? input.template : "general";
 

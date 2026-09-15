@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
@@ -14,7 +16,7 @@ export async function GET() {
     supabase.from("categories").select("*").order("sort_order"),
     supabase.from("settings").select("key,value").like("key", "category_media:%"),
   ]);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   const media = new Map((mediaRows ?? []).map((row) => {
     try { return [row.key.slice("category_media:".length), JSON.parse(row.value)]; }
     catch { return [row.key.slice("category_media:".length), {}]; }
@@ -51,7 +53,7 @@ function cleanCategory(body: unknown) {
 export async function POST(req: NextRequest) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   let body: unknown;
-  try { body = await req.json(); } catch {
+  try { body = await readJsonLimited(req); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
   const payload = cleanCategory(body);

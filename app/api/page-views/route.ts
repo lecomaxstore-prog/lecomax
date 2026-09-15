@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { createHmac } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -41,7 +42,7 @@ function decodeHeader(value: string | null) {
 
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
-  try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
+  try { body = await readJsonLimited(req); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
   const path = clean(body.path, 500);
   if (!path || !path.startsWith("/") || path.startsWith("/admin")) return NextResponse.json({ error: "Invalid path" }, { status: 400 });

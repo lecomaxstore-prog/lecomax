@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { protectAdminMutation } from '@/lib/api-security';
@@ -11,7 +13,7 @@ export async function POST(req: NextRequest) {
   if (blocked) return blocked;
   if (!(await getAdminAccess(req))?.owner) return NextResponse.json({ error: 'Action réservée au propriétaire.' }, { status: 403 });
   let input;
-  try { input = parseBulkInput(await req.json()); }
+  try { input = parseBulkInput(await readJsonLimited(req)); }
   catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Requête invalide.' }, { status: 400 }); }
   const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
   const results: { id: string; ok: boolean; error?: string }[] = [];
@@ -24,7 +26,7 @@ export async function POST(req: NextRequest) {
     const { data, error } = await db.rpc('apply_product_bulk_change', { p_id: id, p_expected: current, p_patch: patch, p_delete: input.action === 'delete' });
     if (error) {
       console.error('Bulk product mutation failed', error.code, error.message);
-      results.push({ id, ok: false, error: error.message.includes('PRODUCT_CHANGED') ? 'Produit modifié ailleurs. Actualisez avant de réessayer.' : 'Modification impossible. Vérifiez la migration et réessayez après actualisation.' });
+      results.push({ id, ok: false, error: publicDatabaseError(error).includes('PRODUCT_CHANGED') ? 'Produit modifié ailleurs. Actualisez avant de réessayer.' : 'Modification impossible. Vérifiez la migration et réessayez après actualisation.' });
       continue;
     }
     results.push({ id, ok: true });

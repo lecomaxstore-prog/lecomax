@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getCustomerUser } from "@/lib/request-auth";
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
   }
 
   let body: { confirmation?: unknown } | null;
-  try { body = await req.json(); }
+  try { body = await readJsonLimited(req); }
   catch { return NextResponse.json({ error: "Confirmation invalide." }, { status: 400 }); }
   if (body?.confirmation !== "remove my account") {
     return NextResponse.json({ error: "Saisissez exactement remove my account pour confirmer." }, { status: 400 });

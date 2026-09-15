@@ -1,3 +1,4 @@
+import { publicDatabaseError } from "@/lib/public-error";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
@@ -31,7 +32,7 @@ export async function GET(req: NextRequest) {
     .select("key,value")
     .like("key", `${REVIEW_AUTOMATION_KEY_PREFIX}%`)
     .limit(100);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
 
   const due = (rows ?? []).flatMap((row) => {
     const state = parseReviewAutomationState(row.value);

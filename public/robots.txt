@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Allow: /api/og/product/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /facture/
@@ -8,6 +9,7 @@ Disallow: /facture/
 # product-image policy checks. Keep public products and media explicitly open.
 User-agent: Googlebot
 Allow: /
+Allow: /api/og/product/
 Allow: /merchant-feed.xml
 Disallow: /admin/
 Disallow: /api/
@@ -15,12 +17,14 @@ Disallow: /facture/
 
 User-agent: Googlebot-Image
 Allow: /
+Allow: /api/og/product/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /facture/
 
 User-agent: Storebot-Google
 Allow: /
+Allow: /api/og/product/
 Allow: /merchant-feed.xml
 Disallow: /admin/
 Disallow: /api/
@@ -37,7 +41,10 @@ User-agent: Claude-Web
 User-agent: PerplexityBot
 User-agent: Bingbot
 User-agent: Applebot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
 Allow: /
+Allow: /api/og/product/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /facture/

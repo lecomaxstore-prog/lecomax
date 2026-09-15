@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
@@ -18,14 +20,14 @@ export async function GET(req: NextRequest) {
     .order("created_at");
   if (!admin) query = query.eq("active", true);
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json(data);
 }
 
 export async function POST(req: NextRequest) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   let body: unknown;
-  try { body = await req.json(); } catch {
+  try { body = await readJsonLimited(req); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
   const parsed = validatePageInput(body);

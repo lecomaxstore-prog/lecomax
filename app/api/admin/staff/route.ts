@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 ﻿import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { supabaseServiceHeaders } from "@/lib/supabase-service-headers";
@@ -18,7 +20,7 @@ export async function GET(req: NextRequest) {
     .select("id, email, name, avatar_url, role_id, status, last_login, created_at, admin_roles(id, name, color, slug)")
     .order("created_at", { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json(data ?? []);
 }
 
@@ -27,7 +29,7 @@ export async function POST(req: NextRequest) {
   const blocked = await protectAdminMutation(req, { key: "admin:staff:create", limit: 10 });
   if (blocked) return blocked;
 
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   if (!body?.email || !body?.name || !body?.password) {
     return NextResponse.json({ error: "email, name et password sont requis" }, { status: 400 });
   }
@@ -115,7 +117,7 @@ export async function POST(req: NextRequest) {
     if (error.code === "23505") {
       return NextResponse.json({ error: "Cet email est déjà enregistré" }, { status: 409 });
     }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   }
 
   return NextResponse.json(data, { status: 201 });

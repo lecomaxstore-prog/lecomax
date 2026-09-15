@@ -1,65 +1,20 @@
+import { sameRequestOrigin } from "@/lib/request-origin";
+import { sensitiveRateLimit } from "@/lib/sensitive-rate-limit";
+import { securityLog } from "@/lib/security-log";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createSessionToken, createStaffPermissionsToken } from "@/lib/admin-session";
 import { createClient } from "@supabase/supabase-js";
 
-// ── In-memory rate limiter ──────────────────────────────────────────────────
-// NOTE: on Vercel serverless this resets per cold-start, but still provides
-// meaningful protection against rapid brute-force within a single warm instance.
-// For production-grade rate limiting, replace with Upstash Redis or similar.
-const loginAttempts = new Map<string, { count: number; resetAt: number }>();
-
-function getClientIp(req: NextRequest): string {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    req.headers.get("x-real-ip") ??
-    "unknown"
-  );
-}
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-  const MAX_ATTEMPTS = 10;
-
-  const entry = loginAttempts.get(ip);
-  if (!entry || now > entry.resetAt) {
-    loginAttempts.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return true;
-  }
-  if (entry.count >= MAX_ATTEMPTS) return false;
-  entry.count++;
-  return true;
-}
-
-// ── POST /api/admin/auth/session — exchange Supabase token for HttpOnly cookie ──
 export async function POST(req: NextRequest) {
-  // Reject requests that come from a different origin (extra CSRF protection)
-  const origin = req.headers.get("origin");
-  const host = req.headers.get("host") ?? "";
-  if (origin) {
-    try {
-      const originHost = new URL(origin).host;
-      if (originHost !== host) {
-        return NextResponse.json({ error: "Origine non autorisée" }, { status: 403 });
-      }
-    } catch {
-      return NextResponse.json({ error: "Origine invalide" }, { status: 403 });
-    }
-  }
-
-  // Rate limit first
-  const ip = getClientIp(req);
-  if (!checkRateLimit(ip)) {
-    return NextResponse.json(
-      { error: "Trop de tentatives. Réessayez dans 15 minutes." },
-      { status: 429 }
-    );
-  }
-
-  const body = await req.json().catch(() => null);
-  if (!body?.access_token || !body?.email) {
+  if (!sameRequestOrigin(req)) return NextResponse.json({ error: "Origine non autoris?e" }, { status: 403 });
+  const body = await readJsonLimited(req, 16 * 1024).catch(() => null);
+  if (typeof body?.access_token !== "string" || body.access_token.length > 12000 || typeof body?.email !== "string" || body.email.length > 254) {
     return NextResponse.json({ error: "Token et email requis" }, { status: 400 });
   }
+
+  const limited = await sensitiveRateLimit(req, "admin-session", body.email);
+  if (limited) return limited;
 
   // Verify the Supabase access_token is genuine
   const verifyRes = await fetch(
@@ -69,18 +24,24 @@ export async function POST(req: NextRequest) {
         Authorization: `Bearer ${body.access_token}`,
         apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       },
+      cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
     }
-  );
+  ).catch(() => null);
+
+  if (!verifyRes) return NextResponse.json({ error: "Service momentanément indisponible." }, { status: 503 });
 
   if (!verifyRes.ok) {
+    securityLog("login_failed", "/api/admin/auth/session");
     return NextResponse.json({ error: "Session invalide" }, { status: 401 });
   }
 
   const user = await verifyRes.json();
   if (
-    !user?.email ||
+    !user?.email || !user.email_confirmed_at ||
     user.email.toLowerCase() !== String(body.email).toLowerCase()
   ) {
+    securityLog("login_failed", "/api/admin/auth/session");
     return NextResponse.json({ error: "Session invalide" }, { status: 401 });
   }
 
@@ -104,6 +65,7 @@ export async function POST(req: NextRequest) {
   // Reject accounts that are neither the owner nor an active staff member.
   // This fires when a staff member has been removed from the admin_staff table.
   if (!isOwner && !staffRow) {
+    securityLog("authorization_denied", "/api/admin/auth/session");
     return NextResponse.json(
       { error: "Votre accès à l'administration a été révoqué.", code: "STAFF_REMOVED" },
       { status: 403 }
@@ -111,11 +73,11 @@ export async function POST(req: NextRequest) {
   }
 
   // Create a signed session token and set it as an HttpOnly cookie
-  const maxAge = body.rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24; // 30d or 24h
-  const sessionToken = await createSessionToken(user.email);
+  const maxAge = body.rememberMe === true ? 60 * 60 * 24 * 30 : 60 * 60 * 24; // 30d or 24h
+  const sessionToken = await createSessionToken(user.email, maxAge * 1000);
   const isProd = process.env.NODE_ENV === "production";
 
-  const response = NextResponse.json({ ok: true });
+  const response = NextResponse.json({ ok: true }, { headers: { "Cache-Control": "private, no-store" } });
   response.cookies.set("admin_session", sessionToken, {
     httpOnly: true,
     secure: isProd,
@@ -148,11 +110,13 @@ export async function POST(req: NextRequest) {
     response.cookies.set("staff_permissions", "", { httpOnly: true, secure: isProd, sameSite: "strict", maxAge: 0, path: "/" });
   }
 
+  securityLog("admin_session_created", "/api/admin/auth/session");
   return response;
 }
 
 // ── DELETE /api/admin/auth/session — clear the session cookie (logout) ──
-export async function DELETE() {
+export async function DELETE(req: NextRequest) {
+  if (!sameRequestOrigin(req)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const isProd = process.env.NODE_ENV === "production";
   const response = NextResponse.json({ ok: true });
   response.cookies.set("admin_session", "", {

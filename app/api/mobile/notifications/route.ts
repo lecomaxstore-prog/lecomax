@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getCustomerUser } from "@/lib/request-auth";
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
   if (blocked) return cors(req, blocked);
   const user = await getCustomerUser(req);
   if (!user) return cors(req, NextResponse.json({ error: "Connexion requise." }, { status: 401 }));
-  const body = await req.json().catch(() => null) as { ids?: unknown } | null;
+  const body = await readJsonLimited(req).catch(() => null) as { ids?: unknown } | null;
   const ids = Array.isArray(body?.ids)
     ? [...new Set(body.ids.filter((id): id is string => typeof id === "string" && UUID.test(id)))].slice(0, 100)
     : [];

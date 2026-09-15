@@ -1,4 +1,7 @@
-import { selectedInventory, preorderSnapshot } from "@/lib/purchasability";
+import { sortProductSizes } from "@/lib/product-sizes";
+import { useQueryClient } from "@tanstack/react-query";
+import { productTranslationOptions } from "@/lib/product-translation-query";
+import { selectedInventory, preorderSnapshot, availableSizesForColor } from "@/lib/purchasability";
 import { PreorderNotice } from "@/components/preorder-notice";
 import { localizedContent } from "@/i18n/content";
 import { localizedError } from "@/i18n/errors";
@@ -13,6 +16,7 @@ import Animated, { FadeInDown, FadeOutDown, ReduceMotion } from "react-native-re
 import {
   ActivityIndicator,
   Alert,
+  BackHandler,
   Platform,
   Pressable,
   ScrollView,
@@ -30,9 +34,11 @@ import { useAppViewport } from "@/components/app-viewport";
 import { HorizontalRail } from "@/components/horizontal-rail";
 import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
+import { ProductLoadingScreen } from "@/components/product-loading";
 import { ProductReviews } from "@/components/product-reviews";
 import { useProductImage } from "@/hooks/use-product-image";
 import { ShoeSizeGuide } from "@/components/shoe-size-guide";
+import { productSizeGuideFromTags } from "@/lib/product-size-guide";
 import { palette, typography } from "@/constants/theme";
 import {
   useProducts,
@@ -155,22 +161,9 @@ function Accordion({
   );
 }
 
-function LoadingState() {
-  useLocale();
-  return (
-    <View style={styles.stateScreen}>
-      <View style={styles.loadingGallery}>
-        <ActivityIndicator color="#16883A" />
-      </View>
-      <View style={styles.loadingLine} />
-      <View style={[styles.loadingLine, { width: "64%" }]} />
-      <Text style={styles.stateText}>{msg("product.loadingProduct")}</Text>
-    </View>
-  );
-}
-
 export default function ProductScreen() {
-  useLocale();
+  const language = useLocale();
+  const queryClient = useQueryClient();
   const insets = useSafeAreaInsets();
   const { contentWidth, horizontalInset } = useAppViewport();
   const { slug, origin, parentCategory } = useLocalSearchParams<{
@@ -181,6 +174,11 @@ export default function ProductScreen() {
   const productsQuery = useProducts();
   const all = productsQuery.data ?? [];
   const product = all.find((item) => item.slug === slug);
+  useEffect(() => {
+    if (product?.description?.trim()) {
+      void queryClient.prefetchQuery(productTranslationOptions({ ...product, description: product.description }, language));
+    }
+  }, [product, language, queryClient]);
   const { isLoading, error, refetch } = productsQuery;
   const { data: settings = [] } = useSettings();
   const reviewsQuery = useReviews(slug);
@@ -201,6 +199,11 @@ export default function ProductScreen() {
   const [galleryImageIndex, setGalleryImageIndex] = useState<number>();
   const [gallerySelectionVersion, setGallerySelectionVersion] = useState(0);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [sizeOptionsOpen, setSizeOptionsOpen] = useState(false);
+  const sizeTriggerRef = useRef<View>(null);
+  const productViewportRef = useRef<View>(null);
+  const sizePanelRef = useRef<View>(null);
+  const productScrollOffset = useRef(0);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
@@ -210,6 +213,7 @@ export default function ProductScreen() {
   const handleProductScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     scrollReturn.onScroll(event);
     const offset = event.nativeEvent.contentOffset.y;
+    productScrollOffset.current = offset;
     setPurchaseBarState((previous) => {
       // Keep the purchase action available while previewing a chosen color.
       if (previous.slug === slug && previous.colorSelected) return previous;
@@ -221,6 +225,24 @@ export default function ProductScreen() {
         : { slug, visible, colorSelected: false };
     });
   }, [slug, scrollReturn]);
+
+  const revealSizeOptions = useCallback(() => {
+    // Wait for the expanded panel to lay out before measuring its visible bounds.
+    requestAnimationFrame(() => {
+      productViewportRef.current?.measureInWindow((_x, viewportY, _width, viewportHeight) => {
+        sizePanelRef.current?.measureInWindow((_panelX, panelY, _panelWidth, panelHeight) => {
+          const visibleBottom = viewportY + viewportHeight - 112 - insets.bottom;
+          const hiddenHeight = panelY + panelHeight + 16 - visibleBottom;
+          // Keep the selector above its options, even on a short screen.
+          const maximumScroll = Math.max(0, panelY - viewportY - 90);
+          const scrollBy = Math.min(Math.max(0, hiddenHeight), maximumScroll);
+          if (scrollBy > 1) {
+            pageRef.current?.scrollTo({ y: productScrollOffset.current + scrollBy, animated: true });
+          }
+        });
+      });
+    });
+  }, [insets.bottom]);
 
   const goBack = useCallback(() => {
     if (router.canGoBack()) {
@@ -242,14 +264,37 @@ export default function ProductScreen() {
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       pageRef.current?.scrollTo({ y: 0, animated: false });
+      productScrollOffset.current = 0;
       setPurchaseBarState({ slug, visible: false, colorSelected: false });
       setColor(undefined);
       setSize(undefined);
+      setSizeOptionsOpen(false);
       setQuantity(1);
       setGalleryImageIndex(undefined);
     });
     return () => cancelAnimationFrame(frame);
   }, [slug]);
+
+  useEffect(() => {
+    if (!sizeOptionsOpen) return;
+    const dismiss = () => {
+      setSizeOptionsOpen(false);
+      return true;
+    };
+    if (Platform.OS === "web") {
+      const onKeyDown = (event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          dismiss();
+          (sizeTriggerRef.current as unknown as HTMLElement)?.focus();
+        }
+      };
+      document.addEventListener("keydown", onKeyDown);
+      return () => document.removeEventListener("keydown", onKeyDown);
+    }
+    const subscription = BackHandler.addEventListener("hardwareBackPress", dismiss);
+    return () => subscription.remove();
+  }, [sizeOptionsOpen]);
 
   useEffect(
     () => () => {
@@ -258,7 +303,7 @@ export default function ProductScreen() {
     [],
   );
 
-  if (isLoading) return <LoadingState />;
+  if (isLoading) return <ProductLoadingScreen onBack={goBack} />;
 
   if (error || !product) {
     return (
@@ -288,18 +333,12 @@ export default function ProductScreen() {
   const wishlistEnabled = settingsMap.enable_wishlist === "true";
   const reviewsEnabled = settingsMap.enable_reviews !== "false";
   const outOfStockColors = product.out_of_stock_colors ?? [];
-  const outOfStockSizes = product.out_of_stock_sizes ?? [];
   const defaultColor =
     product.colors?.find((item) => !outOfStockColors.includes(item)) ??
     product.colors?.[0];
   const selectedColor =
     color && product.colors?.includes(color) ? color : defaultColor;
-  const colorSizes = product.color_sizes;
-  const sizesForColor = (value?: string) =>
-    (!product.preorder_enabled && value && outOfStockColors.includes(value)
-      ? []
-      : product.preorder_enabled ? product.sizes || [] : (value && colorSizes?.[value]) || product.sizes || []
-    ).filter((item) => product.preorder_enabled ? selectedInventory(product,value,item)>=0 : !outOfStockSizes.includes(item));
+  const sizesForColor = (value?: string) => availableSizesForColor(product, value);
   const availableSizes = sizesForColor(selectedColor);
   const selectedSize =
     size && availableSizes.includes(size) ? size : availableSizes[0];
@@ -372,6 +411,7 @@ export default function ProductScreen() {
     setPurchaseBarState({ slug, visible: true, colorSelected: true });
     const imageIndex = findColorImageIndex(product.images, product.colors, value);
     setColor(value);
+    setSizeOptionsOpen(false);
     setSize(sizesForColor(value)[0]);
     setQuantity(1);
     setGalleryImageIndex(imageIndex);
@@ -440,7 +480,7 @@ export default function ProductScreen() {
   };
 
   return (
-    <View style={styles.screen}>
+    <View ref={productViewportRef} collapsable={false} style={styles.screen}>
       <ScrollView
         {...scrollReturn}
         ref={pageRef}
@@ -600,58 +640,57 @@ export default function ProductScreen() {
               <View style={styles.sizeHeading}>
                 <View style={styles.variantHeading}>
                   <Text style={styles.sectionTitle}>{msg("shoeSizeGuide.size")}</Text>
-                  <Text style={styles.selectedVariant}>{selectedSize ? `· ${selectedSize}` : msg("product.chooseOne")}</Text>
                 </View>
                 <AnimatedPressable
                   accessibilityLabel={msg("product.openSizeGuide")}
                   accessibilityRole="button"
-                  onPress={() => setSizeGuideOpen(true)}
+                  onPress={() => { setSizeOptionsOpen(false); setSizeGuideOpen(true); }}
                   style={styles.guideButton}
                 >
                   <Text style={styles.guideText}>{msg("shoeSizeGuide.sizeGuide")}</Text>
                 </AnimatedPressable>
               </View>
-              <View style={styles.sizes}>
-                {product.sizes?.map((item) => {
-                  const selected = item === selectedSize;
-                  const unavailable = !availableSizes.includes(item);
-                  return (
-                    <View key={item} style={styles.sizeItem}>
-                    <AnimatedPressable
-                      accessibilityLabel={msg("variants.sizeDescription", { size: item, status: `${selected ? msg("shoeSizeGuide.selectedText") : ""}${unavailable ? msg("product.soldOut") : ""}` })}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected, disabled: unavailable }}
-                      disabled={unavailable}
+              <Pressable
+                ref={sizeTriggerRef}
+                accessibilityRole="button"
+                accessibilityLabel={msg("shoeSizeGuide.size") + " " + (selectedSize ?? msg("product.chooseOne"))}
+                accessibilityState={{ expanded: sizeOptionsOpen }}
+                onPress={() => setSizeOptionsOpen((open) => !open)}
+                style={({ pressed }) => [styles.sizeTrigger, (sizeOptionsOpen || pressed) && styles.sizeTriggerOpen]}
+              >
+                <Text style={styles.sizeTriggerText}>{selectedSize ? msg("shoeSizeGuide.size") + " " + selectedSize : msg("product.chooseOne")}</Text>
+                <Ionicons name={sizeOptionsOpen ? "chevron-up" : "chevron-down"} size={18} color="#234735" />
+              </Pressable>
+              {sizeOptionsOpen ? <View ref={sizePanelRef} collapsable={false} onLayout={revealSizeOptions} style={styles.sizePanel}>
+                <View style={styles.sizePanelHeading}>
+                  <Text style={styles.sizePanelTitle}>{msg("product.sizeOptionsTitle")}</Text>
+                  <Text style={styles.sizePanelCount}>{msg("product.sizeOptionsCount", { count: availableSizes.length })}</Text>
+                </View>
+                <ScrollView nestedScrollEnabled style={styles.sizeList} contentContainerStyle={styles.sizeListContent}>
+                  {sortProductSizes(product.sizes ?? []).map((item) => {
+                    const selected = item === selectedSize;
+                    const unavailable = !availableSizes.includes(item);
+                    return <Pressable key={item} accessibilityRole="button"
+                      accessibilityLabel={msg("variants.sizeDescription", { size: item, status: unavailable ? msg("product.soldOutText") : selected ? msg("shoeSizeGuide.selectedText") : "" })}
+                      accessibilityState={{ selected, disabled: unavailable }} disabled={unavailable}
                       onPress={() => {
-                        setSize(item);
-                        setQuantity(1);
+                        setSize(item); setQuantity(1); setSizeOptionsOpen(false);
+                        if (Platform.OS === "web") (sizeTriggerRef.current as unknown as HTMLElement)?.focus();
                       }}
-                      style={[
-                        styles.sizeOption,
-                        selected && styles.sizeSelected,
-                        unavailable && styles.sizeUnavailable,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.sizeText,
-                          selected && styles.sizeTextSelected,
-                          unavailable && styles.sizeTextUnavailable,
-                        ]}
-                      >
-                        {item}
-                      </Text>
-                      {selected && !unavailable ? (
-                        <View style={styles.sizeCheck}>
-                          <Ionicons name="checkmark" size={13} color="#234735" />
-                        </View>
-                      ) : null}
-                    </AnimatedPressable>
-                    <Text style={styles.sizeStatus}>{unavailable ? msg("product.soldOutText") : " "}</Text>
-                    </View>
-                  );
-                })}
-              </View>
+                      style={({ pressed }) => [styles.sizeOption, selected && styles.sizeSelected, pressed && !selected && styles.sizeOptionPressed]}>
+                      <Text style={[styles.sizeText, selected && styles.sizeTextSelected, unavailable && styles.sizeTextUnavailable]}>{item}</Text>
+                      <View style={styles.sizeOptionDetail}>
+                        <Text style={[styles.sizeStatus, !unavailable && styles.sizeStatusAvailable, selected && styles.sizeStatusSelected]}>
+                          {unavailable ? msg("product.soldOutText") : selected ? msg("product.sizeOptionSelected") : msg("product.sizeOptionAvailable")}
+                        </Text>
+                        {!unavailable ? <View style={[styles.sizeCheck, selected && styles.sizeCheckSelected]}>
+                          {selected ? <Ionicons name="checkmark" size={12} color="#FFFFFF" /> : null}
+                        </View> : null}
+                      </View>
+                    </Pressable>;
+                  })}
+                </ScrollView>
+              </View> : null}
             </View>
           ) : null}
 
@@ -776,10 +815,39 @@ export default function ProductScreen() {
               <Text style={[styles.accordionText, { marginTop: 8 }]}>
                 {msg("product.checkDeliveryFeesAndTimesForYourCityBeforeConfirmingYourOrder")}</Text>
             </Accordion>
+            {reviewsEnabled ? (
+              <Accordion title={msg("productReviews.customerReviews")}>
+                {reviewsQuery.isError ? (
+                  <View style={styles.reviewError}>
+                    <Text style={styles.reviewErrorText}>
+                      {msg("product.unableToLoadReviews")}</Text>
+                    <AnimatedPressable
+                      accessibilityLabel={msg("product.tryLoadingReviewsAgain")}
+                      onPress={() => void reviewsQuery.refetch()}
+                      style={styles.reviewRetry}
+                    >
+                      <Text style={styles.reviewRetryText}>{msg("notifications.tryAgainUppercase")}</Text>
+                    </AnimatedPressable>
+                  </View>
+                ) : (
+                  <ProductReviews
+                    slug={product.slug}
+                    reviews={reviews}
+                    productRating={Number(product.rating ?? 0)}
+                    productReviewCount={reviewCount}
+                    selectedColor={selectedColor}
+                    onSubmitted={reviewsQuery.refetch}
+                  />
+                )}
+              </Accordion>
+            ) : null}
+
+
           </View>
         </View>
 
         <ShoeSizeGuide
+          customGuide={productSizeGuideFromTags(product.tags)}
           open={sizeGuideOpen}
           onClose={() => setSizeGuideOpen(false)}
           productSizes={product.sizes ?? []}
@@ -787,35 +855,6 @@ export default function ProductScreen() {
           selectedSize={selectedSize}
           onSelectSize={(value) => { setSize(value); setQuantity(1); }}
         />
-
-        {reviewsEnabled ? (
-          <View
-            style={{ width: contentWidth, alignSelf: "center" }}
-          >
-            {reviewsQuery.isError ? (
-              <View style={styles.reviewError}>
-                <Text style={styles.reviewErrorText}>
-                  {msg("product.unableToLoadReviews")}</Text>
-                <AnimatedPressable
-                  accessibilityLabel={msg("product.tryLoadingReviewsAgain")}
-                  onPress={() => void reviewsQuery.refetch()}
-                  style={styles.reviewRetry}
-                >
-                  <Text style={styles.reviewRetryText}>{msg("notifications.tryAgainUppercase")}</Text>
-                </AnimatedPressable>
-              </View>
-            ) : (
-              <ProductReviews
-                slug={product.slug}
-                reviews={reviews}
-                productRating={Number(product.rating ?? 0)}
-                productReviewCount={reviewCount}
-                selectedColor={selectedColor}
-                onSubmitted={reviewsQuery.refetch}
-              />
-            )}
-          </View>
-        ) : null}
 
         {related.length ? (
           <View style={[styles.related, { width: contentWidth }]}>
@@ -849,22 +888,20 @@ export default function ProductScreen() {
           { paddingBottom: Math.max(insets.bottom, 9) },
         ]}
       >
-        <View
-          style={[
-            styles.purchasePrice,
-            contentWidth <= 340 && styles.purchasePriceCompact,
-          ]}
-        >
+        <View style={styles.purchasePrice}>
           <Text style={styles.purchasePriceLabel}>{msg("product.unitPrice")}</Text>
           <Text
             numberOfLines={1}
+            ellipsizeMode="clip"
             accessibilityLabel={money(selectedPrice, currency)}
             adjustsFontSizeToFit
             minimumFontScale={0.75}
             style={[styles.purchasePriceValue, saving > 0 && styles.promotionalPrice]}
           >
             {displayAmount}
-            <Text style={styles.priceCurrency}>{"\u00A0"}{displayCurrency}</Text>
+          </Text>
+          <Text accessible={false} style={styles.purchasePriceCurrency}>
+            {displayCurrency}
           </Text>
         </View>
         <AnimatedPressable
@@ -935,22 +972,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: PRODUCT_BACKGROUND,
-  },
-  loadingGallery: {
-    width: "100%",
-    maxWidth: 520,
-    aspectRatio: 0.98,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 24,
-    backgroundColor: "#F0ECE6",
-  },
-  loadingLine: {
-    width: "82%",
-    height: 18,
-    marginTop: 20,
-    borderRadius: 9,
-    backgroundColor: "#E9E5DF",
   },
   errorIcon: {
     width: 68,
@@ -1285,30 +1306,27 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
     textDecorationColor: "#B9BDB3",
   },
-  sizes: { marginTop: 8, flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  sizeItem: { minWidth: 68, gap: 7 },
-  sizeOption: {
-    minWidth: 68,
-    minHeight: 48,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: "row",
-    gap: 5,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#DEDFD9",
-    borderRadius: 8,
-    backgroundColor: "#FFFFFF",
-  },
-  sizeSelected: { borderColor: "#234735", backgroundColor: "#F1F5EF" },
-  sizeUnavailable: { backgroundColor: "#FAFAF8", borderColor: "#EEEFEA" },
-  sizeText: { color: palette.ink, fontFamily: typography.medium, fontSize: 14, letterSpacing: 0.2 },
+  sizeTrigger: { marginTop: 8, minHeight: 58, paddingHorizontal: 18, paddingVertical: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 14, borderWidth: 1, borderColor: "#D7DBD3", borderRadius: 14, backgroundColor: "#FFFFFF" },
+  sizeTriggerOpen: { borderColor: "#234735", backgroundColor: "#F8FAF6" },
+  sizeTriggerText: { flexShrink: 1, color: "#234735", fontFamily: typography.semibold, fontSize: 14 },
+  sizePanel: { marginTop: 8, borderWidth: 1, borderColor: "#E2E6DD", borderRadius: 16, overflow: "hidden", backgroundColor: "#FFFFFF", boxShadow: "0px 8px 24px rgba(35, 71, 53, 0.08)" },
+  sizePanelHeading: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 8, paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "#F8F9F6", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#E2E6DD" },
+  sizePanelTitle: { color: "#39483D", fontFamily: typography.semibold, fontSize: 11, letterSpacing: 0.2 },
+  sizePanelCount: { color: "#70796E", fontFamily: typography.regular, fontSize: 10 },
+  sizeList: { maxHeight: 260 },
+  sizeListContent: { padding: 6, gap: 3 },
+  sizeOption: { minHeight: 48, paddingHorizontal: 12, paddingVertical: 10, flexDirection: "row", gap: 12, alignItems: "center", justifyContent: "space-between", borderRadius: 10, borderWidth: 1, borderColor: "transparent" },
+  sizeSelected: { backgroundColor: "#F0F5ED", borderColor: "#DCE7D7" },
+  sizeOptionPressed: { backgroundColor: "#F6F8F3" },
+  sizeText: { color: palette.ink, fontFamily: typography.medium, fontSize: 15, letterSpacing: 0.2 },
   sizeTextSelected: { color: "#234735", fontFamily: typography.semibold },
-  sizeTextUnavailable: { color: "#9A9D94" },
-  sizeStatus: { color: "#85867E", fontFamily: typography.regular, fontSize: 9, lineHeight: 12, textAlign: "center" },
-  sizeCheck: { alignItems: "center", justifyContent: "center" },
+  sizeTextUnavailable: { color: "#9A9D94", textDecorationLine: "line-through" },
+  sizeOptionDetail: { flexShrink: 1, flexDirection: "row", alignItems: "center", gap: 10 },
+  sizeStatus: { flexShrink: 1, color: "#85867E", fontFamily: typography.regular, fontSize: 11, lineHeight: 16 },
+  sizeStatusAvailable: { color: "#61745D" },
+  sizeStatusSelected: { color: "#234735", fontFamily: typography.semibold },
+  sizeCheck: { width: 20, height: 20, borderRadius: 10, borderWidth: 1, borderColor: "#D9DED3", alignItems: "center", justifyContent: "center" },
+  sizeCheckSelected: { borderColor: "#234735", backgroundColor: "#234735" },
   trustRow: {
     minHeight: 64,
     marginTop: 16,
@@ -1514,11 +1532,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   purchasePrice: {
-    width: 100,
+    width: "42%",
+    maxWidth: 160,
     minWidth: 0,
+    flexShrink: 0,
     justifyContent: "center",
   },
-  purchasePriceCompact: { width: 82 },
   purchasePriceLabel: {
     color: "#777C76",
     fontFamily: typography.medium,
@@ -1531,11 +1550,18 @@ const styles = StyleSheet.create({
     marginTop: 3,
     color: "#202521",
     fontFamily: typography.semibold,
-    fontSize: 20,
-    lineHeight: 26,
-    letterSpacing: -0.5,
+    fontSize: 18,
+    lineHeight: 24,
+    letterSpacing: -0.6,
     includeFontPadding: false,
     fontVariant: ["tabular-nums"],
+  },
+  purchasePriceCurrency: {
+    color: "#777C76",
+    fontFamily: typography.medium,
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 0.4,
   },
   addButton: {
     minWidth: 0,

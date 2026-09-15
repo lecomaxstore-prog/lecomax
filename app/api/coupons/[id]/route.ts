@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation } from "@/lib/api-security";
@@ -12,7 +14,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const blocked = await protectAdminMutation(req, { key: "coupons:update", limit: 40 });
   if (blocked) return blocked;
   const { id } = await params;
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   const cleaned = cleanCouponPayload(body, true);
   if (!cleaned.payload || !Object.keys(cleaned.payload).length) {
     return NextResponse.json({ error: cleaned.error ?? "Aucune modification valide." }, { status: 400 });
@@ -23,7 +25,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     .eq("id", id)
     .select()
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 400 });
   return NextResponse.json(data);
 }
 
@@ -32,6 +34,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (blocked) return blocked;
   const { id } = await params;
   const { error } = await supabase.from("coupons").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 400 });
   return NextResponse.json({ ok: true });
 }

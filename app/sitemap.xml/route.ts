@@ -65,7 +65,7 @@ export async function GET() {
   const add = (entry: SitemapEntry) => entries.set(entry.path, entry);
   staticPages.forEach(add);
   fallbackCategorySlugs.forEach((slug) => add({ path: `/${slug}/`, changeFrequency: "weekly", priority: 0.8 }));
-  products.forEach((product) => add({
+  const addFallbackProducts = () => products.forEach((product) => add({
     path: `/produit/${encodeURIComponent(product.slug)}/`,
     changeFrequency: "weekly",
     priority: 0.7,
@@ -86,6 +86,9 @@ export async function GET() {
       supabase.from("categories").select("slug,updated_at").eq("active", true).limit(1000),
     ]);
 
+    // A successful live catalogue replaces the bundled fallback, including
+    // an empty catalogue. Otherwise deleted products stay in the sitemap.
+    if (productsResult.error || !productsResult.data) addFallbackProducts();
     for (const product of productsResult.data ?? []) {
       if (product.slug) add({ path: `/produit/${encodeURIComponent(product.slug)}/`, lastModified: product.updated_at, changeFrequency: "weekly", priority: 0.7 });
     }
@@ -100,6 +103,7 @@ export async function GET() {
     }
   } catch {
     // Keep the static catalogue discoverable if the content service is unavailable.
+    addFallbackProducts();
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...entries.values()].map(renderEntry).join("\n")}\n</urlset>`;

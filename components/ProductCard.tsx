@@ -132,7 +132,7 @@ export default function ProductCard({ product, recommendation = false }: { produ
         {/* Price */}
         <div className={styles.prices}>
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1.5">
-            <span className={styles.price}>
+            <span className={`${styles.price}${onSale ? ` ${styles.salePrice}` : ""}`}>
               {formatMAD(product.price)}
             </span>
             {onSale && (

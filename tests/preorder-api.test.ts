@@ -1,3 +1,4 @@
+import { securityIo } from "./helpers/security-io.ts";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
@@ -51,6 +52,7 @@ function setup(overrides: Record<string, unknown> = {}, settings: Record<string,
     vm.runInNewContext(ts.transpileModule(readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{
       exports,console,URL,AbortSignal,crypto,process:{env:{NEXT_PUBLIC_SUPABASE_URL:'https://example.invalid',SUPABASE_SERVICE_ROLE_KEY:'test'}},
       require:(name:string)=>{
+      const securityModule = securityIo(name); if (securityModule) return securityModule;
         if(name in mocks)return mocks[name];
         const canonical = name.startsWith('./') && dirname(path) === resolve('lib') ? '@/lib/'+name.slice(2) : name;
         if(canonical in mocks)return mocks[canonical];

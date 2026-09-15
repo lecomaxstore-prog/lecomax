@@ -1,3 +1,6 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { isAdminRequest } from "@/lib/request-auth";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
@@ -6,15 +9,13 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-function isAdmin(req: NextRequest) {
-  return req.cookies.get("admin_session")?.value === "authenticated";
-}
+async function isAdmin(req: NextRequest) { return isAdminRequest(req); }
 
 /** PUT /api/chat-kb/[id] — update entry */
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!isAdmin(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!(await isAdmin(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
-  const body = await req.json();
+  const body = await readJsonLimited(req);
   const { question, answer, category, language, active, sort_order } = body;
   const { data, error } = await supabase
     .from("chat_knowledge_base")
@@ -30,15 +31,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     .eq("id", id)
     .select()
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json(data);
 }
 
 /** DELETE /api/chat-kb/[id] — delete entry */
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!isAdmin(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!(await isAdmin(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
   const { error } = await supabase.from("chat_knowledge_base").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

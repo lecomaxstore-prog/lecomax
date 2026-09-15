@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { protectAdminMutation } from "@/lib/api-security";
 import { adminActor, releaseSupabase } from "@/lib/app-release-server";
@@ -11,7 +12,7 @@ export async function PATCH(req: NextRequest, context: Context) {
   if (blocked) return blocked;
   const { id } = await context.params;
   if (!UUID.test(id)) return NextResponse.json({ error: "Identifiant invalide." }, { status: 400 });
-  const body = await req.json().catch(() => null) as Record<string, unknown> | null;
+  const body = await readJsonLimited(req).catch(() => null) as Record<string, unknown> | null;
   const action = body?.action;
   const actor = await adminActor(req);
   if (!actor) return NextResponse.json({ error: "Session administrateur invalide." }, { status: 401 });

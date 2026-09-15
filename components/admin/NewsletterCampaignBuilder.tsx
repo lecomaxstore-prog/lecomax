@@ -10,7 +10,7 @@ const INITIAL: Campaign = {
   preheader: "Découvrez la sélection L'ecomax choisie pour vous.",
   eyebrow: "Sélection L'ecomax",
   heading: "Les produits que nos clients adorent",
-  body: "Une sélection mode, sport et tech pensée pour votre quotidien. Découvrez nos offres du moment, disponibles dans la limite des stocks.",
+  body: "Votre marketplace lifestyle : des trouvailles et des essentiels pour tous les univers du quotidien. Découvrez nos offres du moment, disponibles dans la limite des stocks.",
   ctaLabel: "Découvrir la sélection",
   ctaUrl: "https://lecomax.com/promotions",
   sectionTitle: "Notre sélection",
@@ -169,7 +169,7 @@ export default function NewsletterCampaignBuilder({ activeSubscribers }: { activ
               <img src={campaign.heroImage || "/ecomax-hero-banner.jpg.png"} alt="" className="h-36 w-full object-cover" />
               <div className="p-5"><p className="text-[9px] font-black uppercase tracking-[0.18em] text-emerald-600">{campaign.eyebrow}</p><h3 className="mt-2 text-2xl font-black leading-tight">{campaign.heading || "Titre de campagne"}</h3><p className="mt-3 whitespace-pre-line text-xs leading-5 text-neutral-600">{campaign.body}</p><div className="mt-4 px-4 py-3 text-center text-xs font-black" style={{ background: campaign.ctaBackground, color: campaign.ctaTextColor, borderRadius: `${campaign.ctaRadius}px` }}>{campaign.ctaLabel || "Découvrir"}</div></div>
               {selectedProducts.length > 0 && <div className="border-t border-neutral-100 p-4"><h4 className="mb-3 text-lg font-black">{campaign.sectionTitle}</h4><div className="grid grid-cols-3 gap-2">{selectedProducts.slice(0, 3).map((product) => <div key={product.id}><img src={product.images?.[0] || "/favicon.png"} alt="" className="aspect-square w-full rounded-md object-cover" /><p className="mt-1 line-clamp-2 text-[9px] font-bold leading-3">{product.name}</p><p className="mt-1 text-[10px] font-black">{product.price} MAD</p></div>)}</div></div>}
-              <div className="bg-neutral-950 px-4 py-5 text-center text-[9px] leading-4 text-neutral-400">L&apos;ECOMAX · MODE, TECH & SPORT<br />Livraison partout au Maroc · Retours sous 30 jours</div>
+              <div className="bg-neutral-950 px-4 py-5 text-center text-[9px] leading-4 text-neutral-400">L&apos;ECOMAX · MARKETPLACE LIFESTYLE<br />Livraison partout au Maroc · Retours sous 30 jours</div>
             </div>
           </div>
         </aside>

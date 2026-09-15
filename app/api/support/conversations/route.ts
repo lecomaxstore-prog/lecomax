@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { randomUUID } from "node:crypto";
 import { supportPreview } from '@/lib/support-attachments';
 import { NextRequest, NextResponse } from "next/server";
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Connectez-vous pour contacter l’assistance." }, { status: 401 });
   const limited = enforceRateLimit(req, `support-start:${user.id}`, 5, 10 * 60_000);
   if (limited) return limited;
-  const input = await req.json().catch(() => null);
+  const input = await readJsonLimited(req).catch(() => null);
   const parsed = parseSupportConversation(input);
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
   if (input?.client_message_id !== undefined && !validSupportId(input.client_message_id)) {

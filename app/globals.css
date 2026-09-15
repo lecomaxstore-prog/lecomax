@@ -224,6 +224,14 @@ body {
 .storefront-header-logo svg {
   overflow: visible;
 }
+
+/* Dark mode disabled. The storefront always uses the light theme. */`r`n`r`n/* Maintenance page follows the selected appearance theme. */
+.maintenance-page { min-height: 100dvh; }
+/* Also support the app's explicit dark theme attribute/class. */
+:is(html.dark, body.dark, [data-theme="dark"]) .storefront-header-logo,
+:is(html.dark, body.dark, [data-theme="dark"]) .storefront-header-logo svg {
+  color: #ffffff !important;
+}
 @media (max-width: 399px) {
   .storefront-header-bar {
     padding-inline: 12px;

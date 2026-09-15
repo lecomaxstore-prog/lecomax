@@ -38,9 +38,9 @@ function absoluteImage(src?: string) {
   return src.startsWith("http") ? src : `${siteUrl}${src.startsWith("/") ? "" : "/"}${src}`;
 }
 
-export function productReviewUrl(slug: string | undefined, email = "") {
+export function productReviewUrl(slug: string | undefined, _email = "", orderNumber = "") {
   if (!slug) return `${siteUrl}/boutique`;
-  return `${siteUrl}/produit/${encodeURIComponent(slug)}?review=1&email=${encodeURIComponent(email)}#avis`;
+  return `${siteUrl}/produit/${encodeURIComponent(slug)}?review=1&order=${encodeURIComponent(orderNumber)}#avis`;
 }
 
 export function buildProductReviewWhatsAppText(args: {
@@ -51,7 +51,7 @@ export function buildProductReviewWhatsAppText(args: {
 }) {
   const firstName = args.customerName.split(" ")[0] || "Client";
   const links = args.items.slice(0, 5).map((item, index) =>
-    `${index + 1}. ${item.name}\n${productReviewUrl(item.slug, args.customerEmail || "")}`
+    `${index + 1}. ${item.name}\n${productReviewUrl(item.slug, args.customerEmail || "", args.orderNumber)}`
   ).join("\n\n");
   return `Bonjour ${firstName},\n\nVotre commande #${args.orderNumber} a bien été livrée. Nous espérons que vos articles vous plaisent.\n\nPartagez votre avis sur les produits achetés :\n\n${links || `${siteUrl}/boutique`}\n\nVotre retour aide les autres clients à choisir et nous permet de mieux vous servir. Merci pour votre confiance.\n\nL'équipe L'ecomax`;
 }
@@ -81,7 +81,7 @@ export function buildProductReviewEmailHtml(args: {
 }) {
   const firstName = escapeHtml(args.customerName.split(" ")[0] || "Client");
   const products = args.items.slice(0, 4).map((item) => {
-    const url = productReviewUrl(item.slug, args.customerEmail);
+    const url = productReviewUrl(item.slug, args.customerEmail, args.orderNumber);
     return `<tr><td style="padding:0 0 12px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e8ebe8;border-radius:14px"><tr>
       <td style="width:82px;padding:10px"><img class="product-img" src="${escapeHtml(absoluteImage(item.image))}" alt="" width="72" height="72" style="display:block;width:72px;height:72px;object-fit:cover;border-radius:10px;background:#f5f5f5"></td>
       <td style="padding:12px 14px 12px 8px;font-size:13px;font-weight:700;line-height:1.4;color:#202420">${escapeHtml(item.name)}${item.qty && item.qty > 1 ? `<br><span style="font-size:10px;font-weight:500;color:#8b918c">Quantité : ${item.qty}</span>` : ""}</td>
@@ -119,7 +119,7 @@ export function buildProductReviewFollowupEmailHtml(args: {
   const firstName = escapeHtml(args.customerName.split(" ")[0] || "Client");
   const trustpilotUrl = "https://www.trustpilot.com/evaluate/lecomax.com";
   const products = args.items.slice(0, 6).map((item) => {
-    const url = productReviewUrl(item.slug, args.customerEmail);
+    const url = productReviewUrl(item.slug, args.customerEmail, args.orderNumber);
     return `<tr><td style="padding:0 0 12px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e5e9e6;border-radius:14px;background:#fff"><tr>
       <td style="width:82px;padding:10px"><img class="product-img" src="${escapeHtml(absoluteImage(item.image))}" alt="${escapeHtml(item.name)}" width="72" height="72" style="display:block;width:72px;height:72px;object-fit:cover;border-radius:10px;background:#f5f5f5"></td>
       <td style="padding:12px 14px 12px 8px"><p style="margin:0;font-size:13px;font-weight:800;line-height:1.4;color:#171a17">${escapeHtml(item.name)}</p>${item.qty && item.qty > 1 ? `<p style="margin:5px 0 0;font-size:10px;color:#8b918c">Quantité : ${item.qty}</p>` : ""}</td>

@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getEcomediaUser } from "@/lib/ecomedia-auth";
@@ -36,7 +37,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (result.response) return result.response;
 
   let body: { content?: string };
-  try { body = await req.json(); } catch { return NextResponse.json({ error: "Requête invalide." }, { status: 400 }); }
+  try { body = await readJsonLimited(req); } catch { return NextResponse.json({ error: "Requête invalide." }, { status: 400 }); }
   const content = body.content?.trim() ?? "";
   if (content.length < 2) return NextResponse.json({ error: "Écrivez au moins 2 caractères." }, { status: 400 });
   if (content.length > 500) return NextResponse.json({ error: "Votre commentaire ne peut pas dépasser 500 caractères." }, { status: 400 });

@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
@@ -17,7 +19,7 @@ export async function GET(req: NextRequest) {
     .select("*, admin_role_permissions(permission_slug)")
     .order("created_at", { ascending: true });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
 
   // Count staff per role
   const { data: staffCounts } = await supabase
@@ -51,7 +53,7 @@ export async function POST(req: NextRequest) {
   const blocked = await protectAdminMutation(req, { key: "admin:roles:create", limit: 10 });
   if (blocked) return blocked;
 
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   if (!body?.name) return NextResponse.json({ error: "name is required" }, { status: 400 });
 
   const slug = body.name
@@ -72,7 +74,7 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
 
   if (Array.isArray(body.permissions) && body.permissions.length > 0) {
     await supabase.from("admin_role_permissions").insert(

@@ -1,3 +1,6 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { validPushEndpoint } from "@/lib/push-endpoint";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
@@ -12,8 +15,8 @@ type SubscriptionBody = { endpoint?: string; keys?: { p256dh?: string; auth?: st
 
 export async function POST(req: NextRequest) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-  const body = await req.json().catch(() => null) as SubscriptionBody | null;
-  if (!body?.endpoint || !body.keys?.p256dh || !body.keys.auth) {
+  const body = await readJsonLimited(req).catch(() => null) as SubscriptionBody | null;
+  if (!validPushEndpoint(body?.endpoint) || !body?.keys?.p256dh || !body.keys.auth) {
     return NextResponse.json({ error: "Abonnement incomplet" }, { status: 400 });
   }
 
@@ -25,15 +28,15 @@ export async function POST(req: NextRequest) {
     user_agent: userAgent,
   }, { onConflict: "endpoint" });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
 
 export async function DELETE(req: NextRequest) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-  const body = await req.json().catch(() => null) as { endpoint?: string } | null;
+  const body = await readJsonLimited(req).catch(() => null) as { endpoint?: string } | null;
   if (!body?.endpoint) return NextResponse.json({ error: "Endpoint requis" }, { status: 400 });
   const { error } = await supabase.from("push_subscriptions").delete().eq("endpoint", body.endpoint);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

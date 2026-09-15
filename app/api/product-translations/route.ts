@@ -35,7 +35,10 @@ async function handle(req: NextRequest, generate: boolean) {
     const { data: cached, error: cacheError } = await db.from("product_translations").select("status,description,retry_after").match(match).maybeSingle();
     const missingTable = cacheError?.code === "PGRST205" || cacheError?.code === "42P01";
     if (cacheError && !missingTable) return reply({ error: "Translation storage unavailable" }, 503);
-    if (cached?.status === "ready" && cached.description) return ready(cached.description);
+    if (cached?.status === "ready" && cached.description) {
+      await temporaryCache.generate(hash, async () => cached.description);
+      return ready(cached.description);
+    }
     if (cached && Date.parse(cached.retry_after) > Date.now()) {
       return reply({ status: cached.status === "pending" ? "pending" : "unavailable", retry_after: cached.retry_after }, 202);
     }
@@ -54,6 +57,7 @@ async function handle(req: NextRequest, generate: boolean) {
     if (!claimed) return reply({ status: "pending" }, 202);
     try {
       const result = await generateProductTranslation({ name: product.name, brand: product.brand || "", description: source, locale });
+      await temporaryCache.generate(hash, async () => result.description);
       const { error: saveError } = await db.from("product_translations").update({ ...result, status: "ready", updated_at: new Date().toISOString() }).match(match);
       if (saveError) {
         console.error("Product translation persistence failed", saveError.code);

@@ -1,17 +1,17 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextResponse } from "next/server";
-import { verifySessionToken } from "@/lib/admin-session";
+import { isAdminRequest } from "@/lib/request-auth";
 import { NextRequest } from "next/server";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { shippingSummary } from "@/lib/shipping-config";
 import { getGroqClient } from "@/lib/groq-client";
 
 export async function POST(req: NextRequest) {
-  const token = req.cookies.get("admin_session")?.value;
-  if (!token || !(await verifySessionToken(token))) {
+  if (!(await isAdminRequest(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { topic, type, lang = "fr" } = await req.json();
+  const { topic, type, lang = "fr" } = await readJsonLimited(req);
   if (!topic) return NextResponse.json({ error: "topic requis" }, { status: 400 });
 
   const langInstructions: Record<string, string> = {

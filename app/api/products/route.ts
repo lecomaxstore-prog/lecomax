@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { recordAdminActivity } from "@/lib/admin-activity";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -10,6 +11,7 @@ import {
   syncOutOfStockTags,
 } from "@/lib/product-inventory";
 import { publishProductDiscovery } from "@/lib/product-discovery";
+import { catalogAvailability } from "@/mobile/src/lib/catalog-availability";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -95,7 +97,9 @@ export async function GET(req: NextRequest) {
       { error: "Impossible de charger les produits." },
       { status: 500 },
     );
-  return NextResponse.json(data ?? [], {
+  // The dynamic public/administrator select string cannot be inferred by PostgREST.
+  const rows = (data ?? []) as unknown as (Parameters<typeof catalogAvailability>[0] & Record<string, unknown>)[];
+  return NextResponse.json(publicRequest ? rows.map(product => ({ ...product, ...catalogAvailability(product) })) : rows, {
     headers: { "Cache-Control": "no-store, max-age=0" },
   });
 }
@@ -109,7 +113,7 @@ export async function POST(req: NextRequest) {
   if (blocked) return blocked;
   let body: unknown;
   try {
-    body = await req.json();
+    body = await readJsonLimited(req);
   } catch {
     return NextResponse.json({ error: "JSON invalide." }, { status: 400 });
   }

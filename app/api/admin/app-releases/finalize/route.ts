@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { protectAdminMutation } from "@/lib/api-security";
 import { adminActor, hashStoredApk, releaseSupabase } from "@/lib/app-release-server";
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
     windowMs: 600_000,
   });
   if (blocked) return blocked;
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   const parsed = validateReleaseDraft(body);
   if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const actor = await adminActor(req);

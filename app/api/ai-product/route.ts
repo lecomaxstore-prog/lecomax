@@ -1,3 +1,5 @@
+import { fetchProductHtml } from "@/lib/safe-product-fetch";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { lookup } from "node:dns/promises";
@@ -140,7 +142,7 @@ export async function POST(req: NextRequest) {
   const blocked = await protectAdminMutation(req, { key: "ai:product", limit: 10 });
   if (blocked) return blocked;
   let input: { url?: unknown };
-  try { input = await req.json() as { url?: unknown }; } catch {
+  try { input = await readJsonLimited(req) as { url?: unknown }; } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
   const url = await safeProductUrl(input.url);
@@ -152,19 +154,7 @@ export async function POST(req: NextRequest) {
   let html = "";
   let fetchFailed = false;
   try {
-    const res = await fetch(url, {
-      redirect: "error",
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      },
-      signal: AbortSignal.timeout(10000),
-    });
-    if (!res.ok || !res.headers.get("content-type")?.toLowerCase().includes("text/html")) throw new Error("invalid response");
-    const declaredLength = Number(res.headers.get("content-length") || 0);
-    if (declaredLength > 2_000_000) throw new Error("response too large");
-    html = (await res.text()).slice(0, 2_000_000);
+    html = await fetchProductHtml(url);
   } catch {
     fetchFailed = true;
   }

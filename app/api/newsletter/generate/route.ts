@@ -1,10 +1,11 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { protectAdminMutation } from "@/lib/api-security";
 
 export async function POST(req: NextRequest) {
   const blocked = await protectAdminMutation(req, { key: "ai:newsletter", limit: 15 });
   if (blocked) return blocked;
-  const input = await req.json().catch(() => null) as { goal?: unknown; productNames?: unknown; tone?: unknown } | null;
+  const input = await readJsonLimited(req).catch(() => null) as { goal?: unknown; productNames?: unknown; tone?: unknown } | null;
   const goal = typeof input?.goal === "string" ? input.goal.trim().slice(0, 600) : "";
   const productNames = Array.isArray(input?.productNames) ? input.productNames.map(String).slice(0, 12) : [];
   const tone = ["premium", "friendly", "urgent"].includes(String(input?.tone)) ? String(input?.tone) : "premium";

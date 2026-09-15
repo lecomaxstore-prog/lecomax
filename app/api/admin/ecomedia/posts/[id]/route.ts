@@ -1,6 +1,8 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { verifySessionToken } from "@/lib/admin-session";
+import { isAdminRequest } from "@/lib/request-auth";
 import { notifyPublishedEcomediaPost } from "@/lib/push-notifications";
 
 const sb = createClient(
@@ -9,9 +11,7 @@ const sb = createClient(
 );
 
 async function auth(req: NextRequest) {
-  const token = req.cookies.get("admin_session")?.value;
-  if (!token) return false;
-  return !!(await verifySessionToken(token));
+  return isAdminRequest(req);
 }
 
 // GET /api/admin/ecomedia/posts/[id] — single post with comments
@@ -28,7 +28,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!(await auth(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
   let body: Record<string, unknown>;
-  try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
+  try { body = await readJsonLimited(req); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
   const { data: previous } = await sb
     .from("ecomedia_posts")
@@ -42,7 +42,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   let notification = null;
   if (!previous?.is_published && data.is_published) {
     try { notification = await notifyPublishedEcomediaPost(data); }
@@ -57,7 +57,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const { id } = await params;
   const { data: post } = await sb.from("ecomedia_posts").select("media_url").eq("id", id).maybeSingle();
   const { error } = await sb.from("ecomedia_posts").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   if (post?.media_url) {
     try {
       const marker = "/storage/v1/object/public/";

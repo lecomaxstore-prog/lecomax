@@ -1,3 +1,4 @@
+import { OFFICIAL_SOCIAL_IMAGE, SOCIAL_IMAGE_METADATA } from "@/lib/social-image";
 import { isBestsellerEligible, selectBestsellers } from "@/lib/bestseller-eligibility";
 import { STOREFRONT_TITLE, STOREFRONT_DESCRIPTION } from "@/lib/storefront-metadata";
 import type { Metadata } from "next";
@@ -15,7 +16,7 @@ const OurProductsGrid = dynamic(() => import("@/components/OurProductsGrid"));
 const ScrollReveal = dynamic(() => import("@/components/ScrollReveal"));
 const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
-import { products as staticProducts, type CardProduct } from "@/lib/products";
+import { type CardProduct, products as catalogProducts } from "@/lib/products";
 import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import type { HeroBannerRecord } from "@/lib/hero-banners";
 import { shippingConfigFromSettings, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
@@ -44,25 +45,15 @@ const defaultHomeMetadata: Metadata = {
     locale: "fr_MA",
     url: SITE_URL_PAGE,
     siteName: "L'ecomax",
-    title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
-    description:
-      "Boutique en ligne Maroc — chaussures, vêtements sport, écouteurs, enceintes et gaming. Livraison {{shipping}} partout au Maroc. Paiement à la livraison.",
-    images: [
-      {
-        url: `${SITE_URL_PAGE}/ecomax-hero-banner.jpg.png`,
-        width: 1200,
-        height: 630,
-        alt: "L'ecomax — Boutique en ligne Maroc",
-        type: "image/png",
-      },
-    ],
+    title: STOREFRONT_TITLE,
+    description: STOREFRONT_DESCRIPTION,
+    images: [SOCIAL_IMAGE_METADATA],
   },
   twitter: {
     card: "summary_large_image",
-    title: "L'ecomax — Chaussures, Vêtements & Accessoires Tech au Maroc",
-    description:
-      "Boutique en ligne Maroc — chaussures, vêtements, écouteurs, enceintes et gaming. Livraison {{shipping}}.",
-    images: [`${SITE_URL_PAGE}/ecomax-hero-banner.jpg.png`],
+    title: STOREFRONT_TITLE,
+    description: STOREFRONT_DESCRIPTION,
+    images: [OFFICIAL_SOCIAL_IMAGE],
   },
 };
 
@@ -96,7 +87,7 @@ async function getHeroImages() {
           apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
           Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
         },
-        next: { revalidate: 60 },
+        cache: "no-store",
       }
     );
     if (!res.ok) return {};
@@ -111,19 +102,20 @@ async function getHeroBanners(): Promise<HeroBannerRecord[]> {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/banners?active=eq.true&select=*&order=sort_order.asc,created_at.asc`,
-      { headers: supabaseServiceHeaders(), next: { revalidate: 60 } }
+      { headers: supabaseServiceHeaders(), cache: "no-store" }
     );
     return response.ok ? await response.json() : [];
   } catch { return []; }
 }
 
 export default async function HomePage() {
-  // Merge DB products with static, DB products appear first
-  const [dbProducts, heroImages, heroBanners, reviewStats] = await Promise.all([
+  // Read the same live catalogue used by the app.
+  const [dbProducts, heroImages, heroBanners, reviewStats, promotionProducts] = await Promise.all([
     getDbProducts({ activeOnly: true }),
     getHeroImages(),
     getHeroBanners(),
     getReviewStats(),
+    getDbProducts({ activeOnly: true, promotionOnly: true }),
   ]);
   const shippingConfig = shippingConfigFromSettings(heroImages);
 
@@ -133,7 +125,7 @@ export default async function HomePage() {
   try {
     const ecomediaParams = new URLSearchParams({
       is_published: "eq.true",
-      type: "in.(image,product,promotion)",
+      type: "eq.image",
       media_url: "not.is.null",
       or: `(cta_text.is.null,cta_text.not.like.${ECOMEDIA_COMMUNITY_AUTHOR_PREFIX}*)`,
       order: "created_at.desc",
@@ -144,27 +136,38 @@ export default async function HomePage() {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/ecomedia_posts?${ecomediaParams}`,
       {
         headers: supabaseServiceHeaders(),
-        next: { revalidate: 60 },
+        cache: "no-store",
       }
     );
     if (res.ok) { const rows = await res.json(); latestPost = rows[0] ?? null; }
   } catch { /* silent */ }
 
-  const dbSlugs = new Set(dbProducts.map((p) => p.slug));
-  const allProducts: CardProduct[] = [
-    ...dbProducts,
-    ...(staticProducts as CardProduct[]).filter((p) => !dbSlugs.has(p.slug)),
-  ].map((p) => ({
+  // Keep the storefront populated while the live catalogue is unavailable.
+  const sourceProducts = dbProducts.length > 0 ? dbProducts : catalogProducts;
+  const allProducts: CardProduct[] = sourceProducts.map((p) => ({
     ...p,
     rating: reviewStats[p.slug]?.rating,
     reviewCount: reviewStats[p.slug]?.count,
   }));
 
-  const newArrivals = allProducts.filter((p) => p.badge === "Nouveau");
+  // Preserve the original selection; automatically include products created
+  // after this feature was enabled. The live catalogue is newest first.
+  const automaticNewArrivalsSince = Date.parse("2026-09-15T10:14:41Z");
+  const originalNewArrivals = allProducts.filter((product) => product.badge === "Nouveau");
+  const existingSelection = originalNewArrivals.length > 0 ? originalNewArrivals : allProducts;
+  const futureNewArrivals = allProducts.filter((product) =>
+    product.createdAt && Date.parse(product.createdAt) >= automaticNewArrivalsSince
+  );
+  const futureSlugs = new Set(futureNewArrivals.map((product) => product.slug));
+  const newArrivals: CardProduct[] = [
+    ...futureNewArrivals,
+    ...existingSelection.filter((product) => !futureSlugs.has(product.slug)),
+  ].slice(0, 8).map((product) => ({
+    ...product,
+    badge: "Nouveau",
+  }));
   const bestsellerCandidates = allProducts.filter(isBestsellerEligible);
   const bestSellers = bestsellerCandidates.filter((p) => p.badge === "Bestseller");
-  // Fall back: if no featured in DB, show first 4 DB products as "nouveautés"
-  const featuredForRail = (newArrivals.length > 0 ? newArrivals : allProducts).slice(0, 8);
   const bestSellersForRail = selectBestsellers(allProducts, bestSellers.length > 0 ? bestSellers : bestsellerCandidates).slice(0, 8);
 
   const SITE_URL = "https://lecomax.com";
@@ -269,7 +272,7 @@ export default async function HomePage() {
       <ProductRail
         title="Nouveautés"
         cardStyle="collection"
-        products={featuredForRail}
+        products={newArrivals}
         cta={{ label: "Tout voir", href: "/nouveautes" }}
       />
 
@@ -326,7 +329,7 @@ export default async function HomePage() {
 
       <ProductRail
         title="En promotion"
-        products={allProducts.filter((p) => p.oldPrice)}
+        products={(promotionProducts.length > 0 ? promotionProducts : allProducts.filter(p => (p.oldPrice ?? 0) > p.price)).slice(0, 8).map(p => ({ ...p, rating: reviewStats[p.slug]?.rating, reviewCount: reviewStats[p.slug]?.count }))}
         cta={{ label: "Voir les promos", href: "/promotions" }}
       />
 
@@ -365,7 +368,7 @@ export default async function HomePage() {
         </div>
         <div className="relative aspect-[4/3] bg-neutral-100 overflow-hidden group">
           <Image
-            src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1000&q=80"
+            src="/images/ecoclub-community.jpg"
             alt="Communauté ecoClub"
             fill
             sizes="(min-width: 768px) 40vw, 100vw"
@@ -410,38 +413,40 @@ export default async function HomePage() {
           <div className="pointer-events-none absolute inset-0 opacity-[.035]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.8) 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
           <div className="pointer-events-none absolute -left-48 top-0 h-[500px] w-[500px] rounded-full bg-[#3ecf4c]/10 blur-[120px]" />
 
-          <div className={`relative grid ${latestPost ? "lg:grid-cols-[1.05fr_.95fr]" : "lg:grid-cols-[1fr_auto]"}`}>
-            <div className="flex flex-col justify-between p-7 sm:p-10 lg:min-h-[570px] lg:p-14">
+          <div className={`relative grid ${latestPost ? "lg:grid-cols-[1.05fr_.95fr]" : ""}`}>
+            <div className="flex flex-col justify-between p-6 sm:p-10 lg:p-14">
               <div>
-                <div className="mb-10 flex items-center justify-between border-b border-white/10 pb-5">
+                <div className="mb-7 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-5">
                   <span className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[.3em] text-[#3ecf4c]"><span className="h-1.5 w-1.5 rounded-full bg-[#3ecf4c] shadow-[0_0_12px_#3ecf4c]"/>En direct de la communauté</span>
-                  <span className="font-mono text-[9px] text-white/30">01 / ECOMEDIA</span>
+                  <span className="font-mono text-[10px] text-white/60">ECOMEDIA</span>
                 </div>
-                <h3 className="h-display max-w-xl text-4xl leading-[.98] tracking-[-.025em] sm:text-5xl lg:text-[3.65rem]">
+                <h3 className="max-w-xl text-[1.9rem] font-semibold leading-[1.18] tracking-[-.035em] sm:text-4xl lg:text-5xl">
                   L&apos;actualité L&apos;ecomax,<br/><span className="text-[#3ecf4c]">en avant-première.</span>
                 </h3>
-                <p className="mt-6 max-w-lg text-sm leading-7 text-white/55">Nouveaux produits, démonstrations, offres flash et moments en coulisses. Un fil pensé pour vous informer, vous inspirer et vous donner la parole.</p>
+                <p className="mt-5 max-w-lg text-sm leading-7 text-[#becbc0]">Nouveautés, inspirations et coulisses : découvrez ce qui anime L’ECOMAX et partagez vos envies avec la communauté.</p>
 
-                <div className="mt-9 grid max-w-xl grid-cols-3 gap-2 sm:gap-3">
+                <div className="mt-7 grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-3">
                   {[
                     { label: "Découvrir", sub: "Les nouveautés", path: "M4 12h16M12 4v16" },
                     { label: "Échanger", sub: "Avec la marque", path: "M21 15a2 2 0 01-2 2H8l-5 4V5a2 2 0 012-2h14a2 2 0 012 2v10Z" },
                     { label: "Profiter", sub: "Des offres privées", path: "M20 12v8H4v-8M2 7h20v5H2zM12 7v13M12 7H7.5a2.5 2.5 0 110-5C11 2 12 7 12 7Zm0 0h4.5a2.5 2.5 0 100-5C13 2 12 7 12 7Z" },
                   ].map(item => (
-                    <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[.035] p-3.5 sm:p-4">
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={item.path}/></svg>
-                      <p className="mt-4 text-[11px] font-black text-white">{item.label}</p><p className="mt-1 text-[9px] leading-4 text-white/35">{item.sub}</p>
+                    <div key={item.label} className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/[.04] p-4 sm:flex-col sm:items-start sm:gap-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#3ecf4c]/10">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8cde91" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={item.path}/></svg>
+                      </span>
+                      <div><p className="text-[13px] font-semibold text-white">{item.label}</p><p className="mt-1 text-xs leading-5 text-[#becbc0]">{item.sub}</p></div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="mt-10 flex flex-wrap items-center gap-5">
-                <Link href="/ecomedia" className="group inline-flex min-h-12 items-center gap-4 rounded-xl bg-[#3ecf4c] px-6 text-[10px] font-black uppercase tracking-[.18em] text-black transition hover:bg-white active:scale-[.98]">
+              <div className="mt-7 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
+                <Link href="/ecomedia" className="group inline-flex min-h-12 w-full items-center justify-between gap-6 rounded-xl bg-[#c4e8b4] px-5 py-3 text-sm font-semibold text-[#173c28] transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c4e8b4] sm:w-auto">
                   Explorer le fil
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="transition-transform group-hover:translate-x-1" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                 </Link>
-                <span className="flex items-center gap-2 text-[10px] font-medium text-white/35"><span className="h-1.5 w-1.5 rounded-full bg-[#3ecf4c]"/>Publications exclusives chaque semaine</span>
+                <span className="flex items-center gap-2 text-xs text-[#becbc0]"><span className="h-1.5 w-1.5 rounded-full bg-[#8cde91]"/>Toute l’actualité, au même endroit</span>
               </div>
             </div>
 
@@ -450,7 +455,7 @@ export default async function HomePage() {
                 <Link href={`/ecomedia/${latestPost.slug}`} className="group block w-full max-w-[430px]" aria-label={`Voir la publication : ${latestPost.title}`}>
                   <div className="overflow-hidden rounded-[1.4rem] border border-white/15 bg-[#111512] shadow-[0_28px_70px_rgba(0,0,0,.5)] transition duration-500 group-hover:-translate-y-1 group-hover:border-[#3ecf4c]/60">
                     <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3.5">
-                      <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-[#3ecf4c]/60 bg-black p-1"><img src="/images/lm-icon.svg" alt="" className="h-full w-full object-cover" /></div>
+                      <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-[#3ecf4c]/60 bg-black p-1"><img src="/brand/lecomax-premium-icon.png" alt="" className="h-full w-full object-cover" /></div>
                       <div><p className="text-[11px] font-black">L&apos;ecomax</p><p className="mt-0.5 text-[9px] text-white/35">Publication officielle</p></div>
                       <span className="ml-auto flex items-center gap-1.5 rounded-full border border-[#3ecf4c]/25 bg-[#3ecf4c]/10 px-2.5 py-1 text-[8px] font-black uppercase tracking-wider text-[#3ecf4c]"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#3ecf4c]"/>Nouveau</span>
                     </div>
@@ -482,7 +487,10 @@ export default async function HomePage() {
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center border-t border-white/10 p-8 lg:border-l lg:border-t-0 lg:p-14"><p className="max-w-xs text-sm leading-7 text-white/45">Les prochaines publications de la communauté apparaîtront ici.</p></div>
+              <div className="mx-6 mb-6 flex items-start gap-3 rounded-xl border border-white/10 bg-white/[.03] p-4 sm:mx-10 sm:mb-10 lg:mx-14 lg:mb-14">
+                <svg className="mt-0.5 shrink-0 text-[#8cde91]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4 4h16v12H8l-4 4V4Z"/></svg>
+                <div><p className="text-sm font-medium text-white">À découvrir prochainement</p><p className="mt-1 text-xs leading-5 text-[#becbc0]">Les nouvelles publications apparaîtront ici.</p></div>
+              </div>
             )}
           </div>
         </div>

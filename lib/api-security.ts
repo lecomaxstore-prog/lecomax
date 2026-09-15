@@ -2,35 +2,31 @@ import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/request-auth";
+import { sameRequestOrigin } from "./request-origin";
 
 type Bucket = { count: number; resetAt: number };
 const globalBuckets = globalThis as typeof globalThis & { __lecomaxRateLimits?: Map<string, Bucket> };
 const buckets = globalBuckets.__lecomaxRateLimits ??= new Map<string, Bucket>();
 
-function clientIp(req: NextRequest) {
+export function clientIp(req: NextRequest) {
+  if (process.env.VERCEL === "1") return req.headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     req.headers.get("x-real-ip")?.trim() || "unknown";
 }
 
 export function isSameOrigin(req: NextRequest) {
-  const origin = req.headers.get("origin");
-  if (!origin) return true;
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
-  try {
-    return Boolean(host) && new URL(origin).host === host;
-  } catch {
-    return false;
-  }
+  return sameRequestOrigin(req);
 }
 
-export function enforceRateLimit(req: NextRequest, key: string, limit: number, windowMs: number) {
+export function enforceRateLimit(req: NextRequest, key: string, limit: number, windowMs: number, identity = clientIp(req)) {
   const now = Date.now();
   if (buckets.size > 5_000) {
     for (const [bucketKey, bucket] of buckets) if (bucket.resetAt <= now) buckets.delete(bucketKey);
   }
-  const bucketKey = `${key}:${clientIp(req)}`;
+  const bucketKey = `${key}:${identity}`;
   const current = buckets.get(bucketKey);
   if (!current || current.resetAt <= now) {
+    if (buckets.size >= 10_000) buckets.delete(buckets.keys().next().value!);
     buckets.set(bucketKey, { count: 1, resetAt: now + windowMs });
     return null;
   }

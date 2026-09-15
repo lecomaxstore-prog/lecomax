@@ -1,3 +1,4 @@
+import { securityIo } from "./helpers/security-io.ts";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -13,6 +14,7 @@ test('mobile timeout retry survives remount and success allows a new intentional
     const source=readFileSync(new URL('../mobile/src/services/orders.ts',import.meta.url),'utf8');
     vm.runInNewContext(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{
       exports,require:(name:string)=>{
+      const securityModule = securityIo(name); if (securityModule) return securityModule;
         if(name==='@/i18n')return {msg:(key:string)=>key};
         if(name==='@react-native-async-storage/async-storage')return {default:{getItem:async(key:string)=>storage.get(key)??null,setItem:async(key:string,value:string)=>{storage.set(key,value);},removeItem:async(key:string)=>{storage.delete(key);}}};
         if(name==='@/lib/api-client')return {apiRequest:async(_url:string,init:any)=>{keys.push(init.headers['Idempotency-Key']);if(fail)throw new Error('timeout');return {id:'same-order',order_number:'ECO-TEST'};}};

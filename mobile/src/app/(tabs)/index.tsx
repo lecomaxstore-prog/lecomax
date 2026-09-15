@@ -1,4 +1,5 @@
 import { localizedError } from "@/i18n/errors";
+import { selectPromotionProducts } from "@/lib/store-promotions";
 import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
@@ -95,28 +96,12 @@ export default function HomeScreen() {
 
   const promotionProducts = useMemo(() => {
     const products = productsQuery.data ?? [];
-    const promotionIds = new Set(
-      (promotionsQuery.data ?? []).flatMap(
-        (promotion) => promotion.product_ids ?? [],
-      ),
-    );
-    const selected = products.filter((product) => promotionIds.has(product.id));
-    const discounted = products
-      .filter((product) => discount(product.price, product.original_price) > 0)
+    return selectPromotionProducts(products, promotionsQuery.data ?? [])
       .sort(
         (left, right) =>
           discount(right.price, right.original_price) -
           discount(left.price, left.original_price),
-      );
-    const featured = products.filter((product) => product.featured);
-    return [
-      ...new Map(
-        [...selected, ...discounted, ...featured].map((product) => [
-          product.id,
-          product,
-        ]),
-      ).values(),
-    ].slice(0, 5);
+      ).slice(0, 5);
   }, [productsQuery.data, promotionsQuery.data]);
 
   const catalogProducts = useMemo(() => {
@@ -236,17 +221,17 @@ export default function HomeScreen() {
             ) : null}
 
             <AnimatedPressable
+              accessibilityRole="button"
               accessibilityLabel={msg("home.exploreTheWholeShop")}
               onPress={() => router.push("/catalog")}
               style={styles.catalogCta}
             >
               <Text style={styles.catalogCtaText}>
-                {msg("home.exploreTheWholeShopUppercase")}</Text>
-              <Ionicons
-                name="arrow-forward"
-                size={18}
-                color={colors.background}
-              />
+                {msg("home.exploreTheWholeShop")}
+              </Text>
+              <View style={styles.catalogCtaArrow}>
+                <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+              </View>
             </AnimatedPressable>
           </>
         )}
@@ -454,21 +439,39 @@ const styles = StyleSheet.create({
     lineHeight: 14,
   },
   catalogCta: {
-    minHeight: 54,
+    minHeight: 64,
     marginHorizontal: 16,
     marginTop: 22,
-    paddingHorizontal: 19,
+    paddingLeft: 20,
+    paddingRight: 12,
+    paddingVertical: 12,
+    gap: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderRadius: 12,
-    backgroundColor: colors.text,
+    borderRadius: 18,
+    backgroundColor: "#203D2C",
+    borderWidth: 1,
+    borderColor: "#35533F",
   },
   catalogCtaText: {
-    color: colors.background,
-    fontFamily: typography.black,
-    fontSize: 9,
-    letterSpacing: 0.8,
+    flex: 1,
+    color: "#FFFFFF",
+    fontFamily: typography.semibold,
+    fontSize: 14,
+    lineHeight: 21,
+    letterSpacing: -0.15,
+  },
+  catalogCtaArrow: {
+    width: 38,
+    height: 38,
+    flexShrink: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 19,
+    backgroundColor: "rgba(255,255,255,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
   },
   categoryError: {
     marginHorizontal: 16,

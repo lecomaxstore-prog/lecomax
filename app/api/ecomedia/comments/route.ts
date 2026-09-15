@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { communityDisplayName, getEcomediaUser } from "@/lib/ecomedia-auth";
@@ -11,7 +12,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Connectez-vous pour participer à la discussion." }, { status: 401 });
 
   let body: { postId?: string; content?: string; parentId?: string | null };
-  try { body = await req.json(); } catch { return NextResponse.json({ error: "Requête invalide" }, { status: 400 }); }
+  try { body = await readJsonLimited(req); } catch { return NextResponse.json({ error: "Requête invalide" }, { status: 400 }); }
   const postId = body.postId?.trim();
   const content = body.content?.trim();
   const parentId = body.parentId?.trim() || null;

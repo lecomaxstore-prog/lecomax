@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCustomerUser } from "@/lib/request-auth";
+import { sensitiveRateLimit } from "@/lib/sensitive-rate-limit";
 
 export async function POST(req: NextRequest) {
   const headers = { "Cache-Control": "private, no-store" };
@@ -7,6 +8,8 @@ export async function POST(req: NextRequest) {
     const user = await getCustomerUser(req);
     if (!user) return NextResponse.json({ error: "Votre session a expiré. Reconnectez-vous." }, { status: 401, headers });
     if (!user.email) return NextResponse.json({ error: "Aucune adresse e-mail associée à votre compte." }, { status: 400, headers });
+    const limited = await sensitiveRateLimit(req, "account-password-reset", user.email);
+    if (limited) return limited;
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     if (!url || !key) return NextResponse.json({ error: "Service de réinitialisation indisponible." }, { status: 503, headers });

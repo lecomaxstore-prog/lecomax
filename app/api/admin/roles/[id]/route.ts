@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
@@ -19,7 +21,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     .eq("id", id)
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 404 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 404 });
   return NextResponse.json({
     ...data,
     permissions: (data.admin_role_permissions ?? []).map(
@@ -35,7 +37,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (blocked) return blocked;
 
   const { id } = await params;
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
 
   // Check if system role — only allow updating permissions, not name/slug
@@ -57,7 +59,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       .from("admin_roles")
       .update(updates)
       .eq("id", id);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   }
 
   // Replace permissions
@@ -91,6 +93,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   }
 
   const { error } = await supabase.from("admin_roles").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

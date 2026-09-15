@@ -1,6 +1,9 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifyPayPalWebhook } from "@/lib/paypal-server";
+import { paypalWebhookChange } from "@/lib/paypal-webhook-event";
+import { securityLog } from "@/lib/security-log";
 
 export const runtime = "nodejs";
 
@@ -10,40 +13,20 @@ const supabase = createClient(
   { auth: { persistSession: false, autoRefreshToken: false } },
 );
 
-type PayPalWebhookEvent = {
-  id?: unknown;
-  event_type?: unknown;
-  resource?: { id?: unknown };
-};
-
-const PAYMENT_STATUS_BY_EVENT: Record<string, string> = {
-  "PAYMENT.CAPTURE.COMPLETED": "captured",
-  "PAYMENT.CAPTURE.PENDING": "pending",
-  "PAYMENT.CAPTURE.DECLINED": "failed",
-  "PAYMENT.CAPTURE.DENIED": "failed",
-  "PAYMENT.CAPTURE.REFUNDED": "refunded",
-  "PAYMENT.CAPTURE.REVERSED": "reversed",
-};
-
-function safeIdentifier(value: unknown, max = 100) {
-  return typeof value === "string" && /^[A-Za-z0-9_.:-]+$/.test(value) ? value.slice(0, max) : "";
-}
-
 export async function POST(req: NextRequest) {
-  let event: PayPalWebhookEvent;
+  let event: unknown;
   try {
-    event = await req.json() as PayPalWebhookEvent;
+    event = await readJsonLimited(req) ;
   } catch {
     return NextResponse.json({ error: "Invalid webhook JSON." }, { status: 400 });
   }
 
-  const eventId = safeIdentifier(event.id);
-  const eventType = safeIdentifier(event.event_type);
-  const captureId = safeIdentifier(event.resource?.id, 64) || null;
-  if (!eventId || !eventType) return NextResponse.json({ error: "Invalid webhook event." }, { status: 400 });
+  const change = paypalWebhookChange(event);
+  if (!change) return NextResponse.json({ error: "Invalid webhook event." }, { status: 400 });
 
   try {
     if (!(await verifyPayPalWebhook(req.headers, event))) {
+      securityLog("webhook_rejected", "/api/paypal/webhook");
       return NextResponse.json({ error: "Invalid PayPal signature." }, { status: 401 });
     }
   } catch (error) {
@@ -55,35 +38,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Webhook verification unavailable." }, { status: 503 });
   }
 
-  const { data: processed, error: lookupError } = await supabase
-    .from("paypal_webhook_events")
-    .select("event_id")
-    .eq("event_id", eventId)
-    .maybeSingle();
-  if (lookupError) return NextResponse.json({ error: "Webhook storage unavailable." }, { status: 503 });
-  if (processed) return NextResponse.json({ received: true, duplicate: true });
-
-  const paymentStatus = PAYMENT_STATUS_BY_EVENT[eventType];
-  if (paymentStatus && captureId) {
-    const { error: updateError } = await supabase
-      .from("orders")
-      .update({ payment_status: paymentStatus, updated_at: new Date().toISOString() })
-      .eq("payment_reference", captureId);
-    if (updateError) {
-      console.error("PayPal webhook order reconciliation failed:", updateError);
-      return NextResponse.json({ error: "Order reconciliation failed." }, { status: 503 });
-    }
-  }
-
-  const { error: insertError } = await supabase.from("paypal_webhook_events").insert({
-    event_id: eventId,
-    event_type: eventType,
-    capture_id: captureId,
+  const { data, error } = await supabase.rpc("reconcile_paypal_webhook", {
+    p_event_id: change.eventId, p_event_type: change.eventType,
+    p_capture_id: change.captureId, p_status: change.status, p_created_at: change.createdAt,
   });
-  if (insertError && insertError.code !== "23505") {
-    console.error("PayPal webhook idempotency write failed:", insertError);
-    return NextResponse.json({ error: "Webhook storage unavailable." }, { status: 503 });
+  if (error) {
+    // A missing migration or an order still being created must trigger a retry.
+    console.error("PayPal reconciliation unavailable", { code: error.code });
+    return NextResponse.json({ error: "Order reconciliation unavailable." }, { status: 503 });
   }
-
-  return NextResponse.json({ received: true, duplicate: insertError?.code === "23505" });
+  return NextResponse.json(data, { headers: { "Cache-Control": "private, no-store" } });
 }

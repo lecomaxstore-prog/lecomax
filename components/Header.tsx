@@ -1,4 +1,5 @@
 "use client";
+import { useStoreRefresh } from "@/lib/use-store-refresh";
 
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
@@ -48,11 +49,11 @@ export default function Header() {
     };
   }, [open]);
 
-  useEffect(() => {
-    fetch("/api/categories", { cache: "no-store" }).then((response) => response.json()).then((data) => {
-      if (Array.isArray(data) && data.length) setNavCategories(data.filter((category) => category.active !== false).map((category) => ({ slug: category.slug, label: category.label })));
+  useStoreRefresh(async (signal) => {
+    await fetch("/api/categories", { signal, cache: "no-store" }).then((response) => response.json()).then((data) => {
+      if (Array.isArray(data)) setNavCategories(data.filter((category) => category.active !== false).map((category) => ({ slug: category.slug, label: category.label })));
     }).catch(() => {});
-  }, []);
+  });
 
   useEffect(() => {
     let active = true;

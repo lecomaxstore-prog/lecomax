@@ -1,3 +1,4 @@
+import { protectAdminRead, protectAdminMutation } from "@/lib/api-security";
 import { NextRequest, NextResponse } from "next/server";
 import { ImapFlow } from "imapflow";
 
@@ -12,6 +13,8 @@ const IMAP_CONFIG = {
 } as const;
 
 export async function GET(req: NextRequest) {
+  const securityDenied = await protectAdminRead(req, { key: "inbox/route.ts:GET" });
+  if (securityDenied) return securityDenied;
   if (!process.env.PRIVATE_EMAIL_PASS) {
     return NextResponse.json({ error: "PRIVATE_EMAIL_PASS not configured" }, { status: 503 });
   }

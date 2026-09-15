@@ -17,6 +17,7 @@
 }
 .prices { padding: 12px 0; }
 .price { color: #203d2b; font-size: 18px; line-height: 1.2; font-weight: 600; letter-spacing: -.035em; }
+.salePrice { color: #dc2626; }
 .badges { max-width: calc(100% - 64px); pointer-events: none; }
 .badges > span {
   max-width: 100%;

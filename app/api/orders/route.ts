@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { calculateCart, CommerceError, COMMERCE_SETTING_KEYS } from "@/lib/commerce-server";
 import { preorderCopy } from "@/lib/preorder-copy";
 import { databaseAvailability } from "@/lib/preorder";
@@ -91,7 +93,7 @@ export async function GET(req: NextRequest) {
   query = query.abortSignal(AbortSignal.timeout(12_000));
 
   const { data, error, count } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json(data, {
     headers: { "X-Total-Count": String(count ?? data?.length ?? 0) },
   });
@@ -103,7 +105,7 @@ export async function POST(req: NextRequest) {
   if (blocked) return blocked;
   let body: unknown;
   try {
-    body = await req.json();
+    body = await readJsonLimited(req);
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }

@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
   }
 
   let body: Record<string, unknown>;
-  try { body = await req.json() as Record<string, unknown>; } catch {
+  try { body = await readJsonLimited(req) as Record<string, unknown>; } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
   const to_email = safeText(body.to_email, 254).toLowerCase();

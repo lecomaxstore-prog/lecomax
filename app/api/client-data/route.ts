@@ -1,3 +1,4 @@
+import { isAdminRequest } from "@/lib/request-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
@@ -9,8 +10,7 @@ const supabase = createClient(
 // GET /api/client-data — admin summary
 export async function GET(req: NextRequest) {
   // Require admin session cookie
-  const cookie = req.cookies.get("admin_session")?.value;
-  if (cookie !== "authenticated") {
+  if (!(await isAdminRequest(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { recordAdminActivity } from "@/lib/admin-activity";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -47,7 +48,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return NextResponse.json({ error: "Identifiant invalide." }, { status: 400 });
   let body: unknown;
-  try { body = await req.json(); } catch {
+  try { body = await readJsonLimited(req); } catch {
     return NextResponse.json({ error: "JSON invalide." }, { status: 400 });
   }
   const cleaned = cleanProductPayload(body, "update");

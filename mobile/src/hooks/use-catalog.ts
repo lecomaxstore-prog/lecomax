@@ -1,3 +1,4 @@
+import { LIVE_QUERY_OPTIONS } from "@/lib/store-sync";
 import { useQuery } from "@tanstack/react-query";
 import {
   getBanners,
@@ -10,64 +11,56 @@ import {
   getSettings,
 } from "@/services/catalog";
 
+const liveQueryOptions = LIVE_QUERY_OPTIONS;
+
 export const useProducts = () =>
   useQuery({
     queryKey: ["products"],
     queryFn: ({ signal }) => getProducts(signal),
-    staleTime: 60_000,
-    refetchInterval: 30_000,
-    refetchOnReconnect: true,
+    ...liveQueryOptions,
   });
 export const useProduct = (slug: string) =>
   useQuery({
     queryKey: ["products", slug],
     queryFn: ({ signal }) => getProduct(slug, signal),
     enabled: Boolean(slug),
-    staleTime: 60_000,
-    refetchInterval: 30_000,
-    refetchOnReconnect: true,
+    ...liveQueryOptions,
   });
 export const useCategories = () =>
   useQuery({
     queryKey: ["categories"],
     queryFn: ({ signal }) => getCategories(signal),
-    staleTime: 10 * 60_000,
-    refetchInterval: 30_000,
+    ...liveQueryOptions,
   });
 export const usePromotions = () =>
   useQuery({
     queryKey: ["promotions"],
     queryFn: ({ signal }) => getPromotions(signal),
-    staleTime: 5 * 60_000,
-    refetchInterval: 30_000,
+    ...liveQueryOptions,
   });
 export const useSettings = () =>
   useQuery({
     queryKey: ["settings"],
     queryFn: ({ signal }) => getSettings(signal),
-    staleTime: 60_000,
-    refetchInterval: 30_000,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
+    ...liveQueryOptions,
   });
 export const useRecommendationSlugs = (enabled = true) =>
   useQuery({
     queryKey: ["recommendations", "wishlist"],
     queryFn: ({ signal }) => getRecommendationSlugs(12, signal),
     enabled,
-    staleTime: 5 * 60_000,
+    ...liveQueryOptions,
   });
 export const useBanners = () =>
   useQuery({
     queryKey: ["banners"],
     queryFn: ({ signal }) => getBanners(signal),
-    staleTime: 5 * 60_000,
-    refetchInterval: 30_000,
+    ...liveQueryOptions,
   });
 export const useReviews = (slug: string) =>
   useQuery({
     queryKey: ["reviews", slug],
     queryFn: ({ signal }) => getReviews(slug, signal),
     enabled: Boolean(slug),
-    staleTime: 60_000,
+    ...liveQueryOptions,
   });

@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { presentSupportThread } from '@/lib/support-files-server';
 import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
@@ -20,7 +21,7 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
   const denied = await protectAdminMutation(req, { key: "admin-support-status" });
   if (denied) return denied;
   const { id } = await context.params;
-  const input = await req.json().catch(() => null) as { status?: unknown } | null;
+  const input = await readJsonLimited(req).catch(() => null) as { status?: unknown } | null;
   if (!validSupportStatus(input?.status)) return NextResponse.json({ error: "Statut invalide." }, { status: 400 });
   const { data, error } = await supportDatabase().from("support_conversations").update({ status: input.status, updated_at: new Date().toISOString() }).eq("id", id).select("*").maybeSingle();
   return error || !data ? NextResponse.json({ error: "Conversation introuvable." }, { status: 404 }) : NextResponse.json({ conversation: data });

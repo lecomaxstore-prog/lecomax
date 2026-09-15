@@ -1,3 +1,5 @@
+import { protectAdminRead, protectAdminMutation } from "@/lib/api-security";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
@@ -17,6 +19,8 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ uid: string }> }
 ) {
+  const securityDenied = await protectAdminRead(_req, { key: "inbox/[uid]/route.ts:GET" });
+  if (securityDenied) return securityDenied;
   if (!process.env.PRIVATE_EMAIL_PASS) {
     return NextResponse.json({ error: "PRIVATE_EMAIL_PASS not configured" }, { status: 503 });
   }
@@ -69,6 +73,8 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ uid: string }> }
 ) {
+  const securityDenied = await protectAdminMutation(_req, { key: "inbox/[uid]/route.ts:DELETE" });
+  if (securityDenied) return securityDenied;
   if (!process.env.PRIVATE_EMAIL_PASS) {
     return NextResponse.json({ error: "PRIVATE_EMAIL_PASS not configured" }, { status: 503 });
   }
@@ -99,12 +105,14 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ uid: string }> }
 ) {
+  const securityDenied = await protectAdminMutation(req, { key: "inbox/[uid]/route.ts:PATCH" });
+  if (securityDenied) return securityDenied;
   if (!process.env.PRIVATE_EMAIL_PASS) {
     return NextResponse.json({ error: "PRIVATE_EMAIL_PASS not configured" }, { status: 503 });
   }
 
   const { uid } = await params;
-  const body = await req.json();
+  const body = await readJsonLimited(req);
   const client = new ImapFlow(IMAP_CONFIG);
 
   try {

@@ -8,6 +8,7 @@ import {
   FlatList,
   Linking,
   Modal,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -20,6 +21,7 @@ import { AppViewportOverlay, useAppViewport } from "@/components/app-viewport";
 import { palette, typography } from "@/constants/theme";
 import { imageUrl } from "@/lib/format";
 import { ProductPhoto } from "@/components/product-photo";
+import { ZoomableProductPhoto } from "@/components/zoomable-product-photo";
 
 type Props = {
   images: (string | undefined)[];
@@ -144,6 +146,8 @@ export const ProductGallery = memo(function ProductGallery({
   const [activeIndex, setActiveIndex] = useState(0);
   const skippedInitialImageSelection = useRef(false);
   const [zoomedImage, setZoomedImage] = useState<string>();
+  const photos = useMemo(() => images.filter((uri): uri is string => Boolean(uri)), [images]);
+  const zoomIndex = Math.max(0, photos.indexOf(zoomedImage ?? ""));
 
   const moveTo = useCallback(
     (index: number) => {
@@ -273,6 +277,7 @@ export const ProductGallery = memo(function ProductGallery({
                 >
                   {item.uri ? (
                     <ProductPhoto
+                      premiumLoading
                       uri={item.uri}
                       contentFit="contain"
                       contentPosition="center"
@@ -350,21 +355,60 @@ export const ProductGallery = memo(function ProductGallery({
       >
         <AppViewportOverlay>
           <View
-            style={[styles.zoom, { width: contentWidth, height: windowHeight }]}
+            accessibilityViewIsModal
+            style={[styles.zoom, { width: contentWidth, height: windowHeight, paddingTop: Math.max(insets.top, 16), paddingBottom: Math.max(insets.bottom, 20) }]}
           >
+            <View style={styles.zoomHeader}>
+              <View style={styles.zoomHeading}>
+                <Text style={styles.zoomBrand}>L’ECOMAX</Text>
+                <Text numberOfLines={2} style={styles.zoomTitle}>{productName}</Text>
+              </View>
             <AnimatedPressable
               accessibilityLabel={msg("productGallery.closeEnlargedImage")}
+              accessibilityRole="button"
               onPress={() => setZoomedImage(undefined)}
-              style={[styles.zoomClose, { top: Math.max(insets.top, 16) }]}
+              style={styles.zoomClose}
             >
-              <Ionicons name="close" size={26} color={palette.ink} />
+              <Ionicons name="close" size={21} color="#244638" />
             </AnimatedPressable>
-            <ProductPhoto
-              uri={zoomedImage}
-              contentFit="contain"
-              cachePolicy="memory-disk"
-              style={{ width: contentWidth, height: windowHeight }}
-            />
+            </View>
+            <View style={styles.zoomStage}>
+            {zoomedImage && <ZoomableProductPhoto key={zoomedImage} uri={zoomedImage} name={productName} />}
+            </View>
+            <View style={styles.zoomNavigation}>
+              <AnimatedPressable
+                accessibilityRole="button"
+                accessibilityLabel={msg("productGallery.showPreviousMedia")}
+                disabled={zoomIndex === 0}
+                onPress={() => setZoomedImage(photos[zoomIndex - 1])}
+                style={[styles.zoomClose, zoomIndex === 0 && styles.zoomDisabled]}
+              ><Ionicons name="arrow-back" size={19} color="#244638" /></AnimatedPressable>
+              <View style={styles.zoomPagination}>
+              <Text accessibilityLiveRegion="polite" style={styles.zoomCount}>
+                {String(zoomIndex + 1).padStart(2, "0")}<Text style={styles.zoomCountTotal}> / {String(photos.length).padStart(2, "0")}</Text>
+              </Text>
+              <View style={styles.zoomProgressTrack}>
+                <View style={[styles.zoomProgressFill, { width: `${((zoomIndex + 1) / Math.max(1, photos.length)) * 100}%` }]} />
+              </View>
+              </View>
+              <AnimatedPressable
+                accessibilityRole="button"
+                accessibilityLabel={msg("productGallery.showNextMedia")}
+                disabled={zoomIndex >= photos.length - 1}
+                onPress={() => setZoomedImage(photos[zoomIndex + 1])}
+                style={[styles.zoomClose, zoomIndex >= photos.length - 1 && styles.zoomDisabled]}
+              ><Ionicons name="arrow-forward" size={19} color="#244638" /></AnimatedPressable>
+            </View>
+            {photos.length > 1 && windowHeight > 520 ? <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.zoomThumbnails} contentContainerStyle={styles.zoomThumbnailRow}>
+              {photos.map((uri, index) => <AnimatedPressable
+                key={`${uri}-${index}`}
+                accessibilityRole="button"
+                accessibilityState={{ selected: index === zoomIndex }}
+                accessibilityLabel={msg("product.enlargeImage", { number: index + 1, name: productName })}
+                onPress={() => setZoomedImage(uri)}
+                style={[styles.zoomThumbnail, index === zoomIndex && styles.zoomThumbnailSelected]}
+              ><ProductPhoto uri={uri} contentFit="contain" cachePolicy="memory-disk" style={styles.zoomThumbnailImage} /></AnimatedPressable>)}
+            </ScrollView> : null}
           </View>
         </AppViewportOverlay>
       </Modal>
@@ -524,20 +568,39 @@ const styles = StyleSheet.create({
   galleryArrowDisabled: { opacity: 0.14 },
   favoriteActive: { backgroundColor: "#16883A" },
   zoom: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FAF8F4",
+    // The overlay's inner wrapper is content-sized. flex: 1 would replace this
+    // viewer's explicit window height with a zero basis on React Native Web.
+    flexGrow: 0,
+    flexShrink: 0,
+    paddingHorizontal: 18,
+    backgroundColor: "#F4F3EE",
   },
+  zoomHeader: { flexDirection: "row", alignItems: "center", gap: 22, paddingTop: 6, paddingBottom: 22, paddingHorizontal: 4, flexShrink: 0 },
+  zoomHeading: { flex: 1, gap: 9 },
+  zoomBrand: { color: "#54715F", fontFamily: typography.semibold, fontSize: 9, letterSpacing: 3.5 },
+  zoomTitle: { color: "#233D31", fontFamily: typography.medium, fontSize: 14, lineHeight: 21, letterSpacing: -0.2 },
+  zoomStage: { flex: 1, minHeight: 0, borderRadius: 20, overflow: "hidden", backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E6E8E0" },
+  zoomPhoto: { position: "absolute", top: 12, right: 8, bottom: 12, left: 8 },
+  zoomNavigation: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 18, paddingHorizontal: 4, flexShrink: 0 },
+  zoomPagination: { alignItems: "center", gap: 9 },
+  zoomProgressTrack: { width: 48, height: 2, borderRadius: 1, backgroundColor: "#DDDFD5", overflow: "hidden" },
+  zoomProgressFill: { height: 2, backgroundColor: "#345740" },
+  zoomCount: { color: "#233D31", fontFamily: typography.semibold, fontSize: 12, letterSpacing: 2 },
+  zoomCountTotal: { color: "#818B7E", fontFamily: typography.regular },
+  zoomDisabled: { opacity: 0.28 },
+  zoomThumbnails: { flexGrow: 0, flexShrink: 0, height: 76 },
+  zoomThumbnailRow: { flexGrow: 1, justifyContent: "center", gap: 12, paddingBottom: 4 },
+  zoomThumbnail: { width: 68, height: 68, borderRadius: 14, padding: 5, borderWidth: 1, borderColor: "#E1E4DB", backgroundColor: "#FFFFFF", opacity: 0.65 },
+  zoomThumbnailSelected: { borderColor: "#345740", backgroundColor: "#E9EDE3", opacity: 1 },
+  zoomThumbnailImage: { width: "100%", height: "100%", borderRadius: 8, backgroundColor: "#FFFFFF" },
   zoomClose: {
-    position: "absolute",
-    right: 18,
-    zIndex: 2,
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 24,
-    backgroundColor: palette.white,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "#DDE2D7",
+    backgroundColor: "#FCFCF9",
   },
 });

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { verifySessionToken } from "@/lib/admin-session";
+import { protectSourceBrowser, allowedSourcePath } from "@/lib/dev-docs-access";
 
 // ── Security: folders/files that must never appear in the tree ──────────────
 const BLOCKED_NAMES = new Set([
@@ -49,7 +49,7 @@ function buildTree(dirPath: string, relPath: string = "", depth = 0): FileNode[]
 
   const nodes: FileNode[] = [];
   for (const entry of entries) {
-    if (shouldBlock(entry.name)) continue;
+    if (shouldBlock(entry.name) || entry.name.startsWith(".") || entry.isSymbolicLink()) continue;
     const nodePath = relPath ? `${relPath}/${entry.name}` : entry.name;
     const fullPath = path.join(dirPath, entry.name);
 
@@ -61,6 +61,7 @@ function buildTree(dirPath: string, relPath: string = "", depth = 0): FileNode[]
         children: buildTree(fullPath, nodePath, depth + 1),
       });
     } else if (entry.isFile()) {
+      if (!allowedSourcePath(nodePath)) continue;
       const ext = path.extname(entry.name).slice(1).toLowerCase();
       const isBinary = BINARY_EXTENSIONS.has(ext);
       let size = 0;
@@ -76,10 +77,8 @@ function buildTree(dirPath: string, relPath: string = "", depth = 0): FileNode[]
 }
 
 export async function GET(req: NextRequest) {
-  const session = req.cookies.get("admin_session")?.value;
-  if (!session || !(await verifySessionToken(session))) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = await protectSourceBrowser(req);
+  if (denied) return denied;
   const tree = buildTree(process.cwd());
   return NextResponse.json(tree, { headers: { "Cache-Control": "no-store" } });
 }

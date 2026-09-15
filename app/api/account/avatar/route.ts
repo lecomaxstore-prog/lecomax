@@ -1,3 +1,5 @@
+import { readFormDataLimited } from "@/lib/request-body";
+import { validMediaBytes } from "@/lib/upload-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, type User } from "@supabase/supabase-js";
 import { getEcomediaUser, communityDisplayName } from "@/lib/ecomedia-auth";
@@ -39,7 +41,10 @@ function storedAvatar(url: unknown, userId: string): { bucket: string; path: str
   const marker = "/storage/v1/object/public/";
   const stored = url.split(marker)[1];
   if (!stored) return null;
-  const [bucket, ...parts] = decodeURIComponent(stored).split("/");
+  let decoded: string;
+  try { decoded = decodeURIComponent(stored); } catch { return null; }
+  if (decoded.includes("\\") || decoded.split("/").some(part => !part || part === "." || part === "..")) return null;
+  const [bucket, ...parts] = decoded.split("/");
   const path = parts.join("/");
   const allowed = bucket === "ecomedia"
     ? path.startsWith(`community/${userId}/avatar/`)
@@ -113,7 +118,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Connectez-vous pour modifier votre photo." }, { status: 401 });
 
   let formData: FormData;
-  try { formData = await req.formData(); }
+  try { formData = await readFormDataLimited(req, MAX_AVATAR_SIZE + 100_000); }
   catch { return NextResponse.json({ error: "Formulaire invalide." }, { status: 400 }); }
   const file = formData.get("file");
   if (!(file instanceof File)) return NextResponse.json({ error: "Sélectionnez une photo." }, { status: 400 });
@@ -121,7 +126,7 @@ export async function POST(req: NextRequest) {
   if (file.size <= 0 || file.size > MAX_AVATAR_SIZE) return NextResponse.json({ error: "La photo doit peser moins de 5 Mo." }, { status: 413 });
 
   const bytes = Buffer.from(await file.arrayBuffer());
-  if (!hasValidImageSignature(bytes, file.type)) return NextResponse.json({ error: "Le contenu du fichier ne correspond pas à une image valide." }, { status: 415 });
+  if (!hasValidImageSignature(bytes, file.type) || !(await validMediaBytes(bytes, file.type))) return NextResponse.json({ error: "Le contenu du fichier ne correspond pas à une image valide." }, { status: 415 });
 
   const filename = `${Date.now()}-${crypto.randomUUID()}.${EXTENSIONS[file.type]}`;
   let bucket = "ecomedia";

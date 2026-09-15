@@ -265,7 +265,7 @@ export default function IntroAnimation() {
           opacity:    taglineVis ? 1 : 0,
           transition: "opacity 1.2s ease 0.25s, letter-spacing 2s cubic-bezier(0.4,0,0.2,1) 0.1s",
         }}>
-          Mode&nbsp;&nbsp;â€¢&nbsp;&nbsp;Sport&nbsp;&nbsp;â€¢&nbsp;&nbsp;Tech
+          Votre marketplace lifestyle
         </p>
 
       </div>

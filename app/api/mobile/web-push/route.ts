@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { enforceRateLimit } from "@/lib/api-security";
@@ -19,7 +20,7 @@ function validEndpoint(value: unknown) {
 async function mutate(req: NextRequest, remove: boolean) {
   const blocked = enforceRateLimit(req, "mobile-web-push", 12, 60000);
   if (blocked) return blocked;
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   const endpoint = remove ? body?.endpoint : body?.subscription?.endpoint;
   if (!validEndpoint(endpoint) || typeof body?.installationId !== "string" || !/^[a-zA-Z0-9_-]{20,100}$/.test(body.installationId)) {
     return NextResponse.json({ error: "Abonnement invalide." }, { status: 400 });

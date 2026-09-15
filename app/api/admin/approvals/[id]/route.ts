@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation } from "@/lib/api-security";
@@ -21,7 +23,7 @@ export async function PATCH(
   if (!access?.owner) return NextResponse.json({error:"Forbidden"},{status:403});
 
   const { id } = await params;
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
 
   if (!body?.decision || !body?.reviewer_email) {
     return NextResponse.json(
@@ -121,6 +123,6 @@ export async function DELETE(
 
   const { id } = await params;
   const { error } = await supabase.from("pending_changes").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json({ success: true });
 }

@@ -1,3 +1,7 @@
+import { chatVisitor, chatVisitorToken, CHAT_VISITOR_COOKIE } from "@/lib/chat-ownership";
+import { sameRequestOrigin } from "@/lib/request-origin";
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { checkChatSession } from "@/lib/chat-session-server";
@@ -9,7 +13,14 @@ const supabase = createClient(
 
 /** POST /api/chat/start — create or resume a session for a visitor */
 export async function POST(req: Request) {
-  const { visitor_id, name, fresh } = await req.json();
+  if (!sameRequestOrigin(req)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const { name, fresh } = await readJsonLimited(req);
+  const visitor_id = await chatVisitor(req) || crypto.randomUUID();
+  const respond = async (value: unknown) => {
+    const response = NextResponse.json(value, { headers: { "Cache-Control": "private, no-store" } });
+    response.cookies.set(CHAT_VISITOR_COOKIE, await chatVisitorToken(visitor_id), { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/api/chat", maxAge: 30 * 86400 });
+    return response;
+  };
   if (typeof visitor_id !== "string" || visitor_id.length < 8 || visitor_id.length > 100) return NextResponse.json({ error: "visitor_id required" }, { status: 400 });
 
   if (fresh === true) {
@@ -30,7 +41,7 @@ export async function POST(req: Request) {
 
   if (existing) {
     const lifecycle = await checkChatSession(supabase, existing);
-    if (lifecycle.status !== "resolved") return NextResponse.json(existing);
+    if (lifecycle.status !== "resolved") return respond(existing);
   }
 
   // Create new session
@@ -40,6 +51,6 @@ export async function POST(req: Request) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
+  return respond(data);
 }

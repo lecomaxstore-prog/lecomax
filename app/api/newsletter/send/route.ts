@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
@@ -18,7 +19,7 @@ function color(value: unknown, fallback: string) {
 export async function POST(req: NextRequest) {
   const blocked = await protectAdminMutation(req, { key: "newsletter:send", limit: 5 });
   if (blocked) return blocked;
-  const input = await req.json().catch(() => null) as Record<string, unknown> | null;
+  const input = await readJsonLimited(req).catch(() => null) as Record<string, unknown> | null;
   if (!input) return NextResponse.json({ error: "Campagne invalide." }, { status: 400 });
 
   const campaign: NewsletterCampaign = {

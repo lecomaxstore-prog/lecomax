@@ -1,7 +1,6 @@
 import { msg } from "@/i18n";
 import { ApiError, apiRequest, apiRequestValidated } from "@/lib/api-client";
 import { supabase } from "@/lib/supabase";
-import catalogSnapshot from "@/data/catalog.snapshot.json";
 import { z } from "zod";
 import type {
   Banner,
@@ -11,7 +10,8 @@ import type {
   Review,
   Setting,
 } from "@/types/commerce";
-import { colorPricesFromTags } from "@/lib/product-variant-pricing";
+import { catalogAvailability } from "@/lib/catalog-availability";
+import { isActivePromotion } from "@/lib/store-promotions";
 
 const nullableText = z.string().nullable().optional();
 const productResponseSchema = z
@@ -81,70 +81,13 @@ const settingResponseSchema = z.object({
 });
 
 function normalizeProduct(product: Product): Product {
-  const rawColorStock =
-    product.color_stock && typeof product.color_stock === "object"
-      ? product.color_stock
-      : {};
-  const tags = Array.isArray(product.tags) ? product.tags : [];
-  const colors =
-    Array.isArray(product.colors) && product.colors.length
-      ? product.colors
-      : Object.keys(rawColorStock);
-  const normalizedStockEntries = new Map(
-    Object.entries(rawColorStock).map(([color, quantity]) => [
-      color.trim().toLocaleLowerCase("fr"),
-      Number(quantity),
-    ]),
-  );
-  const colorStock = Object.keys(rawColorStock).length > 0
-    ? {
-        ...rawColorStock,
-        ...Object.fromEntries(
-          colors.map((color) => [
-            color,
-            normalizedStockEntries.get(color.trim().toLocaleLowerCase("fr")) ?? 0,
-          ]),
-        ),
-      }
-    : {};
-  const taggedOutOfStockColors = tags
-    .filter((tag) => tag.startsWith("__oos:"))
-    .map((tag) => tag.slice("__oos:".length));
-  const stockOutOfStockColors = Object.entries(colorStock)
-    .filter(([, quantity]) => Number(quantity) <= 0)
-    .map(([color]) => color);
-  const sizeStock = new Map<string, number>();
-  for (const tag of tags.filter((value) => value.startsWith("__sstock:"))) {
-    const parts = tag.slice("__sstock:".length).split(":");
-    const quantity = Number(parts.pop());
-    const size = parts.join(":");
-    if (size && Number.isInteger(quantity) && quantity >= 0) {
-      sizeStock.set(size, quantity);
-    }
-  }
-  const sizes =
-    Array.isArray(product.sizes) && product.sizes.length ? product.sizes : [];
-
   return {
     ...product,
     images: Array.isArray(product.images) ? product.images.filter(Boolean) : [],
-    colors,
-    sizes,
-    color_stock: colorStock,
-    color_prices: colorPricesFromTags(tags),
-    color_sizes: product.color_sizes,
-    out_of_stock_colors: Object.keys(rawColorStock).length > 0
-      ? stockOutOfStockColors
-      : [...new Set([
-          ...(product.out_of_stock_colors ?? []),
-          ...taggedOutOfStockColors,
-        ])],
-    out_of_stock_sizes: product.out_of_stock_sizes?.length
-      ? product.out_of_stock_sizes
-      : sizeStock.size > 0
-        ? sizes.filter((size) => (sizeStock.get(size) ?? 0) <= 0)
-        : [],
-    tags,
+    colors: product.colors ?? [],
+    sizes: product.sizes ?? [],
+    color_stock: product.color_stock ?? {},
+    tags: product.tags ?? [],
     price: Number(product.price) || 0,
     original_price:
       product.original_price === null
@@ -162,6 +105,8 @@ function normalizeProduct(product: Product): Product {
     sku: product.sku || undefined,
     barcode: product.barcode || undefined,
     video: product.video || undefined,
+    // Also supports an older deployed API: use the exact same shared rules.
+    ...catalogAvailability(product),
   };
 }
 
@@ -177,7 +122,7 @@ export async function getProducts(signal?: AbortSignal): Promise<Product[]> {
     apiRequestValidated(
       "/api/products?active=true",
       z.array(productResponseSchema),
-      { signal },
+      { signal, cache: "no-store" },
     ),
     fallbackUnlessAborted(apiRequest<Record<string, { rating: number; count: number }>>(
       "/api/reviews/stats",
@@ -211,7 +156,7 @@ export async function getFreshProducts(signal?: AbortSignal): Promise<Product[]>
   const data = await apiRequestValidated(
     "/api/products?active=true",
     z.array(productResponseSchema),
-    { signal },
+    { signal, cache: "no-store" },
   );
   return [
     ...new Map(
@@ -233,11 +178,11 @@ export async function getProduct(slug: string, signal?: AbortSignal): Promise<Pr
 }
 
 export async function getCategories(signal?: AbortSignal): Promise<Category[]> {
-  const data = await fallbackUnlessAborted(apiRequestValidated(
+  const data = await apiRequestValidated(
     "/api/categories",
     z.array(categoryResponseSchema),
-    { signal },
-  ), () => z.array(categoryResponseSchema).parse(catalogSnapshot.categories));
+    { signal, cache: "no-store" },
+  );
   return data
     .filter(
       (category) =>
@@ -247,12 +192,12 @@ export async function getCategories(signal?: AbortSignal): Promise<Category[]> {
 }
 
 export async function getPromotions(signal?: AbortSignal): Promise<Promotion[]> {
-  const data = await fallbackUnlessAborted(apiRequestValidated(
+  const data = await apiRequestValidated(
     "/api/promotions",
     z.array(promotionResponseSchema),
-    { signal },
-  ), () => z.array(promotionResponseSchema).parse(catalogSnapshot.promotions));
-  return data.filter((promotion) => promotion.active !== false);
+    { signal, cache: "no-store" },
+  );
+  return data.filter((promotion) => isActivePromotion(promotion));
 }
 
 export async function getSettings(signal?: AbortSignal): Promise<Setting[]> {
@@ -307,7 +252,7 @@ function mobileBannerHref(href?: string | null) {
   const value = href?.trim();
   if (!value || value === "/" || value === "/boutique") return "/catalog";
   if (value === "/nouveautes") return "/catalog?sort=new";
-  if (value === "/promotions") return "/catalog?sort=low";
+  if (value === "/promotions") return "/catalog?promotion=true&sort=low";
   if (/^\/(homme|femme|chaussures|accessoires)$/.test(value)) {
     return `/catalog?category=${encodeURIComponent(value.slice(1))}`;
   }
@@ -364,6 +309,19 @@ export type ReviewEligibility = {
   reason: ReviewEligibilityReason;
 };
 
+export type ReviewOrderProof = {
+  order_number?: string;
+  contact_type: "phone" | "email";
+  contact: string;
+};
+
+export function verifyReviewOrder(slug: string, proof: ReviewOrderProof) {
+  return apiRequest<ReviewEligibility>("/api/reviews/check", {
+    method: "POST", retries: 0,
+    body: JSON.stringify({ product_slug: slug, ...proof }),
+  });
+}
+
 async function authenticatedHeaders() {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
@@ -387,21 +345,26 @@ export async function submitVerifiedReview(input: {
   title?: string;
   body: string;
   color?: string;
+  proof?: ReviewOrderProof;
+  authorName?: string;
 }) {
-  const headers = await authenticatedHeaders();
-  if (!headers) throw new Error(msg("catalog.signInToLeaveAReview"));
+  const headers = input.proof ? undefined : await authenticatedHeaders();
+  if (!input.proof && !headers) throw new Error(msg("catalog.signInToLeaveAReview"));
   return apiRequest<{ success: true; verified_purchase: true }>(
     "/api/reviews",
     {
       method: "POST",
-      headers,
-      authenticated: true,
+      headers: headers ?? undefined,
+      authenticated: !input.proof,
+      retries: 0,
       body: JSON.stringify({
         product_slug: input.productSlug,
         rating: input.rating,
         title: input.title,
         review_body: input.body,
         color: input.color,
+        author_name: input.authorName,
+        ...input.proof,
       }),
     },
   );

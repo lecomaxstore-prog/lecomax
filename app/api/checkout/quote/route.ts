@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 ﻿import { NextRequest, NextResponse } from "next/server";
 import { enforceRateLimit } from "@/lib/api-security";
 import { calculateCart, CommerceError } from "@/lib/commerce-server";
@@ -5,7 +6,7 @@ import { calculateCart, CommerceError } from "@/lib/commerce-server";
 export async function POST(request: NextRequest) {
   const blocked = enforceRateLimit(request, "checkout:quote", 60, 60_000);
   if (blocked) return blocked;
-  const body = await request.json().catch(() => null);
+  const body = await readJsonLimited(request).catch(() => null);
   if (!body || typeof body !== "object" || Array.isArray(body)) return NextResponse.json({ error: "Panier invalide.", code: "INVALID_CHECKOUT" }, { status: 400 });
   try {
     const { quote } = await calculateCart(request, body);

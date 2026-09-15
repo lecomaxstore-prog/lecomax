@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { getStoreAssistantContext } from "@/lib/store-assistant-context";
 
@@ -10,7 +11,7 @@ export async function POST(req: NextRequest) {
   if (blocked) return blocked;
   try {
     const businessContext = await getStoreAssistantContext();
-    const body = await req.json() as Record<string, unknown>;
+    const body = await readJsonLimited(req) as Record<string, unknown>;
     const subject = typeof body.subject === "string" ? body.subject.trim().slice(0, 200) : "";
     const message = typeof body.message === "string" ? body.message.trim().slice(0, 5_000) : "";
     const from = typeof body.from === "string" ? body.from.trim().slice(0, 160) : "";

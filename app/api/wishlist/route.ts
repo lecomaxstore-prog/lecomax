@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getCustomerUser } from "@/lib/request-auth";
@@ -171,7 +172,7 @@ export async function POST(req: NextRequest) {
     variant?: unknown;
   };
   try {
-    body = await req.json();
+    body = await readJsonLimited(req);
   } catch {
     return NextResponse.json(
       { error: "Requête JSON invalide" },

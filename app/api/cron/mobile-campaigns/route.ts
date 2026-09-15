@@ -1,3 +1,4 @@
+import { publicDatabaseError } from "@/lib/public-error";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { deliverMobileCampaign } from "@/lib/mobile-campaigns";
@@ -17,7 +18,7 @@ export async function GET(req: NextRequest) {
     .or(`scheduled_at.is.null,scheduled_at.lte.${new Date().toISOString()}`)
     .or("error_message.is.null,error_message.neq.DELIVERY_UNCERTAIN_REVIEW_DISPATCHES")
     .order("scheduled_at", { ascending: true }).limit(10);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   const results = [];
   for (const campaign of data ?? []) {
     try {

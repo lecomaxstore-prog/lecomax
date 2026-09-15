@@ -34,13 +34,15 @@ export const HomePromotionSection = memo(function HomePromotionSection({
     <View style={styles.section}>
       <View style={styles.heading}>
         <View style={styles.headingCopy}>
-          <Text style={styles.eyebrow}>{msg("homePromotionSection.lEcomaxPricesUppercase")}</Text>
+          <View style={styles.eyebrowBadge}>
+            <View style={styles.eyebrowDot} />
+            <Text style={styles.eyebrow}>{msg("homePromotionSection.lEcomaxPricesUppercase")}</Text>
+          </View>
           <Text accessibilityRole="header" style={styles.title}>
             {msg("homePromotionSection.promotions")}</Text>
-          <Text style={styles.subtitle}>
-            {msg("homePromotionSection.selectedOffersAvailableForALimitedTime")}</Text>
         </View>
         <AnimatedPressable
+          accessibilityRole="button"
           accessibilityLabel={msg("homePromotionSection.viewAllPromotions")}
           onPress={() =>
             router.push({
@@ -54,6 +56,9 @@ export const HomePromotionSection = memo(function HomePromotionSection({
           <Ionicons name="arrow-forward" size={15} color={colors.primaryDark} />
         </AnimatedPressable>
       </View>
+      <Text style={styles.subtitle}>
+        {msg("homePromotionSection.selectedOffersAvailableForALimitedTime")}
+      </Text>
 
       <HorizontalRail
         decelerationRate="fast"
@@ -90,6 +95,7 @@ const PromotionFeatureCard = memo(function PromotionFeatureCard({
 
   return (
     <AnimatedPressable
+      accessibilityRole="button"
       accessibilityLabel={`${product.name}, ${saving ? msg("promotions.discountPercent", { percent: saving }) : msg("homePromotionSection.specialOffer")}`}
       onPress={() =>
         router.push({
@@ -171,38 +177,59 @@ const styles = StyleSheet.create({
   heading: {
     paddingHorizontal: 16,
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
     justifyContent: "space-between",
     gap: 12,
+    flexWrap: "wrap",
   },
-  headingCopy: { flex: 1, minWidth: 0 },
+  headingCopy: { flexGrow: 1, flexShrink: 1, flexBasis: 190, minWidth: 0 },
+  eyebrowBadge: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: "#EEF6EB",
+    maxWidth: "100%",
+  },
+  eyebrowDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: "#168526" },
   eyebrow: {
-    color: palette.greenDark,
+    color: "#276334",
     fontFamily: typography.semibold,
-    fontSize: 9,
-    letterSpacing: 1.4,
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 1.2,
+    flexShrink: 1,
   },
   title: {
-    marginTop: 6,
+    marginTop: 10,
     color: palette.ink,
     fontFamily: typography.bold,
-    fontSize: 26,
-    lineHeight: 32,
-    letterSpacing: -0.7,
+    fontSize: 30,
+    lineHeight: 37,
+    letterSpacing: -1,
   },
   subtitle: {
-    marginTop: 5,
-    color: palette.muted,
+    marginTop: 8,
+    paddingHorizontal: 16,
+    color: "#626B60",
     fontFamily: typography.regular,
-    fontSize: 11,
-    lineHeight: 17,
+    fontSize: 13,
+    lineHeight: 20,
   },
   viewAll: {
     minWidth: 72,
     minHeight: 44,
+    paddingHorizontal: 12,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "#DEE8DA",
+    backgroundColor: "#FFFFFF",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "center",
     gap: 6,
   },
   viewAllText: {
@@ -213,55 +240,62 @@ const styles = StyleSheet.create({
   rail: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8, gap: 16 },
   card: { backgroundColor: palette.white },
   imageWrap: {
-    height: 212,
+    aspectRatio: 1,
     overflow: "hidden",
-    borderRadius: 14,
-    backgroundColor: "#F5F6F3",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#E8EDE7",
+    backgroundColor: "#FFFFFF",
   },
   productImage: {
     position: "absolute",
-    top: 32,
-    right: 18,
-    bottom: 24,
-    left: 18,
+    top: 42,
+    right: 10,
+    bottom: 42,
+    left: 10,
   },
   offerBadge: {
     position: "absolute",
     zIndex: 1,
     top: 12,
     left: 12,
-    minHeight: 26,
-    paddingHorizontal: 9,
+    minHeight: 30,
+    paddingHorizontal: 11,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 6,
-    backgroundColor: "#E7F4E8",
+    borderRadius: 10,
+    backgroundColor: "#174F3D",
   },
   offerBadgeText: {
-    color: palette.greenDark,
-    fontFamily: typography.semibold,
-    fontSize: 11,
+    color: "#FFFFFF",
+    fontFamily: typography.bold,
+    fontSize: 12,
   },
   imageFooter: {
     position: "absolute",
     right: 12,
-    bottom: 10,
+    bottom: 12,
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 6,
+    minHeight: 26,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 13,
+    backgroundColor: "#F1F6F0",
   },
   stockDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    width: 5,
+    height: 5,
+    borderRadius: 3,
     backgroundColor: palette.greenDark,
   },
   stockDotUnavailable: { backgroundColor: palette.red },
   imageFooterText: {
-    color: palette.muted,
-    fontFamily: typography.medium,
-    fontSize: 8,
-    letterSpacing: 0.4,
+    color: "#365342",
+    fontFamily: typography.semibold,
+    fontSize: 9,
+    letterSpacing: 0.5,
   },
   cardCopy: { paddingTop: 14, paddingHorizontal: 2, alignItems: "flex-start" },
   category: {

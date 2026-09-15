@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
@@ -20,7 +22,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     .eq("conversation_id", id)
     .order("timestamp", { ascending: true });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
 
   // Mark conversation as read (reset unread_count)
   await supabase
@@ -35,7 +37,7 @@ export async function GET(req: NextRequest, { params }: Params) {
 export async function PATCH(req: NextRequest, { params }: Params) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
-  const body = await req.json();
+  const body = await readJsonLimited(req);
 
   if (!body || typeof body !== "object" || !["active", "escalated", "resolved"].includes(body.status)) {
     return NextResponse.json({ error: "Statut invalide." }, { status: 400 });
@@ -47,6 +49,6 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     .update(update)
     .eq("id", id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

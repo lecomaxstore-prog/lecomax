@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { PGlite } from '@electric-sql/pglite';
+const db = new PGlite();
+await db.exec(`create role anon; create role authenticated; create role service_role;
+create table public.reviews (id uuid primary key default gen_random_uuid(), order_id uuid, product_slug text, verified_purchase boolean default false);`);
+await db.exec('grant all on public.reviews to anon, authenticated');
+await db.exec(readFileSync(new URL('../supabase/migrations/20260914220000_guest_order_reviews.sql', import.meta.url), 'utf8'));
+await db.exec(readFileSync(new URL('../supabase/migrations/20260914223000_review_api_permissions.sql', import.meta.url), 'utf8'));
+for (let i = 1; i <= 31; i++) {
+  const { rows } = await db.query('select consume_review_lookup($1) as allowed', ['hashed-order']);
+  assert.equal(rows[0].allowed, i <= 30);
+}
+await db.exec("update review_lookup_limits set expires_at = now() - interval '1 second'");
+assert.equal((await db.query("select consume_review_lookup('hashed-order') as allowed")).rows[0].allowed, true);
+const orderId = '00000000-0000-0000-0000-000000000001';
+await db.query('insert into reviews(order_id,product_slug) values($1,$2)', [orderId, 'shoe']);
+await assert.rejects(db.query('insert into reviews(order_id,product_slug) values($1,$2)', [orderId, 'shoe']), /unique/);
+await db.query('insert into reviews(order_id,product_slug) values($1,$2)', [orderId, 'bag']);
+await db.exec('set role anon');
+await assert.rejects(db.query("insert into reviews(product_slug) values('fake')"), /permission denied/);
+await assert.rejects(db.query('select order_id from reviews'), /permission denied/);
+await db.query('select product_slug,verified_purchase from reviews');
+await assert.rejects(db.query("select consume_review_lookup('forbidden')"), /permission denied/);
+await assert.rejects(db.query('select * from review_lookup_limits'), /permission denied/);
+await db.exec('reset role; set role authenticated');
+await assert.rejects(db.query('delete from reviews'), /permission denied/);
+await db.exec('reset role; set role service_role');
+assert.equal((await db.query("select consume_review_lookup('service') as allowed")).rows[0].allowed, true);
+await db.close();
+console.log('Guest review SQL passed: duplicate protection, persistent limits, expiry and permissions.');

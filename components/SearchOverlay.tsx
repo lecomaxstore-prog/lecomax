@@ -69,7 +69,7 @@ function ProductCard({ product, query, active, index, onPick, onHover }: {
     <Link
       href={`/produit/${product.slug}`}
       onClick={onPick}
-      onMouseEnter={onHover}
+      onPointerEnter={(event) => { if (event.pointerType === "mouse") onHover(); }}
       data-search-result={index}
       className={`search-product-card group flex min-w-0 items-center gap-4 rounded-2xl border bg-white p-2.5 transition duration-200 hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-[0_12px_28px_rgba(0,0,0,0.08)] ${active ? "border-[#3ecf4c] ring-2 ring-[#3ecf4c]/15" : "border-neutral-200"}`}
     >
@@ -98,7 +98,7 @@ function MobileProductRow({ product, query, active, index, onPick, onHover }: {
     <Link
       href={`/produit/${product.slug}`}
       onClick={onPick}
-      onMouseEnter={onHover}
+      onPointerEnter={(event) => { if (event.pointerType === "mouse") onHover(); }}
       data-search-result={index}
       className={`search-product-row flex items-center gap-3 rounded-2xl border p-2.5 transition ${active ? "border-[#3ecf4c] bg-[#f4fff6]" : "border-neutral-100 bg-white"}`}
     >
@@ -225,22 +225,22 @@ export default function SearchOverlay({ open, onClose }: Props) {
     <>
       <div className="so-mobile fixed inset-0 z-[9999] bg-white" role="dialog" aria-modal="true" aria-label="Recherche de produits">
         <div className={`flex h-full flex-col transition-transform duration-300 ${open ? "translate-y-0" : "translate-y-full"}`}>
-          <div className="flex h-[62px] shrink-0 items-center justify-between border-b border-neutral-100 px-4">
+          <div className="search-mobile-header flex shrink-0 items-center justify-between px-5">
             <Link href="/" onClick={onClose} aria-label="L’ecomax — Accueil"><Logo showWordmark className="scale-90 origin-left" /></Link>
             <button onClick={onClose} aria-label="Fermer la recherche" className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-neutral-600 active:scale-95">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3"><path d="M18 6 6 18M6 6l12 12" /></svg>
             </button>
           </div>
-          <div className="shrink-0 px-4 pb-3 pt-3">
+          <div className="search-mobile-input shrink-0 px-5 pb-5 pt-1">
             <div className="search-field flex h-12 items-center rounded-2xl border border-neutral-200 bg-neutral-50 px-3 shadow-sm focus-within:border-[#3ecf4c] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#3ecf4c]/10">
               <span className="text-neutral-500"><SearchIcon size={19} /></span>
               <input ref={mobileInput} aria-label="Rechercher un produit" type="search" inputMode="search" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={handleKeyDown} placeholder="Produit, marque, catégorie…" autoComplete="off" className="h-full min-w-0 flex-1 bg-transparent px-3 text-base font-medium outline-none placeholder:text-neutral-400" />
               {loading && <span className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-200 border-t-[#179b38]" />}
-              {query && !loading && <button onClick={() => { setQuery(""); mobileInput.current?.focus(); }} aria-label="Effacer" className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-200 text-neutral-500">×</button>}
+              {query && !loading && <button onClick={() => { setQuery(""); mobileInput.current?.focus(); }} aria-label="Effacer" className="search-clear flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-neutral-500">×</button>}
             </div>
           </div>
 
-          <div className="search-scroll flex-1 overflow-y-auto px-4 pb-8">
+          <div className="search-scroll min-h-0 flex-1 overflow-y-auto px-5 pb-8">
             {!cleanQuery && (recents.length > 0 || POPULAR.length > 0) && (
               <div className="search-discovery mb-5 space-y-4 border-b border-neutral-100 pb-5">
                 {recents.length > 0 && <div><p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">Recherches récentes</p><div className="flex flex-wrap gap-2">{recents.map((term) => <span key={term} className="inline-flex items-center rounded-full border border-neutral-200 bg-white"><button onClick={() => chooseTerm(term)} className="px-3 py-2 text-xs font-medium">{term}</button><button onClick={() => clearRecent(term)} aria-label={`Supprimer ${term}`} className="pr-2.5 text-neutral-300">×</button></span>)}</div></div>}
@@ -252,7 +252,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
               <h2 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">{loading ? "Recherche en cours…" : heading}</h2>
               {cleanQuery.length >= 2 && results.length > 0 && <button onClick={submitSearch} className="text-xs font-semibold text-[#179b38]">Voir tout →</button>}
             </div>
-            {suggestions.length > 0 && cleanQuery && <div className="mb-4 flex gap-2 overflow-x-auto pb-1">{suggestions.slice(0, 5).map((term) => <button key={term} onClick={() => chooseTerm(term)} className="shrink-0 rounded-full border border-neutral-200 px-3 py-1.5 text-[11px] font-medium">{term}</button>)}</div>}
+            {suggestions.length > 0 && cleanQuery && <div className="search-suggestions mb-4 flex flex-wrap gap-2">{suggestions.slice(0, 3).map((term) => <button key={term} onClick={() => chooseTerm(term)} className="shrink-0 rounded-full border border-neutral-200 px-3 py-1.5 text-[11px] font-medium">{term}</button>)}</div>}
 
             {isTypingHint && <MessageState title="Continuez à écrire" text="Saisissez au moins deux caractères pour lancer la recherche." />}
             {noResults && <MessageState title={`Aucun résultat pour « ${cleanQuery} »`} text="Vérifiez l’orthographe ou essayez une catégorie, une marque ou un terme plus simple." />}

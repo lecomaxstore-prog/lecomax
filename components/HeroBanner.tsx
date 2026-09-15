@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND_COPY, marketplaceHeadline } from "@/mobile/src/lib/brand-copy";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
@@ -19,9 +20,9 @@ export default function HeroBanner({ banners = [], heroImage, heroImageMobile, s
   const shippingLabel = `Livraison ${formatShippingAmount(shipping.cost)} MAD`;
   const fallback: HeroBannerRecord = {
     id: "fallback",
-    title: "Sport. Tech. Style.",
+    title: BRAND_COPY.fr.tagline,
     subtitle: `${shippingLabel} · Retours sous conditions 30 j · Paiement à la livraison`,
-    badge: "Boutique en ligne · Maroc",
+    badge: "Marketplace lifestyle · Maroc",
     button_label: "Découvrir la collection",
     button_href: "/boutique",
     button2_label: "Voir les promos",
@@ -124,7 +125,7 @@ export default function HeroBanner({ banners = [], heroImage, heroImageMobile, s
               {slide.badge}
             </p>
           )}
-          {slide.title && <h1 className="hero-headline h-display whitespace-pre-line text-[3.25rem] leading-[.88] tracking-[-.03em] [text-shadow:0_18px_55px_rgba(0,0,0,.35)] md:text-7xl lg:text-8xl">{slide.title}</h1>}
+          {slide.title && <h1 className="hero-headline h-display whitespace-pre-line text-[3.25rem] leading-[.88] tracking-[-.03em] [text-shadow:0_18px_55px_rgba(0,0,0,.35)] md:text-7xl lg:text-8xl">{marketplaceHeadline(slide.title, "fr")}</h1>}
           {slide.subtitle && <p className="hero-sub mt-4 max-w-md text-xs leading-relaxed text-white/70 md:mt-6 md:text-[15px]">{slide.subtitle}</p>}
           {(slide.button_label && slide.button_href) || (slide.button2_label && slide.button2_href) ? (
             <div key={`${slide.id}-actions`} className="hero-ctas hero-cta-row mt-5 flex flex-wrap gap-2.5 md:mt-8 md:gap-3">

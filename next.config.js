@@ -6,7 +6,7 @@ const contentSecurityPolicy = [
   "object-src 'none'",
   "frame-ancestors 'none'",
   "form-action 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.paypal.com https://www.sandbox.paypal.com https://www.paypalobjects.com https://va.vercel-scripts.com https://www.googletagmanager.com https://widget.trustpilot.com https://www.clarity.ms",
+  "script-src 'self' 'unsafe-inline' https://www.paypal.com https://www.sandbox.paypal.com https://www.paypalobjects.com https://va.vercel-scripts.com https://www.googletagmanager.com https://widget.trustpilot.com https://www.clarity.ms",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https:",
@@ -16,7 +16,7 @@ const contentSecurityPolicy = [
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   "upgrade-insecure-requests",
-].join("; ");
+].join("; ").replace("script-src ", process.env.NODE_ENV === "development" ? "script-src 'unsafe-eval' " : "script-src ");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -42,7 +42,7 @@ const nextConfig = {
     formats: ["image/avif", "image/webp"],
     qualities: [75, 85, 90, 100],
     minimumCacheTTL: 31536000, // 1 year
-    dangerouslyAllowSVG: true,
+    dangerouslyAllowSVG: false,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [

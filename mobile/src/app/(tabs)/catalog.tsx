@@ -23,7 +23,8 @@ import { Screen } from "@/components/screen";
 import { useAppViewport } from "@/components/app-viewport";
 import { ProductSkeleton } from "@/components/skeleton";
 import { palette, typography } from "@/constants/theme";
-import { useCategories, useProducts } from "@/hooks/use-catalog";
+import { useCategories, useProducts, usePromotions } from "@/hooks/use-catalog";
+import { selectPromotionProducts } from "@/lib/store-promotions";
 import { useScrollReturn } from "@/hooks/use-scroll-return";
 import type { Product } from "@/types/commerce";
 import { useT } from "@/lib/i18n";
@@ -72,6 +73,7 @@ function CatalogContent({
   );
   const { data = [], isLoading, refetch, isRefetching } = useProducts();
   const { data: categories = [] } = useCategories();
+  const { data: promotions = [] } = usePromotions();
   const [category, setCategory] = useState(params.category ?? "all");
   const [sort, setSort] = useState<Sort>(params.sort ?? "popular");
   const [query, setQuery] = useState("");
@@ -114,14 +116,13 @@ function CatalogContent({
   const searchIndex = useMemo(() => buildProductSearchIndex(data), [data]);
   const products = useMemo(() => {
     const ranked = searchProductIndex(searchIndex, query);
-    const filtered = ranked.filter((item) => {
+    const candidates = promotionOnly ? selectPromotionProducts(ranked, promotions) : ranked;
+    const filtered = candidates.filter((item) => {
       const matchesCategory =
         category === "all" ||
         item.category.toLowerCase().includes(category.toLowerCase()) ||
         category.includes(item.category.toLowerCase());
-      const matchesPromotion =
-        !promotionOnly || (item.original_price ?? 0) > item.price;
-      return matchesCategory && matchesPromotion && (!stockOnly || item.stock > 0);
+      return matchesCategory && (!stockOnly || item.stock > 0);
     });
 
     return [...filtered].sort((left, right) =>
@@ -133,7 +134,7 @@ function CatalogContent({
             ? Date.parse(right.created_at) - Date.parse(left.created_at)
             : query.trim() ? 0 : (right.rating ?? 0) - (left.rating ?? 0),
     );
-  }, [category, searchIndex, query, sort, stockOnly, promotionOnly]);
+  }, [category, searchIndex, query, sort, stockOnly, promotionOnly, promotions]);
 
   const activeFilterCount = Number(stockOnly) + Number(sort !== "popular");
   const renderProduct = useCallback(

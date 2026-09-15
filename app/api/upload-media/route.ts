@@ -1,6 +1,9 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readFormDataLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation } from "@/lib/api-security";
+import { validMediaBytes } from "@/lib/upload-validation";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,13 +21,13 @@ export async function POST(req: NextRequest) {
   if (blocked) return blocked;
   let formData: FormData;
   try {
-    formData = await req.formData();
+    formData = await readFormDataLimited(req, 501 * 1024 * 1024);
   } catch {
     return NextResponse.json({ error: "Invalid form data" }, { status: 400 });
   }
 
   const file = formData.get("file") as File | null;
-  if (!file) {
+  if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
@@ -51,6 +54,7 @@ export async function POST(req: NextRequest) {
 
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
+  if (!(await validMediaBytes(buffer, file.type))) return NextResponse.json({ error: "Fichier invalide ou dimensions excessives." }, { status: 415 });
 
   const { error } = await supabase.storage
     .from(BUCKET)
@@ -60,7 +64,7 @@ export async function POST(req: NextRequest) {
     });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   }
 
   const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(filename);

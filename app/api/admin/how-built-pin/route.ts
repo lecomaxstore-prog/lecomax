@@ -1,9 +1,10 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createSessionToken, verifySessionToken } from "@/lib/admin-session";
 
 const attempts = new Map<string, { count: number; resetAt: number }>();
 const MARKER = "how-built-pin@lecomax.local";
-const OWNER_PIN = "1970";
+const OWNER_PIN = process.env.HOW_BUILT_PIN;
 
 async function requireOwner(req: NextRequest) {
   const session = req.cookies.get("admin_session")?.value;
@@ -36,7 +37,8 @@ export async function POST(req: NextRequest) {
   if (!current || current.resetAt <= now) attempts.set(key, { count: 1, resetAt: now + 15 * 60 * 1000 });
   else current.count += 1;
 
-  const body = await req.json().catch(() => null);
+  if (!OWNER_PIN || OWNER_PIN.length < 8) return NextResponse.json({ error: "Acc?s s?curis? non configur?." }, { status: 503 });
+  const body = await readJsonLimited(req).catch(() => null);
   if (typeof body?.pin !== "string" || body.pin !== OWNER_PIN) {
     return NextResponse.json({ error: "Code PIN incorrect." }, { status: 401 });
   }
@@ -49,7 +51,7 @@ export async function POST(req: NextRequest) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 8 * 60 * 60,
-    path: "/admin/how-it-was-built",
+    path: "/",
   });
   return response;
 }
@@ -57,6 +59,6 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   if (!(await requireOwner(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
   const response = NextResponse.json({ locked: true });
-  response.cookies.set("how_built_access", "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", maxAge: 0, path: "/admin/how-it-was-built" });
+  response.cookies.set("how_built_access", "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", maxAge: 0, path: "/" });
   return response;
 }

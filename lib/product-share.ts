@@ -1,7 +1,6 @@
 import "server-only";
 
 import { getDbProductRaw } from "./db-server";
-import { getProduct } from "./products";
 
 export const PRODUCT_SHARE_SITE_URL = "https://lecomax.com";
 
@@ -29,31 +28,26 @@ function absoluteImageUrl(image: string) {
 }
 
 /**
- * Resolve the current product sharing data from the live database first while
- * retaining the richer static catalogue as a fallback. New database products
- * therefore receive complete social previews without any manual setup.
+ * Social previews use the same current product as the website and app.
  */
 export async function getProductShareData(slug: string): Promise<ProductShareData | null> {
-  const catalogueProduct = getProduct(slug) ?? null;
   const databaseProduct = await getDbProductRaw(slug).catch(() => null);
 
-  if (!catalogueProduct && !databaseProduct) return null;
+  if (!databaseProduct || !databaseProduct.active) return null;
 
-  const name = databaseProduct?.name || catalogueProduct?.displayName || catalogueProduct?.name || "Produit L'ecomax";
-  const price = typeof databaseProduct?.price === "number" ? databaseProduct.price : catalogueProduct?.price ?? 0;
-  const oldPrice = typeof databaseProduct?.original_price === "number"
-    ? databaseProduct.original_price
-    : catalogueProduct?.oldPrice;
-  const image = databaseProduct?.images?.find(Boolean) || catalogueProduct?.image || "";
-  const stock = typeof databaseProduct?.stock === "number" ? databaseProduct.stock : catalogueProduct?.stock;
+  const name = databaseProduct.name;
+  const price = databaseProduct.price;
+  const oldPrice = databaseProduct.original_price ?? undefined;
+  const image = databaseProduct.images?.find(Boolean) || "";
+  const stock = databaseProduct.stock;
   const discount = oldPrice && oldPrice > price ? Math.round((1 - price / oldPrice) * 100) : undefined;
 
   return {
     slug,
     name,
-    description: databaseProduct?.description || catalogueProduct?.description || "",
-    category: databaseProduct?.category || catalogueProduct?.category || "produit",
-    brand: databaseProduct?.brand || catalogueProduct?.brand,
+    description: databaseProduct.description ?? "",
+    category: databaseProduct.category,
+    brand: databaseProduct.brand ?? undefined,
     price,
     oldPrice,
     stock,
@@ -62,4 +56,3 @@ export async function getProductShareData(slug: string): Promise<ProductShareDat
     discount,
   };
 }
-

@@ -1,6 +1,8 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { verifySessionToken } from "@/lib/admin-session";
+import { isAdminRequest } from "@/lib/request-auth";
 import { generateSlug, hydrateCommunityPost } from "@/lib/ecomedia";
 import { notifyPublishedEcomediaPost } from "@/lib/push-notifications";
 
@@ -9,11 +11,8 @@ const sb = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-async function auth(req: NextRequest): Promise<boolean> {
-  const token = req.cookies.get("admin_session")?.value;
-  if (!token) return false;
-  const email = await verifySessionToken(token);
-  return !!email;
+async function auth(req: NextRequest) {
+  return isAdminRequest(req);
 }
 
 // GET /api/admin/ecomedia/posts — list all posts (admin)
@@ -30,7 +29,7 @@ export async function GET(req: NextRequest) {
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json((data ?? []).map(post => {
     const hydrated = hydrateCommunityPost(post);
     return {
@@ -46,7 +45,7 @@ export async function POST(req: NextRequest) {
   if (!(await auth(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   let body: Record<string, unknown>;
-  try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
+  try { body = await readJsonLimited(req); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
   const title = String(body.title ?? "").trim();
   if (!title) return NextResponse.json({ error: "Le titre est requis" }, { status: 400 });
@@ -66,7 +65,7 @@ export async function POST(req: NextRequest) {
   };
 
   const { data, error } = await sb.from("ecomedia_posts").insert(payload).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   let notification = null;
   if (data.is_published) {
     try { notification = await notifyPublishedEcomediaPost(data); }

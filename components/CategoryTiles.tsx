@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
-import { categories as fallbackCategories, productsByCategory } from "@/lib/products";
+import { useStoreRefresh } from "@/lib/use-store-refresh";
+import { products as catalogProducts } from "@/lib/products";
 
 type StoreCategory = {
   id?: string;
@@ -51,10 +52,10 @@ export default function CategoryTiles() {
   const [counts, setCounts] = useState<Record<string, number>>({});
   const { ref, visible } = useInView();
 
-  useEffect(() => {
-    Promise.all([
-      fetch("/api/categories", { cache: "no-store" }).then((response) => response.json()),
-      fetch("/api/products?active=true&fields=category").then((response) => response.json()),
+  useStoreRefresh(async (signal) => {
+    await Promise.all([
+      fetch("/api/categories", { signal, cache: "no-store" }).then((response) => { if (!response.ok) throw new Error("Categories unavailable"); return response.json(); }),
+      fetch("/api/products?active=true", { signal, cache: "no-store" }).then((response) => { if (!response.ok) throw new Error("Products unavailable"); return response.json(); }),
     ]).then(([categoryData, productData]) => {
       if (Array.isArray(categoryData)) setDbCategories(categoryData.filter((category) => category.active !== false));
       if (Array.isArray(productData)) {
@@ -66,27 +67,24 @@ export default function CategoryTiles() {
         setCounts(nextCounts);
       }
     }).catch(() => {});
-  }, []);
+  });
 
-  const fallback: StoreCategory[] = fallbackCategories.map((category, index) => ({
-    slug: category.slug,
-    label: category.label,
-    description: category.description,
-    image: fallbackImages[category.slug],
-    image_mobile: fallbackImages[category.slug],
-    image_position: category.slug === "chaussures" ? "50% 65%" : "50% 50%",
-    image_mobile_position: category.slug === "femme" ? "65% 50%" : "50% 50%",
-    active: true,
-    sort_order: (index + 1) * 10,
-  }));
-  const source = dbCategories.length ? dbCategories : fallback;
-  const categories = [...source].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)).map((category) => ({
+  const fallbackCategories: StoreCategory[] = [
+    { slug: "homme", label: "Homme", image: null, sort_order: 1 },
+    { slug: "femme", label: "Femme", image: null, sort_order: 2 },
+    { slug: "chaussures", label: "Chaussures", image: null, sort_order: 3 },
+    { slug: "accessoires", label: "Accessoires", image: null, sort_order: 4 },
+  ];
+  const sourceCategories = dbCategories.length ? dbCategories : fallbackCategories;
+  const sourceCounts = Object.keys(counts).length ? counts : catalogProducts.reduce<Record<string, number>>((result, product) => {
+    result[product.category] = (result[product.category] || 0) + 1;
+    return result;
+  }, {});
+  const categories = [...sourceCategories].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)).map((category) => ({
     ...category,
-    count: counts[category.slug] ?? productsByCategory(category.slug).length,
+    count: sourceCounts[category.slug] ?? 0,
   }));
   const total = categories.reduce((sum, category) => sum + category.count, 0);
-
-  if (!categories.length) return null;
 
   return (
     <section hidden={!categories.length} className="mx-auto max-w-7xl px-4 pb-7 pt-10 sm:pb-10 md:px-6 md:pt-14" ref={ref}>

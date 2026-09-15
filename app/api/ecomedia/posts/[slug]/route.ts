@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getEcomediaUser } from "@/lib/ecomedia-auth";
 import { hydrateCommunityPost } from "@/lib/ecomedia";
-import { verifySessionToken } from "@/lib/admin-session";
+import { isAdminRequest } from "@/lib/request-auth";
 
 const sb = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,7 +35,7 @@ export async function DELETE(
   const { slug } = await params;
   const user = await getEcomediaUser(req);
   const adminToken = req.cookies.get("admin_session")?.value;
-  const isAdmin = adminToken ? Boolean(await verifySessionToken(adminToken)) : false;
+  const isAdmin = adminToken ? await isAdminRequest(req) : false;
 
   const { data: post, error: readError } = await sb
     .from("ecomedia_posts")

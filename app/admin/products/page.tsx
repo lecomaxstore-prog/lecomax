@@ -1,5 +1,7 @@
 "use client";
 import AdminLoading from "@/components/admin/AdminLoading";
+import ProductSizeGuideEditor from "@/components/admin/ProductSizeGuideEditor";
+import { productSizeGuideFromTags, withProductSizeGuide, PRODUCT_SIZE_GUIDE_PREFIX, type ProductSizeGuide } from "@/mobile/src/lib/product-size-guide";
 import MobileSection from "@/components/admin/MobileSection";
 import ActionMenu from "@/components/admin/ActionMenu";
 import FilterPanel from "@/components/admin/FilterPanel";
@@ -51,7 +53,7 @@ const SHOE_SIZES: string[] = [...SHOE_SIZE_VALUES];
 
 const emptyForm = {
   slug: "", name: "", brand: "", category: "homme", price: "", original_price: "",
-  description: "", stock: "0", active: false, featured: false,
+  description: "", stock: "0", active: true, featured: false,
   preorder_enabled: false, preorder_estimated_at: "", preorder_message: "",
   tags: "", weight: "", video: "",
 };
@@ -93,6 +95,7 @@ export default function ProductsPage() {
   const [colorPrices, setColorPrices] = useState<Record<string, ColorPrice>>({});
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [sizeGuideType, setSizeGuideType] = useState<ProductSizeGuideType>("none");
+  const [productSizeGuide, setProductSizeGuide] = useState<ProductSizeGuide | null>(null);
   const [customSizes, setCustomSizes] = useState<string[]>([]);
   const [customSizeInput, setCustomSizeInput] = useState("");
   const [sizeStocks, setSizeStocks] = useState<Record<string, number>>({});
@@ -137,7 +140,7 @@ export default function ProductsPage() {
     if (section instanceof HTMLDetailsElement) section.open = true;
     requestAnimationFrame(() => section.scrollIntoView({ behavior: "smooth", block: "start" }));
   }
-  const editorSnapshot = JSON.stringify({ form, images, descImages, selectedColors, colorImagesByColor, colorStocks, colorPrices, selectedSizes, sizeGuideType, sizeStocks, colorSizeStocks, productDetails });
+  const editorSnapshot = JSON.stringify({ form, images, descImages, selectedColors, colorImagesByColor, colorStocks, colorPrices, selectedSizes, sizeGuideType, sizeStocks, colorSizeStocks, productDetails, productSizeGuide });
   const latestEditorSnapshot = useRef(editorSnapshot);
   latestEditorSnapshot.current = editorSnapshot;
   const [savedEditorSnapshot, setSavedEditorSnapshot] = useState<string | null>(null);
@@ -207,6 +210,7 @@ export default function ProductsPage() {
     setColorPrices({});
     setSelectedSizes([]);
     setSizeGuideType("none");
+    setProductSizeGuide(null);
     setCustomSizes([]);
     setSizeStocks({});
     setColorSizeStocks({});
@@ -237,6 +241,7 @@ export default function ProductsPage() {
       : savedSizes.length > 0 ? "custom"
       : "none";
     setSizeGuideType(inferredGuideType);
+    setProductSizeGuide(productSizeGuideFromTags(tags));
     setForm({
       slug: p.slug, name: p.name, brand: p.brand ?? "",
       category: p.category,
@@ -245,7 +250,7 @@ export default function ProductsPage() {
       preorder_enabled: p.preorder_enabled === true, preorder_estimated_at: p.preorder_estimated_at ?? "", preorder_message: p.preorder_message ?? "",
       stock: String(p.stock), active: p.active,
       featured: p.featured ?? false,
-      tags: tags.filter((t) => !t.startsWith("__guide:") && !t.startsWith("__sstock:") && !t.startsWith("__vstock:") && !t.startsWith("__detail:") && !t.startsWith("__cprice:") && !t.startsWith("__cimages:") && !t.startsWith("__oos:")).join(", "),
+      tags: tags.filter((t) => !t.startsWith(PRODUCT_SIZE_GUIDE_PREFIX) && !t.startsWith("__guide:") && !t.startsWith("__sstock:") && !t.startsWith("__vstock:") && !t.startsWith("__detail:") && !t.startsWith("__cprice:") && !t.startsWith("__cimages:") && !t.startsWith("__oos:")).join(", "),
       weight: p.weight ? String(p.weight) : "",
       video: (p as ExtendedProduct).video ?? "",
     });
@@ -383,11 +388,11 @@ export default function ProductsPage() {
       preorder_enabled: form.preorder_enabled, preorder_estimated_at: form.preorder_estimated_at || null, preorder_message: form.preorder_message || null,
       active: form.active,
       featured: form.featured,
-      tags: [
+      tags: withProductSizeGuide([
         ...form.tags.split(",").map((s) => s.trim()).filter(Boolean),
         ...productDetails.filter((d) => d.key.trim()).map((d) => `__detail:${d.key.trim()}:${d.value.trim()}`),
         ...colorPriceTags(selectedColorPrices),
-      ],
+      ], productSizeGuide),
       colors: selectedColors,
       color_images: selectedColorImages,
       sizes: selectedSizes,
@@ -442,7 +447,9 @@ export default function ProductsPage() {
       sessionStorage.removeItem("__new_product_desc_images");
       if (editId) { sessionStorage.removeItem(`__edit_product_images_${editId}`); sessionStorage.removeItem(`__edit_product_desc_images_${editId}`); }
       initializedEditIdRef.current = null;
-      setMsg({ type: "ok", text: editId ? "Produit mis à jour ✓" : "Produit créé ✓" });
+      setMsg({ type: "ok", text: json.active
+        ? "Produit enregistré et visible sur le site ✓"
+        : "Brouillon enregistré — produit masqué sur le site." });
       load();
       setTimeout(() => router.replace("/admin/products"), 1000);
     }
@@ -1084,9 +1091,10 @@ export default function ProductsPage() {
                 <Link href="/admin/size-guide" target="_blank"
                   className="flex items-center gap-1 text-[11px] font-semibold text-neutral-500 hover:text-black transition-colors underline underline-offset-2">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  Gérer le guide
+                  Guide général
                 </Link>
               </div>
+              <ProductSizeGuideEditor key={editId ?? "new"} value={productSizeGuide} onChange={setProductSizeGuide} sizes={selectedSizes} clothing={sizeGuideType === "clothing"} />
                   <div className="rounded-xl border border-neutral-200 p-4 space-y-3">
                     <label className="flex gap-3 text-sm font-semibold"><input type="checkbox" checked={form.preorder_enabled} onChange={e => setForm({...form, preorder_enabled:e.target.checked})}/>{preorderCopy.fr.toggle}</label>
                     {form.preorder_enabled && <><label className="block text-xs">{preorderCopy.fr.estimated}<input type="date" className="block border rounded p-2 mt-1" value={form.preorder_estimated_at} onChange={e=>setForm({...form,preorder_estimated_at:e.target.value})}/></label><label className="block text-xs">{preorderCopy.fr.message}<textarea className="block w-full border rounded p-2 mt-1" maxLength={500} value={form.preorder_message} onChange={e=>setForm({...form,preorder_message:e.target.value})}/></label><p className="text-xs text-neutral-500">{preorderCopy.fr.quantity}</p></>}
@@ -1097,7 +1105,18 @@ export default function ProductsPage() {
                 {(["none", "clothing", "shoes", "custom"] as const).map((opt) => {
                   const labels = { none: "Aucun", clothing: "Vêtements", shoes: "Chaussures", custom: "Personnalisé" };
                   return (
-                    <button key={opt} type="button" onClick={() => { setSizeGuideType(opt); setSelectedSizes([]); setSizeStocks({}); setColorSizeStocks({}); if (opt !== "custom") setCustomSizes([]); }}
+                    <button key={opt} type="button" onClick={() => {
+                      // A product guide is tied to its guide type. Clear it when
+                      // switching between shoes, clothing and custom sizes so
+                      // an old four-column table can never be saved against the
+                      // wrong product category.
+                      setSizeGuideType(opt);
+                      setProductSizeGuide(null);
+                      setSelectedSizes([]);
+                      setSizeStocks({});
+                      setColorSizeStocks({});
+                      if (opt !== "custom") setCustomSizes([]);
+                    }}
                       className={`px-3 py-1 rounded-lg border text-[11px] font-bold transition-all ${
                         sizeGuideType === opt ? "border-black bg-black text-white" : "border-neutral-200 text-neutral-500 hover:border-neutral-400"
                       }`}>
@@ -1450,7 +1469,7 @@ export default function ProductsPage() {
               <label className="flex items-center justify-between cursor-pointer select-none">
                 <div>
                   <p className="text-sm font-semibold">Actif</p>
-                  <p className="text-[11px] text-neutral-400">Visible sur le site</p>
+                  <p className="text-[11px] text-neutral-400">{form.active ? "Visible sur le site après enregistrement" : "Brouillon : masqué sur le site"}</p>
                 </div>
                 <button type="button" role="switch" aria-checked={form.active} aria-label="Actif" onClick={() => setForm({ ...form, active: !form.active })}
                   className={`w-10 h-6 rounded-full transition-colors flex items-center ${form.active ? "bg-black" : "bg-neutral-200"}`}>

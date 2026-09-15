@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND_COPY } from "@/mobile/src/lib/brand-copy";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
@@ -41,7 +42,7 @@ export default function VideoSwitchCard({
   videoSrc,
   badgeText = "NEW COLLECTION",
   brandName = "L ' E C O M A X",
-  title = "Move more.\nLive better.",
+  title = BRAND_COPY.en.tagline,
   subtitle = "Performance, style, and innovation for every day.",
   ctaLabel = "Discover",
   ctaHref = "/boutique",

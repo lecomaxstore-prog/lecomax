@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
@@ -15,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   if (!UUID_PATTERN.test(id)) return NextResponse.json({ error: "Identifiant invalide" }, { status: 400 });
   const { data, error } = await supabase.from("ads").select("*").eq("id", id).single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 404 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 404 });
   return NextResponse.json(data);
 }
 
@@ -25,13 +27,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   if (!UUID_PATTERN.test(id)) return NextResponse.json({ error: "Identifiant invalide" }, { status: 400 });
   let body: unknown;
-  try { body = await req.json(); } catch {
+  try { body = await readJsonLimited(req); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
   const parsed = parseAdInput(body, true);
   if (!parsed.value) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const { data, error } = await supabase.from("ads").update(parsed.value).eq("id", id).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json(data);
 }
 
@@ -41,6 +43,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const { id } = await params;
   if (!UUID_PATTERN.test(id)) return NextResponse.json({ error: "Identifiant invalide" }, { status: 400 });
   const { error } = await supabase.from("ads").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
