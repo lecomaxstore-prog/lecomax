@@ -1,6 +1,6 @@
 ﻿import { notFound } from "next/navigation";
 import Link from "next/link";
-import { formatMAD, getProduct, products, type CardProduct, type Product } from "@/lib/products";
+import { formatMAD, products, type CardProduct, type Product } from "@/lib/products";
 import { getDbProductRaw, getDbProducts } from "@/lib/db-server";
 import { rankSimilarProducts } from "@/lib/product-recommendations";
 import ProductActions from "@/components/ProductActions";
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const shippingConfig = await getServerShippingConfig();
   const shareProduct = await getProductShareData(slug);
-  if (!shareProduct) return { title: "Produit | L'ecomax" };
+  if (!shareProduct) notFound();
 
   const price = formatMAD(shareProduct.price);
   const availability = shareProduct.stock === 0 ? "Rupture de stock" : "En stock";
@@ -129,14 +129,8 @@ export default async function ProductPage({
   // Supabase is the shared source of truth for the website, mobile app and
   // admin. Deleted products must not reappear from the bundled catalogue.
   const dbProd = await getDbProductRaw(slug);
-  if (dbProd?.active === false) notFound();
+  if (!dbProd || !dbProd.active) notFound();
   let product: Product | null = null;
-
-  // Keep the bundled catalogue available when the live database is
-  // temporarily unreachable (for example during local development).
-  if (!dbProd) {
-    product = getProduct(slug) ?? null;
-  }
 
   if (dbProd) {
     // Convert the live product to the website's Product-compatible shape.
