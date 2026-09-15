@@ -10,8 +10,11 @@ export async function sensitiveRateLimit(req: NextRequest, scope: string, accoun
   const period = 15 * 60_000;
   const counters: [string, number][] = [[`ip:${clientIp(req)}`, 30]];
   if (account) counters.push([`account:${account.trim().toLowerCase()}`, 10]);
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Keep credential pairs together: an incomplete explicit configuration must
+  // fail closed rather than borrowing a token from a different Redis resource.
+  const explicitRedis = process.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = explicitRedis ? process.env.UPSTASH_REDIS_REST_URL : process.env.KV_REST_API_URL;
+  const token = explicitRedis ? process.env.UPSTASH_REDIS_REST_TOKEN : process.env.KV_REST_API_TOKEN;
   for (const [identity, limit] of counters) {
     const digest = createHash("sha256").update(identity).digest("hex");
     if (!url && !token) {

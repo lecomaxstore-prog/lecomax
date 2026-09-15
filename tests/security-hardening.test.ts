@@ -83,22 +83,38 @@ test('webhook transaction handles replay, event ordering, missing orders and RPC
   } finally { await db.close(); }
 });
 
-test('shared limiter rejects abuse and fails closed on configured backend outages', async () => {
+for (const env of [
+  { UPSTASH_REDIS_REST_URL: 'https://redis.test', UPSTASH_REDIS_REST_TOKEN: 'test' },
+  { KV_REST_API_URL: 'https://redis.test', KV_REST_API_TOKEN: 'test' },
+]) test(`shared limiter rejects abuse and fails closed with ${Object.keys(env)[0]}`, async () => {
   const exports: Record<string,any> = {};
   let count = 0, failed = false;
+  const runtimeEnv: Record<string, string> = { ...env };
   vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../lib/sensitive-rate-limit.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText, {
-    exports, AbortSignal, process:{env:{UPSTASH_REDIS_REST_URL:'https://redis.test',UPSTASH_REDIS_REST_TOKEN:'test'}},
+    exports, AbortSignal, process:{env:runtimeEnv},
     require(name:string) {
       if(name==='server-only') return {};
       if(name==='node:crypto') return {createHash:()=>({update:()=>({digest:()=> 'hash'})})};
       if(name==='next/server') return {NextResponse:Response};
-      if(name==='./api-security') return {clientIp:()=> 'test',enforceRateLimit:()=>null};
+      if(name==='./api-security') return {clientIp:()=> 'test',enforceRateLimit:()=>{throw new Error('Shared configuration must not use local counters');}};
       throw new Error(name);
     },
-    fetch:async()=>{ if(failed) throw new Error('offline'); return Response.json({result:[++count,60_000]}); },
+    fetch:async(url:string, options:RequestInit)=>{
+      assert.equal(url, 'https://redis.test');
+      assert.equal((options.headers as Record<string,string>).Authorization, 'Bearer test');
+      if(failed) throw new Error('offline'); return Response.json({result:[++count,60_000]});
+    },
   });
   for(let i=0;i<30;i++) assert.equal(await exports.sensitiveRateLimit({},'test'),null);
   assert.equal((await exports.sensitiveRateLimit({},'test')).status,429);
   failed=true;
   assert.equal((await exports.sensitiveRateLimit({},'test')).status,503);
+  failed=false;
+  runtimeEnv.UPSTASH_REDIS_REST_URL='https://other-redis.test';
+  delete runtimeEnv.UPSTASH_REDIS_REST_TOKEN;
+  runtimeEnv.KV_REST_API_URL='https://redis.test';
+  runtimeEnv.KV_REST_API_TOKEN='test';
+  const previousCount=count;
+  assert.equal((await exports.sensitiveRateLimit({},'test')).status,503);
+  assert.equal(count,previousCount,'Incomplete explicit credentials must not be mixed with the Vercel token');
 });
